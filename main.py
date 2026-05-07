@@ -33,7 +33,7 @@ class SearchRequest(BaseModel):
     birth_day: int
     birth_hour_utc: float
     house_conditions: List[Condition]
-    resolution: float = 1.0
+    resolution: float = 0.5
 
 # =====================================
 # SWISS EPHEMERIS HELPERS
@@ -184,8 +184,17 @@ def search_regions(req: SearchRequest):
 
             for point in contour:
 
-                lat_i = int(point[0])
-                lon_i = int(point[1])
+                lat_f = point[0]
+            lon_f = point[1]
+            if 0 <= lat_f < len(lat_grid)-1 and 0 <= lon_f < len(lon_grid)-1:
+                lat_i = int(lat_f)
+                lon_i = int(lon_f)
+                lat_frac = lat_f - lat_i
+                lon_frac = lon_f - lon_i
+                lat = lat_grid[lat_i] * (1-lat_frac) + lat_grid[lat_i+1] * lat_frac
+                lon = lon_grid[lon_i] * (1-lon_frac) + lon_grid[lon_i+1] * lon_frac
+                coords.append([float(lon), float(lat)])
+                
 
                 if (
                     lat_i < len(lat_grid)
