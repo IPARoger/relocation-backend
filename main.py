@@ -1,13 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any
-
+from typing import List, Tuple, Set
 import swisseph as swe
 import numpy as np
 from skimage import measure
-from skimage.measure import approximate_polygon
-import math
 
 app = FastAPI()
 
@@ -17,10 +14,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# =====================================
-# DATA MODELS
-# =====================================
 
 class Condition(BaseModel):
     planet: str
@@ -35,220 +28,119 @@ class SearchRequest(BaseModel):
     house_conditions: List[Condition]
     resolution: float = 0.5
 
-# =====================================
-# SWISS EPHEMERIS HELPERS
-# =====================================
-
 def julian_day(year, month, day, hour_utc):
     return swe.julday(year, month, day, hour_utc)
 
 def get_planet_positions(jd):
-
     planets = {
-        "sun": swe.SUN,
-        "moon": swe.MOON,
-        "mercury": swe.MERCURY,
-        "venus": swe.VENUS,
-        "mars": swe.MARS,
-        "jupiter": swe.JUPITER,
-        "saturn": swe.SATURN,
-        "uranus": swe.URANUS,
-        "neptune": swe.NEPTUNE,
-        "pluto": swe.PLUTO
+        "sun": swe.SUN, "moon": swe.MOON, "mercury": swe.MERCURY,
+        "venus": swe.VENUS, "mars": swe.MARS, "jupiter": swe.JUPITER,
+        "saturn": swe.SATURN, "uranus": swe.URANUS,
+        "neptune": swe.NEPTUNE, "pluto": swe.PLUTO
     }
-
     result = {}
-
     for name, pid in planets.items():
         result[name] = swe.calc_ut(jd, pid)[0][0] % 360
-
     return result
 
 def get_houses(jd, lat, lon):
-
-    cusps, ascmc = swe.houses(
-        jd,
-        lat,
-        lon,
-        b'P'
-    )
-
+    cusps, _ = swe.houses(jd, lat, lon, b'P')
     return [c % 360 for c in cusps[:12]]
 
 def planet_in_house(planet_long, house_num, cusps):
-
     start = cusps[house_num - 1]
     end = cusps[house_num % 12]
-
     if start <= end:
         return start <= planet_long < end
-
     return planet_long >= start or planet_long < end
 
-def distance_to_next_cusp(
-    planet_long,
-    house_num,
-    cusps
-):
-
-    next_cusp = cusps[house_num % 12]
-
-    dist = (
-        next_cusp - planet_long
-    ) % 360
-
-    return dist
-
-# =====================================
-# SEARCH REGIONS
-# =====================================
+def evaluate_point(jd, lat, lon, conditions, planets):
+    try:
+        cusps = get_houses(jd, lat, lon)
+        for cond in conditions:
+            planet_long = planets[cond.planet.lower()]
+            if planet_in_house(planet_long, cond.house, cusps):
+                return 1
+    except:
+        pass
+    return 0
 
 @app.post("/search-regions")
 def search_regions(req: SearchRequest):
-
-    jd = julian_day(
-        req.birth_year,
-        req.birth_month,
-        req.birth_day,
-        req.birth_hour_utc
-    )
-
+    jd = julian_day(req.birth_year, req.birth_month, req.birth_day, req.birth_hour_utc)
     planets = get_planet_positions(jd)
+    conditions = req.house_conditions
 
-    lat_grid = np.arange(
-        -60,
-        76,
-        req.resolution
-    )
-
-    lon_grid = np.arange(
-        -180,
-        181,
-        req.resolution
-    )
-
+    coarse_lat = np.arange(-60, 76, 5)
+    coarse_lon = np.arange(-180, 181, 5)
+    
+    coarse_mask = np.zeros((len(coarse_lat), len(coarse_lon)), dtype=np.uint8)
+    
+    for i, lat in enumerate(coarse_lat):
+        for j, lon in enumerate(coarse_lon):
+            coarse_mask[i, j] = evaluate_point(jd, lat, lon, conditions, planets)
+    
+    edge_cells = set()
+    for i in range(len(coarse_lat)):
+        for j in range(len(coarse_lon)):
+            val = coarse_mask[i, j]
+            for di, dj in [(1,0), (-1,0), (0,1), (0,-1)]:
+                ni, nj = i + di, j + dj
+                if 0 <= ni < len(coarse_lat) and 0 <= nj < len(coarse_lon):
+                    if coarse_mask[ni, nj] != val:
+                        edge_cells.add((i, j))
+                        edge_cells.add((ni, nj))
+                        break
+    
+    if not edge_cells:
+        return {"type": "FeatureCollection", "features": []}
+    
+    min_lat_i = min(i for i, _ in edge_cells)
+    max_lat_i = max(i for i, _ in edge_cells)
+    min_lon_j = min(j for _, j in edge_cells)
+    max_lon_j = max(j for _, j in edge_cells)
+    
+    lat_start = coarse_lat[min_lat_i]
+    lat_end = coarse_lat[max_lat_i] + 5
+    lon_start = coarse_lon[min_lon_j]
+    lon_end = coarse_lon[max_lon_j] + 5
+    
+    fine_lat = np.arange(lat_start, lat_end, req.resolution)
+    fine_lon = np.arange(lon_start, lon_end, req.resolution)
+    
+    fine_mask = np.zeros((len(fine_lat), len(fine_lon)), dtype=np.uint8)
+    
+    for i, lat in enumerate(fine_lat):
+        for j, lon in enumerate(fine_lon):
+            fine_mask[i, j] = evaluate_point(jd, lat, lon, conditions, planets)
+    
     features = []
-
-    for idx, cond in enumerate(
-        req.house_conditions
-    ):
-
-        mask = np.zeros(
-            (
-                len(lat_grid),
-                len(lon_grid)
-            ),
-            dtype=np.uint8
-        )
-
-        planet_long = planets[
-            cond.planet.lower()
-        ]
-
-        for i, lat in enumerate(lat_grid):
-
-            for j, lon in enumerate(lon_grid):
-
-                try:
-
-                    cusps = get_houses(
-                        jd,
-                        lat,
-                        lon
-                    )
-
-                    if planet_in_house(
-                        planet_long,
-                        cond.house,
-                        cusps
-                    ):
-
-                        mask[i, j] = 1
-
-                except:
-                    pass
-
-        contours = measure.find_contours(
-            mask,
-            0.5
-        )
-
+    
+    if np.any(fine_mask):
+        contours = measure.find_contours(fine_mask, 0.5)
+        
         for contour in contours:
-
-             contour = approximate_polygon(
-                 contour,
-                 tolerance=1.2
-             )
-
             coords = []
-
             for point in contour:
-
                 lat_f = point[0]
-            lon_f = point[1]
-            if 0 <= lat_f < len(lat_grid)-1 and 0 <= lon_f < len(lon_grid)-1:
-                lat_i = int(lat_f)
-                lon_i = int(lon_f)
-                lat_frac = lat_f - lat_i
-                lon_frac = lon_f - lon_i
-                lat = lat_grid[lat_i] * (1-lat_frac) + lat_grid[lat_i+1] * lat_frac
-                lon = lon_grid[lon_i] * (1-lon_frac) + lon_grid[lon_i+1] * lon_frac
-                coords.append([float(lon), float(lat)])
-                
-
-                if (
-                    lat_i < len(lat_grid)
-                    and lon_i < len(lon_grid)
-                ):
-
-                    coords.append([
-
-                        float(
-                            lon_grid[lon_i]
-                        ),
-
-                        float(
-                            lat_grid[lat_i]
-                        )
-
-                    ])
-
+                lon_f = point[1]
+                if 0 <= lat_f < len(fine_lat)-1 and 0 <= lon_f < len(fine_lon)-1:
+                    lat_i = int(lat_f)
+                    lon_i = int(lon_f)
+                    lat_frac = lat_f - lat_i
+                    lon_frac = lon_f - lon_i
+                    lat = fine_lat[lat_i] * (1 - lat_frac) + fine_lat[lat_i + 1] * lat_frac
+                    lon = fine_lon[lon_i] * (1 - lon_frac) + fine_lon[lon_i + 1] * lon_frac
+                    coords.append([float(lon), float(lat)])
             if len(coords) >= 3:
-
                 features.append({
-
                     "type": "Feature",
-
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [coords]
-                    },
-
-                    "properties": {
-
-                        "condition_index": idx,
-
-                        "overlap_count": 1
-
-                    }
-
+                    "geometry": {"type": "Polygon", "coordinates": [coords]},
+                    "properties": {"condition_index": 0, "overlap_count": 1}
                 })
-
-    return {
-
-        "type": "FeatureCollection",
-
-        "features": features
-
-    }
-
-# =====================================
-# HEALTH
-# =====================================
+    
+    return {"type": "FeatureCollection", "features": features}
 
 @app.get("/health")
 def health():
-
-    return {
-        "status": "ok"
-    }
+    return {"status": "ok"}
