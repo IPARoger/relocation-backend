@@ -6,6 +6,7 @@ from typing import List, Dict, Any
 import swisseph as swe
 import numpy as np
 from skimage import measure
+from skimage.measure import approximate_polygon
 import math
 
 app = FastAPI()
@@ -173,6 +174,11 @@ def search_regions(req: SearchRequest):
         )
 
         for contour in contours:
+
+             contour = approximate_polygon(
+                 contour,
+                 tolerance=1.2
+             )
 
             coords = []
 
