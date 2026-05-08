@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Relocation Mapper</title>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet/dist/leaflet.css"
+/>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: sans-serif;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+#panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 340px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.96);
+    padding: 20px;
+    border-radius: 18px;
+    z-index: 9999;
+    box-shadow: 0 0 24px rgba(0,0,0,0.2);
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+select,
+button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #bbb;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+button {
+    margin-top: 24px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.legend {
+    margin-top: 24px;
+    border-top: 1px solid #ccc;
+    padding-top: 18px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.legend-color {
+    width: 22px;
+    height: 22px;
+    margin-right: 10px;
+    border-radius: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div id="panel">
+
+<label>Planet A</label>
+<select id="planetA"></select>
+
+<label>House A</label>
+<select id="houseA"></select>
+
+<label>Planet B</label>
+<select id="planetB"></select>
+
+<label>House B</label>
+<select id="houseB"></select>
+
+<label>Planet C</label>
+<select id="planetC"></select>
+
+<label>House C</label>
+<select id="houseC"></select>
+
+<button onclick="findRegions()">
+🔎 Find Regions
+</button>
+
+<div class="legend">
+<div class="legend-item">
+<div class="legend-color" style="background:#f1c40f"></div>
+A only
+</div>
+
+<div class="legend-item">
+<div class="legend-color" style="background:#ff4d6d"></div>
+B only
+</div>
+
+<div class="legend-item">
+<div class="legend-color" style="background:#3b82f6"></div>
+C only
+</div>
+
+<div class="legend-item">
+<div class="legend-color" style="background:#9b59b6"></div>
+Overlap
+</div>
+</div>
+
+</div>
+
+<script>
+
+const planets = [
+    "sun",
+    "moon",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "saturn",
+    "uranus",
+    "neptune",
+    "pluto"
+];
+
+const map = L.map("map", {
+    worldCopyJump: false,
+    maxBoundsViscosity: 1.0,
+    maxBounds: [[-85, -180], [85, 180]]
+}).setView([20, 0], 2);
+
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution: '&copy; OpenStreetMap contributors'
+    }
+).addTo(map);
+
+let regionLayer = L.geoJSON(null, {
+    style: function(feature) {
+        const idx = feature.properties.condition_index || 0;
+        const colors = ["#f1c40f", "#ff4d6d", "#3b82f6"];
+        return {
+            color: colors[idx],
+            fillColor: colors[idx],
+            fillOpacity: 0.35,
+            weight: 2
+        };
+    }
+}).addTo(map);
+
+function fillSelects() {
+
+    const planetIds = ["planetA", "planetB", "planetC"];
+
+    for (const id of planetIds) {
+        const select = document.getElementById(id);
+        planets.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p;
+            opt.textContent = p.charAt(0).toUpperCase() + p.slice(1);
+            select.appendChild(opt);
+        });
+    }
+
+    document.getElementById("planetA").value = "sun";
+    document.getElementById("planetB").value = "moon";
+    document.getElementById("planetC").value = "mars";
+
+    const houseIds = ["houseA", "houseB", "houseC"];
+
+    for (const id of houseIds) {
+        const select = document.getElementById(id);
+        for (let i = 1; i <= 12; i++) {
+            const opt = document.createElement("option");
+            opt.value = i;
+            opt.textContent = i;
+            select.appendChild(opt);
+        }
+    }
+
+    document.getElementById("houseA").value = 1;
+    document.getElementById("houseB").value = 4;
+    document.getElementById("houseC").value = 5;
+}
+
+fillSelects();
+
+async function findRegions() {
+
+    regionLayer.clearLayers();
+
+    const payload = {
+    birth_year: 1976,
+    birth_month: 1,
+    birth_day: 13,
+    birth_hour_utc: 12.78333,
+
+    resolution:
+        map.getZoom() >= 6 ? 0.25 :
+        map.getZoom() >= 5 ? 0.5 :
+        map.getZoom() >= 4 ? 0.75 :
+        1.0,
+
+    house_conditions: [
+        {
+            planet: document.getElementById("planetA").value,
+            house: parseInt(document.getElementById("houseA").value)
+        },
+        {
+            planet: document.getElementById("planetB").value,
+            house: parseInt(document.getElementById("houseB").value)
+        },
+        {
+            planet: document.getElementById("planetC").value,
+            house: parseInt(document.getElementById("houseC").value)
+        }
+    ]
+};
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/search-regions",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    const geojson = await response.json();
+    regionLayer.addData(geojson);
+}
+
+</script>
+
+</body>
+</html>

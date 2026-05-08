@@ -1,0 +1,232 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Dict, Any
+
+import swisseph as swe
+import numpy as np
+from skimage import measure
+import math
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# =====================================
+# DATA MODELS
+# =====================================
+
+class Condition(BaseModel):
+    planet: str
+    house: int
+    orb: float = 2.0
+
+class SearchRequest(BaseModel):
+    birth_year: int
+    birth_month: int
+    birth_day: int
+    birth_hour_utc: float
+    house_conditions: List[Condition]
+    resolution: float = 1.0
+
+# =====================================
+# SWISS EPHEMERIS HELPERS
+# =====================================
+
+def julian_day(year, month, day, hour_utc):
+    return swe.julday(year, month, day, hour_utc)
+
+def get_planet_positions(jd):
+
+    planets = {
+        "sun": swe.SUN,
+        "moon": swe.MOON,
+        "mercury": swe.MERCURY,
+        "venus": swe.VENUS,
+        "mars": swe.MARS,
+        "jupiter": swe.JUPITER,
+        "saturn": swe.SATURN,
+        "uranus": swe.URANUS,
+        "neptune": swe.NEPTUNE,
+        "pluto": swe.PLUTO
+    }
+
+    result = {}
+
+    for name, pid in planets.items():
+        result[name] = swe.calc_ut(jd, pid)[0][0] % 360
+
+    return result
+
+def get_houses(jd, lat, lon):
+
+    cusps, ascmc = swe.houses(
+        jd,
+        lat,
+        lon,
+        b'P'
+    )
+
+    return [c % 360 for c in cusps[:12]]
+
+def planet_in_house(planet_long, house_num, cusps):
+
+    start = cusps[house_num - 1]
+    end = cusps[house_num % 12]
+
+    if start <= end:
+        return start <= planet_long < end
+
+    return planet_long >= start or planet_long < end
+
+def distance_to_next_cusp(
+    planet_long,
+    house_num,
+    cusps
+):
+
+    next_cusp = cusps[house_num % 12]
+
+    dist = (
+        next_cusp - planet_long
+    ) % 360
+
+    return dist
+
+# =====================================
+# SEARCH REGIONS
+# =====================================
+
+@app.post("/search-regions")
+def search_regions(req: SearchRequest):
+
+    jd = julian_day(
+        req.birth_year,
+        req.birth_month,
+        req.birth_day,
+        req.birth_hour_utc
+    )
+
+    planets = get_planet_positions(jd)
+
+    lat_grid = np.arange(
+        -60,
+        76,
+        req.resolution
+    )
+
+    lon_grid = np.arange(
+        -180,
+        181,
+        req.resolution
+    )
+
+    features = []
+
+    for idx, cond in enumerate(
+        req.house_conditions
+    ):
+
+        mask = np.zeros(
+            (
+                len(lat_grid),
+                len(lon_grid)
+            ),
+            dtype=np.uint8
+        )
+
+        planet_long = planets[
+            cond.planet.lower()
+        ]
+
+        for i, lat in enumerate(lat_grid):
+
+            for j, lon in enumerate(lon_grid):
+
+                try:
+
+                    cusps = get_houses(
+                        jd,
+                        lat,
+                        lon
+                    )
+
+                    if planet_in_house(
+                        planet_long,
+                        cond.house,
+                        cusps
+                    ):
+
+                        mask[i, j] = 1
+
+                except:
+                    pass
+
+        contours = measure.find_contours(
+            mask,
+            0.5
+        )
+
+        for contour in contours:
+
+            coords = []
+
+            for point in contour:
+
+                lat_i = int(point[0])
+                lon_i = int(point[1])
+
+                if (
+                    lat_i < len(lat_grid)
+                    and lon_i < len(lon_grid)
+                ):
+
+                    coords.append([
+                        float(lon_grid[lon_i]),
+                        float(lat_grid[lat_i])
+                    ])
+
+            if len(coords) >= 3:
+
+                features.append({
+
+                    "type": "Feature",
+
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [coords]
+                    },
+
+                    "properties": {
+
+                        "condition_index": idx,
+
+                        "overlap_count": 1
+
+                    }
+
+                })
+
+    return {
+
+        "type": "FeatureCollection",
+
+        "features": features
+
+    }
+
+# =====================================
+# HEALTH
+# =====================================
+
+@app.get("/health")
+def health():
+
+    return {
+        "status": "ok"
+    }
