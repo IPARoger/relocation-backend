@@ -88,7 +88,7 @@ def search_regions(req: SearchRequest):
                 except:
                     pass
 
-        smooth_mask = gaussian_filter(mask.astype(float), sigma=1.2)
+        smooth_mask = gaussian_filter(mask.astype(float), sigma=0.5)
         contours = measure.find_contours(smooth_mask, 0.5)
 
         for contour in contours:
@@ -219,150 +219,86 @@ def search_regions(req: SearchRequest):
                                 }
                             })
 
-                if selected_angle == "ASC":
+               if selected_angle == "ASC":
 
-                    all_roots = []
+                    lat_grid = np.arange(-65, 66, 0.5)
+                    lon_grid = np.arange(-180, 181, 0.5)
 
-                    for lon in np.arange(-180, 181, 1.5):
+                    ORB = 1.0
 
-                        lon_roots = []
+                    mask = np.zeros((len(lat_grid), len(lon_grid)))
 
-                        prev_diff = None
-                        prev_lat = None
+                    for i, lat in enumerate(lat_grid):
 
-                        for lat in np.arange(-70, 71, 0.6):
+                        for j, lon in enumerate(lon_grid):
 
                             try:
                                 houses = swe.houses(jd, lat, lon, b'P')
                                 asc = houses[1][0] % 360
 
-                                diff = ((asc - target_lon + 180) % 360) - 180
+                                diff = abs(((asc - target_lon + 180) % 360) - 180)
 
-                                if prev_diff is not None:
+                               if diff <= ORB:
+                                    mask[i, j] = 1
 
-                                    # reject wraparound discontinuities
-                                    if (
-                                        diff * prev_diff < 0
-                                        and abs(lat - prev_lat) < 10
-                                    ):
-
-                                        t = abs(prev_diff) / (abs(prev_diff) + abs(diff))
-                                        crossing_lat = prev_lat + t * (lat - prev_lat)
-
-                                        lon_roots.append(crossing_lat)                                
-                                prev_diff = diff
-                                prev_lat = lat
+                                    if lat > 55:
+                                        print(
+                                            f"HIT lat={lat:.1f} lon={lon:.1f} diff={diff:.2f}"
+                                        )
 
                             except:
                                 pass
 
-                        all_roots.append({
-                            "lon": lon,
-                            "roots": lon_roots
-                        })
+                    smooth_mask = mask.astype(float)
+                    contours = measure.find_contours(smooth_mask, 0.5)
 
-                    # BUILD CONTINUOUS BRANCHES
-                    branches = []
+                    for contour in contours:
 
-                    MAX_LAT_JUMP = 12  # degrees
+                        if len(contour) < 20:
+                            continue
 
-                    for row in all_roots:
+                        contour = approximate_polygon(contour, tolerance=0.08)
 
-                        lon = row["lon"]
-                        roots = row["roots"]
+                        coords = []
 
-                        used = set()
+                        for point in contour:
 
-                        # Try to extend existing branches
-                        for branch in branches:
+                            row = point[0]
+                            col = point[1]
 
-                            last_lon, last_lat = branch[-1]
+                            lat = np.interp(
+                                row,
+                                np.arange(len(lat_grid)),
+                                lat_grid
+                            )
 
-                            lon_gap = abs(lon - last_lon)
+                            lon = np.interp(
+                                col,
+                                np.arange(len(lon_grid)),
+                                lon_grid
+                            )
 
-                            if lon_gap > 5:
-                                continue
+                            coords.append([
+                                float(lon),
+                                float(lat)
+                            ])
 
-                            best_root = None
-                            best_dist = 999
+                        if len(coords) > 10:
 
-                            for i, lat in enumerate(roots):
-
-                                if i in used:
-                                    continue
-
-                                from math import cos, radians, sqrt
-
-                                dx = (lon - last_lon) * cos(radians(lat))
-                                dy = lat - last_lat
-
-                                dist = sqrt(dx * dx + dy * dy)
-
-                                # penalize sudden direction reversals
-                                if len(branch) >= 2:
-                                    prev_lat = branch[-2][1]
-                                    trend = last_lat - prev_lat
-                                    candidate_trend = lat - last_lat
-
-                                    if trend * candidate_trend < 0:
-                                        dist += 200
-                                if dist < best_dist:
-                                    best_dist = dist
-                                    best_root = (i, lat)
-
-                            if (
-                                best_root and (
-                                    best_dist < MAX_LAT_JUMP or
-                                    abs(lat) > 55
-                                )
-                            ):
-                                i, lat = best_root
-
-                                branch.append([float(lon), float(lat)])
-
-                                used.add(i)
-
-                        # Create new branches for unmatched roots
-                        for i, lat in enumerate(roots):
-
-                            if i not in used:
-
-                                branches.append([
-                                    [float(lon), float(lat)]
-                                ])
-
-                    # DRAW BRANCHES
-                    aspect_name = req.aspect_overlay.get("aspect", "").lower()
-
-                    if aspect_name in ["conjunction", "opposition"]:
-                        MAX_BRANCHES = 1
-                    else:
-                        MAX_BRANCHES = 2
-                    MIN_BRANCH_POINTS = 2
-
-                    branches = [
-                        b for b in branches
-                        if len(b) >= MIN_BRANCH_POINTS
-                    ]
-                    branches.sort(key=len, reverse=True)
-                    branches = branches[:MAX_BRANCHES]
-                                        
-                    for coords in branches:
-
-                        aspect_features.append({
-                            "type": "Feature",
-                            "geometry": {
-                                "type": "LineString",
-                                "coordinates": coords
-                            },
-                            "properties": {
-                                "planet": selected_planet,
-                                "angle": "ASC",
-                                "color": aspect_colors.get(offset, "#00e5ff"),
-                                "weight": 4,
-                                "opacity": 0.9
-                            }
-                        })
+                            aspect_features.append({
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "LineString",
+                                    "coordinates": coords
+                                },
+                                "properties": {
+                                    "planet": selected_planet,
+                                    "angle": "ASC",
+                                    "color": aspect_colors.get(offset, "#00e5ff"),
+                                    "weight": 4,
+                                    "opacity": 0.9
+                                }
+                            })
                             
                     
 
