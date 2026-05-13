@@ -18,11 +18,7 @@ HOUR = 12.0
 PLANET = swe.SUN
 
 ASPECTS = {
-    "conjunction": [0],
-    "opposition": [180],
-    "square": [90, 270],
-    "trine": [120, 240],
-    "sextile": [60, 300]
+    "trine": [120, 240]
 }
 
 ASPECT_COLORS = {
@@ -52,7 +48,7 @@ planet_lon = swe.calc_ut(jd, PLANET)[0][0] % 360
 # GRID
 # ==========================================
 
-lat_grid = np.arange(-65, 66, LAT_STEP)
+lat_grid = np.arange(-60, 61, LAT_STEP)
 lon_grid = np.arange(-180, 181, LON_STEP)
 
 features = []
@@ -71,7 +67,12 @@ for aspect_name, offsets in ASPECTS.items():
 
         print(f"building {aspect_name} {offset}")
 
-        mask = np.zeros((len(lat_grid), len(lon_grid)))
+        mask = np.full(
+            (len(lat_grid), len(lon_grid)),
+            999.0
+        )
+
+        # BUILD ERROR FIELD
 
         for i, lat in enumerate(lat_grid):
 
@@ -81,22 +82,43 @@ for aspect_name, offsets in ASPECTS.items():
 
                 try:
 
-                    houses = swe.houses(jd, lat, lon, b'P')
-                    asc = houses[1][0] % 360
-
-                    diff = abs(((asc - target + 180) % 360) - 180)
-
-                    mask[i, j] = diff
-                    extended_mask = np.concatenate(
-                        [mask[:, -20:], mask, mask[:, :20]],
-                        axis=1
+                    houses = swe.houses(
+                        jd,
+                        lat,
+                        lon,
+                        b'P'
                     )
 
-                    contours = measure.find_contours(extended_mask, ORB)
+                    asc = houses[1][0] % 360
+
+                    diff = abs(
+                        ((asc - target + 180) % 360) - 180
+                    )
+                    if diff > 30:
+                        diff = 999
+
+                    mask[i, j] = diff
 
                 except:
                     pass
 
+        print("extracting contours...")
+
+        # WRAP LONGITUDE SEAM
+
+        extended_mask = np.concatenate(
+            [mask[:, -20:], mask, mask[:, :20]],
+            axis=1
+        )
+
+        # EXTRACT CONTOURS
+
+        contours = measure.find_contours(
+            extended_mask,
+            ORB
+        )
+
+        # CONVERT TO GEOJSON
 
         for contour in contours:
 
