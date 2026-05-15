@@ -5,9 +5,31 @@
     "date": "YYYY-MM-DD",
     "time": "HH:MM",
     "timezone": "UTC",
-    "place": "Original Birthplace",
+    "place": "Validated Birthplace",
     "lat": 0.0,
     "lon": 0.0,
-    "notes": "Replace with the currently validated birth data."
+    "notes": "Replace with the current validated chart birth data."
+  },
+  {
+    "id": "edge_high_north",
+    "name": "Edge Case — High Northern Birth",
+    "date": "YYYY-MM-DD",
+    "time": "HH:MM",
+    "timezone": "UTC",
+    "place": "Fairbanks, Alaska, USA",
+    "lat": 64.8378,
+    "lon": -147.7164,
+    "notes": "High northern birth latitude test."
+  },
+  {
+    "id": "edge_southern",
+    "name": "Edge Case — Southern Hemisphere Birth",
+    "date": "YYYY-MM-DD",
+    "time": "HH:MM",
+    "timezone": "UTC",
+    "place": "Cape Town, South Africa",
+    "lat": -33.9249,
+    "lon": 18.4241,
+    "notes": "Southern hemisphere test."
   }
 ]
