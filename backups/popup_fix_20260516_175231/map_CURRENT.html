@@ -297,57 +297,67 @@ const data = await response.json();
 console.log("RELOCATED DATA", data);
 console.log("Planet houses:", data.planet_houses);
 console.log("Planet houses entries:", Object.entries(data.planet_houses || {}));
+
 const planetHouseHtml = data.planet_houses
     ? Object.entries(data.planet_houses)
-        .map(([planet, info]) => `
-            <div style="display:grid; grid-template-columns: 76px 42px; column-gap:6px;">
-                <b>${planet}</b>
-                <span style="text-align:center;">${info.house ?? "?"}</span>
-            </div>
-        `)
-        .join("")
+        .map(([planet, info]) => {
+            return `<b>${planet}:</b> House ${info.house} — ${info.longitude_formatted}`;
+        })
+        .join("<br>")
     : "No planet house data returned.";
 
+const containerPoint = map.latLngToContainerPoint(e.latlng);
+const popupOffsetY = containerPoint.y < 260 ? 220 : 20;
+
 L.popup({
-    maxWidth: 260,
-    maxHeight: 560,
-    autoPan: true,
-    keepInView: true
+    maxWidth: 280,
+    maxHeight: 360,
+    autoPan: false,
+    keepInView: false,
+    offset: [0, popupOffsetY]
 })
     .setLatLng(e.latlng)
     .setContent(`
-        <div style="font-size:14px; line-height:1.28; width:205px;">
+        <div style="font-size:14px; line-height:1.35; max-height:340px; overflow-y:auto;">
             <b>Custom Location</b><br>
-            <span style="display:inline-block; max-width:195px; white-space:normal;">
-                Lat: ${lat.toFixed(4)} &nbsp; Lon: ${lon.toFixed(4)}
-            </span>
 
-            <hr style="margin:7px 0;">
+            Lat: ${lat.toFixed(4)}<br>
+            Lon: ${lon.toFixed(4)}<br><br>
 
-            <div style="display:grid; grid-template-columns: 38px 1fr; row-gap:3px;">
-                <b>ASC</b><span>${data.asc}</span>
-                <b>MC</b><span>${data.mc}</span>
-            </div>
+            <b>ASC:</b> ${data.asc}<br>
+            <span style="color:#666;">
+                ${data.asc_deg.toFixed(2)}°
+            </span><br><br>
 
-            <hr style="margin:7px 0;">
+            <b>MC:</b> ${data.mc}<br>
+            <span style="color:#666;">
+                ${data.mc_deg.toFixed(2)}°
+            </span><br><br>
 
-            <div style="display:grid; grid-template-columns: 76px 42px; column-gap:6px; margin-bottom:3px;">
-                <b>Planet</b>
-                <b style="text-align:center;">House</b>
-            </div>
+            <b>DESC:</b> ${data.desc}<br>
+            <span style="color:#666;">
+                ${data.desc_deg.toFixed(2)}°
+            </span><br><br>
 
-            ${planetHouseHtml}
+                        <b>IC:</b> ${data.ic}<br>
+            <span style="color:#666;">
+                ${data.ic_deg.toFixed(2)}°
+            </span><br><br>
 
-            <hr style="margin:8px 0 7px;">
-
-            <div style="display:flex; gap:6px;">
-                <button style="flex:1; padding:5px; cursor:pointer;">Open Chart</button>
-                <button style="flex:1; padding:5px; cursor:pointer;">★ Favorite</button>
-            </div>
+ <hr>
+<b>Planet Houses</b><br>
+${planetHouseHtml}
         </div>
     `)
     .openOn(map);
 });
+
+
+
+let cityLayer = L.layerGroup().addTo(map);
+let polygonLayer = L.layerGroup().addTo(map);
+let aspectLayer = L.layerGroup().addTo(map);
+
 let currentRenderToken = 0;
 let debounceTimer = null;
 const colors = ["#f1c40f", "#ff4d6d", "#3b82f6"];
