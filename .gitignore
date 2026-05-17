@@ -4,3 +4,9 @@ venv/
 *.pyc
 *.log
 Untitled
+.env
+ai_context/*.local.md
+ai_context/private/
+openai_api_key*
+*.secret
+.tmp-chrome-*/
