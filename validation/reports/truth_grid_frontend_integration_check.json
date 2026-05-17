@@ -1,0 +1,29 @@
+{
+  "normalMode": {
+    "requestedGenerationMode": "contour",
+    "debugGeometry": false,
+    "polygonLayerCount": 2,
+    "firstLayer": {
+      "canonicalFeatureId": "house-0-sun-7-0",
+      "displayFeatureId": "house-0-sun-7-0:display-0",
+      "generation_mode": "contour",
+      "hasDebugPopup": false
+    },
+    "allValidationZero": true,
+    "popupSunHouse": 8
+  },
+  "truthGridDebugMode": {
+    "requestedGenerationMode": "truth_grid",
+    "debugGeometry": true,
+    "polygonLayerCount": 157,
+    "firstLayer": {
+      "canonicalFeatureId": "truth-grid-house-0-sun-7-0",
+      "displayFeatureId": "truth-grid-house-0-sun-7-0:display-0",
+      "generation_mode": "truth_grid",
+      "validation_contradictions": 0,
+      "hasDebugPopup": true
+    },
+    "allValidationZero": true,
+    "popupSunHouse": 8
+  }
+}

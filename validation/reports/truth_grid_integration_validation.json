@@ -1,0 +1,634 @@
+{
+  "contour": {
+    "high_northern": {
+      "7": {
+        "mode": "contour",
+        "house": 7,
+        "seconds": 0.169,
+        "polygon_count": 2,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "house-0-sun-7-0",
+          "planet": "sun",
+          "house": 7,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "contour"
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [
+              "house-0-sun-7-0"
+            ],
+            "passes": false
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "9": {
+        "mode": "contour",
+        "house": 9,
+        "seconds": 0.1729,
+        "polygon_count": 2,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "house-0-sun-9-0",
+          "planet": "sun",
+          "house": 9,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "contour"
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [
+              "house-0-sun-9-1"
+            ],
+            "passes": false
+          }
+        ]
+      }
+    },
+    "southern": {
+      "7": {
+        "mode": "contour",
+        "house": 7,
+        "seconds": 0.2079,
+        "polygon_count": 1,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "house-0-sun-7-0",
+          "planet": "sun",
+          "house": 7,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "contour"
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "8": {
+        "mode": "contour",
+        "house": 8,
+        "seconds": 0.1414,
+        "polygon_count": 1,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "house-0-sun-8-0",
+          "planet": "sun",
+          "house": 8,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "contour"
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": false
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": false
+          }
+        ]
+      },
+      "9": {
+        "mode": "contour",
+        "house": 9,
+        "seconds": 0.1331,
+        "polygon_count": 1,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "house-0-sun-9-0",
+          "planet": "sun",
+          "house": 9,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "contour"
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      }
+    }
+  },
+  "truth_grid": {
+    "high_northern": {
+      "7": {
+        "mode": "truth_grid",
+        "house": 7,
+        "seconds": 0.7927,
+        "polygon_count": 157,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.5754447080034879,
+                "merge_validate_seconds": 0.19661350000387756,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  7
+                ]
+              }
+            },
+            "total_seconds": 0.7924862079962622,
+            "feature_count": 157
+          }
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "truth-grid-house-0-sun-7-0",
+          "planet": "sun",
+          "house": 7,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "sample_count": 83040,
+          "feature_count": 157,
+          "validation_contradictions": 0,
+          "source_cell_count": 10,
+          "timing": {
+            "classify_seconds": 0.5754,
+            "merge_validate_seconds": 0.1966
+          }
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "9": {
+        "mode": "truth_grid",
+        "house": 9,
+        "seconds": 0.7483,
+        "polygon_count": 56,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.553573042001517,
+                "merge_validate_seconds": 0.1944325000004028,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  9
+                ]
+              }
+            },
+            "total_seconds": 0.748121541000728,
+            "feature_count": 56
+          }
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "truth-grid-house-0-sun-9-0",
+          "planet": "sun",
+          "house": 9,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "sample_count": 83040,
+          "feature_count": 56,
+          "validation_contradictions": 0,
+          "source_cell_count": 10,
+          "timing": {
+            "classify_seconds": 0.5536,
+            "merge_validate_seconds": 0.1944
+          }
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      }
+    },
+    "southern": {
+      "7": {
+        "mode": "truth_grid",
+        "house": 7,
+        "seconds": 0.7451,
+        "polygon_count": 141,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.5487549579993356,
+                "merge_validate_seconds": 0.1959109170056763,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  7
+                ]
+              }
+            },
+            "total_seconds": 0.7448521670012269,
+            "feature_count": 141
+          }
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "truth-grid-house-0-sun-7-0",
+          "planet": "sun",
+          "house": 7,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "sample_count": 83040,
+          "feature_count": 141,
+          "validation_contradictions": 0,
+          "source_cell_count": 69,
+          "timing": {
+            "classify_seconds": 0.5488,
+            "merge_validate_seconds": 0.1959
+          }
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "8": {
+        "mode": "truth_grid",
+        "house": 8,
+        "seconds": 0.752,
+        "polygon_count": 110,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.5572077090037055,
+                "merge_validate_seconds": 0.194499375000305,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  8
+                ]
+              }
+            },
+            "total_seconds": 0.7518775000062305,
+            "feature_count": 110
+          }
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "truth-grid-house-0-sun-8-0",
+          "planet": "sun",
+          "house": 8,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "sample_count": 83040,
+          "feature_count": 110,
+          "validation_contradictions": 0,
+          "source_cell_count": 69,
+          "timing": {
+            "classify_seconds": 0.5572,
+            "merge_validate_seconds": 0.1945
+          }
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": false
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": false
+          }
+        ]
+      },
+      "9": {
+        "mode": "truth_grid",
+        "house": 9,
+        "seconds": 0.7431,
+        "polygon_count": 56,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.5467239999998128,
+                "merge_validate_seconds": 0.19616149999637855,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  9
+                ]
+              }
+            },
+            "total_seconds": 0.7429952500024228,
+            "feature_count": 56
+          }
+        },
+        "firstFeatureProps": {
+          "canonicalFeatureId": "truth-grid-house-0-sun-9-0",
+          "planet": "sun",
+          "house": 9,
+          "condition_index": 0,
+          "overlap_count": 1,
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "sample_count": 83040,
+          "feature_count": 56,
+          "validation_contradictions": 0,
+          "source_cell_count": 70,
+          "timing": {
+            "classify_seconds": 0.5467,
+            "merge_validate_seconds": 0.1962
+          }
+        },
+        "validationContradictionSum": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      }
+    }
+  },
+  "popupTruth": [
+    {
+      "name": "h7_false",
+      "lon": 172.5221,
+      "lat": -47.4666,
+      "actual": 8,
+      "popupSunHouse": 8
+    },
+    {
+      "name": "h9_false",
+      "lon": 163.2506,
+      "lat": 3.4072,
+      "actual": 8,
+      "popupSunHouse": 8
+    }
+  ]
+}

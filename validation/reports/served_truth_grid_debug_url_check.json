@@ -1,0 +1,35 @@
+{
+  "url": "http://127.0.0.1:8000/map_CURRENT.html?generation_mode=truth_grid&debugGeometry=1",
+  "requestedGenerationMode": "truth_grid",
+  "debugGeometry": true,
+  "statusDisplay": "block",
+  "statusText": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0",
+  "polygonLayerCount": 157,
+  "firstLayer": {
+    "canonicalFeatureId": "truth-grid-house-0-sun-7-0",
+    "planet": "sun",
+    "house": 7,
+    "condition_index": 0,
+    "overlap_count": 1,
+    "generation_mode": "truth_grid",
+    "resolution": 0.75,
+    "latitude_cap": [
+      -65,
+      65
+    ],
+    "sample_count": 83040,
+    "feature_count": 157,
+    "validation_contradictions": 0,
+    "source_cell_count": 10,
+    "timing": {
+      "classify_seconds": 1.3839,
+      "merge_validate_seconds": 0.2437
+    },
+    "displayFeatureId": "truth-grid-house-0-sun-7-0:display-0"
+  },
+  "allValidationZero": true,
+  "apiGenerationMode": "truth_grid",
+  "apiFeatureCount": 157,
+  "falseProbe7Included": false,
+  "falseProbe9Included": false
+}

@@ -1,0 +1,91 @@
+{
+  "asyncSplit": {
+    "url": "http://127.0.0.1:8000/map_CURRENT.html?generation_mode=truth_grid&debugGeometry=1",
+    "requestedGenerationMode": "truth_grid",
+    "finalStatus": "Angular overlay ready",
+    "debugStatusText": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready",
+    "firstPolygonMs": 1833.1000000014901,
+    "calculatingSeenMs": 1833.1000000014901,
+    "firstAspectMs": 19258.39999999851,
+    "readyMs": 19258.39999999851,
+    "polygonCount": 157,
+    "aspectCount": 10,
+    "allValidationZero": true,
+    "samples": [
+      {
+        "t": 1833.1000000014901,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 1934.6000000014901,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 2035.8999999985099,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 2137.2999999970198,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 2238.7000000029802,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 2340,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 2441.5,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 2542.7999999970198,
+        "polygonCount": 157,
+        "aspectCount": 0,
+        "status": "Calculating angular overlay...",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: pending"
+      },
+      {
+        "t": 19258.39999999851,
+        "polygonCount": 157,
+        "aspectCount": 10,
+        "status": "Angular overlay ready",
+        "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready"
+      }
+    ]
+  },
+  "oldCombinedApiTiming": {
+    "elapsedMs": 17245.89999999851,
+    "polygonFeatures": 157,
+    "aspectFeatures": 10,
+    "generationMode": "truth_grid"
+  },
+  "falseProbeCheck": {
+    "falseProbe7Included": false,
+    "falseProbe9Included": false,
+    "contradictions": 0
+  }
+}

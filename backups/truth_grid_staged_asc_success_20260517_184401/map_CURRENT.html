@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Relocation Mapper</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="cities.js"></script>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#map {
+    flex: 1;
+    height: 100%;
+}
+
+#panel {
+    width: 340px;
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    background: white;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+select, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+.legend {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+}
+
+.legend div {
+    margin: 5px 0;
+}
+
+.legend span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+.leaflet-popup-content-wrapper {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+#debugStatus {
+    display: none;
+    position: absolute;
+    left: 12px;
+    bottom: 24px;
+    z-index: 1000;
+    max-width: 320px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid #333;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+    font: 12px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#debugStatus b {
+    display: inline-block;
+    min-width: 150px;
+}
+
+#renderStatus {
+    margin-top: 12px;
+    padding: 8px;
+    border-radius: 4px;
+    background: #f4f7fb;
+    border: 1px solid #ccd7e3;
+    font-size: 13px;
+    line-height: 1.35;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+    <div id="map">
+        <div id="debugStatus"></div>
+    </div>
+
+    <div id="panel">
+        <h3>Relocation Mapper</h3>
+       <label>Chart Profile</label>
+
+<select id="chartProfile">
+    <option value="">Loading...</option>
+</select>
+
+<br><br>
+        <input
+            type="text"
+            id="citySearch"
+            placeholder="Search city..."
+            style="width:100%; padding:8px; margin-bottom:10px;"
+        />
+        <label>Planet A</label>
+        <select id="planetA">
+            <option value="sun">Sun</option>
+            <option value="moon">Moon</option>
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+            <option value="pluto">Pluto</option>
+            <option value="chiron">Chiron</option>
+        </select>
+
+        <select id="houseA">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+            <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+
+        <label>Planet B (optional)</label>
+        <select id="planetB">
+            <option value="">NONE</option>
+            <option value="sun">Sun</option>
+            <option value="moon">Moon</option>
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+            <option value="pluto">Pluto</option>
+            <option value="chiron">Chiron</option>
+        </select>
+
+        <select id="houseB">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+            <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+
+        <label>Planet C (optional)</label>
+        <select id="planetC">
+            <option value="">NONE</option>
+            <option value="sun">Sun</option>
+            <option value="moon">Moon</option>
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+            <option value="pluto">Pluto</option>
+            <option value="chiron">Chiron</option>
+        </select>
+
+        <select id="houseC">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+            <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+
+        <hr>
+
+        <h3>Angular Overlay</h3>
+
+        <label>Planet</label>
+        <select id="overlayPlanet">
+            <option value="sun">Sun</option>
+            <option value="moon">Moon</option>
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+            <option value="pluto">Pluto</option>
+            <option value="chiron">Chiron</option>
+        </select>
+
+        <label>Aspect</label>
+        <select id="overlayAspect">
+            <option value="conjunction">Conjunction</option>
+            <option value="opposition">Opposition</option>
+            <option value="square">Square</option>
+            <option value="trine">Trine</option>
+            <option value="sextile">Sextile</option>
+            <option value="hard">Hard Aspects</option>
+            <option value="soft">Soft Aspects</option>
+            <option value="any">All Major Aspects</option>
+        </select>
+
+        <label>Angle</label>
+        <select id="overlayAngle">
+            <option value="MC">MC</option>
+            <option value="ASC">ASC</option>
+        </select>
+
+        <button id="findBtn">🔍 Find Regions</button>
+        <div id="renderStatus">Ready.</div>
+
+        <div class="legend">
+            <div><span style="background:#f1c40f"></span>A only</div>
+            <div><span style="background:#ff4d6d"></span>B only</div>
+            <div><span style="background:#3b82f6"></span>C only</div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadChartProfiles() {
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/chart-profiles"
+    );
+
+    const profiles = await response.json();
+
+    const select = document.getElementById("chartProfile");
+
+    select.innerHTML = "";
+
+    profiles.forEach(profile => {
+
+        const option = document.createElement("option");
+
+        option.value = profile.id;
+
+        option.textContent = profile.name;
+
+        option.dataset.profile = JSON.stringify(profile);
+
+        select.appendChild(option);
+
+    });
+}
+
+loadChartProfiles();
+const map = L.map('map', {
+    doubleClickZoom: false
+}).setView([20, 0], 2);
+
+map.setMaxBounds([
+    [-85, -180],
+    [85, 180]
+]);
+
+setTimeout(() => {
+    map.invalidateSize();
+
+}, 100);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    noWrap: true,
+    bounds: [[-85, -180], [85, 180]]
+}).addTo(map);
+
+map.getContainer().addEventListener("contextmenu", async function(ev) {
+    ev.preventDefault();
+
+   
+
+    map.closePopup();
+
+    const e = {
+        latlng: map.mouseEventToLatLng(ev)
+    };
+
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+    if (Math.abs(lat) > 65) {
+    L.popup({
+        maxWidth: 260,
+        autoPan: true,
+        keepInView: true
+    })
+    .setLatLng(e.latlng)
+    .setContent(`
+        <b>Outside reliable chart zone</b><br>
+        Lat: ${lat.toFixed(4)}<br>
+        Lon: ${lon.toFixed(4)}<br><br>
+        Placidus relocation charts are capped at ±65° for now.
+    `)
+    .openOn(map);
+    return;
+}
+   const selectedOption =
+    document.getElementById("chartProfile").selectedOptions[0];
+
+const profile =
+    JSON.parse(selectedOption.dataset.profile);
+
+const [year, month, day] =
+    profile.date.split("-").map(Number);
+
+const [hour, minute] =
+    profile.time.split(":").map(Number);
+
+const birthHourUTC =
+    hour + (minute / 60);
+
+const response = await fetch(
+    `http://127.0.0.1:8000/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${year}&birth_month=${month}&birth_day=${day}&birth_hour_utc=${birthHourUTC}`
+);
+const data = await response.json();
+console.log("RELOCATED DATA", data);
+console.log("Planet houses:", data.planet_houses);
+console.log("Planet houses entries:", Object.entries(data.planet_houses || {}));
+const planetHouseHtml = data.planet_houses
+    ? Object.entries(data.planet_houses)
+        .map(([planet, info]) => `
+            <div style="display:grid; grid-template-columns: 76px 42px; column-gap:6px;">
+                <b>${planet}</b>
+                <span style="text-align:center;">${info.house ?? "?"}</span>
+            </div>
+        `)
+        .join("")
+    : "No planet house data returned.";
+
+L.popup({
+    maxWidth: 260,
+    maxHeight: 560,
+    autoPan: true,
+    keepInView: true
+})
+    .setLatLng(e.latlng)
+    .setContent(`
+        <div style="font-size:14px; line-height:1.28; width:205px;">
+            <b>Custom Location</b><br>
+            <span style="display:inline-block; max-width:195px; white-space:normal;">
+                Lat: ${lat.toFixed(4)} &nbsp; Lon: ${lon.toFixed(4)}
+            </span>
+
+            <hr style="margin:7px 0;">
+
+            <div style="display:grid; grid-template-columns: 38px 1fr; row-gap:3px;">
+                <b>ASC</b><span>${data.asc}</span>
+                <b>MC</b><span>${data.mc}</span>
+            </div>
+
+            <hr style="margin:7px 0;">
+
+            <div style="display:grid; grid-template-columns: 76px 42px; column-gap:6px; margin-bottom:3px;">
+                <b>Planet</b>
+                <b style="text-align:center;">House</b>
+            </div>
+
+            ${planetHouseHtml}
+
+            <hr style="margin:8px 0 7px;">
+
+            <div style="display:flex; gap:6px;">
+                <button style="flex:1; padding:5px; cursor:pointer;">Open Chart</button>
+                <button style="flex:1; padding:5px; cursor:pointer;">★ Favorite</button>
+            </div>
+        </div>
+    `)
+    .openOn(map);
+});
+
+let cityLayer = L.layerGroup().addTo(map);
+let polygonLayer = L.layerGroup().addTo(map);
+let aspectLayer = L.layerGroup().addTo(map);
+
+const debugGeometry = new URLSearchParams(window.location.search).has("debugGeometry");
+const requestedGenerationMode =
+    new URLSearchParams(window.location.search).get("generation_mode") || "contour";
+let currentRenderToken = 0;
+let debounceTimer = null;
+let currentDebugMetrics = {
+    generationMode: requestedGenerationMode,
+    resolution: requestedGenerationMode === "truth_grid" ? 0.75 : "contour",
+    featureCount: 0,
+    validationContradictions: 0,
+    aspectOverlayStatus: "not requested",
+    overlayStage: "n/a",
+    aspectResolution: "n/a"
+};
+const colors = ["#f1c40f", "#ff4d6d", "#3b82f6"];
+
+function setRenderStatus(message) {
+    document.getElementById("renderStatus").textContent = message;
+}
+
+function renderDebugStatus() {
+    if (!debugGeometry) return;
+
+    const status = document.getElementById("debugStatus");
+    status.innerHTML = `
+        <div><b>Generation mode:</b> ${currentDebugMetrics.generationMode}</div>
+        <div><b>Resolution:</b> ${currentDebugMetrics.resolution}</div>
+        <div><b>Debug geometry:</b> ${debugGeometry ? "on" : "off"}</div>
+        <div><b>Feature count:</b> ${currentDebugMetrics.featureCount}</div>
+        <div><b>Validation contradictions:</b> ${currentDebugMetrics.validationContradictions}</div>
+        <div><b>Aspect overlay status:</b> ${currentDebugMetrics.aspectOverlayStatus}</div>
+        <div><b>Overlay stage:</b> ${currentDebugMetrics.overlayStage}</div>
+        <div><b>Aspect resolution:</b> ${currentDebugMetrics.aspectResolution}</div>
+    `;
+    status.style.display = "block";
+}
+
+function updateDebugStatus(data, displayData, aspectOverlayStatus) {
+    if (!debugGeometry) return;
+
+    const polygonFeatures = displayData.features.filter(feature =>
+        feature.geometry && feature.geometry.type === "Polygon"
+    );
+    const validationContradictions = polygonFeatures.reduce(
+        (sum, feature) => sum + (feature.properties.validation_contradictions || 0),
+        0
+    );
+    const truthGrid = data.properties && data.properties.truth_grid;
+    const resolution = truthGrid
+        ? truthGrid.resolution
+        : "contour";
+    const generationMode =
+        (data.properties && data.properties.generation_mode) ||
+        requestedGenerationMode;
+
+    currentDebugMetrics = {
+        generationMode,
+        resolution,
+        featureCount: polygonFeatures.length,
+        validationContradictions,
+        aspectOverlayStatus,
+        overlayStage: currentDebugMetrics.overlayStage,
+        aspectResolution: currentDebugMetrics.aspectResolution
+    };
+    renderDebugStatus();
+}
+
+function updateAspectDebugStatus(aspectData, aspectOverlayStatus) {
+    const metadata = aspectData.properties && aspectData.properties.aspect_overlay;
+    currentDebugMetrics.aspectOverlayStatus = aspectOverlayStatus;
+    currentDebugMetrics.overlayStage = metadata
+        ? metadata.overlay_stage
+        : currentDebugMetrics.overlayStage;
+    currentDebugMetrics.aspectResolution = metadata
+        ? metadata.aspect_resolution
+        : currentDebugMetrics.aspectResolution;
+    renderDebugStatus();
+}
+
+function prepareDisplayFeatures(canonicalGeojson) {
+    return {
+        ...canonicalGeojson,
+        features: canonicalGeojson.features.map((feature, index) => ({
+            ...feature,
+            properties: {
+                ...feature.properties,
+                displayFeatureId:
+                    feature.properties.displayFeatureId ||
+                    `${feature.properties.canonicalFeatureId || `feature-${index}`}:display-0`
+            }
+        }))
+    };
+}
+
+function getExteriorRing(feature) {
+    if (!feature.geometry || feature.geometry.type !== "Polygon") return [];
+    return feature.geometry.coordinates[0] || [];
+}
+
+function calculateRingArea(coords) {
+    if (coords.length < 3) return 0;
+
+    const ring = coords[0][0] === coords[coords.length - 1][0] &&
+        coords[0][1] === coords[coords.length - 1][1]
+        ? coords
+        : coords.concat([coords[0]]);
+
+    let area = 0;
+    for (let i = 1; i < ring.length; i++) {
+        area += ring[i - 1][0] * ring[i][1] - ring[i][0] * ring[i - 1][1];
+    }
+    return Math.abs(area) / 2;
+}
+
+function summarizeGeometry(feature) {
+    const coords = getExteriorRing(feature);
+    if (coords.length === 0) {
+        return {
+            bbox: "n/a",
+            area: "0.00",
+            touches180: false,
+            crosses180: false
+        };
+    }
+
+    const lons = coords.map(point => point[0]);
+    const lats = coords.map(point => point[1]);
+    const bbox = [
+        Math.min(...lons),
+        Math.min(...lats),
+        Math.max(...lons),
+        Math.max(...lats)
+    ];
+    const ring = coords[0][0] === coords[coords.length - 1][0] &&
+        coords[0][1] === coords[coords.length - 1][1]
+        ? coords
+        : coords.concat([coords[0]]);
+    let maxLonJump = 0;
+    for (let i = 1; i < ring.length; i++) {
+        maxLonJump = Math.max(maxLonJump, Math.abs(ring[i][0] - ring[i - 1][0]));
+    }
+
+    return {
+        bbox: bbox.map(value => value.toFixed(2)).join(", "),
+        area: calculateRingArea(coords).toFixed(2),
+        touches180: coords.some(point => Math.abs(Math.abs(point[0]) - 180) <= 1.5),
+        crosses180: maxLonJump > 180
+    };
+}
+
+function bindGeometryDebug(feature, layer) {
+    if (!debugGeometry || feature.geometry.type !== "Polygon") return;
+
+    const props = feature.properties || {};
+    const summary = summarizeGeometry(feature);
+    layer.bindPopup(`
+        <div style="font-size:12px; line-height:1.35;">
+            <b>Geometry Debug</b><br>
+            <b>canonicalFeatureId</b><br>${props.canonicalFeatureId || "n/a"}<br>
+            <b>displayFeatureId</b><br>${props.displayFeatureId || "n/a"}<br>
+            <b>planet</b> ${props.planet || "n/a"}<br>
+            <b>house</b> ${props.house ?? "n/a"}<br>
+            <b>condition_index</b> ${props.condition_index ?? "n/a"}<br>
+            <b>generation_mode</b> ${props.generation_mode || "n/a"}<br>
+            <b>source_cell_count</b> ${props.source_cell_count ?? "n/a"}<br>
+            <b>validation_contradictions</b> ${props.validation_contradictions ?? "n/a"}<br>
+            <b>geometry</b> ${feature.geometry.type}<br>
+            <b>bbox</b> ${summary.bbox}<br>
+            <b>area</b> ${summary.area}<br>
+            <b>touches ±180</b> ${summary.touches180}<br>
+            <b>crosses ±180</b> ${summary.crosses180}
+        </div>
+    `);
+}
+
+function renderCities() {
+    cityLayer.clearLayers();
+    if (!citiesData || citiesData.length === 0) return;
+
+    const zoom = map.getZoom();
+    const bounds = map.getBounds();
+
+    let minPop = 0;
+    if (zoom <= 3) minPop = 5000000;
+    else if (zoom <= 4) minPop = 2000000;
+    else if (zoom <= 5) minPop = 1000000;
+    else if (zoom <= 6) minPop = 500000;
+    else if (zoom <= 7) minPop = 100000;
+    else if (zoom <= 8) minPop = 50000;
+    else minPop = 0;
+
+    citiesData.forEach(city => {
+        if (city.pop >= minPop && bounds.contains([city.lat, city.lng])) {
+            L.circleMarker([city.lat, city.lng], {
+                radius: zoom >= 7 ? 5 : 3,
+                color: "#222",
+                fillColor: "#fff",
+                fillOpacity: 1,
+                weight: 1.5
+            }).addTo(cityLayer).bindPopup(
+                `<b>${city.name}, ${city.country}</b><br>${city.lat.toFixed(2)}°, ${city.lng.toFixed(2)}°`
+            );
+        }
+    });
+}
+
+function getSelectedAspectOverlay() {
+    const planet = document.getElementById("overlayPlanet").value;
+    const aspect = document.getElementById("overlayAspect").value;
+    const angle = document.getElementById("overlayAngle").value;
+
+    if (!planet || !aspect || !angle) return null;
+
+    return { planet, aspect, angle };
+}
+
+function renderHouseFeatures(displayData) {
+    displayData.features.forEach(feature => {
+        if (feature.properties.angle) return;
+
+        let idx = feature.properties.condition_index || 0;
+
+        L.geoJSON(feature, {
+            style: {
+                fillColor: colors[idx],
+                fillOpacity: 0.35,
+                stroke: false,
+                opacity: 0,
+                weight: 0
+            },
+            onEachFeature: bindGeometryDebug
+        }).addTo(polygonLayer);
+    });
+}
+
+function renderAspectFeatures(displayData) {
+    displayData.features.forEach(feature => {
+        if (!feature.properties.angle) return;
+
+        L.geoJSON(feature, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: feature.properties.radius || 4,
+                    color: feature.properties.color || "#00e5ff",
+                    fillColor: feature.properties.color || "#00e5ff",
+                    fillOpacity: 1,
+                    weight: 2
+                });
+            },
+            style: function(feature) {
+                return {
+                    color: feature.properties.color || "#00e5ff",
+                    weight: 2,
+                    opacity: 1,
+                    lineCap: "round"
+                };
+            }
+        }).addTo(aspectLayer);
+    });
+}
+
+function isStagedAscOverlay(aspectOverlay) {
+    return aspectOverlay &&
+        aspectOverlay.angle === "ASC" &&
+        aspectOverlay.aspect === "any";
+}
+
+async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token) {
+    setRenderStatus(`Calculating ASC overlay: ${stage.label}`);
+    currentDebugMetrics.aspectOverlayStatus = "refining";
+    currentDebugMetrics.overlayStage = stage.name;
+    currentDebugMetrics.aspectResolution = stage.aspect_resolution;
+    renderDebugStatus();
+
+    const aspectData = await postSearchRegions({
+        ...basePayload,
+        house_conditions: [],
+        aspect_overlay: aspectOverlay,
+        aspect_resolution: stage.aspect_resolution,
+        overlay_stage: stage.name
+    });
+
+    if (token !== currentRenderToken) return false;
+
+    aspectLayer.clearLayers();
+    renderAspectFeatures(prepareDisplayFeatures(aspectData));
+    updateAspectDebugStatus(
+        aspectData,
+        stage.name === "final" ? "ready" : "refining"
+    );
+    setRenderStatus(
+        stage.name === "final"
+            ? "ASC overlay final ready"
+            : `ASC overlay ${stage.label} ready; refining...`
+    );
+    return true;
+}
+
+async function postSearchRegions(payload) {
+    const response = await fetch(
+        "http://127.0.0.1:8000/search-regions",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    return response.json();
+}
+
+async function findRegions() {
+    document.getElementById("findBtn").disabled = true;
+    map.closePopup();
+
+    try {
+        const token = ++currentRenderToken;
+        console.log("START RENDER", token);
+
+        polygonLayer.clearLayers();
+        aspectLayer.clearLayers();
+        setRenderStatus("Rendering house regions...");
+        currentDebugMetrics.aspectOverlayStatus = "not requested";
+        currentDebugMetrics.overlayStage = "n/a";
+        currentDebugMetrics.aspectResolution = "n/a";
+        renderDebugStatus();
+
+        const selectedOption =
+            document.getElementById("chartProfile").selectedOptions[0];
+
+        const profile =
+            JSON.parse(selectedOption.dataset.profile);
+
+        const [year, month, day] =
+            profile.date.split("-").map(Number);
+
+        const [hour, minute] =
+            profile.time.split(":").map(Number);
+
+        const birthHourUTC =
+            hour + (minute / 60);
+
+        const conditions = [];
+
+        conditions.push({
+            planet: document.getElementById("planetA").value,
+            house: parseInt(document.getElementById("houseA").value)
+        });
+
+        const planetB = document.getElementById("planetB").value;
+        if (planetB) {
+            conditions.push({
+                planet: planetB,
+                house: parseInt(document.getElementById("houseB").value)
+            });
+        }
+
+        const planetC = document.getElementById("planetC").value;
+        if (planetC) {
+            conditions.push({
+                planet: planetC,
+                house: parseInt(document.getElementById("houseC").value)
+            });
+        }
+
+        const basePayload = {
+            birth_year: year,
+            birth_month: month,
+            birth_day: day,
+            birth_hour_utc: birthHourUTC,
+            house_conditions: conditions,
+            resolution: 1.5,
+            generation_mode: requestedGenerationMode,
+            truth_grid_resolution: 0.75
+        };
+
+        const aspectOverlay = getSelectedAspectOverlay();
+        const data = await postSearchRegions(basePayload);
+
+        if (token !== currentRenderToken) return;
+
+        const displayData = prepareDisplayFeatures(data);
+        renderHouseFeatures(displayData);
+        updateDebugStatus(data, displayData, aspectOverlay ? "pending" : "not requested");
+        setRenderStatus(aspectOverlay ? "Calculating angular overlay..." : "House regions ready.");
+        renderCities();
+
+        if (aspectOverlay) {
+            if (isStagedAscOverlay(aspectOverlay)) {
+                const stages = [
+                    { name: "coarse", label: "coarse", aspect_resolution: 2.0 },
+                    { name: "medium", label: "medium", aspect_resolution: 1.0 },
+                    { name: "final", label: "final", aspect_resolution: 0.5 }
+                ];
+
+                for (const stage of stages) {
+                    const stillCurrent = await renderSingleOverlayStage(
+                        basePayload,
+                        aspectOverlay,
+                        stage,
+                        token
+                    );
+                    if (!stillCurrent) return;
+                }
+            } else {
+                const aspectData = await postSearchRegions({
+                    ...basePayload,
+                    house_conditions: [],
+                    aspect_overlay: aspectOverlay,
+                    aspect_resolution: 0.5,
+                    overlay_stage: "final"
+                });
+
+                if (token !== currentRenderToken) return;
+
+                aspectLayer.clearLayers();
+                renderAspectFeatures(prepareDisplayFeatures(aspectData));
+                updateAspectDebugStatus(aspectData, "ready");
+                setRenderStatus("Angular overlay ready");
+            }
+        }
+
+        console.log("COMPLETE RENDER", token);
+        renderCities();
+
+    } catch (err) {
+        console.error(err);
+    } finally {
+        document.getElementById("findBtn").disabled = false;
+    }
+}
+
+document.getElementById("findBtn").onclick = function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        findRegions();
+    }, 400);
+};
+document.getElementById("citySearch").addEventListener("keydown", function(e) {
+    if (e.key !== "Enter") return;
+
+    const q = this.value.trim().toLowerCase();
+    if (!q) return;
+
+    const match = citiesData.find(city =>
+        city.name.toLowerCase().includes(q)
+    );
+
+    if (!match) {
+        alert("City not found");
+        return;
+    }
+
+    map.setView([match.lat, match.lng], 7);
+
+    L.popup()
+        .setLatLng([match.lat, match.lng])
+        .setContent(`
+            <b>${match.name}, ${match.country}</b><br>
+            ${match.lat.toFixed(2)}°, ${match.lng.toFixed(2)}°
+        `)
+        .openOn(map);
+});
+document.getElementById("citySearch").addEventListener("keydown", function(e) {
+    if (e.key !== "Enter") return;
+
+    const q = this.value.trim().toLowerCase();
+    if (!q) return;
+
+    const match = citiesData.find(city =>
+        city.name.toLowerCase().includes(q)
+    );
+
+    if (!match) {
+        alert("City not found");
+        return;
+    }
+
+    map.setView([match.lat, match.lng], 7);
+
+    L.popup()
+        .setLatLng([match.lat, match.lng])
+        .setContent(`
+            <b>${match.name}, ${match.country}</b><br>
+            ${match.lat.toFixed(2)}°, ${match.lng.toFixed(2)}°
+        `)
+        .openOn(map);
+});
+// Cities already loaded from cities.js
+if (typeof citiesData !== 'undefined') {
+    console.log("Cities loaded:", citiesData.length);
+    renderCities();
+}
+</script>
+
+</body>
+</html>

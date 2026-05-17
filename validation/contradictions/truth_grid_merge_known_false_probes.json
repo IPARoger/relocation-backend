@@ -1,0 +1,848 @@
+{
+  "fixtureId": "edge_high_north",
+  "knownFalseProbes": [
+    {
+      "name": "previous_false_house_7_sliver",
+      "lon": 172.5221,
+      "lat": -47.4666,
+      "actual_sun_house": 8
+    },
+    {
+      "name": "previous_false_house_9_sliver",
+      "lon": 163.2506,
+      "lat": 3.4072,
+      "actual_sun_house": 8
+    }
+  ],
+  "result": "All known false probes were excluded from the wrong houses and included only in the true Sun house where applicable.",
+  "contradictions": [
+    {
+      "step": 1.0,
+      "house": 1,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 2,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 3,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 4,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 5,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 6,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 7,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 8,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": true,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": true,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 9,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 10,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 11,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 1.0,
+      "house": 12,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 1,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 2,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 3,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 4,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 5,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 6,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 7,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 8,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": true,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": true,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 9,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 10,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 11,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.75,
+      "house": 12,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 1,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 2,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 3,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 4,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 5,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 6,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 7,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 8,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": true,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": true,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 9,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 10,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 11,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    },
+    {
+      "step": 0.5,
+      "house": 12,
+      "contradictionCount": 0,
+      "knownFalseChecks": [
+        {
+          "name": "previous_false_house_7_sliver",
+          "lon": 172.5221,
+          "lat": -47.4666,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        },
+        {
+          "name": "previous_false_house_9_sliver",
+          "lon": 163.2506,
+          "lat": 3.4072,
+          "actual_sun_house": 8,
+          "includedInMergedHouse": false,
+          "passes": true
+        }
+      ]
+    }
+  ]
+}

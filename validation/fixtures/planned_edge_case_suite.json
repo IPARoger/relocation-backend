@@ -1,0 +1,65 @@
+{
+  "plannedFixtures": [
+    {
+      "id": "baseline_validated",
+      "birthDate": "1976-01-13",
+      "utcTime": "12:47",
+      "reason": "Normal baseline chart for regression sanity.",
+      "tests": [
+        "general house continuity",
+        "normal latitude behavior"
+      ]
+    },
+    {
+      "id": "edge_high_north",
+      "birthDate": "1988-06-21",
+      "utcTime": "03:12",
+      "reason": "High northern solstice-like stress chart with known seam-adjacent false contour slivers.",
+      "tests": [
+        "high latitude",
+        "seam-adjacent fragments",
+        "house 7/8/9 transitions"
+      ]
+    },
+    {
+      "id": "edge_southern",
+      "birthDate": "1993-12-22",
+      "utcTime": "18:40",
+      "reason": "Southern Hemisphere stress chart near December solstice.",
+      "tests": [
+        "southern latitude",
+        "Pacific/Australia visual artifacts"
+      ]
+    },
+    {
+      "id": "antimeridian_birth",
+      "birthDate": "1990-03-20",
+      "utcTime": "00:00",
+      "reason": "Equinox chart chosen for antimeridian/world-wrap regression exploration.",
+      "tests": [
+        "periodic longitude",
+        "left/right edge continuity"
+      ]
+    },
+    {
+      "id": "cusp_heavy",
+      "birthDate": "2000-01-01",
+      "utcTime": "00:00",
+      "reason": "Round-date chart for dense cusp transition checks.",
+      "tests": [
+        "inside/outside semantics near boundaries",
+        "city click agreement"
+      ]
+    },
+    {
+      "id": "polar_stress_optional",
+      "birthDate": "1988-06-21",
+      "utcTime": "03:12",
+      "reason": "Above-cap optional Placidus stress test, not MVP display range.",
+      "tests": [
+        "failure handling above +/-65",
+        "clear cap behavior"
+      ]
+    }
+  ]
+}

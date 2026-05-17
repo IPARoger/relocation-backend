@@ -63,13 +63,45 @@ select, button {
     max-height: 420px;
     overflow-y: auto;
 }
+
+#debugStatus {
+    display: none;
+    position: absolute;
+    left: 12px;
+    bottom: 24px;
+    z-index: 1000;
+    max-width: 320px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid #333;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+    font: 12px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#debugStatus b {
+    display: inline-block;
+    min-width: 150px;
+}
+
+#renderStatus {
+    margin-top: 12px;
+    padding: 8px;
+    border-radius: 4px;
+    background: #f4f7fb;
+    border: 1px solid #ccd7e3;
+    font-size: 13px;
+    line-height: 1.35;
+}
 </style>
 </head>
 <body>
 
 <div id="app">
 
-    <div id="map"></div>
+    <div id="map">
+        <div id="debugStatus"></div>
+    </div>
 
     <div id="panel">
         <h3>Relocation Mapper</h3>
@@ -189,6 +221,7 @@ select, button {
         </select>
 
         <button id="findBtn">🔍 Find Regions</button>
+        <div id="renderStatus">Ready.</div>
 
         <div class="legend">
             <div><span style="background:#f1c40f"></span>A only</div>
@@ -348,9 +381,185 @@ L.popup({
     `)
     .openOn(map);
 });
+
+let cityLayer = L.layerGroup().addTo(map);
+let polygonLayer = L.layerGroup().addTo(map);
+let aspectLayer = L.layerGroup().addTo(map);
+
+const debugGeometry = new URLSearchParams(window.location.search).has("debugGeometry");
+const requestedGenerationMode =
+    new URLSearchParams(window.location.search).get("generation_mode") || "contour";
 let currentRenderToken = 0;
 let debounceTimer = null;
+let currentDebugMetrics = {
+    generationMode: requestedGenerationMode,
+    resolution: requestedGenerationMode === "truth_grid" ? 0.75 : "contour",
+    featureCount: 0,
+    validationContradictions: 0,
+    aspectOverlayStatus: "not requested",
+    overlayStage: "n/a",
+    aspectResolution: "n/a"
+};
 const colors = ["#f1c40f", "#ff4d6d", "#3b82f6"];
+
+function setRenderStatus(message) {
+    document.getElementById("renderStatus").textContent = message;
+}
+
+function renderDebugStatus() {
+    if (!debugGeometry) return;
+
+    const status = document.getElementById("debugStatus");
+    status.innerHTML = `
+        <div><b>Generation mode:</b> ${currentDebugMetrics.generationMode}</div>
+        <div><b>Resolution:</b> ${currentDebugMetrics.resolution}</div>
+        <div><b>Debug geometry:</b> ${debugGeometry ? "on" : "off"}</div>
+        <div><b>Feature count:</b> ${currentDebugMetrics.featureCount}</div>
+        <div><b>Validation contradictions:</b> ${currentDebugMetrics.validationContradictions}</div>
+        <div><b>Aspect overlay status:</b> ${currentDebugMetrics.aspectOverlayStatus}</div>
+        <div><b>Overlay stage:</b> ${currentDebugMetrics.overlayStage}</div>
+        <div><b>Aspect resolution:</b> ${currentDebugMetrics.aspectResolution}</div>
+    `;
+    status.style.display = "block";
+}
+
+function updateDebugStatus(data, displayData, aspectOverlayStatus) {
+    if (!debugGeometry) return;
+
+    const polygonFeatures = displayData.features.filter(feature =>
+        feature.geometry && feature.geometry.type === "Polygon"
+    );
+    const validationContradictions = polygonFeatures.reduce(
+        (sum, feature) => sum + (feature.properties.validation_contradictions || 0),
+        0
+    );
+    const truthGrid = data.properties && data.properties.truth_grid;
+    const resolution = truthGrid
+        ? truthGrid.resolution
+        : "contour";
+    const generationMode =
+        (data.properties && data.properties.generation_mode) ||
+        requestedGenerationMode;
+
+    currentDebugMetrics = {
+        generationMode,
+        resolution,
+        featureCount: polygonFeatures.length,
+        validationContradictions,
+        aspectOverlayStatus,
+        overlayStage: currentDebugMetrics.overlayStage,
+        aspectResolution: currentDebugMetrics.aspectResolution
+    };
+    renderDebugStatus();
+}
+
+function updateAspectDebugStatus(aspectData, aspectOverlayStatus) {
+    const metadata = aspectData.properties && aspectData.properties.aspect_overlay;
+    currentDebugMetrics.aspectOverlayStatus = aspectOverlayStatus;
+    currentDebugMetrics.overlayStage = metadata
+        ? metadata.overlay_stage
+        : currentDebugMetrics.overlayStage;
+    currentDebugMetrics.aspectResolution = metadata
+        ? metadata.aspect_resolution
+        : currentDebugMetrics.aspectResolution;
+    renderDebugStatus();
+}
+
+function prepareDisplayFeatures(canonicalGeojson) {
+    return {
+        ...canonicalGeojson,
+        features: canonicalGeojson.features.map((feature, index) => ({
+            ...feature,
+            properties: {
+                ...feature.properties,
+                displayFeatureId:
+                    feature.properties.displayFeatureId ||
+                    `${feature.properties.canonicalFeatureId || `feature-${index}`}:display-0`
+            }
+        }))
+    };
+}
+
+function getExteriorRing(feature) {
+    if (!feature.geometry || feature.geometry.type !== "Polygon") return [];
+    return feature.geometry.coordinates[0] || [];
+}
+
+function calculateRingArea(coords) {
+    if (coords.length < 3) return 0;
+
+    const ring = coords[0][0] === coords[coords.length - 1][0] &&
+        coords[0][1] === coords[coords.length - 1][1]
+        ? coords
+        : coords.concat([coords[0]]);
+
+    let area = 0;
+    for (let i = 1; i < ring.length; i++) {
+        area += ring[i - 1][0] * ring[i][1] - ring[i][0] * ring[i - 1][1];
+    }
+    return Math.abs(area) / 2;
+}
+
+function summarizeGeometry(feature) {
+    const coords = getExteriorRing(feature);
+    if (coords.length === 0) {
+        return {
+            bbox: "n/a",
+            area: "0.00",
+            touches180: false,
+            crosses180: false
+        };
+    }
+
+    const lons = coords.map(point => point[0]);
+    const lats = coords.map(point => point[1]);
+    const bbox = [
+        Math.min(...lons),
+        Math.min(...lats),
+        Math.max(...lons),
+        Math.max(...lats)
+    ];
+    const ring = coords[0][0] === coords[coords.length - 1][0] &&
+        coords[0][1] === coords[coords.length - 1][1]
+        ? coords
+        : coords.concat([coords[0]]);
+    let maxLonJump = 0;
+    for (let i = 1; i < ring.length; i++) {
+        maxLonJump = Math.max(maxLonJump, Math.abs(ring[i][0] - ring[i - 1][0]));
+    }
+
+    return {
+        bbox: bbox.map(value => value.toFixed(2)).join(", "),
+        area: calculateRingArea(coords).toFixed(2),
+        touches180: coords.some(point => Math.abs(Math.abs(point[0]) - 180) <= 1.5),
+        crosses180: maxLonJump > 180
+    };
+}
+
+function bindGeometryDebug(feature, layer) {
+    if (!debugGeometry || feature.geometry.type !== "Polygon") return;
+
+    const props = feature.properties || {};
+    const summary = summarizeGeometry(feature);
+    layer.bindPopup(`
+        <div style="font-size:12px; line-height:1.35;">
+            <b>Geometry Debug</b><br>
+            <b>canonicalFeatureId</b><br>${props.canonicalFeatureId || "n/a"}<br>
+            <b>displayFeatureId</b><br>${props.displayFeatureId || "n/a"}<br>
+            <b>planet</b> ${props.planet || "n/a"}<br>
+            <b>house</b> ${props.house ?? "n/a"}<br>
+            <b>condition_index</b> ${props.condition_index ?? "n/a"}<br>
+            <b>generation_mode</b> ${props.generation_mode || "n/a"}<br>
+            <b>source_cell_count</b> ${props.source_cell_count ?? "n/a"}<br>
+            <b>validation_contradictions</b> ${props.validation_contradictions ?? "n/a"}<br>
+            <b>geometry</b> ${feature.geometry.type}<br>
+            <b>bbox</b> ${summary.bbox}<br>
+            <b>area</b> ${summary.area}<br>
+            <b>touches ±180</b> ${summary.touches180}<br>
+            <b>crosses ±180</b> ${summary.crosses180}
+        </div>
+    `);
+}
 
 function renderCities() {
     cityLayer.clearLayers();
@@ -383,8 +592,116 @@ function renderCities() {
     });
 }
 
+function getSelectedAspectOverlay() {
+    const planet = document.getElementById("overlayPlanet").value;
+    const aspect = document.getElementById("overlayAspect").value;
+    const angle = document.getElementById("overlayAngle").value;
+
+    if (!planet || !aspect || !angle) return null;
+
+    return { planet, aspect, angle };
+}
+
+function renderHouseFeatures(displayData) {
+    displayData.features.forEach(feature => {
+        if (feature.properties.angle) return;
+
+        let idx = feature.properties.condition_index || 0;
+
+        L.geoJSON(feature, {
+            style: {
+                fillColor: colors[idx],
+                fillOpacity: 0.35,
+                stroke: false,
+                opacity: 0,
+                weight: 0
+            },
+            onEachFeature: bindGeometryDebug
+        }).addTo(polygonLayer);
+    });
+}
+
+function renderAspectFeatures(displayData) {
+    displayData.features.forEach(feature => {
+        if (!feature.properties.angle) return;
+
+        L.geoJSON(feature, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: feature.properties.radius || 4,
+                    color: feature.properties.color || "#00e5ff",
+                    fillColor: feature.properties.color || "#00e5ff",
+                    fillOpacity: 1,
+                    weight: 2
+                });
+            },
+            style: function(feature) {
+                return {
+                    color: feature.properties.color || "#00e5ff",
+                    weight: 2,
+                    opacity: 1,
+                    lineCap: "round"
+                };
+            }
+        }).addTo(aspectLayer);
+    });
+}
+
+function isStagedAscOverlay(aspectOverlay) {
+    return aspectOverlay &&
+        aspectOverlay.angle === "ASC" &&
+        aspectOverlay.aspect === "any";
+}
+
+async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token) {
+    setRenderStatus(`Calculating ASC overlay: ${stage.label}`);
+    currentDebugMetrics.aspectOverlayStatus = "refining";
+    currentDebugMetrics.overlayStage = stage.name;
+    currentDebugMetrics.aspectResolution = stage.aspect_resolution;
+    renderDebugStatus();
+
+    const aspectData = await postSearchRegions({
+        ...basePayload,
+        house_conditions: [],
+        aspect_overlay: aspectOverlay,
+        aspect_resolution: stage.aspect_resolution,
+        overlay_stage: stage.name
+    });
+
+    if (token !== currentRenderToken) return false;
+
+    aspectLayer.clearLayers();
+    renderAspectFeatures(prepareDisplayFeatures(aspectData));
+    updateAspectDebugStatus(
+        aspectData,
+        stage.name === "final" ? "ready" : "refining"
+    );
+    setRenderStatus(
+        stage.name === "final"
+            ? "ASC overlay final ready"
+            : `ASC overlay ${stage.label} ready; refining...`
+    );
+    return true;
+}
+
+async function postSearchRegions(payload) {
+    const response = await fetch(
+        "http://127.0.0.1:8000/search-regions",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    return response.json();
+}
+
 async function findRegions() {
     document.getElementById("findBtn").disabled = true;
+    map.closePopup();
 
     try {
         const token = ++currentRenderToken;
@@ -392,6 +709,11 @@ async function findRegions() {
 
         polygonLayer.clearLayers();
         aspectLayer.clearLayers();
+        setRenderStatus("Rendering house regions...");
+        currentDebugMetrics.aspectOverlayStatus = "not requested";
+        currentDebugMetrics.overlayStage = "n/a";
+        currentDebugMetrics.aspectResolution = "n/a";
+        renderDebugStatus();
 
         const selectedOption =
             document.getElementById("chartProfile").selectedOptions[0];
@@ -431,70 +753,62 @@ async function findRegions() {
             });
         }
 
-        const payload = {
+        const basePayload = {
             birth_year: year,
             birth_month: month,
             birth_day: day,
             birth_hour_utc: birthHourUTC,
             house_conditions: conditions,
             resolution: 1.5,
-            aspect_overlay: {
-                planet: document.getElementById("overlayPlanet").value,
-                aspect: document.getElementById("overlayAspect").value,
-                angle: document.getElementById("overlayAngle").value
-            }
+            generation_mode: requestedGenerationMode,
+            truth_grid_resolution: 0.75
         };
 
-        const response = await fetch(
-            "http://127.0.0.1:8000/search-regions",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            }
-        );
-
-        const data = await response.json();
+        const aspectOverlay = getSelectedAspectOverlay();
+        const data = await postSearchRegions(basePayload);
 
         if (token !== currentRenderToken) return;
 
-        data.features.forEach(feature => {
-            if (feature.properties.angle) {
-                L.geoJSON(feature, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, {
-                            radius: feature.properties.radius || 4,
-                            color: feature.properties.color || "#00e5ff",
-                            fillColor: feature.properties.color || "#00e5ff",
-                            fillOpacity: 1,
-                            weight: 2
-                        });
-                    },
-                    style: function(feature) {
-                        return {
-                            color: feature.properties.color || "#00e5ff",
-                            weight: 2,
-                            opacity: 1,
-                            lineCap: "round"
-                        };
-                    }
-                }).addTo(aspectLayer);
-            } else {
-                let idx = feature.properties.condition_index || 0;
+        const displayData = prepareDisplayFeatures(data);
+        renderHouseFeatures(displayData);
+        updateDebugStatus(data, displayData, aspectOverlay ? "pending" : "not requested");
+        setRenderStatus(aspectOverlay ? "Calculating angular overlay..." : "House regions ready.");
+        renderCities();
 
-                L.geoJSON(feature, {
-                    style: {
-                        fillColor: colors[idx],
-                        fillOpacity: 0.35,
-                        stroke: false,
-                        opacity: 0,
-                        weight: 0
-                    }
-                }).addTo(polygonLayer);
+        if (aspectOverlay) {
+            if (isStagedAscOverlay(aspectOverlay)) {
+                const stages = [
+                    { name: "coarse", label: "coarse", aspect_resolution: 2.0 },
+                    { name: "medium", label: "medium", aspect_resolution: 1.0 },
+                    { name: "final", label: "final", aspect_resolution: 0.5 }
+                ];
+
+                for (const stage of stages) {
+                    const stillCurrent = await renderSingleOverlayStage(
+                        basePayload,
+                        aspectOverlay,
+                        stage,
+                        token
+                    );
+                    if (!stillCurrent) return;
+                }
+            } else {
+                const aspectData = await postSearchRegions({
+                    ...basePayload,
+                    house_conditions: [],
+                    aspect_overlay: aspectOverlay,
+                    aspect_resolution: 0.5,
+                    overlay_stage: "final"
+                });
+
+                if (token !== currentRenderToken) return;
+
+                aspectLayer.clearLayers();
+                renderAspectFeatures(prepareDisplayFeatures(aspectData));
+                updateAspectDebugStatus(aspectData, "ready");
+                setRenderStatus("Angular overlay ready");
             }
-        });
+        }
 
         console.log("COMPLETE RENDER", token);
         renderCities();

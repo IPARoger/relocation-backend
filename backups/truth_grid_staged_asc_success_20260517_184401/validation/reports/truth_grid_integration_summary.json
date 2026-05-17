@@ -1,0 +1,381 @@
+{
+  "requests": {
+    "contour": {
+      "high_northern-house-7": {
+        "path": "validation/geojson/integration/contour-high_northern-sun-house-7.geojson",
+        "sha256": "ad9846dcf9158808e2e2b21fe950b86a1af57b7612281685e46d18655f54258a",
+        "bytes": 2300,
+        "polygonCount": 2,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [
+              "house-0-sun-7-0"
+            ],
+            "passes": false
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "high_northern-house-9": {
+        "path": "validation/geojson/integration/contour-high_northern-sun-house-9.geojson",
+        "sha256": "ca69232b49a09d80b9f97c6631000e01bafcbecbc95f2bffbd5ba57933a9e371",
+        "bytes": 1701,
+        "polygonCount": 2,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [
+              "house-0-sun-9-1"
+            ],
+            "passes": false
+          }
+        ]
+      },
+      "southern-house-7": {
+        "path": "validation/geojson/integration/contour-southern-sun-house-7.geojson",
+        "sha256": "5f312d7a43bd2309dbd2c5f418e2ee58d3328d47a7329bbe3a501f7a3afa3402",
+        "bytes": 1834,
+        "polygonCount": 1,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": []
+      },
+      "southern-house-8": {
+        "path": "validation/geojson/integration/contour-southern-sun-house-8.geojson",
+        "sha256": "d8d9dc0006c87dc1ddb2cd54f00f578bfd4870d1ca998c50c0d34e16caff13b1",
+        "bytes": 1970,
+        "polygonCount": 1,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": []
+      },
+      "southern-house-9": {
+        "path": "validation/geojson/integration/contour-southern-sun-house-9.geojson",
+        "sha256": "58774bbc702d8300e73c62ee8a7ddd200175687cec976d6243070b4385cca0ba",
+        "bytes": 1505,
+        "polygonCount": 1,
+        "properties": {
+          "generation_mode": "contour",
+          "truth_grid": null
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": []
+      }
+    },
+    "truth_grid": {
+      "high_northern-house-7": {
+        "path": "validation/geojson/integration/truth_grid-high_northern-sun-house-7.geojson",
+        "sha256": "8d59fe83cb2e3d083d98b16118522fdd5d414b9fe65b38407caa08ca15fad762",
+        "bytes": 81006,
+        "polygonCount": 157,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.6395736670019687,
+                "merge_validate_seconds": 0.24648558299668366,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  7
+                ]
+              }
+            },
+            "total_seconds": 0.9140824159985641,
+            "feature_count": 157
+          }
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "high_northern-house-9": {
+        "path": "validation/geojson/integration/truth_grid-high_northern-sun-house-9.geojson",
+        "sha256": "2d6d1ec9d4c0c0c00006fa8b4b3730d99ca8f0d7a65305c960e0a0c8a8f7dd3e",
+        "bytes": 29085,
+        "polygonCount": 56,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.6517366250045598,
+                "merge_validate_seconds": 0.19397708299948135,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  9
+                ]
+              }
+            },
+            "total_seconds": 0.8458203330010292,
+            "feature_count": 56
+          }
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": [
+          {
+            "name": "h7_false",
+            "lon": 172.5221,
+            "lat": -47.4666,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          },
+          {
+            "name": "h9_false",
+            "lon": 163.2506,
+            "lat": 3.4072,
+            "actual": 8,
+            "included": [],
+            "passes": true
+          }
+        ]
+      },
+      "southern-house-7": {
+        "path": "validation/geojson/integration/truth_grid-southern-sun-house-7.geojson",
+        "sha256": "7a940d3cc9df29c57e751f898d81ce304d8e2d4634952cb48cac3bd7dfc4eca7",
+        "bytes": 71928,
+        "polygonCount": 141,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.5417063339991728,
+                "merge_validate_seconds": 0.28095174999907613,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  7
+                ]
+              }
+            },
+            "total_seconds": 0.8228473749986733,
+            "feature_count": 141
+          }
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": []
+      },
+      "southern-house-8": {
+        "path": "validation/geojson/integration/truth_grid-southern-sun-house-8.geojson",
+        "sha256": "1b2bb19876ea1637c1222f118ec12da25f0a295b68aa32416fc5b23fc7ca0274",
+        "bytes": 56562,
+        "polygonCount": 110,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.7152378329992644,
+                "merge_validate_seconds": 0.2613488339993637,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  8
+                ]
+              }
+            },
+            "total_seconds": 0.9769710839973413,
+            "feature_count": 110
+          }
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": []
+      },
+      "southern-house-9": {
+        "path": "validation/geojson/integration/truth_grid-southern-sun-house-9.geojson",
+        "sha256": "d07a6e63b3c98cbd47f05bb247de45ec92dea7ae559f8cab42bb47086fb8be92",
+        "bytes": 29157,
+        "polygonCount": 56,
+        "properties": {
+          "generation_mode": "truth_grid",
+          "truth_grid": {
+            "generation_mode": "truth_grid",
+            "resolution": 0.75,
+            "latitude_cap": [
+              -65.0,
+              65.0
+            ],
+            "planets": {
+              "sun": {
+                "sample_count": 83040,
+                "classify_seconds": 0.5534765420015901,
+                "merge_validate_seconds": 0.19206349999876693,
+                "houses_cached": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "houses_returned": [
+                  9
+                ]
+              }
+            },
+            "total_seconds": 0.7456472089979798,
+            "feature_count": 56
+          }
+        },
+        "validationContradictions": 0,
+        "knownFalseChecks": []
+      }
+    }
+  },
+  "knownFalseProbeTruth": [
+    {
+      "name": "h7_false",
+      "lon": 172.5221,
+      "lat": -47.4666,
+      "actual": 8,
+      "popupSunHouse": 8
+    },
+    {
+      "name": "h9_false",
+      "lon": 163.2506,
+      "lat": 3.4072,
+      "actual": 8,
+      "popupSunHouse": 8
+    }
+  ]
+}

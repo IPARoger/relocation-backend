@@ -1,0 +1,29 @@
+{
+  "fixtureId": "edge_high_north",
+  "name": "Edge Case - High Northern Birth",
+  "birthData": {
+    "birth_year": 1988,
+    "birth_month": 6,
+    "birth_day": 21,
+    "birth_hour_utc": 3.2
+  },
+  "latitudeCap": [
+    -65.0,
+    65.0
+  ],
+  "reason": "High-latitude and seam-adjacent stress fixture with known false contour slivers.",
+  "knownFalseProbes": [
+    {
+      "name": "previous_false_house_7_sliver",
+      "lon": 172.5221,
+      "lat": -47.4666,
+      "actual_sun_house": 8
+    },
+    {
+      "name": "previous_false_house_9_sliver",
+      "lon": 163.2506,
+      "lat": 3.4072,
+      "actual_sun_house": 8
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "baseline_validated",
+    "name": "Baseline Validated Chart",
+    "date": "1976-01-13",
+    "time": "12:47",
+    "timezone": "UTC",
+    "place": "Test",
+    "lat": 0,
+    "lon": 0,
+    "notes": "Current validated baseline chart."
+  },
+  {
+    "id": "edge_high_north",
+    "name": "Edge Case — High Northern Birth",
+    "date": "1988-06-21",
+    "time": "03:12",
+    "timezone": "UTC",
+    "place": "Fairbanks, Alaska, USA",
+    "lat": 64.8378,
+    "lon": -147.7164,
+    "notes": "Temporary edge-case fixture using same date/time."
+  },
+  {
+    "id": "edge_southern",
+    "name": "Edge Case — Southern Hemisphere Birth",
+    "date": "1993-12-22",
+    "time": "18:40",
+    "timezone": "UTC",
+    "place": "Cape Town, South Africa",
+    "lat": -33.9249,
+    "lon": 18.4241,
+    "notes": "Temporary edge-case fixture using same date/time."
+  }
+]

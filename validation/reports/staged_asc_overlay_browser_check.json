@@ -1,0 +1,517 @@
+{
+  "url": "http://127.0.0.1:8000/map_CURRENT.html?generation_mode=truth_grid&debugGeometry=1",
+  "checks": [
+    {
+      "house": 7,
+      "angle": "ASC",
+      "aspect": "any",
+      "marks": {
+        "polygons": 1487,
+        "coarse": 1487,
+        "firstOverlay": 1641.2999999970198,
+        "medium": 1641.2999999970198,
+        "final": 2102.89999999851
+      },
+      "polygonCount": 157,
+      "aspectCount": 10,
+      "status": "ASC overlay final ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready\nOverlay stage: final\nAspect resolution: 0.5",
+      "allValidationZero": true,
+      "samples": [
+        {
+          "t": 1487,
+          "polygonCount": 157,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1537.6000000014901,
+          "polygonCount": 157,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1589,
+          "polygonCount": 157,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1641.2999999970198,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1692.6999999955297,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1743.5,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1794.6000000014901,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1846.1000000014901,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1897.3999999985099,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1948.8999999985099,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 2000.1999999955297,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 2051.5,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 2102.89999999851,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2154.5,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2206.39999999851,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2257.89999999851,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2309.2999999970198,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2360,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2411.89999999851,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 2463.10000000149,
+          "polygonCount": 157,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        }
+      ]
+    },
+    {
+      "house": 8,
+      "angle": "ASC",
+      "aspect": "any",
+      "marks": {
+        "polygons": 820.2000000029802,
+        "coarse": 820.2000000029802,
+        "firstOverlay": 921.8999999985099,
+        "medium": 921.8999999985099,
+        "final": 1434.2000000029802
+      },
+      "polygonCount": 126,
+      "aspectCount": 10,
+      "status": "ASC overlay final ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: ready\nOverlay stage: final\nAspect resolution: 0.5",
+      "allValidationZero": true,
+      "samples": [
+        {
+          "t": 820.2000000029802,
+          "polygonCount": 126,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 870.5,
+          "polygonCount": 126,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 921.8999999985099,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 973.2000000029802,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1024.7000000029802,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1075.8999999985099,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1127,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1178.2999999970198,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1229.5,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1280.8999999985099,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1332,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1382.7000000029802,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1434.2000000029802,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1484.2999999970198,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1535.5,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1587.2000000029802,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1638.5,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1689.7000000029802,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1740.8999999985099,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        },
+        {
+          "t": 1792,
+          "polygonCount": 126,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        }
+      ]
+    },
+    {
+      "house": 9,
+      "angle": "ASC",
+      "aspect": "any",
+      "marks": {
+        "polygons": 1024,
+        "coarse": 1024,
+        "firstOverlay": 1330.8999999985099,
+        "medium": 1330.8999999985099,
+        "final": 1995.3999999985099
+      },
+      "polygonCount": 56,
+      "aspectCount": 10,
+      "status": "ASC overlay final ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: ready\nOverlay stage: final\nAspect resolution: 0.5",
+      "allValidationZero": true,
+      "samples": [
+        {
+          "t": 1024,
+          "polygonCount": 56,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1075.2999999970198,
+          "polygonCount": 56,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1126.2999999970198,
+          "polygonCount": 56,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1177.3999999985099,
+          "polygonCount": 56,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1228.5999999940395,
+          "polygonCount": 56,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1279.6999999955297,
+          "polygonCount": 56,
+          "aspectCount": 0,
+          "status": "Calculating ASC overlay: coarse",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: coarse\nAspect resolution: 2"
+        },
+        {
+          "t": 1330.8999999985099,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1382.0999999940395,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1433.5,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1484.5999999940395,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1535.6999999955297,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1586.7999999970198,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1638,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1689.1999999955297,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1740.2999999970198,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1791.5,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1842.5999999940395,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1893.6999999955297,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1944.8999999985099,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: medium",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: medium\nAspect resolution: 1"
+        },
+        {
+          "t": 1995.3999999985099,
+          "polygonCount": 56,
+          "aspectCount": 10,
+          "status": "Calculating ASC overlay: final",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: refining\nOverlay stage: final\nAspect resolution: 0.5"
+        }
+      ]
+    },
+    {
+      "house": 7,
+      "angle": "MC",
+      "aspect": "any",
+      "marks": {
+        "polygons": 1074.2999999970198,
+        "firstOverlay": 1074.2999999970198,
+        "final": 1074.2999999970198
+      },
+      "polygonCount": 157,
+      "aspectCount": 8,
+      "status": "Angular overlay ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready\nOverlay stage: final\nAspect resolution: 0.5",
+      "allValidationZero": true,
+      "samples": [
+        {
+          "t": 1074.2999999970198,
+          "polygonCount": 157,
+          "aspectCount": 8,
+          "status": "Angular overlay ready",
+          "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready\nOverlay stage: final\nAspect resolution: 0.5"
+        }
+      ]
+    }
+  ],
+  "popupTruthSmoke": {
+    "status": 200,
+    "sunHouse": 1,
+    "asc": "29\u00b0 Gemini 10'",
+    "mc": "23\u00b0 Capricorn 43'"
+  },
+  "falseProbeCheck": {
+    "falseProbe7Included": false,
+    "falseProbe9Included": false,
+    "contradictions": 0
+  }
+}

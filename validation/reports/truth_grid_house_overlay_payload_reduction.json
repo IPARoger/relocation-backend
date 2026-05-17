@@ -1,0 +1,197 @@
+{
+  "title": "Truth-grid house overlay payload reduction",
+  "fixtureId": "edge_high_north",
+  "generationMode": "truth_grid_rectangular_run_merge",
+  "planet": "sun",
+  "latitudeCap": [
+    -65.0,
+    65.0
+  ],
+  "summary": [
+    {
+      "resolutionDegrees": 1.0,
+      "points": 46800,
+      "classifySeconds": 0.4492,
+      "mergeAndValidateSeconds": 0.589,
+      "allRawSizeBytes": 14209035,
+      "allMergedSizeBytes": 261037,
+      "allHousesCompressionRatio": 0.0184,
+      "totalMergedFeatures": 916,
+      "totalRawFeatures": 46800
+    },
+    {
+      "resolutionDegrees": 0.75,
+      "points": 83040,
+      "classifySeconds": 0.6544,
+      "mergeAndValidateSeconds": 1.5543,
+      "allRawSizeBytes": 26465933,
+      "allMergedSizeBytes": 361222,
+      "allHousesCompressionRatio": 0.0136,
+      "totalMergedFeatures": 1221,
+      "totalRawFeatures": 83040
+    },
+    {
+      "resolutionDegrees": 0.5,
+      "points": 187200,
+      "classifySeconds": 1.6603,
+      "mergeAndValidateSeconds": 3.2387,
+      "allRawSizeBytes": 58066571,
+      "allMergedSizeBytes": 557760,
+      "allHousesCompressionRatio": 0.0096,
+      "totalMergedFeatures": 1932,
+      "totalRawFeatures": 187200
+    }
+  ],
+  "geojsonOutputs": [
+    {
+      "step": 1.0,
+      "house": 7,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-1deg-high-northern-sun-house-7-raw.geojson",
+      "sha256": "5138bb121614faccee77b1ececf28c6ba1a74693e03a3f732ef5ee24e96b5186",
+      "bytes": 1202660
+    },
+    {
+      "step": 1.0,
+      "house": 7,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-1deg-high-northern-sun-house-7-merged.geojson",
+      "sha256": "063df6f56e74ba58e4c0aa21b9740c2d6cf16c7da7a52f01a6a634b61b285f22",
+      "bytes": 33453
+    },
+    {
+      "step": 1.0,
+      "house": 8,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-1deg-high-northern-sun-house-8-raw.geojson",
+      "sha256": "adb62de638d323ae0ec146be61aac988f7dde99acd82d68c996b499e47f479f0",
+      "bytes": 1193869
+    },
+    {
+      "step": 1.0,
+      "house": 8,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-1deg-high-northern-sun-house-8-merged.geojson",
+      "sha256": "fc86a61ac1deb4f37456d8231d0582947972850c3800703f259a96af928e98ca",
+      "bytes": 26947
+    },
+    {
+      "step": 1.0,
+      "house": 9,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-1deg-high-northern-sun-house-9-raw.geojson",
+      "sha256": "48a7f1399c7ec70f651567b2f4c4b0ae73fd3566ba09c5ef83da8f2dce1dbe1d",
+      "bytes": 1198202
+    },
+    {
+      "step": 1.0,
+      "house": 9,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-1deg-high-northern-sun-house-9-merged.geojson",
+      "sha256": "a0db6eb30c97011a147709e59ff58b67615df199f096a40b3b1bece34cf6f108",
+      "bytes": 12050
+    },
+    {
+      "step": 0.75,
+      "house": 7,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-0.75deg-high-northern-sun-house-7-raw.geojson",
+      "sha256": "59dd8ddec319bc8608595ae11ab2435025e81745902cc2b3e89662f2a9702ea0",
+      "bytes": 2236210
+    },
+    {
+      "step": 0.75,
+      "house": 7,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-0.75deg-high-northern-sun-house-7-merged.geojson",
+      "sha256": "bc668fd09e908aaee0049399e03f26b66e67cd20c84c42f4fc6999c37b99d766",
+      "bytes": 46925
+    },
+    {
+      "step": 0.75,
+      "house": 8,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-0.75deg-high-northern-sun-house-8-raw.geojson",
+      "sha256": "8eda9038cf86640b2845d32d6fb4644663303efcffb41a82810597d65ed79c4a",
+      "bytes": 2220502
+    },
+    {
+      "step": 0.75,
+      "house": 8,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-0.75deg-high-northern-sun-house-8-merged.geojson",
+      "sha256": "c0b8d0626cd15f0bed315ee54481dce88d67a2ecebaa04a70ce16663ce43ae12",
+      "bytes": 37366
+    },
+    {
+      "step": 0.75,
+      "house": 9,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-0.75deg-high-northern-sun-house-9-raw.geojson",
+      "sha256": "ec8619ba667672783b58c1fbb9da0a2f5e627dc8a2f2efaa1c80c39d0877d5e5",
+      "bytes": 2174110
+    },
+    {
+      "step": 0.75,
+      "house": 9,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-0.75deg-high-northern-sun-house-9-merged.geojson",
+      "sha256": "1e29b1270ca3c87e43fc70613632f1792e1748f4f43ed3d238ddec8704de320e",
+      "bytes": 16730
+    },
+    {
+      "step": 0.5,
+      "house": 7,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-0.5deg-high-northern-sun-house-7-raw.geojson",
+      "sha256": "7a8c11dc0220f27cb539014d3a9496c91b3b1baf440e4d80b02c91e7618f6988",
+      "bytes": 4915744
+    },
+    {
+      "step": 0.5,
+      "house": 7,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-0.5deg-high-northern-sun-house-7-merged.geojson",
+      "sha256": "4392cbd6001eb19ce253a59d405ab90e5e3822872b577e69c2465f3a9795bd1f",
+      "bytes": 69617
+    },
+    {
+      "step": 0.5,
+      "house": 8,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-0.5deg-high-northern-sun-house-8-raw.geojson",
+      "sha256": "e83539e95304d4df73854c5b6756e9671761733a39e044663ade1e06eba363f6",
+      "bytes": 4876928
+    },
+    {
+      "step": 0.5,
+      "house": 8,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-0.5deg-high-northern-sun-house-8-merged.geojson",
+      "sha256": "7ee76348b181a98187de4c9ec3d82173b5180c79ea7a6730001cd7f9a59f694b",
+      "bytes": 56103
+    },
+    {
+      "step": 0.5,
+      "house": 9,
+      "kind": "raw",
+      "path": "validation/geojson/truth-field-full-0.5deg-high-northern-sun-house-9-raw.geojson",
+      "sha256": "6bf7d5967f2a966c1266ee47b816c3e0d84e373c6a757b8cd63c4f2a4a9c1b54",
+      "bytes": 4819814
+    },
+    {
+      "step": 0.5,
+      "house": 9,
+      "kind": "merged",
+      "path": "validation/geojson/truth-field-full-0.5deg-high-northern-sun-house-9-merged.geojson",
+      "sha256": "c8d127af9f05e2fa3bcb8871891ae63823fce676c5fc6fd202922a4ddcb347d1",
+      "bytes": 24621
+    }
+  ],
+  "screenshots": [],
+  "notes": [
+    "Merging only combines exact same-house grid cells.",
+    "No smoothing, marching squares, or topology inference is applied.",
+    "Antimeridian-spanning runs remain split at the display seam."
+  ]
+}

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -8,13 +9,16 @@ import os
 swe.set_ephe_path(os.path.join(os.path.dirname(__file__), "ephe"))
 import numpy as np
 import json
+import time
 from pathlib import Path
 from scipy.ndimage import gaussian_filter
 from skimage import measure
 from skimage.measure import approximate_polygon
+from truth_grid_engine import generate_truth_grid_house_features
 
 app = FastAPI()
 CHARTS_FILE = Path(__file__).parent / "charts" / "chart_profiles.json"
+APP_DIR = Path(__file__).parent
 
 def load_chart_profiles():
     if not CHARTS_FILE.exists():
@@ -22,6 +26,18 @@ def load_chart_profiles():
 
     with open(CHARTS_FILE, "r") as f:
         return json.load(f)
+
+
+@app.get("/map_CURRENT.html")
+def serve_map_current():
+    return FileResponse(APP_DIR / "map_CURRENT.html", media_type="text/html")
+
+
+@app.get("/cities.js")
+def serve_cities_js():
+    return FileResponse(APP_DIR / "cities.js", media_type="application/javascript")
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -42,6 +58,11 @@ class SearchRequest(BaseModel):
     birth_hour_utc: float
     house_conditions: List[Condition]
     resolution: float = 1.5
+    generation_mode: str = "contour"
+    truth_grid_resolution: float = 0.75
+    return_all_houses: bool = False
+    aspect_resolution: float = 0.5
+    overlay_stage: str | None = None
     aspect_overlay: dict | None = None
 
 def julian_day(year, month, day, hour_utc):
@@ -116,57 +137,82 @@ def search_regions(req: SearchRequest):
 
     features = []
     aspect_features = []
+    aspect_metadata = None
 
     # =====================================
     # HOUSE REGION SEARCH
     # =====================================
-    for idx, cond in enumerate(req.house_conditions):
-        mask = np.zeros((len(lat_grid), len(lon_grid)), dtype=np.uint8)
-        planet_long = planets[cond.planet.lower()]
+    if req.generation_mode == "truth_grid":
+        features, truth_grid_metadata = generate_truth_grid_house_features(
+            jd,
+            planets,
+            req.house_conditions,
+            req.truth_grid_resolution,
+            req.return_all_houses
+        )
+    else:
+        truth_grid_metadata = None
+        for idx, cond in enumerate(req.house_conditions):
+            mask = np.zeros((len(lat_grid), len(lon_grid)), dtype=np.uint8)
+            planet_name = cond.planet.lower()
+            planet_long = planets[planet_name]
+            polygon_index = 0
 
-        for i, lat in enumerate(lat_grid):
-            for j, lon in enumerate(lon_grid):
-                try:
-                    cusps = get_houses(jd, lat, lon)
-                    if planet_in_house(planet_long, cond.house, cusps):
-                        mask[i, j] = 1
-                except:
-                    pass
+            for i, lat in enumerate(lat_grid):
+                for j, lon in enumerate(lon_grid):
+                    try:
+                        cusps = get_houses(jd, lat, lon)
+                        if planet_in_house(planet_long, cond.house, cusps):
+                            mask[i, j] = 1
+                    except:
+                        pass
 
-        smooth_mask = gaussian_filter(mask.astype(float), sigma=1.2)
-        contours = measure.find_contours(smooth_mask, 0.5)
+            smooth_mask = gaussian_filter(mask.astype(float), sigma=1.2)
+            contours = measure.find_contours(smooth_mask, 0.5)
 
-        for contour in contours:
-            if len(contour) < 20:
-                continue
-            contour = approximate_polygon(contour, tolerance=0.08)
-            coords = []
+            for contour in contours:
+                if len(contour) < 20:
+                    continue
+                contour = approximate_polygon(contour, tolerance=0.08)
+                coords = []
 
-            for point in contour:
-                lat_f = point[0]
-                lon_f = point[1]
+                for point in contour:
+                    lat_f = point[0]
+                    lon_f = point[1]
 
-                if 0 <= lat_f < len(lat_grid) - 1 and 0 <= lon_f < len(lon_grid) - 1:
-                    lat_i = int(lat_f)
-                    lon_i = int(lon_f)
-                    lat_frac = lat_f - lat_i
-                    lon_frac = lon_f - lon_i
-                    lat_val = lat_grid[lat_i] * (1 - lat_frac) + lat_grid[lat_i + 1] * lat_frac
-                    lon_val = lon_grid[lon_i] * (1 - lon_frac) + lon_grid[lon_i + 1] * lon_frac
-                    coords.append([float(lon_val), float(lat_val)])
-            if len(coords) >= 3:
-                features.append({
-                    "type": "Feature",
-                    "geometry": {"type": "Polygon", "coordinates": [coords]},
-                    "properties": {"condition_index": idx, "overlap_count": 1}
-                })
+                    if 0 <= lat_f < len(lat_grid) - 1 and 0 <= lon_f < len(lon_grid) - 1:
+                        lat_i = int(lat_f)
+                        lon_i = int(lon_f)
+                        lat_frac = lat_f - lat_i
+                        lon_frac = lon_f - lon_i
+                        lat_val = lat_grid[lat_i] * (1 - lat_frac) + lat_grid[lat_i + 1] * lat_frac
+                        lon_val = lon_grid[lon_i] * (1 - lon_frac) + lon_grid[lon_i + 1] * lon_frac
+                        coords.append([float(lon_val), float(lat_val)])
+                if len(coords) >= 3:
+                    features.append({
+                        "type": "Feature",
+                        "geometry": {"type": "Polygon", "coordinates": [coords]},
+                        "properties": {
+                            "canonicalFeatureId": f"house-{idx}-{planet_name}-{cond.house}-{polygon_index}",
+                            "planet": planet_name,
+                            "house": cond.house,
+                            "condition_index": idx,
+                            "overlap_count": 1,
+                            "generation_mode": "contour"
+                        }
+                    })
+                    polygon_index += 1
 
     # =====================================
     # ASPECT OVERLAY (MC and ASC)
     # =====================================
     if req.aspect_overlay:
+        aspect_started = time.perf_counter()
         selected_planet = req.aspect_overlay.get("planet", "sun").lower()
         selected_angle = req.aspect_overlay.get("angle", "MC").upper()
+        selected_aspect = req.aspect_overlay.get("aspect", "conjunction").lower()
+        aspect_resolution = req.aspect_resolution if req.aspect_resolution > 0 else 0.5
+        overlay_stage = req.overlay_stage or "final"
 
         planet_ids = {
             "sun": swe.SUN, "moon": swe.MOON, "mercury": swe.MERCURY,
@@ -201,7 +247,35 @@ def search_regions(req: SearchRequest):
                 120: "#00cc66", 240: "#00cc66", 60: "#bb66ff", 300: "#bb66ff"
             }
 
-            offsets = aspect_sets.get(req.aspect_overlay.get("aspect", "conjunction").lower(), [0])
+            offsets = aspect_sets.get(selected_aspect, [0])
+            timing = {
+                "total_seconds": None,
+                "asc_grid_seconds": None,
+                "asc_contour_seconds": None
+            }
+
+            if selected_angle == "ASC":
+                grid_started = time.perf_counter()
+                lat_vals = np.arange(-65, 66, aspect_resolution)
+                lon_vals = np.arange(-180, 181, aspect_resolution)
+
+                asc_grid = np.full(
+                    (len(lat_vals), len(lon_vals)),
+                    np.nan
+                )
+
+                sample_count = 0
+                for i, lat in enumerate(lat_vals):
+                    for j, lon in enumerate(lon_vals):
+                        try:
+                            _, ascmc = swe.houses(jd, lat, lon, b'P')
+                            asc_grid[i, j] = ascmc[0] % 360
+                            sample_count += 1
+                        except Exception:
+                            pass
+
+                timing["asc_grid_seconds"] = round(time.perf_counter() - grid_started, 4)
+                contour_started = time.perf_counter()
 
             for offset in offsets:
                 target_ra = (planet_ra_deg + offset) % 360
@@ -236,6 +310,9 @@ def search_regions(req: SearchRequest):
                         "properties": {
                             "planet": selected_planet,
                             "angle": "MC",
+                            "aspect": selected_aspect,
+                            "overlay_stage": overlay_stage,
+                            "aspect_resolution": aspect_resolution,
                             "color": aspect_colors.get(offset, "#0066ff"),
                             "weight": 4,
                             "opacity": 0.95
@@ -246,30 +323,24 @@ def search_regions(req: SearchRequest):
                 # ASC CALCULATION
                 # =====================================
                 if selected_angle == "ASC":
-                    lat_vals = np.arange(-65, 66, 0.5)
-                    lon_vals = np.arange(-180, 181, 0.5)
-
                     diff_grid = np.full(
-                        (len(lat_vals), len(lon_vals)),
+                        asc_grid.shape,
                         np.nan
                     )
 
-                    for i, lat in enumerate(lat_vals):
-                        for j, lon in enumerate(lon_vals):
-                            try:
-                                cusps, ascmc = swe.houses(jd, lat, lon, b'P')
-                                asc = ascmc[0] % 360
+                    for i in range(asc_grid.shape[0]):
+                        for j in range(asc_grid.shape[1]):
+                            asc = asc_grid[i, j]
+                            if np.isnan(asc):
+                                continue
 
-                                diff = signed_angle_diff(
-                                    asc,
-                                    target_lon
-                                )
+                            diff = signed_angle_diff(
+                                float(asc),
+                                target_lon
+                            )
 
-                                if abs(diff) < 90:
-                                    diff_grid[i, j] = diff
-
-                            except Exception:
-                                pass
+                            if abs(diff) < 90:
+                                diff_grid[i, j] = diff
 
                     contours = measure.find_contours(diff_grid, 0.0)
 
@@ -306,17 +377,42 @@ def search_regions(req: SearchRequest):
                                 "properties": {
                                     "planet": selected_planet,
                                     "angle": "ASC",
+                                    "aspect": selected_aspect,
                                     "aspect_offset": offset,
+                                    "overlay_stage": overlay_stage,
+                                    "aspect_resolution": aspect_resolution,
                                     "color": aspect_colors.get(offset, "#00e5ff"),
                                     "weight": 2,
                                     "opacity": 1.0
                                 }
                             })
-                        
-        return {
-            "type": "FeatureCollection",
-            "features": features + aspect_features
+
+            if selected_angle == "ASC":
+                timing["asc_contour_seconds"] = round(time.perf_counter() - contour_started, 4)
+
+            timing["total_seconds"] = round(time.perf_counter() - aspect_started, 4)
+            aspect_metadata = {
+                "angle": selected_angle,
+                "aspect_set": selected_aspect,
+                "aspect_resolution": aspect_resolution,
+                "overlay_stage": overlay_stage,
+                "timing": timing,
+                "feature_count": len(aspect_features),
+            }
+            if selected_angle == "ASC":
+                aspect_metadata["sample_count"] = sample_count
+                aspect_metadata["grid_shape"] = [len(lat_vals), len(lon_vals)]
+
+    response = {
+        "type": "FeatureCollection",
+        "features": features + aspect_features,
+        "properties": {
+            "generation_mode": req.generation_mode,
+            "truth_grid": truth_grid_metadata,
+            "aspect_overlay": aspect_metadata
         }
+    }
+    return response
 @app.get("/relocated-chart")
 def relocated_chart(
     lat: float,

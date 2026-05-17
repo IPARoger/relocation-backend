@@ -1,0 +1,1201 @@
+{
+  "fixture": "high_northern",
+  "planet": "sun",
+  "strategy": "truth-grid-rectangular-run-merge",
+  "notes": [
+    "Merging only combines exact same-house grid cells.",
+    "No smoothing, marching squares, or topology inference is applied.",
+    "Antimeridian-spanning runs remain split at the display seam."
+  ],
+  "results": [
+    {
+      "step": 1.0,
+      "points": 46800,
+      "classifySeconds": 0.4492,
+      "mergeAndValidateSeconds": 0.589,
+      "boundaryCellCount": 4080,
+      "allRawSizeBytes": 14209035,
+      "allMergedSizeBytes": 261037,
+      "allHousesCompressionRatio": 0.0184,
+      "houses": {
+        "1": {
+          "rawFeatureCount": 3898,
+          "mergedFeatureCount": 102,
+          "rawSizeBytes": 1162088,
+          "mergedSizeBytes": 28462,
+          "compressionRatio": 0.0245,
+          "validation": {
+            "sampledPoints": 3898,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "2": {
+          "rawFeatureCount": 3901,
+          "mergedFeatureCount": 75,
+          "rawSizeBytes": 1165121,
+          "mergedSizeBytes": 21142,
+          "compressionRatio": 0.0181,
+          "validation": {
+            "sampledPoints": 3901,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "3": {
+          "rawFeatureCount": 3953,
+          "mergedFeatureCount": 42,
+          "rawSizeBytes": 1202719,
+          "mergedSizeBytes": 12003,
+          "compressionRatio": 0.01,
+          "validation": {
+            "sampledPoints": 3953,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "4": {
+          "rawFeatureCount": 3847,
+          "mergedFeatureCount": 42,
+          "rawSizeBytes": 1171206,
+          "mergedSizeBytes": 12036,
+          "compressionRatio": 0.0103,
+          "validation": {
+            "sampledPoints": 3847,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "5": {
+          "rawFeatureCount": 3899,
+          "mergedFeatureCount": 75,
+          "rawSizeBytes": 1196060,
+          "mergedSizeBytes": 21514,
+          "compressionRatio": 0.018,
+          "validation": {
+            "sampledPoints": 3899,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "6": {
+          "rawFeatureCount": 3902,
+          "mergedFeatureCount": 109,
+          "rawSizeBytes": 1208741,
+          "mergedSizeBytes": 31417,
+          "compressionRatio": 0.026,
+          "validation": {
+            "sampledPoints": 3902,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "7": {
+          "rawFeatureCount": 3898,
+          "mergedFeatureCount": 116,
+          "rawSizeBytes": 1202660,
+          "mergedSizeBytes": 33453,
+          "compressionRatio": 0.0278,
+          "validation": {
+            "sampledPoints": 3898,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-1deg-high-northern-sun-house-7-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-1deg-high-northern-sun-house-7-merged.geojson"
+        },
+        "8": {
+          "rawFeatureCount": 3901,
+          "mergedFeatureCount": 94,
+          "rawSizeBytes": 1193869,
+          "mergedSizeBytes": 26947,
+          "compressionRatio": 0.0226,
+          "validation": {
+            "sampledPoints": 3901,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": true,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": true,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-1deg-high-northern-sun-house-8-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-1deg-high-northern-sun-house-8-merged.geojson"
+        },
+        "9": {
+          "rawFeatureCount": 3953,
+          "mergedFeatureCount": 42,
+          "rawSizeBytes": 1198202,
+          "mergedSizeBytes": 12050,
+          "compressionRatio": 0.0101,
+          "validation": {
+            "sampledPoints": 3953,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-1deg-high-northern-sun-house-9-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-1deg-high-northern-sun-house-9-merged.geojson"
+        },
+        "10": {
+          "rawFeatureCount": 3847,
+          "mergedFeatureCount": 42,
+          "rawSizeBytes": 1171906,
+          "mergedSizeBytes": 12067,
+          "compressionRatio": 0.0103,
+          "validation": {
+            "sampledPoints": 3847,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "11": {
+          "rawFeatureCount": 3899,
+          "mergedFeatureCount": 75,
+          "rawSizeBytes": 1169612,
+          "mergedSizeBytes": 21247,
+          "compressionRatio": 0.0182,
+          "validation": {
+            "sampledPoints": 3899,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "12": {
+          "rawFeatureCount": 3902,
+          "mergedFeatureCount": 102,
+          "rawSizeBytes": 1166851,
+          "mergedSizeBytes": 28699,
+          "compressionRatio": 0.0246,
+          "validation": {
+            "sampledPoints": 3902,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        }
+      }
+    },
+    {
+      "step": 0.75,
+      "points": 83040,
+      "classifySeconds": 0.6544,
+      "mergeAndValidateSeconds": 1.5543,
+      "boundaryCellCount": 5450,
+      "allRawSizeBytes": 26465933,
+      "allMergedSizeBytes": 361222,
+      "allHousesCompressionRatio": 0.0136,
+      "houses": {
+        "1": {
+          "rawFeatureCount": 6925,
+          "mergedFeatureCount": 137,
+          "rawSizeBytes": 2168968,
+          "mergedSizeBytes": 39742,
+          "compressionRatio": 0.0183,
+          "validation": {
+            "sampledPoints": 6925,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "2": {
+          "rawFeatureCount": 6933,
+          "mergedFeatureCount": 97,
+          "rawSizeBytes": 2174780,
+          "mergedSizeBytes": 28390,
+          "compressionRatio": 0.0131,
+          "validation": {
+            "sampledPoints": 6933,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "3": {
+          "rawFeatureCount": 6852,
+          "mergedFeatureCount": 56,
+          "rawSizeBytes": 2188341,
+          "mergedSizeBytes": 16670,
+          "compressionRatio": 0.0076,
+          "validation": {
+            "sampledPoints": 6852,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "4": {
+          "rawFeatureCount": 7008,
+          "mergedFeatureCount": 56,
+          "rawSizeBytes": 2239415,
+          "mergedSizeBytes": 16697,
+          "compressionRatio": 0.0075,
+          "validation": {
+            "sampledPoints": 7008,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "5": {
+          "rawFeatureCount": 6926,
+          "mergedFeatureCount": 97,
+          "rawSizeBytes": 2228875,
+          "mergedSizeBytes": 28858,
+          "compressionRatio": 0.0129,
+          "validation": {
+            "sampledPoints": 6926,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "6": {
+          "rawFeatureCount": 6931,
+          "mergedFeatureCount": 149,
+          "rawSizeBytes": 2251789,
+          "mergedSizeBytes": 44517,
+          "compressionRatio": 0.0198,
+          "validation": {
+            "sampledPoints": 6931,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "7": {
+          "rawFeatureCount": 6909,
+          "mergedFeatureCount": 157,
+          "rawSizeBytes": 2236210,
+          "mergedSizeBytes": 46925,
+          "compressionRatio": 0.021,
+          "validation": {
+            "sampledPoints": 6909,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.75deg-high-northern-sun-house-7-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.75deg-high-northern-sun-house-7-merged.geojson"
+        },
+        "8": {
+          "rawFeatureCount": 6914,
+          "mergedFeatureCount": 126,
+          "rawSizeBytes": 2220502,
+          "mergedSizeBytes": 37366,
+          "compressionRatio": 0.0168,
+          "validation": {
+            "sampledPoints": 6914,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": true,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": true,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.75deg-high-northern-sun-house-8-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.75deg-high-northern-sun-house-8-merged.geojson"
+        },
+        "9": {
+          "rawFeatureCount": 6832,
+          "mergedFeatureCount": 56,
+          "rawSizeBytes": 2174110,
+          "mergedSizeBytes": 16730,
+          "compressionRatio": 0.0077,
+          "validation": {
+            "sampledPoints": 6832,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.75deg-high-northern-sun-house-9-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.75deg-high-northern-sun-house-9-merged.geojson"
+        },
+        "10": {
+          "rawFeatureCount": 6988,
+          "mergedFeatureCount": 56,
+          "rawSizeBytes": 2234479,
+          "mergedSizeBytes": 16725,
+          "compressionRatio": 0.0075,
+          "validation": {
+            "sampledPoints": 6988,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "11": {
+          "rawFeatureCount": 6907,
+          "mergedFeatureCount": 97,
+          "rawSizeBytes": 2176105,
+          "mergedSizeBytes": 28519,
+          "compressionRatio": 0.0131,
+          "validation": {
+            "sampledPoints": 6907,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "12": {
+          "rawFeatureCount": 6915,
+          "mergedFeatureCount": 137,
+          "rawSizeBytes": 2172359,
+          "mergedSizeBytes": 40083,
+          "compressionRatio": 0.0185,
+          "validation": {
+            "sampledPoints": 6915,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        }
+      }
+    },
+    {
+      "step": 0.5,
+      "points": 187200,
+      "classifySeconds": 1.6603,
+      "mergeAndValidateSeconds": 3.2387,
+      "boundaryCellCount": 8276,
+      "allRawSizeBytes": 58066571,
+      "allMergedSizeBytes": 557760,
+      "allHousesCompressionRatio": 0.0096,
+      "houses": {
+        "1": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 210,
+          "rawSizeBytes": 4753323,
+          "mergedSizeBytes": 59467,
+          "compressionRatio": 0.0125,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "2": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 172,
+          "rawSizeBytes": 4761458,
+          "mergedSizeBytes": 49130,
+          "compressionRatio": 0.0103,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "3": {
+          "rawFeatureCount": 15564,
+          "mergedFeatureCount": 85,
+          "rawSizeBytes": 4837675,
+          "mergedSizeBytes": 24525,
+          "compressionRatio": 0.0051,
+          "validation": {
+            "sampledPoints": 15564,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "4": {
+          "rawFeatureCount": 15636,
+          "mergedFeatureCount": 85,
+          "rawSizeBytes": 4863088,
+          "mergedSizeBytes": 24598,
+          "compressionRatio": 0.0051,
+          "validation": {
+            "sampledPoints": 15636,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "5": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 172,
+          "rawSizeBytes": 4887503,
+          "mergedSizeBytes": 49951,
+          "compressionRatio": 0.0102,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "6": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 225,
+          "rawSizeBytes": 4935111,
+          "mergedSizeBytes": 65756,
+          "compressionRatio": 0.0133,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "7": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 238,
+          "rawSizeBytes": 4915744,
+          "mergedSizeBytes": 69617,
+          "compressionRatio": 0.0142,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.5deg-high-northern-sun-house-7-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.5deg-high-northern-sun-house-7-merged.geojson"
+        },
+        "8": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 193,
+          "rawSizeBytes": 4876928,
+          "mergedSizeBytes": 56103,
+          "compressionRatio": 0.0115,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": true,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": true,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.5deg-high-northern-sun-house-8-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.5deg-high-northern-sun-house-8-merged.geojson"
+        },
+        "9": {
+          "rawFeatureCount": 15564,
+          "mergedFeatureCount": 85,
+          "rawSizeBytes": 4819814,
+          "mergedSizeBytes": 24621,
+          "compressionRatio": 0.0051,
+          "validation": {
+            "sampledPoints": 15564,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.5deg-high-northern-sun-house-9-raw.geojson",
+          "mergedOutput": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-full-0.5deg-high-northern-sun-house-9-merged.geojson"
+        },
+        "10": {
+          "rawFeatureCount": 15636,
+          "mergedFeatureCount": 85,
+          "rawSizeBytes": 4866250,
+          "mergedSizeBytes": 24655,
+          "compressionRatio": 0.0051,
+          "validation": {
+            "sampledPoints": 15636,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "11": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 172,
+          "rawSizeBytes": 4782073,
+          "mergedSizeBytes": 49369,
+          "compressionRatio": 0.0103,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        },
+        "12": {
+          "rawFeatureCount": 15600,
+          "mergedFeatureCount": 210,
+          "rawSizeBytes": 4767604,
+          "mergedSizeBytes": 59968,
+          "compressionRatio": 0.0126,
+          "validation": {
+            "sampledPoints": 15600,
+            "contradictionCount": 0,
+            "sampledContradictions": []
+          },
+          "knownFalseChecks": [
+            {
+              "name": "previous_false_house_7_sliver",
+              "lon": 172.5221,
+              "lat": -47.4666,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            },
+            {
+              "name": "previous_false_house_9_sliver",
+              "lon": 163.2506,
+              "lat": 3.4072,
+              "actual_sun_house": 8,
+              "includedInMergedHouse": false,
+              "passes": true
+            }
+          ],
+          "rawOutput": null,
+          "mergedOutput": null
+        }
+      }
+    }
+  ],
+  "reportPath": "validation_screenshots/truth-field-prototype/merge-benchmark/truth-field-merge-benchmark-report.json"
+}

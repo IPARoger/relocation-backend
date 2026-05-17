@@ -1,0 +1,54 @@
+{
+  "checks": [
+    {
+      "house": 7,
+      "angle": "ASC",
+      "aspect": "any",
+      "firstPolygonMs": 1114.5,
+      "readyMs": 12766.90000000596,
+      "polygonCount": 157,
+      "aspectCount": 10,
+      "status": "Angular overlay ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready"
+    },
+    {
+      "house": 8,
+      "angle": "ASC",
+      "aspect": "any",
+      "firstPolygonMs": 1110.1000000014901,
+      "readyMs": 13559.69999999553,
+      "polygonCount": 126,
+      "aspectCount": 10,
+      "status": "Angular overlay ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 126\nValidation contradictions: 0\nAspect overlay status: ready"
+    },
+    {
+      "house": 9,
+      "angle": "ASC",
+      "aspect": "any",
+      "firstPolygonMs": 809.5,
+      "readyMs": 11924.89999999851,
+      "polygonCount": 56,
+      "aspectCount": 10,
+      "status": "Angular overlay ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 56\nValidation contradictions: 0\nAspect overlay status: ready"
+    },
+    {
+      "house": 7,
+      "angle": "MC",
+      "aspect": "any",
+      "firstPolygonMs": 1214.2999999970198,
+      "readyMs": 1214.2999999970198,
+      "polygonCount": 157,
+      "aspectCount": 8,
+      "status": "Angular overlay ready",
+      "debug": "Generation mode: truth_grid\nResolution: 0.75\nDebug geometry: on\nFeature count: 157\nValidation contradictions: 0\nAspect overlay status: ready"
+    }
+  ],
+  "popupTruthSmoke": {
+    "status": 200,
+    "sunHouse": 1,
+    "asc": "29\u00b0 Gemini 10'",
+    "mc": "23\u00b0 Capricorn 43'"
+  }
+}

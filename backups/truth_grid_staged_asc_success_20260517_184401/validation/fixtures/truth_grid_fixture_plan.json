@@ -1,0 +1,170 @@
+{
+  "purpose": "Manual and automated fixture plan for truth-grid house overlay regression testing.",
+  "current_validated_profiles": [
+    {
+      "id": "baseline_validated",
+      "name": "Baseline Validated Chart",
+      "birth_date": "1976-01-13",
+      "birth_time_utc": "12:47",
+      "place": "Test",
+      "stress_reason": "Normal baseline chart for regression sanity.",
+      "expected_failure_mode_tested": "General house continuity and normal-latitude rendering regressions."
+    },
+    {
+      "id": "edge_high_north",
+      "name": "Edge Case - High Northern Birth",
+      "birth_date": "1988-06-21",
+      "birth_time_utc": "03:12",
+      "place": "Fairbanks, Alaska, USA",
+      "stress_reason": "High northern solstice-like chart that previously exposed seam-adjacent false contour slivers.",
+      "expected_failure_mode_tested": "False seam/sliver regions, house 7/8/9 identity contamination, and high-latitude rendering artifacts."
+    },
+    {
+      "id": "edge_southern",
+      "name": "Edge Case - Southern Hemisphere Birth",
+      "birth_date": "1993-12-22",
+      "birth_time_utc": "18:40",
+      "place": "Cape Town, South Africa",
+      "stress_reason": "Southern Hemisphere December-solstice stress chart.",
+      "expected_failure_mode_tested": "Southern clipped/orphan fragments and Pacific/Australia seam-adjacent artifacts."
+    }
+  ],
+  "future_stress_fixtures": [
+    {
+      "id": "march_equinox_greenwich",
+      "name": "March Equinox Greenwich",
+      "birth_date": "1990-03-20",
+      "birth_time_utc": "21:00",
+      "stress_reason": "Equinox baseline with relatively balanced day/night geometry.",
+      "expected_failure_mode_tested": "General truth-grid consistency across all houses without solstice extremes."
+    },
+    {
+      "id": "september_equinox_greenwich",
+      "name": "September Equinox Greenwich",
+      "birth_date": "1990-09-23",
+      "birth_time_utc": "08:00",
+      "stress_reason": "Opposite equinox season from March fixture.",
+      "expected_failure_mode_tested": "Seasonal symmetry regressions and house-boundary drift."
+    },
+    {
+      "id": "june_solstice_high_north",
+      "name": "June Solstice High North",
+      "birth_date": "2001-06-21",
+      "birth_time_utc": "12:00",
+      "stress_reason": "Northern solstice with high-latitude sensitivity.",
+      "expected_failure_mode_tested": "Compressed high-north houses, seam-adjacent false positives, and Placidus edge behavior near the latitude cap."
+    },
+    {
+      "id": "december_solstice_high_south",
+      "name": "December Solstice High South",
+      "birth_date": "2001-12-21",
+      "birth_time_utc": "12:00",
+      "stress_reason": "Southern solstice counterpart to high-north solstice stress.",
+      "expected_failure_mode_tested": "Southern Hemisphere orphan fragments and false fills near southern map edge."
+    },
+    {
+      "id": "antimeridian_noon",
+      "name": "Antimeridian Noon Stress",
+      "birth_date": "1995-04-15",
+      "birth_time_utc": "00:00",
+      "stress_reason": "Time chosen for repeated antimeridian/world-wrap inspection.",
+      "expected_failure_mode_tested": "Left/right map edge discontinuity and duplicate-world rendering confusion."
+    },
+    {
+      "id": "antimeridian_midnight",
+      "name": "Antimeridian Midnight Stress",
+      "birth_date": "1995-04-15",
+      "birth_time_utc": "12:00",
+      "stress_reason": "Twelve-hour counterpart to antimeridian noon fixture.",
+      "expected_failure_mode_tested": "Longitude-periodicity regressions and seam artifacts that depend on chart rotation."
+    },
+    {
+      "id": "pacific_island_boundary",
+      "name": "Pacific Island Boundary Stress",
+      "birth_date": "1984-11-05",
+      "birth_time_utc": "06:30",
+      "stress_reason": "Manual QA should focus on Fiji, Tonga, Samoa, and New Zealand edge-adjacent map areas.",
+      "expected_failure_mode_tested": "Small legitimate islands confused with false seam slivers."
+    },
+    {
+      "id": "bering_strait_boundary",
+      "name": "Bering Strait Boundary Stress",
+      "birth_date": "1984-11-05",
+      "birth_time_utc": "18:30",
+      "stress_reason": "Manual QA should focus on Alaska, eastern Russia, and the Aleutian edge.",
+      "expected_failure_mode_tested": "Feature identity mismatch across the antimeridian."
+    },
+    {
+      "id": "cusp_dense_morning",
+      "name": "Cusp-heavy Morning",
+      "birth_date": "2000-01-01",
+      "birth_time_utc": "00:00",
+      "stress_reason": "Round-date chart useful for repeated cusp-boundary clicks.",
+      "expected_failure_mode_tested": "Popup truth disagreements near region boundaries."
+    },
+    {
+      "id": "cusp_dense_evening",
+      "name": "Cusp-heavy Evening",
+      "birth_date": "2000-01-01",
+      "birth_time_utc": "18:00",
+      "stress_reason": "Same date as cusp-heavy morning with rotated house geometry.",
+      "expected_failure_mode_tested": "Boundary-sensitive house swaps and stale layer rendering."
+    },
+    {
+      "id": "multi_planet_overlap",
+      "name": "Multi-planet Overlap Stress",
+      "birth_date": "1979-08-12",
+      "birth_time_utc": "09:45",
+      "stress_reason": "Fixture for Planet A/B/C combinations once broader overlay QA starts.",
+      "expected_failure_mode_tested": "Color/condition-index confusion and popup debug identity mismatches."
+    },
+    {
+      "id": "asc_all_major_slow_path",
+      "name": "ASC All-major Slow Path",
+      "birth_date": "1988-06-21",
+      "birth_time_utc": "03:12",
+      "stress_reason": "Uses the current high-north chart to verify async overlay behavior.",
+      "expected_failure_mode_tested": "House polygons blocked by slow ASC all-major overlay."
+    },
+    {
+      "id": "mc_all_major_fast_path",
+      "name": "MC All-major Fast Path",
+      "birth_date": "1988-06-21",
+      "birth_time_utc": "03:12",
+      "stress_reason": "Fast angular overlay counterpart to ASC all-major.",
+      "expected_failure_mode_tested": "Regression where MC overlay waits unnecessarily or fails to render after split requests."
+    },
+    {
+      "id": "high_north_winter",
+      "name": "High North Winter",
+      "birth_date": "1988-12-21",
+      "birth_time_utc": "03:12",
+      "stress_reason": "High-north winter counterpart to the validated high-north summer chart.",
+      "expected_failure_mode_tested": "Seasonal inversion of high-latitude house shapes and seam behavior."
+    },
+    {
+      "id": "high_south_winter",
+      "name": "High South Winter",
+      "birth_date": "1993-06-21",
+      "birth_time_utc": "18:40",
+      "stress_reason": "Southern high-latitude winter counterpart to the validated southern summer chart.",
+      "expected_failure_mode_tested": "Southern cap behavior and polar-adjacent missing/false regions."
+    },
+    {
+      "id": "optional_above_cap_arctic",
+      "name": "Optional Above-cap Arctic",
+      "birth_date": "1988-06-21",
+      "birth_time_utc": "03:12",
+      "stress_reason": "Optional above +/-65 polar stress outside the MVP display cap.",
+      "expected_failure_mode_tested": "Clear failure handling or intentional exclusion above the truth-grid latitude cap."
+    },
+    {
+      "id": "optional_above_cap_antarctic",
+      "name": "Optional Above-cap Antarctic",
+      "birth_date": "1993-12-22",
+      "birth_time_utc": "18:40",
+      "stress_reason": "Optional southern polar stress outside the MVP display cap.",
+      "expected_failure_mode_tested": "No misleading fills beyond the supported truth-grid latitude cap."
+    }
+  ]
+}
