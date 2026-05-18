@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 
 import swisseph as swe
@@ -14,7 +14,12 @@ from pathlib import Path
 from scipy.ndimage import gaussian_filter
 from skimage import measure
 from skimage.measure import approximate_polygon
-from truth_grid_engine import generate_truth_grid_house_features
+from truth_grid_engine import (
+    SIGN_NAMES,
+    generate_angle_sign_features,
+    generate_truth_grid_house_features,
+    normalize_angle_sign_code,
+)
 
 app = FastAPI()
 CHARTS_FILE = Path(__file__).parent / "charts" / "chart_profiles.json"
@@ -51,12 +56,18 @@ class Condition(BaseModel):
     house: int
     orb: float = 2.0
 
+
+class AngleSignCondition(BaseModel):
+    angle: str
+    sign: str
+
 class SearchRequest(BaseModel):
     birth_year: int
     birth_month: int
     birth_day: int
     birth_hour_utc: float
     house_conditions: List[Condition]
+    angle_sign_conditions: List[AngleSignCondition] = Field(default_factory=list)
     resolution: float = 1.5
     generation_mode: str = "contour"
     truth_grid_resolution: float = 0.75
@@ -84,6 +95,18 @@ def get_houses(jd, lat, lon):
     cusps, _ = swe.houses(jd, lat, lon, b'P')
     return [c % 360 for c in cusps[:12]]
 
+def min_degrees_to_any_cusp(planet_lon: float, cusps12: list[float]) -> float:
+    """Smallest angle (0–180°) from planet longitude to any Placidus cusp."""
+    p = planet_lon % 360
+    best = 180.0
+    for c in cusps12:
+        c = c % 360
+        d = abs(((p - c + 180) % 360) - 180)
+        if d < best:
+            best = d
+    return best
+
+
 def planet_in_house(planet_long, house_num, cusps):
     start = cusps[house_num - 1]
     end = cusps[house_num % 12]
@@ -99,22 +122,6 @@ def signed_angle_diff(a, b):
 
 
 def format_zodiac(deg):
-
-    signs = [
-        "Aries",
-        "Taurus",
-        "Gemini",
-        "Cancer",
-        "Leo",
-        "Virgo",
-        "Libra",
-        "Scorpio",
-        "Sagittarius",
-        "Capricorn",
-        "Aquarius",
-        "Pisces"
-    ]
-
     deg = deg % 360
 
     sign_index = int(deg // 30)
@@ -125,7 +132,11 @@ def format_zodiac(deg):
 
     minutes = int((sign_deg - whole_deg) * 60)
 
-    return f"{whole_deg}° {signs[sign_index]} {minutes:02d}'"
+    return f"{whole_deg}° {SIGN_NAMES[sign_index].title()} {minutes:02d}'"
+
+
+def zodiac_sign_name(deg):
+    return SIGN_NAMES[int((deg % 360) // 30)].title()
         
 @app.post("/search-regions")
 def search_regions(req: SearchRequest):
@@ -138,6 +149,7 @@ def search_regions(req: SearchRequest):
     features = []
     aspect_features = []
     aspect_metadata = None
+    angle_sign_metadata = None
 
     # =====================================
     # HOUSE REGION SEARCH
@@ -203,13 +215,24 @@ def search_regions(req: SearchRequest):
                     })
                     polygon_index += 1
 
+    if req.angle_sign_conditions:
+        angle_sign_features, angle_sign_metadata = generate_angle_sign_features(
+            jd,
+            req.angle_sign_conditions,
+            req.truth_grid_resolution,
+            condition_index_offset=len(req.house_conditions),
+        )
+        features.extend(angle_sign_features)
+
     # =====================================
-    # ASPECT OVERLAY (MC and ASC)
+    # ASPECT OVERLAY (MC meridian; ASC/DC/IC = ecliptic-longitude contours)
     # =====================================
     if req.aspect_overlay:
         aspect_started = time.perf_counter()
         selected_planet = req.aspect_overlay.get("planet", "sun").lower()
-        selected_angle = req.aspect_overlay.get("angle", "MC").upper()
+        selected_angle = normalize_angle_sign_code(str(req.aspect_overlay.get("angle", "MC")))
+        if selected_angle not in ("ASC", "MC", "DC", "IC"):
+            selected_angle = str(req.aspect_overlay.get("angle", "MC")).strip().upper()
         selected_aspect = req.aspect_overlay.get("aspect", "conjunction").lower()
         aspect_resolution = req.aspect_resolution if req.aspect_resolution > 0 else 0.5
         overlay_stage = req.overlay_stage or "final"
@@ -251,15 +274,23 @@ def search_regions(req: SearchRequest):
             timing = {
                 "total_seconds": None,
                 "asc_grid_seconds": None,
-                "asc_contour_seconds": None
+                "asc_contour_seconds": None,
+                "contour_grid_seconds": None,
+                "contour_trace_seconds": None,
             }
 
-            if selected_angle == "ASC":
+            angle_grid = None
+            lat_vals = None
+            lon_vals = None
+            sample_count = 0
+            contour_started = None
+
+            if selected_angle in ("ASC", "DC", "IC"):
                 grid_started = time.perf_counter()
                 lat_vals = np.arange(-65, 66, aspect_resolution)
                 lon_vals = np.arange(-180, 181, aspect_resolution)
 
-                asc_grid = np.full(
+                angle_grid = np.full(
                     (len(lat_vals), len(lon_vals)),
                     np.nan
                 )
@@ -268,28 +299,29 @@ def search_regions(req: SearchRequest):
                 for i, lat in enumerate(lat_vals):
                     for j, lon in enumerate(lon_vals):
                         try:
-                            _, ascmc = swe.houses(jd, lat, lon, b'P')
-                            asc_grid[i, j] = ascmc[0] % 360
+                            _, ascmc = swe.houses(jd, lat, lon, b"P")
+                            if selected_angle == "ASC":
+                                angle_grid[i, j] = ascmc[0] % 360
+                            elif selected_angle == "DC":
+                                angle_grid[i, j] = (ascmc[0] + 180.0) % 360
+                            else:
+                                angle_grid[i, j] = (ascmc[1] + 180.0) % 360
                             sample_count += 1
                         except Exception:
                             pass
 
-                timing["asc_grid_seconds"] = round(time.perf_counter() - grid_started, 4)
+                grid_elapsed = round(time.perf_counter() - grid_started, 4)
+                timing["contour_grid_seconds"] = grid_elapsed
+                if selected_angle == "ASC":
+                    timing["asc_grid_seconds"] = grid_elapsed
                 contour_started = time.perf_counter()
 
             for offset in offsets:
                 target_ra = (planet_ra_deg + offset) % 360
                 target_lon = (planet_lon + offset) % 360
 
-                print(
-                    "ASPECT DEBUG",
-                    req.aspect_overlay.get("aspect"),
-                    "OFFSET:", offset,
-                    "TARGET_LON:", target_lon
-                )
-
                 # =====================================
-                # MC CALCULATION
+                # MC CALCULATION (ecliptic MC meridian in geographic lon)
                 # =====================================
                 if selected_angle == "MC":
                     gst_deg = swe.sidtime(jd) * 15.0
@@ -320,22 +352,22 @@ def search_regions(req: SearchRequest):
                     })
 
                 # =====================================
-                # ASC CALCULATION
+                # ASC / DC / IC — same contour machinery on ecliptic longitude field
                 # =====================================
-                if selected_angle == "ASC":
+                if selected_angle in ("ASC", "DC", "IC") and angle_grid is not None:
                     diff_grid = np.full(
-                        asc_grid.shape,
+                        angle_grid.shape,
                         np.nan
                     )
 
-                    for i in range(asc_grid.shape[0]):
-                        for j in range(asc_grid.shape[1]):
-                            asc = asc_grid[i, j]
-                            if np.isnan(asc):
+                    for i in range(angle_grid.shape[0]):
+                        for j in range(angle_grid.shape[1]):
+                            ang = angle_grid[i, j]
+                            if np.isnan(ang):
                                 continue
 
                             diff = signed_angle_diff(
-                                float(asc),
+                                float(ang),
                                 target_lon
                             )
 
@@ -376,7 +408,7 @@ def search_regions(req: SearchRequest):
                                 },
                                 "properties": {
                                     "planet": selected_planet,
-                                    "angle": "ASC",
+                                    "angle": selected_angle,
                                     "aspect": selected_aspect,
                                     "aspect_offset": offset,
                                     "overlay_stage": overlay_stage,
@@ -387,8 +419,11 @@ def search_regions(req: SearchRequest):
                                 }
                             })
 
-            if selected_angle == "ASC":
-                timing["asc_contour_seconds"] = round(time.perf_counter() - contour_started, 4)
+            if selected_angle in ("ASC", "DC", "IC") and contour_started is not None:
+                trace_elapsed = round(time.perf_counter() - contour_started, 4)
+                timing["contour_trace_seconds"] = trace_elapsed
+                if selected_angle == "ASC":
+                    timing["asc_contour_seconds"] = trace_elapsed
 
             timing["total_seconds"] = round(time.perf_counter() - aspect_started, 4)
             aspect_metadata = {
@@ -399,7 +434,7 @@ def search_regions(req: SearchRequest):
                 "timing": timing,
                 "feature_count": len(aspect_features),
             }
-            if selected_angle == "ASC":
+            if selected_angle in ("ASC", "DC", "IC") and lat_vals is not None:
                 aspect_metadata["sample_count"] = sample_count
                 aspect_metadata["grid_shape"] = [len(lat_vals), len(lon_vals)]
 
@@ -409,6 +444,7 @@ def search_regions(req: SearchRequest):
         "properties": {
             "generation_mode": req.generation_mode,
             "truth_grid": truth_grid_metadata,
+            "angle_sign": angle_sign_metadata,
             "aspect_overlay": aspect_metadata
         }
     }
@@ -424,14 +460,14 @@ def relocated_chart(
 ):
     jd = swe.julday(birth_year, birth_month, birth_day, birth_hour_utc)
 
-    cusps, ascmc = swe.houses(jd, lat, lon, b'P')
+    cusps_raw, ascmc = swe.houses(jd, lat, lon, b'P')
 
     asc = ascmc[0] % 360
     mc = ascmc[1] % 360
     desc = (asc + 180) % 360
     ic = (mc + 180) % 360
+    cusps = [c % 360 for c in cusps_raw[:12]]
 
-    # Planet list - Chiron included
     planets = [
         ("Sun", swe.SUN),
         ("Moon", swe.MOON),
@@ -466,17 +502,22 @@ def relocated_chart(
             pos = swe.calc_ut(jd, pid)
             planet_lon = pos[0][0] % 360
             house_num = get_house(planet_lon, cusps)
+            sep = min_degrees_to_any_cusp(planet_lon, cusps)
             planet_houses[name] = {
                 "longitude": planet_lon,
                 "longitude_formatted": format_zodiac(planet_lon),
-                "house": house_num
+                "house": house_num,
+                "cusp_separation_deg": round(sep, 3),
+                "near_cusp": bool(sep < 2.0),
             }
         except Exception as e:
             print(f"Error calculating {name}: {e}")
             planet_houses[name] = {
                 "longitude": None,
                 "longitude_formatted": "Error",
-                "house": None
+                "house": None,
+                "cusp_separation_deg": None,
+                "near_cusp": False,
             }
 
     return {
@@ -485,12 +526,20 @@ def relocated_chart(
         "asc": format_zodiac(asc),
         "mc": format_zodiac(mc),
         "desc": format_zodiac(desc),
+        "dc": format_zodiac(desc),
         "ic": format_zodiac(ic),
+        "asc_sign": zodiac_sign_name(asc),
+        "mc_sign": zodiac_sign_name(mc),
+        "desc_sign": zodiac_sign_name(desc),
+        "dc_sign": zodiac_sign_name(desc),
+        "ic_sign": zodiac_sign_name(ic),
         "asc_deg": asc,
         "mc_deg": mc,
         "desc_deg": desc,
+        "dc_deg": desc,
         "ic_deg": ic,
-        "planet_houses": planet_houses
+        "cusp_transition_visual_deg": 2.0,
+        "planet_houses": planet_houses,
     }
 @app.get("/health")
 def health():

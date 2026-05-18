@@ -184,6 +184,32 @@ select, button {
         </select>
 
         <hr>
+        <h3>Angle in sign</h3>
+        <label>Angle</label>
+        <select id="angleSignAngle">
+            <option value="">NONE</option>
+            <option value="ASC">ASC</option>
+            <option value="MC">MC</option>
+            <option value="DC">DC</option>
+            <option value="IC">IC</option>
+        </select>
+        <label>Sign</label>
+        <select id="angleSignSign">
+            <option value="aries">Aries</option>
+            <option value="taurus">Taurus</option>
+            <option value="gemini">Gemini</option>
+            <option value="cancer">Cancer</option>
+            <option value="leo">Leo</option>
+            <option value="virgo">Virgo</option>
+            <option value="libra">Libra</option>
+            <option value="scorpio">Scorpio</option>
+            <option value="sagittarius">Sagittarius</option>
+            <option value="capricorn">Capricorn</option>
+            <option value="aquarius">Aquarius</option>
+            <option value="pisces">Pisces</option>
+        </select>
+
+        <hr>
 
         <h3>Angular Overlay</h3>
 
@@ -218,6 +244,8 @@ select, button {
         <select id="overlayAngle">
             <option value="MC">MC</option>
             <option value="ASC">ASC</option>
+            <option value="DC">DC</option>
+            <option value="IC">IC</option>
         </select>
 
         <button id="findBtn">🔍 Find Regions</button>
@@ -332,14 +360,24 @@ console.log("Planet houses:", data.planet_houses);
 console.log("Planet houses entries:", Object.entries(data.planet_houses || {}));
 const planetHouseHtml = data.planet_houses
     ? Object.entries(data.planet_houses)
-        .map(([planet, info]) => `
-            <div style="display:grid; grid-template-columns: 76px 42px; column-gap:6px;">
+        .map(([planet, info]) => {
+            const near = info.near_cusp;
+            const band = data.cusp_transition_visual_deg != null ? data.cusp_transition_visual_deg : 2;
+            const tip = near && info.cusp_separation_deg != null
+                ? `Within ~${band}° of a Placidus cusp (${info.cusp_separation_deg}°)`
+                : "";
+            const rowStyle = near ? ' style="background:rgba(251,191,36,0.07);"' : "";
+            return `
+            <div${rowStyle} style="display:grid; grid-template-columns: 76px 42px; column-gap:6px;"${tip ? ` title="${tip.replace(/"/g, "&quot;")}"` : ""}>
                 <b>${planet}</b>
                 <span style="text-align:center;">${info.house ?? "?"}</span>
             </div>
-        `)
+        `;
+        })
         .join("")
     : "No planet house data returned.";
+const dcLine = data.dc || data.desc || "—";
+const icLine = data.ic || "—";
 
 L.popup({
     maxWidth: 260,
@@ -360,7 +398,10 @@ L.popup({
             <div style="display:grid; grid-template-columns: 38px 1fr; row-gap:3px;">
                 <b>ASC</b><span>${data.asc}</span>
                 <b>MC</b><span>${data.mc}</span>
+                <b>DC</b><span>${dcLine}</span>
+                <b>IC</b><span>${icLine}</span>
             </div>
+            <div style="font-size:11px; color:#64748b; margin:4px 0 2px;">Cusp highlight: within ~${data.cusp_transition_visual_deg != null ? data.cusp_transition_visual_deg : 2}° of a Placidus cusp (geometric).</div>
 
             <hr style="margin:7px 0;">
 
@@ -386,9 +427,11 @@ let cityLayer = L.layerGroup().addTo(map);
 let polygonLayer = L.layerGroup().addTo(map);
 let aspectLayer = L.layerGroup().addTo(map);
 
-const debugGeometry = new URLSearchParams(window.location.search).has("debugGeometry");
+const MAP_SEARCH_PARAMS = new URLSearchParams(window.location.search);
+const debugGeometry = MAP_SEARCH_PARAMS.has("debugGeometry");
+const aspectAuraMode = MAP_SEARCH_PARAMS.has("aspectAura");
 const requestedGenerationMode =
-    new URLSearchParams(window.location.search).get("generation_mode") || "contour";
+    MAP_SEARCH_PARAMS.get("generation_mode") || "contour";
 let currentRenderToken = 0;
 let debounceTimer = null;
 let currentDebugMetrics = {
@@ -548,6 +591,9 @@ function bindGeometryDebug(feature, layer) {
             <b>displayFeatureId</b><br>${props.displayFeatureId || "n/a"}<br>
             <b>planet</b> ${props.planet || "n/a"}<br>
             <b>house</b> ${props.house ?? "n/a"}<br>
+            <b>condition_type</b> ${props.condition_type || "house"}<br>
+            <b>angle</b> ${props.angle || "n/a"}<br>
+            <b>sign</b> ${props.sign || "n/a"}<br>
             <b>condition_index</b> ${props.condition_index ?? "n/a"}<br>
             <b>generation_mode</b> ${props.generation_mode || "n/a"}<br>
             <b>source_cell_count</b> ${props.source_cell_count ?? "n/a"}<br>
@@ -592,8 +638,14 @@ function renderCities() {
     });
 }
 
+function getSelectedAngleSignCondition() {
+    const angle = document.getElementById("angleSignAngle").value;
+    const sign = document.getElementById("angleSignSign").value;
+    if (!angle || !sign) return null;
+    return { angle, sign };
+}
+
 function getSelectedAspectOverlay() {
-    const planet = document.getElementById("overlayPlanet").value;
     const aspect = document.getElementById("overlayAspect").value;
     const angle = document.getElementById("overlayAngle").value;
 
@@ -604,13 +656,27 @@ function getSelectedAspectOverlay() {
 
 function renderHouseFeatures(displayData) {
     displayData.features.forEach(feature => {
-        if (feature.properties.angle) return;
+        if (!feature.geometry || feature.geometry.type !== "Polygon") return;
+        const props = feature.properties || {};
+        if (props.condition_type === "angle_sign") {
+            L.geoJSON(feature, {
+                style: {
+                    fillColor: "#8e44ad",
+                    fillOpacity: 0.4,
+                    stroke: false,
+                    opacity: 0,
+                    weight: 0
+                },
+                onEachFeature: bindGeometryDebug
+            }).addTo(polygonLayer);
+            return;
+        }
+        if (!props.planet) return;
 
-        let idx = feature.properties.condition_index || 0;
-
+        let idx = props.condition_index || 0;
         L.geoJSON(feature, {
             style: {
-                fillColor: colors[idx],
+                fillColor: colors[idx % colors.length],
                 fillOpacity: 0.35,
                 stroke: false,
                 opacity: 0,
@@ -621,25 +687,53 @@ function renderHouseFeatures(displayData) {
     });
 }
 
+function defaultAuraScreenWeight(aspectKey) {
+    const k = (aspectKey || "").toLowerCase();
+    if (k === "sextile" || k === "trine" || k === "soft") return 9;
+    if (k === "square") return 11;
+    if (k === "conjunction" || k === "opposition" || k === "hard") return 14;
+    if (k === "any") return 12;
+    return 12;
+}
+
 function renderAspectFeatures(displayData) {
     displayData.features.forEach(feature => {
-        if (!feature.properties.angle) return;
+        if (!feature.properties || !feature.properties.angle) return;
+        if (feature.geometry && feature.geometry.type === "Polygon") return;
+
+        const geom = feature.geometry;
+        const aspectKey = feature.properties.aspect || "conjunction";
+        const c = feature.properties.color || "#00e5ff";
+        const wSharp = feature.properties.weight != null ? feature.properties.weight : 2;
+        const opSharp = feature.properties.opacity != null ? feature.properties.opacity : 1;
+
+        if (aspectAuraMode && geom && geom.type === "LineString" && geom.coordinates.length >= 2) {
+            const latlngs = geom.coordinates.map(pt => [pt[1], pt[0]]);
+            L.polyline(latlngs, {
+                color: c,
+                weight: defaultAuraScreenWeight(aspectKey),
+                opacity: 0.12,
+                lineCap: "round",
+                lineJoin: "round",
+                interactive: false
+            }).addTo(aspectLayer);
+        }
 
         L.geoJSON(feature, {
-            pointToLayer: function(feature, latlng) {
+            pointToLayer: function(feat, latlng) {
                 return L.circleMarker(latlng, {
-                    radius: feature.properties.radius || 4,
-                    color: feature.properties.color || "#00e5ff",
-                    fillColor: feature.properties.color || "#00e5ff",
+                    radius: feat.properties.radius || 4,
+                    color: feat.properties.color || "#00e5ff",
+                    fillColor: feat.properties.color || "#00e5ff",
                     fillOpacity: 1,
                     weight: 2
                 });
             },
-            style: function(feature) {
+            style: function(feat) {
                 return {
-                    color: feature.properties.color || "#00e5ff",
-                    weight: 2,
-                    opacity: 1,
+                    color: feat.properties.color || "#00e5ff",
+                    weight: feat.properties.weight != null ? feat.properties.weight : 2,
+                    opacity: feat.properties.opacity != null ? feat.properties.opacity : 1,
                     lineCap: "round"
                 };
             }
@@ -647,14 +741,15 @@ function renderAspectFeatures(displayData) {
     });
 }
 
-function isStagedAscOverlay(aspectOverlay) {
+function isStagedContourAngleOverlay(aspectOverlay) {
     return aspectOverlay &&
-        aspectOverlay.angle === "ASC" &&
+        ["ASC", "DC", "IC"].includes(aspectOverlay.angle) &&
         aspectOverlay.aspect === "any";
 }
 
 async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token) {
-    setRenderStatus(`Calculating ASC overlay: ${stage.label}`);
+    const ang = aspectOverlay.angle || "ASC";
+    setRenderStatus(`Calculating ${ang} overlay: ${stage.label}`);
     currentDebugMetrics.aspectOverlayStatus = "refining";
     currentDebugMetrics.overlayStage = stage.name;
     currentDebugMetrics.aspectResolution = stage.aspect_resolution;
@@ -663,6 +758,7 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
     const aspectData = await postSearchRegions({
         ...basePayload,
         house_conditions: [],
+        angle_sign_conditions: [],
         aspect_overlay: aspectOverlay,
         aspect_resolution: stage.aspect_resolution,
         overlay_stage: stage.name
@@ -678,8 +774,8 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
     );
     setRenderStatus(
         stage.name === "final"
-            ? "ASC overlay final ready"
-            : `ASC overlay ${stage.label} ready; refining...`
+            ? `${aspectOverlay.angle} overlay final ready`
+            : `${aspectOverlay.angle} overlay ${stage.label} ready; refining...`
     );
     return true;
 }
@@ -753,12 +849,16 @@ async function findRegions() {
             });
         }
 
+        const angleSignCondition = getSelectedAngleSignCondition();
+        const angle_sign_conditions = angleSignCondition ? [angleSignCondition] : [];
+
         const basePayload = {
             birth_year: year,
             birth_month: month,
             birth_day: day,
             birth_hour_utc: birthHourUTC,
             house_conditions: conditions,
+            angle_sign_conditions,
             resolution: 1.5,
             generation_mode: requestedGenerationMode,
             truth_grid_resolution: 0.75
@@ -776,7 +876,7 @@ async function findRegions() {
         renderCities();
 
         if (aspectOverlay) {
-            if (isStagedAscOverlay(aspectOverlay)) {
+            if (isStagedContourAngleOverlay(aspectOverlay)) {
                 const stages = [
                     { name: "coarse", label: "coarse", aspect_resolution: 2.0 },
                     { name: "medium", label: "medium", aspect_resolution: 1.0 },
@@ -796,6 +896,7 @@ async function findRegions() {
                 const aspectData = await postSearchRegions({
                     ...basePayload,
                     house_conditions: [],
+                    angle_sign_conditions: [],
                     aspect_overlay: aspectOverlay,
                     aspect_resolution: 0.5,
                     overlay_stage: "final"
@@ -827,6 +928,10 @@ document.getElementById("findBtn").onclick = function() {
     }, 400);
 };
 document.getElementById("citySearch").addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+        e.stopPropagation();
+        return;
+    }
     if (e.key !== "Enter") return;
 
     const q = this.value.trim().toLowerCase();
@@ -846,32 +951,7 @@ document.getElementById("citySearch").addEventListener("keydown", function(e) {
     L.popup()
         .setLatLng([match.lat, match.lng])
         .setContent(`
-            <b>${match.name}, ${match.country}</b><br>
-            ${match.lat.toFixed(2)}°, ${match.lng.toFixed(2)}°
-        `)
-        .openOn(map);
-});
-document.getElementById("citySearch").addEventListener("keydown", function(e) {
-    if (e.key !== "Enter") return;
-
-    const q = this.value.trim().toLowerCase();
-    if (!q) return;
-
-    const match = citiesData.find(city =>
-        city.name.toLowerCase().includes(q)
-    );
-
-    if (!match) {
-        alert("City not found");
-        return;
-    }
-
-    map.setView([match.lat, match.lng], 7);
-
-    L.popup()
-        .setLatLng([match.lat, match.lng])
-        .setContent(`
-            <b>${match.name}, ${match.country}</b><br>
+            <b>${match.name}${match.country ? ", " + match.country : ""}</b><br>
             ${match.lat.toFixed(2)}°, ${match.lng.toFixed(2)}°
         `)
         .openOn(map);

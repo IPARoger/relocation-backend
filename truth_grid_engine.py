@@ -11,6 +11,20 @@ import swisseph as swe
 LATITUDE_CAP = [-65.0, 65.0]
 LON_MIN = -180.0
 LON_MAX = 180.0
+SIGN_NAMES = [
+    "aries",
+    "taurus",
+    "gemini",
+    "cancer",
+    "leo",
+    "virgo",
+    "libra",
+    "scorpio",
+    "sagittarius",
+    "capricorn",
+    "aquarius",
+    "pisces",
+]
 
 
 @dataclass(frozen=True)
@@ -62,6 +76,56 @@ def classify_planet_houses(jd: float, planet_long: float, step: float) -> tuple[
     return lat_centers, lon_centers, field, sample_count
 
 
+def normalize_angle_sign_code(angle: str) -> str:
+    """Normalize API/UI angle labels for angle-in-sign classification."""
+    a = str(angle).strip().upper()
+    if a in ("DESC", "DSC", "DES", "DCS"):
+        return "DC"
+    return a
+
+
+def zodiac_sign_index(value: int | str) -> int:
+    if isinstance(value, int):
+        if 0 <= value <= 11:
+            return value
+        if 1 <= value <= 12:
+            return value - 1
+    normalized = str(value).strip().lower()
+    if normalized.isdigit():
+        return zodiac_sign_index(int(normalized))
+    if normalized in SIGN_NAMES:
+        return SIGN_NAMES.index(normalized)
+    raise ValueError(f"Unknown zodiac sign: {value}")
+
+
+def classify_angle_signs(jd: float, angle: str, step: float) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    lat_centers, lon_centers = build_center_grid(step)
+    field = np.full((len(lat_centers), len(lon_centers)), -1, dtype=np.int16)
+    sample_count = 0
+    angle_code = normalize_angle_sign_code(angle)
+
+    for i, lat in enumerate(lat_centers):
+        for j, lon in enumerate(lon_centers):
+            try:
+                _, ascmc = swe.houses(jd, float(lat), float(lon), b"P")
+                if angle_code == "ASC":
+                    angle_deg = ascmc[0] % 360
+                elif angle_code == "MC":
+                    angle_deg = ascmc[1] % 360
+                elif angle_code == "DC":
+                    angle_deg = (ascmc[0] + 180.0) % 360
+                elif angle_code == "IC":
+                    angle_deg = (ascmc[1] + 180.0) % 360
+                else:
+                    continue
+                field[i, j] = int(angle_deg // 30)
+                sample_count += 1
+            except Exception:
+                pass
+
+    return lat_centers, lon_centers, field, sample_count
+
+
 def row_runs_for_house(row: np.ndarray, target_house: int) -> list[tuple[int, int]]:
     runs = []
     start = None
@@ -81,12 +145,12 @@ def row_runs_for_house(row: np.ndarray, target_house: int) -> list[tuple[int, in
     return runs
 
 
-def merge_house_rectangles(
+def merge_field_rectangles(
     lat_centers: np.ndarray,
     lon_centers: np.ndarray,
     field: np.ndarray,
     step: float,
-    target_house: int,
+    target_value: int,
 ) -> list[MergedCell]:
     active: dict[tuple[int, int], MergedCell] = {}
     completed: list[MergedCell] = []
@@ -94,7 +158,7 @@ def merge_house_rectangles(
     for row_index, lat in enumerate(lat_centers):
         current_keys = set()
 
-        for start_col, end_col in row_runs_for_house(field[row_index], target_house):
+        for start_col, end_col in row_runs_for_house(field[row_index], target_value):
             key = (start_col, end_col)
             current_keys.add(key)
             lon_min = float(lon_centers[start_col] - step / 2)
@@ -110,7 +174,7 @@ def merge_house_rectangles(
                     lon_max=previous.lon_max,
                     lat_min=previous.lat_min,
                     lat_max=lat_max,
-                    house=target_house,
+                    house=target_value,
                     source_cell_count=previous.source_cell_count + width,
                 )
             else:
@@ -119,7 +183,7 @@ def merge_house_rectangles(
                     lon_max=lon_max,
                     lat_min=lat_min,
                     lat_max=lat_max,
-                    house=target_house,
+                    house=target_value,
                     source_cell_count=width,
                 )
 
@@ -129,6 +193,16 @@ def merge_house_rectangles(
 
     completed.extend(active.values())
     return completed
+
+
+def merge_house_rectangles(
+    lat_centers: np.ndarray,
+    lon_centers: np.ndarray,
+    field: np.ndarray,
+    step: float,
+    target_house: int,
+) -> list[MergedCell]:
+    return merge_field_rectangles(lat_centers, lon_centers, field, step, target_house)
 
 
 def validate_merged_cells(
@@ -155,6 +229,50 @@ def validate_merged_cells(
                     contradictions += 1
 
     return contradictions
+
+
+def angle_sign_cell_to_feature(
+    cell: MergedCell,
+    angle: str,
+    sign_index: int,
+    condition_index: int,
+    feature_index: int,
+    resolution: float,
+    sample_count: int,
+    validation_contradictions: int,
+    timing: dict[str, float],
+) -> dict[str, Any]:
+    coords = [
+        [cell.lon_min, cell.lat_min],
+        [cell.lon_max, cell.lat_min],
+        [cell.lon_max, cell.lat_max],
+        [cell.lon_min, cell.lat_max],
+        [cell.lon_min, cell.lat_min],
+    ]
+    sign = SIGN_NAMES[sign_index]
+    angle = angle.upper()
+
+    return {
+        "type": "Feature",
+        "geometry": {"type": "Polygon", "coordinates": [coords]},
+        "properties": {
+            "canonicalFeatureId": f"truth-grid-angle-sign-{condition_index}-{angle.lower()}-{sign}-{feature_index}",
+            "condition_type": "angle_sign",
+            "angle": angle,
+            "sign": sign,
+            "sign_index": sign_index,
+            "condition_index": condition_index,
+            "overlap_count": 1,
+            "generation_mode": "truth_grid",
+            "resolution": resolution,
+            "latitude_cap": LATITUDE_CAP,
+            "sample_count": sample_count,
+            "feature_count": None,
+            "validation_contradictions": validation_contradictions,
+            "source_cell_count": cell.source_cell_count,
+            "timing": timing,
+        },
+    }
 
 
 def cell_to_feature(
@@ -279,6 +397,90 @@ def generate_truth_grid_house_features(
                     resolution,
                     sample_count,
                     validation_by_house[house],
+                    timing,
+                )
+                feature["properties"]["feature_count"] = len(cells)
+                features.append(feature)
+
+    metadata["total_seconds"] = time.perf_counter() - started
+    metadata["feature_count"] = len(features)
+    return features, metadata
+
+
+def generate_angle_sign_features(
+    jd: float,
+    conditions: list[Any],
+    resolution: float = 0.75,
+    condition_index_offset: int = 0,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    started = time.perf_counter()
+    features: list[dict[str, Any]] = []
+    metadata = {
+        "generation_mode": "truth_grid",
+        "resolution": resolution,
+        "latitude_cap": LATITUDE_CAP,
+        "angles": {},
+    }
+
+    conditions_by_angle: dict[str, list[tuple[int, Any, int]]] = {}
+    for idx, condition in enumerate(conditions):
+        angle = normalize_angle_sign_code(condition.angle)
+        sign_index = zodiac_sign_index(condition.sign)
+        conditions_by_angle.setdefault(angle, []).append((
+            condition_index_offset + idx,
+            condition,
+            sign_index,
+        ))
+
+    for angle, indexed_conditions in conditions_by_angle.items():
+        classify_start = time.perf_counter()
+        lat_centers, lon_centers, field, sample_count = classify_angle_signs(
+            jd,
+            angle,
+            resolution,
+        )
+        classify_seconds = time.perf_counter() - classify_start
+
+        requested_signs = {sign_index for _, _, sign_index in indexed_conditions}
+        merged_by_sign = {}
+        validation_by_sign = {}
+        merge_start = time.perf_counter()
+        for sign_index in requested_signs:
+            cells = merge_field_rectangles(lat_centers, lon_centers, field, resolution, sign_index)
+            merged_by_sign[sign_index] = cells
+            validation_by_sign[sign_index] = validate_merged_cells(
+                lat_centers,
+                lon_centers,
+                field,
+                resolution,
+                cells,
+                sign_index,
+            )
+        merge_seconds = time.perf_counter() - merge_start
+
+        metadata["angles"][angle] = {
+            "sample_count": sample_count,
+            "classify_seconds": classify_seconds,
+            "merge_validate_seconds": merge_seconds,
+            "signs_returned": [SIGN_NAMES[index] for index in sorted(requested_signs)],
+        }
+
+        for condition_index, _condition, sign_index in indexed_conditions:
+            cells = merged_by_sign[sign_index]
+            timing = {
+                "classify_seconds": round(classify_seconds, 4),
+                "merge_validate_seconds": round(merge_seconds, 4),
+            }
+            for feature_index, cell in enumerate(cells):
+                feature = angle_sign_cell_to_feature(
+                    cell,
+                    angle,
+                    sign_index,
+                    condition_index,
+                    feature_index,
+                    resolution,
+                    sample_count,
+                    validation_by_sign[sign_index],
                     timing,
                 )
                 feature["properties"]["feature_count"] = len(cells)
