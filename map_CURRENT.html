@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <title>Relocation Mapper</title>
@@ -7,13 +7,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="cities.js"></script>
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
 
 #app {
     display: flex;
@@ -23,45 +17,384 @@ html, body {
 
 #map {
     flex: 1;
+    min-width: 0;
     height: 100%;
 }
 
 #panel {
-    width: 340px;
+    width: 300px;
     flex-shrink: 0;
     height: 100%;
     overflow-y: auto;
-    background: white;
-    padding: 24px;
+    overflow-x: hidden;
+    background: #fafbfc;
+    border-left: 1px solid #e4e7ec;
+    padding: 10px 12px 12px;
     box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    color: #1a1d21;
+    -webkit-font-smoothing: antialiased;
 }
 
-select, button {
+#panel h1 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111827;
+}
+
+.panel-section {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.panel-section:last-of-type { border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
+
+.panel-section-title {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+}
+
+.condition-block {
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.condition-block:last-child { margin-bottom: 0; }
+
+.condition-block--a {
+    background: rgba(232, 185, 35, 0.18);
+    border-color: rgba(201, 160, 22, 0.4);
+}
+.condition-block--b {
+    background: rgba(232, 70, 101, 0.12);
+    border-color: rgba(220, 77, 109, 0.35);
+}
+.condition-block--c {
+    background: rgba(37, 99, 235, 0.11);
+    border-color: rgba(37, 99, 235, 0.32);
+}
+.condition-block--angle {
+    background: rgba(142, 68, 173, 0.14);
+    border-color: rgba(108, 52, 131, 0.35);
+}
+.condition-block--aspect {
+    background: rgba(15, 118, 110, 0.12);
+    border-color: rgba(15, 118, 110, 0.32);
+}
+
+.condition-block .cond-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.field-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 68px;
+    gap: 8px;
+    align-items: end;
+}
+
+.field-row-2.field-row-sign {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+
+.field-row-2.field-row-aspect {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+}
+
+#panel select {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.field-row-2 > div label,
+.field-single label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.field-single {
+    margin-top: 2px;
+}
+
+.field-single label {
+    margin-bottom: 2px;
+}
+
+.field-single select {
+    margin-top: 0;
+}
+
+#citySearch {
     width: 100%;
-    padding: 8px;
-    margin-top: 5px;
+    box-sizing: border-box;
+    padding: 7px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-top: 4px;
 }
 
-.legend {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid #ccc;
+.city-search-feedback {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #475569;
 }
 
-.legend div {
-    margin: 5px 0;
+.city-search-feedback.is-error { color: #b91c1c; }
+
+select, button#findBtn {
+    width: 100%;
+    padding: 7px 8px;
+    margin-top: 4px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    box-sizing: border-box;
+    background: #fff;
 }
 
-.legend span {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-    vertical-align: middle;
+button#findBtn {
+    margin-top: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #0f172a;
+    color: #f8fafc;
+    border-color: #0f172a;
 }
+
+button#findBtn:hover:not(:disabled) { background: #1e293b; }
+
+button#findBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+#panelLegend {
+    display: none;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #e8eaed;
+}
+
+html.map-panel-show-legend #panelLegend { display: block; }
+
+#panelLegend .legend-caption {
+    margin: 0 0 5px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+#panelLegend .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 0;
+    font-size: 11px;
+}
+
+#panelLegend .legend-swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+#panelLegend .legend-note {
+    margin: 5px 0 0;
+    font-size: 9px;
+    color: #9ca3af;
+    line-height: 1.35;
+}
+
+#renderStatus {
+    margin-top: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: #f4f7fb;
+    border: 1px solid #ccd7e3;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
 .leaflet-popup-content-wrapper {
-    max-height: 420px;
+    max-height: 360px;
     overflow-y: auto;
+    border-radius: 6px;
+}
+
+.leaflet-popup-content-wrapper.popup-chart-shell {
+    max-height: min(360px, calc(100vh - 80px));
+}
+
+.leaflet-popup-content {
+    margin: 8px 10px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #1a1d21;
+}
+
+.popup-chart {
+    font-size: 12px;
+    line-height: 1.35;
+    width: 236px;
+    max-width: 236px;
+    color: #1a1d21;
+}
+
+.popup-chart .popup-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.popup-chart .popup-coords { font-size: 12px; color: #475569; margin: 0; }
+
+.popup-chart .popup-dataset-note {
+    font-size: 9px;
+    color: #94a3b8;
+    margin: 0 0 4px;
+    line-height: 1.3;
+}
+
+.popup-chart .popup-policy-note {
+    font-size: 11px;
+    color: #475569;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.popup-chart hr.popup-hr-tight { margin: 5px 0; }
+
+.popup-chart .popup-angles-summary {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    row-gap: 4px;
+    column-gap: 8px;
+    font-size: 12px;
+    align-items: baseline;
+}
+
+.popup-chart .popup-angles-summary .pa-lbl {
+    font-weight: 600;
+    color: #64748b;
+}
+
+.popup-chart .popup-angles-summary .pa-val {
+    font-weight: 400;
+    color: #0f172a;
+}
+
+.popup-chart tr.planet-row--near-cusp td.col-planet {
+    box-shadow: inset 3px 0 0 rgba(217, 119, 6, 0.55);
+}
+
+.popup-chart .popup-planet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    table-layout: fixed;
+}
+
+.popup-chart .popup-planet-table thead th {
+    font-weight: 700;
+    padding: 0 0 3px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 11px;
+}
+
+.popup-chart .popup-planet-table thead th.col-planet { text-align: left; width: 38%; }
+.popup-chart .popup-planet-table thead th.col-house { text-align: center; width: 24%; }
+.popup-chart .popup-planet-table thead th.col-spacer {
+    width: 38%;
+    padding: 0;
+    border: none;
+    visibility: hidden;
+}
+
+.popup-chart .popup-planet-table tbody td {
+    padding: 2px 0 1px;
+    vertical-align: baseline;
+}
+
+.popup-chart .popup-planet-table tbody td.col-planet { text-align: left; white-space: nowrap; }
+.popup-chart .popup-planet-table tbody td.col-house {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.popup-chart .popup-planet-table tbody td.col-spacer {
+    padding: 0;
+    border: none;
+    visibility: hidden;
+}
+
+.popup-chart .popup-actions { display: flex; gap: 5px; margin-top: 2px; }
+
+.popup-chart .popup-actions button {
+    flex: 1;
+    padding: 5px 6px;
+    font-size: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #f8fafc;
+    cursor: pointer;
+    color: #334155;
+}
+
+.map-onboarding {
+    display: none;
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    max-width: min(400px, calc(100vw - 100px));
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.1);
+    font-size: 12px;
+    line-height: 1.45;
+    color: #475569;
+    pointer-events: auto;
+}
+
+.map-onboarding.is-visible { display: block; }
+
+.map-onboarding p { margin: 0 0 10px; }
+
+.map-onboarding .map-onboarding-actions { display: flex; justify-content: flex-end; }
+
+.map-onboarding button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 12px;
+    cursor: pointer;
+    color: #334155;
 }
 
 #debugStatus {
@@ -76,22 +409,16 @@ select, button {
     background: rgba(255, 255, 255, 0.94);
     border: 1px solid #333;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
-    font: 12px/1.35 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font: 12px/1.35 system-ui, sans-serif;
 }
 
-#debugStatus b {
-    display: inline-block;
-    min-width: 150px;
-}
+#debugStatus b { display: inline-block; min-width: 150px; }
 
-#renderStatus {
-    margin-top: 12px;
-    padding: 8px;
-    border-radius: 4px;
-    background: #f4f7fb;
-    border: 1px solid #ccd7e3;
-    font-size: 13px;
-    line-height: 1.35;
+.leaflet-control a[aria-label='Reset map to default world view'] {
+    font-size: 14px;
+    line-height: 26px;
+    font-weight: 600;
+    color: #333;
 }
 </style>
 </head>
@@ -101,337 +428,569 @@ select, button {
 
     <div id="map">
         <div id="debugStatus"></div>
+        <div id="mapOnboarding" class="map-onboarding" role="dialog" aria-labelledby="onboardingTitle">
+            <p id="onboardingTitle">Right-click anywhere on the map to open a compact <strong>relocated chart</strong> (ASC, MC, houses). Pan and zoom as usual.</p>
+            <div class="map-onboarding-actions">
+                <button type="button" data-dismiss-onboarding>Got it</button>
+            </div>
+        </div>
     </div>
 
     <div id="panel">
-        <h3>Relocation Mapper</h3>
-       <label>Chart Profile</label>
+        <h1>Relocation Mapper</h1>
 
-<select id="chartProfile">
-    <option value="">Loading...</option>
-</select>
+        <div class="panel-section">
+            <div class="panel-section-title">Chart</div>
+            <label for="chartProfile">Profile</label>
+            <select id="chartProfile">
+                <option value="">Loading…</option>
+            </select>
+        </div>
 
-<br><br>
-        <input
-            type="text"
-            id="citySearch"
-            placeholder="Search city..."
-            style="width:100%; padding:8px; margin-bottom:10px;"
-        />
-        <label>Planet A</label>
-        <select id="planetA">
-            <option value="sun">Sun</option>
-            <option value="moon">Moon</option>
-            <option value="mercury">Mercury</option>
-            <option value="venus">Venus</option>
-            <option value="mars">Mars</option>
-            <option value="jupiter">Jupiter</option>
-            <option value="saturn">Saturn</option>
-            <option value="uranus">Uranus</option>
-            <option value="neptune">Neptune</option>
-            <option value="pluto">Pluto</option>
-            <option value="chiron">Chiron</option>
-        </select>
+        <div class="panel-section">
+            <div class="panel-section-title">Location</div>
+            <label for="citySearch">City (placeholder list — exact name, Enter)</label>
+            <input type="text" id="citySearch" placeholder="Exact name only…" autocomplete="off" />
+            <div id="citySearchFeedback" class="city-search-feedback" hidden aria-live="polite"></div>
+        </div>
 
-        <select id="houseA">
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-            <option>5</option><option>6</option><option>7</option><option>8</option>
-            <option>9</option><option>10</option><option>11</option><option>12</option>
-        </select>
+        <div class="panel-section">
+            <div class="panel-section-title">Planet in house</div>
 
-        <label>Planet B (optional)</label>
-        <select id="planetB">
-            <option value="">NONE</option>
-            <option value="sun">Sun</option>
-            <option value="moon">Moon</option>
-            <option value="mercury">Mercury</option>
-            <option value="venus">Venus</option>
-            <option value="mars">Mars</option>
-            <option value="jupiter">Jupiter</option>
-            <option value="saturn">Saturn</option>
-            <option value="uranus">Uranus</option>
-            <option value="neptune">Neptune</option>
-            <option value="pluto">Pluto</option>
-            <option value="chiron">Chiron</option>
-        </select>
+            <div class="condition-block condition-block--a">
+                <span class="cond-label">Condition A</span>
+                <div class="field-row-2">
+                    <div>
+                        <label for="planetA">Planet</label>
+                        <select id="planetA">
+                            <option value="sun">Sun</option>
+                            <option value="moon">Moon</option>
+                            <option value="mercury">Mercury</option>
+                            <option value="venus">Venus</option>
+                            <option value="mars">Mars</option>
+                            <option value="jupiter">Jupiter</option>
+                            <option value="saturn">Saturn</option>
+                            <option value="uranus">Uranus</option>
+                            <option value="neptune">Neptune</option>
+                            <option value="pluto">Pluto</option>
+                            <option value="chiron">Chiron</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="houseA">House</label>
+                        <select id="houseA" title="House">
+                            <option>1</option><option>2</option><option>3</option><option>4</option>
+                            <option>5</option><option>6</option><option>7</option><option>8</option>
+                            <option>9</option><option>10</option><option>11</option><option>12</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-        <select id="houseB">
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-            <option>5</option><option>6</option><option>7</option><option>8</option>
-            <option>9</option><option>10</option><option>11</option><option>12</option>
-        </select>
+            <div class="condition-block condition-block--b">
+                <span class="cond-label">Condition B (optional)</span>
+                <div class="field-row-2">
+                    <div>
+                        <label for="planetB">Planet</label>
+                        <select id="planetB">
+                            <option value="">NONE</option>
+                            <option value="sun">Sun</option>
+                            <option value="moon">Moon</option>
+                            <option value="mercury">Mercury</option>
+                            <option value="venus">Venus</option>
+                            <option value="mars">Mars</option>
+                            <option value="jupiter">Jupiter</option>
+                            <option value="saturn">Saturn</option>
+                            <option value="uranus">Uranus</option>
+                            <option value="neptune">Neptune</option>
+                            <option value="pluto">Pluto</option>
+                            <option value="chiron">Chiron</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="houseB">House</label>
+                        <select id="houseB" title="House">
+                            <option>1</option><option>2</option><option>3</option><option>4</option>
+                            <option>5</option><option>6</option><option>7</option><option>8</option>
+                            <option>9</option><option>10</option><option>11</option><option>12</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-        <label>Planet C (optional)</label>
-        <select id="planetC">
-            <option value="">NONE</option>
-            <option value="sun">Sun</option>
-            <option value="moon">Moon</option>
-            <option value="mercury">Mercury</option>
-            <option value="venus">Venus</option>
-            <option value="mars">Mars</option>
-            <option value="jupiter">Jupiter</option>
-            <option value="saturn">Saturn</option>
-            <option value="uranus">Uranus</option>
-            <option value="neptune">Neptune</option>
-            <option value="pluto">Pluto</option>
-            <option value="chiron">Chiron</option>
-        </select>
+            <div class="condition-block condition-block--c">
+                <span class="cond-label">Condition C (optional)</span>
+                <div class="field-row-2">
+                    <div>
+                        <label for="planetC">Planet</label>
+                        <select id="planetC">
+                            <option value="">NONE</option>
+                            <option value="sun">Sun</option>
+                            <option value="moon">Moon</option>
+                            <option value="mercury">Mercury</option>
+                            <option value="venus">Venus</option>
+                            <option value="mars">Mars</option>
+                            <option value="jupiter">Jupiter</option>
+                            <option value="saturn">Saturn</option>
+                            <option value="uranus">Uranus</option>
+                            <option value="neptune">Neptune</option>
+                            <option value="pluto">Pluto</option>
+                            <option value="chiron">Chiron</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="houseC">House</label>
+                        <select id="houseC" title="House">
+                            <option>1</option><option>2</option><option>3</option><option>4</option>
+                            <option>5</option><option>6</option><option>7</option><option>8</option>
+                            <option>9</option><option>10</option><option>11</option><option>12</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <select id="houseC">
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-            <option>5</option><option>6</option><option>7</option><option>8</option>
-            <option>9</option><option>10</option><option>11</option><option>12</option>
-        </select>
+        <div class="panel-section">
+            <div class="panel-section-title">Angle in sign</div>
+            <div class="condition-block condition-block--angle">
+                <div class="field-row-2 field-row-sign">
+                    <div>
+                        <label for="angleSignAngle">Angle</label>
+                        <select id="angleSignAngle">
+                            <option value="">NONE</option>
+                            <option value="ASC">ASC</option>
+                            <option value="DSC">DSC</option>
+                            <option value="MC">MC</option>
+                            <option value="IC">IC</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="angleSignSign">Sign</label>
+                        <select id="angleSignSign">
+                            <option value="aries">Aries</option>
+                            <option value="taurus">Taurus</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="cancer">Cancer</option>
+                            <option value="leo">Leo</option>
+                            <option value="virgo">Virgo</option>
+                            <option value="libra">Libra</option>
+                            <option value="scorpio">Scorpio</option>
+                            <option value="sagittarius">Sagittarius</option>
+                            <option value="capricorn">Capricorn</option>
+                            <option value="aquarius">Aquarius</option>
+                            <option value="pisces">Pisces</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <hr>
-        <h3>Angle in sign</h3>
-        <label>Angle</label>
-        <select id="angleSignAngle">
-            <option value="">NONE</option>
-            <option value="ASC">ASC</option>
-            <option value="MC">MC</option>
-            <option value="DC">DC</option>
-            <option value="IC">IC</option>
-        </select>
-        <label>Sign</label>
-        <select id="angleSignSign">
-            <option value="aries">Aries</option>
-            <option value="taurus">Taurus</option>
-            <option value="gemini">Gemini</option>
-            <option value="cancer">Cancer</option>
-            <option value="leo">Leo</option>
-            <option value="virgo">Virgo</option>
-            <option value="libra">Libra</option>
-            <option value="scorpio">Scorpio</option>
-            <option value="sagittarius">Sagittarius</option>
-            <option value="capricorn">Capricorn</option>
-            <option value="aquarius">Aquarius</option>
-            <option value="pisces">Pisces</option>
-        </select>
+        <div class="panel-section">
+            <div class="panel-section-title">Aspect to angle</div>
+            <div class="condition-block condition-block--aspect">
+                <div class="field-row-2 field-row-aspect">
+                    <div>
+                        <label for="overlayPlanet">Planet</label>
+                        <select id="overlayPlanet">
+                            <option value="sun">Sun</option>
+                            <option value="moon">Moon</option>
+                            <option value="mercury">Mercury</option>
+                            <option value="venus">Venus</option>
+                            <option value="mars">Mars</option>
+                            <option value="jupiter">Jupiter</option>
+                            <option value="saturn">Saturn</option>
+                            <option value="uranus">Uranus</option>
+                            <option value="neptune">Neptune</option>
+                            <option value="pluto">Pluto</option>
+                            <option value="chiron">Chiron</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="overlayAspect">Aspect</label>
+                        <select id="overlayAspect">
+                            <option value="conjunction">Conjunction</option>
+                            <option value="opposition">Opposition</option>
+                            <option value="square">Square</option>
+                            <option value="trine">Trine</option>
+                            <option value="sextile">Sextile</option>
+                            <option value="hard">All Hard Aspects</option>
+                            <option value="soft">All Soft Aspects</option>
+                            <option value="any">All Major Aspects</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-single">
+                    <label for="overlayAngle">Angle</label>
+                    <select id="overlayAngle">
+                        <option value="ASC">ASC</option>
+                        <option value="DSC">DSC</option>
+                        <option value="MC">MC</option>
+                        <option value="IC">IC</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-        <hr>
-
-        <h3>Angular Overlay</h3>
-
-        <label>Planet</label>
-        <select id="overlayPlanet">
-            <option value="sun">Sun</option>
-            <option value="moon">Moon</option>
-            <option value="mercury">Mercury</option>
-            <option value="venus">Venus</option>
-            <option value="mars">Mars</option>
-            <option value="jupiter">Jupiter</option>
-            <option value="saturn">Saturn</option>
-            <option value="uranus">Uranus</option>
-            <option value="neptune">Neptune</option>
-            <option value="pluto">Pluto</option>
-            <option value="chiron">Chiron</option>
-        </select>
-
-        <label>Aspect</label>
-        <select id="overlayAspect">
-            <option value="conjunction">Conjunction</option>
-            <option value="opposition">Opposition</option>
-            <option value="square">Square</option>
-            <option value="trine">Trine</option>
-            <option value="sextile">Sextile</option>
-            <option value="hard">Hard Aspects</option>
-            <option value="soft">Soft Aspects</option>
-            <option value="any">All Major Aspects</option>
-        </select>
-
-        <label>Angle</label>
-        <select id="overlayAngle">
-            <option value="MC">MC</option>
-            <option value="ASC">ASC</option>
-            <option value="DC">DC</option>
-            <option value="IC">IC</option>
-        </select>
-
-        <button id="findBtn">🔍 Find Regions</button>
+        <button id="findBtn" type="button">Find regions</button>
         <div id="renderStatus">Ready.</div>
 
-        <div class="legend">
-            <div><span style="background:#f1c40f"></span>A only</div>
-            <div><span style="background:#ff4d6d"></span>B only</div>
-            <div><span style="background:#3b82f6"></span>C only</div>
+        <div id="panelLegend" aria-hidden="true">
+            <p class="legend-caption">Region colors (debug)</p>
+            <div class="legend-row"><span class="legend-swatch" style="background:#e8b923"></span> A</div>
+            <div class="legend-row"><span class="legend-swatch" style="background:#e84665"></span> B</div>
+            <div class="legend-row"><span class="legend-swatch" style="background:#2563eb"></span> C</div>
+            <div class="legend-row"><span class="legend-swatch" style="background:#8e44ad"></span> Angle in sign</div>
+            <div class="legend-row"><span class="legend-swatch" style="background:#0f766e"></span> Aspect</div>
+            <p class="legend-note">Debug only: <code>?debugGeometry=1</code> or <code>?showLegend=1</code>. Aura prototype off unless <code>?aspectAura=1</code> (not production-ready).</p>
         </div>
     </div>
 </div>
 
 <script>
+const MAP_URL = new URLSearchParams(window.location.search);
+const debugGeometry = MAP_URL.has("debugGeometry");
+const traceConditions = MAP_URL.has("traceConditions");
+const showPanelLegend = MAP_URL.has("showLegend");
+const aspectAuraMode = MAP_URL.has("aspectAura");
+const skipOnboarding =
+    MAP_URL.has("skipOnboarding") ||
+    debugGeometry ||
+    traceConditions ||
+    showPanelLegend;
+const requestedGenerationMode = MAP_URL.get("generation_mode") || "contour";
+
+if (debugGeometry || showPanelLegend) {
+    document.documentElement.classList.add("map-panel-show-legend");
+    const leg = document.getElementById("panelLegend");
+    if (leg) leg.removeAttribute("aria-hidden");
+}
+
+const CHART_POPUP_OPTS = {
+    maxWidth: 248,
+    maxHeight: 360,
+    autoPan: true,
+    autoPanPadding: L.point(28, 28),
+    keepInView: true
+};
+
+const MAP_DEFAULT_CENTER = [20, 0];
+const MAP_DEFAULT_ZOOM = 2;
+const MAP_MAX_BOUNDS = L.latLngBounds([-85, -180], [85, 180]);
+
+/** UI uses DSC; search-regions API expects DC for the descendant angle. */
+function normalizeApiAngle(angleCode) {
+    if (angleCode == null || angleCode === "") return angleCode;
+    const u = String(angleCode).toUpperCase();
+    if (u === "DSC" || u === "DESC") return "DC";
+    return u;
+}
+
+function normalizeAnglesForApiPayload(payload) {
+    const body = JSON.parse(JSON.stringify(payload));
+    if (Array.isArray(body.angle_sign_conditions)) {
+        body.angle_sign_conditions = body.angle_sign_conditions.map(c => ({
+            ...c,
+            angle: normalizeApiAngle(c.angle)
+        }));
+    }
+    if (body.aspect_overlay && body.aspect_overlay.angle != null) {
+        body.aspect_overlay = {
+            ...body.aspect_overlay,
+            angle: normalizeApiAngle(body.aspect_overlay.angle)
+        };
+    }
+    return body;
+}
+
 async function loadChartProfiles() {
-
-    const response = await fetch(
-        "http://127.0.0.1:8000/chart-profiles"
-    );
-
+    const response = await fetch("http://127.0.0.1:8000/chart-profiles");
     const profiles = await response.json();
-
     const select = document.getElementById("chartProfile");
-
     select.innerHTML = "";
-
     profiles.forEach(profile => {
-
         const option = document.createElement("option");
-
         option.value = profile.id;
-
         option.textContent = profile.name;
-
         option.dataset.profile = JSON.stringify(profile);
-
         select.appendChild(option);
-
     });
+    select.dataset.lastStableValue = select.value;
 }
 
 loadChartProfiles();
-const map = L.map('map', {
-    doubleClickZoom: false
-}).setView([20, 0], 2);
 
-map.setMaxBounds([
-    [-85, -180],
-    [85, 180]
-]);
+const map = L.map("map", {
+    maxBounds: MAP_MAX_BOUNDS,
+    maxBoundsViscosity: 1,
+    doubleClickZoom: true,
+    keyboard: false,
+    zoomSnap: 0.25,
+    zoomDelta: 0.25,
+    wheelPxPerZoomLevel: 270,
+    wheelDebounceTime: 100
+}).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
 
-setTimeout(() => {
+/** Dev/smoke hook — browser tests read zoom, bounds, popups without DOM hacks. */
+window.__rmMap = map;
+
+/** Product policy cap for display clipping only — backend truth unchanged. */
+const PRODUCT_LAT_CAP = 65;
+const LINE_DENSIFY_STEP_DEG = 0.4;
+
+function refreshMapMinZoom() {
+    const fitZoom = map.getBoundsZoom(MAP_MAX_BOUNDS, true);
+    if (!Number.isFinite(fitZoom)) return;
+    const minZ = Math.max(1, Math.min(fitZoom, 5));
+    map.setMinZoom(minZ);
+    if (map.getZoom() < minZ) {
+        map.setZoom(minZ, { animate: false });
+    }
+}
+
+function invalidateMapSizeSoon() {
     map.invalidateSize();
+    requestAnimationFrame(() => {
+        map.invalidateSize();
+        refreshMapMinZoom();
+    });
+}
 
-}, 100);
+map.whenReady(invalidateMapSizeSoon);
+window.addEventListener("resize", invalidateMapSizeSoon);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+map.on("dragend", () => {
+    map.panInsideBounds(MAP_MAX_BOUNDS, { animate: true, duration: 0.2 });
+});
+
+map.on("click", () => {
+    map.closePopup();
+});
+
+/** Bounded world: matches tile coverage; viscosity gives calm snap-back without duplicate wrap. */
+const CITY_MARKER_PANE = "rmCitiesPane";
+(function initCityMarkerPane() {
+    const pane = map.createPane(CITY_MARKER_PANE);
+    pane.style.zIndex = "620";
+    pane.style.pointerEvents = "auto";
+})();
+
+setTimeout(invalidateMapSizeSoon, 100);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     noWrap: true,
     bounds: [[-85, -180], [85, 180]]
 }).addTo(map);
 
-map.getContainer().addEventListener("contextmenu", async function(ev) {
-    ev.preventDefault();
-
-   
-
-    map.closePopup();
-
-    const e = {
-        latlng: map.mouseEventToLatLng(ev)
+(function addResetMapControl() {
+    const ctl = L.control({ position: "topleft" });
+    ctl.onAdd = function() {
+        const div = L.DomUtil.create("div", "leaflet-bar leaflet-control");
+        const a = L.DomUtil.create("a", "", div);
+        a.href = "#";
+        a.title = "Reset view (world)";
+        a.setAttribute("aria-label", "Reset map to default world view");
+        a.innerHTML = "&#9675;";
+        L.DomEvent.disableClickPropagation(div);
+        L.DomEvent.on(a, "click", L.DomEvent.stopPropagation);
+        L.DomEvent.on(a, "click", L.DomEvent.preventDefault);
+        L.DomEvent.on(a, "click", () => map.setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM));
+        return div;
     };
+    ctl.addTo(map);
+})();
 
-    const lat = e.latlng.lat;
-    const lon = e.latlng.lng;
-    if (Math.abs(lat) > 65) {
-    L.popup({
-        maxWidth: 260,
-        autoPan: true,
-        keepInView: true
-    })
-    .setLatLng(e.latlng)
-    .setContent(`
-        <b>Outside reliable chart zone</b><br>
-        Lat: ${lat.toFixed(4)}<br>
-        Lon: ${lon.toFixed(4)}<br><br>
-        Placidus relocation charts are capped at ±65° for now.
-    `)
-    .openOn(map);
-    return;
+(function initMapOnboarding() {
+    const card = document.getElementById("mapOnboarding");
+    if (!card) return;
+    L.DomEvent.disableClickPropagation(card);
+    const btn = card.querySelector("[data-dismiss-onboarding]");
+    if (sessionStorage.getItem("rm_map_onboarding_dismissed") === "1" || skipOnboarding) return;
+    card.classList.add("is-visible");
+    if (btn) {
+        btn.addEventListener("click", () => {
+            try { sessionStorage.setItem("rm_map_onboarding_dismissed", "1"); } catch (e) { /* ignore */ }
+            card.classList.remove("is-visible");
+        });
+    }
+})();
+
+const panel = document.getElementById("panel");
+let lastSelectWheelAt = 0;
+
+panel.addEventListener("click", L.DomEvent.stopPropagation);
+panel.addEventListener("dblclick", L.DomEvent.stopPropagation);
+panel.addEventListener("keydown", L.DomEvent.stopPropagation);
+panel.addEventListener("wheel", ev => {
+    const activeSelect =
+        document.activeElement &&
+        document.activeElement.tagName === "SELECT" &&
+        panel.contains(document.activeElement)
+            ? document.activeElement
+            : null;
+    const targetSelect = ev.target.closest("select");
+    if (targetSelect || activeSelect) {
+        lastSelectWheelAt = Date.now();
+        ev.preventDefault();
+        ev.stopPropagation();
+        (targetSelect || activeSelect).blur();
+    }
+}, { passive: false, capture: true });
+
+document.querySelectorAll("#panel select").forEach(sel => {
+    sel.addEventListener("change", event => {
+        if (Date.now() - lastSelectWheelAt < 400) {
+            event.target.value = event.target.dataset.lastStableValue || event.target.value;
+            event.target.blur();
+            return;
+        }
+        event.target.dataset.lastStableValue = event.target.value;
+    });
+    sel.dataset.lastStableValue = sel.value;
+});
+
+function titleCase(value) {
+    return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 }
-   const selectedOption =
-    document.getElementById("chartProfile").selectedOptions[0];
 
-const profile =
-    JSON.parse(selectedOption.dataset.profile);
+function getActiveProfileBirthParams() {
+    const selectedOption = document.getElementById("chartProfile").selectedOptions[0];
+    if (!selectedOption || !selectedOption.dataset.profile) return null;
+    const profile = JSON.parse(selectedOption.dataset.profile);
+    const [year, month, day] = profile.date.split("-").map(Number);
+    const [hour, minute] = profile.time.split(":").map(Number);
+    return { year, month, day, birthHourUTC: hour + minute / 60 };
+}
 
-const [year, month, day] =
-    profile.date.split("-").map(Number);
+async function fetchRelocatedChart(lat, lon) {
+    const p = getActiveProfileBirthParams();
+    if (!p) throw new Error("no_profile");
+    const { year, month, day, birthHourUTC } = p;
+    const response = await fetch(
+        `http://127.0.0.1:8000/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${year}&birth_month=${month}&birth_day=${day}&birth_hour_utc=${birthHourUTC}`
+    );
+    if (!response.ok) throw new Error("relocated_failed");
+    return response.json();
+}
 
-const [hour, minute] =
-    profile.time.split(":").map(Number);
+function polarCapPopupHtml(title, lat, lon) {
+    return `
+        <div class="popup-chart">
+            <div class="popup-title">${title}</div>
+            <p class="popup-coords">Lat ${lat.toFixed(4)} · Lon ${lon.toFixed(4)}</p>
+            <hr class="popup-hr-tight">
+            <p class="popup-policy-note">Placidus relocation charts are limited to ±65° latitude by <strong>current product policy</strong> (not a metaphysical limit). An advanced override is planned.</p>
+        </div>`;
+}
 
-const birthHourUTC =
-    hour + (minute / 60);
-
-const response = await fetch(
-    `http://127.0.0.1:8000/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${year}&birth_month=${month}&birth_day=${day}&birth_hour_utc=${birthHourUTC}`
-);
-const data = await response.json();
-console.log("RELOCATED DATA", data);
-console.log("Planet houses:", data.planet_houses);
-console.log("Planet houses entries:", Object.entries(data.planet_houses || {}));
-const planetHouseHtml = data.planet_houses
-    ? Object.entries(data.planet_houses)
+function buildPlanetHouseRowsFromData(data) {
+    if (!data.planet_houses) {
+        return '<tr class="missing-row"><td colspan="3">No planet house data returned.</td></tr>';
+    }
+    return Object.entries(data.planet_houses)
         .map(([planet, info]) => {
             const near = info.near_cusp;
-            const band = data.cusp_transition_visual_deg != null ? data.cusp_transition_visual_deg : 2;
-            const tip = near && info.cusp_separation_deg != null
-                ? `Within ~${band}° of a Placidus cusp (${info.cusp_separation_deg}°)`
-                : "";
-            const rowStyle = near ? ' style="background:rgba(251,191,36,0.07);"' : "";
+            const trAttr = near ? ` class="planet-row planet-row--near-cusp"` : ` class="planet-row"`;
             return `
-            <div${rowStyle} style="display:grid; grid-template-columns: 76px 42px; column-gap:6px;"${tip ? ` title="${tip.replace(/"/g, "&quot;")}"` : ""}>
-                <b>${planet}</b>
-                <span style="text-align:center;">${info.house ?? "?"}</span>
-            </div>
-        `;
+            <tr${trAttr}>
+                <td class="col-planet">${planet}</td>
+                <td class="col-house">${info.house ?? "?"}</td>
+                <td class="col-spacer" aria-hidden="true">&nbsp;</td>
+            </tr>`;
         })
-        .join("")
-    : "No planet house data returned.";
-const dcLine = data.dc || data.desc || "—";
-const icLine = data.ic || "—";
+        .join("");
+}
 
-L.popup({
-    maxWidth: 260,
-    maxHeight: 560,
-    autoPan: true,
-    keepInView: true
-})
-    .setLatLng(e.latlng)
-    .setContent(`
-        <div style="font-size:14px; line-height:1.28; width:205px;">
-            <b>Custom Location</b><br>
-            <span style="display:inline-block; max-width:195px; white-space:normal;">
-                Lat: ${lat.toFixed(4)} &nbsp; Lon: ${lon.toFixed(4)}
-            </span>
-
-            <hr style="margin:7px 0;">
-
-            <div style="display:grid; grid-template-columns: 38px 1fr; row-gap:3px;">
-                <b>ASC</b><span>${data.asc}</span>
-                <b>MC</b><span>${data.mc}</span>
-                <b>DC</b><span>${dcLine}</span>
-                <b>IC</b><span>${icLine}</span>
+/** meta: { title, country?, admin?, origin?: "city_dataset"|"custom" } */
+function buildRelocatedPopupHtml(data, lat, lon, meta) {
+    const title = meta && meta.title ? meta.title : "Custom location";
+    const placeBits = [];
+    if (meta && meta.admin) placeBits.push(meta.admin);
+    if (meta && meta.country) placeBits.push(meta.country);
+    const coordsMid = placeBits.length ? ` · ${placeBits.join(", ")}` : "";
+    const planetHouseHtml = buildPlanetHouseRowsFromData(data);
+    return `
+        <div class="popup-chart">
+            <div class="popup-title">${title}</div>
+            <p class="popup-coords">Lat ${lat.toFixed(4)} · Lon ${lon.toFixed(4)}${coordsMid}</p>
+            <hr class="popup-hr-tight">
+            <div class="popup-angles-summary">
+                <span class="pa-lbl">ASC</span><span class="pa-val">${data.asc || "—"}</span>
+                <span class="pa-lbl">MC</span><span class="pa-val">${data.mc || "—"}</span>
             </div>
-            <div style="font-size:11px; color:#64748b; margin:4px 0 2px;">Cusp highlight: within ~${data.cusp_transition_visual_deg != null ? data.cusp_transition_visual_deg : 2}° of a Placidus cusp (geometric).</div>
-
-            <hr style="margin:7px 0;">
-
-            <div style="display:grid; grid-template-columns: 76px 42px; column-gap:6px; margin-bottom:3px;">
-                <b>Planet</b>
-                <b style="text-align:center;">House</b>
+            <table class="popup-planet-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="col-planet">Planet</th>
+                        <th scope="col" class="col-house">House</th>
+                        <th scope="col" class="col-spacer" aria-hidden="true"></th>
+                    </tr>
+                </thead>
+                <tbody>${planetHouseHtml}</tbody>
+            </table>
+            <div class="popup-actions">
+                <button type="button">Open chart</button>
+                <button type="button">Favorite</button>
             </div>
+        </div>`;
+}
 
-            ${planetHouseHtml}
+map.getContainer().addEventListener("contextmenu", async function(ev) {
+    ev.preventDefault();
+    map.closePopup();
+    const latlng = map.mouseEventToLatLng(ev);
+    const lat = latlng.lat;
+    const lon = latlng.lng;
 
-            <hr style="margin:8px 0 7px;">
+    if (Math.abs(lat) > 65) {
+        L.popup(CHART_POPUP_OPTS)
+            .setLatLng(latlng)
+            .setContent(polarCapPopupHtml("Outside chart zone", lat, lon))
+            .openOn(map);
+        return;
+    }
 
-            <div style="display:flex; gap:6px;">
-                <button style="flex:1; padding:5px; cursor:pointer;">Open Chart</button>
-                <button style="flex:1; padding:5px; cursor:pointer;">★ Favorite</button>
-            </div>
-        </div>
-    `)
-    .openOn(map);
+    const popup = L.popup(CHART_POPUP_OPTS)
+        .setLatLng(latlng)
+        .setContent('<div class="popup-chart"><p class="popup-coords">Loading chart…</p></div>')
+        .openOn(map);
+
+    try {
+        const data = await fetchRelocatedChart(lat, lon);
+        popup.setContent(buildRelocatedPopupHtml(data, lat, lon, { title: "Custom location" }));
+    } catch (err) {
+        console.error("relocated-chart", err);
+        popup.setContent('<div class="popup-chart"><p class="popup-coords">Could not load chart for this point.</p></div>');
+    }
 });
 
 let cityLayer = L.layerGroup().addTo(map);
 let polygonLayer = L.layerGroup().addTo(map);
 let aspectLayer = L.layerGroup().addTo(map);
 
-const MAP_SEARCH_PARAMS = new URLSearchParams(window.location.search);
-const debugGeometry = MAP_SEARCH_PARAMS.has("debugGeometry");
-const aspectAuraMode = MAP_SEARCH_PARAMS.has("aspectAura");
-const requestedGenerationMode =
-    MAP_SEARCH_PARAMS.get("generation_mode") || "contour";
+/** Minimal smoke hook — layer counts + coord sanity only; not a test framework. */
+window.__rmSmokeState = function() {
+    const layers = polygonLayer.getLayers().concat(aspectLayer.getLayers());
+    let nonFinite = 0;
+    function walk(v) {
+        if (v == null) return;
+        if (typeof v.lat === "number") {
+            if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) nonFinite++;
+            return;
+        }
+        if (Array.isArray(v)) v.forEach(walk);
+    }
+    layers.forEach(layer => {
+        if (typeof layer.getLatLngs === "function") walk(layer.getLatLngs());
+    });
+    return {
+        polygonLayers: polygonLayer.getLayers().length,
+        aspectLayers: aspectLayer.getLayers().length,
+        renderStatus: document.getElementById("renderStatus")?.textContent || "",
+        findBtnDisabled: document.getElementById("findBtn")?.disabled ?? false,
+        nonFiniteCoords: nonFinite
+    };
+};
+
 let currentRenderToken = 0;
 let debounceTimer = null;
 let currentDebugMetrics = {
@@ -443,47 +1002,44 @@ let currentDebugMetrics = {
     overlayStage: "n/a",
     aspectResolution: "n/a"
 };
-const colors = ["#f1c40f", "#ff4d6d", "#3b82f6"];
+
+const colors = ["#e8b923", "#e84665", "#2563eb"];
 
 function setRenderStatus(message) {
-    document.getElementById("renderStatus").textContent = message;
+    const status = document.getElementById("renderStatus");
+    status.textContent = message;
+    status.style.display = debugGeometry ? "block" : "none";
 }
 
 function renderDebugStatus() {
     if (!debugGeometry) return;
-
     const status = document.getElementById("debugStatus");
     status.innerHTML = `
         <div><b>Generation mode:</b> ${currentDebugMetrics.generationMode}</div>
         <div><b>Resolution:</b> ${currentDebugMetrics.resolution}</div>
-        <div><b>Debug geometry:</b> ${debugGeometry ? "on" : "off"}</div>
+        <div><b>Debug geometry:</b> on</div>
         <div><b>Feature count:</b> ${currentDebugMetrics.featureCount}</div>
         <div><b>Validation contradictions:</b> ${currentDebugMetrics.validationContradictions}</div>
-        <div><b>Aspect overlay status:</b> ${currentDebugMetrics.aspectOverlayStatus}</div>
+        <div><b>Aspect overlay:</b> ${currentDebugMetrics.aspectOverlayStatus}</div>
         <div><b>Overlay stage:</b> ${currentDebugMetrics.overlayStage}</div>
         <div><b>Aspect resolution:</b> ${currentDebugMetrics.aspectResolution}</div>
-    `;
+        <div><b>traceConditions:</b> ${traceConditions ? "on" : "off"}</div>
+        <div><b>aspectAura:</b> ${aspectAuraMode ? "on" : "off"}</div>`;
     status.style.display = "block";
 }
 
 function updateDebugStatus(data, displayData, aspectOverlayStatus) {
     if (!debugGeometry) return;
-
-    const polygonFeatures = displayData.features.filter(feature =>
-        feature.geometry && feature.geometry.type === "Polygon"
+    const polygonFeatures = displayData.features.filter(
+        f => f.geometry && f.geometry.type === "Polygon"
     );
     const validationContradictions = polygonFeatures.reduce(
-        (sum, feature) => sum + (feature.properties.validation_contradictions || 0),
+        (sum, f) => sum + (f.properties.validation_contradictions || 0),
         0
     );
     const truthGrid = data.properties && data.properties.truth_grid;
-    const resolution = truthGrid
-        ? truthGrid.resolution
-        : "contour";
-    const generationMode =
-        (data.properties && data.properties.generation_mode) ||
-        requestedGenerationMode;
-
+    const resolution = truthGrid ? truthGrid.resolution : "contour";
+    const generationMode = (data.properties && data.properties.generation_mode) || requestedGenerationMode;
     currentDebugMetrics = {
         generationMode,
         resolution,
@@ -499,12 +1055,8 @@ function updateDebugStatus(data, displayData, aspectOverlayStatus) {
 function updateAspectDebugStatus(aspectData, aspectOverlayStatus) {
     const metadata = aspectData.properties && aspectData.properties.aspect_overlay;
     currentDebugMetrics.aspectOverlayStatus = aspectOverlayStatus;
-    currentDebugMetrics.overlayStage = metadata
-        ? metadata.overlay_stage
-        : currentDebugMetrics.overlayStage;
-    currentDebugMetrics.aspectResolution = metadata
-        ? metadata.aspect_resolution
-        : currentDebugMetrics.aspectResolution;
+    currentDebugMetrics.overlayStage = metadata ? metadata.overlay_stage : currentDebugMetrics.overlayStage;
+    currentDebugMetrics.aspectResolution = metadata ? metadata.aspect_resolution : currentDebugMetrics.aspectResolution;
     renderDebugStatus();
 }
 
@@ -513,6 +1065,7 @@ function prepareDisplayFeatures(canonicalGeojson) {
         ...canonicalGeojson,
         features: canonicalGeojson.features.map((feature, index) => ({
             ...feature,
+            geometry: prepareDisplayFeatureGeometry(feature),
             properties: {
                 ...feature.properties,
                 displayFeatureId:
@@ -523,6 +1076,85 @@ function prepareDisplayFeatures(canonicalGeojson) {
     };
 }
 
+function clampDisplayLat(lat, cap = PRODUCT_LAT_CAP) {
+    return Math.max(-cap, Math.min(cap, lat));
+}
+
+function clampDisplayCoord(coord, cap = PRODUCT_LAT_CAP) {
+    return [coord[0], clampDisplayLat(coord[1], cap)];
+}
+
+function densifyLineStringCoords(coords, stepDeg = LINE_DENSIFY_STEP_DEG) {
+    if (!coords || coords.length < 2) {
+        return (coords || []).slice();
+    }
+    const out = [coords[0].slice()];
+    for (let i = 1; i < coords.length; i++) {
+        const a = coords[i - 1];
+        const b = coords[i];
+        const dx = b[0] - a[0];
+        const dy = b[1] - a[1];
+        const dist = Math.max(Math.abs(dx), Math.abs(dy), Math.hypot(dx, dy));
+        const steps = Math.max(1, Math.ceil(dist / stepDeg));
+        for (let s = 1; s <= steps; s++) {
+            const t = s / steps;
+            out.push([a[0] + dx * t, a[1] + dy * t]);
+        }
+    }
+    return out;
+}
+
+function chaikinSmoothOpenRing(ring) {
+    if (!ring || ring.length < 4) return ring;
+    const open =
+        ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]
+            ? ring.slice(0, -1)
+            : ring.slice();
+    const next = [];
+    for (let i = 0; i < open.length; i++) {
+        const p0 = open[i];
+        const p1 = open[(i + 1) % open.length];
+        next.push([0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]]);
+        next.push([0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]]);
+    }
+    next.push(next[0]);
+    return next;
+}
+
+function prepareDisplayRing(ring, { smooth = false } = {}) {
+    let coords = (ring || []).map(c => clampDisplayCoord(c));
+    if (smooth && coords.length >= 4) {
+        coords = chaikinSmoothOpenRing(coords);
+    }
+    return coords;
+}
+
+function prepareDisplayFeatureGeometry(feature) {
+    const geom = feature.geometry;
+    if (!geom) return geom;
+    const props = feature.properties || {};
+    const smoothPolygon = props.condition_type === "angle_sign";
+
+    if (geom.type === "LineString") {
+        return { type: "LineString", coordinates: densifyLineStringCoords(geom.coordinates) };
+    }
+    if (geom.type === "MultiLineString") {
+        return {
+            type: "MultiLineString",
+            coordinates: geom.coordinates.map(line => densifyLineStringCoords(line))
+        };
+    }
+    if (geom.type === "Polygon") {
+        return {
+            type: "Polygon",
+            coordinates: geom.coordinates.map((ring, ringIndex) =>
+                prepareDisplayRing(ring, { smooth: smoothPolygon && ringIndex === 0 })
+            )
+        };
+    }
+    return geom;
+}
+
 function getExteriorRing(feature) {
     if (!feature.geometry || feature.geometry.type !== "Polygon") return [];
     return feature.geometry.coordinates[0] || [];
@@ -530,12 +1162,10 @@ function getExteriorRing(feature) {
 
 function calculateRingArea(coords) {
     if (coords.length < 3) return 0;
-
-    const ring = coords[0][0] === coords[coords.length - 1][0] &&
-        coords[0][1] === coords[coords.length - 1][1]
-        ? coords
-        : coords.concat([coords[0]]);
-
+    const ring =
+        coords[0][0] === coords[coords.length - 1][0] && coords[0][1] === coords[coords.length - 1][1]
+            ? coords
+            : coords.concat([coords[0]]);
     let area = 0;
     for (let i = 1; i < ring.length; i++) {
         area += ring[i - 1][0] * ring[i][1] - ring[i][0] * ring[i - 1][1];
@@ -546,44 +1176,46 @@ function calculateRingArea(coords) {
 function summarizeGeometry(feature) {
     const coords = getExteriorRing(feature);
     if (coords.length === 0) {
-        return {
-            bbox: "n/a",
-            area: "0.00",
-            touches180: false,
-            crosses180: false
-        };
+        return { bbox: "n/a", area: "0.00", touches180: false, crosses180: false };
     }
-
-    const lons = coords.map(point => point[0]);
-    const lats = coords.map(point => point[1]);
-    const bbox = [
-        Math.min(...lons),
-        Math.min(...lats),
-        Math.max(...lons),
-        Math.max(...lats)
-    ];
-    const ring = coords[0][0] === coords[coords.length - 1][0] &&
-        coords[0][1] === coords[coords.length - 1][1]
-        ? coords
-        : coords.concat([coords[0]]);
+    const lons = coords.map(p => p[0]);
+    const lats = coords.map(p => p[1]);
+    const bbox = [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)];
+    const ring =
+        coords[0][0] === coords[coords.length - 1][0] && coords[0][1] === coords[coords.length - 1][1]
+            ? coords
+            : coords.concat([coords[0]]);
     let maxLonJump = 0;
     for (let i = 1; i < ring.length; i++) {
         maxLonJump = Math.max(maxLonJump, Math.abs(ring[i][0] - ring[i - 1][0]));
     }
-
     return {
-        bbox: bbox.map(value => value.toFixed(2)).join(", "),
+        bbox: bbox.map(v => v.toFixed(2)).join(", "),
         area: calculateRingArea(coords).toFixed(2),
-        touches180: coords.some(point => Math.abs(Math.abs(point[0]) - 180) <= 1.5),
+        touches180: coords.some(p => Math.abs(Math.abs(p[0]) - 180) <= 1.5),
         crosses180: maxLonJump > 180
     };
 }
 
 function bindGeometryDebug(feature, layer) {
     if (!debugGeometry || feature.geometry.type !== "Polygon") return;
-
     const props = feature.properties || {};
     const summary = summarizeGeometry(feature);
+
+    if (traceConditions) {
+        const payload = {
+            canonicalFeatureId: props.canonicalFeatureId,
+            condition_index: props.condition_index,
+            condition_type: props.condition_type,
+            planet: props.planet,
+            house: props.house,
+            angle: props.angle,
+            sign: props.sign,
+            validation_contradictions: props.validation_contradictions
+        };
+        console.info("[traceConditions]", payload);
+    }
+
     layer.bindPopup(`
         <div style="font-size:12px; line-height:1.35;">
             <b>Geometry Debug</b><br>
@@ -593,7 +1225,7 @@ function bindGeometryDebug(feature, layer) {
             <b>house</b> ${props.house ?? "n/a"}<br>
             <b>condition_type</b> ${props.condition_type || "house"}<br>
             <b>angle</b> ${props.angle || "n/a"}<br>
-            <b>sign</b> ${props.sign || "n/a"}<br>
+            <b>sign</b> ${props.sign ? titleCase(props.sign) : "n/a"}<br>
             <b>condition_index</b> ${props.condition_index ?? "n/a"}<br>
             <b>generation_mode</b> ${props.generation_mode || "n/a"}<br>
             <b>source_cell_count</b> ${props.source_cell_count ?? "n/a"}<br>
@@ -603,17 +1235,14 @@ function bindGeometryDebug(feature, layer) {
             <b>area</b> ${summary.area}<br>
             <b>touches ±180</b> ${summary.touches180}<br>
             <b>crosses ±180</b> ${summary.crosses180}
-        </div>
-    `);
+        </div>`);
 }
 
 function renderCities() {
     cityLayer.clearLayers();
-    if (!citiesData || citiesData.length === 0) return;
-
+    if (typeof citiesData === "undefined" || !citiesData.length) return;
     const zoom = map.getZoom();
     const bounds = map.getBounds();
-
     let minPop = 0;
     if (zoom <= 3) minPop = 5000000;
     else if (zoom <= 4) minPop = 2000000;
@@ -621,21 +1250,109 @@ function renderCities() {
     else if (zoom <= 6) minPop = 500000;
     else if (zoom <= 7) minPop = 100000;
     else if (zoom <= 8) minPop = 50000;
-    else minPop = 0;
 
     citiesData.forEach(city => {
         if (city.pop >= minPop && bounds.contains([city.lat, city.lng])) {
             L.circleMarker([city.lat, city.lng], {
-                radius: zoom >= 7 ? 5 : 3,
-                color: "#222",
+                pane: CITY_MARKER_PANE,
+                radius: zoom >= 7 ? 6 : 4,
+                color: "#1a1a1a",
                 fillColor: "#fff",
                 fillOpacity: 1,
-                weight: 1.5
-            }).addTo(cityLayer).bindPopup(
-                `<b>${city.name}, ${city.country}</b><br>${city.lat.toFixed(2)}°, ${city.lng.toFixed(2)}°`
-            );
+                weight: 2
+            })
+                .addTo(cityLayer)
+                .on("click", ev => {
+                    L.DomEvent.stopPropagation(ev);
+                    openDatasetCityPopup(city);
+                });
         }
     });
+}
+
+function normalizeCitySearchQuery(raw) {
+    const trimmed = String(raw).trim().replace(/\s+/g, " ");
+    if (!trimmed) return { primary: "", full: "" };
+    const primary = trimmed.split(",")[0].trim().replace(/\s+/g, " ");
+    return { primary: primary.toLowerCase(), full: trimmed.toLowerCase() };
+}
+
+function normCityName(name) {
+    return String(name).trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function sortCitiesByPopDesc(arr) {
+    return arr.slice().sort((a, b) => (b.pop || 0) - (a.pop || 0));
+}
+
+/** Placeholder cities.js: exact normalized name match only (no prefix / disambiguation). */
+function findCityDatasetMatches(raw) {
+    if (typeof citiesData === "undefined" || !citiesData.length) {
+        return { matches: [], tier: null, reason: "no_dataset" };
+    }
+    const { primary } = normalizeCitySearchQuery(raw);
+    if (!primary) return { matches: [], tier: null, reason: "empty" };
+
+    const exact = sortCitiesByPopDesc(citiesData.filter(c => normCityName(c.name) === primary));
+    if (exact.length) return { matches: exact, tier: "exact", reason: null };
+
+    return { matches: [], tier: null, reason: "none" };
+}
+
+function clearCitySearchFeedback() {
+    const fb = document.getElementById("citySearchFeedback");
+    if (!fb) return;
+    fb.replaceChildren();
+    fb.hidden = true;
+    fb.classList.remove("is-error");
+}
+
+function showCitySearchError(message) {
+    const fb = document.getElementById("citySearchFeedback");
+    if (!fb) return;
+    fb.replaceChildren();
+    fb.classList.add("is-error");
+    const p = document.createElement("p");
+    p.className = "city-search-feedback-msg";
+    p.textContent = message;
+    fb.appendChild(p);
+    fb.hidden = false;
+}
+
+/** Pan only (no zoom change); compact chart popup. */
+async function openDatasetCityPopup(city) {
+    const lat = city.lat;
+    const lon = city.lng;
+    const latlng = L.latLng(lat, lon);
+    map.panTo(latlng, { animate: true, duration: 0.45 });
+
+    if (Math.abs(lat) > 65) {
+        L.popup(CHART_POPUP_OPTS)
+            .setLatLng(latlng)
+            .setContent(polarCapPopupHtml(city.name, lat, lon))
+            .openOn(map);
+        return;
+    }
+
+    const popup = L.popup(CHART_POPUP_OPTS)
+        .setLatLng(latlng)
+        .setContent('<div class="popup-chart"><p class="popup-coords">Loading chart…</p></div>')
+        .openOn(map);
+
+    try {
+        const data = await fetchRelocatedChart(lat, lon);
+        popup.setContent(
+            buildRelocatedPopupHtml(data, lat, lon, {
+                title: city.name,
+                origin: "city_dataset",
+                country: city.country || null,
+                admin: city.admin || city.state || null
+            })
+        );
+    } catch (err) {
+        console.error("relocated-chart (city)", err);
+        popup.setContent('<div class="popup-chart"><p class="popup-coords">Could not load chart for this city.</p></div>');
+    }
 }
 
 function getSelectedAngleSignCondition() {
@@ -646,11 +1363,10 @@ function getSelectedAngleSignCondition() {
 }
 
 function getSelectedAspectOverlay() {
+    const planet = document.getElementById("overlayPlanet").value;
     const aspect = document.getElementById("overlayAspect").value;
     const angle = document.getElementById("overlayAngle").value;
-
     if (!planet || !aspect || !angle) return null;
-
     return { planet, aspect, angle };
 }
 
@@ -660,6 +1376,7 @@ function renderHouseFeatures(displayData) {
         const props = feature.properties || {};
         if (props.condition_type === "angle_sign") {
             L.geoJSON(feature, {
+                smoothFactor: 0,
                 style: {
                     fillColor: "#8e44ad",
                     fillOpacity: 0.4,
@@ -672,12 +1389,12 @@ function renderHouseFeatures(displayData) {
             return;
         }
         if (!props.planet) return;
-
-        let idx = props.condition_index || 0;
+        const idx = props.condition_index || 0;
         L.geoJSON(feature, {
+            smoothFactor: 0,
             style: {
                 fillColor: colors[idx % colors.length],
-                fillOpacity: 0.35,
+                fillOpacity: 0.28,
                 stroke: false,
                 opacity: 0,
                 weight: 0
@@ -687,13 +1404,9 @@ function renderHouseFeatures(displayData) {
     });
 }
 
-function defaultAuraScreenWeight(aspectKey) {
-    const k = (aspectKey || "").toLowerCase();
-    if (k === "sextile" || k === "trine" || k === "soft") return 9;
-    if (k === "square") return 11;
-    if (k === "conjunction" || k === "opposition" || k === "hard") return 14;
-    if (k === "any") return 12;
-    return 12;
+/** Prototype aura bands disabled — see validation/narratives/map_current_qa_cleanup_pass.md */
+function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
+    if (!aspectAuraMode) return;
 }
 
 function renderAspectFeatures(displayData) {
@@ -701,40 +1414,25 @@ function renderAspectFeatures(displayData) {
         if (!feature.properties || !feature.properties.angle) return;
         if (feature.geometry && feature.geometry.type === "Polygon") return;
 
-        const geom = feature.geometry;
-        const aspectKey = feature.properties.aspect || "conjunction";
-        const c = feature.properties.color || "#00e5ff";
-        const wSharp = feature.properties.weight != null ? feature.properties.weight : 2;
-        const opSharp = feature.properties.opacity != null ? feature.properties.opacity : 1;
-
-        if (aspectAuraMode && geom && geom.type === "LineString" && geom.coordinates.length >= 2) {
-            const latlngs = geom.coordinates.map(pt => [pt[1], pt[0]]);
-            L.polyline(latlngs, {
-                color: c,
-                weight: defaultAuraScreenWeight(aspectKey),
-                opacity: 0.12,
-                lineCap: "round",
-                lineJoin: "round",
-                interactive: false
-            }).addTo(aspectLayer);
-        }
-
         L.geoJSON(feature, {
-            pointToLayer: function(feat, latlng) {
+            smoothFactor: 0,
+            pointToLayer(feat, latlng) {
+                const col = feat.properties.color || "#0f766e";
                 return L.circleMarker(latlng, {
                     radius: feat.properties.radius || 4,
-                    color: feat.properties.color || "#00e5ff",
-                    fillColor: feat.properties.color || "#00e5ff",
+                    color: col,
+                    fillColor: col,
                     fillOpacity: 1,
                     weight: 2
                 });
             },
-            style: function(feat) {
+            style(feat) {
                 return {
-                    color: feat.properties.color || "#00e5ff",
+                    color: feat.properties.color || "#0f766e",
                     weight: feat.properties.weight != null ? feat.properties.weight : 2,
-                    opacity: feat.properties.opacity != null ? feat.properties.opacity : 1,
-                    lineCap: "round"
+                    opacity: feat.properties.opacity != null ? feat.properties.opacity : 0.95,
+                    lineCap: "round",
+                    lineJoin: "round"
                 };
             }
         }).addTo(aspectLayer);
@@ -742,9 +1440,11 @@ function renderAspectFeatures(displayData) {
 }
 
 function isStagedContourAngleOverlay(aspectOverlay) {
-    return aspectOverlay &&
-        ["ASC", "DC", "IC"].includes(aspectOverlay.angle) &&
-        aspectOverlay.aspect === "any";
+    return (
+        aspectOverlay &&
+        ["ASC", "DSC", "IC"].includes(aspectOverlay.angle) &&
+        aspectOverlay.aspect === "any"
+    );
 }
 
 async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token) {
@@ -768,10 +1468,7 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
 
     aspectLayer.clearLayers();
     renderAspectFeatures(prepareDisplayFeatures(aspectData));
-    updateAspectDebugStatus(
-        aspectData,
-        stage.name === "final" ? "ready" : "refining"
-    );
+    updateAspectDebugStatus(aspectData, stage.name === "final" ? "ready" : "refining");
     setRenderStatus(
         stage.name === "final"
             ? `${aspectOverlay.angle} overlay final ready`
@@ -781,17 +1478,11 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
 }
 
 async function postSearchRegions(payload) {
-    const response = await fetch(
-        "http://127.0.0.1:8000/search-regions",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        }
-    );
-
+    const response = await fetch("http://127.0.0.1:8000/search-regions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(normalizeAnglesForApiPayload(payload))
+    });
     return response.json();
 }
 
@@ -801,51 +1492,37 @@ async function findRegions() {
 
     try {
         const token = ++currentRenderToken;
-        console.log("START RENDER", token);
-
         polygonLayer.clearLayers();
         aspectLayer.clearLayers();
-        setRenderStatus("Rendering house regions...");
+        setRenderStatus("Rendering…");
         currentDebugMetrics.aspectOverlayStatus = "not requested";
         currentDebugMetrics.overlayStage = "n/a";
         currentDebugMetrics.aspectResolution = "n/a";
         renderDebugStatus();
 
-        const selectedOption =
-            document.getElementById("chartProfile").selectedOptions[0];
-
-        const profile =
-            JSON.parse(selectedOption.dataset.profile);
-
-        const [year, month, day] =
-            profile.date.split("-").map(Number);
-
-        const [hour, minute] =
-            profile.time.split(":").map(Number);
-
-        const birthHourUTC =
-            hour + (minute / 60);
+        const selectedOption = document.getElementById("chartProfile").selectedOptions[0];
+        const profile = JSON.parse(selectedOption.dataset.profile);
+        const [year, month, day] = profile.date.split("-").map(Number);
+        const [hour, minute] = profile.time.split(":").map(Number);
+        const birthHourUTC = hour + minute / 60;
 
         const conditions = [];
-
         conditions.push({
             planet: document.getElementById("planetA").value,
-            house: parseInt(document.getElementById("houseA").value)
+            house: parseInt(document.getElementById("houseA").value, 10)
         });
-
         const planetB = document.getElementById("planetB").value;
         if (planetB) {
             conditions.push({
                 planet: planetB,
-                house: parseInt(document.getElementById("houseB").value)
+                house: parseInt(document.getElementById("houseB").value, 10)
             });
         }
-
         const planetC = document.getElementById("planetC").value;
         if (planetC) {
             conditions.push({
                 planet: planetC,
-                house: parseInt(document.getElementById("houseC").value)
+                house: parseInt(document.getElementById("houseC").value, 10)
             });
         }
 
@@ -872,7 +1549,7 @@ async function findRegions() {
         const displayData = prepareDisplayFeatures(data);
         renderHouseFeatures(displayData);
         updateDebugStatus(data, displayData, aspectOverlay ? "pending" : "not requested");
-        setRenderStatus(aspectOverlay ? "Calculating angular overlay..." : "House regions ready.");
+        setRenderStatus(aspectOverlay ? "Calculating angular overlay…" : "House regions ready.");
         renderCities();
 
         if (aspectOverlay) {
@@ -882,15 +1559,9 @@ async function findRegions() {
                     { name: "medium", label: "medium", aspect_resolution: 1.0 },
                     { name: "final", label: "final", aspect_resolution: 0.5 }
                 ];
-
                 for (const stage of stages) {
-                    const stillCurrent = await renderSingleOverlayStage(
-                        basePayload,
-                        aspectOverlay,
-                        stage,
-                        token
-                    );
-                    if (!stillCurrent) return;
+                    const ok = await renderSingleOverlayStage(basePayload, aspectOverlay, stage, token);
+                    if (!ok) return;
                 }
             } else {
                 const aspectData = await postSearchRegions({
@@ -901,19 +1572,14 @@ async function findRegions() {
                     aspect_resolution: 0.5,
                     overlay_stage: "final"
                 });
-
                 if (token !== currentRenderToken) return;
-
                 aspectLayer.clearLayers();
                 renderAspectFeatures(prepareDisplayFeatures(aspectData));
                 updateAspectDebugStatus(aspectData, "ready");
                 setRenderStatus("Angular overlay ready");
             }
         }
-
-        console.log("COMPLETE RENDER", token);
         renderCities();
-
     } catch (err) {
         console.error(err);
     } finally {
@@ -923,44 +1589,49 @@ async function findRegions() {
 
 document.getElementById("findBtn").onclick = function() {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-        findRegions();
-    }, 400);
+    debounceTimer = setTimeout(findRegions, 400);
 };
-document.getElementById("citySearch").addEventListener("keydown", function(e) {
+
+document.getElementById("citySearch").addEventListener("input", clearCitySearchFeedback);
+
+document.getElementById("citySearch").addEventListener("keydown", async function(e) {
     if (e.key === "Escape") {
         e.stopPropagation();
+        clearCitySearchFeedback();
         return;
     }
     if (e.key !== "Enter") return;
 
-    const q = this.value.trim().toLowerCase();
-    if (!q) return;
-
-    const match = citiesData.find(city =>
-        city.name.toLowerCase().includes(q)
-    );
-
-    if (!match) {
-        alert("City not found");
+    const raw = this.value;
+    const { primary } = normalizeCitySearchQuery(raw);
+    if (!primary) {
+        clearCitySearchFeedback();
         return;
     }
 
-    map.setView([match.lat, match.lng], 7);
+    const { matches, reason } = findCityDatasetMatches(raw);
 
-    L.popup()
-        .setLatLng([match.lat, match.lng])
-        .setContent(`
-            <b>${match.name}${match.country ? ", " + match.country : ""}</b><br>
-            ${match.lat.toFixed(2)}°, ${match.lng.toFixed(2)}°
-        `)
-        .openOn(map);
+    if (!matches.length) {
+        const msg =
+            reason === "no_dataset"
+                ? "Placeholder city list not loaded."
+                : "Not in placeholder list (exact name only). Real geocoder required.";
+        showCitySearchError(msg);
+        return;
+    }
+
+    clearCitySearchFeedback();
+    await openDatasetCityPopup(matches[0]);
 });
-// Cities already loaded from cities.js
-if (typeof citiesData !== 'undefined') {
-    console.log("Cities loaded:", citiesData.length);
+
+map.on("moveend", () => {
+    renderCities();
+});
+
+if (typeof citiesData !== "undefined") {
     renderCities();
 }
+setRenderStatus("Ready.");
 </script>
 
 </body>

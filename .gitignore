@@ -10,3 +10,4 @@ ai_context/private/
 openai_api_key*
 *.secret
 .tmp-chrome-*/
+.playwright-browsers/
