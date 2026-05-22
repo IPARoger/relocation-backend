@@ -193,7 +193,14 @@ def main() -> int:
         "label": "Americas baseline",
         "north": 55.0, "south": 20.0, "east": -60.0, "west": -130.0,
         "zoom": 4.0,
-        "conditions": [{"type": "planet_in_house", "planet": "sun", "house": 1}],
+        "conditions": [{
+            "schema_version": 1,
+            "kind": "saved_investigation",
+            "chart_id": chart_id,
+            "house_conditions": [{"slot": "A", "type": "planet_in_house", "planet": "sun", "house": 1}],
+            "angle_sign_conditions": [{"type": "angle_in_sign", "angle": "ASC", "sign": "aries"}],
+            "aspect_overlay": {"type": "aspect_to_angle", "planet": "saturn", "aspect": "square", "angle": "MC"},
+        }],
         "notes": "Saved by smoke",
     }
     status_v, view = request("POST", "/library/views", view_payload)
@@ -204,6 +211,9 @@ def main() -> int:
             and isinstance(view.get("id"), str)
             and view.get("chart_id") == chart_id
             and view["viewport"]["zoom"] == 4.0
+            and view["conditions"][0]["kind"] == "saved_investigation"
+            and "renderer_substrate" not in json.dumps(view["conditions"])
+            and "debug" not in json.dumps(view["conditions"]).lower()
             and any(v["id"] == view["id"] for v in after_view.get("views", [])),
         "detail": {"view": view},
     })

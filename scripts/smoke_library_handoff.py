@@ -193,14 +193,50 @@ def main() -> int:
             "() => window.__rmSaveCurrentViewToLibrary && document.getElementById('chartProfile').value === " + json.dumps(chart_id),
             timeout=15000,
         )
+        save_page.evaluate(
+            """() => {
+                document.getElementById('planetA').value = 'moon';
+                document.getElementById('houseA').value = '4';
+                document.getElementById('planetB').value = 'venus';
+                document.getElementById('houseB').value = '7';
+                document.getElementById('planetC').value = '';
+                document.getElementById('angleSignAngle').value = 'MC';
+                document.getElementById('angleSignSign').value = 'capricorn';
+                document.getElementById('overlayPlanet').value = 'saturn';
+                document.getElementById('overlayAspect').value = 'square';
+                document.getElementById('overlayAngle').value = 'ASC';
+            }"""
+        )
         view = save_page.evaluate(
             "async () => await window.__rmSaveCurrentViewToLibrary()"
         )
+        saved_investigation = (view.get("conditions") or [{}])[0] if view else {}
+        serialized_conditions = json.dumps(view.get("conditions", [])) if view else ""
         results.append({
-            "test": "save_current_view_round_trip",
+            "test": "save_current_view_round_trips_saved_investigation",
             "pass": view is not None and isinstance(view.get("id"), str)
                 and view.get("chart_id") == chart_id
                 and "viewport" in view
+                and saved_investigation.get("schema_version") == 1
+                and saved_investigation.get("kind") == "saved_investigation"
+                and saved_investigation.get("chart_id") == chart_id
+                and saved_investigation.get("house_conditions") == [
+                    {"slot": "A", "type": "planet_in_house", "planet": "moon", "house": 4},
+                    {"slot": "B", "type": "planet_in_house", "planet": "venus", "house": 7},
+                ]
+                and saved_investigation.get("angle_sign_conditions") == [
+                    {"type": "angle_in_sign", "angle": "MC", "sign": "capricorn"}
+                ]
+                and saved_investigation.get("aspect_overlay") == {
+                    "type": "aspect_to_angle",
+                    "planet": "saturn",
+                    "aspect": "square",
+                    "angle": "ASC",
+                }
+                and "renderer_substrate" not in serialized_conditions
+                and "generation_mode" not in serialized_conditions
+                and "resolution" not in serialized_conditions
+                and "debug" not in serialized_conditions.lower()
                 and not save_errors,
             "detail": {"view": view, "errors": save_errors},
         })
@@ -245,6 +281,18 @@ def main() -> int:
                     smoke,
                     handoff,
                     selectValue: document.getElementById('chartProfile').value,
+                    controls: {
+                        planetA: document.getElementById('planetA').value,
+                        houseA: document.getElementById('houseA').value,
+                        planetB: document.getElementById('planetB').value,
+                        houseB: document.getElementById('houseB').value,
+                        planetC: document.getElementById('planetC').value,
+                        angleSignAngle: document.getElementById('angleSignAngle').value,
+                        angleSignSign: document.getElementById('angleSignSign').value,
+                        overlayPlanet: document.getElementById('overlayPlanet').value,
+                        overlayAspect: document.getElementById('overlayAspect').value,
+                        overlayAngle: document.getElementById('overlayAngle').value,
+                    },
                     center: { lat: center.lat, lon: center.lng },
                     zoom: window.__rmMap.getZoom(),
                     polygonLayers: smoke?.polygonLayers || 0,
@@ -264,6 +312,19 @@ def main() -> int:
                 and replay_state["handoff"]["viewRequestedId"] == view["id"]
                 and replay_state["handoff"]["viewAppliedId"] == view["id"]
                 and replay_state["handoff"]["viewAppliedChartId"] == chart_id
+                and replay_state["handoff"]["investigationConditionsApplied"] == 4
+                and replay_state["controls"] == {
+                    "planetA": "moon",
+                    "houseA": "4",
+                    "planetB": "venus",
+                    "houseB": "7",
+                    "planetC": "",
+                    "angleSignAngle": "MC",
+                    "angleSignSign": "capricorn",
+                    "overlayPlanet": "saturn",
+                    "overlayAspect": "square",
+                    "overlayAngle": "ASC",
+                }
                 and abs(replay_state["center"]["lat"] - expected_lat) < 0.1
                 and abs(replay_state["center"]["lon"] - expected_lon) < 0.1
                 and abs(replay_state["zoom"] - saved_viewport.get("zoom")) < 0.01

@@ -212,6 +212,18 @@ Saved work:
 - Comparison of multiple cities for one chart.
 - Comparison of multiple charts, family charts, or client charts later.
 
+### Saved Object Taxonomy
+
+Use three product-layer meanings so "saved view" does not become ambiguous doctrine:
+
+1. **Birth profile / client profile** — natal birth data and identity-level chart record.
+2. **Relocated chart** — birth profile plus a specific destination, city, or location. This is a future durable object, not Phase 2.3 scope.
+3. **Saved investigation** — birth profile / chart id plus semantic search conditions plus viewport/display context. Phase 2.3 implements this under the existing saved-view scaffold.
+
+For saved investigations, persist inquiry semantics and viewport. Cache mathematical/truth substrate where useful. Do not persist graphic artifacts, renderer substrate, debug flags, resolution settings, aura/virga/raindrop output, or the full renderer request payload as durable product truth.
+
+Local JSON is scaffold persistence only, not permanent product storage. Renderer behavior remains environment-controlled; the legacy production default remains unchanged.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.

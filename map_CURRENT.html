@@ -1090,6 +1090,9 @@ let lastLibraryHandoff = {
     viewAppliedId: null,
     viewAppliedChartId: null,
     viewAppliedSource: null,
+    investigationConditionsSaved: 0,
+    investigationConditionsApplied: 0,
+    investigationReplayError: null,
     viewReplayError: null
 };
 
@@ -1227,6 +1230,51 @@ window.__rmLoadChartProfiles = loadChartProfiles;
 window.__rmLibraryHandoff = () => ({ ...lastLibraryHandoff });
 loadChartProfiles().catch(err => console.error("chart-profiles", err));
 
+function collectSavedInvestigationConditions() {
+    const houseConditions = [];
+    const planetA = document.getElementById("planetA").value;
+    if (planetA) {
+        houseConditions.push({
+            slot: "A",
+            type: "planet_in_house",
+            planet: planetA,
+            house: parseInt(document.getElementById("houseA").value, 10)
+        });
+    }
+    const planetB = document.getElementById("planetB").value;
+    if (planetB) {
+        houseConditions.push({
+            slot: "B",
+            type: "planet_in_house",
+            planet: planetB,
+            house: parseInt(document.getElementById("houseB").value, 10)
+        });
+    }
+    const planetC = document.getElementById("planetC").value;
+    if (planetC) {
+        houseConditions.push({
+            slot: "C",
+            type: "planet_in_house",
+            planet: planetC,
+            house: parseInt(document.getElementById("houseC").value, 10)
+        });
+    }
+    const angleSignCondition = getSelectedAngleSignCondition();
+    const aspectOverlay = getSelectedAspectOverlay();
+    return [{
+        schema_version: 1,
+        kind: "saved_investigation",
+        chart_id: document.getElementById("chartProfile").value,
+        house_conditions: houseConditions,
+        angle_sign_conditions: angleSignCondition
+            ? [{ type: "angle_in_sign", ...angleSignCondition }]
+            : [],
+        aspect_overlay: aspectOverlay
+            ? { type: "aspect_to_angle", ...aspectOverlay }
+            : null
+    }];
+}
+
 async function saveCurrentViewToLibrary() {
     const statusEl = document.getElementById("libraryHandoffStatus");
     const btn = document.getElementById("saveCurrentViewBtn");
@@ -1260,11 +1308,18 @@ async function saveCurrentViewToLibrary() {
         east: bounds.getEast(),
         west: bounds.getWest(),
         zoom: window.__rmMap.getZoom(),
-        conditions: [],
+        conditions: collectSavedInvestigationConditions(),
         notes: ""
     };
     payload.center_lat = center.lat;
     payload.center_lon = center.lng;
+    lastLibraryHandoff.investigationConditionsSaved = payload.conditions[0]
+        ? (
+            (payload.conditions[0].house_conditions || []).length +
+            (payload.conditions[0].angle_sign_conditions || []).length +
+            (payload.conditions[0].aspect_overlay ? 1 : 0)
+        )
+        : 0;
     try {
         if (btn) btn.disabled = true;
         const resp = await fetch(`${LIBRARY_API_BASE}/library/views`, {
@@ -1319,6 +1374,68 @@ function viewportCenterFromSavedView(viewport) {
     };
 }
 
+function setSelectValueIfPresent(id, value) {
+    const select = document.getElementById(id);
+    if (!select || value == null) return false;
+    const stringValue = String(value);
+    if (![...select.options].some(o => o.value === stringValue)) return false;
+    select.value = stringValue;
+    return true;
+}
+
+function savedInvestigationFromView(view) {
+    const conditions = Array.isArray(view?.conditions) ? view.conditions : [];
+    const record = conditions.find(c => c && c.kind === "saved_investigation");
+    return record || null;
+}
+
+function applySavedInvestigationConditions(view) {
+    const investigation = savedInvestigationFromView(view);
+    lastLibraryHandoff.investigationReplayError = null;
+    lastLibraryHandoff.investigationConditionsApplied = 0;
+    if (!investigation) return true;
+    if (investigation.schema_version !== 1) {
+        lastLibraryHandoff.investigationReplayError = "unsupported investigation schema";
+        return false;
+    }
+    const bySlot = {};
+    (investigation.house_conditions || []).forEach(cond => {
+        if (cond && cond.slot) bySlot[String(cond.slot).toUpperCase()] = cond;
+    });
+    const slotA = bySlot.A;
+    if (slotA) {
+        setSelectValueIfPresent("planetA", slotA.planet);
+        setSelectValueIfPresent("houseA", slotA.house);
+        lastLibraryHandoff.investigationConditionsApplied++;
+    }
+    ["B", "C"].forEach(slot => {
+        const cond = bySlot[slot];
+        if (cond) {
+            setSelectValueIfPresent(`planet${slot}`, cond.planet);
+            setSelectValueIfPresent(`house${slot}`, cond.house);
+            lastLibraryHandoff.investigationConditionsApplied++;
+        } else {
+            setSelectValueIfPresent(`planet${slot}`, "");
+        }
+    });
+    const angleSign = (investigation.angle_sign_conditions || [])[0];
+    if (angleSign) {
+        setSelectValueIfPresent("angleSignAngle", angleSign.angle);
+        setSelectValueIfPresent("angleSignSign", angleSign.sign);
+        lastLibraryHandoff.investigationConditionsApplied++;
+    } else {
+        setSelectValueIfPresent("angleSignAngle", "");
+    }
+    const aspect = investigation.aspect_overlay;
+    if (aspect) {
+        setSelectValueIfPresent("overlayPlanet", aspect.planet);
+        setSelectValueIfPresent("overlayAspect", aspect.aspect);
+        setSelectValueIfPresent("overlayAngle", aspect.angle);
+        lastLibraryHandoff.investigationConditionsApplied++;
+    }
+    return true;
+}
+
 function applyLibrarySavedViewReplay(libraryState) {
     const viewId = readLibraryViewIdFromUrl();
     const handoff = readActiveLibraryChartIdFromUrlOrSession();
@@ -1345,6 +1462,7 @@ function applyLibrarySavedViewReplay(libraryState) {
         lastLibraryHandoff.viewReplayError = "map not ready";
         return false;
     }
+    applySavedInvestigationConditions(view);
     window.__rmMap.setView([center.lat, center.lon], zoom, { animate: false });
     lastLibraryHandoff.viewAppliedId = view.id;
     lastLibraryHandoff.viewAppliedChartId = view.chart_id;
