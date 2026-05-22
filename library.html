@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<!--
+  Phase 2.0+ — account + chart-library scaffold (feature-flag isolated).
+
+  This page does NOT render maps, does NOT change astrology math, does NOT
+  touch the renderer doctrine. It only:
+
+    * Lists saved charts via /library/state
+    * Saves / favorites / deletes charts (LibraryChartUpsert shape)
+    * Sets active chart for handoff to map_CURRENT.html via sessionStorage
+    * Saves map view metadata stubs
+    * Exposes a shareable URL contract: /library.html?chart=<id>
+    * Exposes saved-view map deep links:
+      /map_CURRENT.html?skipOnboarding=1#libraryActive=<id>&view=<view_id>
+    * Exposes a settings panel placeholder
+    * Provides an "Open in Map" handoff consumed by map_CURRENT.html
+
+  Test/automation hooks:
+    window.__rmLibrary.state
+    window.__rmLibrary.reload()
+    window.__rmLibrary.saveChart(payload)
+    window.__rmLibrary.favoriteChart(id, value)
+    window.__rmLibrary.deleteChart(id)
+    window.__rmLibrary.setActive(id)
+    window.__rmLibrary.saveView(payload)
+    window.__rmLibrary.shareUrl(id)
+    window.__rmLibrary.mapViewUrl(view)
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Relocation chart library (Phase 2.0 scaffold)</title>
+<style>
+  :root { --fg: #0f172a; --muted: #475569; --line: #cbd5e1; --bg: #f8fafc; --accent: #b45309; --soft: #fef3c7; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 system-ui, sans-serif; }
+  header { padding: 16px 24px; background: #ffffff; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 0 0 4px; font-size: 18px; }
+  header .meta { color: var(--muted); font-size: 12px; }
+  main { display: grid; grid-template-columns: 320px 1fr; gap: 24px; padding: 24px; max-width: 1200px; }
+  section { background: #ffffff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  section h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px; background: #ffffff; }
+  li.active { border-color: var(--accent); background: var(--soft); }
+  li .row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+  li .name { font-weight: 600; }
+  li .meta { color: var(--muted); font-size: 12px; }
+  .view-list { margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 6px; }
+  .view-row { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  button { font: 12px system-ui, sans-serif; padding: 4px 8px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; border-radius: 4px; }
+  button.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  input[type="text"], input[type="date"], input[type="time"], input[type="number"], textarea, select {
+    width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; font: 13px system-ui, sans-serif;
+    box-sizing: border-box;
+  }
+  label { display: block; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+  label span { display: block; margin-bottom: 2px; }
+  fieldset { border: 1px dashed var(--line); border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+  legend { padding: 0 6px; color: var(--muted); font-size: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stub { background: #fff7ed; border: 1px dashed #b45309; padding: 6px 10px; border-radius: 4px; color: #7c2d12; font-size: 12px; }
+  .toast { margin-top: 8px; min-height: 18px; font-size: 12px; color: var(--accent); }
+  .doctrine { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .doctrine code { background: var(--soft); padding: 1px 4px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Relocation chart library</h1>
+  <div class="meta">Phase 2.0 scaffold &middot; local persistence &middot; renderer doctrine preserved</div>
+</header>
+<main>
+  <section>
+    <h2>Saved charts</h2>
+    <div class="stub" id="emptyState">No saved charts yet. Use the form on the right to add one.</div>
+    <ul id="chartList"></ul>
+    <div class="toast" id="listToast"></div>
+    <div class="doctrine">
+      Active chart selection is held in <code>sessionStorage.rm_library_active</code>.
+      "Open in Map" launches <code>/map_CURRENT.html?skipOnboarding=1#libraryActive=&lt;id&gt;</code>. As of Phase 2.1 the map reads that handoff and auto-selects the chart in its existing profile picker; rendering stays on the legacy substrate.
+    </div>
+  </section>
+  <section>
+    <h2>Save / edit chart</h2>
+    <form id="chartForm">
+      <label><span>Display name</span><input id="chartName" type="text" required placeholder="e.g. Anna Pacific Move" /></label>
+      <div class="grid-2">
+        <label><span>Birth date</span><input id="chartDate" type="date" required /></label>
+        <label><span>Birth time (UTC)</span><input id="chartTime" type="time" required /></label>
+      </div>
+      <label><span>Timezone label</span><input id="chartTz" type="text" value="UTC" /></label>
+      <label><span>Birth place</span><input id="chartPlace" type="text" placeholder="e.g. New York, NY" /></label>
+      <div class="grid-2">
+        <label><span>Lat</span><input id="chartLat" type="number" step="0.0001" value="0" /></label>
+        <label><span>Lon</span><input id="chartLon" type="number" step="0.0001" value="0" /></label>
+      </div>
+      <label><span>Notes</span><textarea id="chartNotes" rows="2" placeholder="optional"></textarea></label>
+      <label><span>&nbsp;</span>
+        <input type="hidden" id="chartId" />
+        <button class="primary" id="saveChartBtn" type="submit">Save chart</button>
+        <button type="button" id="clearFormBtn">Clear form</button>
+      </label>
+      <div class="toast" id="formToast"></div>
+    </form>
+    <fieldset>
+      <legend>Save current map view (stub)</legend>
+      <div class="doctrine">
+        Wire-in to <code>map_CURRENT.html</code> is deferred. Save a viewport directly here for the active chart; production map remains untouched.
+      </div>
+      <form id="viewForm">
+        <label><span>Label</span><input id="viewLabel" type="text" value="Saved view" /></label>
+        <div class="grid-2">
+          <label><span>North</span><input id="viewNorth" type="number" step="0.01" value="55" /></label>
+          <label><span>South</span><input id="viewSouth" type="number" step="0.01" value="20" /></label>
+        </div>
+        <div class="grid-2">
+          <label><span>East</span><input id="viewEast" type="number" step="0.01" value="-60" /></label>
+          <label><span>West</span><input id="viewWest" type="number" step="0.01" value="-130" /></label>
+        </div>
+        <label><span>Zoom</span><input id="viewZoom" type="number" step="0.25" value="4" /></label>
+        <label><span>&nbsp;</span><button class="primary" type="submit">Save view for active chart</button></label>
+        <div class="toast" id="viewToast"></div>
+      </form>
+    </fieldset>
+    <fieldset>
+      <legend>Settings (placeholder)</legend>
+      <form id="settingsForm">
+        <label><input type="checkbox" id="setLatCap" /> Lat-cap label enabled (shipped)</label>
+        <label><input type="checkbox" id="setPhase2" /> Phase-2 cache enabled (doctrine only, not wired)</label>
+        <label><input type="checkbox" id="setExperimental" /> Experimental mode (narrow-orb, high-lat, canonical debug)</label>
+        <label><span>Default substrate</span>
+          <select id="setSubstrate">
+            <option value="legacy_search_regions">legacy_search_regions (production)</option>
+            <option value="canonical_screen_space">canonical_screen_space (debug-only)</option>
+          </select>
+        </label>
+        <label><span>&nbsp;</span><button class="primary" type="submit">Save settings</button></label>
+        <div class="toast" id="settingsToast"></div>
+      </form>
+    </fieldset>
+  </section>
+</main>
+<script>
+"use strict";
+
+const API = "";
+const STATE = { server: null, urlChartId: null };
+const $ = (id) => document.getElementById(id);
+
+function flash(el, text, kind) {
+  if (!el) return;
+  el.textContent = text || "";
+  el.style.color = kind === "error" ? "#b91c1c" : "#b45309";
+  if (text) setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 5000);
+}
+
+async function api(path, options) {
+  const resp = await fetch(API + path, options || {});
+  if (resp.status === 404) {
+    flash($("listToast"), "library scaffold disabled (RM_PHASE2_LIBRARY=0)", "error");
+    throw new Error("library disabled");
+  }
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `HTTP ${resp.status}`);
+  }
+  return resp.json();
+}
+
+async function loadState() {
+  const state = await api("/library/state");
+  STATE.server = state;
+  renderChartList();
+  renderSettings();
+  return state;
+}
+
+function renderChartList() {
+  const list = $("chartList");
+  const empty = $("emptyState");
+  const charts = (STATE.server && STATE.server.charts) || [];
+  const views = (STATE.server && STATE.server.views) || [];
+  empty.style.display = charts.length ? "none" : "block";
+  list.innerHTML = "";
+  const active = STATE.server && STATE.server.active_chart_id;
+  for (const chart of charts) {
+    const chartViews = views.filter(v => v.chart_id === chart.id);
+    const li = document.createElement("li");
+    li.dataset.id = chart.id;
+    if (chart.id === active) li.classList.add("active");
+    const star = chart.favorite ? "\u2605" : "\u2606";
+    li.innerHTML = `
+      <div class="row">
+        <div>
+          <div class="name">${escapeHtml(chart.name)}</div>
+          <div class="meta">${escapeHtml(chart.date)} ${escapeHtml(chart.time)} &middot; ${escapeHtml(chart.place || "")}</div>
+        </div>
+        <div>
+          <button data-act="favorite" title="Toggle favorite">${star}</button>
+          <button data-act="active">Set active</button>
+          <button data-act="edit">Edit</button>
+          <button data-act="open">Open in Map</button>
+          <button data-act="share">Copy share URL</button>
+          <button data-act="delete">Delete</button>
+        </div>
+      </div>
+      <div class="view-list" ${chartViews.length ? "" : "hidden"}>
+        ${chartViews.map(view => `
+          <div class="view-row" data-view-id="${escapeHtml(view.id)}">
+            <span>${escapeHtml(view.label || view.id)} &middot; zoom ${escapeHtml(view.viewport?.zoom ?? "")}</span>
+            <button data-view-act="copy-map-link" data-view-id="${escapeHtml(view.id)}">Copy map link</button>
+          </div>
+        `).join("")}
+      </div>
+    `;
+    li.querySelectorAll("button[data-act]").forEach(btn => {
+      btn.addEventListener("click", () => onChartAction(btn.dataset.act, chart));
+    });
+    li.querySelectorAll("button[data-view-act='copy-map-link']").forEach(btn => {
+      const view = chartViews.find(v => v.id === btn.dataset.viewId);
+      btn.addEventListener("click", () => onViewAction(btn.dataset.viewAct, chart, view));
+    });
+    list.appendChild(li);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+  }[ch]));
+}
+
+function renderSettings() {
+  const s = (STATE.server && STATE.server.settings) || {};
+  $("setLatCap").checked = !!s.lat_cap_label_enabled;
+  $("setPhase2").checked = !!s.phase2_cache_enabled;
+  $("setExperimental").checked = !!s.experimental_mode_enabled;
+  $("setSubstrate").value = s.default_substrate || "legacy_search_regions";
+}
+
+function shareUrlFor(chartId) {
+  const origin = window.location.origin || "";
+  return `${origin}/library.html?chart=${encodeURIComponent(chartId)}`;
+}
+
+function mapViewUrlFor(view) {
+  const origin = window.location.origin || "";
+  return `${origin}/map_CURRENT.html?skipOnboarding=1#libraryActive=${encodeURIComponent(view.chart_id)}&view=${encodeURIComponent(view.id)}`;
+}
+
+function onViewAction(action, chart, view) {
+  if (!view) return;
+  if (action === "copy-map-link") {
+    const url = mapViewUrlFor(view);
+    sessionStorage.setItem("rm_library_active", chart.id);
+    navigator.clipboard.writeText(url).catch(() => {});
+    flash($("listToast"), `Copied map link: ${url}`);
+  }
+}
+
+async function onChartAction(action, chart) {
+  try {
+    if (action === "favorite") {
+      const updated = await api(`/library/charts/${encodeURIComponent(chart.id)}/favorite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ favorite: !chart.favorite }),
+      });
+      flash($("listToast"), `Favorite ${updated.favorite ? "added" : "removed"}: ${updated.name}`);
+    } else if (action === "active") {
+      await api("/library/active", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chart_id: chart.id }),
+      });
+      sessionStorage.setItem("rm_library_active", chart.id);
+      flash($("listToast"), `Active chart set: ${chart.name}`);
+    } else if (action === "edit") {
+      populateForm(chart);
+    } else if (action === "open") {
+      sessionStorage.setItem("rm_library_active", chart.id);
+      flash($("listToast"), `Opening map with chart "${chart.name}"`);
+      window.open(`/map_CURRENT.html?skipOnboarding=1#libraryActive=${encodeURIComponent(chart.id)}`, "_blank");
+    } else if (action === "share") {
+      const url = shareUrlFor(chart.id);
+      navigator.clipboard.writeText(url).catch(() => {});
+      flash($("listToast"), `Copied: ${url}`);
+    } else if (action === "delete") {
+      if (!confirm(`Delete "${chart.name}"?`)) return;
+      await api(`/library/charts/${encodeURIComponent(chart.id)}`, { method: "DELETE" });
+      flash($("listToast"), `Deleted: ${chart.name}`);
+    }
+    await loadState();
+  } catch (err) {
+    flash($("listToast"), err.message, "error");
+  }
+}
+
+function populateForm(chart) {
+  $("chartId").value = chart.id || "";
+  $("chartName").value = chart.name || "";
+  $("chartDate").value = chart.date || "";
+  $("chartTime").value = chart.time || "";
+  $("chartTz").value = chart.timezone || "UTC";
+  $("chartPlace").value = chart.place || "";
+  $("chartLat").value = chart.lat ?? 0;
+  $("chartLon").value = chart.lon ?? 0;
+  $("chartNotes").value = chart.notes || "";
+}
+
+function clearForm() {
+  populateForm({ timezone: "UTC", lat: 0, lon: 0 });
+}
+
+async function saveChart(payload) {
+  const result = await api("/library/charts", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return result;
+}
+
+async function favoriteChart(id, value) {
+  return api(`/library/charts/${encodeURIComponent(id)}/favorite`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ favorite: !!value }),
+  });
+}
+
+async function deleteChart(id) {
+  return api(`/library/charts/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+async function setActive(id) {
+  return api("/library/active", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chart_id: id }),
+  });
+}
+
+async function saveView(payload) {
+  return api("/library/views", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+async function saveSettings(payload) {
+  return api("/library/settings", {
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+window.__rmLibrary = {
+  get state() { return STATE.server; },
+  reload: loadState,
+  saveChart, favoriteChart, deleteChart, setActive, saveView, saveSettings,
+  shareUrl: shareUrlFor,
+  mapViewUrl: mapViewUrlFor,
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  $("chartForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        id: $("chartId").value || undefined,
+        name: $("chartName").value.trim(),
+        date: $("chartDate").value,
+        time: $("chartTime").value,
+        timezone: $("chartTz").value.trim() || "UTC",
+        place: $("chartPlace").value.trim(),
+        lat: parseFloat($("chartLat").value) || 0,
+        lon: parseFloat($("chartLon").value) || 0,
+        notes: $("chartNotes").value,
+        favorite: false,
+      };
+      const result = await saveChart(payload);
+      flash($("formToast"), `Saved: ${result.name}`);
+      clearForm();
+      await loadState();
+    } catch (err) {
+      flash($("formToast"), err.message, "error");
+    }
+  });
+  $("clearFormBtn").addEventListener("click", clearForm);
+  $("viewForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const activeId = (STATE.server && STATE.server.active_chart_id)
+      || sessionStorage.getItem("rm_library_active");
+    if (!activeId) {
+      flash($("viewToast"), "No active chart selected", "error");
+      return;
+    }
+    try {
+      const result = await saveView({
+        chart_id: activeId,
+        label: $("viewLabel").value || "Saved view",
+        north: parseFloat($("viewNorth").value) || 0,
+        south: parseFloat($("viewSouth").value) || 0,
+        east: parseFloat($("viewEast").value) || 0,
+        west: parseFloat($("viewWest").value) || 0,
+        zoom: parseFloat($("viewZoom").value) || 4,
+        conditions: [],
+        notes: "",
+      });
+      flash($("viewToast"), `Saved view: ${result.label}`);
+      await loadState();
+    } catch (err) {
+      flash($("viewToast"), err.message, "error");
+    }
+  });
+  $("settingsForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      await saveSettings({
+        lat_cap_label_enabled: $("setLatCap").checked,
+        phase2_cache_enabled: $("setPhase2").checked,
+        experimental_mode_enabled: $("setExperimental").checked,
+        default_substrate: $("setSubstrate").value,
+      });
+      flash($("settingsToast"), "Settings saved");
+      await loadState();
+    } catch (err) {
+      flash($("settingsToast"), err.message, "error");
+    }
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  STATE.urlChartId = params.get("chart");
+
+  loadState().then(() => {
+    if (STATE.urlChartId) {
+      const found = (STATE.server.charts || []).find(c => c.id === STATE.urlChartId);
+      if (found) populateForm(found);
+      flash($("listToast"), STATE.urlChartId
+        ? `Share link: chart ${STATE.urlChartId}`
+        : "");
+    }
+  }).catch(err => {
+    flash($("listToast"), err.message, "error");
+  });
+});
+</script>
+</body>
+</html>

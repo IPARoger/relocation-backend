@@ -19,6 +19,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     flex: 1;
     min-width: 0;
     height: 100%;
+    position: relative;
 }
 
 #panel {
@@ -414,6 +415,211 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
 #debugStatus b { display: inline-block; min-width: 150px; }
 
+.library-handoff { margin-top: 8px; font-size: 12px; }
+.library-handoff a { display: inline-block; margin-right: 8px; color: #b45309; text-decoration: underline; }
+.library-handoff button {
+    margin-top: 6px; padding: 4px 8px; border: 1px solid #cbd5e1;
+    background: #ffffff; cursor: pointer; border-radius: 4px; font-size: 12px;
+}
+.library-handoff button:disabled { opacity: 0.55; cursor: not-allowed; }
+.library-handoff-status { margin-top: 4px; color: #475569; min-height: 14px; }
+.library-handoff-status.is-error { color: #b91c1c; }
+
+#auraDebugStatus {
+    display: none;
+    position: absolute;
+    left: 12px;
+    bottom: 200px;
+    z-index: 1000;
+    max-width: 340px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: rgba(255, 251, 235, 0.96);
+    border: 1px solid #b45309;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    font: 12px/1.35 system-ui, sans-serif;
+}
+
+#auraDebugStatus b { display: inline-block; min-width: 120px; }
+
+.lat-cap-debug-label {
+    display: none;
+    position: absolute;
+    top: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font: 11px/1.3 system-ui, sans-serif;
+    font-weight: 600;
+    pointer-events: none;
+    border: 1px solid #334155;
+}
+
+.lat-cap-debug-label.cap-on {
+    background: rgba(219, 234, 254, 0.95);
+    color: #1e3a8a;
+}
+
+.lat-cap-debug-label.cap-off {
+    background: rgba(254, 226, 226, 0.95);
+    color: #991b1b;
+}
+
+.aura-raster-layer {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 450;
+    pointer-events: none;
+}
+
+.canonical-debug-canvas {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 451;
+    pointer-events: none;
+}
+
+.adaptive-aura-debug-panel {
+    font: 11px/1.35 system-ui, sans-serif;
+}
+
+.adaptive-aura-debug-panel .depth-bar {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+    vertical-align: middle;
+    border: 1px solid #334155;
+}
+
+.map-progressive-reveal .aura-raster-layer.reveal-snapshot-in {
+    animation: reveal-snapshot-in 220ms ease-out;
+}
+
+@keyframes reveal-snapshot-in {
+    from { opacity: 0.62; }
+    to { opacity: 1; }
+}
+
+.progressive-reveal-status {
+    font: 11px/1.4 system-ui, sans-serif;
+    color: #334155;
+}
+
+.progressive-reveal-status .reveal-stage {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.progressive-reveal-status .reveal-provisional {
+    color: #b45309;
+}
+
+.aura-poc-banner {
+    display: none;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    max-width: min(92vw, 560px);
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: rgba(255, 251, 235, 0.96);
+    border: 1px solid #b45309;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+    font: 12px/1.4 system-ui, sans-serif;
+    text-align: center;
+    pointer-events: none;
+}
+
+.aura-poc-banner .aura-poc-title {
+    font-weight: 600;
+    color: #92400e;
+}
+
+.aura-poc-banner .aura-poc-meta {
+    color: #78350f;
+    margin-top: 2px;
+}
+
+.aura-poc-banner.aura-poc-banner--warn {
+    border-color: #dc2626;
+    background: rgba(254, 242, 242, 0.97);
+}
+
+.aura-field-legend {
+    display: none;
+    position: absolute;
+    right: 12px;
+    bottom: 28px;
+    z-index: 1000;
+    width: 220px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid #b45309;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    font: 11px/1.35 system-ui, sans-serif;
+    pointer-events: none;
+}
+
+.aura-field-legend h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.aura-field-legend .aura-legend-note {
+    margin: 6px 0 0;
+    font-size: 10px;
+    color: #64748b;
+}
+
+.aura-field-legend .aura-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 3px 0;
+}
+
+.aura-field-legend .aura-legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+}
+
+.popup-aura-debug {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 11px;
+}
+
+.popup-aura-debug table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.popup-aura-debug td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+
+.popup-aura-debug td:first-child {
+    color: #64748b;
+    padding-right: 8px;
+}
+
 .leaflet-control a[aria-label='Reset map to default world view'] {
     font-size: 14px;
     line-height: 26px;
@@ -427,6 +633,11 @@ html.map-panel-show-legend #panelLegend { display: block; }
 <div id="app">
 
     <div id="map">
+        <div id="auraPoCBanner" class="aura-poc-banner" aria-live="polite"></div>
+        <div id="auraFieldLegend" class="aura-field-legend" aria-hidden="true"></div>
+        <div id="latCapDebugLabel" class="lat-cap-debug-label" aria-live="polite"></div>
+        <canvas id="auraRasterCanvas" class="aura-raster-layer" aria-hidden="true"></canvas>
+        <canvas id="canonicalDebugCanvas" class="canonical-debug-canvas" aria-hidden="true"></canvas>
         <div id="debugStatus"></div>
         <div id="mapOnboarding" class="map-onboarding" role="dialog" aria-labelledby="onboardingTitle">
             <p id="onboardingTitle">Right-click anywhere on the map to open a compact <strong>relocated chart</strong> (ASC, MC, houses). Pan and zoom as usual.</p>
@@ -634,6 +845,12 @@ html.map-panel-show-legend #panelLegend { display: block; }
         <button id="findBtn" type="button">Find regions</button>
         <div id="renderStatus">Ready.</div>
 
+        <div id="libraryHandoff" class="library-handoff" hidden>
+            <a id="libraryOpenLink" href="/library.html" target="_blank" rel="noopener">Open Chart Library</a>
+            <button id="saveCurrentViewBtn" type="button" hidden>Save current view to library</button>
+            <div id="libraryHandoffStatus" class="library-handoff-status" aria-live="polite"></div>
+        </div>
+
         <div id="panelLegend" aria-hidden="true">
             <p class="legend-caption">Region colors (debug)</p>
             <div class="legend-row"><span class="legend-swatch" style="background:#e8b923"></span> A</div>
@@ -641,28 +858,175 @@ html.map-panel-show-legend #panelLegend { display: block; }
             <div class="legend-row"><span class="legend-swatch" style="background:#2563eb"></span> C</div>
             <div class="legend-row"><span class="legend-swatch" style="background:#8e44ad"></span> Angle in sign</div>
             <div class="legend-row"><span class="legend-swatch" style="background:#0f766e"></span> Aspect</div>
-            <p class="legend-note">Debug only: <code>?debugGeometry=1</code> or <code>?showLegend=1</code>. Aura prototype off unless <code>?aspectAura=1</code> (not production-ready).</p>
+            <p class="legend-note">Aura PoC archaeology/debug only: <code>?rasterAura=1</code> uniform truth raster; <code>?debugAdaptive=1</code> adaptive refinement; <code>?debugProgressiveReveal=1</code> truthful progressive reveal (debug). Not the canonical production substrate. Lat-cap A/B: <code>?debugNoLatCap=1</code>. Sun conjunct ASC only. No blur/smoothing.</p>
         </div>
     </div>
 </div>
 
+<script src="/substrate_adapter.js"></script>
 <script>
 const MAP_URL = new URLSearchParams(window.location.search);
+const substrateAdapter = window.RelocationSubstrateAdapter;
+const RENDERER_SUBSTRATES = Object.freeze({
+    LEGACY_SEARCH_REGIONS: "legacy_search_regions",
+    CANONICAL_SCREEN_SPACE: "canonical_screen_space"
+});
+const ACTIVE_RENDERER_SUBSTRATE = RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS;
+const CANONICAL_RENDERER_BRANCH_ACTIVE = false;
+const ENABLE_CANONICAL_VISIBLE_DEBUG = MAP_URL.has("canonicalVisible");
+const ENABLE_CANONICAL_SHOW_ALL_SAMPLES = MAP_URL.has("canonicalShowAllSamples");
+const ENABLE_CANONICAL_DRY_RUN =
+    MAP_URL.has("canonicalDryRun") || ENABLE_CANONICAL_VISIBLE_DEBUG;
+const CANONICAL_DEBUG_BLOCK_PX = Math.max(
+    4,
+    Math.min(64, parseInt(MAP_URL.get("canonicalBlock") || "12", 10) || 12)
+);
+const ENABLE_CANONICAL_EDGE_REFINEMENT = ENABLE_CANONICAL_VISIBLE_DEBUG;
 const debugGeometry = MAP_URL.has("debugGeometry");
 const traceConditions = MAP_URL.has("traceConditions");
 const showPanelLegend = MAP_URL.has("showLegend");
 const aspectAuraMode = MAP_URL.has("aspectAura");
+const debugAuraMode = MAP_URL.has("debugAura");
+const rasterAuraMode = MAP_URL.has("rasterAura");
+const debugAdaptiveMode = MAP_URL.has("debugAdaptive");
+const debugProgressiveRevealMode = MAP_URL.has("debugProgressiveReveal");
+const debugNoLatCap = MAP_URL.has("debugNoLatCap");
+/** ARCHAEOLOGY/debug PoC, not production substrate: Sun-ASC raster paths. */
+/** Truth-sampled raster (uniform or adaptive when ?debugAdaptive=1 / reveal PoC). */
+const useRasterAura =
+    rasterAuraMode || debugAuraMode || debugAdaptiveMode || debugProgressiveRevealMode;
+const useAdaptiveAura = debugAdaptiveMode || debugProgressiveRevealMode;
+/** Legacy polygon cells — historical experiment only; do not use for Phase-C migration. */
+const usePolygonAura = aspectAuraMode && !useRasterAura;
+const auraActive = useRasterAura;
+const overlayDebug = MAP_URL.has("overlayDebug");
+const MAX_RASTER_PIXELS = 120000;
+const RASTER_AURA_STAGES = [
+    { name: "coarse", label: "coarse", pxStep: 14 },
+    { name: "medium", label: "medium", pxStep: 7 },
+    { name: "final", label: "final", pxStep: 3 }
+];
+const ADAPTIVE_AURA_STAGES = [
+    { name: "coarse", label: "coarse", maxDepth: 3, initialDivisions: 4, maxSamples: 12000 },
+    { name: "medium", label: "medium", maxDepth: 5, initialDivisions: 6, maxSamples: 40000 },
+    { name: "final", label: "final", maxDepth: 6, initialDivisions: 6, maxSamples: 120000 }
+];
+/** Phase B: engine-derived refinement stages (not timer-based). */
+const PROGRESSIVE_REVEAL_STAGES = [
+    {
+        stage_id: "coarse_world",
+        label: "Coarse world",
+        initialDivisions: 4,
+        maxDepth: 2,
+        maxSamples: 8000
+    },
+    {
+        stage_id: "regional_refine",
+        label: "Regional refine",
+        initialDivisions: 5,
+        maxDepth: 4,
+        maxSamples: 24000
+    },
+    {
+        stage_id: "boundary_refine",
+        label: "Boundary refine",
+        initialDivisions: 6,
+        maxDepth: 5,
+        maxSamples: 60000
+    },
+    {
+        stage_id: "contour_stabilization",
+        label: "Contour stabilization",
+        initialDivisions: 6,
+        maxDepth: 6,
+        maxSamples: 120000
+    }
+];
+const AURA_MAX_ORB = 6.0;
+/** Product policy cap — display clipping only; backend truth unchanged. */
+const PRODUCT_LAT_CAP = 65;
+/** Hard cap — refuse to render beyond this to avoid browser freeze (polygon PoC). */
+const AURA_CELL_RENDER_CAP = 6500;
+const AURA_REFINEMENT_STAGES = [
+    { name: "coarse", label: "coarse", resolution: 2.0, min_strength: 0.08 },
+    { name: "medium", label: "medium", resolution: 1.0, min_strength: 0.05 },
+    { name: "final", label: "final", resolution: 0.5, min_strength: 0.04 }
+];
+/** Discrete tiers from real orb distance → strength (not decorative opacity). */
+const AURA_STRENGTH_TIERS = [
+    { id: "exact", label: "Exact (orb ≈ 0°)", minStrength: 0.92, fillColor: "#92400e", fillOpacity: 0.48 },
+    { id: "strong", label: "Strong", minStrength: 0.7, fillColor: "#b45309", fillOpacity: 0.36 },
+    { id: "medium", label: "Medium", minStrength: 0.4, fillColor: "#d97706", fillOpacity: 0.24 },
+    { id: "weak", label: "Weak", minStrength: 0.04, fillColor: "#fbbf24", fillOpacity: 0.12 },
+    { id: "outside", label: "Outside max orb", minStrength: 0, fillColor: "#e2e8f0", fillOpacity: 0 }
+];
 const skipOnboarding =
     MAP_URL.has("skipOnboarding") ||
     debugGeometry ||
     traceConditions ||
-    showPanelLegend;
-const requestedGenerationMode = MAP_URL.get("generation_mode") || "contour";
+    showPanelLegend ||
+    overlayDebug ||
+    debugAuraMode ||
+    aspectAuraMode ||
+    rasterAuraMode ||
+    debugAdaptiveMode ||
+    debugProgressiveRevealMode ||
+    debugNoLatCap;
+const requestedGenerationMode = MAP_URL.get("generation_mode") || "truth_grid";
+
+function displayLatCapActive() {
+    return !debugNoLatCap;
+}
+
+function applyLatCapForOverlays() {
+    return displayLatCapActive();
+}
+
+function updateLatCapDebugLabel() {
+    const el = document.getElementById("latCapDebugLabel");
+    if (!el) return;
+    if (!useRasterAura && !debugNoLatCap) {
+        el.style.display = "none";
+        return;
+    }
+    const on = displayLatCapActive();
+    el.textContent = `Latitude cap: ${on ? "ON" : "OFF"} (±${PRODUCT_LAT_CAP}° on overlays + raster samples)`;
+    el.className = `lat-cap-debug-label ${on ? "cap-on" : "cap-off"}`;
+    el.style.display = "block";
+}
+
+if (debugProgressiveRevealMode) {
+    document.documentElement.classList.add("map-progressive-reveal");
+    console.info(
+        "[progressive-reveal] Archaeology/debug PoC only: real samples/cells, replace-not-stack. " +
+            "Not the canonical production substrate. ?debugProgressiveReveal=1 — Sun conjunct ASC requested overlay only."
+    );
+} else if (useAdaptiveAura) {
+    console.info(
+        "[aura-poc] Archaeology/debug PoC: adaptive truth raster refines on gradient/orb/threshold crossings only. " +
+            "Not the canonical production substrate. No blur, splines, or cosmetic smoothing. ?debugAdaptive=1 shows subdivision cells."
+    );
+} else if (useRasterAura) {
+    console.info(
+        "[aura-poc] Archaeology/debug PoC: each sample strength = max(0, 1 - sunAscOrbDeg / maxOrb) from swe.houses. " +
+            "Not the canonical production substrate. No polygon cells, blur, glow, or line widening. Validation centerline is separate."
+    );
+}
+if (usePolygonAura) {
+    console.warn(
+        "[aura-poc] ?aspectAura=1 polygon cells are NOT the deliverable. Use ?rasterAura=1 for truth scalar field."
+    );
+}
+
+updateLatCapDebugLabel();
 
 if (debugGeometry || showPanelLegend) {
     document.documentElement.classList.add("map-panel-show-legend");
     const leg = document.getElementById("panelLegend");
     if (leg) leg.removeAttribute("aria-hidden");
+}
+if (debugAuraMode) {
+    document.documentElement.classList.add("map-aura-debug");
 }
 
 const CHART_POPUP_OPTS = {
@@ -685,6 +1049,13 @@ function normalizeApiAngle(angleCode) {
     return u;
 }
 
+function normalizeCanonicalAngle(angleCode) {
+    if (angleCode == null || angleCode === "") return angleCode;
+    const u = String(angleCode).toUpperCase();
+    if (u === "DC" || u === "DSC" || u === "DESC") return "dsc";
+    return u.toLowerCase();
+}
+
 function normalizeAnglesForApiPayload(payload) {
     const body = JSON.parse(JSON.stringify(payload));
     if (Array.isArray(body.angle_sign_conditions)) {
@@ -702,10 +1073,114 @@ function normalizeAnglesForApiPayload(payload) {
     return body;
 }
 
+// ---- Phase 2.1 library handoff (renderer-inert) -------------------------
+// These helpers only populate the existing chart selector and emit
+// observable state. They never trigger a render, never change astrology
+// math, and never alter the active substrate. They degrade gracefully if
+// the library scaffold is disabled (RM_PHASE2_LIBRARY=0 returns 404).
+const LIBRARY_API_BASE = "http://127.0.0.1:8000";
+let lastLibraryHandoff = {
+    libraryAvailable: false,
+    libraryChartCount: 0,
+    activeLibraryChartId: null,
+    activeLibraryChartSource: null,
+    selectionAppliedFrom: null,
+    selectionAppliedId: null,
+    viewRequestedId: null,
+    viewAppliedId: null,
+    viewAppliedChartId: null,
+    viewAppliedSource: null,
+    viewReplayError: null
+};
+
+async function fetchLibraryStateSafe() {
+    try {
+        const resp = await fetch(`${LIBRARY_API_BASE}/library/state`);
+        if (!resp.ok) {
+            lastLibraryHandoff.libraryAvailable = false;
+            return null;
+        }
+        const state = await resp.json();
+        lastLibraryHandoff.libraryAvailable = true;
+        lastLibraryHandoff.libraryChartCount = (state.charts || []).length;
+        lastLibraryHandoff.activeLibraryChartId = state.active_chart_id || null;
+        return state;
+    } catch (err) {
+        lastLibraryHandoff.libraryAvailable = false;
+        return null;
+    }
+}
+
+function readActiveLibraryChartIdFromUrlOrSession() {
+    let id = null;
+    let source = null;
+    const hash = window.location.hash || "";
+    const hashMatch = hash.match(/[#&]libraryActive=([^&]+)/);
+    if (hashMatch) {
+        id = decodeURIComponent(hashMatch[1]);
+        source = "hash";
+    } else {
+        try {
+            const stored = sessionStorage.getItem("rm_library_active");
+            if (stored) {
+                id = stored;
+                source = "sessionStorage";
+            }
+        } catch (e) { /* ignore */ }
+    }
+    return id ? { id, source } : null;
+}
+
+function readLibraryViewIdFromUrl() {
+    const hash = window.location.hash || "";
+    const match = hash.match(/[#&]view=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function applyLibraryActiveSelection() {
+    const select = document.getElementById("chartProfile");
+    if (!select) return false;
+    const handoff = readActiveLibraryChartIdFromUrlOrSession();
+    if (!handoff) return false;
+    const option = [...select.options].find(o => o.value === handoff.id);
+    if (!option) {
+        lastLibraryHandoff.selectionAppliedFrom = handoff.source;
+        lastLibraryHandoff.selectionAppliedId = null;
+        return false;
+    }
+    select.value = handoff.id;
+    lastLibraryHandoff.selectionAppliedFrom = handoff.source;
+    lastLibraryHandoff.selectionAppliedId = handoff.id;
+    try { sessionStorage.setItem("rm_library_active", handoff.id); } catch (e) { /* ignore */ }
+    return true;
+}
+
+function renderLibraryHandoffUI(libraryState) {
+    const root = document.getElementById("libraryHandoff");
+    const link = document.getElementById("libraryOpenLink");
+    const saveBtn = document.getElementById("saveCurrentViewBtn");
+    if (!root || !link || !saveBtn) return;
+    const enabled = lastLibraryHandoff.libraryAvailable;
+    root.hidden = !enabled;
+    if (!enabled) return;
+    const haveActive = Boolean(lastLibraryHandoff.selectionAppliedId);
+    saveBtn.hidden = !haveActive;
+    if (!haveActive) {
+        link.textContent = "Open Chart Library";
+        return;
+    }
+    const charts = (libraryState && libraryState.charts) || [];
+    const match = charts.find(c => c.id === lastLibraryHandoff.selectionAppliedId);
+    link.textContent = match
+        ? `Library: ${match.name}`
+        : "Open Chart Library";
+}
+
 async function loadChartProfiles() {
-    const response = await fetch("http://127.0.0.1:8000/chart-profiles");
+    const response = await fetch(`${LIBRARY_API_BASE}/chart-profiles`);
     const profiles = await response.json();
     const select = document.getElementById("chartProfile");
+    const previous = select.value;
     select.innerHTML = "";
     profiles.forEach(profile => {
         const option = document.createElement("option");
@@ -714,28 +1189,189 @@ async function loadChartProfiles() {
         option.dataset.profile = JSON.stringify(profile);
         select.appendChild(option);
     });
-    select.dataset.lastStableValue = select.value;
+    // Phase 2.1: only inject library charts that are part of an active
+    // handoff (URL hash or sessionStorage). This keeps the chart-profile
+    // selector identical for the renderer smoke and the legacy flow when
+    // no library chart has been selected, while still letting the handoff
+    // route pick the chart "if present".
+    let libraryState = null;
+    const handoff = readActiveLibraryChartIdFromUrlOrSession();
+    try {
+        libraryState = await fetchLibraryStateSafe();
+        if (handoff && libraryState && Array.isArray(libraryState.charts)) {
+            const existingIds = new Set(profiles.map(p => p.id));
+            const target = libraryState.charts.find(c => c.id === handoff.id);
+            if (target && !existingIds.has(target.id)) {
+                const option = document.createElement("option");
+                option.value = target.id;
+                option.textContent = `[library] ${target.name}`;
+                option.dataset.profile = JSON.stringify(target);
+                option.dataset.librarySource = "1";
+                select.appendChild(option);
+            }
+        }
+    } catch (err) {
+        // Library is optional; ignore failures so renderer behavior is unchanged.
+    }
+    if (previous && [...select.options].some(o => o.value === previous)) {
+        select.value = previous;
+    }
+    const selectionApplied = applyLibraryActiveSelection();
+    lastLibraryHandoff.viewRequestedId = readLibraryViewIdFromUrl();
+    renderLibraryHandoffUI(libraryState);
+    applyLibrarySavedViewReplay(libraryState);
+    return { profiles, libraryState, selectionApplied };
 }
 
-loadChartProfiles();
+window.__rmLoadChartProfiles = loadChartProfiles;
+window.__rmLibraryHandoff = () => ({ ...lastLibraryHandoff });
+loadChartProfiles().catch(err => console.error("chart-profiles", err));
+
+async function saveCurrentViewToLibrary() {
+    const statusEl = document.getElementById("libraryHandoffStatus");
+    const btn = document.getElementById("saveCurrentViewBtn");
+    const select = document.getElementById("chartProfile");
+    const activeOption = select?.selectedOptions?.[0];
+    if (!activeOption) {
+        if (statusEl) {
+            statusEl.textContent = "Select a chart first.";
+            statusEl.classList.add("is-error");
+        }
+        return null;
+    }
+    if (activeOption.dataset.librarySource !== "1") {
+        if (statusEl) {
+            statusEl.textContent = "Active chart is a built-in profile; save it to the library first.";
+            statusEl.classList.add("is-error");
+        }
+        return null;
+    }
+    if (!window.__rmMap) {
+        if (statusEl) { statusEl.textContent = "Map not ready."; statusEl.classList.add("is-error"); }
+        return null;
+    }
+    const bounds = window.__rmMap.getBounds();
+    const center = window.__rmMap.getCenter();
+    const payload = {
+        chart_id: activeOption.value,
+        label: `View ${new Date().toISOString().slice(0, 19).replace("T", " ")}`,
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        west: bounds.getWest(),
+        zoom: window.__rmMap.getZoom(),
+        conditions: [],
+        notes: ""
+    };
+    payload.center_lat = center.lat;
+    payload.center_lon = center.lng;
+    try {
+        if (btn) btn.disabled = true;
+        const resp = await fetch(`${LIBRARY_API_BASE}/library/views`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || `HTTP ${resp.status}`);
+        }
+        const view = await resp.json();
+        if (statusEl) {
+            statusEl.textContent = `Saved view ${view.id}`;
+            statusEl.classList.remove("is-error");
+        }
+        return view;
+    } catch (err) {
+        if (statusEl) {
+            statusEl.textContent = `Save failed: ${err.message}`;
+            statusEl.classList.add("is-error");
+        }
+        return null;
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+window.__rmSaveCurrentViewToLibrary = saveCurrentViewToLibrary;
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("saveCurrentViewBtn");
+    if (btn) btn.addEventListener("click", () => { saveCurrentViewToLibrary(); });
+});
+
+function viewportCenterFromSavedView(viewport) {
+    if (!viewport) return null;
+    const centerLat = Number(viewport.center_lat);
+    const centerLon = Number(viewport.center_lon);
+    if (Number.isFinite(centerLat) && Number.isFinite(centerLon)) {
+        return { lat: centerLat, lon: centerLon, source: "center" };
+    }
+    const north = Number(viewport.north);
+    const south = Number(viewport.south);
+    const east = Number(viewport.east);
+    const west = Number(viewport.west);
+    if (![north, south, east, west].every(Number.isFinite)) return null;
+    return {
+        lat: Math.max(-85, Math.min(85, (north + south) / 2)),
+        lon: Math.max(-180, Math.min(180, (east + west) / 2)),
+        source: "bounds-midpoint"
+    };
+}
+
+function applyLibrarySavedViewReplay(libraryState) {
+    const viewId = readLibraryViewIdFromUrl();
+    const handoff = readActiveLibraryChartIdFromUrlOrSession();
+    lastLibraryHandoff.viewRequestedId = viewId;
+    lastLibraryHandoff.viewReplayError = null;
+    if (!viewId || !handoff || !libraryState || !Array.isArray(libraryState.views)) return false;
+    if (lastLibraryHandoff.selectionAppliedId !== handoff.id) {
+        lastLibraryHandoff.viewReplayError = "chart selection not applied";
+        return false;
+    }
+    const view = libraryState.views.find(v => v.id === viewId && v.chart_id === handoff.id);
+    if (!view) {
+        lastLibraryHandoff.viewReplayError = "view not found for chart";
+        return false;
+    }
+    const viewport = view.viewport || {};
+    const center = viewportCenterFromSavedView(viewport);
+    const zoom = Number(viewport.zoom);
+    if (!center || !Number.isFinite(zoom)) {
+        lastLibraryHandoff.viewReplayError = "invalid viewport";
+        return false;
+    }
+    if (!window.__rmMap) {
+        lastLibraryHandoff.viewReplayError = "map not ready";
+        return false;
+    }
+    window.__rmMap.setView([center.lat, center.lon], zoom, { animate: false });
+    lastLibraryHandoff.viewAppliedId = view.id;
+    lastLibraryHandoff.viewAppliedChartId = view.chart_id;
+    lastLibraryHandoff.viewAppliedSource = center.source;
+    return true;
+}
+
+window.__rmApplyLibrarySavedViewReplay = applyLibrarySavedViewReplay;
 
 const map = L.map("map", {
     maxBounds: MAP_MAX_BOUNDS,
-    maxBoundsViscosity: 1,
+    maxBoundsViscosity: 0.85,
     doubleClickZoom: true,
     keyboard: false,
     zoomSnap: 0.25,
     zoomDelta: 0.25,
     wheelPxPerZoomLevel: 270,
-    wheelDebounceTime: 100
+    wheelDebounceTime: 100,
+    inertia: true,
+    inertiaDeceleration: 2800,
+    worldCopyJump: false
 }).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
 
 /** Dev/smoke hook — browser tests read zoom, bounds, popups without DOM hacks. */
 window.__rmMap = map;
 
-/** Product policy cap for display clipping only — backend truth unchanged. */
-const PRODUCT_LAT_CAP = 65;
-const LINE_DENSIFY_STEP_DEG = 0.4;
+const LINE_DENSIFY_STEP_DEG = 0.12;
 
 function refreshMapMinZoom() {
     const fitZoom = map.getBoundsZoom(MAP_MAX_BOUNDS, true);
@@ -758,12 +1394,24 @@ function invalidateMapSizeSoon() {
 map.whenReady(invalidateMapSizeSoon);
 window.addEventListener("resize", invalidateMapSizeSoon);
 
-map.on("dragend", () => {
-    map.panInsideBounds(MAP_MAX_BOUNDS, { animate: true, duration: 0.2 });
-});
+/** Soft correction only when view drifts far past bounds (trackpad inertia). */
+function softCorrectMapBounds() {
+    const max = MAP_MAX_BOUNDS;
+    const b = map.getBounds();
+    const tol = 2.5;
+    if (
+        b.getNorth() <= max.getNorth() + tol &&
+        b.getSouth() >= max.getSouth() - tol &&
+        b.getWest() >= max.getWest() - tol &&
+        b.getEast() <= max.getEast() + tol
+    ) {
+        return;
+    }
+    map.panInsideBounds(max, { animate: true, duration: 0.35, easeLinearity: 0.25 });
+}
 
 map.on("click", () => {
-    map.closePopup();
+    if (!overlayDebug) map.closePopup();
 });
 
 /** Bounded world: matches tile coverage; viscosity gives calm snap-back without duplicate wrap. */
@@ -815,38 +1463,10 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 })();
 
 const panel = document.getElementById("panel");
-let lastSelectWheelAt = 0;
 
 panel.addEventListener("click", L.DomEvent.stopPropagation);
 panel.addEventListener("dblclick", L.DomEvent.stopPropagation);
 panel.addEventListener("keydown", L.DomEvent.stopPropagation);
-panel.addEventListener("wheel", ev => {
-    const activeSelect =
-        document.activeElement &&
-        document.activeElement.tagName === "SELECT" &&
-        panel.contains(document.activeElement)
-            ? document.activeElement
-            : null;
-    const targetSelect = ev.target.closest("select");
-    if (targetSelect || activeSelect) {
-        lastSelectWheelAt = Date.now();
-        ev.preventDefault();
-        ev.stopPropagation();
-        (targetSelect || activeSelect).blur();
-    }
-}, { passive: false, capture: true });
-
-document.querySelectorAll("#panel select").forEach(sel => {
-    sel.addEventListener("change", event => {
-        if (Date.now() - lastSelectWheelAt < 400) {
-            event.target.value = event.target.dataset.lastStableValue || event.target.value;
-            event.target.blur();
-            return;
-        }
-        event.target.dataset.lastStableValue = event.target.value;
-    });
-    sel.dataset.lastStableValue = sel.value;
-});
 
 function titleCase(value) {
     return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
@@ -956,7 +1576,28 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
 
     try {
         const data = await fetchRelocatedChart(lat, lon);
-        popup.setContent(buildRelocatedPopupHtml(data, lat, lon, { title: "Custom location" }));
+        let extra = "";
+        if (debugAuraMode && isAuraPocOverlay(getSelectedAspectOverlay())) {
+            const birth = getBirthParamsFromProfile();
+            const q = new URLSearchParams({
+                lat: String(lat),
+                lon: String(lon),
+                ...Object.fromEntries(
+                    Object.entries(birth).map(([k, v]) => [k, String(v)])
+                ),
+                planet: "sun",
+                aspect: "conjunction",
+                angle: "ASC"
+            });
+            const orbResp = await fetch(`http://127.0.0.1:8000/aspect-orb-at-point?${q}`);
+            if (orbResp.ok) {
+                const orb = await orbResp.json();
+                extra = buildAuraOrbDebugPopupHtml(orb);
+            }
+        }
+        popup.setContent(
+            buildRelocatedPopupHtml(data, lat, lon, { title: "Custom location" }) + extra
+        );
     } catch (err) {
         console.error("relocated-chart", err);
         popup.setContent('<div class="popup-chart"><p class="popup-coords">Could not load chart for this point.</p></div>');
@@ -966,10 +1607,22 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
 let cityLayer = L.layerGroup().addTo(map);
 let polygonLayer = L.layerGroup().addTo(map);
 let aspectLayer = L.layerGroup().addTo(map);
+let auraLayer = L.layerGroup().addTo(map);
+let adaptiveAuraDebugLayer = L.layerGroup().addTo(map);
+let progressiveRevealSampleLayer = L.layerGroup().addTo(map);
+let progressiveRevealFrontierLayer = L.layerGroup().addTo(map);
+let currentAuraDebugMetrics = null;
+let currentRasterAuraMetrics = null;
+let lastAuraPocCenterlineCoords = [];
+let lastAuraFieldFeatures = [];
+let lastCanonicalDryRun = null;
+let lastCanonicalVisibleDebug = null;
+let rasterAuraRenderToken = 0;
+let rasterAuraInitialized = false;
 
 /** Minimal smoke hook — layer counts + coord sanity only; not a test framework. */
 window.__rmSmokeState = function() {
-    const layers = polygonLayer.getLayers().concat(aspectLayer.getLayers());
+    const layers = polygonLayer.getLayers().concat(aspectLayer.getLayers()).concat(auraLayer.getLayers());
     let nonFinite = 0;
     function walk(v) {
         if (v == null) return;
@@ -985,14 +1638,39 @@ window.__rmSmokeState = function() {
     return {
         polygonLayers: polygonLayer.getLayers().length,
         aspectLayers: aspectLayer.getLayers().length,
+        auraLayers: auraLayer.getLayers().length,
+        rasterAura: window.__rmRasterAuraState ? window.__rmRasterAuraState() : null,
+        substrateAdapter: substrateAdapter
+            ? {
+                version: substrateAdapter.VERSION,
+                hostOwns: substrateAdapter.HOST_OWNS,
+                substrateOwns: substrateAdapter.SUBSTRATE_OWNS,
+                cacheOwns: substrateAdapter.CACHE_OWNS
+            }
+            : null,
+        rendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
+        rendererSubstrates: RENDERER_SUBSTRATES,
+        canonicalRendererBranchActive: CANONICAL_RENDERER_BRANCH_ACTIVE,
+        canonicalDryRunEnabled: ENABLE_CANONICAL_DRY_RUN,
+        canonicalVisibleDebugEnabled: ENABLE_CANONICAL_VISIBLE_DEBUG,
+        canonicalShowAllSamplesEnabled: ENABLE_CANONICAL_SHOW_ALL_SAMPLES,
+        canonicalEdgeRefinementEnabled: ENABLE_CANONICAL_EDGE_REFINEMENT,
+        canonicalDebugBlockPx: CANONICAL_DEBUG_BLOCK_PX,
+        canonicalDryRun: lastCanonicalDryRun,
+        canonicalVisibleDebug: lastCanonicalVisibleDebug,
+        canonicalVisibleDebugLayers: lastCanonicalVisibleDebug?.layerCount || 0,
+        latCap: displayLatCapActive() ? "ON" : "OFF",
         renderStatus: document.getElementById("renderStatus")?.textContent || "",
         findBtnDisabled: document.getElementById("findBtn")?.disabled ?? false,
-        nonFiniteCoords: nonFinite
+        nonFiniteCoords: nonFinite,
+        libraryHandoff: { ...lastLibraryHandoff }
     };
 };
 
 let currentRenderToken = 0;
 let debounceTimer = null;
+/** Last rendered display features for overlayDebug point-in-polygon checks. */
+let lastDisplayFeatureCollection = null;
 let currentDebugMetrics = {
     generationMode: requestedGenerationMode,
     resolution: requestedGenerationMode === "truth_grid" ? 0.75 : "contour",
@@ -1024,7 +1702,8 @@ function renderDebugStatus() {
         <div><b>Overlay stage:</b> ${currentDebugMetrics.overlayStage}</div>
         <div><b>Aspect resolution:</b> ${currentDebugMetrics.aspectResolution}</div>
         <div><b>traceConditions:</b> ${traceConditions ? "on" : "off"}</div>
-        <div><b>aspectAura:</b> ${aspectAuraMode ? "on" : "off"}</div>`;
+        <div><b>aspectAura:</b> ${aspectAuraMode ? "on" : "off"}</div>
+        <div><b>debugAura:</b> ${debugAuraMode ? "on" : "off"}</div>`;
     status.style.display = "block";
 }
 
@@ -1076,12 +1755,128 @@ function prepareDisplayFeatures(canonicalGeojson) {
     };
 }
 
-function clampDisplayLat(lat, cap = PRODUCT_LAT_CAP) {
-    return Math.max(-cap, Math.min(cap, lat));
+function normalizeLon(lon) {
+    let x = lon;
+    while (x > 180) x -= 360;
+    while (x <= -180) x += 360;
+    return x;
 }
 
-function clampDisplayCoord(coord, cap = PRODUCT_LAT_CAP) {
-    return [coord[0], clampDisplayLat(coord[1], cap)];
+function unwrapLon(lon1, lon2) {
+    let x2 = lon2;
+    while (x2 - lon1 > 180) x2 -= 360;
+    while (lon1 - x2 > 180) x2 += 360;
+    return x2;
+}
+
+function latInsideCap(lat, cap = PRODUCT_LAT_CAP) {
+    return lat >= -cap && lat <= cap;
+}
+
+function shouldClipOverlayFeatureForLatCap(feature) {
+    if (!applyLatCapForOverlays()) return false;
+    const p = feature.properties || {};
+    if (p.condition_type === "angle_sign") return true;
+    if (p.angle) return true;
+    if (p.layer === "aura_field") return true;
+    return false;
+}
+
+function lerpAtLat(lon1, lat1, lon2, lat2, targetLat) {
+    const dy = lat2 - lat1;
+    if (Math.abs(dy) < 1e-12) return [lon1, targetLat];
+    const t = (targetLat - lat1) / dy;
+    const x2 = unwrapLon(lon1, lon2);
+    return [normalizeLon(lon1 + t * (x2 - lon1)), targetLat];
+}
+
+/** Clip one segment to ±cap using lat intersections (not point clamp). */
+function clipSegmentToLatCap(lon1, lat1, lon2, lat2, cap = PRODUCT_LAT_CAP) {
+    const x2 = unwrapLon(lon1, lon2);
+    let y1 = lat1;
+    let y2 = lat2;
+    const out = [];
+
+    function push(lon, lat) {
+        const p = [normalizeLon(lon), lat];
+        const last = out[out.length - 1];
+        if (!last || last[0] !== p[0] || last[1] !== p[1]) out.push(p);
+    }
+
+    if (latInsideCap(y1, cap) && latInsideCap(y2, cap)) {
+        push(lon1, y1);
+        push(x2, y2);
+        return out;
+    }
+
+    if (latInsideCap(y1, cap)) push(lon1, y1);
+
+    const caps = [];
+    if ((y1 > cap && y2 < cap) || (y1 < cap && y2 > cap)) caps.push(cap);
+    if ((y1 > -cap && y2 < -cap) || (y1 < -cap && y2 > -cap)) caps.push(-cap);
+    caps.sort((a, b) => a - b);
+    caps.forEach(c => push(...lerpAtLat(lon1, y1, x2, y2, c)));
+
+    if (latInsideCap(y2, cap)) push(x2, y2);
+    return out;
+}
+
+function clipLineStringToLatCap(coords, cap = PRODUCT_LAT_CAP) {
+    if (!coords || coords.length < 2) {
+        return coords && coords.length ? [coords[0].slice()] : [];
+    }
+    const out = [];
+    const push = c => {
+        const p = [normalizeLon(c[0]), c[1]];
+        const last = out[out.length - 1];
+        if (!last || last[0] !== p[0] || last[1] !== p[1]) out.push(p);
+    };
+    for (let i = 0; i < coords.length - 1; i++) {
+        clipSegmentToLatCap(
+            coords[i][0], coords[i][1],
+            coords[i + 1][0], coords[i + 1][1],
+            cap
+        ).forEach(push);
+    }
+    return out.length >= 2 ? out : [];
+}
+
+function clipRingToLatCap(ring, cap = PRODUCT_LAT_CAP) {
+    if (!ring || ring.length < 3) return ring || [];
+
+    function clipEdge(points, inside, edgeLat) {
+        const output = [];
+        for (let i = 0; i < points.length; i++) {
+            const a = points[i];
+            const b = points[(i + 1) % points.length];
+            const aIn = inside(a);
+            const bIn = inside(b);
+            if (aIn && bIn) {
+                output.push(b);
+            } else if (aIn && !bIn) {
+                output.push(lerpAtLat(a[0], a[1], b[0], b[1], edgeLat));
+            } else if (!aIn && bIn) {
+                output.push(lerpAtLat(a[0], a[1], b[0], b[1], edgeLat));
+                output.push(b);
+            }
+        }
+        return output;
+    }
+
+    let pts = ring.slice();
+    if (pts.length > 1) {
+        const first = pts[0];
+        const last = pts[pts.length - 1];
+        if (first[0] === last[0] && first[1] === last[1]) pts = pts.slice(0, -1);
+    }
+
+    pts = clipEdge(pts, p => p[1] <= cap, cap);
+    pts = clipEdge(pts, p => p[1] >= -cap, -cap);
+
+    if (pts.length < 3) return [];
+    const closed = pts.map(p => [normalizeLon(p[0]), p[1]]);
+    closed.push(closed[0].slice());
+    return closed;
 }
 
 function densifyLineStringCoords(coords, stepDeg = LINE_DENSIFY_STEP_DEG) {
@@ -1090,69 +1885,167 @@ function densifyLineStringCoords(coords, stepDeg = LINE_DENSIFY_STEP_DEG) {
     }
     const out = [coords[0].slice()];
     for (let i = 1; i < coords.length; i++) {
-        const a = coords[i - 1];
-        const b = coords[i];
-        const dx = b[0] - a[0];
-        const dy = b[1] - a[1];
+        const lon1 = coords[i - 1][0];
+        const lat1 = coords[i - 1][1];
+        const lon2 = unwrapLon(lon1, coords[i][0]);
+        const lat2 = coords[i][1];
+        const dx = lon2 - lon1;
+        const dy = lat2 - lat1;
         const dist = Math.max(Math.abs(dx), Math.abs(dy), Math.hypot(dx, dy));
         const steps = Math.max(1, Math.ceil(dist / stepDeg));
         for (let s = 1; s <= steps; s++) {
             const t = s / steps;
-            out.push([a[0] + dx * t, a[1] + dy * t]);
+            out.push([normalizeLon(lon1 + dx * t), lat1 + dy * t]);
         }
     }
     return out;
 }
 
-function chaikinSmoothOpenRing(ring) {
-    if (!ring || ring.length < 4) return ring;
-    const open =
-        ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]
-            ? ring.slice(0, -1)
-            : ring.slice();
-    const next = [];
-    for (let i = 0; i < open.length; i++) {
-        const p0 = open[i];
-        const p1 = open[(i + 1) % open.length];
-        next.push([0.75 * p0[0] + 0.25 * p1[0], 0.75 * p0[1] + 0.25 * p1[1]]);
-        next.push([0.25 * p0[0] + 0.75 * p1[0], 0.25 * p0[1] + 0.75 * p1[1]]);
-    }
-    next.push(next[0]);
-    return next;
-}
-
-function prepareDisplayRing(ring, { smooth = false } = {}) {
-    let coords = (ring || []).map(c => clampDisplayCoord(c));
-    if (smooth && coords.length >= 4) {
-        coords = chaikinSmoothOpenRing(coords);
-    }
-    return coords;
-}
-
 function prepareDisplayFeatureGeometry(feature) {
     const geom = feature.geometry;
     if (!geom) return geom;
-    const props = feature.properties || {};
-    const smoothPolygon = props.condition_type === "angle_sign";
 
     if (geom.type === "LineString") {
-        return { type: "LineString", coordinates: densifyLineStringCoords(geom.coordinates) };
+        let coords = densifyLineStringCoords(geom.coordinates);
+        if (shouldClipOverlayFeatureForLatCap(feature)) {
+            coords = clipLineStringToLatCap(coords);
+        }
+        return coords.length >= 2 ? { type: "LineString", coordinates: coords } : geom;
     }
     if (geom.type === "MultiLineString") {
-        return {
-            type: "MultiLineString",
-            coordinates: geom.coordinates.map(line => densifyLineStringCoords(line))
-        };
+        const lines = geom.coordinates
+            .map(line => {
+                let densified = densifyLineStringCoords(line);
+                if (shouldClipOverlayFeatureForLatCap(feature)) {
+                    densified = clipLineStringToLatCap(densified);
+                }
+                return densified.length >= 2 ? densified : null;
+            })
+            .filter(Boolean);
+        return lines.length ? { type: "MultiLineString", coordinates: lines } : geom;
     }
-    if (geom.type === "Polygon") {
-        return {
-            type: "Polygon",
-            coordinates: geom.coordinates.map((ring, ringIndex) =>
-                prepareDisplayRing(ring, { smooth: smoothPolygon && ringIndex === 0 })
-            )
-        };
+    if (geom.type === "Polygon" && shouldClipOverlayFeatureForLatCap(feature)) {
+        const rings = geom.coordinates.map(ring => clipRingToLatCap(ring));
+        const outer = rings[0];
+        if (!outer || outer.length < 4) return geom;
+        return { type: "Polygon", coordinates: rings.filter(r => r && r.length >= 4) };
     }
+    // House polygons: backend truth_grid already caps at ±65°.
     return geom;
+}
+
+function polygonLatSpanOk(ring) {
+    if (!ring || ring.length < 3) return false;
+    const lats = ring.map(p => p[1]);
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    if (
+        applyLatCapForOverlays() &&
+        (minLat < -PRODUCT_LAT_CAP - 0.01 || maxLat > PRODUCT_LAT_CAP + 0.01)
+    ) {
+        return false;
+    }
+    // Skip antipodal-wrap artifacts (transient south-pole sliver during pan).
+    if (maxLat - minLat > 120 && minLat < -30 && maxLat > 30) return false;
+    return true;
+}
+
+function isRenderablePolygonFeature(feature) {
+    if (!feature.geometry || feature.geometry.type !== "Polygon") return true;
+    const rings = feature.geometry.coordinates || [];
+    if (!rings.length || !polygonLatSpanOk(rings[0])) return false;
+    return rings.every(ring => {
+        if (!ring || ring.length < 4) return false;
+        return ring.every(
+            p =>
+                Number.isFinite(p[0]) &&
+                Number.isFinite(p[1]) &&
+                Math.abs(p[1]) <= PRODUCT_LAT_CAP + 0.01
+        );
+    });
+}
+
+function pointInRing(lon, lat, ring) {
+    if (!ring || ring.length < 3) return false;
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0];
+        const yi = ring[i][1];
+        const xj = ring[j][0];
+        const yj = ring[j][1];
+        const intersect =
+            yi > lat !== yj > lat &&
+            lon < ((xj - xi) * (lat - yi)) / (yj - yi + 1e-15) + xi;
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
+
+function pointInDisplayFeature(lon, lat, feature) {
+    const geom = feature.geometry;
+    if (!geom) return false;
+    if (geom.type === "Polygon") {
+        const ring = geom.coordinates[0];
+        return pointInRing(lon, lat, ring);
+    }
+    return false;
+}
+
+function overlayDebugLayerLabel(feature) {
+    const p = feature.properties || {};
+    if (p.condition_type === "angle_sign") {
+        return `angle_sign ${p.angle || "?"} ${p.sign || "?"}`;
+    }
+    if (p.planet) {
+        return `house ${p.planet} H${p.house ?? "?"}`;
+    }
+    if (p.angle) return `aspect ${p.planet || "?"} ${p.aspect || "?"} ${p.angle}`;
+    return p.canonicalFeatureId || "unknown";
+}
+
+async function logOverlayDebugClick(lat, lon) {
+    const entry = {
+        lat,
+        lon,
+        popup: null,
+        layers: [],
+        generation_mode: requestedGenerationMode
+    };
+
+    if (Math.abs(lat) <= PRODUCT_LAT_CAP) {
+        try {
+            const data = await fetchRelocatedChart(lat, lon);
+            entry.popup = {
+                asc: data.asc,
+                mc: data.mc,
+                houses: Object.fromEntries(
+                    Object.entries(data.planet_houses || {}).map(([planet, info]) => [
+                        planet,
+                        info.house
+                    ])
+                )
+            };
+        } catch (err) {
+            entry.popup = { error: String(err) };
+        }
+    } else {
+        entry.popup = { note: "outside ±65° product cap" };
+    }
+
+    const features = (lastDisplayFeatureCollection && lastDisplayFeatureCollection.features) || [];
+    features.forEach(feature => {
+        if (!feature.geometry || feature.geometry.type !== "Polygon") return;
+        entry.layers.push({
+            label: overlayDebugLayerLabel(feature),
+            inside: pointInDisplayFeature(lon, lat, feature),
+            condition_index: feature.properties?.condition_index,
+            boundary_refined: feature.properties?.boundary_refined ?? null,
+            validation_contradictions: feature.properties?.validation_contradictions ?? null
+        });
+    });
+
+    console.info("[overlayDebug]", entry);
+    return entry;
 }
 
 function getExteriorRing(feature) {
@@ -1370,25 +2263,1037 @@ function getSelectedAspectOverlay() {
     return { planet, aspect, angle };
 }
 
-function renderHouseFeatures(displayData) {
-    displayData.features.forEach(feature => {
-        if (!feature.geometry || feature.geometry.type !== "Polygon") return;
-        const props = feature.properties || {};
-        if (props.condition_type === "angle_sign") {
-            L.geoJSON(feature, {
-                smoothFactor: 0,
-                style: {
-                    fillColor: "#8e44ad",
-                    fillOpacity: 0.4,
-                    stroke: false,
-                    opacity: 0,
-                    weight: 0
-                },
-                onEachFeature: bindGeometryDebug
-            }).addTo(polygonLayer);
-            return;
+/** Aura PoC: Sun conjunct ASC only (matches backend aura_field_engine). */
+function isAuraPocOverlay(aspectOverlay) {
+    if (!aspectOverlay) return false;
+    const planet = String(aspectOverlay.planet || "").toLowerCase();
+    const aspect = String(aspectOverlay.aspect || "").toLowerCase();
+    const angle = String(aspectOverlay.angle || "").toUpperCase();
+    return planet === "sun" && aspect === "conjunction" && angle === "ASC";
+}
+
+function getBirthParamsFromProfile() {
+    const selectedOption = document.getElementById("chartProfile").selectedOptions[0];
+    const profile = JSON.parse(selectedOption.dataset.profile);
+    const [year, month, day] = profile.date.split("-").map(Number);
+    const [hour, minute] = profile.time.split(":").map(Number);
+    return {
+        birth_year: year,
+        birth_month: month,
+        birth_day: day,
+        birth_hour_utc: hour + minute / 60
+    };
+}
+
+async function postAuraField(payload) {
+    const response = await fetch("http://127.0.0.1:8000/aura-field", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || `aura-field HTTP ${response.status}`);
+    }
+    return response.json();
+}
+
+async function postAuraRaster(payload) {
+    const response = await fetch("http://127.0.0.1:8000/aura-raster", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || `aura-raster HTTP ${response.status}`);
+    }
+    return response.json();
+}
+
+async function postAuraRasterAdaptive(payload) {
+    const response = await fetch("http://127.0.0.1:8000/aura-raster-adaptive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || `aura-raster-adaptive HTTP ${response.status}`);
+    }
+    return response.json();
+}
+
+function adaptiveDepthStyle(depth, maxDepth, stable) {
+    if (stable) {
+        return {
+            color: "#64748b",
+            weight: 0.6,
+            dashArray: "4 3",
+            fillColor: "#94a3b8",
+            fillOpacity: 0.04,
+            opacity: 0.5
+        };
+    }
+    const t = maxDepth > 0 ? depth / maxDepth : 0;
+    const hue = 220 - t * 200;
+    return {
+        color: `hsl(${hue}, 75%, 40%)`,
+        weight: 1.2,
+        fillColor: `hsl(${hue}, 70%, 50%)`,
+        fillOpacity: 0.06 + t * 0.18,
+        opacity: 0.85
+    };
+}
+
+function renderAdaptiveDebugCells(debugFc, maxDepth) {
+    adaptiveAuraDebugLayer.clearLayers();
+    if (!debugAdaptiveMode || !debugFc?.features?.length) return;
+    L.geoJSON(debugFc, {
+        style: feature =>
+            adaptiveDepthStyle(
+                feature.properties.depth || 0,
+                maxDepth,
+                Boolean(feature.properties.stable)
+            ),
+        onEachFeature: (feature, layer) => {
+            const p = feature.properties;
+            layer.bindTooltip(
+                `depth ${p.depth} · strength ${p.strength} · err ${p.estimated_error}` +
+                    (p.stable ? " · stable" : ` · ${p.stop_reason || "refined"}`),
+                { sticky: true, className: "adaptive-aura-debug-tip" }
+            );
         }
-        if (!props.planet) return;
+    }).addTo(adaptiveAuraDebugLayer);
+}
+
+function clearAdaptiveAuraDebug() {
+    adaptiveAuraDebugLayer.clearLayers();
+}
+
+function clearProgressiveRevealLayers() {
+    progressiveRevealSampleLayer.clearLayers();
+    progressiveRevealFrontierLayer.clearLayers();
+}
+
+function revealSampleStyle(strength, role) {
+    const s = Math.max(0, Math.min(1, Number(strength) || 0));
+    const alpha = role === "center" ? 0.55 + s * 0.4 : 0.35 + s * 0.35;
+    return {
+        radius: role === "center" ? 3 : 2,
+        fillColor: `rgba(245, 158, 11, ${alpha})`,
+        color: "#92400e",
+        weight: 0.6,
+        opacity: 0.9,
+        fillOpacity: alpha
+    };
+}
+
+function renderRevealTruthSamples(samples) {
+    progressiveRevealSampleLayer.clearLayers();
+    if (!debugProgressiveRevealMode || !samples?.length) return;
+    for (const pt of samples) {
+        if (pt.lat == null || pt.lon == null) continue;
+        L.circleMarker([pt.lat, pt.lon], revealSampleStyle(pt.strength, pt.role)).addTo(
+            progressiveRevealSampleLayer
+        );
+    }
+}
+
+function renderRevealFrontier(frontierFc) {
+    progressiveRevealFrontierLayer.clearLayers();
+    if (!debugProgressiveRevealMode || !frontierFc?.features?.length) return;
+    L.geoJSON(frontierFc, {
+        style: () => ({
+            color: "#dc2626",
+            weight: 1,
+            dashArray: "2 2",
+            fillColor: "#fecaca",
+            fillOpacity: 0.08,
+            opacity: 0.75
+        })
+    }).addTo(progressiveRevealFrontierLayer);
+}
+
+function updateProgressiveRevealPanel(rasterData, stageCfg, renderMs) {
+    const rt = rasterData.reveal_transport;
+    const obs = rt?.observed_stage;
+    const eng = rt?.engine_state || {};
+    const conv = eng.convergence_vs_reference;
+    let panel = document.getElementById("progressiveRevealStatus");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "progressiveRevealStatus";
+        panel.className = "debug-status progressive-reveal-status";
+        document.body.appendChild(panel);
+    }
+    const provisional = obs?.provisional
+        ? '<span class="reveal-provisional"> · provisional</span>'
+        : "";
+    panel.innerHTML = [
+        '<div class="reveal-stage">Progressive reveal — ' +
+            (stageCfg?.label || stageCfg?.stage_id || "?") +
+            provisional +
+            "</div>",
+        "<div><b>Observed:</b> " +
+            (obs?.stage_id || "—") +
+            " · <b>samples:</b> " +
+            (eng.truth_sample_count ?? "—") +
+            " · <b>depth:</b> " +
+            (eng.max_depth_reached ?? "—") +
+            "/" +
+            (eng.max_depth_limit ?? "—") +
+            "</div>",
+        "<div><b>Frontier cells:</b> " +
+            (rt?.active_frontier_leaf_count ?? 0) +
+            " · <b>truth points drawn:</b> " +
+            (rt?.truth_sample_count_reported ?? 0) +
+            "</div>",
+        conv
+            ? "<div><b>Convergence:</b> meanΔ " +
+              conv.mean_delta_vs_reference +
+              " · maxΔ " +
+              conv.max_delta_vs_reference +
+              " · >" +
+              conv.delta_threshold +
+              ": " +
+              conv.pixels_above_threshold_pct +
+              "%" +
+              (conv.converged ? " · converged" : "") +
+              "</div>"
+            : "",
+        "<div><b>Replace prior:</b> yes · <b>paint:</b> " + renderMs + "ms</div>",
+        '<div style="opacity:0.85">Real engine snapshots only — no timer, particles, or blur-between-truths.</div>'
+    ].join("");
+    panel.style.display = "block";
+}
+
+function hideAuraRasterCanvas() {
+    const canvas = document.getElementById("auraRasterCanvas");
+    if (!canvas) return;
+    canvas.style.display = "none";
+    canvas.setAttribute("aria-hidden", "true");
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function syncAuraRasterCanvasSize() {
+    const canvas = document.getElementById("auraRasterCanvas");
+    if (!canvas || !map) return { width: 0, height: 0 };
+    const size = map.getSize();
+    const topLeft = map.containerPointToLayerPoint([0, 0]);
+    L.DomUtil.setPosition(canvas, topLeft);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.floor(size.x * dpr));
+    canvas.height = Math.max(1, Math.floor(size.y * dpr));
+    canvas.style.width = `${size.x}px`;
+    canvas.style.height = `${size.y}px`;
+    return { width: size.x, height: size.y, dpr };
+}
+
+function rasterGridDimensions(pxStep) {
+    const { width: cw, height: ch } = syncAuraRasterCanvasSize();
+    let gw = Math.max(8, Math.ceil(cw / pxStep));
+    let gh = Math.max(8, Math.ceil(ch / pxStep));
+    while (gw * gh > MAX_RASTER_PIXELS) {
+        gw = Math.max(8, Math.floor(gw * 0.85));
+        gh = Math.max(8, Math.floor(gh * 0.85));
+    }
+    return { width: gw, height: gh, pxStep, canvasWidth: cw, canvasHeight: ch };
+}
+
+/** Alpha linear in orb-derived strength only — no gamma, banding, or blur. */
+function strengthToRgba(strength) {
+    const s = Math.max(0, Math.min(1, Number(strength) || 0));
+    return [245, 158, 11, Math.round(s * 210)];
+}
+
+function paintRasterToCanvas(rasterData) {
+    const canvas = document.getElementById("auraRasterCanvas");
+    if (!canvas) return;
+    syncAuraRasterCanvasSize();
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const gw = rasterData.width;
+    const gh = rasterData.height;
+    const strengths = rasterData.strengths;
+    const img = ctx.createImageData(gw, gh);
+    for (let j = 0; j < gh; j++) {
+        for (let i = 0; i < gw; i++) {
+            const s = strengths[j * gw + i] || 0;
+            const idx = (j * gw + i) * 4;
+            const rgba = strengthToRgba(s);
+            img.data[idx] = rgba[0];
+            img.data[idx + 1] = rgba[1];
+            img.data[idx + 2] = rgba[2];
+            img.data[idx + 3] = rgba[3];
+        }
+    }
+    const off = document.createElement("canvas");
+    off.width = gw;
+    off.height = gh;
+    off.getContext("2d").putImageData(img, 0, 0);
+    ctx.clearRect(0, 0, cw, ch);
+    // Nearest-neighbor upscale only — avoids browser bilinear blur (not cosmetic smoothing).
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, gw, gh, 0, 0, cw, ch);
+    canvas.style.display = "block";
+    canvas.removeAttribute("aria-hidden");
+    if (debugProgressiveRevealMode) {
+        canvas.classList.remove("reveal-snapshot-in");
+        void canvas.offsetWidth;
+        canvas.classList.add("reveal-snapshot-in");
+    }
+}
+
+function updateRasterAuraDebugPanel(rasterData, stageName, renderMs) {
+    const p = rasterData.properties || {};
+    const b = rasterData.bounds || {};
+    const adaptive = p.render_mode === "adaptive_raster";
+    currentRasterAuraMetrics = {
+        stage: stageName,
+        renderMode: adaptive ? "adaptive" : "raster",
+        latCap: displayLatCapActive() ? "ON" : "OFF",
+        clientRenderMs: renderMs,
+        bounds: b,
+        ...p
+    };
+    if (!debugAuraMode && !rasterAuraMode && !debugAdaptiveMode && !debugProgressiveRevealMode)
+        return;
+    let panel = document.getElementById("auraDebugStatus");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "auraDebugStatus";
+        panel.className = "debug-status aura-debug-status adaptive-aura-debug-panel";
+        document.body.appendChild(panel);
+    }
+    const depthHist = p.depth_histogram
+        ? Object.entries(p.depth_histogram)
+              .sort((a, b) => Number(a[0]) - Number(b[0]))
+              .map(([d, n]) => `d${d}:${n}`)
+              .join(" ")
+        : "—";
+    const triggers = p.refine_trigger_counts
+        ? Object.entries(p.refine_trigger_counts)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(", ")
+        : "—";
+    if (adaptive) {
+        panel.innerHTML = [
+            "<div><b>Adaptive aura PoC</b> — " + stageName + "</div>",
+            "<div><b>Lat cap:</b> " + (displayLatCapActive() ? "ON" : "OFF") + "</div>",
+            "<div><b>Strategy:</b> " + p.adaptive_strategy + " · max depth <b>" + p.max_depth_reached + "</b> / " + p.max_depth + "</div>",
+            "<div><b>Truth samples:</b> " + p.truth_sample_count + " · <b>cells:</b> " + (p.cell_count || p.leaf_count) + " (stable " + p.stable_leaf_count + ", refined " + p.refined_leaf_count + ")</div>",
+            "<div><b>Stop:</b> " + (p.stop_reason || "—") + (p.leaf_budget_hit ? " · <b>leaf budget</b>" : "") + "</div>",
+            (p.convergence_vs_reference
+                ? "<div><b>vs reference:</b> meanΔ " + p.convergence_vs_reference.mean_delta_vs_reference +
+                  " · maxΔ " + p.convergence_vs_reference.max_delta_vs_reference +
+                  " · >" + p.convergence_vs_reference.delta_threshold + ": " +
+                  p.convergence_vs_reference.pixels_above_threshold_pct + "%" +
+                  (p.convergence_vs_reference.converged ? " · <b>converged</b>" : "") + "</div>"
+                : ""),
+            "<div><b>Uniform equiv:</b> " + p.uniform_equivalent_samples + " · <b>reduction:</b> " + p.sample_reduction_pct + "%</div>",
+            "<div><b>Depth histogram:</b> " + depthHist + "</div>",
+            "<div><b>Refine triggers:</b> " + triggers + "</div>",
+            "<div><b>Paint grid:</b> " + rasterData.width + "×" + rasterData.height + " · <b>API:</b> " + p.compute_seconds + "s · <b>paint:</b> " + renderMs + "ms</div>",
+            "<div><b>Policy:</b> " + p.leaf_value_policy + "</div>",
+            '<div><span class="depth-bar" style="background:hsl(220,75%,55%)"></span>coarse ',
+            '<span class="depth-bar" style="background:hsl(120,75%,45%)"></span>mid ',
+            '<span class="depth-bar" style="background:hsl(20,75%,50%)"></span>fine · dashed = stable interior</div>'
+        ].join("");
+    } else {
+        panel.innerHTML = [
+            "<div><b>Raster aura PoC</b> — " + stageName + "</div>",
+            "<div><b>Lat cap:</b> " + (displayLatCapActive() ? "ON" : "OFF") + "</div>",
+            "<div><b>Grid:</b> " + rasterData.width + "×" + rasterData.height + " px · step ~" + p.deg_per_pixel_lon + "°×" + p.deg_per_pixel_lat + "°</div>",
+            "<div><b>Viewport:</b> N" + b.north?.toFixed(1) + " S" + b.south?.toFixed(1) + " W" + b.west?.toFixed(1) + " E" + b.east?.toFixed(1) + "</div>",
+            "<div><b>maxOrb:</b> " + p.max_orb + "° · <b>samples:</b> " + p.sample_count + " · <b>nonzero:</b> " + p.nonzero_count + "</div>",
+            "<div><b>API:</b> " + p.compute_seconds + "s · <b>paint:</b> " + renderMs + "ms</div>",
+            "<div><b>Formula:</b> " + p.strength_formula + "</div>"
+        ].join("");
+    }
+    panel.style.display = "block";
+}
+
+window.__rmRasterAuraState = function() {
+    const mode = currentRasterAuraMetrics?.renderMode || (useAdaptiveAura ? "adaptive" : "raster");
+    return {
+        initialized: rasterAuraInitialized,
+        stage: currentRasterAuraMetrics?.stage || null,
+        sampleCount:
+            currentRasterAuraMetrics?.truth_sample_count ||
+            currentRasterAuraMetrics?.sample_count ||
+            0,
+        gridWidth: currentRasterAuraMetrics?.width || null,
+        gridHeight: currentRasterAuraMetrics?.height || null,
+        latCap: displayLatCapActive() ? "ON" : "OFF",
+        renderMode: mode,
+        sampleReductionPct: currentRasterAuraMetrics?.sample_reduction_pct ?? null,
+        leafCount: currentRasterAuraMetrics?.leaf_count ?? null
+    };
+};
+
+async function renderProgressiveRevealAdaptive(baseBirth, aspectOverlay, token) {
+    if (!debugProgressiveRevealMode || !isAuraPocOverlay(aspectOverlay)) {
+        hideAuraRasterCanvas();
+        clearProgressiveRevealLayers();
+        clearAdaptiveAuraDebug();
+        return;
+    }
+    renderAuraFieldLegend();
+    updateLatCapDebugLabel();
+    auraLayer.clearLayers();
+    rasterAuraRenderToken++;
+    const localToken = rasterAuraRenderToken;
+    rasterAuraInitialized = false;
+    const paintGrid = rasterGridDimensions(3);
+    let lastRasterData = null;
+
+    for (const stage of PROGRESSIVE_REVEAL_STAGES) {
+        if (token !== currentRenderToken || localToken !== rasterAuraRenderToken) return;
+        clearProgressiveRevealLayers();
+        clearAdaptiveAuraDebug();
+        setRenderStatus(`Progressive reveal (${stage.label})…`);
+        const bounds = map.getBounds();
+        const t0 = performance.now();
+        const rasterData = await postAuraRasterAdaptive({
+            ...baseBirth,
+            aspect_overlay: { planet: "sun", aspect: "conjunction", angle: "ASC" },
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            west: bounds.getWest(),
+            east: bounds.getEast(),
+            paint_width: paintGrid.width,
+            paint_height: paintGrid.height,
+            max_orb: AURA_MAX_ORB,
+            apply_lat_cap: applyLatCapForOverlays(),
+            initial_divisions: stage.initialDivisions,
+            max_depth: stage.maxDepth,
+            max_samples: stage.maxSamples,
+            include_debug_cells: true,
+            include_reveal_transport: true,
+            refinement_stage_id: stage.stage_id
+        });
+        if (token !== currentRenderToken || localToken !== rasterAuraRenderToken) return;
+        lastRasterData = rasterData;
+        const paintMs = Math.round(performance.now() - t0);
+        paintRasterToCanvas(rasterData);
+        renderAdaptiveDebugCells(
+            rasterData.debug_cells,
+            rasterData.properties?.max_depth_reached || stage.maxDepth
+        );
+        const rt = rasterData.reveal_transport;
+        if (rt) {
+            renderRevealTruthSamples(rt.truth_samples);
+            renderRevealFrontier(rt.frontier_cells);
+        }
+        rasterAuraInitialized = true;
+        updateRasterAuraDebugPanel(rasterData, stage.stage_id, paintMs);
+        updateProgressiveRevealPanel(rasterData, stage, paintMs);
+        const props = rasterData.properties || {};
+        const obs = rt?.observed_stage;
+        updateAuraPoCBanner({
+            visible: true,
+            stage: stage.stage_id,
+            resolution: `reveal · depth ${props.max_depth_reached}`,
+            maxOrb: AURA_MAX_ORB,
+            cells: props.truth_sample_count,
+            agreementNote: obs?.provisional
+                ? `Discovering field (${obs.derivation || "refining"})`
+                : `Stabilized (${obs?.derivation || "converged"})`
+        });
+        if (stage.stage_id !== "contour_stabilization") {
+            setRenderStatus(`Progressive reveal: ${stage.label} — refining…`);
+        }
+    }
+    const finalProps = currentRasterAuraMetrics || {};
+    if (lastRasterData && lastAuraPocCenterlineCoords?.length) {
+        const agreement = reportCenterlineAuraAgreement(
+            lastAuraPocCenterlineCoords,
+            buildPseudoCellsFromRaster(lastRasterData)
+        );
+        if (agreement) {
+            console.info("[progressive-reveal] MISMATCH CHECK vs centerline:", agreement);
+            updateAuraPoCBanner({
+                visible: true,
+                stage: "contour_stabilization",
+                resolution: `reveal · depth ${finalProps.max_depth_reached}`,
+                maxOrb: AURA_MAX_ORB,
+                cells: finalProps.truth_sample_count,
+                agreementNote: `Mismatch probe: median gap ${agreement.medianGapDeg}° (visible, not hidden)`
+            });
+        }
+    }
+    setRenderStatus(
+        `Progressive reveal complete (${finalProps.truth_sample_count || "?"} truth samples)`
+    );
+}
+
+async function renderAdaptiveAuraProgressive(baseBirth, aspectOverlay, token) {
+    if (debugProgressiveRevealMode) {
+        return renderProgressiveRevealAdaptive(baseBirth, aspectOverlay, token);
+    }
+    if (!useAdaptiveAura || !isAuraPocOverlay(aspectOverlay)) {
+        hideAuraRasterCanvas();
+        clearAdaptiveAuraDebug();
+        return;
+    }
+    renderAuraFieldLegend();
+    updateLatCapDebugLabel();
+    auraLayer.clearLayers();
+    rasterAuraRenderToken++;
+    const localToken = rasterAuraRenderToken;
+    rasterAuraInitialized = false;
+    const paintGrid = rasterGridDimensions(3);
+
+    for (const stage of ADAPTIVE_AURA_STAGES) {
+        if (token !== currentRenderToken || localToken !== rasterAuraRenderToken) return;
+        setRenderStatus(`Adaptive aura (${stage.label})…`);
+        const bounds = map.getBounds();
+        const t0 = performance.now();
+        const rasterData = await postAuraRasterAdaptive({
+            ...baseBirth,
+            aspect_overlay: { planet: "sun", aspect: "conjunction", angle: "ASC" },
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            west: bounds.getWest(),
+            east: bounds.getEast(),
+            paint_width: paintGrid.width,
+            paint_height: paintGrid.height,
+            max_orb: AURA_MAX_ORB,
+            apply_lat_cap: applyLatCapForOverlays(),
+            initial_divisions: stage.initialDivisions,
+            max_depth: stage.maxDepth,
+            max_samples: stage.maxSamples || 120000,
+            include_debug_cells: debugAdaptiveMode && stage.name === "final"
+        });
+        if (token !== currentRenderToken || localToken !== rasterAuraRenderToken) return;
+        const paintMs = Math.round(performance.now() - t0);
+        paintRasterToCanvas(rasterData);
+        renderAdaptiveDebugCells(
+            rasterData.debug_cells,
+            rasterData.properties?.max_depth_reached || stage.maxDepth
+        );
+        rasterAuraInitialized = true;
+        updateRasterAuraDebugPanel(rasterData, stage.name, paintMs);
+        const refining = stage.name !== "final";
+        const props = rasterData.properties || {};
+        updateAuraPoCBanner({
+            visible: true,
+            stage: stage.name,
+            resolution: `adaptive maxDepth ${stage.maxDepth}`,
+            maxOrb: AURA_MAX_ORB,
+            cells: props.truth_sample_count,
+            agreementNote: refining
+                ? `Provisional subdivision (depth ≤ ${stage.maxDepth})`
+                : `${props.sample_reduction_pct}% fewer truth samples vs uniform ${props.uniform_equivalent_samples}px grid`
+        });
+        if (stage.name === "final") {
+            const agreement = reportCenterlineAuraAgreement(
+                lastAuraPocCenterlineCoords,
+                buildPseudoCellsFromRaster(rasterData)
+            );
+            if (agreement) {
+                currentRasterAuraMetrics.centerlineAgreement = agreement;
+                console.info("[aura-poc] MISMATCH CHECK adaptive vs centerline:", agreement);
+                updateAuraPoCBanner({
+                    visible: true,
+                    stage: "final",
+                    resolution: `adaptive · ${props.leaf_count} leaves`,
+                    maxOrb: AURA_MAX_ORB,
+                    cells: props.truth_sample_count,
+                    agreementNote:
+                        `Mismatch probe: median gap ${agreement.medianGapDeg}°. ${props.sample_reduction_pct}% sample reduction vs uniform.`
+                });
+            }
+            setRenderStatus(
+                `Sun conjunct ASC: adaptive aura (${props.truth_sample_count} truth samples, ${props.leaf_count} leaves) ready`
+            );
+        } else {
+            setRenderStatus(`Adaptive aura ${stage.label} ready; refining…`);
+        }
+    }
+}
+
+async function renderRasterAuraProgressive(baseBirth, aspectOverlay, token) {
+    if (!useRasterAura || useAdaptiveAura || !isAuraPocOverlay(aspectOverlay)) {
+        if (useAdaptiveAura) return;
+        hideAuraRasterCanvas();
+        clearAdaptiveAuraDebug();
+        return;
+    }
+    renderAuraFieldLegend();
+    updateLatCapDebugLabel();
+    auraLayer.clearLayers();
+    rasterAuraRenderToken++;
+    const localToken = rasterAuraRenderToken;
+    rasterAuraInitialized = false;
+
+    for (const stage of RASTER_AURA_STAGES) {
+        if (token !== currentRenderToken || localToken !== rasterAuraRenderToken) return;
+        setRenderStatus(`Raster aura (${stage.label})…`);
+        const grid = rasterGridDimensions(stage.pxStep);
+        const bounds = map.getBounds();
+        const t0 = performance.now();
+        const rasterData = await postAuraRaster({
+            ...baseBirth,
+            aspect_overlay: { planet: "sun", aspect: "conjunction", angle: "ASC" },
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            west: bounds.getWest(),
+            east: bounds.getEast(),
+            width: grid.width,
+            height: grid.height,
+            max_orb: AURA_MAX_ORB,
+            apply_lat_cap: applyLatCapForOverlays()
+        });
+        if (token !== currentRenderToken || localToken !== rasterAuraRenderToken) return;
+        const paintMs = Math.round(performance.now() - t0);
+        paintRasterToCanvas(rasterData);
+        rasterAuraInitialized = true;
+        updateRasterAuraDebugPanel(rasterData, stage.name, paintMs);
+        const refining = stage.name !== "final";
+        updateAuraPoCBanner({
+            visible: true,
+            stage: stage.name,
+            resolution: `~${rasterData.properties?.deg_per_pixel_lon}°/px lon`,
+            maxOrb: AURA_MAX_ORB,
+            cells: rasterData.properties?.sample_count,
+            agreementNote: refining
+                ? `Coarse sample grid (px step ${stage.pxStep}) — not final density`
+                : `strength = max(0, 1 − orb÷${AURA_MAX_ORB}) per pixel`
+        });
+        if (stage.name === "final") {
+            const agreement = reportCenterlineAuraAgreement(
+                lastAuraPocCenterlineCoords,
+                buildPseudoCellsFromRaster(rasterData)
+            );
+            if (agreement) {
+                currentRasterAuraMetrics.centerlineAgreement = agreement;
+                console.info("[aura-poc] MISMATCH CHECK raster vs validation centerline:", agreement);
+                updateAuraPoCBanner({
+                    visible: true,
+                    stage: "final",
+                    resolution: `~${rasterData.properties?.deg_per_pixel_lon}°/px lon`,
+                    maxOrb: AURA_MAX_ORB,
+                    cells: rasterData.properties?.sample_count,
+                    agreementNote:
+                        `Mismatch probe: median gap ${agreement.medianGapDeg}° (centerline≠aura). ${agreement.limitation}`
+                });
+            }
+            setRenderStatus(
+                `Sun conjunct ASC: raster aura (${grid.width}×${grid.height} samples) ready`
+            );
+        } else {
+            setRenderStatus(`Raster aura ${stage.label} ready; refining…`);
+        }
+    }
+}
+
+function buildPseudoCellsFromRaster(rasterData) {
+    const { width, height, strengths, bounds: b } = rasterData;
+    const latSpan = b.north - b.south;
+    const lonSpan = b.east - b.west || 360;
+    const cells = [];
+    for (let j = 0; j < height; j++) {
+        const lat = b.north - (j + 0.5) * latSpan / height;
+        for (let i = 0; i < width; i++) {
+            const s = strengths[j * width + i] || 0;
+            if (s < 0.85) continue;
+            let lon = b.west + (i + 0.5) * lonSpan / width;
+            if (lon > 180) lon -= 360;
+            cells.push({
+                properties: { strength: s, lat, lon }
+            });
+        }
+    }
+    return cells;
+}
+
+function auraStrengthTier(strength) {
+    const s = Number(strength) || 0;
+    for (const tier of AURA_STRENGTH_TIERS) {
+        if (tier.id === "outside") continue;
+        if (s >= tier.minStrength) return tier;
+    }
+    return AURA_STRENGTH_TIERS[AURA_STRENGTH_TIERS.length - 1];
+}
+
+function auraTierStyle(strength, isProvisional) {
+    const tier = auraStrengthTier(strength);
+    return {
+        fillColor: tier.fillColor,
+        fillOpacity: tier.fillOpacity + (isProvisional ? 0.04 : 0),
+        stroke: isProvisional,
+        color: "#b45309",
+        weight: isProvisional ? 0.3 : 0,
+        opacity: isProvisional ? 0.3 : 0
+    };
+}
+
+function updateAuraPoCBanner(opts) {
+    const banner = document.getElementById("auraPoCBanner");
+    if (!banner) return;
+    if (!opts || !opts.visible) {
+        banner.style.display = "none";
+        banner.classList.remove("aura-poc-banner--warn");
+        return;
+    }
+    const stageLabel = opts.stage || "—";
+    const provisional =
+        opts.stage && opts.stage !== "final" ? " · provisional" : "";
+    const warn = opts.warning
+        ? `<div class="aura-poc-meta" style="color:#b91c1c;margin-top:4px">${opts.warning}</div>`
+        : "";
+    banner.classList.toggle("aura-poc-banner--warn", Boolean(opts.warning));
+    const agreementNote = opts.agreementNote
+        ? `<div class="aura-poc-meta" style="margin-top:3px;font-size:11px">${opts.agreementNote}</div>`
+        : "";
+    banner.innerHTML = `
+        <div class="aura-poc-title">Truth raster: Sun conjunct ASC · orb → strength${provisional}</div>
+        <div class="aura-poc-meta">Stage: <b>${stageLabel}</b> · sample <b>${opts.resolution}</b> · max orb <b>${opts.maxOrb}°</b>${opts.cells != null ? ` · samples <b>${opts.cells}</b>` : ""}</div>
+        ${agreementNote}
+        ${warn}`;
+    banner.style.display = "block";
+}
+
+function renderAuraFieldLegend() {
+    const el = document.getElementById("auraFieldLegend");
+    if (!el) return;
+    if (useAdaptiveAura) {
+        el.innerHTML = `
+            <h4>Adaptive truth raster (PoC)</h4>
+            <p class="aura-legend-note">Quadtree refines only where orb gradient, thresholds, or max-orb boundary change. Stable interiors stay coarse.</p>
+            <p class="aura-legend-note">Cell borders (debug): blue→red = subdivision depth; dashed gray = stable leaf.</p>
+            <p class="aura-legend-note">No blur, splines, or cosmetic smoothing — only additional truthful samples.</p>`;
+        el.style.display = "block";
+        el.removeAttribute("aria-hidden");
+        return;
+    }
+    if (useRasterAura) {
+        el.innerHTML = `
+            <h4>Truth raster (scalar field)</h4>
+            <p class="aura-legend-note">Each pixel: real Sun–ASC orb → strength = max(0, 1 − orb÷${AURA_MAX_ORB}). Continuous alpha. Not polygon, blur, or glow.</p>
+            <p class="aura-legend-note">Gray dashed line = validation centerline from contours (NOT aura).</p>
+            <p class="aura-legend-note">Mismatches vs centerline are reported, not hidden.</p>`;
+        el.style.display = "block";
+        el.removeAttribute("aria-hidden");
+        return;
+    }
+    const rows = AURA_STRENGTH_TIERS.filter(t => t.id !== "outside")
+        .map(
+            t => `<div class="aura-legend-row">
+                <span class="aura-legend-swatch" style="background:${t.fillColor};opacity:${Math.max(0.35, t.fillOpacity + 0.35)}"></span>
+                <span>${t.label} (strength ≥ ${t.minStrength})</span>
+            </div>`
+        )
+        .join("");
+    el.innerHTML = `
+        <h4>Orb strength field</h4>
+        ${rows}
+        <div class="aura-legend-row">
+            <span class="aura-legend-swatch" style="background:#f8fafc;border:1px dashed #94a3b8"></span>
+            <span>Outside max orb (not drawn)</span>
+        </div>
+        <p class="aura-legend-note">Bands = real Sun–ASC orb distance → strength (max(0, 1 − orb÷${AURA_MAX_ORB})). Not decorative opacity or blur.</p>
+        <p class="aura-legend-note">Centerline check is approximate (contour vs grid centers); see console after final stage.</p>`;
+    el.style.display = "block";
+    el.removeAttribute("aria-hidden");
+}
+
+function hideAuraPoCChrome() {
+    updateAuraPoCBanner({ visible: false });
+    hideAuraRasterCanvas();
+    const leg = document.getElementById("auraFieldLegend");
+    if (leg) {
+        leg.style.display = "none";
+        leg.setAttribute("aria-hidden", "true");
+    }
+}
+
+function extractAuraPocCenterlines(aspectData) {
+    const lines = [];
+    (aspectData.features || []).forEach(f => {
+        const props = f.properties || {};
+        if (!props.angle || props.planet !== "sun" || props.aspect !== "conjunction") return;
+        if (String(props.angle).toUpperCase() !== "ASC") return;
+        const g = f.geometry;
+        if (g && g.type === "LineString" && g.coordinates) {
+            lines.push(g.coordinates);
+        }
+    });
+    return lines;
+}
+
+/**
+ * Approximate centerline ↔ strong-aura agreement (cheap; not exact geometry).
+ * Compares contour vertices to 0.5° cell centers — sub-cell offset expected.
+ */
+function reportCenterlineAuraAgreement(centerlines, fieldFeatures) {
+    const strongCells = fieldFeatures
+        .filter(f => Number((f.properties || {}).strength) >= 0.85)
+        .map(f => {
+            const p = f.properties || {};
+            return [Number(p.lon), Number(p.lat)];
+        });
+    if (!centerlines.length || !strongCells.length) {
+        console.info("[aura-poc] centerline ↔ aura: skipped (missing centerline or strong cells)");
+        return null;
+    }
+
+    const distances = [];
+    centerlines.forEach(line => {
+        const step = Math.max(1, Math.floor(line.length / 80));
+        for (let i = 0; i < line.length; i += step) {
+            const lon = line[i][0];
+            const lat = line[i][1];
+            let minD = Infinity;
+            for (let c = 0; c < strongCells.length; c++) {
+                const d = Math.hypot(lon - strongCells[c][0], lat - strongCells[c][1]);
+                if (d < minD) minD = d;
+            }
+            if (Number.isFinite(minD)) distances.push(minD);
+        }
+    });
+
+    if (!distances.length) return null;
+
+    distances.sort((a, b) => a - b);
+    const median = distances[Math.floor(distances.length / 2)];
+    const p90 = distances[Math.floor(distances.length * 0.9)];
+    const max = distances[distances.length - 1];
+    const withinHalf = distances.filter(d => d <= 0.5).length / distances.length;
+
+    const report = {
+        sampleCount: distances.length,
+        strongCellCount: strongCells.length,
+        medianGapDeg: Number(median.toFixed(3)),
+        p90GapDeg: Number(p90.toFixed(3)),
+        maxGapDeg: Number(max.toFixed(3)),
+        pctCenterlineWithin0_5DegOfStrongCell: Number((withinHalf * 100).toFixed(1)),
+        limitation:
+            "Heuristic only: compares search-regions contour vertices to aura grid cell centers at final resolution; not exact geodesic distance to zero-orb locus."
+    };
+
+    console.info("[aura-poc] centerline ↔ strong-aura agreement (approx, degrees):", report);
+    return report;
+}
+
+function buildAuraOrbDebugPopupHtml(orb) {
+    const inside = Number(orb.orb_deg) < Number(orb.max_orb);
+    return `
+        <div class="popup-aura-debug">
+            <p><b>Aura PoC (debug)</b> — sampled orb field</p>
+            <table>
+                <tr><td>Sun–ASC orb</td><td><b>${orb.orb_deg}°</b></td></tr>
+                <tr><td>Aura strength</td><td><b>${orb.strength}</b> <span style="color:#64748b">(1 − orb÷${orb.max_orb})</span></td></tr>
+                <tr><td>Inside max orb?</td><td><b>${inside ? "Yes" : "No"}</b> <span style="color:#64748b">(max ${orb.max_orb}°)</span></td></tr>
+            </table>
+        </div>`;
+}
+
+function renderAuraDebugPanel(data, stageName) {
+    if (!debugAuraMode) return;
+    let panel = document.getElementById("auraDebugStatus");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "auraDebugStatus";
+        panel.className = "debug-status aura-debug-status";
+        document.body.appendChild(panel);
+    }
+    const p = data.properties || {};
+    const cells = data.features.filter(
+        f => (f.properties || {}).layer === "aura_field"
+    ).length;
+    const samples = data.features.filter(
+        f => (f.properties || {}).layer === "aura_debug_sample"
+    ).length;
+    currentAuraDebugMetrics = { stage: stageName, ...p, renderedCells: cells, debugPoints: samples };
+    panel.innerHTML = `
+        <div><b>Aura PoC (truth field)</b> — ${stageName}</div>
+        <div><b>Resolution:</b> ${p.resolution}° · <b>maxOrb:</b> ${p.max_orb}°</div>
+        <div><b>Grid:</b> ${(p.grid_shape || []).join("×")} · <b>samples:</b> ${p.sample_count}</div>
+        <div><b>Cells rendered:</b> ${cells} · <b>debug points:</b> ${samples}</div>
+        <div><b>Strength:</b> ${p.strength_min} – ${p.strength_max}</div>
+        <div><b>Orb (deg):</b> ${p.orb_min} – ${p.orb_max}</div>
+        <div><b>Clip policy:</b> ${p.clipping_policy || "±65° lat"}</div>
+        <div><b>Formula:</b> ${p.strength_formula || "max(0,1-orb/maxOrb)"}</div>
+        <div><b>Compute:</b> ${p.compute_seconds}s</div>
+        ${currentAuraDebugMetrics && currentAuraDebugMetrics.centerlineAgreement
+            ? `<div><b>Centerline gap (approx):</b> med ${currentAuraDebugMetrics.centerlineAgreement.medianGapDeg}° · p90 ${currentAuraDebugMetrics.centerlineAgreement.p90GapDeg}°</div>`
+            : ""}`;
+    panel.style.display = "block";
+}
+
+function renderAuraFieldGeoJSON(data, stageName, isProvisional) {
+    const fieldFeatures = data.features.filter(
+        f => (f.properties || {}).layer === "aura_field"
+    );
+    const debugFeatures = data.features.filter(
+        f => (f.properties || {}).layer === "aura_debug_sample"
+    );
+
+    if (fieldFeatures.length > AURA_CELL_RENDER_CAP) {
+        const msg =
+            `Safety cap: ${fieldFeatures.length} cells exceeds limit ${AURA_CELL_RENDER_CAP}. Field not drawn (browser protection).`;
+        console.warn("[aura-poc]", msg);
+        renderAuraDebugPanel(data, stageName);
+        return { rendered: 0, capped: true, total: fieldFeatures.length, warning: msg };
+    }
+
+    fieldFeatures.forEach(feature => {
+        const strength = Number(feature.properties.strength) || 0;
+        const tier = auraStrengthTier(strength);
+        L.geoJSON(feature, {
+            smoothFactor: 0,
+            style: {
+                ...auraTierStyle(strength, isProvisional),
+                fillColor: tier.fillColor
+            }
+        }).addTo(auraLayer);
+    });
+
+    if (debugAuraMode) {
+        debugFeatures.forEach(feature => {
+            L.geoJSON(feature, {
+                pointToLayer(feat, latlng) {
+                    const s = feat.properties.strength || 0;
+                    return L.circleMarker(latlng, {
+                        radius: 2,
+                        color: "#1e3a5f",
+                        fillColor: s > 0.7 ? "#dc2626" : "#3b82f6",
+                        fillOpacity: 0.85,
+                        weight: 1
+                    });
+                }
+            }).addTo(auraLayer);
+        });
+    }
+
+    renderAuraDebugPanel(data, stageName);
+    return { rendered: fieldFeatures.length, capped: false, total: fieldFeatures.length };
+}
+
+async function renderAuraFieldProgressive(baseBirth, aspectOverlay, token) {
+    console.warn(
+        "[aura-poc] renderAuraFieldProgressive is not the deliverable — use renderRasterAuraProgressive"
+    );
+    if (!usePolygonAura || !isAuraPocOverlay(aspectOverlay)) {
+        if (!useRasterAura) hideAuraPoCChrome();
+        return;
+    }
+
+    hideAuraRasterCanvas();
+    renderAuraFieldLegend();
+    updateLatCapDebugLabel();
+    auraLayer.clearLayers();
+    let finalFieldFeatures = [];
+
+    for (let i = 0; i < AURA_REFINEMENT_STAGES.length; i++) {
+        const stage = AURA_REFINEMENT_STAGES[i];
+        if (token !== currentRenderToken) return;
+
+        setRenderStatus(`Aura field (${stage.label})…`);
+        const isProvisional = stage.name !== "final";
+        const data = await postAuraField({
+            ...baseBirth,
+            aspect_overlay: {
+                planet: "sun",
+                aspect: "conjunction",
+                angle: "ASC"
+            },
+            resolution: stage.resolution,
+            max_orb: AURA_MAX_ORB,
+            min_strength: stage.min_strength,
+            include_debug_points: debugAuraMode,
+            apply_lat_cap: applyLatCapForOverlays()
+        });
+
+        if (token !== currentRenderToken) return;
+        auraLayer.clearLayers();
+
+        const fieldFeatures = data.features.filter(
+            f => (f.properties || {}).layer === "aura_field"
+        );
+        const renderResult = renderAuraFieldGeoJSON(data, stage.name, isProvisional);
+
+        updateAuraPoCBanner({
+            visible: true,
+            stage: stage.name,
+            resolution: stage.resolution,
+            maxOrb: AURA_MAX_ORB,
+            cells: fieldFeatures.length,
+            warning: renderResult.capped ? renderResult.warning : null
+        });
+
+        if (stage.name === "final") {
+            finalFieldFeatures = fieldFeatures;
+            lastAuraFieldFeatures = fieldFeatures;
+            const agreement = reportCenterlineAuraAgreement(
+                lastAuraPocCenterlineCoords,
+                fieldFeatures
+            );
+            if (agreement) {
+                currentAuraDebugMetrics = {
+                    ...(currentAuraDebugMetrics || {}),
+                    centerlineAgreement: agreement
+                };
+                renderAuraDebugPanel(data, stage.name);
+                updateAuraPoCBanner({
+                    visible: true,
+                    stage: stage.name,
+                    resolution: stage.resolution,
+                    maxOrb: AURA_MAX_ORB,
+                    cells: fieldFeatures.length,
+                    warning: renderResult.capped ? renderResult.warning : null,
+                    agreementNote:
+                        `Centerline ↔ aura (approx): median gap ${agreement.medianGapDeg}° · ` +
+                        `${agreement.pctCenterlineWithin0_5DegOfStrongCell}% of samples within 0.5° of strong cells. ` +
+                        `Not exact geometry (grid vs contour).`
+                });
+            }
+            if (renderResult.capped) {
+                setRenderStatus("Aura PoC: final field exceeded cell cap — not drawn");
+            } else {
+                setRenderStatus(
+                    `Sun conjunct ASC: centerline + aura (${renderResult.rendered} cells) ready`
+                );
+            }
+        } else if (!renderResult.capped) {
+            setRenderStatus(`Aura ${stage.label} ready; refining…`);
+        }
+    }
+}
+
+function renderHouseFeatures(displayData) {
+    const polygons = displayData.features.filter(
+        f => f.geometry && f.geometry.type === "Polygon" && isRenderablePolygonFeature(f)
+    );
+    const angleSign = polygons.filter(f => (f.properties || {}).condition_type === "angle_sign");
+    const housePolys = polygons.filter(f => {
+        const props = f.properties || {};
+        return props.planet && props.condition_type !== "angle_sign";
+    });
+
+    angleSign.forEach(feature => {
+        L.geoJSON(feature, {
+            smoothFactor: 0,
+            style: {
+                fillColor: "#8e44ad",
+                fillOpacity: 0.2,
+                stroke: false,
+                opacity: 0,
+                weight: 0
+            },
+            onEachFeature: bindGeometryDebug
+        }).addTo(polygonLayer);
+    });
+
+    housePolys.forEach(feature => {
+        const props = feature.properties || {};
         const idx = props.condition_index || 0;
         L.geoJSON(feature, {
             smoothFactor: 0,
@@ -1410,6 +3315,8 @@ function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
 }
 
 function renderAspectFeatures(displayData) {
+    const validationLine =
+        useRasterAura && isAuraPocOverlay(getSelectedAspectOverlay());
     displayData.features.forEach(feature => {
         if (!feature.properties || !feature.properties.angle) return;
         if (feature.geometry && feature.geometry.type === "Polygon") return;
@@ -1427,10 +3334,12 @@ function renderAspectFeatures(displayData) {
                 });
             },
             style(feat) {
+                const col = validationLine ? "#64748b" : feat.properties.color || "#0f766e";
                 return {
-                    color: feat.properties.color || "#0f766e",
-                    weight: feat.properties.weight != null ? feat.properties.weight : 2,
-                    opacity: feat.properties.opacity != null ? feat.properties.opacity : 0.95,
+                    color: col,
+                    weight: validationLine ? 1.5 : 2,
+                    opacity: validationLine ? 0.75 : 0.95,
+                    dashArray: validationLine ? "4 6" : null,
                     lineCap: "round",
                     lineJoin: "round"
                 };
@@ -1455,7 +3364,7 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
     currentDebugMetrics.aspectResolution = stage.aspect_resolution;
     renderDebugStatus();
 
-    const aspectData = await postSearchRegions({
+    const aspectData = await dispatchOverlayRequest({
         ...basePayload,
         house_conditions: [],
         angle_sign_conditions: [],
@@ -1483,7 +3392,930 @@ async function postSearchRegions(payload) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(normalizeAnglesForApiPayload(payload))
     });
-    return response.json();
+    const body = await response.json().catch(() => null);
+    if (!response.ok) {
+        console.error("Legacy /search-regions failed", {
+            status: response.status,
+            body
+        });
+        throw new Error(`Legacy /search-regions failed (${response.status})`);
+    }
+    return body;
+}
+
+function buildCanonicalDryRunPayload(payload) {
+    const points = [];
+    let blockPx = null;
+    let clampedSampleCount = 0;
+    let gridWidth = null;
+    let gridHeight = null;
+    if (ENABLE_CANONICAL_VISIBLE_DEBUG) {
+        const size = map.getSize();
+        blockPx = CANONICAL_DEBUG_BLOCK_PX;
+        gridWidth = Math.ceil(size.x / blockPx);
+        gridHeight = Math.ceil(size.y / blockPx);
+        for (let y = blockPx / 2; y < size.y; y += blockPx) {
+            for (let x = blockPx / 2; x < size.x; x += blockPx) {
+                const ll = map.containerPointToLatLng([x, y]);
+                if (Math.abs(ll.lat) > PRODUCT_LAT_CAP) {
+                    clampedSampleCount++;
+                }
+                points.push([ll.lat, ll.lng]);
+            }
+        }
+    } else {
+        const center = map.getCenter();
+        points.push(
+            [center.lat, center.lng],
+            [center.lat + 1, center.lng],
+            [center.lat - 1, center.lng],
+            [center.lat, center.lng + 1],
+            [center.lat, center.lng - 1]
+        );
+    }
+    const conditions = [
+        ...(payload.house_conditions || []),
+        ...(payload.angle_sign_conditions || [])
+    ];
+    if (payload.aspect_overlay) {
+        conditions.push({
+            type: "aspect_to_angle",
+            planet: payload.aspect_overlay.planet,
+            angle: normalizeCanonicalAngle(payload.aspect_overlay.angle),
+            aspect: payload.aspect_overlay.aspect,
+            orb: payload.aspect_overlay.orb || 1.0
+        });
+    }
+    return {
+        birth_year: payload.birth_year,
+        birth_month: payload.birth_month,
+        birth_day: payload.birth_day,
+        birth_hour_utc: payload.birth_hour_utc,
+        points,
+        conditions,
+        block_px: blockPx,
+        clamped_sample_count: clampedSampleCount,
+        grid_width: gridWidth,
+        grid_height: gridHeight,
+        condition_types: conditions.map(c => c.type || (c.house ? "planet_in_house" : "unknown")),
+        apply_lat_cap: applyLatCapForOverlays()
+    };
+}
+
+function summarizeLegacyShadowResult(legacyData, elapsedMs) {
+    return {
+        status: legacyData?.type === "FeatureCollection" ? "ok" : "schema_mismatch",
+        featureCount: Array.isArray(legacyData?.features) ? legacyData.features.length : 0,
+        generationMode: legacyData?.properties?.generation_mode ?? null,
+        elapsedMs
+    };
+}
+
+function summarizeCanonicalShadowResult(response, body, dryRunPayload, elapsedMs, refinement = null) {
+    const masks = Array.isArray(body?.masks) ? body.masks : [];
+    const matchedCount = masks.reduce((count, mask) => count + (mask ? 1 : 0), 0);
+    const totalMatchedCount = matchedCount + (refinement?.matchedRefinedCount || 0);
+    return {
+        status: response.ok ? "ok" : "error",
+        httpStatus: response.status,
+        pointCount: dryRunPayload.points.length,
+        conditionCount: dryRunPayload.conditions.length,
+        blockPx: dryRunPayload.block_px,
+        clampedSampleCount: dryRunPayload.clamped_sample_count || 0,
+        maskCount: masks.length,
+        matchedCount,
+        totalMatchedCount,
+        unmatchedCount: Math.max(0, masks.length - matchedCount),
+        responsePointCount: body?.properties?.point_count ?? null,
+        outsideLatCapCount: body?.properties?.outside_lat_cap_count ?? null,
+        conditionTypes: dryRunPayload.condition_types || [],
+        topologyRefinement: refinement
+            ? {
+                enabled: refinement.enabled,
+                targetedAscDsc: refinement.targetedAscDsc,
+                maxDepth: refinement.maxDepth,
+                occupiedBoundaryCount: refinement.occupiedBoundaryCount,
+                haloCellCount: refinement.haloCellCount,
+                subdivisionCount: refinement.subdivisionCount,
+                refinedPointCount: refinement.refinedPointCount,
+                matchedRefinedCount: refinement.matchedRefinedCount,
+                firstLevelPointCount: refinement.firstLevelPointCount,
+                matchedFirstLevelCount: refinement.matchedFirstLevelCount,
+                secondLevelPointCount: refinement.secondLevelPointCount,
+                matchedSecondLevelCount: refinement.matchedSecondLevelCount,
+                retainedSecondLevelPointCount: refinement.retainedSecondLevelPointCount,
+                elapsedMs: refinement.elapsedMs,
+                httpStatus: refinement.httpStatus || null,
+                secondLevelHttpStatus: refinement.secondLevelHttpStatus || null
+            }
+            : null,
+        elapsedMs,
+        schemaMismatch: response.ok && masks.length !== dryRunPayload.points.length,
+        rendered: false
+    };
+}
+
+function summarizeShadowComparison(legacySummary, canonicalSummary) {
+    return {
+        status:
+            legacySummary.status === "ok" && canonicalSummary.status === "ok"
+                ? "ok"
+                : "mismatch",
+        legacySucceeded: legacySummary.status === "ok",
+        canonicalSucceeded: canonicalSummary.status === "ok",
+        legacyFeatureCount: legacySummary.featureCount,
+        canonicalPointCount: canonicalSummary.pointCount,
+        canonicalMatchedCount: canonicalSummary.matchedCount,
+        canonicalTotalMatchedCount: canonicalSummary.totalMatchedCount,
+        canonicalUnmatchedCount: canonicalSummary.unmatchedCount,
+        conditionCount: canonicalSummary.conditionCount,
+        conditionTypes: canonicalSummary.conditionTypes,
+        blockPx: canonicalSummary.blockPx,
+        topologyRefinement: canonicalSummary.topologyRefinement,
+        clampedSampleCount: canonicalSummary.clampedSampleCount,
+        outsideLatCapCount: canonicalSummary.outsideLatCapCount,
+        legacyElapsedMs: legacySummary.elapsedMs,
+        canonicalElapsedMs: canonicalSummary.elapsedMs,
+        schemaMismatches: {
+            legacy: legacySummary.status !== "ok",
+            canonical: Boolean(canonicalSummary.schemaMismatch)
+        },
+        visibleRenderer: ACTIVE_RENDERER_SUBSTRATE,
+        canonicalRendered: false
+    };
+}
+
+function pointInRing(lon, lat, ring) {
+    if (!Array.isArray(ring) || ring.length < 3) return false;
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const a = ring[i];
+        const b = ring[j];
+        if (!Array.isArray(a) || !Array.isArray(b)) continue;
+        const xi = normalizeLon(Number(a[0]));
+        const yi = Number(a[1]);
+        const xj = normalizeLon(Number(b[0]));
+        const yj = Number(b[1]);
+        if (![xi, yi, xj, yj].every(Number.isFinite)) continue;
+        const crosses = yi > lat !== yj > lat;
+        if (!crosses) continue;
+        const xAtLat = ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+        if (lon < xAtLat) inside = !inside;
+    }
+    return inside;
+}
+
+function pointInPolygon(lon, lat, polygon) {
+    if (!Array.isArray(polygon) || !polygon.length) return false;
+    if (!pointInRing(lon, lat, polygon[0])) return false;
+    for (let i = 1; i < polygon.length; i++) {
+        if (pointInRing(lon, lat, polygon[i])) return false;
+    }
+    return true;
+}
+
+function distancePointToSegment(px, py, ax, ay, bx, by) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    if (dx === 0 && dy === 0) return Math.hypot(px - ax, py - ay);
+    const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+function pointNearLineString(point, line, thresholdPx) {
+    if (!Array.isArray(line) || line.length < 2) return false;
+    const px = map.latLngToContainerPoint([point[0], point[1]]);
+    for (let i = 1; i < line.length; i++) {
+        const a = line[i - 1];
+        const b = line[i];
+        if (!Array.isArray(a) || !Array.isArray(b)) continue;
+        const alat = Number(a[1]);
+        const alon = Number(a[0]);
+        const blat = Number(b[1]);
+        const blon = Number(b[0]);
+        if (![alat, alon, blat, blon].every(Number.isFinite)) continue;
+        const ap = map.latLngToContainerPoint([alat, alon]);
+        const bp = map.latLngToContainerPoint([blat, blon]);
+        if (distancePointToSegment(px.x, px.y, ap.x, ap.y, bp.x, bp.y) <= thresholdPx) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function compileLegacyGeometryIndex(legacyGeojson) {
+    const polygons = [];
+    const lineSegments = [];
+    if (!legacyGeojson || !Array.isArray(legacyGeojson.features)) {
+        return { polygons, lineSegments };
+    }
+    legacyGeojson.features.forEach(feature => {
+        const geometry = feature?.geometry;
+        if (!geometry) return;
+        if (geometry.type === "Polygon") {
+            polygons.push(geometry.coordinates);
+        } else if (geometry.type === "MultiPolygon") {
+            geometry.coordinates.forEach(poly => polygons.push(poly));
+        } else if (geometry.type === "LineString") {
+            for (let i = 1; i < geometry.coordinates.length; i++) {
+                const a = geometry.coordinates[i - 1];
+                const b = geometry.coordinates[i];
+                if (!Array.isArray(a) || !Array.isArray(b)) continue;
+                const alat = Number(a[1]);
+                const alon = Number(a[0]);
+                const blat = Number(b[1]);
+                const blon = Number(b[0]);
+                if (![alat, alon, blat, blon].every(Number.isFinite)) continue;
+                const ap = map.latLngToContainerPoint([alat, alon]);
+                const bp = map.latLngToContainerPoint([blat, blon]);
+                lineSegments.push([ap.x, ap.y, bp.x, bp.y]);
+            }
+        } else if (geometry.type === "MultiLineString") {
+            geometry.coordinates.forEach(line => {
+                for (let i = 1; i < line.length; i++) {
+                    const a = line[i - 1];
+                    const b = line[i];
+                    if (!Array.isArray(a) || !Array.isArray(b)) continue;
+                    const alat = Number(a[1]);
+                    const alon = Number(a[0]);
+                    const blat = Number(b[1]);
+                    const blon = Number(b[0]);
+                    if (![alat, alon, blat, blon].every(Number.isFinite)) continue;
+                    const ap = map.latLngToContainerPoint([alat, alon]);
+                    const bp = map.latLngToContainerPoint([blat, blon]);
+                    lineSegments.push([ap.x, ap.y, bp.x, bp.y]);
+                }
+            });
+        }
+    });
+    return { polygons, lineSegments };
+}
+
+function legacyIndexContainsPoint(legacyIndex, point, thresholdPx) {
+    if (!legacyIndex) return false;
+    const lat = Number(point[0]);
+    const lon = normalizeLon(Number(point[1]));
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return false;
+    if (legacyIndex.polygons.some(poly => pointInPolygon(lon, lat, poly))) return true;
+    if (legacyIndex.lineSegments.length) {
+        const px = map.latLngToContainerPoint([lat, lon]);
+        for (const segment of legacyIndex.lineSegments) {
+            if (
+                distancePointToSegment(
+                    px.x,
+                    px.y,
+                    segment[0],
+                    segment[1],
+                    segment[2],
+                    segment[3]
+                ) <= thresholdPx
+            ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function summarizeMaskParity(points, masks, legacyGeojson, options = {}) {
+    const boundarySet = options.boundaryIndexes ? new Set(options.boundaryIndexes) : null;
+    const thresholdPx = options.thresholdPx || Math.max((options.blockPx || CANONICAL_DEBUG_BLOCK_PX) / 2, 2);
+    const legacyIndex = options.legacyIndex || compileLegacyGeometryIndex(legacyGeojson);
+    let comparableCount = 0;
+    let canonicalOccupied = 0;
+    let legacyOccupied = 0;
+    let bothOccupied = 0;
+    let unionOccupied = 0;
+    let disagreementCount = 0;
+    let falsePositiveCount = 0;
+    let falseNegativeCount = 0;
+    let capDisagreementCount = 0;
+    let seamDisagreementCount = 0;
+    points.forEach((pt, index) => {
+        if (boundarySet && !boundarySet.has(index)) return;
+        const lat = Number(pt[0]);
+        const lon = Number(pt[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+        const canonicalHit = Boolean(masks[index]);
+        const legacyHit = legacyIndexContainsPoint(legacyIndex, pt, thresholdPx);
+        comparableCount++;
+        if (canonicalHit) canonicalOccupied++;
+        if (legacyHit) legacyOccupied++;
+        if (canonicalHit && legacyHit) bothOccupied++;
+        if (canonicalHit || legacyHit) unionOccupied++;
+        if (canonicalHit !== legacyHit) {
+            disagreementCount++;
+            if (canonicalHit) falsePositiveCount++;
+            else falseNegativeCount++;
+            if (Math.abs(lat) >= PRODUCT_LAT_CAP - 1) capDisagreementCount++;
+            if (Math.abs(normalizeLon(lon)) >= 179) seamDisagreementCount++;
+        }
+    });
+    const pct = (num, den) => (den ? Number(((num / den) * 100).toFixed(3)) : 0);
+    return {
+        comparableCount,
+        canonicalOccupied,
+        legacyOccupied,
+        bothOccupied,
+        unionOccupied,
+        occupiedOverlapPct: pct(bothOccupied, unionOccupied),
+        occupiedDisagreementPct: pct(disagreementCount, comparableCount),
+        disagreementCount,
+        falsePositiveCount,
+        falseNegativeCount,
+        falsePositivePct: pct(falsePositiveCount, comparableCount),
+        falseNegativePct: pct(falseNegativeCount, comparableCount),
+        capDisagreementCount,
+        seamDisagreementCount,
+        legacyLineThresholdPx: Number(thresholdPx.toFixed(3))
+    };
+}
+
+function summarizeCanonicalLegacyParity(dryRunPayload, canonicalBody, refinement, legacyGeojson) {
+    if (!ENABLE_CANONICAL_VISIBLE_DEBUG || !legacyGeojson) return null;
+    const startedAt = performance.now();
+    const masks = Array.isArray(canonicalBody?.masks) ? canonicalBody.masks : [];
+    const blockPx = dryRunPayload.block_px || CANONICAL_DEBUG_BLOCK_PX;
+    const legacyIndex = compileLegacyGeometryIndex(legacyGeojson);
+    const coarse = summarizeMaskParity(dryRunPayload.points || [], masks, legacyGeojson, {
+        blockPx,
+        thresholdPx: blockPx / 2,
+        legacyIndex
+    });
+    const boundaryIndexes = detectCanonicalBoundaryCells(dryRunPayload, canonicalBody);
+    const boundary = summarizeMaskParity(
+        dryRunPayload.points || [],
+        masks,
+        legacyGeojson,
+        {
+            boundaryIndexes,
+            blockPx,
+            thresholdPx: blockPx / 2,
+            legacyIndex
+        }
+    );
+    const refinedMasks = Array.isArray(refinement?.body?.masks) ? refinement.body.masks : [];
+    const refined = summarizeMaskParity(refinement?.points || [], refinedMasks, legacyGeojson, {
+        blockPx: blockPx / 2,
+        thresholdPx: blockPx / 4,
+        legacyIndex
+    });
+    return {
+        status: "measured",
+        geometryBasis: "legacy_geojson_point_in_polygon_vs_canonical_truth_samples",
+        coarse,
+        boundary,
+        refined,
+        refinedEdgeAgreementImprovementPct: Number(
+            (boundary.occupiedDisagreementPct - refined.occupiedDisagreementPct).toFixed(3)
+        ),
+        pointCount: coarse.comparableCount + refined.comparableCount,
+        refinementDepth: refinement?.maxDepth || 0,
+        refinementPointCount: refinement?.refinedPointCount || 0,
+        timingMs: {
+            refinement: refinement?.elapsedMs || 0,
+            comparison: Math.round(performance.now() - startedAt)
+        },
+        disagreementSources: {
+            coarseBlockSize:
+                coarse.occupiedDisagreementPct > refined.occupiedDisagreementPct
+                    ? "coarse samples contribute more disagreement than refined edge samples"
+                    : "not proven by this viewport",
+            topologyReconstruction:
+                refined.comparableCount > 0
+                    ? "refined edge samples expose boundary agreement without smoothing"
+                    : "no refined edge samples available",
+            geometryMismatch:
+                refined.falsePositiveCount || refined.falseNegativeCount
+                    ? "remaining refined-edge disagreement may indicate geometry mismatch or legacy polygon artifacts"
+                    : "not indicated by refined edge samples",
+            capOrSeam:
+                coarse.capDisagreementCount || coarse.seamDisagreementCount
+                    ? "cap/seam-adjacent disagreement present"
+                    : "no cap/seam-adjacent disagreement in compared samples"
+        }
+    };
+}
+
+function buildScreenPixelTruthPayload(basePayload, points) {
+    return {
+        birth_year: basePayload.birth_year,
+        birth_month: basePayload.birth_month,
+        birth_day: basePayload.birth_day,
+        birth_hour_utc: basePayload.birth_hour_utc,
+        points,
+        conditions: basePayload.conditions,
+        apply_lat_cap: basePayload.apply_lat_cap
+    };
+}
+
+async function postScreenPixelTruth(payload) {
+    const response = await fetch("http://127.0.0.1:8000/screen-pixel-truth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(normalizeAnglesForApiPayload(payload))
+    });
+    const body = await response.json().catch(() => null);
+    return { response, body };
+}
+
+function detectCanonicalBoundaryCells(dryRunPayload, canonicalBody) {
+    const width = dryRunPayload.grid_width;
+    const height = dryRunPayload.grid_height;
+    const masks = Array.isArray(canonicalBody?.masks) ? canonicalBody.masks : [];
+    if (!width || !height || masks.length < width * height) {
+        return [];
+    }
+    const cells = [];
+    const seen = new Set();
+    function add(index) {
+        if (seen.has(index)) return;
+        seen.add(index);
+        cells.push(index);
+    }
+    for (let row = 0; row < height; row++) {
+        for (let col = 0; col < width; col++) {
+            const index = row * width + col;
+            const occupied = Boolean(masks[index]);
+            const right = col + 1 < width ? row * width + col + 1 : null;
+            const down = row + 1 < height ? (row + 1) * width + col : null;
+            if (right != null && occupied !== Boolean(masks[right])) {
+                add(index);
+                add(right);
+            }
+            if (down != null && occupied !== Boolean(masks[down])) {
+                add(index);
+                add(down);
+            }
+        }
+    }
+    return cells;
+}
+
+function isTargetedAscDscRefinementCase(dryRunPayload) {
+    const conditions = dryRunPayload.conditions || [];
+    return conditions.some(condition => {
+        if (condition?.type !== "aspect_to_angle") return false;
+        const angle = normalizeCanonicalAngle(condition.angle);
+        const orb = Number(condition.orb || 1);
+        return (angle === "asc" || angle === "dsc") && orb <= 0.5;
+    });
+}
+
+function expandBoundaryHalo(dryRunPayload, boundaryCells, radius = 1) {
+    const width = dryRunPayload.grid_width;
+    const height = dryRunPayload.grid_height;
+    if (!width || !height || radius <= 0) return boundaryCells;
+    const seen = new Set(boundaryCells);
+    for (const index of boundaryCells) {
+        const row = Math.floor(index / width);
+        const col = index % width;
+        for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+                const r = row + dy;
+                const c = col + dx;
+                if (r < 0 || r >= height || c < 0 || c >= width) continue;
+                seen.add(r * width + c);
+            }
+        }
+    }
+    return Array.from(seen);
+}
+
+function buildRefinedCanonicalPoints(dryRunPayload, boundaryCells, options = {}) {
+    const width = dryRunPayload.grid_width;
+    const block = dryRunPayload.block_px;
+    if (!width || !block) return { points: [], sourceCount: boundaryCells.length };
+    const offsets = options.offsets || [
+        [-0.25, -0.25],
+        [0.25, -0.25],
+        [-0.25, 0.25],
+        [0.25, 0.25]
+    ];
+    const points = [];
+    for (const index of boundaryCells) {
+        const row = Math.floor(index / width);
+        const col = index % width;
+        const centerX = col * block + block / 2;
+        const centerY = row * block + block / 2;
+        for (const [ox, oy] of offsets) {
+            const ll = map.containerPointToLatLng([
+                centerX + ox * block,
+                centerY + oy * block
+            ]);
+            points.push([ll.lat, ll.lng]);
+        }
+    }
+    return { points, sourceCount: boundaryCells.length };
+}
+
+async function refineCanonicalBoundarySamples(dryRunPayload, canonicalBody) {
+    if (!ENABLE_CANONICAL_EDGE_REFINEMENT || !dryRunPayload.block_px) {
+        return null;
+    }
+    const boundaryCells = detectCanonicalBoundaryCells(dryRunPayload, canonicalBody);
+    const targetedAscDsc = isTargetedAscDscRefinementCase(dryRunPayload);
+    const refinedCells = boundaryCells;
+    const refined = buildRefinedCanonicalPoints(dryRunPayload, refinedCells);
+    const startedAt = performance.now();
+    if (!refined.points.length) {
+        return {
+            enabled: true,
+            targetedAscDsc,
+            maxDepth: targetedAscDsc ? 2 : 1,
+            occupiedBoundaryCount: boundaryCells.length,
+            haloCellCount: refinedCells.length,
+            subdivisionCount: 0,
+            refinedPointCount: 0,
+            matchedRefinedCount: 0,
+            secondLevelPointCount: 0,
+            matchedSecondLevelCount: 0,
+            elapsedMs: 0,
+            body: null
+        };
+    }
+    const { response, body } = await postScreenPixelTruth(
+        buildScreenPixelTruthPayload(dryRunPayload, refined.points)
+    );
+    const refinedMasks = Array.isArray(body?.masks) ? body.masks : [];
+    let secondLevelPoints = [];
+    let secondLevelMasks = [];
+    let secondLevelStatus = null;
+    if (targetedAscDsc && response.ok) {
+        const secondLevelCells = [];
+        for (let i = 0; i < refinedCells.length; i++) {
+            const cellMasks = refinedMasks.slice(i * 4, i * 4 + 4);
+            const matched = cellMasks.reduce((count, mask) => count + (mask ? 1 : 0), 0);
+            const coarseIndex = refinedCells[i];
+            const pt = dryRunPayload.points?.[coarseIndex];
+            const capAdjacent =
+                Array.isArray(pt) && Math.abs(Number(pt[0])) >= PRODUCT_LAT_CAP - 1;
+            if ((matched > 0 && matched < 4) || matched === 1 || capAdjacent) {
+                secondLevelCells.push(coarseIndex);
+            }
+        }
+        const secondLevel = buildRefinedCanonicalPoints(dryRunPayload, secondLevelCells, {
+            offsets: [
+                [-0.375, -0.375],
+                [-0.125, -0.375],
+                [0.125, -0.375],
+                [0.375, -0.375],
+                [-0.375, -0.125],
+                [-0.125, -0.125],
+                [0.125, -0.125],
+                [0.375, -0.125],
+                [-0.375, 0.125],
+                [-0.125, 0.125],
+                [0.125, 0.125],
+                [0.375, 0.125],
+                [-0.375, 0.375],
+                [-0.125, 0.375],
+                [0.125, 0.375],
+                [0.375, 0.375]
+            ]
+        });
+        secondLevelPoints = secondLevel.points;
+        if (secondLevelPoints.length) {
+            const second = await postScreenPixelTruth(
+                buildScreenPixelTruthPayload(dryRunPayload, secondLevelPoints)
+            );
+            secondLevelStatus = second.response.status;
+            secondLevelMasks = Array.isArray(second.body?.masks) ? second.body.masks : [];
+        }
+    }
+    const matchedSecondLevelPoints = [];
+    const matchedSecondLevelMasks = [];
+    if (targetedAscDsc) {
+        for (let i = 0; i < secondLevelPoints.length; i += 16) {
+            const groupPoints = secondLevelPoints.slice(i, i + 16);
+            const groupMasks = secondLevelMasks.slice(i, i + 16);
+            const matchedIndexes = groupMasks
+                .map((mask, index) => (mask ? index : -1))
+                .filter(index => index >= 0);
+            if (!matchedIndexes.length) continue;
+            const projected = groupPoints.map(point => map.latLngToContainerPoint(point));
+            const centerX = projected.reduce((sum, point) => sum + point.x, 0) / projected.length;
+            const centerY = projected.reduce((sum, point) => sum + point.y, 0) / projected.length;
+            const bestIndex = matchedIndexes
+                .slice()
+                .sort((a, b) => {
+                    const da = Math.hypot(projected[a].x - centerX, projected[a].y - centerY);
+                    const db = Math.hypot(projected[b].x - centerX, projected[b].y - centerY);
+                    return da - db;
+                })[0];
+            matchedSecondLevelPoints.push(groupPoints[bestIndex]);
+            matchedSecondLevelMasks.push(groupMasks[bestIndex]);
+        }
+    } else {
+        secondLevelPoints.forEach((point, index) => {
+            if (!secondLevelMasks[index]) return;
+            matchedSecondLevelPoints.push(point);
+            matchedSecondLevelMasks.push(secondLevelMasks[index]);
+        });
+    }
+    const combinedPoints = refined.points.concat(matchedSecondLevelPoints);
+    const combinedMasks = refinedMasks.concat(matchedSecondLevelMasks);
+    return {
+        enabled: true,
+        targetedAscDsc,
+        maxDepth: targetedAscDsc ? 2 : 1,
+        occupiedBoundaryCount: boundaryCells.length,
+        haloCellCount: refinedCells.length,
+        subdivisionCount: refined.sourceCount,
+        refinedPointCount: combinedPoints.length,
+        matchedRefinedCount: combinedMasks.reduce((count, mask) => count + (mask ? 1 : 0), 0),
+        firstLevelPointCount: refined.points.length,
+        matchedFirstLevelCount: refinedMasks.reduce((count, mask) => count + (mask ? 1 : 0), 0),
+        secondLevelPointCount: secondLevelPoints.length,
+        matchedSecondLevelCount: secondLevelMasks.reduce((count, mask) => count + (mask ? 1 : 0), 0),
+        retainedSecondLevelPointCount: matchedSecondLevelPoints.length,
+        httpStatus: response.status,
+        secondLevelHttpStatus: secondLevelStatus,
+        elapsedMs: Math.round(performance.now() - startedAt),
+        points: combinedPoints,
+        body: {
+            ...body,
+            masks: combinedMasks
+        }
+    };
+}
+
+function angleDeltaDeg(a, b) {
+    let d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+}
+
+function variance(values) {
+    if (!values.length) return 0;
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    return values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+}
+
+function summarizeContinuityDiagnostics(dryRunPayload, canonicalBody) {
+    const masks = Array.isArray(canonicalBody?.masks) ? canonicalBody.masks : [];
+    const points = dryRunPayload.points || [];
+    const extraPoints = dryRunPayload.refined_points || [];
+    const extraMasks = Array.isArray(dryRunPayload.refined_masks)
+        ? dryRunPayload.refined_masks
+        : [];
+    const matched = [];
+    points.forEach((pt, index) => {
+        if (!masks[index]) return;
+        const lat = Number(pt[0]);
+        const lon = Number(pt[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+        const px = map.latLngToContainerPoint([lat, lon]);
+        matched.push({ lat, lon, x: px.x, y: px.y });
+    });
+    extraPoints.forEach((pt, index) => {
+        if (!extraMasks[index]) return;
+        const lat = Number(pt[0]);
+        const lon = Number(pt[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+        const px = map.latLngToContainerPoint([lat, lon]);
+        matched.push({ lat, lon, x: px.x, y: px.y });
+    });
+    const sorted = matched
+        .slice()
+        .sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
+    const headings = [];
+    const stepDistances = [];
+    const largeStepThreshold = Math.max((dryRunPayload.block_px || CANONICAL_DEBUG_BLOCK_PX) * 2.5, 1);
+    let maxSingleStepDeviation = 0;
+    let discontinuityCount = 0;
+    let seamCrossingCount = 0;
+    let capAdjacentCount = 0;
+    for (let i = 1; i < sorted.length; i++) {
+        const prev = sorted[i - 1];
+        const cur = sorted[i];
+        const dx = cur.x - prev.x;
+        const dy = cur.y - prev.y;
+        const dist = Math.hypot(dx, dy);
+        stepDistances.push(dist);
+        maxSingleStepDeviation = Math.max(maxSingleStepDeviation, dist);
+        if (dist > largeStepThreshold) discontinuityCount++;
+        if (Math.abs(cur.lon - prev.lon) > 180) seamCrossingCount++;
+        if (Math.abs(cur.lat) >= PRODUCT_LAT_CAP - 1 || Math.abs(prev.lat) >= PRODUCT_LAT_CAP - 1) {
+            capAdjacentCount++;
+        }
+        if (dist > 0) {
+            headings.push((Math.atan2(dy, dx) * 180) / Math.PI);
+        }
+    }
+    const headingDeltas = [];
+    for (let i = 1; i < headings.length; i++) {
+        headingDeltas.push(angleDeltaDeg(headings[i], headings[i - 1]));
+    }
+    const maxHeadingDelta = headingDeltas.length ? Math.max(...headingDeltas) : 0;
+    const meanStepDistance =
+        stepDistances.length
+            ? stepDistances.reduce((a, b) => a + b, 0) / stepDistances.length
+            : 0;
+    return {
+        matchedPointCount: matched.length,
+        stepCount: stepDistances.length,
+        meanStepDistance: Number(meanStepDistance.toFixed(3)),
+        maxSingleStepDeviation: Number(maxSingleStepDeviation.toFixed(3)),
+        neighborAngularDeltaMax: Number(maxHeadingDelta.toFixed(3)),
+        neighborAngularDeltaVariance: Number(variance(headingDeltas).toFixed(3)),
+        curvatureVariance: Number(variance(headingDeltas).toFixed(3)),
+        localHeadingChangeVariance: Number(variance(headingDeltas).toFixed(3)),
+        discontinuityCount,
+        seamCrossingCount,
+        capAdjacentCount,
+        blockPx: dryRunPayload.block_px || null,
+        zoom: map.getZoom(),
+        samplingStatus:
+            matched.length === 0
+                ? "no_matches_at_this_sampling_density"
+                : "matched_samples_available",
+        diagnosticLimitations:
+            "Screen-sorted matched samples approximate continuity; they do not reconstruct a topological contour."
+    };
+}
+
+function renderCanonicalVisibleDebug(dryRunPayload, canonicalBody) {
+    const canvas = document.getElementById("canonicalDebugCanvas");
+    if (!canvas) return;
+    const size = map.getSize();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.floor(size.x * dpr));
+    canvas.height = Math.max(1, Math.floor(size.y * dpr));
+    canvas.style.width = `${size.x}px`;
+    canvas.style.height = `${size.y}px`;
+    canvas.style.display = "block";
+    canvas.removeAttribute("aria-hidden");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const masks = Array.isArray(canonicalBody?.masks) ? canonicalBody.masks : [];
+    const points = dryRunPayload.points || [];
+    const extraPoints = dryRunPayload.refined_points || [];
+    const extraMasks = Array.isArray(dryRunPayload.refined_masks)
+        ? dryRunPayload.refined_masks
+        : [];
+    let paintedCount = 0;
+    let matchedPaintedCount = 0;
+    let unmatchedPaintedCount = 0;
+    let skippedUnmatchedCount = 0;
+    let skippedClampedCount = 0;
+    function paintPoint(pt, matched, blockScale = 1) {
+        const lat = Number(pt[0]);
+        const lon = Number(pt[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return false;
+        const outsideCap = Math.abs(lat) > PRODUCT_LAT_CAP;
+        if (outsideCap && !matched) {
+            skippedClampedCount++;
+            return false;
+        }
+        if (!matched && !ENABLE_CANONICAL_SHOW_ALL_SAMPLES) {
+            skippedUnmatchedCount++;
+            return false;
+        }
+        const ptPx = map.latLngToContainerPoint([lat, lon]);
+        const block = (dryRunPayload.block_px || CANONICAL_DEBUG_BLOCK_PX) * blockScale;
+        ctx.fillStyle = matched ? "rgba(56, 189, 248, 0.34)" : "rgba(224, 242, 254, 0.16)";
+        ctx.strokeStyle = matched ? "rgba(17, 24, 39, 0.55)" : "rgba(3, 105, 161, 0.25)";
+        ctx.lineWidth = Math.max(1, dpr);
+        ctx.fillRect(
+            Math.round((ptPx.x - block / 2) * dpr),
+            Math.round((ptPx.y - block / 2) * dpr),
+            Math.max(1, Math.round(block * dpr)),
+            Math.max(1, Math.round(block * dpr))
+        );
+        ctx.strokeRect(
+            Math.round((ptPx.x - block / 2) * dpr),
+            Math.round((ptPx.y - block / 2) * dpr),
+            Math.max(1, Math.round(block * dpr)),
+            Math.max(1, Math.round(block * dpr))
+        );
+        paintedCount++;
+        if (matched) matchedPaintedCount++;
+        else unmatchedPaintedCount++;
+        return true;
+    }
+    points.forEach((pt, index) => {
+        paintPoint(pt, Boolean(masks[index]), 1);
+    });
+    extraPoints.forEach((pt, index) => {
+        paintPoint(pt, Boolean(extraMasks[index]), 0.5);
+    });
+    lastCanonicalVisibleDebug = {
+        enabled: true,
+        rendered: true,
+        layerCount: 1,
+        paintedCount,
+        matchedPaintedCount,
+        unmatchedPaintedCount,
+        skippedUnmatchedCount,
+        skippedClampedCount,
+        pointCount: points.length,
+        refinedPointCount: extraPoints.length,
+        matchedRefinedPaintedCount: extraMasks.reduce((count, mask) => count + (mask ? 1 : 0), 0),
+        blockPx: dryRunPayload.block_px || CANONICAL_DEBUG_BLOCK_PX,
+        showAllSamples: ENABLE_CANONICAL_SHOW_ALL_SAMPLES,
+        conditionTypes: dryRunPayload.condition_types || [],
+        clampedSampleCount: dryRunPayload.clamped_sample_count || 0,
+        debugOnly: true
+    };
+}
+
+async function runCanonicalDryRun(payload, legacySummary = null, legacyGeojson = null) {
+    const dryRunPayload = buildCanonicalDryRunPayload(payload);
+    lastCanonicalDryRun = {
+        status: "running",
+        pointCount: dryRunPayload.points.length,
+        conditionCount: dryRunPayload.conditions.length,
+        blockPx: dryRunPayload.block_px,
+        clampedSampleCount: dryRunPayload.clamped_sample_count || 0,
+        conditionTypes: dryRunPayload.condition_types || [],
+        rendered: false,
+        comparison: legacySummary
+            ? { legacy: legacySummary, canonical: null, metrics: null }
+            : null
+    };
+    const startedAt = performance.now();
+    const { response, body } = await postScreenPixelTruth(
+        buildScreenPixelTruthPayload(dryRunPayload, dryRunPayload.points)
+    );
+    const refinement =
+        response.ok && ENABLE_CANONICAL_VISIBLE_DEBUG
+            ? await refineCanonicalBoundarySamples(dryRunPayload, body)
+            : null;
+    if (refinement?.points?.length) {
+        dryRunPayload.refined_points = refinement.points;
+        dryRunPayload.refined_masks = Array.isArray(refinement.body?.masks)
+            ? refinement.body.masks
+            : [];
+    }
+    const canonicalSummary = summarizeCanonicalShadowResult(
+        response,
+        body,
+        dryRunPayload,
+        Math.round(performance.now() - startedAt),
+        refinement
+    );
+    const continuityDiagnostics =
+        ENABLE_CANONICAL_VISIBLE_DEBUG && response.ok
+            ? summarizeContinuityDiagnostics(dryRunPayload, body)
+            : null;
+    const parityDiagnostics =
+        ENABLE_CANONICAL_VISIBLE_DEBUG && response.ok
+            ? summarizeCanonicalLegacyParity(dryRunPayload, body, refinement, legacyGeojson)
+            : null;
+    lastCanonicalDryRun = {
+        ...canonicalSummary,
+        continuityDiagnostics,
+        parityDiagnostics,
+        comparison: legacySummary
+            ? {
+                legacy: legacySummary,
+                canonical: canonicalSummary,
+                metrics: summarizeShadowComparison(legacySummary, canonicalSummary)
+            }
+            : null
+    };
+    if (ENABLE_CANONICAL_VISIBLE_DEBUG && response.ok) {
+        renderCanonicalVisibleDebug(dryRunPayload, body);
+        lastCanonicalDryRun.rendered = true;
+        if (lastCanonicalDryRun.comparison?.metrics) {
+            lastCanonicalDryRun.comparison.metrics.canonicalRendered = true;
+            lastCanonicalDryRun.comparison.metrics.canonicalVisibleDebugLayerCount =
+                lastCanonicalVisibleDebug?.layerCount || 0;
+            lastCanonicalDryRun.comparison.metrics.parityDiagnostics = parityDiagnostics;
+        }
+    }
+    if (!response.ok) {
+        console.error("Canonical dry-run failed", {
+            status: response.status,
+            body
+        });
+    }
+    return body;
+}
+
+async function dispatchOverlayRequest(payload, options = {}) {
+    const substrate = options.substrate || ACTIVE_RENDERER_SUBSTRATE;
+    if (substrate === RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS) {
+        const legacyStartedAt = performance.now();
+        const legacyData = await postSearchRegions(payload);
+        const legacySummary = summarizeLegacyShadowResult(
+            legacyData,
+            Math.round(performance.now() - legacyStartedAt)
+        );
+        if (ENABLE_CANONICAL_DRY_RUN && options.shadow !== false) {
+            // Shadow validation only: never returns or paints canonical data.
+            await runCanonicalDryRun(payload, legacySummary, legacyData);
+        }
+        return legacyData;
+    }
+    if (substrate === RENDERER_SUBSTRATES.CANONICAL_SCREEN_SPACE) {
+        if (!ENABLE_CANONICAL_DRY_RUN || options.shadow !== true) {
+            throw new Error("Canonical screen-space renderer branch is dry-run only");
+        }
+        return runCanonicalDryRun(payload);
+    }
+    throw new Error(`Unknown renderer substrate: ${substrate}`);
 }
 
 async function findRegions() {
@@ -1494,6 +4326,21 @@ async function findRegions() {
         const token = ++currentRenderToken;
         polygonLayer.clearLayers();
         aspectLayer.clearLayers();
+        const canonicalCanvas = document.getElementById("canonicalDebugCanvas");
+        if (canonicalCanvas) {
+            canonicalCanvas.style.display = "none";
+            canonicalCanvas.setAttribute("aria-hidden", "true");
+            const ctx = canonicalCanvas.getContext("2d");
+            if (ctx) ctx.clearRect(0, 0, canonicalCanvas.width, canonicalCanvas.height);
+        }
+        lastCanonicalVisibleDebug = null;
+        auraLayer.clearLayers();
+        hideAuraPoCChrome();
+        updateLatCapDebugLabel();
+        const auraDebugPanel = document.getElementById("auraDebugStatus");
+        if (auraDebugPanel) auraDebugPanel.style.display = "none";
+        lastAuraPocCenterlineCoords = [];
+        lastAuraFieldFeatures = [];
         setRenderStatus("Rendering…");
         currentDebugMetrics.aspectOverlayStatus = "not requested";
         currentDebugMetrics.overlayStage = "n/a";
@@ -1538,15 +4385,17 @@ async function findRegions() {
             angle_sign_conditions,
             resolution: 1.5,
             generation_mode: requestedGenerationMode,
-            truth_grid_resolution: 0.75
+            truth_grid_resolution: 0.75,
+            truth_grid_boundary_refine: true
         };
 
         const aspectOverlay = getSelectedAspectOverlay();
-        const data = await postSearchRegions(basePayload);
+        const data = await dispatchOverlayRequest(basePayload);
 
         if (token !== currentRenderToken) return;
 
         const displayData = prepareDisplayFeatures(data);
+        lastDisplayFeatureCollection = displayData;
         renderHouseFeatures(displayData);
         updateDebugStatus(data, displayData, aspectOverlay ? "pending" : "not requested");
         setRenderStatus(aspectOverlay ? "Calculating angular overlay…" : "House regions ready.");
@@ -1564,7 +4413,7 @@ async function findRegions() {
                     if (!ok) return;
                 }
             } else {
-                const aspectData = await postSearchRegions({
+                const aspectData = await dispatchOverlayRequest({
                     ...basePayload,
                     house_conditions: [],
                     angle_sign_conditions: [],
@@ -1575,8 +4424,49 @@ async function findRegions() {
                 if (token !== currentRenderToken) return;
                 aspectLayer.clearLayers();
                 renderAspectFeatures(prepareDisplayFeatures(aspectData));
+                if (isAuraPocOverlay(aspectOverlay)) {
+                    lastAuraPocCenterlineCoords = extractAuraPocCenterlines(aspectData);
+                }
                 updateAspectDebugStatus(aspectData, "ready");
-                setRenderStatus("Angular overlay ready");
+                if (
+                    (useAdaptiveAura || debugProgressiveRevealMode) &&
+                    isAuraPocOverlay(aspectOverlay)
+                ) {
+                    await renderAdaptiveAuraProgressive(
+                        {
+                            birth_year: year,
+                            birth_month: month,
+                            birth_day: day,
+                            birth_hour_utc: birthHourUTC
+                        },
+                        aspectOverlay,
+                        token
+                    );
+                } else if (useRasterAura && isAuraPocOverlay(aspectOverlay)) {
+                    await renderRasterAuraProgressive(
+                        {
+                            birth_year: year,
+                            birth_month: month,
+                            birth_day: day,
+                            birth_hour_utc: birthHourUTC
+                        },
+                        aspectOverlay,
+                        token
+                    );
+                } else if (usePolygonAura && isAuraPocOverlay(aspectOverlay)) {
+                    console.warn(
+                        "[aura-poc] Polygon path skipped — not truth raster. Add ?rasterAura=1"
+                    );
+                    setRenderStatus(
+                        "Polygon aura disabled; use ?rasterAura=1 for truth scalar field"
+                    );
+                } else if (useRasterAura) {
+                    setRenderStatus(
+                        "Truth raster: select Sun · conjunction · ASC overlay"
+                    );
+                } else {
+                    setRenderStatus("Angular overlay ready");
+                }
             }
         }
         renderCities();
@@ -1626,7 +4516,15 @@ document.getElementById("citySearch").addEventListener("keydown", async function
 
 map.on("moveend", () => {
     renderCities();
+    softCorrectMapBounds();
 });
+
+if (overlayDebug) {
+    map.on("click", async ev => {
+        const latlng = ev.latlng;
+        await logOverlayDebugClick(latlng.lat, latlng.lng);
+    });
+}
 
 if (typeof citiesData !== "undefined") {
     renderCities();

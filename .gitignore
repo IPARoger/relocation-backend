@@ -11,3 +11,7 @@ openai_api_key*
 *.secret
 .tmp-chrome-*/
 .playwright-browsers/
+
+# Phase 2.0 library scaffold persistence (local-only, never committed)
+library/library.json
+library/library.*.json
