@@ -230,6 +230,20 @@ The Phase 2.4 sampling/cache scaffold should key off semantic investigation inte
 
 Point-level relocated chart calculation remains the truth source; pixel/subpixel sampling is a rendering strategy over that truth. Aura, raindrop, and virga outputs are deferred, but future outputs must derive from sampled truth/orb distance, not visual blur or fudge. Local/in-memory cache remains scaffold only, not permanent product storage.
 
+### Phase 2.5 Sampling / Cache Population Strategy
+
+User-requested conditions render first. User input always preempts background cache work. Scheduler tiers should be: Tier 0 foreground request, Tier 1 same-request likely next zooms and pan-adjacent scopes, Tier 2 boundary-focused adaptive refinement, and Tier 3 alternate semantic investigations. If the user selects a new variable, lower tiers immediately yield to the new Tier 0/Tier 1 work.
+
+Cache population should cluster around meaningful structure: boundaries, cusps, overlaps, seams, and condition transitions. Broad homogeneous spaces need fewer samples; borders and ambiguity domains need more. Same-request zoom depth is usually more valuable than speculative alternate variables until the foreground inquiry is served.
+
+Truth and reveal remain separate. The point-level relocated chart engine is the truth source, pixel/subpixel sampling discovers truth, and raindrop/virga are later visualizations of discovery/cache population rather than fake loading animations. Their rhythm may be aesthetic, but scheduler correctness must not depend on animation.
+
+Pre-map idle time during birth-data intake, AI intake, onboarding, or the few seconds before first search may eventually precompute chart-stable or likely first-map scopes. This is an optimization only; it must not assume one immutable exact chart state. Future cache/scheduler semantics must tolerate multiple candidate chart domains and overlap-confidence rendering for uncertain birth data without implementing ambiguity rendering now.
+
+Complexity management should support mute/solo-style exploration without becoming nannying. The product should help users isolate variables, confidence bands, and overlaps, but should not block professional users from inspecting ambiguity when they understand the tradeoff. Overlap-confidence language should communicate uncertainty honestly rather than collapse it to false precision.
+
+Optimization candidates require validation before use: six-house boundary derivation may reduce house-mapping work if shared boundaries safely derive all 12 houses; ASC/DC and MC/IC opposition reuse may reduce angle-sign work if seam/cusp/high-latitude verification passes; aspect-to-angle semantics must not be collapsed, such as treating planet opposite ASC as planet conjunct DC, unless a future doctrine explicitly permits it.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.

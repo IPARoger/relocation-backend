@@ -174,6 +174,20 @@ Priorities: `high`, `medium`, `low`. Defaults are aligned with the Phase 1.19 bl
 - **Priority:** Low until base product validated.
 - **Risk if ignored:** Long-term roadmap blocked.
 
+### 2.9 Telemetry-driven scheduler tuning
+- **Why it matters:** Phase 2.5 scheduler tiers should eventually be tuned by measured user behavior, cache hits, cancellations, and latency rather than guesswork.
+- **Why deferred:** The current scaffold is contract-only and has no runtime scheduler or telemetry pipeline.
+- **Class:** Future platform.
+- **Priority:** Medium after scheduler execution exists.
+- **Risk if ignored:** Background work may optimize the wrong future scopes and waste latency budget.
+
+### 2.10 Intake-time precomputation optimization
+- **Why it matters:** Birth-data entry, AI intake, onboarding, and pre-search idle time may allow chart-stable cache work before the user sees the map.
+- **Why deferred:** Requires scheduler execution, cache invalidation rules, and ambiguity-domain handling for uncertain birth data.
+- **Class:** Future platform.
+- **Priority:** Medium after account/library flows stabilize.
+- **Risk if ignored:** First-map render remains slower than it needs to be.
+
 ---
 
 ## 3. UX / Visual System
@@ -254,6 +268,20 @@ Priorities: `high`, `medium`, `low`. Defaults are aligned with the Phase 1.19 bl
 - **Class:** Trust blocker.
 - **Priority:** High after MVP.
 - **Risk if ignored:** Half the audience cannot use the product.
+
+### 3.12 Ambiguity-domain rendering
+- **Why it matters:** Uncertain birth data and overlapping candidate chart domains need honest visualization without pretending there is one exact chart.
+- **Why deferred:** Current product scope has not implemented ambiguity intake, overlap confidence, or ambiguity-domain sampling.
+- **Class:** Trust blocker.
+- **Priority:** Medium before uncertain-birth-time productization.
+- **Risk if ignored:** Users may read uncertain chart output as false precision.
+
+### 3.13 Overlap-confidence wheel language
+- **Why it matters:** Multiple candidate domains and overlapping conditions need a compact visual language for confidence, not just binary on/off overlays.
+- **Why deferred:** Requires ambiguity-domain rendering and visual-system work; not needed for the current saved-investigation/cache scaffold.
+- **Class:** Polish + trust blocker.
+- **Priority:** Medium.
+- **Risk if ignored:** Ambiguity becomes either hidden or visually noisy.
 
 ---
 
