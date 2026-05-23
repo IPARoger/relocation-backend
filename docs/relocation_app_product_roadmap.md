@@ -258,6 +258,10 @@ The Phase 2.7 orchestration layer remains contract-only. It defines foreground/b
 
 The Phase 2.8 mock runtime harness proves the saved-investigation to cache-key to store to orchestration chain coheres without production runtime wiring. It remains semantic-flow proof only: no fetch, rendering, workers, persistence, map integration, UI integration, or renderer output hydration.
 
+### Phase 2.9 Mock Execution Bridge
+
+The Phase 2.9 execution bridge remains lifecycle-contract only. It simulates job state transitions, foreground ownership, stale propagation, logical preemption, observer-safe progress, and conceptual hydration eligibility without real execution, fetches, workers, rendering, persistence, or map/UI integration.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
