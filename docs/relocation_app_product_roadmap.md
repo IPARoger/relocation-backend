@@ -266,6 +266,10 @@ The Phase 2.9 execution bridge remains lifecycle-contract only. It simulates job
 
 The Phase 2.10 observer contract defines what future visual layers may safely know about queued, running, partial, hydrated, completed, stale, cancelled, and error states. Observers remain read-only and must not fabricate progress, imply truth before validation, expose runtime internals, or control scheduler/execution behavior.
 
+### Phase 2.11 Execution Policy Semantics
+
+The Phase 2.11 execution policy remains contract-only. It defines foreground guarantees, concurrency budgets, throttling, cancellation propagation, hydration gates, readiness distinctions, observer cadence, and speculative work limits without executing jobs, fetching, rendering, interpreting astrology, or implementing AI/intake.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
