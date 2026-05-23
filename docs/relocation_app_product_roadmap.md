@@ -274,6 +274,10 @@ The Phase 2.11 execution policy remains contract-only. It defines foreground gua
 
 The Phase 2.12 bridge is dev/smoke-only metadata plumbing. It proves the committed semantic/cache/orchestration/lifecycle/observer/policy chain can run in a browser context without fetches, workers, rendering, DOM or map writes, persistence, production feature flags, or renderer takeover.
 
+### Phase 2.13 Dev Execution Runtime
+
+The Phase 2.13 runtime remains dev/smoke-only and single-request. It may simulate one controlled queued-to-running-to-completed metadata lifecycle and write sanitized metadata into the in-memory cache store, but must not fetch, render, hydrate renderer output, mutate map state, start workers, persist, or execute speculative/background work.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
