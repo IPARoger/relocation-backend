@@ -224,6 +224,12 @@ For saved investigations, persist inquiry semantics and viewport. Cache mathemat
 
 Local JSON is scaffold persistence only, not permanent product storage. Renderer behavior remains environment-controlled; the legacy production default remains unchanged.
 
+### Phase 2.4 Sampling / Cache Scaffold
+
+The Phase 2.4 sampling/cache scaffold should key off semantic investigation intent plus viewport/screen sampling scope. It must not key off saved rendered graphics, debug state, temporary aura flags, or renderer internals.
+
+Point-level relocated chart calculation remains the truth source; pixel/subpixel sampling is a rendering strategy over that truth. Aura, raindrop, and virga outputs are deferred, but future outputs must derive from sampled truth/orb distance, not visual blur or fudge. Local/in-memory cache remains scaffold only, not permanent product storage.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
