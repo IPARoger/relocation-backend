@@ -205,6 +205,8 @@ Birth data intake should become beautiful and trustworthy:
 - Historical timezone correctness
 - Daylight saving correctness
 
+Current-location interpretation is also a valid primary path, not just a prelude to searching elsewhere. The product should support users asking where they are now, why they moved there, what they moved toward or away from, what has worked or not worked after moving, and what the relocated chart explains, supports, or contradicts. Exploration remains the main draw for many target users — executives, digital nomads, students, van lifers, and professionals — but AI/intake may later suggest current-location review when appropriate without forcing that path. Stated intention should be respected without assuming it is perfectly fixed or equally committed in every case: future AI/intake may estimate confidence or commitment level, emphasizing supportive tradeoffs for strongly held aims while surfacing broader noteworthy opportunities for exploratory aims. Locations are never universally good or bad, only differently supportive for different aims.
+
 Saved work:
 
 - Multiple saved charts.
