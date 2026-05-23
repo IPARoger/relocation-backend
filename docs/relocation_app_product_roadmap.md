@@ -244,6 +244,10 @@ Complexity management should support mute/solo-style exploration without becomin
 
 Optimization candidates require validation before use: six-house boundary derivation may reduce house-mapping work if shared boundaries safely derive all 12 houses; ASC/DC and MC/IC opposition reuse may reduce angle-sign work if seam/cusp/high-latitude verification passes; aspect-to-angle semantics must not be collapsed, such as treating planet opposite ASC as planet conjunct DC, unless a future doctrine explicitly permits it.
 
+### Phase 2.6 In-Memory Cache Store Scaffold
+
+The Phase 2.6 cache store remains local/in-memory scaffold only. It may store sanitized semantic cache payloads and scaffold metadata, but must not persist renderer output, debug/aura state, account/user data, backend IDs, fetch responses, workers, GeoJSON, canvas pixels, or map layers.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
