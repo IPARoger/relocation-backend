@@ -278,6 +278,10 @@ The Phase 2.12 bridge is dev/smoke-only metadata plumbing. It proves the committ
 
 The Phase 2.13 runtime remains dev/smoke-only and single-request. It may simulate one controlled queued-to-running-to-completed metadata lifecycle and write sanitized metadata into the in-memory cache store, but must not fetch, render, hydrate renderer output, mutate map state, start workers, persist, or execute speculative/background work.
 
+### Phase 2.14 Isolated Fetch Bridge
+
+The Phase 2.14 fetch bridge remains dev/smoke-only and single-request. It may call one existing backend endpoint and sanitize the response into metadata-only cache/hydration envelopes, but must not expose raw backend payloads to observers, render overlays, create map layers, persist data, start workers, or replace production runtime behavior.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
