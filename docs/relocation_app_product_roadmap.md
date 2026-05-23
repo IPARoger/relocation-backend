@@ -254,6 +254,10 @@ The Phase 2.6 cache store remains local/in-memory scaffold only. It may store sa
 
 The Phase 2.7 orchestration layer remains contract-only. It defines foreground/background ownership, cancellation, stale-job handling, and sanitized cache-hydration envelopes without fetch execution, rendering, workers, UI changes, persistent storage, or runtime map wiring.
 
+### Phase 2.8 Mock Runtime Harness
+
+The Phase 2.8 mock runtime harness proves the saved-investigation to cache-key to store to orchestration chain coheres without production runtime wiring. It remains semantic-flow proof only: no fetch, rendering, workers, persistence, map integration, UI integration, or renderer output hydration.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
