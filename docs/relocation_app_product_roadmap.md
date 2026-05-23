@@ -270,6 +270,10 @@ The Phase 2.10 observer contract defines what future visual layers may safely kn
 
 The Phase 2.11 execution policy remains contract-only. It defines foreground guarantees, concurrency budgets, throttling, cancellation propagation, hydration gates, readiness distinctions, observer cadence, and speculative work limits without executing jobs, fetching, rendering, interpreting astrology, or implementing AI/intake.
 
+### Phase 2.12 Dev Runtime Bridge
+
+The Phase 2.12 bridge is dev/smoke-only metadata plumbing. It proves the committed semantic/cache/orchestration/lifecycle/observer/policy chain can run in a browser context without fetches, workers, rendering, DOM or map writes, persistence, production feature flags, or renderer takeover.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
