@@ -248,6 +248,10 @@ Optimization candidates require validation before use: six-house boundary deriva
 
 The Phase 2.6 cache store remains local/in-memory scaffold only. It may store sanitized semantic cache payloads and scaffold metadata, but must not persist renderer output, debug/aura state, account/user data, backend IDs, fetch responses, workers, GeoJSON, canvas pixels, or map layers.
 
+### Phase 2.7 Runtime Orchestration Contract
+
+The Phase 2.7 orchestration layer remains contract-only. It defines foreground/background ownership, cancellation, stale-job handling, and sanitized cache-hydration envelopes without fetch execution, rendering, workers, UI changes, persistent storage, or runtime map wiring.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
