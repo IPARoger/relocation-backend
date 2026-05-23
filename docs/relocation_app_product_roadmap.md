@@ -262,6 +262,10 @@ The Phase 2.8 mock runtime harness proves the saved-investigation to cache-key t
 
 The Phase 2.9 execution bridge remains lifecycle-contract only. It simulates job state transitions, foreground ownership, stale propagation, logical preemption, observer-safe progress, and conceptual hydration eligibility without real execution, fetches, workers, rendering, persistence, or map/UI integration.
 
+### Phase 2.10 Observer / Progress Semantics
+
+The Phase 2.10 observer contract defines what future visual layers may safely know about queued, running, partial, hydrated, completed, stale, cancelled, and error states. Observers remain read-only and must not fabricate progress, imply truth before validation, expose runtime internals, or control scheduler/execution behavior.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
