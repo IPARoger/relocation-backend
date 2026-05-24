@@ -30,15 +30,20 @@ Production readiness visibility:
 - `8d93fc7` added the Phase 2.30 debug dev overlay container.
 - `3f8ced0` added Phase 2.31 renderer-adjacent debug metadata.
 - `5ad8610` added Phase 2.32 dev renderer integration proof.
+- `564487b` added Phase 2.33 isolated debug renderer test marker.
 - The debug dev overlay container is absent by default and appears only under `?productionShadowSelfCheck=1`.
 - The readiness indicator and renderer-adjacent metadata are hosted inside the debug dev overlay container.
 - The dev renderer proof appears only under `?productionShadowSelfCheck=1&devRendererProof=1`.
-- `?productionShadowSelfCheck=1` alone does not activate the dev renderer proof.
+- The Phase 2.33 marker appears only under `?productionShadowSelfCheck=1&devRendererProof=1&devRendererTestLayer=1`.
+- `?productionShadowSelfCheck=1` alone does not activate the dev renderer proof or test marker.
+- `?productionShadowSelfCheck=1&devRendererProof=1` does not activate the test marker.
 - It is absent by default and must not be treated as product UI.
 - It reports sanitized readiness metadata only and does not change production behavior.
 - Phase 2.31 is renderer-adjacent metadata only, not renderer integration.
 - Phase 2.32 is metadata-only dev renderer proof.
+- Phase 2.33 is overlay-contained debug metadata/marker only.
 - No real rendering has been created.
+- No Leaflet layer was added.
 - No production map layers were added.
 - No production layer hydration occurred.
 
@@ -103,7 +108,7 @@ Governance posture:
 - no persistence,
 - and `rendererSubstrate = legacy_search_regions`.
 
-## Phase 2.24-2.32 Production Shadow Governance Chain
+## Phase 2.24-2.33 Production Shadow Governance Chain
 
 The production-shadow chain proves readiness evaluation and visibility boundaries without changing default production behavior:
 
@@ -116,6 +121,7 @@ The production-shadow chain proves readiness evaluation and visibility boundarie
 - `8d93fc7` — Phase 2.30 debug dev overlay container.
 - `3f8ced0` — Phase 2.31 renderer-adjacent debug metadata.
 - `5ad8610` — Phase 2.32 dev renderer integration proof.
+- `564487b` — Phase 2.33 isolated debug renderer test marker.
 
 Governance posture:
 
@@ -131,6 +137,7 @@ Governance posture:
 - no product UI,
 - no visible renderer integration,
 - no real rendering,
+- no Leaflet layer creation,
 - no production map layer creation,
 - no production layer hydration,
 - and no aura production integration.
@@ -214,7 +221,7 @@ Resolved governance progress:
 
 - Phase 2.19-2.21 terminology purification was committed.
 - Phase 2.22 and Phase 2.23 were committed as isolated sandbox scaffolds.
-- Phase 2.24-2.32 established debug-only production readiness checks, visible dev-only readiness metadata, a bounded dev overlay container, renderer-adjacent placeholder metadata, and metadata-only dev renderer proof without production behavior change.
+- Phase 2.24-2.33 established debug-only production readiness checks, visible dev-only readiness metadata, a bounded dev overlay container, renderer-adjacent placeholder metadata, metadata-only dev renderer proof, and an isolated debug renderer test marker without production behavior change.
 - `substrate_adapter.js` was production-loaded but untracked; it is now committed as an inert scaffold.
 - `aura_field_engine.py` was backend-imported but untracked; it is now committed as debug/prototype backend support.
 
@@ -223,9 +230,9 @@ Current cautions:
 - Keep `phase2_cache_scheduler.js` out of renderer work unless scheduler/cache execution is explicitly in scope.
 - `phase2_cache_scheduler.js` remains sandbox/prototype for the current path.
 - Do not mix aura visual work with the production readiness bridge.
-- Do not treat the debug readiness indicator, Phase 2.30 debug dev overlay container, Phase 2.31 renderer-adjacent metadata, or Phase 2.32 dev renderer proof as product UI.
+- Do not treat the debug readiness indicator, Phase 2.30 debug dev overlay container, Phase 2.31 renderer-adjacent metadata, Phase 2.32 dev renderer proof, or Phase 2.33 debug marker as product UI.
 - Do not implement aura rendering until the visual concept is approved.
-- Do not proceed to real renderer output without a Phase 2.33 decision review.
+- Do not proceed to a real Leaflet/debug layer or production renderer output without a Phase 2.34 decision review.
 
 ---
 
@@ -233,11 +240,12 @@ Current cautions:
 
 Next recommended action:
 
-1. Perform a read-only Phase 2.33 decision review.
-2. Likely Phase 2.33 options:
-   - A. one more renderer contract boundary check,
-   - B. first isolated debug test layer,
-   - C. workspace hygiene/quarantine,
-   - D. aura visual mockup work separately.
+1. Perform a read-only Phase 2.34 decision review.
+2. Likely Phase 2.34 options:
+   - A. actual isolated debug Leaflet test layer,
+   - B. visible QA/screenshot review of the debug overlay chain,
+   - C. one more renderer contract boundary,
+   - D. workspace hygiene/quarantine,
+   - E. aura visual mockup work separately.
 
-Do not proceed to real renderer output until the Phase 2.33 decision review confirms scope and required validation.
+Do not proceed to a real Leaflet/debug layer or production renderer output until the Phase 2.34 decision review confirms scope and required validation.
