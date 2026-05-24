@@ -282,6 +282,10 @@ The Phase 2.13 runtime remains dev/smoke-only and single-request. It may simulat
 
 The Phase 2.14 fetch bridge remains dev/smoke-only and single-request. It may call one existing backend endpoint and sanitize the response into metadata-only cache/hydration envelopes, but must not expose raw backend payloads to observers, render overlays, create map layers, persist data, start workers, or replace production runtime behavior.
 
+### Phase 2.15 Renderer Hydration Sandbox
+
+The Phase 2.15 sandbox remains dev-only and reversible. It may hydrate one isolated visual proof from sanitized runtime metadata, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never mutate production overlay registries, never persist state, and never replace production rendering.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
