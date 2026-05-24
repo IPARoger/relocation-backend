@@ -1,0 +1,588 @@
+{
+  "description": "Truth-grid boundary refinement validation for /search-regions",
+  "generated_at_utc": "2026-05-24T15:58:46.798959+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "case_count": 4,
+  "overall_pass": true,
+  "obvious_performance_risk": false,
+  "cases": [
+    {
+      "case_id": "baseline_sun_1st_world",
+      "case_type": "house",
+      "unrefined": {
+        "elapsed_seconds": 1.8513,
+        "feature_count": 142,
+        "polygon_feature_count": 142,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": false,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {
+            "sun": {
+              "sample_count": 83040,
+              "merge_step": 0.75,
+              "refine_samples": 0,
+              "classify_seconds": 1.522079375004978,
+              "merge_validate_seconds": 0.26736199999868404,
+              "houses_cached": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ],
+              "houses_returned": [
+                1
+              ]
+            }
+          },
+          "total_seconds": 1.7896709159977036,
+          "feature_count": 142
+        },
+        "angle_sign_metadata": {},
+        "boundary_refined_property_count": 0,
+        "coarse_resolution_property_count": 142,
+        "validation_contradiction_sum": 0
+      },
+      "refined": {
+        "elapsed_seconds": 2.1845,
+        "feature_count": 277,
+        "polygon_feature_count": 277,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": true,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {
+            "sun": {
+              "sample_count": 105756,
+              "merge_step": 0.375,
+              "refine_samples": 22716,
+              "classify_seconds": 1.3356862910004565,
+              "merge_validate_seconds": 0.8078911670017987,
+              "houses_cached": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ],
+              "houses_returned": [
+                1
+              ]
+            }
+          },
+          "total_seconds": 2.144052208008361,
+          "feature_count": 277
+        },
+        "angle_sign_metadata": {},
+        "boundary_refined_property_count": 277,
+        "coarse_resolution_property_count": 277,
+        "validation_contradiction_sum": 0
+      },
+      "comparison": {
+        "feature_count_delta": 135,
+        "polygon_feature_count_delta": 135,
+        "elapsed_seconds_delta": 0.3332,
+        "elapsed_seconds_ratio": 1.18,
+        "refined_has_boundary_properties": true,
+        "refined_has_coarse_resolution_properties": true,
+        "refined_validation_contradictions": 0
+      },
+      "probe_results": [
+        {
+          "name": "americas_control",
+          "lat": 20.0,
+          "lon": -90.0,
+          "point_truth": false,
+          "point_house": 12,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "atlantic_control",
+          "lat": 0.0,
+          "lon": -30.0,
+          "point_truth": false,
+          "point_house": 10,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "dateline_control",
+          "lat": 5.0,
+          "lon": 179.0,
+          "point_truth": false,
+          "point_house": 3,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        }
+      ],
+      "overall_pass": true
+    },
+    {
+      "case_id": "high_north_sun_1st_greenland",
+      "case_type": "house",
+      "unrefined": {
+        "elapsed_seconds": 1.0277,
+        "feature_count": 137,
+        "polygon_feature_count": 137,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": false,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {
+            "sun": {
+              "sample_count": 83040,
+              "merge_step": 0.75,
+              "refine_samples": 0,
+              "classify_seconds": 0.5979115420050221,
+              "merge_validate_seconds": 0.23343991699221078,
+              "houses_cached": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ],
+              "houses_returned": [
+                1
+              ]
+            }
+          },
+          "total_seconds": 1.0194260830030544,
+          "feature_count": 137
+        },
+        "angle_sign_metadata": {},
+        "boundary_refined_property_count": 0,
+        "coarse_resolution_property_count": 137,
+        "validation_contradiction_sum": 0
+      },
+      "refined": {
+        "elapsed_seconds": 2.1244,
+        "feature_count": 280,
+        "polygon_feature_count": 280,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": true,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {
+            "sun": {
+              "sample_count": 105800,
+              "merge_step": 0.375,
+              "refine_samples": 22760,
+              "classify_seconds": 1.3354612499970244,
+              "merge_validate_seconds": 0.7735823330003768,
+              "houses_cached": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ],
+              "houses_returned": [
+                1
+              ]
+            }
+          },
+          "total_seconds": 2.1094284169957973,
+          "feature_count": 280
+        },
+        "angle_sign_metadata": {},
+        "boundary_refined_property_count": 280,
+        "coarse_resolution_property_count": 280,
+        "validation_contradiction_sum": 0
+      },
+      "comparison": {
+        "feature_count_delta": 143,
+        "polygon_feature_count_delta": 143,
+        "elapsed_seconds_delta": 1.0967,
+        "elapsed_seconds_ratio": 2.067,
+        "refined_has_boundary_properties": true,
+        "refined_has_coarse_resolution_properties": true,
+        "refined_validation_contradictions": 0
+      },
+      "probe_results": [
+        {
+          "name": "gap_ocean_1",
+          "lat": 64.0263,
+          "lon": -30.2749,
+          "point_truth": false,
+          "point_house": 2,
+          "unrefined_inside": true,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": false,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "inside_yellow_1",
+          "lat": 59.933,
+          "lon": -16.875,
+          "point_truth": true,
+          "point_house": 1,
+          "unrefined_inside": true,
+          "refined_inside": true,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "greenland_east",
+          "lat": 64.5478,
+          "lon": -47.7559,
+          "point_truth": false,
+          "point_house": 4,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "seam_control",
+          "lat": 62.0,
+          "lon": 179.0,
+          "point_truth": false,
+          "point_house": 9,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        }
+      ],
+      "overall_pass": true
+    },
+    {
+      "case_id": "baseline_dc_cancer",
+      "case_type": "angle_sign",
+      "unrefined": {
+        "elapsed_seconds": 0.4885,
+        "feature_count": 143,
+        "polygon_feature_count": 143,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": false,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {},
+          "total_seconds": 5.916997906751931e-06,
+          "feature_count": 0
+        },
+        "angle_sign_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": false,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "angles": {
+            "DC": {
+              "sample_count": 83040,
+              "merge_step": 0.75,
+              "refine_samples": 0,
+              "classify_seconds": 0.46071445899724495,
+              "merge_validate_seconds": 0.016774082992924377,
+              "signs_returned": [
+                "cancer"
+              ]
+            }
+          },
+          "total_seconds": 0.4777469580003526,
+          "feature_count": 143
+        },
+        "boundary_refined_property_count": 0,
+        "coarse_resolution_property_count": 143,
+        "validation_contradiction_sum": 0
+      },
+      "refined": {
+        "elapsed_seconds": 1.3031,
+        "feature_count": 288,
+        "polygon_feature_count": 288,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": true,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {},
+          "total_seconds": 9.57996235229075e-07,
+          "feature_count": 0
+        },
+        "angle_sign_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": true,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "angles": {
+            "DC": {
+              "sample_count": 105848,
+              "merge_step": 0.375,
+              "refine_samples": 22808,
+              "classify_seconds": 1.2192889580037445,
+              "merge_validate_seconds": 0.06687799999781419,
+              "signs_returned": [
+                "cancer"
+              ]
+            }
+          },
+          "total_seconds": 1.2865770000062184,
+          "feature_count": 288
+        },
+        "boundary_refined_property_count": 288,
+        "coarse_resolution_property_count": 288,
+        "validation_contradiction_sum": 0
+      },
+      "comparison": {
+        "feature_count_delta": 145,
+        "polygon_feature_count_delta": 145,
+        "elapsed_seconds_delta": 0.8146,
+        "elapsed_seconds_ratio": 2.668,
+        "refined_has_boundary_properties": true,
+        "refined_has_coarse_resolution_properties": true,
+        "refined_validation_contradictions": 0
+      },
+      "probe_results": [
+        {
+          "name": "dc_cancer_control",
+          "lat": 20.0,
+          "lon": -90.0,
+          "point_truth": false,
+          "point_sign": "capricorn",
+          "angle_degree": 279.16548890890914,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "dc_cancer_edge_candidate",
+          "lat": 0.0,
+          "lon": -30.0,
+          "point_truth": false,
+          "point_sign": "aquarius",
+          "angle_degree": 328.8941143219148,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "dateline_control",
+          "lat": 5.0,
+          "lon": 179.0,
+          "point_truth": false,
+          "point_sign": "libra",
+          "angle_degree": 180.03633145976133,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        }
+      ],
+      "overall_pass": true
+    },
+    {
+      "case_id": "high_north_ic_cancer",
+      "case_type": "angle_sign",
+      "unrefined": {
+        "elapsed_seconds": 0.4825,
+        "feature_count": 1,
+        "polygon_feature_count": 1,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": false,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {},
+          "total_seconds": 6.67001586407423e-07,
+          "feature_count": 0
+        },
+        "angle_sign_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": false,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "angles": {
+            "IC": {
+              "sample_count": 83040,
+              "merge_step": 0.75,
+              "refine_samples": 0,
+              "classify_seconds": 0.46464729199942667,
+              "merge_validate_seconds": 0.01645674998871982,
+              "signs_returned": [
+                "cancer"
+              ]
+            }
+          },
+          "total_seconds": 0.4811297080013901,
+          "feature_count": 1
+        },
+        "boundary_refined_property_count": 0,
+        "coarse_resolution_property_count": 1,
+        "validation_contradiction_sum": 0
+      },
+      "refined": {
+        "elapsed_seconds": 1.2722,
+        "feature_count": 1,
+        "polygon_feature_count": 1,
+        "generation_mode": "truth_grid",
+        "truth_grid_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": true,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "planets": {},
+          "total_seconds": 5.830079317092896e-07,
+          "feature_count": 0
+        },
+        "angle_sign_metadata": {
+          "generation_mode": "truth_grid",
+          "resolution": 0.75,
+          "boundary_refine": true,
+          "latitude_cap": [
+            -65.0,
+            65.0
+          ],
+          "angles": {
+            "IC": {
+              "sample_count": 104256,
+              "merge_step": 0.375,
+              "refine_samples": 21216,
+              "classify_seconds": 1.2053827500058105,
+              "merge_validate_seconds": 0.06536808300006669,
+              "signs_returned": [
+                "cancer"
+              ]
+            }
+          },
+          "total_seconds": 1.2707795000023907,
+          "feature_count": 1
+        },
+        "boundary_refined_property_count": 1,
+        "coarse_resolution_property_count": 1,
+        "validation_contradiction_sum": 0
+      },
+      "comparison": {
+        "feature_count_delta": 0,
+        "polygon_feature_count_delta": 0,
+        "elapsed_seconds_delta": 0.7897,
+        "elapsed_seconds_ratio": 2.637,
+        "refined_has_boundary_properties": true,
+        "refined_has_coarse_resolution_properties": true,
+        "refined_validation_contradictions": 0
+      },
+      "probe_results": [
+        {
+          "name": "greenland_gap",
+          "lat": 64.0263,
+          "lon": -30.2749,
+          "point_truth": true,
+          "point_sign": "cancer",
+          "angle_degree": 105.91425774448555,
+          "unrefined_inside": true,
+          "refined_inside": true,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "ic_high_lat_control",
+          "lat": 59.933,
+          "lon": -16.875,
+          "point_truth": true,
+          "point_sign": "cancer",
+          "angle_degree": 118.54475938584159,
+          "unrefined_inside": true,
+          "refined_inside": true,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        },
+        {
+          "name": "seam_control",
+          "lat": 62.0,
+          "lon": 179.0,
+          "point_truth": false,
+          "point_sign": "aquarius",
+          "angle_degree": 314.0719362022151,
+          "unrefined_inside": false,
+          "refined_inside": false,
+          "unrefined_matches_point_truth": true,
+          "refined_matches_point_truth": true
+        }
+      ],
+      "overall_pass": true
+    }
+  ],
+  "classification": "accepted_production_truth_grid_improvement"
+}

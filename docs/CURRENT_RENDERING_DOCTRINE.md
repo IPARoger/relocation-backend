@@ -41,6 +41,12 @@ Implementation must follow `docs/PHASE_C_IMPLEMENTATION_PROTOCOL.md` for reversi
 
 ---
 
+## Legacy `/search-regions` Truth Grid
+
+The current legacy truth-grid `/search-regions` path uses boundary refinement by default through `truth_grid_boundary_refine=true`. This is accepted production behavior after dedicated validation in `validation/narratives/truth_grid_boundary_refine.md`.
+
+---
+
 ## Phase-2 cache (product substrate)
 
 Implemented in **`map_SANDBOX_phase2_cache.html`** (served at `/map_SANDBOX_phase2_cache.html`).
