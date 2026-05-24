@@ -1896,6 +1896,21 @@ if (productionShadowSelfCheck) {
             scoring_surface_created: false,
             final_truth_claimed: false,
         });
+        const rendererAdjacent = Object.freeze({
+            renderer_adjacent_placeholder: true,
+            debug_only: true,
+            active_substrate: ACTIVE_RENDERER_SUBSTRATE,
+            substrate_flip_requested: false,
+            real_rendering_created: false,
+            production_layers_hydrated: false,
+            raw_payload_exposed: false,
+            scheduler_cache_execution: false,
+            aura_output_created: false,
+            product_ui_created: false,
+            recommendation_surface_created: false,
+            scoring_surface_created: false,
+            final_truth_claimed: false,
+        });
         return Object.freeze({
             schema_version: 1,
             mode: "debug_production_shadow_self_check_only",
@@ -1904,12 +1919,14 @@ if (productionShadowSelfCheck) {
             rendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
             legacySearchRegionsActive: ACTIVE_RENDERER_SUBSTRATE === RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS,
             readiness,
+            rendererAdjacent,
             ...selfCheck,
         });
     };
     function renderProductionShadowDebugIndicator() {
         const state = window.__rmProductionShadowState();
         const readiness = state.readiness || {};
+        const rendererAdjacent = state.rendererAdjacent || {};
         const container = document.createElement("div");
         container.id = "productionShadowDevOverlay";
         container.className = "production-shadow-dev-overlay visible";
@@ -1946,6 +1963,34 @@ if (productionShadowSelfCheck) {
             panel.appendChild(row);
         });
         container.appendChild(panel);
+        const rendererPanel = document.createElement("div");
+        rendererPanel.id = "productionShadowRendererAdjacentMetadata";
+        rendererPanel.className = "production-shadow-debug-indicator";
+        rendererPanel.dataset.productionShadowRendererAdjacentMetadata = "1";
+        const rendererRows = [
+            ["renderer_adjacent_placeholder", String(rendererAdjacent.renderer_adjacent_placeholder === true)],
+            ["debug_only", String(rendererAdjacent.debug_only === true)],
+            ["active_substrate", rendererAdjacent.active_substrate || state.rendererSubstrate],
+            ["substrate_flip_requested", String(rendererAdjacent.substrate_flip_requested === true)],
+            ["real_rendering_created", String(rendererAdjacent.real_rendering_created === true)],
+            ["production_layers_hydrated", String(rendererAdjacent.production_layers_hydrated === true)],
+            ["raw_payload_exposed", String(rendererAdjacent.raw_payload_exposed === true)],
+            ["scheduler_cache_execution", String(rendererAdjacent.scheduler_cache_execution === true)],
+            ["aura_output_created", String(rendererAdjacent.aura_output_created === true)],
+            ["product_ui_created", String(rendererAdjacent.product_ui_created === true)],
+            ["recommendation_surface_created", String(rendererAdjacent.recommendation_surface_created === true)],
+            ["scoring_surface_created", String(rendererAdjacent.scoring_surface_created === true)],
+            ["final_truth_claimed", String(rendererAdjacent.final_truth_claimed === true)],
+        ];
+        const rendererTitle = document.createElement("b");
+        rendererTitle.textContent = "DEV DEBUG renderer-adjacent metadata";
+        rendererPanel.appendChild(rendererTitle);
+        rendererRows.forEach(([label, value]) => {
+            const row = document.createElement("div");
+            row.textContent = `${label}: ${value}`;
+            rendererPanel.appendChild(row);
+        });
+        container.appendChild(rendererPanel);
         document.getElementById("map")?.appendChild(container);
     }
     renderProductionShadowDebugIndicator();
