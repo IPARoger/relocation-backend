@@ -2,7 +2,7 @@
   "description": "map_CURRENT.html aura debug/prototype smoke test",
   "status": "debug/prototype validation only; not production default smoke",
   "base_url": "http://127.0.0.1:8000",
-  "generated_at_utc": "2026-05-24T16:40:23.411963+00:00",
+  "generated_at_utc": "2026-05-24T19:22:58.768186+00:00",
   "overall_pass": true,
   "checks": [
     {
@@ -10,7 +10,7 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779640736&skipOnboarding=1&rasterAura=1&debugAura=1"
+        "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779650509&skipOnboarding=1&rasterAura=1&debugAura=1"
       }
     },
     {
@@ -71,7 +71,7 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779640746&skipOnboarding=1&debugAdaptive=1&debugAura=1"
+        "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779650515&skipOnboarding=1&debugAdaptive=1&debugAura=1"
       }
     },
     {
