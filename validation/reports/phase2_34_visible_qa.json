@@ -1,0 +1,278 @@
+{
+  "all_pass": false,
+  "base_url": "http://127.0.0.1:8000",
+  "description": "Visible QA screenshot pass for debug overlay chain",
+  "generated_at_utc": "2026-05-24T20:07:02.421192+00:00",
+  "phase": "2.34",
+  "production_smoke": {
+    "command": "./venv/bin/python scripts/smoke_map_current.py",
+    "note": "Production smoke passed after the screenshot QA capture; generated map_current_smoke.json timestamp churn was not retained as a Phase 2.34 artifact.",
+    "overall_pass": true
+  },
+  "programmatic_findings": {
+    "active_substrate_remains_legacy_search_regions": true,
+    "all_programmatic_checks_passed": true,
+    "no_aura_output_invoked": true,
+    "no_backend_fetch_scheduler_cache_side_effects": true,
+    "no_leaflet_or_production_layer_added_by_overlay": true,
+    "no_raw_payload_recommendation_scoring_final_truth": true
+  },
+  "qa_decision": "Do not proceed directly to an actual isolated debug Leaflet layer; perform one visual/layout adjustment or design a scroll/collapse treatment for the debug overlay first.",
+  "results": [
+    {
+      "console_errors": [],
+      "id": "default",
+      "label": "Default production page",
+      "overlay": {
+        "critical_control_blocked": false,
+        "exists": false,
+        "intersections": [],
+        "proof_panel_exists": false,
+        "rect": null,
+        "test_marker_panel_exists": false,
+        "text_excerpt": ""
+      },
+      "programmatic_checks": {
+        "active_substrate_legacy": true,
+        "canonical_branch_inactive": true,
+        "critical_controls_not_blocked": true,
+        "http_status": 200,
+        "no_aura_output": true,
+        "no_console_errors": true,
+        "no_fetch_caused_by_hook": true,
+        "no_production_layer_hydration": true,
+        "no_production_registry_mutation": true,
+        "no_raw_payload_exposed": true,
+        "no_recommendation_scoring_final_truth": true
+      },
+      "request_count_after_hook": 23,
+      "request_count_before_hook": 23,
+      "screenshot": "validation/screenshots/phase2_34_default.png",
+      "state_summary": {
+        "aura_initialized": false,
+        "aura_layers": 0,
+        "canonical_renderer_branch_active": false,
+        "dev_renderer_proof_enabled": null,
+        "dev_renderer_test_layer_enabled": null,
+        "isolated_debug_layer_count": null,
+        "map_layer_count": 67,
+        "renderer_substrate": "legacy_search_regions"
+      },
+      "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779653216&skipOnboarding=1"
+    },
+    {
+      "console_errors": [],
+      "id": "self_check",
+      "label": "Self-check overlay",
+      "overlay": {
+        "critical_control_blocked": false,
+        "exists": true,
+        "intersections": [
+          {
+            "bottom": 960,
+            "className": "leaflet-control-attribution leaflet-control",
+            "height": 16.796875,
+            "id": "",
+            "left": 1078.65625,
+            "right": 1140,
+            "text": "Leaflet",
+            "top": 943.203125,
+            "visible": true,
+            "width": 61.34375
+          }
+        ],
+        "proof_panel_exists": false,
+        "rect": {
+          "bottom": 948,
+          "height": 442.625,
+          "left": 847.71875,
+          "right": 1128,
+          "top": 505.375,
+          "width": 280.28125
+        },
+        "test_marker_panel_exists": false,
+        "text_excerpt": "DEV DEBUG overlay containerDEV DEBUG readiness metadatastatus: production_candidatepassed: truesubstrate: legacy_search_regionsdebug_only: truedefault_behavior_changed: falsedebug_indicator_visible: truerenderer_substrate_changed: falseaura_rendering_invoked: falseraw_payload_exposed: falserecommendation_surface_created: falsescoring_surface_created: falsefinal_truth_claimed: falseDEV DEBUG renderer-adjacent metadatarenderer_adjacent_placeholder: truedebug_only: trueactive_substrate: legacy_sear"
+      },
+      "programmatic_checks": {
+        "active_substrate_legacy": true,
+        "canonical_branch_inactive": true,
+        "critical_controls_not_blocked": true,
+        "http_status": 200,
+        "no_aura_output": true,
+        "no_console_errors": true,
+        "no_fetch_caused_by_hook": true,
+        "no_production_layer_hydration": true,
+        "no_production_registry_mutation": true,
+        "no_raw_payload_exposed": true,
+        "no_recommendation_scoring_final_truth": true
+      },
+      "request_count_after_hook": 23,
+      "request_count_before_hook": 23,
+      "screenshot": "validation/screenshots/phase2_34_self_check.png",
+      "state_summary": {
+        "aura_initialized": false,
+        "aura_layers": 0,
+        "canonical_renderer_branch_active": false,
+        "dev_renderer_proof_enabled": false,
+        "dev_renderer_test_layer_enabled": false,
+        "isolated_debug_layer_count": 0,
+        "map_layer_count": 67,
+        "renderer_substrate": "legacy_search_regions"
+      },
+      "url": "http://127.0.0.1:8000/map_CURRENT.html?productionShadowSelfCheck=1&bust=1779653217&skipOnboarding=1"
+    },
+    {
+      "console_errors": [],
+      "id": "dev_renderer_proof",
+      "label": "Dev renderer proof",
+      "overlay": {
+        "critical_control_blocked": false,
+        "exists": true,
+        "intersections": [
+          {
+            "bottom": 960,
+            "className": "leaflet-control-attribution leaflet-control",
+            "height": 16.796875,
+            "id": "",
+            "left": 1078.65625,
+            "right": 1140,
+            "text": "Leaflet",
+            "top": 943.203125,
+            "visible": true,
+            "width": 61.34375
+          }
+        ],
+        "proof_panel_exists": true,
+        "rect": {
+          "bottom": 948,
+          "height": 669.28125,
+          "left": 847.71875,
+          "right": 1128,
+          "top": 278.71875,
+          "width": 280.28125
+        },
+        "test_marker_panel_exists": false,
+        "text_excerpt": "DEV DEBUG overlay containerDEV DEBUG readiness metadatastatus: production_candidatepassed: truesubstrate: legacy_search_regionsdebug_only: truedefault_behavior_changed: falsedebug_indicator_visible: truerenderer_substrate_changed: falseaura_rendering_invoked: falseraw_payload_exposed: falserecommendation_surface_created: falsescoring_surface_created: falsefinal_truth_claimed: falseDEV DEBUG renderer-adjacent metadatarenderer_adjacent_placeholder: truedebug_only: trueactive_substrate: legacy_sear"
+      },
+      "programmatic_checks": {
+        "active_substrate_legacy": true,
+        "canonical_branch_inactive": true,
+        "critical_controls_not_blocked": true,
+        "http_status": 200,
+        "no_aura_output": true,
+        "no_console_errors": true,
+        "no_fetch_caused_by_hook": true,
+        "no_production_layer_hydration": true,
+        "no_production_registry_mutation": true,
+        "no_raw_payload_exposed": true,
+        "no_recommendation_scoring_final_truth": true
+      },
+      "request_count_after_hook": 23,
+      "request_count_before_hook": 23,
+      "screenshot": "validation/screenshots/phase2_34_dev_renderer_proof.png",
+      "state_summary": {
+        "aura_initialized": false,
+        "aura_layers": 0,
+        "canonical_renderer_branch_active": false,
+        "dev_renderer_proof_enabled": true,
+        "dev_renderer_test_layer_enabled": false,
+        "isolated_debug_layer_count": 0,
+        "map_layer_count": 67,
+        "renderer_substrate": "legacy_search_regions"
+      },
+      "url": "http://127.0.0.1:8000/map_CURRENT.html?productionShadowSelfCheck=1&devRendererProof=1&bust=1779653218&skipOnboarding=1"
+    },
+    {
+      "console_errors": [],
+      "id": "dev_renderer_test_marker",
+      "label": "Dev renderer test marker",
+      "overlay": {
+        "critical_control_blocked": false,
+        "exists": true,
+        "intersections": [
+          {
+            "bottom": 960,
+            "className": "leaflet-control-attribution leaflet-control",
+            "height": 16.796875,
+            "id": "",
+            "left": 1078.65625,
+            "right": 1140,
+            "text": "Leaflet",
+            "top": 943.203125,
+            "visible": true,
+            "width": 61.34375
+          }
+        ],
+        "proof_panel_exists": true,
+        "rect": {
+          "bottom": 948,
+          "height": 940.46875,
+          "left": 841.09375,
+          "right": 1128,
+          "top": 7.53125,
+          "width": 286.90625
+        },
+        "test_marker_panel_exists": true,
+        "text_excerpt": "DEV DEBUG overlay containerDEV DEBUG readiness metadatastatus: production_candidatepassed: truesubstrate: legacy_search_regionsdebug_only: truedefault_behavior_changed: falsedebug_indicator_visible: truerenderer_substrate_changed: falseaura_rendering_invoked: falseraw_payload_exposed: falserecommendation_surface_created: falsescoring_surface_created: falsefinal_truth_claimed: falseDEV DEBUG renderer-adjacent metadatarenderer_adjacent_placeholder: truedebug_only: trueactive_substrate: legacy_sear"
+      },
+      "programmatic_checks": {
+        "active_substrate_legacy": true,
+        "canonical_branch_inactive": true,
+        "critical_controls_not_blocked": true,
+        "http_status": 200,
+        "no_aura_output": true,
+        "no_console_errors": true,
+        "no_fetch_caused_by_hook": true,
+        "no_production_layer_hydration": true,
+        "no_production_registry_mutation": true,
+        "no_raw_payload_exposed": true,
+        "no_recommendation_scoring_final_truth": true
+      },
+      "request_count_after_hook": 23,
+      "request_count_before_hook": 23,
+      "screenshot": "validation/screenshots/phase2_34_dev_renderer_test_marker.png",
+      "state_summary": {
+        "aura_initialized": false,
+        "aura_layers": 0,
+        "canonical_renderer_branch_active": false,
+        "dev_renderer_proof_enabled": true,
+        "dev_renderer_test_layer_enabled": true,
+        "isolated_debug_layer_count": 1,
+        "map_layer_count": 67,
+        "renderer_substrate": "legacy_search_regions"
+      },
+      "url": "http://127.0.0.1:8000/map_CURRENT.html?productionShadowSelfCheck=1&devRendererProof=1&devRendererTestLayer=1&bust=1779653219&skipOnboarding=1"
+    }
+  ],
+  "screenshots": {
+    "default": "validation/screenshots/phase2_34_default.png",
+    "dev_renderer_proof": "validation/screenshots/phase2_34_dev_renderer_proof.png",
+    "dev_renderer_test_marker": "validation/screenshots/phase2_34_dev_renderer_test_marker.png",
+    "self_check": "validation/screenshots/phase2_34_self_check.png"
+  },
+  "visual_findings": {
+    "critical_controls_not_blocked": true,
+    "debug_overlay_absent_by_default": true,
+    "default_ui_unchanged": true,
+    "dev_renderer_proof_not_product_ui": false,
+    "dev_renderer_test_marker_not_product_ui": false,
+    "map_readability_acceptable_for_qa": false,
+    "no_aura_rendering_visible": true,
+    "no_production_renderer_output_implied": true,
+    "overlay_clearly_dev_debug": true
+  },
+  "visual_review_findings": {
+    "critical_controls_not_blocked": true,
+    "debug_overlay_absent_by_default": true,
+    "default_ui_unchanged": true,
+    "dev_renderer_proof_not_user_facing": true,
+    "dev_renderer_test_marker_not_user_facing": true,
+    "map_city_readability": "acceptable for self-check and proof states; full test-marker state is readable as QA evidence but visually heavy and covers substantial map area",
+    "no_aura_rendering_visible": true,
+    "no_production_renderer_output_implied": true,
+    "overlay_clearly_dev_debug": true,
+    "overlay_does_not_look_like_product_ui": true,
+    "visual_layout_blocker_before_leaflet_layer": true,
+    "visual_layout_note": "Before adding an actual isolated Leaflet/debug map layer, reduce or scroll/collapse the full debug overlay so it does not consume nearly the full map height."
+  }
+}
