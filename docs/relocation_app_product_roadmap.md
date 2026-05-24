@@ -318,6 +318,10 @@ The Phase 2.22 sandbox remains dev-only and reversible. It may accumulate multip
 
 The Phase 2.23 sandbox remains dev-only and reversible. It may let multiple symbolic exploration domains coexist with structural continuity across implication and emergence records, but must preserve `rendererSubstrate = legacy_search_regions`, never merge domains into interpretive truth, never synthesize unified astrology meaning, never create recommendation logic, and never imply cross-domain convergence is validation.
 
+### Phase 2.24 Production Readiness Boundary Contract
+
+The Phase 2.24 contract remains dev-only and reversible. It may classify sandbox/runtime scaffold readiness for future production promotion, but must not promote any sandbox, mutate production paths, create UI, claim renderer ownership, call fetch, start workers, persist state, or weaken layer/runtime/truth/observer/cache/terminology validation gates.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
