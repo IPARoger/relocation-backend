@@ -467,7 +467,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
     color: #991b1b;
 }
 
-.production-shadow-debug-indicator {
+.production-shadow-dev-overlay {
     display: none;
     position: absolute;
     right: 12px;
@@ -483,8 +483,18 @@ html.map-panel-show-legend #panelLegend { display: block; }
     pointer-events: none;
 }
 
-.production-shadow-debug-indicator.visible {
+.production-shadow-dev-overlay.visible {
     display: block;
+}
+
+.production-shadow-dev-overlay-title {
+    display: block;
+    margin-bottom: 5px;
+    color: #fbbf24;
+}
+
+.production-shadow-debug-indicator {
+    margin-top: 4px;
 }
 
 .production-shadow-debug-indicator b {
@@ -1900,10 +1910,18 @@ if (productionShadowSelfCheck) {
     function renderProductionShadowDebugIndicator() {
         const state = window.__rmProductionShadowState();
         const readiness = state.readiness || {};
+        const container = document.createElement("div");
+        container.id = "productionShadowDevOverlay";
+        container.className = "production-shadow-dev-overlay visible";
+        container.setAttribute("aria-hidden", "true");
+        container.dataset.productionShadowDevOverlay = "1";
+        const containerTitle = document.createElement("b");
+        containerTitle.className = "production-shadow-dev-overlay-title";
+        containerTitle.textContent = "DEV DEBUG overlay container";
+        container.appendChild(containerTitle);
         const panel = document.createElement("div");
         panel.id = "productionShadowDebugIndicator";
-        panel.className = "production-shadow-debug-indicator visible";
-        panel.setAttribute("aria-hidden", "true");
+        panel.className = "production-shadow-debug-indicator";
         panel.dataset.productionShadowDebugIndicator = "1";
         const rows = [
             ["status", readiness.status || "unknown"],
@@ -1927,7 +1945,8 @@ if (productionShadowSelfCheck) {
             row.textContent = `${label}: ${value}`;
             panel.appendChild(row);
         });
-        document.getElementById("map")?.appendChild(panel);
+        container.appendChild(panel);
+        document.getElementById("map")?.appendChild(container);
     }
     renderProductionShadowDebugIndicator();
 }
