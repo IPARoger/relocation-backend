@@ -314,6 +314,10 @@ The Phase 2.21 sandbox remains dev-only and reversible. It may represent nearby 
 
 The Phase 2.22 sandbox remains dev-only and reversible. It may accumulate multiple implication fields and unresolved symbolic domains into exploratory emergent atmosphere, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist emergence state, never imply emergence is truth, interpretation, recommendation, or predictive authority, and never create visual theater.
 
+### Phase 2.23 Cross-Domain Continuity Sandbox
+
+The Phase 2.23 sandbox remains dev-only and reversible. It may let multiple symbolic exploration domains coexist with structural continuity across implication and emergence records, but must preserve `rendererSubstrate = legacy_search_regions`, never merge domains into interpretive truth, never synthesize unified astrology meaning, never create recommendation logic, and never imply cross-domain convergence is validation.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
