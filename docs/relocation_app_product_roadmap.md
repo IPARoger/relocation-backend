@@ -322,6 +322,10 @@ The Phase 2.23 sandbox remains dev-only and reversible. It may let multiple symb
 
 The Phase 2.24 contract remains dev-only and reversible. It may classify sandbox/runtime scaffold readiness for future production promotion, but must not promote any sandbox, mutate production paths, create UI, claim renderer ownership, call fetch, start workers, persist state, or weaken layer/runtime/truth/observer/cache/terminology validation gates.
 
+### Phase 2.25 Production Shadow Adapter Dev
+
+The Phase 2.25 adapter remains dev-only and reversible. It may evaluate production-adjacent candidate metadata through the Phase 2.24 readiness contract, but must not fetch, render, mutate DOM/map state, hydrate production layers, flip `legacy_search_regions`, or create recommendation/scoring/interpretive surfaces.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
