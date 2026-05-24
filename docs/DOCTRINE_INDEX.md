@@ -4,6 +4,10 @@
 
 **How to use:** Start here when you are about to change behavior, copy, or visuals. Follow links; do not treat this index as the full text of any doctrine.
 
+**Top constitutional authority:** `docs/constitutional/` is now the primary constitutional doctrine namespace. New AI sessions should bootstrap from `ai_context/constitutional_summary.md`, `ai_context/current_project_state.md`, and `docs/constitutional/README.md` before using this broader index for deeper reference.
+
+**Older doctrine and archaeology:** Older docs listed below remain valuable context, evidence, and active companions where not superseded. Treat them as secondary to `docs/constitutional/` on layer sovereignty, forbidden crossings, epistemic humility, runtime/renderer sovereignty, and implementation governance unless a later explicit decision says otherwise.
+
 **Pacing reminder:** **Philosophy and epistemology evolve slowly** (explicit revision). **Implementation details evolve quickly** (iterate with evidence), but **must not contradict** slow doctrine without updating the doctrine file.
 
 ---
@@ -188,16 +192,19 @@ Code is **not** indexed exhaustively here; this page names **doctrinal** compani
 
 ## Suggested reading order (new contributor or agent)
 
-1. `docs/DOCTRINE_INDEX.md` (this file)  
-2. `ai_context/core_product_truths.md`  
-3. `docs/CURRENT_RENDERING_DOCTRINE.md` then `docs/relocation_map_architecture.md` before any change to the polygon engine, overlay endpoints, or rendering substrate
-4. `docs/intentionality_and_symbolic_constraints.md`  
-5. `docs/visual_semantic_style_guide.md` §1 (truth hierarchy)  
-6. `docs/brand_and_experience_foundations.md` (interpretive sections)  
-7. `docs/review_contracts_and_governance.md` before a substantive change review  
-8. `docs/ai_constitution_and_review_architecture.md` before any interpretive AI ship  
-9. `docs/process/decision_and_uncertainty_framework.md` when adding heuristics, confidence UI, or fuzzy visual layers  
-10. `docs/process/doctrine_review_cycle.md` + `docs/process/archaeology_and_synthesis_workflow.md` when maintaining memory or after a major pivot  
+1. `ai_context/constitutional_summary.md`
+2. `ai_context/current_project_state.md`
+3. `docs/constitutional/README.md`
+4. `docs/DOCTRINE_INDEX.md` (this file) for deeper reference
+5. `ai_context/core_product_truths.md`
+6. `docs/CURRENT_RENDERING_DOCTRINE.md` then `docs/relocation_map_architecture.md` before any change to the polygon engine, overlay endpoints, or rendering substrate
+7. `docs/intentionality_and_symbolic_constraints.md`
+8. `docs/visual_semantic_style_guide.md` §1 (truth hierarchy)
+9. `docs/brand_and_experience_foundations.md` (interpretive sections)
+10. `docs/review_contracts_and_governance.md` before a substantive change review
+11. `docs/ai_constitution_and_review_architecture.md` before any interpretive AI ship
+12. `docs/process/decision_and_uncertainty_framework.md` when adding heuristics, confidence UI, or fuzzy visual layers
+13. `docs/process/doctrine_review_cycle.md` + `docs/process/archaeology_and_synthesis_workflow.md` when maintaining memory or after a major pivot
 
 For breadth without implementation detail: `docs/institutional_philosophical_synthesis.md`.  
 For external audit handoff: `docs/review_bundle/README.md`.
