@@ -310,6 +310,10 @@ The Phase 2.20 sandbox remains dev-only and reversible. It may represent unresol
 
 The Phase 2.21 sandbox remains dev-only and reversible. It may represent nearby unresolved implication fields from ambiguity/adaptive domains with directional continuity and supersession semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist implication state, never imply implication is confirmed truth, and never synthesize speculative astrology meaning.
 
+### Phase 2.22 Emergence Field Sandbox
+
+The Phase 2.22 sandbox remains dev-only and reversible. It may accumulate multiple implication fields and unresolved symbolic domains into exploratory emergent atmosphere, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist emergence state, never imply emergence is truth, interpretation, recommendation, or predictive authority, and never create visual theater.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
