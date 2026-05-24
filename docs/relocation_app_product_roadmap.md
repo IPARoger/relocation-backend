@@ -302,6 +302,10 @@ The Phase 2.18 sandbox remains dev-only and reversible. It may progress coarse o
 
 The Phase 2.19 sandbox remains dev-only and reversible. It may prioritize progressive refinement density by semantic importance, boundary pressure, interior stability, and budget metadata, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist adaptive state, and never imply high-density regions are more true than sparse stable interiors.
 
+### Phase 2.20 Ambiguity Domain Sandbox
+
+The Phase 2.20 sandbox remains dev-only and reversible. It may represent unresolved or overlapping ambiguity domains with candidate continuity and supersession semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist ambiguity state, never imply ambiguity is error, and never imply overlapping candidates are simultaneously confirmed truth.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
