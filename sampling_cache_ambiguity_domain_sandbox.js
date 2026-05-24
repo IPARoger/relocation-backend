@@ -1,7 +1,7 @@
 /*
-  Phase 2.20 dev-only ambiguity-domain sandbox.
+  Phase 2.20 dev-only ambiguity-candidate-group sandbox.
 
-  This sandbox represents unresolved or overlapping ambiguity domains from
+  This sandbox represents unresolved or overlapping ambiguity candidate_groups from
   sanitized metadata. It does not own production rendering, mutate production
   overlay registries, persist state, start workers, fetch, or expose raw
   backend payloads.
@@ -11,8 +11,8 @@
 
   const VERSION = 1;
   const RENDERER_SUBSTRATE = "legacy_search_regions";
-  const SANDBOX_MODE = "dev_ambiguity_domain_sandbox_only";
-  const OVERLAY_CLASS = "phase2-20-ambiguity-domain-sandbox-overlay";
+  const SANDBOX_MODE = "dev_ambiguity_candidate_group_sandbox_only";
+  const OVERLAY_CLASS = "phase2-20-ambiguity-candidate-group-sandbox-overlay";
   const FORBIDDEN_FIELDS = Object.freeze([
     "features",
     "geometry",
@@ -52,14 +52,14 @@
   ]);
   const ADAPTIVE_FIELDS = Object.freeze([
     "refinement_density",
-    "refinement_pressure",
+    "refinement_load",
     "boundary_priority",
     "interior_stability",
     "refinement_budget",
     "adaptive_generation",
   ]);
   const AMBIGUITY_FIELDS = Object.freeze([
-    "ambiguity_domain_id",
+    "ambiguity_continuity_group_id",
     "ambiguity_confidence",
     "ambiguity_overlap",
     "candidate_refinement_ids",
@@ -150,7 +150,7 @@
       accepted: true,
       metadata: Object.freeze({
         refinement_density: String(output.refinement_density || "medium"),
-        refinement_pressure: clamp01(output.refinement_pressure),
+        refinement_load: clamp01(output.refinement_load),
         boundary_priority: clamp01(output.boundary_priority),
         interior_stability: clamp01(output.interior_stability),
         refinement_budget: Math.max(0, Math.floor(numberOrZero(output.refinement_budget || 1))),
@@ -172,7 +172,7 @@
     return Object.freeze({
       accepted: true,
       metadata: Object.freeze({
-        ambiguity_domain_id: String(output.ambiguity_domain_id || "ambiguity-domain"),
+        ambiguity_continuity_group_id: String(output.ambiguity_continuity_group_id || "ambiguity-candidate-group"),
         ambiguity_confidence: clamp01(output.ambiguity_confidence),
         ambiguity_overlap: clamp01(output.ambiguity_overlap),
         candidate_refinement_ids: Object.freeze(candidates),
@@ -186,7 +186,7 @@
   }
 
   function sanitizeHydrationEnvelope(envelope) {
-    assertObject(envelope, "ambiguity domain sandbox envelope");
+    assertObject(envelope, "ambiguity candidate_group sandbox envelope");
     if (includesForbiddenField(envelope)) {
       return Object.freeze({ accepted: false, reason: "raw_or_forbidden_field_present" });
     }
@@ -211,7 +211,7 @@
       observer: Object.freeze({
         observer_state: String(envelope.observer?.observer_state || "hydration_eligible"),
         discovery_state: String(envelope.observer?.discovery_state || "unresolved_ambiguity"),
-        color_state: String(envelope.observer?.color_state || "transitioning"),
+        display_state: String(envelope.observer?.display_state || "transitioning"),
         read_only: true,
       }),
     });
@@ -227,19 +227,19 @@
     );
   }
 
-  function createAmbiguityDomainSandbox(options) {
+  function createAmbiguityCandidateGroupSandbox(options) {
     const documentRef = options?.document || global.document;
     const root = options?.root || documentRef?.createElement("div");
     if (!documentRef || !root) throw new TypeError("document and root are required");
     const initialScope = sanitizeViewportScope(options?.viewport_scope || options?.viewportScope || { id: "initial" });
     if (!initialScope.accepted) throw new TypeError(initialScope.reason);
     const overlays = new Map();
-    const domainLineage = new Map();
+    const candidateGroupLineage = new Map();
     let activeViewport = initialScope.scope;
     let sequence = 0;
 
-    function overlayKey(namespace, viewportId, domainId) {
-      return `${String(viewportId)}::${String(namespace)}::${String(domainId)}`;
+    function overlayKey(namespace, viewportId, candidateGroupId) {
+      return `${String(viewportId)}::${String(namespace)}::${String(candidateGroupId)}`;
     }
 
     function reject(reason) {
@@ -268,7 +268,7 @@
       node.setAttribute("data-dev-only", "true");
       node.setAttribute("data-renderer-substrate", RENDERER_SUBSTRATE);
       node.setAttribute("data-overlay-namespace", record.namespace);
-      node.setAttribute("data-ambiguity-domain-id", record.ambiguity.ambiguity_domain_id);
+      node.setAttribute("data-ambiguity-candidate-group-id", record.ambiguity.ambiguity_continuity_group_id);
       node.setAttribute("data-ambiguity-status", record.ambiguity.ambiguity_status);
       node.setAttribute("data-uncertainty-generation", String(record.ambiguity.uncertainty_generation));
       node.setAttribute("data-cache-key", record.cache_key);
@@ -295,7 +295,7 @@
           cache_key: record.cache_key,
           order: record.order,
           viewport_id: record.viewport.id,
-          ambiguity_domain_id: record.ambiguity.ambiguity_domain_id,
+          ambiguity_continuity_group_id: record.ambiguity.ambiguity_continuity_group_id,
           ambiguity_confidence: record.ambiguity.ambiguity_confidence,
           ambiguity_overlap: record.ambiguity.ambiguity_overlap,
           candidate_refinement_ids: record.ambiguity.candidate_refinement_ids,
@@ -305,12 +305,12 @@
           overlapping_candidates_confirmed_truth: false,
           unresolved_structure_invalid: false,
           density_affects_activity_not_truth: true,
-          truth_final: false,
+          final_truth_claimed: false,
         })));
     }
 
-    function lineageFor(domainId) {
-      return Object.freeze((domainLineage.get(domainId) || []).map(item => Object.freeze({ ...item })));
+    function lineageFor(candidateGroupId) {
+      return Object.freeze((candidateGroupLineage.get(candidateGroupId) || []).map(item => Object.freeze({ ...item })));
     }
 
     function hydrateAmbiguity(envelope, optionsForOverlay) {
@@ -338,8 +338,8 @@
       );
       if (!ambiguity.accepted) return reject(ambiguity.reason);
       const namespace = overlayNamespace(optionsForOverlay, sanitized);
-      const domainId = ambiguity.metadata.ambiguity_domain_id;
-      const key = overlayKey(namespace, requestedScope.id, domainId);
+      const candidateGroupId = ambiguity.metadata.ambiguity_continuity_group_id;
+      const key = overlayKey(namespace, requestedScope.id, candidateGroupId);
       const prior = overlays.get(key);
       if (prior && ambiguity.metadata.uncertainty_generation < prior.ambiguity.uncertainty_generation) {
         return reject("older_uncertainty_generation");
@@ -355,7 +355,7 @@
         ambiguity_status: ambiguity.metadata.ambiguity_status,
         candidate_refinement_ids: ambiguity.metadata.candidate_refinement_ids,
       });
-      domainLineage.set(domainId, Object.freeze([...(domainLineage.get(domainId) || []), lineageEntry]));
+      candidateGroupLineage.set(candidateGroupId, Object.freeze([...(candidateGroupLineage.get(candidateGroupId) || []), lineageEntry]));
       const record = {
         overlay_id: overlayId,
         namespace,
@@ -377,7 +377,7 @@
         accepted: true,
         action: prior ? "ambiguity_superseded" : "created",
         visible: true,
-        overlay_kind: "isolated_dev_ambiguity_domain_overlay",
+        overlay_kind: "isolated_dev_ambiguity_candidate_group_overlay",
         overlay_id: overlayId,
         superseded_overlay_id: prior?.overlay_id || null,
         namespace,
@@ -385,7 +385,7 @@
         viewport_id: requestedScope.id,
         adaptive: adaptive.metadata,
         ambiguity: ambiguity.metadata,
-        lineage: lineageFor(domainId),
+        lineage: lineageFor(candidateGroupId),
         overlay_count: overlays.size,
         overlays: snapshotRecords(),
         renderer_ownership_claimed: false,
@@ -395,14 +395,14 @@
         overlapping_candidates_confirmed_truth: false,
         unresolved_structure_invalid: false,
         density_affects_activity_not_truth: true,
-        truth_final: false,
+        final_truth_claimed: false,
       });
     }
 
-    function invalidateAmbiguity(domainId, reason) {
+    function invalidateAmbiguity(candidateGroupId, reason) {
       const removed = [];
       Array.from(overlays.entries()).forEach(([key, record]) => {
-        if (record.ambiguity.ambiguity_domain_id === String(domainId)) {
+        if (record.ambiguity.ambiguity_continuity_group_id === String(candidateGroupId)) {
           removeRecord(key);
           removed.push(record.namespace);
         }
@@ -413,7 +413,7 @@
         rendererSubstrate: RENDERER_SUBSTRATE,
         invalidated: removed.length > 0,
         reason: String(reason || "ambiguity_invalidated"),
-        ambiguity_domain_id: String(domainId || ""),
+        ambiguity_continuity_group_id: String(candidateGroupId || ""),
         removed: Object.freeze(removed),
         overlay_count: overlays.size,
         overlays: snapshotRecords(),
@@ -501,11 +501,11 @@
     });
   }
 
-  global.RelocationSamplingCacheAmbiguityDomainSandbox = Object.freeze({
+  global.RelocationSamplingCacheAmbiguityCandidateGroupSandbox = Object.freeze({
     VERSION,
     RENDERER_SUBSTRATE,
     SANDBOX_MODE,
     OVERLAY_CLASS,
-    createAmbiguityDomainSandbox,
+    createAmbiguityCandidateGroupSandbox,
   });
 })(window);

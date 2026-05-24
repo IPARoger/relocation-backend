@@ -1,29 +1,29 @@
-# Phase 2.20 — Ambiguity Domain Sandbox
+# Phase 2.20 — Ambiguity CandidateGroup Sandbox
 
 ## Purpose
 
-Phase 2.20 creates a controlled, reversible, dev-only sandbox for ambiguity domains.
+Phase 2.20 creates a controlled, reversible, dev-only sandbox for ambiguity candidate_groups.
 
-It proves adaptive refinement overlays can represent unresolved and overlapping candidate domains while preserving truth continuity, uncertainty integrity, deterministic supersession, viewport/namespace isolation, adaptive continuity, and renderer isolation.
+It proves adaptive refinement overlays can represent unresolved and overlapping candidate candidate_groups while preserving truth continuity, uncertainty integrity, deterministic supersession, viewport/namespace isolation, adaptive continuity, and renderer isolation.
 
 The production renderer remains sovereign.
 
 ## Sandbox Shape
 
-`sampling_cache_ambiguity_domain_sandbox.js` exposes `window.RelocationSamplingCacheAmbiguityDomainSandbox` with:
+`sampling_cache_ambiguity_domain_sandbox.js` exposes `window.RelocationSamplingCacheAmbiguityCandidateGroupSandbox` with:
 
-- `createAmbiguityDomainSandbox`
+- `createAmbiguityCandidateGroupSandbox`
 - `hydrateAmbiguity`
 - `invalidateAmbiguity`
 - `setViewportScope`
 - `removeAll`
 - `inspect`
 
-The sandbox maintains an internal active viewport scope, isolated namespace/domain records, and sanitized ambiguity lineage. It writes only disposable dev DOM nodes under a caller-provided root.
+The sandbox maintains an internal active viewport scope, isolated namespace/candidate_group records, and sanitized ambiguity lineage. It writes only disposable dev DOM nodes under a caller-provided root.
 
 ## Behavior
 
-The sandbox preserves `rendererSubstrate = legacy_search_regions` and always reports that renderer ownership was not claimed. Ambiguity metadata is sanitized into domain id, confidence, overlap, candidate ids, uncertainty generation, and status. Multiple ambiguity domains may coexist, including overlapping candidate domains. Newer uncertainty generations supersede older records deterministically while preserving lineage.
+The sandbox preserves `rendererSubstrate = legacy_search_regions` and always reports that renderer ownership was not claimed. Ambiguity metadata is sanitized into candidate_group id, confidence, overlap, candidate ids, uncertainty generation, and status. Multiple ambiguity candidate_groups may coexist, including overlapping candidate candidate_groups. Newer uncertainty generations supersede older records deterministically while preserving lineage.
 
 Unresolved ambiguity may remain visible safely. Ambiguity is not treated as error. Overlapping candidates are not treated as simultaneously confirmed truth. Unresolved structure is not treated as fake or invalid.
 
@@ -41,14 +41,14 @@ Run:
 
 The smoke verifies:
 
-- ambiguity domains coexist deterministically,
-- overlapping candidate domains preserve continuity,
+- ambiguity candidate_groups coexist deterministically,
+- overlapping candidate candidate_groups preserve continuity,
 - ambiguity supersession resolves correctly,
 - unresolved ambiguity may remain visible safely,
 - ambiguity invalidation cleans up correctly,
 - stale and cancelled ambiguity refinements do not display,
-- viewport isolation survives ambiguity domains,
-- namespace isolation survives ambiguity domains,
+- viewport isolation survives ambiguity candidate_groups,
+- namespace isolation survives ambiguity candidate_groups,
 - adaptive density continuity survives ambiguity transitions,
 - production renderer remains untouched,
 - no overlay registry contamination occurs,

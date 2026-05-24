@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Browser smoke for the Phase 2.20 ambiguity domain sandbox."""
+"""Browser smoke for the Phase 2.20 ambiguity candidate_group sandbox."""
 
 from __future__ import annotations
 
@@ -54,8 +54,8 @@ def run_browser_probe() -> dict:
                     west: -15,
                     semantic_id: "europe-window"
                 };
-                const sandbox = window.RelocationSamplingCacheAmbiguityDomainSandbox
-                    .createAmbiguityDomainSandbox({ root, viewport_scope: viewportA });
+                const sandbox = window.RelocationSamplingCacheAmbiguityCandidateGroupSandbox
+                    .createAmbiguityCandidateGroupSandbox({ root, viewport_scope: viewportA });
 
                 function envelope(cacheKey, featureCount, state = "completed") {
                     const blocked = state === "stale" || state === "cancelled";
@@ -91,7 +91,7 @@ def run_browser_probe() -> dict:
                             cache_key: cacheKey,
                             observer_state: blocked ? state : "hydration_eligible",
                             discovery_state: blocked ? "none" : "unresolved_ambiguity",
-                            color_state: blocked ? "muted" : "transitioning",
+                            display_state: blocked ? "muted" : "transitioning",
                             hydration_visible: !blocked,
                             read_only: true,
                             can_control_scheduler: false,
@@ -103,7 +103,7 @@ def run_browser_probe() -> dict:
                 function adaptive(generation = 1) {
                     return {
                         refinement_density: "medium",
-                        refinement_pressure: 0.5,
+                        refinement_load: 0.5,
                         boundary_priority: 0.5,
                         interior_stability: 0.4,
                         refinement_budget: 1,
@@ -111,9 +111,9 @@ def run_browser_probe() -> dict:
                     };
                 }
 
-                function ambiguity(domain, generation, status = "unresolved", candidates = []) {
+                function ambiguity(candidate_group, generation, status = "unresolved", candidates = []) {
                     return {
-                        ambiguity_domain_id: domain,
+                        ambiguity_continuity_group_id: candidate_group,
                         ambiguity_confidence: 0.55,
                         ambiguity_overlap: candidates.length > 1 ? 0.72 : 0.2,
                         candidate_refinement_ids: candidates,
@@ -122,47 +122,47 @@ def run_browser_probe() -> dict:
                     };
                 }
 
-                const domainA = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-a", 3), {
+                const candidate_groupA = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-a", 3), {
                     namespace: "alpha",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-a", 1, "unresolved", ["cand-a1", "cand-a2"])
+                    ambiguity: ambiguity("candidate_group-a", 1, "unresolved", ["cand-a1", "cand-a2"])
                 });
-                const domainB = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-b", 5), {
+                const candidate_groupB = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-b", 5), {
                     namespace: "beta",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-b", 1, "unresolved", ["cand-b1"])
+                    ambiguity: ambiguity("candidate_group-b", 1, "unresolved", ["cand-b1"])
                 });
                 const overlap = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-overlap", 7), {
                     namespace: "overlap",
                     viewport_scope: viewportA,
                     adaptive: adaptive(2),
-                    ambiguity: ambiguity("domain-overlap", 1, "overlapping_candidates", ["cand-a2", "cand-b1"])
+                    ambiguity: ambiguity("candidate_group-overlap", 1, "overlapping_candidates", ["cand-a2", "cand-b1"])
                 });
                 const resolvedA = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-a-resolved", 9), {
                     namespace: "alpha",
                     viewport_scope: viewportA,
                     adaptive: adaptive(2),
-                    ambiguity: ambiguity("domain-a", 2, "resolved_candidate", ["cand-a2"])
+                    ambiguity: ambiguity("candidate_group-a", 2, "resolved_candidate", ["cand-a2"])
                 });
                 const olderA = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-a-old", 11), {
                     namespace: "alpha",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-a", 1, "unresolved", ["cand-a1"])
+                    ambiguity: ambiguity("candidate_group-a", 1, "unresolved", ["cand-a1"])
                 });
                 const stale = sandbox.hydrateAmbiguity(envelope("rm:v1:stale", 13, "stale"), {
                     namespace: "stale",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-stale", 1, "unresolved", ["stale-candidate"])
+                    ambiguity: ambiguity("candidate_group-stale", 1, "unresolved", ["stale-candidate"])
                 });
                 const cancelled = sandbox.hydrateAmbiguity(envelope("rm:v1:cancelled", 15, "cancelled"), {
                     namespace: "cancelled",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-cancelled", 1, "unresolved", ["cancelled-candidate"])
+                    ambiguity: ambiguity("candidate_group-cancelled", 1, "unresolved", ["cancelled-candidate"])
                 });
                 const afterAmbiguity = sandbox.inspect();
                 const rawPayload = sandbox.hydrateAmbiguity({
@@ -178,26 +178,26 @@ def run_browser_probe() -> dict:
                     namespace: "raw",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-raw", 1, "unresolved", ["raw-candidate"])
+                    ambiguity: ambiguity("candidate_group-raw", 1, "unresolved", ["raw-candidate"])
                 });
-                const invalidateB = sandbox.invalidateAmbiguity("domain-b", "domain_superseded");
+                const invalidateB = sandbox.invalidateAmbiguity("candidate_group-b", "candidate_group_superseded");
                 const afterInvalidate = sandbox.inspect();
                 const shiftToB = sandbox.setViewportScope(viewportB);
                 const gammaB = sandbox.hydrateAmbiguity(envelope("rm:v1:amb-gamma-b", 19), {
                     namespace: "gamma",
                     viewport_scope: viewportB,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-gamma", 1, "unresolved", ["cand-g1", "cand-g2"])
+                    ambiguity: ambiguity("candidate_group-gamma", 1, "unresolved", ["cand-g1", "cand-g2"])
                 });
                 const afterViewportB = sandbox.inspect();
                 const removeAll = sandbox.removeAll();
                 const finalInspect = sandbox.inspect();
                 const domNodes = Array.from(root.querySelectorAll(
-                    "." + window.RelocationSamplingCacheAmbiguityDomainSandbox.OVERLAY_CLASS
+                    "." + window.RelocationSamplingCacheAmbiguityCandidateGroupSandbox.OVERLAY_CLASS
                 ));
                 const serialized = JSON.stringify({
-                    domainA,
-                    domainB,
+                    candidate_groupA,
+                    candidate_groupB,
                     overlap,
                     resolvedA,
                     olderA,
@@ -215,9 +215,9 @@ def run_browser_probe() -> dict:
                 });
                 window.fetch = originalFetch;
                 return {
-                    ambiguity_domains_coexist_deterministically:
-                        domainA.accepted === true &&
-                        domainB.accepted === true &&
+                    ambiguity_candidate_groups_coexist_deterministically:
+                        candidate_groupA.accepted === true &&
+                        candidate_groupB.accepted === true &&
                         overlap.accepted === true &&
                         afterAmbiguity.overlays.map(item => item.namespace).join(",") === "alpha,beta,overlap",
                     overlapping_candidates_preserve_continuity:
@@ -226,18 +226,18 @@ def run_browser_probe() -> dict:
                         overlap.overlapping_candidates_confirmed_truth === false,
                     ambiguity_supersession_resolves_correctly:
                         resolvedA.action === "ambiguity_superseded" &&
-                        resolvedA.superseded_overlay_id === domainA.overlay_id &&
+                        resolvedA.superseded_overlay_id === candidate_groupA.overlay_id &&
                         resolvedA.ambiguity.uncertainty_generation === 2 &&
                         olderA.accepted === false &&
                         olderA.reason === "older_uncertainty_generation",
                     unresolved_ambiguity_visible_safely:
-                        domainB.visible === true &&
-                        domainB.ambiguity.ambiguity_status === "unresolved" &&
-                        domainB.ambiguity_is_error === false &&
-                        domainB.unresolved_structure_invalid === false,
+                        candidate_groupB.visible === true &&
+                        candidate_groupB.ambiguity.ambiguity_status === "unresolved" &&
+                        candidate_groupB.ambiguity_is_error === false &&
+                        candidate_groupB.unresolved_structure_invalid === false,
                     ambiguity_invalidation_cleans_up:
                         invalidateB.invalidated === true &&
-                        !afterInvalidate.overlays.some(item => item.ambiguity_domain_id === "domain-b"),
+                        !afterInvalidate.overlays.some(item => item.ambiguity_continuity_group_id === "candidate_group-b"),
                     stale_cancelled_ambiguity_do_not_display:
                         stale.accepted === false &&
                         stale.visible === false &&
@@ -254,17 +254,17 @@ def run_browser_probe() -> dict:
                         afterAmbiguity.overlays.some(item => item.namespace === "beta") &&
                         afterAmbiguity.overlays.some(item => item.namespace === "overlap"),
                     adaptive_density_continuity_survives_ambiguity:
-                        domainA.density_affects_activity_not_truth === true &&
+                        candidate_groupA.density_affects_activity_not_truth === true &&
                         resolvedA.adaptive.adaptive_generation === 2 &&
                         afterAmbiguity.overlays.every(item => item.density_affects_activity_not_truth === true),
                     production_renderer_untouched:
                         window.__productionRendererOwner === "legacy_search_regions" &&
                         window.__productionOverlayLifecycleTouched === false &&
-                        domainA.renderer_ownership_claimed === false &&
+                        candidate_groupA.renderer_ownership_claimed === false &&
                         resolvedA.renderer_ownership_claimed === false,
                     no_overlay_registry_contamination:
                         window.__productionOverlayRegistry.length === 0 &&
-                        domainA.production_registry_mutated === false &&
+                        candidate_groupA.production_registry_mutated === false &&
                         resolvedA.production_registry_mutated === false &&
                         removeAll.production_registry_mutated === false,
                     no_dom_writes_escape_sandbox_root:
@@ -273,9 +273,9 @@ def run_browser_probe() -> dict:
                         domNodes.length === 0 &&
                         finalInspect.dom_overlay_count === 0,
                     renderer_substrate_legacy:
-                        domainA.rendererSubstrate === "legacy_search_regions" &&
+                        candidate_groupA.rendererSubstrate === "legacy_search_regions" &&
                         resolvedA.rendererSubstrate === "legacy_search_regions" &&
-                        window.RelocationSamplingCacheAmbiguityDomainSandbox.RENDERER_SUBSTRATE ===
+                        window.RelocationSamplingCacheAmbiguityCandidateGroupSandbox.RENDERER_SUBSTRATE ===
                             "legacy_search_regions",
                     raw_payload_rejected:
                         rawPayload.accepted === false &&
@@ -285,7 +285,7 @@ def run_browser_probe() -> dict:
                             item.ambiguity_is_error === false &&
                             item.overlapping_candidates_confirmed_truth === false &&
                             item.unresolved_structure_invalid === false &&
-                            item.truth_final === false
+                            item.final_truth_claimed === false
                         ),
                     no_fetch_occurs: fetchCalls.length === 0,
                     raw_payload_not_exposed:
@@ -308,7 +308,7 @@ def run_browser_probe() -> dict:
 def main() -> int:
     result = run_browser_probe()
     checks = [
-        "ambiguity_domains_coexist_deterministically",
+        "ambiguity_candidate_groups_coexist_deterministically",
         "overlapping_candidates_preserve_continuity",
         "ambiguity_supersession_resolves_correctly",
         "unresolved_ambiguity_visible_safely",
@@ -329,7 +329,7 @@ def main() -> int:
     payload = {
         "results": [
             {
-                "test": "phase2_20_ambiguity_domain_sandbox",
+                "test": "phase2_20_ambiguity_candidate_group_sandbox",
                 "pass": all(result[name] for name in checks),
                 "detail": result,
             }

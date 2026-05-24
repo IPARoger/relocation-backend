@@ -1,7 +1,7 @@
 /*
-  Phase 2.21 dev-only implication-field sandbox.
+  Phase 2.21 dev-only adjacent_candidate-field sandbox.
 
-  This sandbox represents nearby unresolved implication fields from sanitized
+  This sandbox represents nearby unresolved adjacent_candidate fields from sanitized
   ambiguity/adaptive metadata. It does not own production rendering, mutate
   production overlay registries, persist state, start workers, fetch, or expose
   raw backend payloads.
@@ -11,8 +11,8 @@
 
   const VERSION = 1;
   const RENDERER_SUBSTRATE = "legacy_search_regions";
-  const SANDBOX_MODE = "dev_implication_field_sandbox_only";
-  const OVERLAY_CLASS = "phase2-21-implication-field-sandbox-overlay";
+  const SANDBOX_MODE = "dev_adjacent_candidate_field_sandbox_only";
+  const OVERLAY_CLASS = "phase2-21-adjacent_candidate-field-sandbox-overlay";
   const FORBIDDEN_FIELDS = Object.freeze([
     "features",
     "geometry",
@@ -52,27 +52,27 @@
   ]);
   const ADAPTIVE_FIELDS = Object.freeze([
     "refinement_density",
-    "refinement_pressure",
+    "refinement_load",
     "boundary_priority",
     "interior_stability",
     "refinement_budget",
     "adaptive_generation",
   ]);
   const AMBIGUITY_FIELDS = Object.freeze([
-    "ambiguity_domain_id",
+    "ambiguity_continuity_group_id",
     "ambiguity_confidence",
     "ambiguity_overlap",
     "candidate_refinement_ids",
     "uncertainty_generation",
     "ambiguity_status",
   ]);
-  const IMPLICATION_FIELDS = Object.freeze([
-    "implication_field_id",
-    "implication_direction",
-    "implication_strength",
-    "implication_source_domain",
-    "implication_generation",
-    "implication_status",
+  const ADJACENT_CANDIDATE_FIELDS = Object.freeze([
+    "adjacent_candidate_field_id",
+    "adjacent_candidate_direction",
+    "adjacency_weight",
+    "adjacent_candidate_source_candidate_group",
+    "adjacent_candidate_generation",
+    "adjacent_candidate_status",
   ]);
 
   function assertObject(value, label) {
@@ -158,7 +158,7 @@
       accepted: true,
       metadata: Object.freeze({
         refinement_density: String(output.refinement_density || "medium"),
-        refinement_pressure: clamp01(output.refinement_pressure),
+        refinement_load: clamp01(output.refinement_load),
         boundary_priority: clamp01(output.boundary_priority),
         interior_stability: clamp01(output.interior_stability),
         refinement_budget: Math.max(0, Math.floor(numberOrZero(output.refinement_budget || 1))),
@@ -180,7 +180,7 @@
     return Object.freeze({
       accepted: true,
       metadata: Object.freeze({
-        ambiguity_domain_id: String(output.ambiguity_domain_id || "ambiguity-domain"),
+        ambiguity_continuity_group_id: String(output.ambiguity_continuity_group_id || "ambiguity-candidate-group"),
         ambiguity_confidence: clamp01(output.ambiguity_confidence),
         ambiguity_overlap: clamp01(output.ambiguity_overlap),
         candidate_refinement_ids: Object.freeze(candidates),
@@ -193,30 +193,30 @@
     });
   }
 
-  function sanitizeImplicationMetadata(metadata) {
+  function sanitizeAdjacentCandidateMetadata(metadata) {
     const source = metadata || {};
     if (includesForbiddenField(source)) {
-      return Object.freeze({ accepted: false, reason: "raw_or_forbidden_implication_field" });
+      return Object.freeze({ accepted: false, reason: "raw_or_forbidden_adjacent_candidate_field" });
     }
-    const output = copyFields(source, IMPLICATION_FIELDS);
+    const output = copyFields(source, ADJACENT_CANDIDATE_FIELDS);
     return Object.freeze({
       accepted: true,
       metadata: Object.freeze({
-        implication_field_id: String(output.implication_field_id || "implication-field"),
-        implication_direction: String(output.implication_direction || "nearby"),
-        implication_strength: clamp01(output.implication_strength),
-        implication_source_domain: String(output.implication_source_domain || ""),
-        implication_generation: Math.max(1, Math.floor(numberOrZero(output.implication_generation || 1))),
-        implication_status: String(output.implication_status || "unresolved"),
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_field_id: String(output.adjacent_candidate_field_id || "adjacent_candidate-field"),
+        adjacent_candidate_direction: String(output.adjacent_candidate_direction || "nearby"),
+        adjacency_weight: clamp01(output.adjacency_weight),
+        adjacent_candidate_source_candidate_group: String(output.adjacent_candidate_source_candidate_group || ""),
+        adjacent_candidate_generation: Math.max(1, Math.floor(numberOrZero(output.adjacent_candidate_generation || 1))),
+        adjacent_candidate_status: String(output.adjacent_candidate_status || "unresolved"),
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
       }),
     });
   }
 
   function sanitizeHydrationEnvelope(envelope) {
-    assertObject(envelope, "implication field sandbox envelope");
+    assertObject(envelope, "adjacent_candidate field sandbox envelope");
     if (includesForbiddenField(envelope)) {
       return Object.freeze({ accepted: false, reason: "raw_or_forbidden_field_present" });
     }
@@ -240,8 +240,8 @@
       metadata: copyFields(metadata, HYDRATION_FIELDS),
       observer: Object.freeze({
         observer_state: String(envelope.observer?.observer_state || "hydration_eligible"),
-        discovery_state: String(envelope.observer?.discovery_state || "implied_nearby_structure"),
-        color_state: String(envelope.observer?.color_state || "transitioning"),
+        discovery_state: String(envelope.observer?.discovery_state || "nearby_structure_available"),
+        display_state: String(envelope.observer?.display_state || "transitioning"),
         read_only: true,
       }),
     });
@@ -257,19 +257,19 @@
     );
   }
 
-  function createImplicationFieldSandbox(options) {
+  function createAdjacentCandidateFieldSandbox(options) {
     const documentRef = options?.document || global.document;
     const root = options?.root || documentRef?.createElement("div");
     if (!documentRef || !root) throw new TypeError("document and root are required");
     const initialScope = sanitizeViewportScope(options?.viewport_scope || options?.viewportScope || { id: "initial" });
     if (!initialScope.accepted) throw new TypeError(initialScope.reason);
     const overlays = new Map();
-    const implicationLineage = new Map();
+    const adjacentCandidateLineage = new Map();
     let activeViewport = initialScope.scope;
     let sequence = 0;
 
-    function overlayKey(namespace, viewportId, implicationId) {
-      return `${String(viewportId)}::${String(namespace)}::${String(implicationId)}`;
+    function overlayKey(namespace, viewportId, adjacent_candidateId) {
+      return `${String(viewportId)}::${String(namespace)}::${String(adjacent_candidateId)}`;
     }
 
     function reject(reason) {
@@ -285,9 +285,9 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
       });
     }
 
@@ -298,14 +298,14 @@
       node.setAttribute("data-dev-only", "true");
       node.setAttribute("data-renderer-substrate", RENDERER_SUBSTRATE);
       node.setAttribute("data-overlay-namespace", record.namespace);
-      node.setAttribute("data-implication-field-id", record.implication.implication_field_id);
-      node.setAttribute("data-implication-direction", record.implication.implication_direction);
-      node.setAttribute("data-implication-status", record.implication.implication_status);
-      node.setAttribute("data-implication-generation", String(record.implication.implication_generation));
+      node.setAttribute("data-adjacent_candidate-field-id", record.adjacent_candidate.adjacent_candidate_field_id);
+      node.setAttribute("data-adjacent_candidate-direction", record.adjacent_candidate.adjacent_candidate_direction);
+      node.setAttribute("data-adjacent_candidate-status", record.adjacent_candidate.adjacent_candidate_status);
+      node.setAttribute("data-adjacent_candidate-generation", String(record.adjacent_candidate.adjacent_candidate_generation));
       node.setAttribute("data-cache-key", record.cache_key);
       node.setAttribute("data-viewport-id", record.viewport.id);
       node.setAttribute("role", "presentation");
-      node.textContent = `Phase 2.21 ${record.namespace}: ${record.implication.implication_direction}`;
+      node.textContent = `Phase 2.21 ${record.namespace}: ${record.adjacent_candidate.adjacent_candidate_direction}`;
       return node;
     }
 
@@ -326,26 +326,26 @@
           cache_key: record.cache_key,
           order: record.order,
           viewport_id: record.viewport.id,
-          ambiguity_domain_id: record.ambiguity.ambiguity_domain_id,
-          implication_field_id: record.implication.implication_field_id,
-          implication_direction: record.implication.implication_direction,
-          implication_strength: record.implication.implication_strength,
-          implication_source_domain: record.implication.implication_source_domain,
-          implication_generation: record.implication.implication_generation,
-          implication_status: record.implication.implication_status,
-          implication_is_confirmed_truth: false,
-          directional_attraction_guarantees_outcome: false,
-          speculative_astrology_meaning_synthesized: false,
+          ambiguity_continuity_group_id: record.ambiguity.ambiguity_continuity_group_id,
+          adjacent_candidate_field_id: record.adjacent_candidate.adjacent_candidate_field_id,
+          adjacent_candidate_direction: record.adjacent_candidate.adjacent_candidate_direction,
+          adjacency_weight: record.adjacent_candidate.adjacency_weight,
+          adjacent_candidate_source_candidate_group: record.adjacent_candidate.adjacent_candidate_source_candidate_group,
+          adjacent_candidate_generation: record.adjacent_candidate.adjacent_candidate_generation,
+          adjacent_candidate_status: record.adjacent_candidate.adjacent_candidate_status,
+          adjacent_candidate_confirmed_truth_claimed: false,
+          directional_continuity_claimed: false,
+          ontology_boundary_preserved: true,
           density_affects_activity_not_truth: true,
-          truth_final: false,
+          final_truth_claimed: false,
         })));
     }
 
-    function lineageFor(implicationId) {
-      return Object.freeze((implicationLineage.get(implicationId) || []).map(item => Object.freeze({ ...item })));
+    function lineageFor(adjacent_candidateId) {
+      return Object.freeze((adjacentCandidateLineage.get(adjacent_candidateId) || []).map(item => Object.freeze({ ...item })));
     }
 
-    function hydrateImplication(envelope, optionsForOverlay) {
+    function hydrateAdjacentCandidate(envelope, optionsForOverlay) {
       const sanitized = sanitizeHydrationEnvelope(envelope);
       if (!sanitized.accepted) return reject(sanitized.reason);
       const requestedScope = sanitizeViewportScope(
@@ -369,33 +369,33 @@
         {}
       );
       if (!ambiguity.accepted) return reject(ambiguity.reason);
-      const implication = sanitizeImplicationMetadata(
-        optionsForOverlay?.implication ||
-        optionsForOverlay?.implication_metadata ||
-        optionsForOverlay?.implicationMetadata ||
+      const adjacent_candidate = sanitizeAdjacentCandidateMetadata(
+        optionsForOverlay?.adjacent_candidate ||
+        optionsForOverlay?.adjacent_candidate_metadata ||
+        optionsForOverlay?.adjacent_candidateMetadata ||
         {}
       );
-      if (!implication.accepted) return reject(implication.reason);
+      if (!adjacent_candidate.accepted) return reject(adjacent_candidate.reason);
       const namespace = overlayNamespace(optionsForOverlay, sanitized);
-      const implicationId = implication.metadata.implication_field_id;
-      const key = overlayKey(namespace, requestedScope.id, implicationId);
+      const adjacent_candidateId = adjacent_candidate.metadata.adjacent_candidate_field_id;
+      const key = overlayKey(namespace, requestedScope.id, adjacent_candidateId);
       const prior = overlays.get(key);
-      if (prior && implication.metadata.implication_generation < prior.implication.implication_generation) {
-        return reject("older_implication_generation");
+      if (prior && adjacent_candidate.metadata.adjacent_candidate_generation < prior.adjacent_candidate.adjacent_candidate_generation) {
+        return reject("older_adjacent_candidate_generation");
       }
       if (prior) removeRecord(key);
       const order = prior ? prior.order + 1 : ++sequence;
-      const overlayId = `${key}::implication-${implication.metadata.implication_generation}`;
+      const overlayId = `${key}::adjacent_candidate-${adjacent_candidate.metadata.adjacent_candidate_generation}`;
       const lineageEntry = Object.freeze({
         overlay_id: overlayId,
         superseded_overlay_id: prior?.overlay_id || null,
         cache_key: sanitized.cache_key,
-        implication_generation: implication.metadata.implication_generation,
-        implication_status: implication.metadata.implication_status,
-        implication_source_domain: implication.metadata.implication_source_domain,
-        implication_direction: implication.metadata.implication_direction,
+        adjacent_candidate_generation: adjacent_candidate.metadata.adjacent_candidate_generation,
+        adjacent_candidate_status: adjacent_candidate.metadata.adjacent_candidate_status,
+        adjacent_candidate_source_candidate_group: adjacent_candidate.metadata.adjacent_candidate_source_candidate_group,
+        adjacent_candidate_direction: adjacent_candidate.metadata.adjacent_candidate_direction,
       });
-      implicationLineage.set(implicationId, Object.freeze([...(implicationLineage.get(implicationId) || []), lineageEntry]));
+      adjacentCandidateLineage.set(adjacent_candidateId, Object.freeze([...(adjacentCandidateLineage.get(adjacent_candidateId) || []), lineageEntry]));
       const record = {
         overlay_id: overlayId,
         namespace,
@@ -404,7 +404,7 @@
         observer: sanitized.observer,
         adaptive: adaptive.metadata,
         ambiguity: ambiguity.metadata,
-        implication: implication.metadata,
+        adjacent_candidate: adjacent_candidate.metadata,
         viewport: requestedScope.scope,
         order,
       };
@@ -416,9 +416,9 @@
         mode: SANDBOX_MODE,
         rendererSubstrate: RENDERER_SUBSTRATE,
         accepted: true,
-        action: prior ? "implication_superseded" : "created",
+        action: prior ? "adjacent_candidate_superseded" : "created",
         visible: true,
-        overlay_kind: "isolated_dev_implication_field_overlay",
+        overlay_kind: "isolated_dev_adjacent_candidate_field_overlay",
         overlay_id: overlayId,
         superseded_overlay_id: prior?.overlay_id || null,
         namespace,
@@ -426,25 +426,25 @@
         viewport_id: requestedScope.id,
         adaptive: adaptive.metadata,
         ambiguity: ambiguity.metadata,
-        implication: implication.metadata,
-        lineage: lineageFor(implicationId),
+        adjacent_candidate: adjacent_candidate.metadata,
+        lineage: lineageFor(adjacent_candidateId),
         overlay_count: overlays.size,
         overlays: snapshotRecords(),
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
         density_affects_activity_not_truth: true,
-        truth_final: false,
+        final_truth_claimed: false,
       });
     }
 
-    function invalidateImplication(implicationId, reason) {
+    function invalidateAdjacentCandidate(adjacent_candidateId, reason) {
       const removed = [];
       Array.from(overlays.entries()).forEach(([key, record]) => {
-        if (record.implication.implication_field_id === String(implicationId)) {
+        if (record.adjacent_candidate.adjacent_candidate_field_id === String(adjacent_candidateId)) {
           removeRecord(key);
           removed.push(record.namespace);
         }
@@ -454,17 +454,17 @@
         mode: SANDBOX_MODE,
         rendererSubstrate: RENDERER_SUBSTRATE,
         invalidated: removed.length > 0,
-        reason: String(reason || "implication_invalidated"),
-        implication_field_id: String(implicationId || ""),
+        reason: String(reason || "adjacent_candidate_invalidated"),
+        adjacent_candidate_field_id: String(adjacent_candidateId || ""),
         removed: Object.freeze(removed),
         overlay_count: overlays.size,
         overlays: snapshotRecords(),
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
       });
     }
 
@@ -491,9 +491,9 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
       });
     }
 
@@ -509,9 +509,9 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
       });
     }
 
@@ -528,26 +528,26 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        implication_is_confirmed_truth: false,
-        directional_attraction_guarantees_outcome: false,
-        speculative_astrology_meaning_synthesized: false,
+        adjacent_candidate_confirmed_truth_claimed: false,
+        directional_continuity_claimed: false,
+        ontology_boundary_preserved: true,
       });
     }
 
     return Object.freeze({
-      hydrateImplication,
-      invalidateImplication,
+      hydrateAdjacentCandidate,
+      invalidateAdjacentCandidate,
       setViewportScope,
       removeAll,
       inspect,
     });
   }
 
-  global.RelocationSamplingCacheImplicationFieldSandbox = Object.freeze({
+  global.RelocationSamplingCacheAdjacentCandidateFieldSandbox = Object.freeze({
     VERSION,
     RENDERER_SUBSTRATE,
     SANDBOX_MODE,
     OVERLAY_CLASS,
-    createImplicationFieldSandbox,
+    createAdjacentCandidateFieldSandbox,
   });
 })(window);

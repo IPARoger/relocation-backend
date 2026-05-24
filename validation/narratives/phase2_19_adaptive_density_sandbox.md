@@ -4,7 +4,7 @@
 
 Phase 2.19 creates a controlled, reversible, dev-only sandbox for adaptive refinement density.
 
-It proves progressive refinement can prioritize density according to sanitized semantic importance, boundary pressure, interior stability, and budget metadata while preserving truth continuity, deterministic supersession, viewport/namespace isolation, and renderer isolation.
+It proves progressive refinement can prioritize density according to sanitized semantic importance, boundary load, interior stability, and budget metadata while preserving truth continuity, deterministic supersession, viewport/namespace isolation, and renderer isolation.
 
 The production renderer remains sovereign.
 
@@ -23,9 +23,9 @@ The sandbox maintains an internal active viewport scope, isolated namespace reco
 
 ## Behavior
 
-The sandbox preserves `rendererSubstrate = legacy_search_regions` and always reports that renderer ownership was not claimed. Adaptive metadata is sanitized into refinement density, pressure, boundary priority, interior stability, budget, generation, and a deterministic priority score. Batch planning selects candidates by score within a refinement budget and defers lower-priority candidates.
+The sandbox preserves `rendererSubstrate = legacy_search_regions` and always reports that renderer ownership was not claimed. Adaptive metadata is sanitized into refinement density, load, boundary priority, interior stability, budget, generation, and a deterministic priority score. Batch planning selects candidates by score within a refinement budget and defers lower-priority candidates.
 
-Edge-priority and high-pressure regions can supersede prior overlays deterministically. Sparse stable interiors may be deferred without implying they are incomplete truth. High-density regions are more actively refined, not more true. Every returned envelope keeps `density_affects_activity_not_truth = true` and `truth_final = false`.
+Edge-priority and high-load regions can supersede prior overlays deterministically. Sparse stable interiors may be deferred without implying they are incomplete truth. High-density regions are more actively refined, not more true. Every returned envelope keeps `density_affects_activity_not_truth = true` and `final_truth_claimed = false`.
 
 It rejects mismatched viewport scopes, stale hydration, cancelled hydration, non-visible observer states, non-ready metadata, older adaptive generations, and envelopes containing raw or renderer-owned fields such as GeoJSON features, geometry, coordinates, renderer output, canvas pixels, Leaflet layers, debug/aura/virga fields, workers, fetch URLs, or generation-mode hints.
 

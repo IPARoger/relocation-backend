@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Browser smoke for the Phase 2.21 implication field sandbox."""
+"""Browser smoke for the Phase 2.21 adjacent_candidate field sandbox."""
 
 from __future__ import annotations
 
@@ -54,8 +54,8 @@ def run_browser_probe() -> dict:
                     west: -15,
                     semantic_id: "europe-window"
                 };
-                const sandbox = window.RelocationSamplingCacheImplicationFieldSandbox
-                    .createImplicationFieldSandbox({ root, viewport_scope: viewportA });
+                const sandbox = window.RelocationSamplingCacheAdjacentCandidateFieldSandbox
+                    .createAdjacentCandidateFieldSandbox({ root, viewport_scope: viewportA });
 
                 function envelope(cacheKey, featureCount, state = "completed") {
                     const blocked = state === "stale" || state === "cancelled";
@@ -90,8 +90,8 @@ def run_browser_probe() -> dict:
                         observer: {
                             cache_key: cacheKey,
                             observer_state: blocked ? state : "hydration_eligible",
-                            discovery_state: blocked ? "none" : "implied_nearby_structure",
-                            color_state: blocked ? "muted" : "transitioning",
+                            discovery_state: blocked ? "none" : "nearby_structure_available",
+                            display_state: blocked ? "muted" : "transitioning",
                             hydration_visible: !blocked,
                             read_only: true,
                             can_control_scheduler: false,
@@ -103,7 +103,7 @@ def run_browser_probe() -> dict:
                 function adaptive(generation = 1) {
                     return {
                         refinement_density: "medium",
-                        refinement_pressure: 0.45,
+                        refinement_load: 0.45,
                         boundary_priority: 0.5,
                         interior_stability: 0.4,
                         refinement_budget: 1,
@@ -111,9 +111,9 @@ def run_browser_probe() -> dict:
                     };
                 }
 
-                function ambiguity(domain, generation = 1) {
+                function ambiguity(candidate_group, generation = 1) {
                     return {
-                        ambiguity_domain_id: domain,
+                        ambiguity_continuity_group_id: candidate_group,
                         ambiguity_confidence: 0.55,
                         ambiguity_overlap: 0.4,
                         candidate_refinement_ids: ["candidate-a", "candidate-b"],
@@ -122,61 +122,61 @@ def run_browser_probe() -> dict:
                     };
                 }
 
-                function implication(field, generation, direction, source, status = "unresolved") {
+                function adjacent_candidate(field, generation, direction, source, status = "unresolved") {
                     return {
-                        implication_field_id: field,
-                        implication_direction: direction,
-                        implication_strength: 0.62,
-                        implication_source_domain: source,
-                        implication_generation: generation,
-                        implication_status: status
+                        adjacent_candidate_field_id: field,
+                        adjacent_candidate_direction: direction,
+                        adjacency_weight: 0.62,
+                        adjacent_candidate_source_candidate_group: source,
+                        adjacent_candidate_generation: generation,
+                        adjacent_candidate_status: status
                     };
                 }
 
-                const east = sandbox.hydrateImplication(envelope("rm:v1:imp-east", 3), {
+                const east = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:imp-east", 3), {
                     namespace: "east",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-a", 1),
-                    implication: implication("imp-east", 1, "east", "domain-a")
+                    ambiguity: ambiguity("candidate_group-a", 1),
+                    adjacent_candidate: adjacent_candidate("imp-east", 1, "east", "candidate_group-a")
                 });
-                const north = sandbox.hydrateImplication(envelope("rm:v1:imp-north", 5), {
+                const north = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:imp-north", 5), {
                     namespace: "north",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-a", 1),
-                    implication: implication("imp-north", 1, "north", "domain-a")
+                    ambiguity: ambiguity("candidate_group-a", 1),
+                    adjacent_candidate: adjacent_candidate("imp-north", 1, "north", "candidate_group-a")
                 });
-                const eastRefined = sandbox.hydrateImplication(envelope("rm:v1:imp-east-refined", 7), {
+                const eastRefined = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:imp-east-refined", 7), {
                     namespace: "east",
                     viewport_scope: viewportA,
                     adaptive: adaptive(2),
-                    ambiguity: ambiguity("domain-a", 2),
-                    implication: implication("imp-east", 2, "east-northeast", "domain-a", "strengthened")
+                    ambiguity: ambiguity("candidate_group-a", 2),
+                    adjacent_candidate: adjacent_candidate("imp-east", 2, "east-northeast", "candidate_group-a", "strengthened")
                 });
-                const olderEast = sandbox.hydrateImplication(envelope("rm:v1:imp-east-old", 9), {
+                const olderEast = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:imp-east-old", 9), {
                     namespace: "east",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-a", 1),
-                    implication: implication("imp-east", 1, "east", "domain-a")
+                    ambiguity: ambiguity("candidate_group-a", 1),
+                    adjacent_candidate: adjacent_candidate("imp-east", 1, "east", "candidate_group-a")
                 });
-                const stale = sandbox.hydrateImplication(envelope("rm:v1:stale", 11, "stale"), {
+                const stale = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:stale", 11, "stale"), {
                     namespace: "stale",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-stale", 1),
-                    implication: implication("imp-stale", 1, "west", "domain-stale")
+                    ambiguity: ambiguity("candidate_group-stale", 1),
+                    adjacent_candidate: adjacent_candidate("imp-stale", 1, "west", "candidate_group-stale")
                 });
-                const cancelled = sandbox.hydrateImplication(envelope("rm:v1:cancelled", 13, "cancelled"), {
+                const cancelled = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:cancelled", 13, "cancelled"), {
                     namespace: "cancelled",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-cancelled", 1),
-                    implication: implication("imp-cancelled", 1, "south", "domain-cancelled")
+                    ambiguity: ambiguity("candidate_group-cancelled", 1),
+                    adjacent_candidate: adjacent_candidate("imp-cancelled", 1, "south", "candidate_group-cancelled")
                 });
-                const afterImplications = sandbox.inspect();
-                const rawPayload = sandbox.hydrateImplication({
+                const afterAdjacentCandidates = sandbox.inspect();
+                const rawPayload = sandbox.hydrateAdjacentCandidate({
                     ...envelope("rm:v1:raw", 15),
                     hydration: {
                         ...envelope("rm:v1:raw", 15).hydration,
@@ -189,24 +189,24 @@ def run_browser_probe() -> dict:
                     namespace: "raw",
                     viewport_scope: viewportA,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-raw", 1),
-                    implication: implication("imp-raw", 1, "nearby", "domain-raw")
+                    ambiguity: ambiguity("candidate_group-raw", 1),
+                    adjacent_candidate: adjacent_candidate("imp-raw", 1, "nearby", "candidate_group-raw")
                 });
-                const invalidateNorth = sandbox.invalidateImplication("imp-north", "implication_superseded");
+                const invalidateNorth = sandbox.invalidateAdjacentCandidate("imp-north", "adjacent_candidate_superseded");
                 const afterInvalidate = sandbox.inspect();
                 const shiftToB = sandbox.setViewportScope(viewportB);
-                const gammaB = sandbox.hydrateImplication(envelope("rm:v1:imp-gamma-b", 17), {
+                const gammaB = sandbox.hydrateAdjacentCandidate(envelope("rm:v1:imp-gamma-b", 17), {
                     namespace: "gamma",
                     viewport_scope: viewportB,
                     adaptive: adaptive(1),
-                    ambiguity: ambiguity("domain-gamma", 1),
-                    implication: implication("imp-gamma", 1, "northwest", "domain-gamma")
+                    ambiguity: ambiguity("candidate_group-gamma", 1),
+                    adjacent_candidate: adjacent_candidate("imp-gamma", 1, "northwest", "candidate_group-gamma")
                 });
                 const afterViewportB = sandbox.inspect();
                 const removeAll = sandbox.removeAll();
                 const finalInspect = sandbox.inspect();
                 const domNodes = Array.from(root.querySelectorAll(
-                    "." + window.RelocationSamplingCacheImplicationFieldSandbox.OVERLAY_CLASS
+                    "." + window.RelocationSamplingCacheAdjacentCandidateFieldSandbox.OVERLAY_CLASS
                 ));
                 const serialized = JSON.stringify({
                     east,
@@ -215,7 +215,7 @@ def run_browser_probe() -> dict:
                     olderEast,
                     stale,
                     cancelled,
-                    afterImplications,
+                    afterAdjacentCandidates,
                     rawPayload,
                     invalidateNorth,
                     afterInvalidate,
@@ -227,47 +227,47 @@ def run_browser_probe() -> dict:
                 });
                 window.fetch = originalFetch;
                 return {
-                    implication_fields_coexist_deterministically:
+                    adjacent_candidate_fields_coexist_deterministically:
                         east.accepted === true &&
                         north.accepted === true &&
-                        afterImplications.overlays.map(item => item.namespace).join(",") === "east,north",
-                    ambiguity_domains_imply_nearby_structure_safely:
-                        east.ambiguity.ambiguity_domain_id === "domain-a" &&
-                        east.implication.implication_source_domain === "domain-a" &&
-                        east.implication.implication_is_confirmed_truth === false,
-                    implication_supersession_resolves_correctly:
-                        eastRefined.action === "implication_superseded" &&
+                        afterAdjacentCandidates.overlays.map(item => item.namespace).join(",") === "east,north",
+                    ambiguity_candidate_groups_imply_nearby_structure_safely:
+                        east.ambiguity.ambiguity_continuity_group_id === "candidate_group-a" &&
+                        east.adjacent_candidate.adjacent_candidate_source_candidate_group === "candidate_group-a" &&
+                        east.adjacent_candidate.adjacent_candidate_confirmed_truth_claimed === false,
+                    adjacent_candidate_supersession_resolves_correctly:
+                        eastRefined.action === "adjacent_candidate_superseded" &&
                         eastRefined.superseded_overlay_id === east.overlay_id &&
-                        eastRefined.implication.implication_generation === 2 &&
+                        eastRefined.adjacent_candidate.adjacent_candidate_generation === 2 &&
                         olderEast.accepted === false &&
-                        olderEast.reason === "older_implication_generation",
-                    implication_invalidation_cleans_up:
+                        olderEast.reason === "older_adjacent_candidate_generation",
+                    adjacent_candidate_invalidation_cleans_up:
                         invalidateNorth.invalidated === true &&
-                        !afterInvalidate.overlays.some(item => item.implication_field_id === "imp-north"),
-                    unresolved_implications_visible_safely:
+                        !afterInvalidate.overlays.some(item => item.adjacent_candidate_field_id === "imp-north"),
+                    unresolved_adjacent_candidates_visible_safely:
                         north.visible === true &&
-                        north.implication.implication_status === "unresolved" &&
-                        north.implication_is_confirmed_truth === false &&
-                        north.directional_attraction_guarantees_outcome === false,
-                    stale_cancelled_implications_do_not_display:
+                        north.adjacent_candidate.adjacent_candidate_status === "unresolved" &&
+                        north.adjacent_candidate_confirmed_truth_claimed === false &&
+                        north.directional_continuity_claimed === false,
+                    stale_cancelled_adjacent_candidates_do_not_display:
                         stale.accepted === false &&
                         stale.visible === false &&
                         cancelled.accepted === false &&
                         cancelled.visible === false,
-                    viewport_isolation_survives_implications:
+                    viewport_isolation_survives_adjacent_candidates:
                         shiftToB.accepted === true &&
                         JSON.stringify([...shiftToB.invalidated].sort()) === JSON.stringify(["east"]) &&
                         gammaB.accepted === true &&
                         gammaB.viewport_id === "viewport-b" &&
                         afterViewportB.overlays.every(item => item.viewport_id === "viewport-b"),
-                    namespace_isolation_survives_implications:
-                        afterImplications.overlays.some(item => item.namespace === "east") &&
-                        afterImplications.overlays.some(item => item.namespace === "north") &&
-                        afterImplications.overlays.every(item => item.implication_source_domain === "domain-a"),
-                    adaptive_density_continuity_survives_implications:
+                    namespace_isolation_survives_adjacent_candidates:
+                        afterAdjacentCandidates.overlays.some(item => item.namespace === "east") &&
+                        afterAdjacentCandidates.overlays.some(item => item.namespace === "north") &&
+                        afterAdjacentCandidates.overlays.every(item => item.adjacent_candidate_source_candidate_group === "candidate_group-a"),
+                    adaptive_density_continuity_survives_adjacent_candidates:
                         east.density_affects_activity_not_truth === true &&
                         eastRefined.adaptive.adaptive_generation === 2 &&
-                        afterImplications.overlays.every(item => item.density_affects_activity_not_truth === true),
+                        afterAdjacentCandidates.overlays.every(item => item.density_affects_activity_not_truth === true),
                     production_renderer_untouched:
                         window.__productionRendererOwner === "legacy_search_regions" &&
                         window.__productionOverlayLifecycleTouched === false &&
@@ -286,17 +286,17 @@ def run_browser_probe() -> dict:
                     renderer_substrate_legacy:
                         east.rendererSubstrate === "legacy_search_regions" &&
                         eastRefined.rendererSubstrate === "legacy_search_regions" &&
-                        window.RelocationSamplingCacheImplicationFieldSandbox.RENDERER_SUBSTRATE ===
+                        window.RelocationSamplingCacheAdjacentCandidateFieldSandbox.RENDERER_SUBSTRATE ===
                             "legacy_search_regions",
                     raw_payload_rejected:
                         rawPayload.accepted === false &&
                         rawPayload.reason === "raw_or_forbidden_field_present",
-                    implication_truth_semantics_honest:
-                        afterImplications.overlays.every(item =>
-                            item.implication_is_confirmed_truth === false &&
-                            item.directional_attraction_guarantees_outcome === false &&
-                            item.speculative_astrology_meaning_synthesized === false &&
-                            item.truth_final === false
+                    adjacent_candidate_truth_semantics_honest:
+                        afterAdjacentCandidates.overlays.every(item =>
+                            item.adjacent_candidate_confirmed_truth_claimed === false &&
+                            item.directional_continuity_claimed === false &&
+                            item.ontology_boundary_preserved === true &&
+                            item.final_truth_claimed === false
                         ),
                     no_fetch_occurs: fetchCalls.length === 0,
                     raw_payload_not_exposed:
@@ -319,28 +319,28 @@ def run_browser_probe() -> dict:
 def main() -> int:
     result = run_browser_probe()
     checks = [
-        "implication_fields_coexist_deterministically",
-        "ambiguity_domains_imply_nearby_structure_safely",
-        "implication_supersession_resolves_correctly",
-        "implication_invalidation_cleans_up",
-        "unresolved_implications_visible_safely",
-        "stale_cancelled_implications_do_not_display",
-        "viewport_isolation_survives_implications",
-        "namespace_isolation_survives_implications",
-        "adaptive_density_continuity_survives_implications",
+        "adjacent_candidate_fields_coexist_deterministically",
+        "ambiguity_candidate_groups_imply_nearby_structure_safely",
+        "adjacent_candidate_supersession_resolves_correctly",
+        "adjacent_candidate_invalidation_cleans_up",
+        "unresolved_adjacent_candidates_visible_safely",
+        "stale_cancelled_adjacent_candidates_do_not_display",
+        "viewport_isolation_survives_adjacent_candidates",
+        "namespace_isolation_survives_adjacent_candidates",
+        "adaptive_density_continuity_survives_adjacent_candidates",
         "production_renderer_untouched",
         "no_overlay_registry_contamination",
         "no_dom_writes_escape_sandbox_root",
         "renderer_substrate_legacy",
         "raw_payload_rejected",
-        "implication_truth_semantics_honest",
+        "adjacent_candidate_truth_semantics_honest",
         "no_fetch_occurs",
         "raw_payload_not_exposed",
     ]
     payload = {
         "results": [
             {
-                "test": "phase2_21_implication_field_sandbox",
+                "test": "phase2_21_adjacent_candidate_field_sandbox",
                 "pass": all(result[name] for name in checks),
                 "detail": result,
             }

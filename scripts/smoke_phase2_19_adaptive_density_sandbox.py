@@ -90,8 +90,8 @@ def run_browser_probe() -> dict:
                         observer: {
                             cache_key: cacheKey,
                             observer_state: blocked ? state : "hydration_eligible",
-                            discovery_state: blocked ? "none" : "confirmed_discovered_structure",
-                            color_state: blocked ? "muted" : "colored",
+                            discovery_state: blocked ? "none" : "runtime_structure_available",
+                            display_state: blocked ? "muted" : "active",
                             hydration_visible: !blocked,
                             read_only: true,
                             can_control_scheduler: false,
@@ -103,7 +103,7 @@ def run_browser_probe() -> dict:
                 function adaptive(density, pressure, boundary, stability, budget, generation) {
                     return {
                         refinement_density: density,
-                        refinement_pressure: pressure,
+                        refinement_load: pressure,
                         boundary_priority: boundary,
                         interior_stability: stability,
                         refinement_budget: budget,
@@ -219,8 +219,8 @@ def run_browser_probe() -> dict:
                         batch.deferred[0].interior_stability === 0.95,
                     refinement_continuity_survives_density_changes:
                         edgeRefined.density_affects_activity_not_truth === true &&
-                        edgeRefined.truth_final === false &&
-                        afterSupersession.overlays.every(item => item.truth_final === false),
+                        edgeRefined.final_truth_claimed === false &&
+                        afterSupersession.overlays.every(item => item.final_truth_claimed === false),
                     refinement_budgets_constrain_growth:
                         batch.budget === 2 &&
                         afterBatch.overlay_count === 2 &&

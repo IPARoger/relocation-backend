@@ -2,7 +2,7 @@
   Phase 2.19 dev-only adaptive refinement density sandbox.
 
   This sandbox prioritizes progressive refinement density from sanitized
-  semantic pressure metadata. It does not own production rendering, mutate
+  runtime load metadata. It does not own production rendering, mutate
   production overlay registries, persist state, start workers, fetch, or expose
   raw backend payloads.
 */
@@ -52,7 +52,7 @@
   ]);
   const ADAPTIVE_FIELDS = Object.freeze([
     "refinement_density",
-    "refinement_pressure",
+    "refinement_load",
     "boundary_priority",
     "interior_stability",
     "refinement_budget",
@@ -139,7 +139,7 @@
     }
     const output = copyFields(source, ADAPTIVE_FIELDS);
     const density = String(output.refinement_density || "medium");
-    const pressure = clamp01(output.refinement_pressure);
+    const pressure = clamp01(output.refinement_load);
     const boundary = clamp01(output.boundary_priority);
     const stability = clamp01(output.interior_stability);
     const budget = Math.max(0, Math.floor(numberOrZero(output.refinement_budget || 1)));
@@ -149,12 +149,12 @@
       accepted: true,
       metadata: Object.freeze({
         refinement_density: density,
-        refinement_pressure: pressure,
+        refinement_load: pressure,
         boundary_priority: boundary,
         interior_stability: stability,
         refinement_budget: budget,
         adaptive_generation: generation,
-        priority_score: Number(score.toFixed(6)),
+        refinement_order_score: Number(score.toFixed(6)),
         density_affects_activity_not_truth: true,
       }),
     });
@@ -185,8 +185,8 @@
       metadata: copyFields(metadata, HYDRATION_FIELDS),
       observer: Object.freeze({
         observer_state: String(envelope.observer?.observer_state || "hydration_eligible"),
-        discovery_state: String(envelope.observer?.discovery_state || "confirmed_discovered_structure"),
-        color_state: String(envelope.observer?.color_state || "colored"),
+        discovery_state: String(envelope.observer?.discovery_state || "runtime_structure_available"),
+        display_state: String(envelope.observer?.display_state || "active"),
         read_only: true,
       }),
     });
@@ -228,7 +228,7 @@
       node.setAttribute("data-viewport-id", record.viewport.id);
       node.setAttribute("data-refinement-density", record.adaptive.refinement_density);
       node.setAttribute("data-adaptive-generation", String(record.adaptive.adaptive_generation));
-      node.setAttribute("data-priority-score", String(record.adaptive.priority_score));
+      node.setAttribute("data-priority-score", String(record.adaptive.refinement_order_score));
       node.setAttribute("role", "presentation");
       node.textContent = `Phase 2.19 ${record.namespace}: ${record.adaptive.refinement_density}`;
       return node;
@@ -252,13 +252,13 @@
           order: record.order,
           viewport_id: record.viewport.id,
           refinement_density: record.adaptive.refinement_density,
-          refinement_pressure: record.adaptive.refinement_pressure,
+          refinement_load: record.adaptive.refinement_load,
           boundary_priority: record.adaptive.boundary_priority,
           interior_stability: record.adaptive.interior_stability,
           refinement_budget: record.adaptive.refinement_budget,
           adaptive_generation: record.adaptive.adaptive_generation,
-          priority_score: record.adaptive.priority_score,
-          truth_final: false,
+          refinement_order_score: record.adaptive.refinement_order_score,
+          final_truth_claimed: false,
           density_affects_activity_not_truth: true,
         })));
     }
@@ -276,7 +276,7 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        truth_final: false,
+        final_truth_claimed: false,
         density_affects_activity_not_truth: true,
       });
     }
@@ -351,7 +351,7 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        truth_final: false,
+        final_truth_claimed: false,
         sparse_interiors_truth_complete: candidate.adaptive.interior_stability >= 0.8,
         density_affects_activity_not_truth: true,
       });
@@ -372,7 +372,7 @@
       const acceptedCandidates = candidates
         .filter(candidate => candidate.accepted)
         .sort((a, b) => (
-          b.adaptive.priority_score - a.adaptive.priority_score ||
+          b.adaptive.refinement_order_score - a.adaptive.refinement_order_score ||
           b.adaptive.boundary_priority - a.adaptive.boundary_priority ||
           b.adaptive.adaptive_generation - a.adaptive.adaptive_generation ||
           a.namespace.localeCompare(b.namespace)
@@ -391,7 +391,7 @@
         deferred: Object.freeze(deferred.map(candidate => Object.freeze({
           namespace: candidate.namespace,
           cache_key: candidate.cache_key,
-          priority_score: candidate.adaptive.priority_score,
+          refinement_order_score: candidate.adaptive.refinement_order_score,
           boundary_priority: candidate.adaptive.boundary_priority,
           interior_stability: candidate.adaptive.interior_stability,
           stable_sparse_interior: candidate.adaptive.interior_stability >= 0.8,
@@ -402,7 +402,7 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        truth_final: false,
+        final_truth_claimed: false,
         density_affects_activity_not_truth: true,
       });
     }
@@ -430,7 +430,7 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        truth_final: false,
+        final_truth_claimed: false,
         density_affects_activity_not_truth: true,
       });
     }
@@ -448,7 +448,7 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        truth_final: false,
+        final_truth_claimed: false,
         density_affects_activity_not_truth: true,
       });
     }
@@ -467,7 +467,7 @@
         renderer_ownership_claimed: false,
         production_registry_mutated: false,
         persisted: false,
-        truth_final: false,
+        final_truth_claimed: false,
         density_affects_activity_not_truth: true,
       });
     }
