@@ -1790,13 +1790,7 @@ if (productionShadowSelfCheck) {
     window.__rmProductionShadowState = function() {
         const smoke = window.__rmSmokeState ? window.__rmSmokeState() : {};
         const rasterAura = smoke.rasterAura || {};
-        return Object.freeze({
-            schema_version: 1,
-            mode: "debug_production_shadow_self_check_only",
-            productionShadowSelfCheckEnabled: true,
-            activeRendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
-            rendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
-            legacySearchRegionsActive: ACTIVE_RENDERER_SUBSTRATE === RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS,
+        const selfCheck = {
             rendererMutationClaimed: false,
             rawPayloadExposureClaimed: false,
             observerControlClaimed: false,
@@ -1820,6 +1814,63 @@ if (productionShadowSelfCheck) {
             canonicalDryRunEnabled: Boolean(smoke.canonicalDryRunEnabled),
             canonicalVisibleDebugEnabled: Boolean(smoke.canonicalVisibleDebugEnabled),
             nonFiniteCoordinateCount: smoke.nonFiniteCoords || 0,
+        };
+        const failedGates = [];
+        const warnings = [];
+        if (ACTIVE_RENDERER_SUBSTRATE !== RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS) {
+            failedGates.push("production_path_unchanged");
+        }
+        if (
+            selfCheck.rendererMutationClaimed ||
+            selfCheck.rawPayloadExposureClaimed ||
+            selfCheck.productionRegistryMutated ||
+            selfCheck.domOrMapMutated ||
+            selfCheck.productionLayersHydrated
+        ) {
+            failedGates.push("runtime_sovereignty");
+        }
+        if (selfCheck.observerControlClaimed) {
+            failedGates.push("observer_safety");
+        }
+        if (selfCheck.staleHydrationClaimed) {
+            failedGates.push("cache_scheduler_safety");
+        }
+        if (
+            selfCheck.symbolicScoringClaimed ||
+            selfCheck.recommendationSurfaceClaimed ||
+            selfCheck.finalTruthClaimed
+        ) {
+            failedGates.push("layer_sovereignty");
+        }
+        if (selfCheck.auraDebugVisualModeActive || selfCheck.auraInitialized || selfCheck.auraSampleCount > 0) {
+            warnings.push("aura_debug_state_observed");
+        }
+        const passed = failedGates.length === 0;
+        const readiness = Object.freeze({
+            status: passed ? "production_candidate" : "not_ready",
+            passed,
+            failed_gates: Object.freeze(failedGates),
+            warnings: Object.freeze(warnings),
+            substrate: ACTIVE_RENDERER_SUBSTRATE,
+            debug_only: true,
+            default_behavior_changed: false,
+            visible_ui_created: false,
+            renderer_substrate_changed: false,
+            aura_rendering_invoked: selfCheck.auraInitialized || selfCheck.auraSampleCount > 0 || selfCheck.auraLayerCount > 0,
+            raw_payload_exposed: false,
+            recommendation_surface_created: false,
+            scoring_surface_created: false,
+            final_truth_claimed: false,
+        });
+        return Object.freeze({
+            schema_version: 1,
+            mode: "debug_production_shadow_self_check_only",
+            productionShadowSelfCheckEnabled: true,
+            activeRendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
+            rendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
+            legacySearchRegionsActive: ACTIVE_RENDERER_SUBSTRATE === RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS,
+            readiness,
+            ...selfCheck,
         });
     };
 }

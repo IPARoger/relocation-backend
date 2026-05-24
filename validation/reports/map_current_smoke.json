@@ -1,7 +1,7 @@
 {
   "description": "map_CURRENT.html browser smoke test",
-  "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779645757&skipOnboarding=1",
-  "generated_at_utc": "2026-05-24T18:03:05.299076+00:00",
+  "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779646330&skipOnboarding=1",
+  "generated_at_utc": "2026-05-24T18:12:40.258558+00:00",
   "overall_pass": true,
   "checks": [
     {
