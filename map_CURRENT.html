@@ -926,6 +926,7 @@ const debugAdaptiveMode = MAP_URL.has("debugAdaptive");
 const debugProgressiveRevealMode = MAP_URL.has("debugProgressiveReveal");
 const debugNoLatCap = MAP_URL.has("debugNoLatCap");
 const productionShadowSelfCheck = MAP_URL.has("productionShadowSelfCheck");
+const devRendererProofEnabled = productionShadowSelfCheck && MAP_URL.has("devRendererProof");
 /** ARCHAEOLOGY/debug PoC, not production substrate: Sun-ASC raster paths. */
 /** Truth-sampled raster (uniform or adaptive when ?debugAdaptive=1 / reveal PoC). */
 const useRasterAura =
@@ -1911,15 +1912,33 @@ if (productionShadowSelfCheck) {
             scoring_surface_created: false,
             final_truth_claimed: false,
         });
+        const devRendererProof = Object.freeze({
+            dev_renderer_proof: devRendererProofEnabled,
+            debug_only: true,
+            active_substrate: ACTIVE_RENDERER_SUBSTRATE,
+            production_substrate_flipped: false,
+            production_layers_hydrated: false,
+            real_user_rendering_created: false,
+            product_ui_created: false,
+            aura_output_created: false,
+            backend_fetch_created: false,
+            scheduler_cache_execution: false,
+            raw_payload_exposed: false,
+            recommendation_surface_created: false,
+            scoring_surface_created: false,
+            final_truth_claimed: false,
+        });
         return Object.freeze({
             schema_version: 1,
             mode: "debug_production_shadow_self_check_only",
             productionShadowSelfCheckEnabled: true,
+            devRendererProofEnabled,
             activeRendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
             rendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
             legacySearchRegionsActive: ACTIVE_RENDERER_SUBSTRATE === RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS,
             readiness,
             rendererAdjacent,
+            devRendererProof,
             ...selfCheck,
         });
     };
@@ -1927,6 +1946,7 @@ if (productionShadowSelfCheck) {
         const state = window.__rmProductionShadowState();
         const readiness = state.readiness || {};
         const rendererAdjacent = state.rendererAdjacent || {};
+        const devRendererProof = state.devRendererProof || {};
         const container = document.createElement("div");
         container.id = "productionShadowDevOverlay";
         container.className = "production-shadow-dev-overlay visible";
@@ -1991,6 +2011,37 @@ if (productionShadowSelfCheck) {
             rendererPanel.appendChild(row);
         });
         container.appendChild(rendererPanel);
+        if (state.devRendererProofEnabled) {
+            const devRendererPanel = document.createElement("div");
+            devRendererPanel.id = "productionShadowDevRendererProof";
+            devRendererPanel.className = "production-shadow-debug-indicator";
+            devRendererPanel.dataset.productionShadowDevRendererProof = "1";
+            const devRendererRows = [
+                ["dev_renderer_proof", String(devRendererProof.dev_renderer_proof === true)],
+                ["debug_only", String(devRendererProof.debug_only === true)],
+                ["active_substrate", devRendererProof.active_substrate || state.rendererSubstrate],
+                ["production_substrate_flipped", String(devRendererProof.production_substrate_flipped === true)],
+                ["production_layers_hydrated", String(devRendererProof.production_layers_hydrated === true)],
+                ["real_user_rendering_created", String(devRendererProof.real_user_rendering_created === true)],
+                ["product_ui_created", String(devRendererProof.product_ui_created === true)],
+                ["aura_output_created", String(devRendererProof.aura_output_created === true)],
+                ["backend_fetch_created", String(devRendererProof.backend_fetch_created === true)],
+                ["scheduler_cache_execution", String(devRendererProof.scheduler_cache_execution === true)],
+                ["raw_payload_exposed", String(devRendererProof.raw_payload_exposed === true)],
+                ["recommendation_surface_created", String(devRendererProof.recommendation_surface_created === true)],
+                ["scoring_surface_created", String(devRendererProof.scoring_surface_created === true)],
+                ["final_truth_claimed", String(devRendererProof.final_truth_claimed === true)],
+            ];
+            const devRendererTitle = document.createElement("b");
+            devRendererTitle.textContent = "DEV DEBUG dev renderer proof";
+            devRendererPanel.appendChild(devRendererTitle);
+            devRendererRows.forEach(([label, value]) => {
+                const row = document.createElement("div");
+                row.textContent = `${label}: ${value}`;
+                devRendererPanel.appendChild(row);
+            });
+            container.appendChild(devRendererPanel);
+        }
         document.getElementById("map")?.appendChild(container);
     }
     renderProductionShadowDebugIndicator();
