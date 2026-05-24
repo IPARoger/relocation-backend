@@ -220,6 +220,19 @@ def main() -> int:
             }
         )
 
+        page.select_option("#chartProfile", "baseline_validated")
+        profile_before_open = page.evaluate("() => document.getElementById('chartProfile').value")
+        page.locator("#chartProfile").click()
+        page.wait_for_timeout(200)
+        profile_after_open = page.evaluate("() => document.getElementById('chartProfile').value")
+        checks.append(
+            {
+                "id": "profile_select_stable_on_open",
+                "pass": profile_before_open == profile_after_open == "baseline_validated",
+                "detail": {"before": profile_before_open, "after_open": profile_after_open},
+            }
+        )
+
         profile_change = select_opens_and_changes(
             page, "#chartProfile", "edge_high_north"
         )
@@ -310,6 +323,21 @@ def main() -> int:
                 and overlay_state["aspectLayers"] > 0
                 and overlay_state["nonFiniteCoords"] == 0,
                 "detail": overlay_state,
+            }
+        )
+        checks.append(
+            {
+                "id": "default_renderer_substrate",
+                "pass": overlay_state.get("rendererSubstrate") == "legacy_search_regions"
+                and not overlay_state.get("canonicalRendererBranchActive", False)
+                and not overlay_state.get("canonicalVisibleDebugEnabled", False)
+                and not overlay_state.get("canonicalDryRunEnabled", False),
+                "detail": {
+                    "rendererSubstrate": overlay_state.get("rendererSubstrate"),
+                    "canonicalRendererBranchActive": overlay_state.get("canonicalRendererBranchActive"),
+                    "canonicalVisibleDebugEnabled": overlay_state.get("canonicalVisibleDebugEnabled"),
+                    "canonicalDryRunEnabled": overlay_state.get("canonicalDryRunEnabled"),
+                },
             }
         )
 
