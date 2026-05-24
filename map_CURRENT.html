@@ -467,6 +467,30 @@ html.map-panel-show-legend #panelLegend { display: block; }
     color: #991b1b;
 }
 
+.production-shadow-debug-indicator {
+    display: none;
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 1001;
+    max-width: 300px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background: rgba(15, 23, 42, 0.92);
+    color: #e2e8f0;
+    font: 11px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    pointer-events: none;
+}
+
+.production-shadow-debug-indicator.visible {
+    display: block;
+}
+
+.production-shadow-debug-indicator b {
+    color: #fbbf24;
+}
+
 .aura-raster-layer {
     display: none;
     position: absolute;
@@ -1873,6 +1897,39 @@ if (productionShadowSelfCheck) {
             ...selfCheck,
         });
     };
+    function renderProductionShadowDebugIndicator() {
+        const state = window.__rmProductionShadowState();
+        const readiness = state.readiness || {};
+        const panel = document.createElement("div");
+        panel.id = "productionShadowDebugIndicator";
+        panel.className = "production-shadow-debug-indicator visible";
+        panel.setAttribute("aria-hidden", "true");
+        panel.dataset.productionShadowDebugIndicator = "1";
+        const rows = [
+            ["status", readiness.status || "unknown"],
+            ["passed", String(Boolean(readiness.passed))],
+            ["substrate", readiness.substrate || state.rendererSubstrate],
+            ["debug_only", String(readiness.debug_only === true)],
+            ["default_behavior_changed", String(readiness.default_behavior_changed === true)],
+            ["debug_indicator_visible", "true"],
+            ["renderer_substrate_changed", String(readiness.renderer_substrate_changed === true)],
+            ["aura_rendering_invoked", String(readiness.aura_rendering_invoked === true)],
+            ["raw_payload_exposed", String(readiness.raw_payload_exposed === true)],
+            ["recommendation_surface_created", String(readiness.recommendation_surface_created === true)],
+            ["scoring_surface_created", String(readiness.scoring_surface_created === true)],
+            ["final_truth_claimed", String(readiness.final_truth_claimed === true)],
+        ];
+        const title = document.createElement("b");
+        title.textContent = "DEV DEBUG readiness metadata";
+        panel.appendChild(title);
+        rows.forEach(([label, value]) => {
+            const row = document.createElement("div");
+            row.textContent = `${label}: ${value}`;
+            panel.appendChild(row);
+        });
+        document.getElementById("map")?.appendChild(panel);
+    }
+    renderProductionShadowDebugIndicator();
 }
 
 let currentRenderToken = 0;
