@@ -298,6 +298,10 @@ The Phase 2.17 sandbox remains dev-only and reversible. It may bind isolated hyd
 
 The Phase 2.18 sandbox remains dev-only and reversible. It may progress coarse overlays into refined overlays with deterministic supersession, lineage, and cleanup semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist refinement state, and never imply incomplete refinement is final truth.
 
+### Phase 2.19 Adaptive Refinement Density Sandbox
+
+The Phase 2.19 sandbox remains dev-only and reversible. It may prioritize progressive refinement density by semantic importance, boundary pressure, interior stability, and budget metadata, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist adaptive state, and never imply high-density regions are more true than sparse stable interiors.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
