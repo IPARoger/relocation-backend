@@ -294,6 +294,10 @@ The Phase 2.16 sandbox remains dev-only and reversible. It may manage multiple i
 
 The Phase 2.17 sandbox remains dev-only and reversible. It may bind isolated hydration overlays to semantic viewport scope and invalidate or replace them during viewport shifts, but must preserve `rendererSubstrate = legacy_search_regions`, never claim viewport or renderer ownership, never synchronize production map state, never mutate production overlay registries, and never persist viewport hydration state.
 
+### Phase 2.18 Progressive Refinement Hydration Sandbox
+
+The Phase 2.18 sandbox remains dev-only and reversible. It may progress coarse overlays into refined overlays with deterministic supersession, lineage, and cleanup semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist refinement state, and never imply incomplete refinement is final truth.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
