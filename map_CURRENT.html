@@ -891,6 +891,7 @@ const rasterAuraMode = MAP_URL.has("rasterAura");
 const debugAdaptiveMode = MAP_URL.has("debugAdaptive");
 const debugProgressiveRevealMode = MAP_URL.has("debugProgressiveReveal");
 const debugNoLatCap = MAP_URL.has("debugNoLatCap");
+const productionShadowSelfCheck = MAP_URL.has("productionShadowSelfCheck");
 /** ARCHAEOLOGY/debug PoC, not production substrate: Sun-ASC raster paths. */
 /** Truth-sampled raster (uniform or adaptive when ?debugAdaptive=1 / reveal PoC). */
 const useRasterAura =
@@ -1784,6 +1785,44 @@ window.__rmSmokeState = function() {
         libraryHandoff: { ...lastLibraryHandoff }
     };
 };
+
+if (productionShadowSelfCheck) {
+    window.__rmProductionShadowState = function() {
+        const smoke = window.__rmSmokeState ? window.__rmSmokeState() : {};
+        const rasterAura = smoke.rasterAura || {};
+        return Object.freeze({
+            schema_version: 1,
+            mode: "debug_production_shadow_self_check_only",
+            productionShadowSelfCheckEnabled: true,
+            activeRendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
+            rendererSubstrate: ACTIVE_RENDERER_SUBSTRATE,
+            legacySearchRegionsActive: ACTIVE_RENDERER_SUBSTRATE === RENDERER_SUBSTRATES.LEGACY_SEARCH_REGIONS,
+            rendererMutationClaimed: false,
+            rawPayloadExposureClaimed: false,
+            observerControlClaimed: false,
+            staleHydrationClaimed: false,
+            symbolicScoringClaimed: false,
+            recommendationSurfaceClaimed: false,
+            finalTruthClaimed: false,
+            auraDebugVisualModeActive: Boolean(useRasterAura || debugAuraMode || debugAdaptiveMode || debugProgressiveRevealMode),
+            productionReadinessUiActive: false,
+            adapterUiActive: false,
+            fetchUsed: false,
+            renderStarted: false,
+            productionLayersHydrated: false,
+            productionRegistryMutated: false,
+            domOrMapMutated: false,
+            rawBackendPayloadExposed: false,
+            auraInitialized: Boolean(rasterAura.initialized),
+            auraSampleCount: rasterAura.sampleCount || 0,
+            auraLayerCount: smoke.auraLayers || 0,
+            canonicalRendererBranchActive: Boolean(smoke.canonicalRendererBranchActive),
+            canonicalDryRunEnabled: Boolean(smoke.canonicalDryRunEnabled),
+            canonicalVisibleDebugEnabled: Boolean(smoke.canonicalVisibleDebugEnabled),
+            nonFiniteCoordinateCount: smoke.nonFiniteCoords || 0,
+        });
+    };
+}
 
 let currentRenderToken = 0;
 let debounceTimer = null;
