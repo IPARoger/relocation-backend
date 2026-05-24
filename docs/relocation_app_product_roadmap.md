@@ -286,6 +286,10 @@ The Phase 2.14 fetch bridge remains dev/smoke-only and single-request. It may ca
 
 The Phase 2.15 sandbox remains dev-only and reversible. It may hydrate one isolated visual proof from sanitized runtime metadata, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never mutate production overlay registries, never persist state, and never replace production rendering.
 
+### Phase 2.16 Multi-Overlay Coexistence Sandbox
+
+The Phase 2.16 sandbox remains dev-only and reversible. It may manage multiple isolated hydration overlays with deterministic create/update/replace/invalidate/remove semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never mutate production overlay registries, never persist state, and never become production overlay orchestration.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
