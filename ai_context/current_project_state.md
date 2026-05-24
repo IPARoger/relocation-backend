@@ -28,15 +28,18 @@ Production readiness visibility:
 
 - A debug-only readiness indicator exists only under `?productionShadowSelfCheck=1`.
 - `8d93fc7` added the Phase 2.30 debug dev overlay container.
+- `3f8ced0` added Phase 2.31 renderer-adjacent debug metadata.
 - The debug dev overlay container is absent by default and appears only under `?productionShadowSelfCheck=1`.
-- The readiness indicator is now hosted inside the debug dev overlay container.
+- The readiness indicator and renderer-adjacent metadata are hosted inside the debug dev overlay container.
 - It is absent by default and must not be treated as product UI.
 - It reports sanitized readiness metadata only and does not change production behavior.
-- This is not product UI and is not renderer integration.
+- Phase 2.31 is renderer-adjacent metadata only, not renderer integration.
+- No real rendering has been created.
 
 Aura status:
 
 - Aura remains prototype/debug/design-only, not production rendering.
+- No aura output has been promoted.
 - The aura visual concept is not approved yet.
 - Static visual mockups and readability/overlap tests are still needed before production aura rendering.
 
@@ -94,7 +97,7 @@ Governance posture:
 - no persistence,
 - and `rendererSubstrate = legacy_search_regions`.
 
-## Phase 2.24-2.30 Production Shadow Governance Chain
+## Phase 2.24-2.31 Production Shadow Governance Chain
 
 The production-shadow chain proves readiness evaluation and visibility boundaries without changing default production behavior:
 
@@ -105,6 +108,7 @@ The production-shadow chain proves readiness evaluation and visibility boundarie
 - `95d4afc` — Phase 2.28 in-page readiness evaluation.
 - `ea65d35` — Phase 2.29 debug readiness indicator.
 - `8d93fc7` — Phase 2.30 debug dev overlay container.
+- `3f8ced0` — Phase 2.31 renderer-adjacent debug metadata.
 
 Governance posture:
 
@@ -119,12 +123,15 @@ Governance posture:
 - no recommendation/scoring/final-truth surface,
 - no product UI,
 - no visible renderer integration,
+- no real rendering,
 - and no aura production integration.
 
 Related smoke/governance commits:
 
 - `eeb7657` — kept `scripts/smoke_map_current.py` focused on production/default map behavior.
 - `a73a548` — split aura debug checks from the production map smoke.
+- `7e87b08` — committed `substrate_adapter.js` as an inert production-loaded scaffold.
+- `8328c0f` — committed `aura_field_engine.py` as debug/prototype backend support.
 
 Related visual-design doctrine:
 
@@ -198,15 +205,18 @@ Resolved governance progress:
 
 - Phase 2.19-2.21 terminology purification was committed.
 - Phase 2.22 and Phase 2.23 were committed as isolated sandbox scaffolds.
-- Phase 2.24-2.30 established debug-only production readiness checks, visible dev-only readiness metadata, and a bounded dev overlay container without production behavior change.
+- Phase 2.24-2.31 established debug-only production readiness checks, visible dev-only readiness metadata, a bounded dev overlay container, and renderer-adjacent placeholder metadata without production behavior change.
+- `substrate_adapter.js` was production-loaded but untracked; it is now committed as an inert scaffold.
+- `aura_field_engine.py` was backend-imported but untracked; it is now committed as debug/prototype backend support.
 
 Current cautions:
 
-- Keep `phase2_cache_scheduler.js`, `substrate_adapter.js`, and `aura_field_engine.py` out of production work until each is separately inspected.
-- These files remain unclassified production-adjacent prototypes; do not mix them into renderer-adjacent work until inspected or quarantined.
+- Keep `phase2_cache_scheduler.js` out of renderer work unless scheduler/cache execution is explicitly in scope.
+- `phase2_cache_scheduler.js` remains sandbox/prototype for the current path.
 - Do not mix aura visual work with the production readiness bridge.
-- Do not treat the debug readiness indicator or the Phase 2.30 debug dev overlay container as product UI.
+- Do not treat the debug readiness indicator, Phase 2.30 debug dev overlay container, or Phase 2.31 renderer-adjacent metadata as product UI.
 - Do not implement aura rendering until the visual concept is approved.
+- Do not proceed to first renderer integration without a Phase 2.32 decision review.
 
 ---
 
@@ -214,8 +224,11 @@ Current cautions:
 
 Next recommended action:
 
-1. Read-only inspect/quarantine `aura_field_engine.py`, `phase2_cache_scheduler.js`, and `substrate_adapter.js`.
-2. Classify each as active candidate, obsolete prototype, sandbox-only, or unsafe drift.
-3. Then decide whether Phase 2.31 can proceed as a debug-only renderer-adjacent metadata adapter/container.
+1. Perform a read-only Phase 2.32 decision review.
+2. Likely Phase 2.32 options:
+   - A. final debug-only renderer readiness contract check,
+   - B. first controlled dev-only renderer integration,
+   - C. workspace hygiene/quarantine,
+   - D. aura visual mockup work separately.
 
-Do not proceed to production renderer integration until the remaining production-adjacent dirty files have been explicitly inspected or quarantined.
+Do not proceed to first renderer integration until the Phase 2.32 decision review confirms scope and required validation.
