@@ -306,6 +306,10 @@ The Phase 2.19 sandbox remains dev-only and reversible. It may prioritize progre
 
 The Phase 2.20 sandbox remains dev-only and reversible. It may represent unresolved or overlapping ambiguity domains with candidate continuity and supersession semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist ambiguity state, never imply ambiguity is error, and never imply overlapping candidates are simultaneously confirmed truth.
 
+### Phase 2.21 Implication Field Sandbox
+
+The Phase 2.21 sandbox remains dev-only and reversible. It may represent nearby unresolved implication fields from ambiguity/adaptive domains with directional continuity and supersession semantics, but must preserve `rendererSubstrate = legacy_search_regions`, never claim renderer ownership, never persist implication state, never imply implication is confirmed truth, and never synthesize speculative astrology meaning.
+
 Professional mode:
 
 - Non-AI professional mode should remain fully usable.
