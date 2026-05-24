@@ -1,0 +1,121 @@
+{
+  "description": "map_CURRENT.html aura debug/prototype smoke test",
+  "status": "debug/prototype validation only; not production default smoke",
+  "base_url": "http://127.0.0.1:8000",
+  "generated_at_utc": "2026-05-24T16:40:23.411963+00:00",
+  "overall_pass": true,
+  "checks": [
+    {
+      "id": "raster_debug_page_loads",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779640736&skipOnboarding=1&rasterAura=1&debugAura=1"
+      }
+    },
+    {
+      "id": "raster_aura_initializes",
+      "pass": true,
+      "detail": {
+        "hook": {
+          "initialized": true,
+          "stage": "final",
+          "sampleCount": 91750,
+          "gridWidth": null,
+          "gridHeight": null,
+          "latCap": "ON",
+          "renderMode": "raster",
+          "sampleReductionPct": null,
+          "leafCount": null
+        },
+        "canvas_visible": true
+      }
+    },
+    {
+      "id": "raster_aura_no_runaway_layers",
+      "pass": true,
+      "detail": {
+        "aura_polygon_layers": 0,
+        "raster": {
+          "initialized": true,
+          "stage": "final",
+          "sampleCount": 91750,
+          "gridWidth": null,
+          "gridHeight": null,
+          "latCap": "ON",
+          "renderMode": "raster",
+          "sampleReductionPct": null,
+          "leafCount": null
+        }
+      }
+    },
+    {
+      "id": "raster_page_dropdown_stable",
+      "pass": true,
+      "detail": {
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "baseline_validated",
+        "after": "edge_high_north"
+      }
+    },
+    {
+      "id": "raster_console_clean",
+      "pass": true,
+      "detail": {
+        "new_errors": []
+      }
+    },
+    {
+      "id": "adaptive_debug_page_loads",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779640746&skipOnboarding=1&debugAdaptive=1&debugAura=1"
+      }
+    },
+    {
+      "id": "adaptive_aura_api",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "render_mode": "adaptive_raster",
+        "samples": 80,
+        "cells": 16,
+        "stop_reason": "field_converged",
+        "converged": true,
+        "max_delta": 0,
+        "reveal_ok": true,
+        "reveal_stage": "regional_refine",
+        "reveal_samples": 4000
+      }
+    },
+    {
+      "id": "adaptive_aura_ui_initializes",
+      "pass": true,
+      "detail": {
+        "hook": {
+          "initialized": true,
+          "stage": "final",
+          "sampleCount": 23420,
+          "gridWidth": null,
+          "gridHeight": null,
+          "latCap": "ON",
+          "renderMode": "adaptive",
+          "sampleReductionPct": 78.7,
+          "leafCount": 3522
+        },
+        "canvas_visible": true,
+        "aura_polygon_layers": 0
+      }
+    },
+    {
+      "id": "adaptive_console_clean",
+      "pass": true,
+      "detail": {
+        "new_errors_after_api": [],
+        "new_errors_after_ui": []
+      }
+    }
+  ]
+}
