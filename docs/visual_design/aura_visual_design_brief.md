@@ -32,6 +32,242 @@ This helps the user identify cities or sub-regions with more concentrated power 
 
 ---
 
+## Separate Visual Languages
+
+The visual system currently has three separate visual languages that must be designed independently before they are combined:
+
+- aspect-to-angle bands,
+- rain discovery for user-selected polygons/regions,
+- virga ghost discovery for unselected sibling regions.
+
+These should not be combined yet.
+
+Do not use rain or virga visuals for aspect-to-angle bands.
+
+Do not use aspect-band visuals for polygon discovery.
+
+Do not proceed to combined animation before each target is independently approved.
+
+---
+
+## Aspect-to-Angle Bands
+
+Aspect-to-angle visuals are bounded orb/intensity bands, not diffuse aura clouds.
+
+Aspect-to-angle bands are continuous gradient fields, not particle fields.
+
+They must not be rendered as:
+
+- rain,
+- virga,
+- probe dots,
+- star dots,
+- bacteria,
+- scatter,
+- or pixelated discovery particles.
+
+Rain and virga are discrete-dot animation languages. Aspect-to-angle bands are smooth continuous intensity fields around exact centerlines.
+
+The first design task is to define the band outline and boundary before color rendering. Only after the outer bounds and centerline are known should the band receive a smooth continuous color/intensity field.
+
+Initial width tests should include primary aspect/orb caps such as:
+
+- 10° each side,
+- 8° each side,
+- 6° each side,
+- 3° each side.
+
+The primary outer cap comes from the aspect/orb setting, with possible user override.
+
+The narrow-space restraint is separate. The 30% adjacent-house/space cap is not the universal primary cap.
+
+When an adjacent house/space is narrow, especially under about 30° or otherwise strongly unequal, cap that side so the band does not consume too much of the neighboring space. An experimental restraint may be:
+
+- about 30% of the adjacent house/space width.
+
+Do not treat the 30% cap as the universal primary cap. It is a restraint for narrow or unequal spaces.
+
+Each side may be capped independently. Asymmetric left/right caps are allowed initially because they may be more truthful to the neighboring field geometry. Symmetric caps may be tested later only if truthful asymmetry proves too visually confusing.
+
+Early experiments should avoid high-latitude and 65° complications. Solve ordinary cases first.
+
+Centerline and edge rules:
+
+- the centerline must not be white,
+- the centerline should be the darkest or most opaque version of the selected color,
+- outer edges must not fade to white,
+- outer edges should fade to near-transparent versions of the selected color,
+- no part of the band should turn white unless the selected color itself is white, which is not the normal case,
+- the outer boundary must not look ragged, frayed, speckled, or broken,
+- the outermost edge should be a continuous, uniform, extremely transparent version of the selected color,
+- the next inward region should be smoothly and uniformly more visible,
+- the gradient should remain smooth from edge to centerline,
+- visible parallel stripe artifacts should be avoided.
+
+Preferred construction:
+
+1. define the outer bounds,
+2. define the centerline,
+3. render a smooth continuous gradient across the band.
+
+Opacity and intensity should accelerate toward exactness. Static target tests should compare:
+
+- linear ramps,
+- logarithmic ramps,
+- harmonic/overtone ramps,
+- Fibonacci-like ramps.
+
+The visual target is closer to a controlled Gaussian, logarithmic, or harmonic falloff than a feathered polygon edge or pixel field. A Gaussian-like curve may be acceptable if controlled and tuned to the desired harmonic, Fibonacci, or logarithmic acceleration.
+
+The key requirement is continuous smooth concentration toward exactness. The opacity ramp may be mathematically generated, but the visible result should be smooth, proportional, premium, and map-readable.
+
+Prior renders failed partly because the opaque center region was too broad and too fat. The strongest opacity should be concentrated at the exact centerline.
+
+The adjacent band may retain a small amount of strong opacity depending on Fibonacci, harmonic, or logarithmic sequencing, but opacity should fall off quickly after the immediate center/core zone. Most of the band outside the tight center should be translucent to near-transparent.
+
+Avoid broad "speedbump" opacity where the whole band feels similarly cloudy or heavy. The band should feel like a narrow exactness crest with smooth proportional falloff, not a wide opaque mound.
+
+The outer edge remains a continuous, uniform, extremely faint version of the selected color, adjusting proportionally where the band narrows to accommodate small adjacent houses/spaces.
+
+Stripe and banding constraints:
+
+- do not create quasi-parallel line artifacts around the center,
+- do not color degree-by-degree or half-degree-by-half-degree if that creates visible banding,
+- prefer defining the outer bounds and centerline, then rendering a continuous gradient across the whole width,
+- if internal "harmonic bands" are used conceptually, they should be visually blended into a smooth field, not obvious stripes.
+
+Label readability:
+
+- the middle core may obscure very small labels briefly or locally,
+- outside the tight core, labels and city names should remain readable through the band,
+- the band should imply intensity without behaving like an opaque cloud.
+
+Before algorithmic implementation, create static target mockups for:
+
+- 10° each side,
+- 8° each side,
+- 6° each side,
+- 3° each side.
+
+These mockups should show the finished smooth band target only. Do not combine bands with rain or virga in these mockups.
+
+This is emotional implication and visual guidance, not the official measurement layer. Exact math belongs in popup/table detail.
+
+---
+
+## Rain Discovery Micro-Animations
+
+Rain is for user-selected polygon/region conditions only.
+
+Rain begins as a dense, subtle starry field of tiny uniform dots. Dots should be:
+
+- small,
+- refined,
+- uniform,
+- elegant.
+
+Rain should not produce:
+
+- blobs,
+- twinkling,
+- mechanical marching-soldier grids.
+
+The animation should eventually resolve into a full translucent polygon. It should not remain scattered dots.
+
+By the time rain completes, there should be no feathering anywhere. The final selected region should look crisp and neat like the original polygon overlay model. Every rendered subpixel/area should resolve cleanly as inside or outside the selected polygon/region.
+
+Rain discovery may use dots during the animation, but the final state must not remain:
+
+- dotted,
+- fuzzy,
+- feathered,
+- or cloudy.
+
+The final polygon should be a complete translucent filled region with crisp boundaries and map-readable opacity.
+
+Border clustering and interior filling are separate micro-animations.
+
+Border clustering is the computationally hard part:
+
+- dots/bacteria cluster around true borders,
+- border evidence tightens over passes,
+- the final border should feel discovered, not stamped on.
+
+Interior filling is more passive and economical once the border is approximately known:
+
+- once the border is roughly known, the interior fills with small grey/white stars,
+- those stars gradually saturate into the selected polygon color,
+- the result resolves into the final translucent polygon state.
+
+For the first target, border crisping and interior fill should coterminate: the sharp border and complete fill arrive together.
+
+Later tests may allow the border to finish slightly before the interior if that feels more organic.
+
+The color transition from grey/white stars into final polygon color may begin linear, but later tests should compare logarithmic and harmonic intensification so dots feel like they "find themselves" into the final color.
+
+The animation may originally have been intended to buy time during brute-force calculation, but visual truth should not depend on incomplete computation. It may be more truthful and simpler if rain is driven from already-computed/cached Layer 1 truth data.
+
+---
+
+## Multiple Selected Regions
+
+The user may select multiple regions or conditions.
+
+Multiple selected regions should rain/fill roughly simultaneously, with slight organic timing variation across all selected regions.
+
+Do not let multiple regions animate in robotic lockstep.
+
+Design progression:
+
+1. first solve one selected region,
+2. then solve two selected regions,
+3. then three,
+4. then four,
+5. then five and more.
+
+Overlap rules remain a separate design protocol.
+
+Candidate overlap treatments include:
+
+- blended child colors,
+- extremely subtle texture or crosshatching.
+
+If texture/crosshatching or blended child colors become part of the final overlap language, rain discovery must eventually resolve into that final mixed/texture state too.
+
+Texture must remain premium, subtle, and nearly unconscious. It must never become noisy.
+
+---
+
+## Virga Discovery
+
+Virga uses the same visual grammar as rain but aborts early.
+
+Virga is for unselected sibling conditions of the first selected variable only.
+
+Examples:
+
+- If `Sun in 1st` is selected, virga may imply `Sun in 2nd` through `Sun in 12th`, not all other planets.
+- If `ASC in Aries` is selected, virga may imply `ASC in Taurus` through `ASC in Pisces`.
+
+Virga behavior:
+
+- perform only a few ghost discovery passes; exact pass count remains a design variable,
+- treat "2-3 passes" as only a starting intuition, not a fixed rule,
+- avoid robotic lockstep across sibling virga regions,
+- vary timing, clustering, and fadeout with slight organic/random variation,
+- cluster close enough to imply borders and pique curiosity,
+- evaporate before crisp edges form,
+- evaporate before filled interiors form,
+- remain maximally subtle and charming.
+
+Initial rule: suppress virga where it intersects or materially overlaps user-selected rendered polygons.
+
+Future rule consideration: reduce or eliminate virga when many variables are selected, because the map may already be visually busy and the user is already exploring.
+
+Virga may be more truthful and easier to choreograph from already-computed/cached Layer 1 truth data, especially when multiple selected variables create conflicts.
+
+---
+
 ## Core Visual Doctrine
 
 ### 1. Aura should be built from a bounded field, not stripes
@@ -265,6 +501,15 @@ Aura should not look like:
 - opaque highlighter strokes,
 - or arbitrary visual decoration disconnected from the truth model.
 
+Human QA also rejects the current aura/progressive-reveal prototype visuals as implementation targets when they produce:
+
+- frayed or noisy aura edges,
+- insufficient opacity acceleration toward the centerline,
+- too-uniform or speedbump-like aura intensity,
+- mechanical, marching-soldier dot or raindrop patterns,
+- dots that are too large, blobby, or visually heavy,
+- grid-organized reveal patterns that feel engineered rather than organic.
+
 It should feel:
 
 - mathematically grounded,
@@ -272,6 +517,32 @@ It should feel:
 - elegant,
 - informative,
 - and calm.
+
+If raindrop or progressive reveal language is used, it should feel:
+
+- subtle,
+- small,
+- refined,
+- elegant,
+- organic,
+- and non-mechanical.
+
+The current aura/progressive reveal output is not an approved implementation target.
+
+---
+
+## Approved Target Direction
+
+Aura should be a bounded orb/intensity field, not a decorative texture or mechanical reveal pattern.
+
+The approved target direction is:
+
+- define the bounded aura region from orb/intensity logic,
+- ramp opacity and intensity nonlinearly toward exactness and the centerline,
+- make the centerline feel meaningfully intensified without making the map unreadable,
+- keep edges soft, clean, and map-readable rather than noisy or frayed,
+- keep any raindrop/progressive reveal treatment organic and refined rather than grid-like or mechanical,
+- create one approved static aura target/mockup before further aura or renderer implementation.
 
 ---
 
@@ -292,6 +563,25 @@ That means:
 In other words:
 
 **the visual concept should be approved before the full aura rendering system is deeply built out.**
+
+---
+
+## Correct Design and Build Order
+
+The correct order is:
+
+1. approve static aspect-to-angle band targets,
+2. approve rain start frame and final polygon frame,
+3. design rain in-between micro-animation stages,
+4. handle rain with multiple selected regions,
+5. design virga as aborted rain,
+6. only then consider combining visual languages.
+
+Do not combine visual languages prematurely.
+
+Do not animate until the static aspect-band target and the rain start/final frames are approved. Animations should be derived backward from approved beginning and end states.
+
+Do not keep experimenting with combined animations before the separate visual targets are approved.
 
 ---
 
@@ -392,3 +682,28 @@ The concept is clear.
 The final look is not yet approved.
 
 That approval should come before deeper implementation.
+
+---
+
+## Broader Visual System Context
+
+This brief may later become part of a larger visual system covering:
+
+- brand colors,
+- typography,
+- spacing,
+- map base style,
+- city labels,
+- polygon overlay colors,
+- overlap colors and textures,
+- aspect bands,
+- rain,
+- virga,
+- popup visual language,
+- 2° house cusp gradient,
+- greyscale popup notation for late-house planets,
+- chart drawing style,
+- professional/client export style,
+- internal debug/diagnostic surfaces.
+
+Internal debug/diagnostic surfaces are explicitly not commercial UI.
