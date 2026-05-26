@@ -1,0 +1,195 @@
+{
+  "artifact": "validation/visual_targets/phase2_46_multicolor_validation_board.png",
+  "changed_only": [
+    "teal/graphite pale edge residency reduced in multicolor board",
+    "report/narrative updated with beta placeholder and map sandbox plan",
+    "transport/math unchanged"
+  ],
+  "forbidden_operations": {
+    "blur": false,
+    "commits": false,
+    "geometry_redesign": false,
+    "glow": false,
+    "lighting": false,
+    "map_CURRENT_changes": false,
+    "production_integration": false,
+    "staging": false,
+    "texture_overlay": false,
+    "transport_redesign": false
+  },
+  "frozen_invariants": [
+    "transport",
+    "geometry",
+    "asymmetry logic",
+    "orthogonal cross-sections",
+    "station normalization",
+    "sample-cut architecture",
+    "independent side-local normalization",
+    "same hierarchy curve"
+  ],
+  "generated_at_utc": "2026-05-26T13:32:04.522978+00:00",
+  "goal": "documentation update, minor beta visual touch, and pre-map sandbox plan",
+  "governance": {
+    "committed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "staged": false,
+    "validation_only": true
+  },
+  "palettes": {
+    "graphite monochrome": {
+      "authority": "#242932",
+      "body": "#777E86",
+      "edge": "#C8CBD0",
+      "inner": "#424852",
+      "outer": "#A8ADB4",
+      "ridge": "#0D0F13"
+    },
+    "muted ember/red": {
+      "authority": "#62231D",
+      "body": "#A86A5F",
+      "edge": "#DDD1C9",
+      "inner": "#87392F",
+      "outer": "#C9A79F",
+      "ridge": "#3A120F"
+    },
+    "restrained deep teal": {
+      "authority": "#0A4650",
+      "body": "#668F92",
+      "edge": "#C8D5D2",
+      "inner": "#1F666E",
+      "outer": "#A9C0BE",
+      "ridge": "#042A33"
+    },
+    "warm gold/amber": {
+      "authority": "#654511",
+      "body": "#AA8B48",
+      "edge": "#DED6BF",
+      "inner": "#87641F",
+      "outer": "#CBB98B",
+      "ridge": "#342205"
+    }
+  },
+  "phase": "2.51",
+  "qa": {
+    "beta_visual_touch": "teal and graphite outer/edge colors reduced from near-white toward subdued material body; ember/red and amber/gold unchanged",
+    "pre_map_sandbox_plan": "next step is a standalone validation-only map sandbox using one MC and one ASC case, fixed and dynamic asymmetry, screenshot comparison to static boards, and explicit checks for label readability, pane ordering, pixel collapse, and no centerline drift",
+    "renderer_status": "beta placeholder, not final aesthetic approval",
+    "transport_math": "unchanged; same side-local u normalization, same geometry, same asymmetry cases, same hierarchy curve"
+  },
+  "revision": "docs_beta_visual_touch_pre_map_stabilization_v1",
+  "stats": {
+    "graphite monochrome": {
+      "dynamic_asymmetry": {
+        "left_pixels": 525180,
+        "left_u_minmax": [
+          2.059782673313748e-06,
+          0.9999949932098389
+        ],
+        "pixels_inside": 866467,
+        "right_pixels": 341287,
+        "right_u_minmax": [
+          5.455054292724526e-07,
+          0.9999997019767761
+        ]
+      },
+      "fixed_asymmetry": {
+        "left_pixels": 512172,
+        "left_u_minmax": [
+          0.0020325202494859695,
+          0.9979674816131592
+        ],
+        "pixels_inside": 666240,
+        "right_pixels": 154068,
+        "right_u_minmax": [
+          0.006775067653506994,
+          0.9959349036216736
+        ]
+      }
+    },
+    "muted ember/red": {
+      "dynamic_asymmetry": {
+        "left_pixels": 525180,
+        "left_u_minmax": [
+          2.6539512418821687e-06,
+          0.9999951720237732
+        ],
+        "pixels_inside": 866466,
+        "right_pixels": 341286,
+        "right_u_minmax": [
+          2.0817444692511344e-06,
+          0.9999943375587463
+        ]
+      },
+      "fixed_asymmetry": {
+        "left_pixels": 512172,
+        "left_u_minmax": [
+          0.0020325202494859695,
+          0.9979674816131592
+        ],
+        "pixels_inside": 666240,
+        "right_pixels": 154068,
+        "right_u_minmax": [
+          0.006775067653506994,
+          0.9959349036216736
+        ]
+      }
+    },
+    "restrained deep teal": {
+      "dynamic_asymmetry": {
+        "left_pixels": 525179,
+        "left_u_minmax": [
+          2.8030538032908225e-06,
+          0.999994695186615
+        ],
+        "pixels_inside": 866465,
+        "right_pixels": 341286,
+        "right_u_minmax": [
+          1.4077559171710163e-06,
+          0.999994158744812
+        ]
+      },
+      "fixed_asymmetry": {
+        "left_pixels": 512172,
+        "left_u_minmax": [
+          0.0020325202494859695,
+          0.9979674816131592
+        ],
+        "pixels_inside": 666240,
+        "right_pixels": 154068,
+        "right_u_minmax": [
+          0.006775067653506994,
+          0.9959349036216736
+        ]
+      }
+    },
+    "warm gold/amber": {
+      "dynamic_asymmetry": {
+        "left_pixels": 525180,
+        "left_u_minmax": [
+          2.059782673313748e-06,
+          0.999994695186615
+        ],
+        "pixels_inside": 866467,
+        "right_pixels": 341287,
+        "right_u_minmax": [
+          2.0817444692511344e-06,
+          0.9999997019767761
+        ]
+      },
+      "fixed_asymmetry": {
+        "left_pixels": 512172,
+        "left_u_minmax": [
+          0.0020325202494859695,
+          0.9979674816131592
+        ],
+        "pixels_inside": 666240,
+        "right_pixels": 154068,
+        "right_u_minmax": [
+          0.006775067653506994,
+          0.9959349036216736
+        ]
+      }
+    }
+  }
+}

@@ -119,6 +119,15 @@ Small, **low-risk**, **testable**, **isolated** chunks—ordered by current prod
 - **Architecture risks:** Medium—canvas/WebGL later; start with SVG/canvas **experiments off main branch** or feature flag.
 - **Do not overengineer:** No orb field computed as new astrology layer on backend until frontend vocabulary settles.
 
+### Chunk 5.2 — Validation-only transported-material map sandbox
+
+- **Why:** Phase 2.47/2.48 validation proved texture-coordinate transport, side-local proportional scaling, and extreme asymmetry behavior in static artifacts; the next question is whether the beta placeholder material survives real map projection, labels, zoom, and Leaflet pane constraints.
+- **Dependencies:** Phase 2.47 stabilization recommendation; Phase 2.48 stress-test caveats; locked centerline/boundary geometry from validation fixtures.
+- **Validation:** New sandbox artifact only, not `map_CURRENT.html`: one MC and one ASC case, one fixed asymmetry and one dynamic asymmetry, screenshot comparison against the static validation boards, and a narrative explicitly checking label readability, pane ordering, pixel collapse, and no centerline drift.
+- **UX risks:** Users may mistake the beta placeholder material for final aesthetic approval. Mitigation: sandbox banner and report must state "beta renderer placeholder, not final visual language."
+- **Architecture risks:** Medium if the map sandbox quietly becomes production integration. Keep it behind a standalone validation file with no production imports, no scheduler/cache work, and no runtime flags.
+- **Do not overengineer:** No multi-palette controls, no UI settings, no animation, no production toggle; prove map survival first.
+
 ---
 
 ## Priority band 6 — Comparison workflows

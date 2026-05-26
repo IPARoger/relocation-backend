@@ -170,11 +170,14 @@ Astro Assist may eventually suggest alternatives when exact selected variables a
 Example:
 If Sun in the 1st house is only available over the Pacific Ocean or remote wilderness, Astro Assist might search for a major city where the Sun trines or sextiles the Ascendant within a tight orb.
 
+The same substitution pattern may apply to desired placements, locations, or aspects when the exact request is unavailable, impractical, too remote, or carries unacceptable tradeoffs. Astro Assist can propose nearby symbolic alternatives, alternative locations, softened aspect relationships, or different configurations that preserve the user's underlying intention more practically.
+
 Potential language:
 "Exact placements are not always available in practical locations. Astro Assist can help search for symbolic substitutes, such as angle aspects or nearby configurations that approximate the intention of your original search."
 
 Important:
 The professional remains in charge.
+The user remains in control of the intention and tradeoff tolerance.
 
 Astro Assist suggests.
 It does not decide.
