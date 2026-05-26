@@ -31,6 +31,18 @@ Principles:
 - Avoid simple opacity escalation that turns the map dark or purple.
 - The overlap system should communicate "this is a stronger candidate area" without burying labels, coastlines, or city markers.
 
+### A.1 Overlap hot zones
+
+Overlap hot zones are semantically important discovery zones, not merely clutter. When several user-requested truths coincide, the map should preserve readability while still signaling: "this conjunction of conditions matters."
+
+Future overlap handling should balance:
+
+- **readability** — labels, coastlines, and city choice remain inspectable;
+- **truth signaling** — meaningful overlaps do not disappear into over-muted neutrality;
+- **user agency** — the app highlights structure without deciding what is "best" on the user's behalf.
+
+Optional subtle hotspot highlighting may later identify especially valuable overlaps, but it must be **off by default** or clearly user-controlled. Avoid paternalistic ranking language such as "best," "top," or "winner" unless the user explicitly asks for ranking under declared criteria. Prefer neutral language like "notable overlap," "high-concentration zone," or "candidate overlap."
+
 ## B. Child-Color Strategy
 
 The eventual color system should use intentional child colors for overlaps instead of relying on accidental transparency mixing.
@@ -72,6 +84,8 @@ Visual direction:
 - Keep the treatment calm and professional.
 
 The exclusion layer should say "do not prioritize here" without making the map hostile or unreadable.
+
+Negative / NOT / exclusion mode should be available only when the user explicitly says they do **not** want a placement, condition, or symbolic emphasis. It should render tastefully: charcoal, redacted, desaturated, or quiet warning language is acceptable; maximalist red danger language is not. The visual should communicate "intentionally deprioritized" rather than "scary" or "bad."
 
 ## D. Aura Philosophy
 
@@ -228,9 +242,29 @@ Future layer UI should treat each semantic layer like **tracks in a mixer**:
 
 - **Mute** or **hide** individual house conditions (A/B/C), angle-in-sign, or aspect overlay **without** forcing users into a single-variable mode.
 - **Solo** (temporary) is optional: isolate one condition to inspect boundaries, then restore others.
+- **Send to background** should lower a layer's visual priority while preserving it as contextual truth.
+- **Send to foreground** should raise a layer for inspection without claiming it is more important astrologically.
+- **Negative / NOT / exclusion mode** should mark explicitly unwanted conditions as quiet exclusions, not positive candidate areas.
 - Goal: make **complex overlaps inspectable** without nannying users away from multi-variable search—the map should support **dissection**, not prohibition.
 
 This is **documentation-only** here; implementation can follow a small toggle strip or a drawer, once overlay identity is stable in the renderer.
+
+### H.1 Mobile layer controls
+
+Layer controls can clutter quickly, especially once mute, solo, foreground/background ordering, and NOT/exclusion modes exist. Mobile should use a compact drawer or progressive-disclosure pattern rather than a Photoshop-style layer panel.
+
+Mobile controls should prioritize quick isolation and focus actions:
+
+- tap a layer to inspect;
+- long-press or menu for mute/solo/background/foreground;
+- keep NOT/exclusion mode deliberate and explicit;
+- avoid exposing every layer operation at once.
+
+The mobile goal is "quickly focus the map" rather than "manage a professional graphics stack."
+
+### H.2 Renderer status after Phase 2.48
+
+The transported-material renderer is **beta-stabilized**, not final aesthetic approval. Its architecture, side-local proportional scaling, and asymmetry behavior are accepted enough for validation-track map sandboxing. Future design AI or specialist review may refine material language and style presets, but should not reopen renderer architecture unless a map sandbox proves structural failure: centerline drift, broken side-local scaling, unacceptable label/readability collapse, or pane-order impossibility.
 
 ## I. First-run onboarding: map veil / spotlight (future)
 

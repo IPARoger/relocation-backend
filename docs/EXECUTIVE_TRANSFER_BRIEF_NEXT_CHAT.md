@@ -39,8 +39,34 @@ The current product direction is focused: relocation astrology, map-based discov
 - Adaptive policy: targeted escalation only, not global slowdown.
 - Phase-2 cache: prototyped and doctrinally defined, not yet production-wired.
 - Aesthetics: sandboxed; not product-blocking.
+- Current checkpoint/tag language: **`renderer-beta-stabilization`**.
+- Transported-material renderer: beta-stabilized for validation-track work, not final aesthetic approval.
 
 Do not silently switch renderers. Do not auto-promote canonical. Do not treat visual mismatch as math failure without evidence.
+
+### 4.1 Renderer handoff state
+
+Frozen unless a map sandbox proves structural failure:
+
+- texture-coordinate transport;
+- local `(s,u)` sampling;
+- independent side normalization;
+- proportional ridge/material scaling under asymmetric widths;
+- orthogonal cross-section identity;
+- validation-first governance.
+
+Flexible in later design passes:
+
+- palette families;
+- material language and style presets;
+- premium visual finish;
+- overlap child colors;
+- layer-control UX;
+- map pane ordering after validation evidence.
+
+Overlap hot-zone doctrine is now part of the handoff: overlaps are meaningful discovery zones, not merely clutter. Future controls should support mute, solo, send-to-background, send-to-foreground, and explicit negative / NOT / exclusion mode. Mobile must not inherit a Photoshop-style layer panel; use compact drawer/progressive disclosure and quick focus actions.
+
+The next intended phases are map/overlap sandbox review, map-context validation only if still needed, and later rain/virga work. Do **not** reopen renderer architecture for aesthetic dissatisfaction alone.
 
 ## 5. Governance Status
 
@@ -64,14 +90,12 @@ The product is now chart-centric, not only map-page-centric. Future commercial v
 
 ## 7. Immediate Next Recommended Phases
 
-1. **Phase 2.3 — Saved-view condition capture/replay only.** Capture and replay active conditions without auto-running `Find regions`.
-2. Account/auth scaffolding direction.
-3. Onboarding refinement.
-4. Professional sharing semantics and client-facing link trust.
-5. AI interpretation assistance after replay/truth semantics are stable.
-6. Production cache integration when repeat-viewport latency becomes a named trust risk.
+1. **Phase 2.52 map/overlap sandbox review.** Treat the validation-only map/overlap sandbox as complete or in active review; extract only evidence, caveats, and next validation questions.
+2. **Map-context validation only if needed.** If Phase 2.52 evidence leaves open questions, run another standalone validation sandbox with real map context, labels, pane ordering, and zoom behavior. Do not edit `map_CURRENT.html`.
+3. **Rain / virga discovery animation work.** Resume only after transported-material map survival and overlap governance are stable enough that discovery animation will not mask renderer uncertainty.
+4. **Saved-view / product scaffolding.** Still strategically important, but no longer the immediate next task from this chat. Return to saved-view condition capture/replay after the renderer/map validation thread is closed or explicitly paused.
 
-Renderer work should resume only if tied to a named production blocker or trust blocker.
+Renderer architecture work should resume only if a map-context sandbox proves structural failure, not because the beta material language still needs design refinement.
 
 ## 8. Strategic Warnings
 
@@ -109,6 +133,11 @@ Future AI should:
 - Say uncertainty clearly instead of producing fake coherence.
 - Update doctrine/deferred registry only when warranted, and justify no-op decisions.
 - Treat raw archaeology as evidence, not automatically canonical doctrine.
+- Work one change at a time.
+- Prefer validation-only artifacts before production integration.
+- Use scoped git adds; never stage broad unrelated workspace changes.
+- Avoid broad rewrites unless the user explicitly asks.
+- Avoid fake confidence; report caveats and failure modes plainly.
 
 ## 11. What Not To Reopen Casually
 

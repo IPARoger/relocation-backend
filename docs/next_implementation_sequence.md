@@ -128,6 +128,15 @@ Small, **low-risk**, **testable**, **isolated** chunks—ordered by current prod
 - **Architecture risks:** Medium if the map sandbox quietly becomes production integration. Keep it behind a standalone validation file with no production imports, no scheduler/cache work, and no runtime flags.
 - **Do not overengineer:** No multi-palette controls, no UI settings, no animation, no production toggle; prove map survival first.
 
+### Chunk 5.3 — Overlap governance sandbox
+
+- **Why:** Phase 2.52 showed that overlaps are meaningful discovery zones but dense stacks can become mechanically unreadable.
+- **Dependencies:** Chunk 5.2 map sandbox evidence; documented layer control doctrine in `docs/overlay_and_aura_visual_strategy.md`.
+- **Validation:** Validation-only board or sandbox with polygon overlaps, band/polygon crossings, and two-band crossings; explicitly classify whether each failure is readability, pane ordering, palette, or interaction-control related.
+- **UX risks:** Hotspot signaling can become paternalistic ranking. Keep language neutral and user-controlled.
+- **Architecture risks:** Medium if overlap governance becomes hidden ranking logic. Keep it visual/inspectable until user criteria are explicit.
+- **Do not overengineer:** No automatic scoring model; prove mute/solo/background/foreground controls and child-color governance first.
+
 ---
 
 ## Priority band 6 — Comparison workflows
