@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3.16 Edge Truth Classification</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #eef3f5;
+    }
+
+    .error {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: none;
+      max-width: 440px;
+      padding: 10px 12px;
+      border: 1px solid rgba(127, 29, 29, 0.35);
+      border-radius: 10px;
+      background: rgba(254, 242, 242, 0.94);
+      color: #7f1d1d;
+      font: 13px/1.4 system-ui, sans-serif;
+    }
+
+    .edge-label {
+      padding: 2px 6px;
+      border: 1px solid rgba(127, 29, 29, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: #991b1b;
+      font: 11px/1.2 system-ui, sans-serif;
+      white-space: nowrap;
+      box-shadow: none;
+    }
+
+    .leaflet-tooltip.edge-label::before {
+      display: none;
+    }
+
+    .truth-panel {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 1000;
+      max-width: 420px;
+      max-height: 46vh;
+      overflow: auto;
+      padding: 10px 12px;
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.86);
+      color: #1f2937;
+      font: 11px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      box-shadow: none;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="World map with Sun-in-1 polygon and one classified edge"></div>
+  <div id="error" class="error" role="alert"></div>
+  <pre id="truthPanel" class="truth-panel" aria-label="Chosen edge and sample truth coordinates"></pre>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    "use strict";
+
+    const API_BASE = "http://127.0.0.1:8000";
+    const CHOSEN_EDGE_INDEX = 22;
+    const REQUEST_BODY = {
+      birth_year: 1976,
+      birth_month: 1,
+      birth_day: 13,
+      birth_hour_utc: 12.78333,
+      house_conditions: [{ planet: "sun", house: 1 }],
+      angle_sign_conditions: [],
+      generation_mode: "contour",
+      resolution: 1.5,
+    };
+
+    const map = L.map("map", {
+      zoomSnap: 0.25,
+      zoomDelta: 0.25,
+      worldCopyJump: false,
+      minZoom: 1,
+      maxZoom: 8,
+    }).setView([4, -18], 2.65);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "\u00a9 OSM",
+      noWrap: true,
+      bounds: [[-85, -180], [85, 180]],
+    }).addTo(map);
+
+    function showError(text) {
+      const el = document.getElementById("error");
+      el.textContent = text;
+      el.style.display = "block";
+    }
+
+    async function fetchRealPolygon() {
+      const res = await fetch(`${API_BASE}/search-regions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(REQUEST_BODY),
+      });
+      if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+      const geojson = await res.json();
+      const features = Array.isArray(geojson.features) ? geojson.features : [];
+      const polygons = features.filter(
+        feature =>
+          feature &&
+          feature.geometry &&
+          feature.geometry.type === "Polygon" &&
+          feature.properties &&
+          feature.properties.planet === "sun" &&
+          feature.properties.house === 1
+      );
+      if (polygons.length !== 1) {
+        throw new Error(`Expected one Sun-in-1 polygon, got ${polygons.length}`);
+      }
+      return {
+        type: "FeatureCollection",
+        features: polygons,
+        properties: geojson.properties || {},
+      };
+    }
+
+    function pointInRing(point, ring) {
+      const x = point[0];
+      const y = point[1];
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0];
+        const yi = ring[i][1];
+        const xj = ring[j][0];
+        const yj = ring[j][1];
+        const crosses = yi > y !== yj > y;
+        if (crosses) {
+          const intersectX = ((xj - xi) * (y - yi)) / (yj - yi + 1e-15) + xi;
+          if (x < intersectX) inside = !inside;
+        }
+      }
+      return inside;
+    }
+
+    function pointInPolygon(point, rings) {
+      if (!Array.isArray(rings) || rings.length === 0) return false;
+      if (!pointInRing(point, rings[0])) return false;
+      return !rings.slice(1).some(hole => pointInRing(point, hole));
+    }
+
+    function formatCoord(coord) {
+      return `${coord.lon.toFixed(6)}, ${coord.lat.toFixed(6)}`;
+    }
+
+    function renderTruthPanel(state) {
+      const insideCount = state.samples.filter(sample => sample.inside).length;
+      const outsideCount = state.samples.length - insideCount;
+      const lines = [
+        "PHASE 3.16 STATIC EDGE TRUTH",
+        `edge index: ${state.chosenEdgeIndex}`,
+        `edge A: ${formatCoord(state.chosenEdge.a)}`,
+        `edge B: ${formatCoord(state.chosenEdge.b)}`,
+        `samples: ${state.samples.length} (${insideCount} inside / ${outsideCount} outside)`,
+        "",
+        "id        lon, lat              truth",
+      ];
+      state.samples.forEach(sample => {
+        const id = sample.id.padEnd(8, " ");
+        const coord = formatCoord(sample).padEnd(22, " ");
+        lines.push(`${id}  ${coord}  ${sample.inside ? "INSIDE" : "OUTSIDE"}`);
+      });
+      document.getElementById("truthPanel").textContent = lines.join("\n");
+    }
+
+    function generateSamples(edge, rings) {
+      const a = edge[0];
+      const b = edge[1];
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const len = Math.hypot(dx, dy);
+      if (!Number.isFinite(len) || len === 0) throw new Error("Chosen edge has zero length");
+
+      const normal = [-dy / len, dx / len];
+      const along = [0.25, 0.5, 0.75];
+      const offsets = [-1.2, -0.65, 0.65, 1.2];
+      const samples = [];
+
+      along.forEach((t, alongIndex) => {
+        const base = [a[0] + dx * t, a[1] + dy * t];
+        offsets.forEach((offset, offsetIndex) => {
+          const point = [
+            base[0] + normal[0] * offset,
+            base[1] + normal[1] * offset,
+          ];
+          samples.push({
+            id: `s${alongIndex + 1}-${offsetIndex + 1}`,
+            lon: point[0],
+            lat: point[1],
+            t,
+            offset,
+            inside: pointInPolygon(point, rings),
+          });
+        });
+      });
+
+      return { normal, samples };
+    }
+
+    function renderSamples(samples) {
+      samples.forEach(sample => {
+        L.circleMarker([sample.lat, sample.lon], {
+          radius: 5,
+          stroke: true,
+          color: sample.inside ? "#14532d" : "#475569",
+          weight: 1,
+          opacity: 0.92,
+          fillColor: sample.inside ? "#22c55e" : "#94a3b8",
+          fillOpacity: 0.9,
+        }).addTo(map);
+      });
+    }
+
+    async function main() {
+      const geojson = await fetchRealPolygon();
+      const feature = geojson.features[0];
+      const rings = feature.geometry.coordinates;
+      const ring = rings[0];
+      if (!ring || ring.length <= CHOSEN_EDGE_INDEX + 1) {
+        throw new Error(`Chosen edge index ${CHOSEN_EDGE_INDEX} not available`);
+      }
+
+      L.geoJSON(geojson, {
+        style: {
+          stroke: false,
+          fillColor: "#d8a11d",
+          fillOpacity: 0.22,
+        },
+      }).addTo(map);
+
+      const edge = [ring[CHOSEN_EDGE_INDEX], ring[CHOSEN_EDGE_INDEX + 1]];
+      const edgeLatLngs = edge.map(coord => [coord[1], coord[0]]);
+      const { normal, samples } = generateSamples(edge, rings);
+      const mid = [
+        (edge[0][0] + edge[1][0]) / 2,
+        (edge[0][1] + edge[1][1]) / 2,
+      ];
+
+      L.polyline(edgeLatLngs, {
+        color: "#dc2626",
+        weight: 3,
+        opacity: 0.95,
+        interactive: false,
+      }).addTo(map).bindTooltip("chosen edge", {
+        permanent: true,
+        direction: "top",
+        className: "edge-label",
+        offset: [0, -6],
+      });
+
+      renderSamples(samples);
+
+      const state = {
+        ok: true,
+        polygonSource: "POST /search-regions generation_mode=contour",
+        request: REQUEST_BODY,
+        properties: feature.properties,
+        chosenEdgeIndex: CHOSEN_EDGE_INDEX,
+        chosenEdge: {
+          a: { lon: edge[0][0], lat: edge[0][1] },
+          b: { lon: edge[1][0], lat: edge[1][1] },
+          midpoint: { lon: mid[0], lat: mid[1] },
+          normal,
+        },
+        containmentMethod: "ray-casting point-in-polygon against the returned GeoJSON polygon exterior ring",
+        samples,
+      };
+      window.__phase316State = state;
+      renderTruthPanel(state);
+      console.info("[phase3.16 edge truth]", state);
+    }
+
+    main().catch((err) => {
+      console.error(err);
+      window.__phase316State = { ok: false, error: err.message };
+      showError(err.message);
+    });
+  </script>
+</body>
+</html>
