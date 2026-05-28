@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "local_product_store.v2.json",
+  "title": "Local Product Store v2 (TEMPORARY_LOCAL_SCAFFOLD)",
+  "description": "Reference schema for Phase 3.0a file scaffold. Enforced by local_product_store.validate_store in Python.",
+  "type": "object",
+  "required": [
+    "_storage",
+    "_warning",
+    "storage_schema_version",
+    "supabase_mirror_version",
+    "professional_account",
+    "user_settings",
+    "places",
+    "birth_profiles",
+    "clients",
+    "saved_investigations",
+    "favorite_cities",
+    "tags",
+    "notes"
+  ],
+  "properties": {
+    "_storage": {
+      "const": "TEMPORARY_LOCAL_SCAFFOLD"
+    },
+    "_warning": {
+      "type": "string",
+      "minLength": 1
+    },
+    "storage_schema_version": {
+      "const": 2
+    },
+    "supabase_mirror_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "professional_account": {
+      "type": "object",
+      "required": ["id", "display_name", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "display_name": { "type": "string" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "user_settings": {
+      "type": "object",
+      "required": ["settings_version", "house_system", "zodiac_mode"]
+    },
+    "places": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/place" }
+    },
+    "birth_profiles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/birth_profile" }
+    },
+    "clients": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/client" }
+    },
+    "saved_investigations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/saved_investigation" }
+    },
+    "favorite_cities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/favorite_city" }
+    },
+    "tags": { "type": "array" },
+    "notes": { "type": "array" }
+  },
+  "$defs": {
+    "place": {
+      "type": "object",
+      "required": ["id", "external_source", "display_name", "lat", "lon", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "external_source": {
+          "enum": ["geoname", "wof", "manual", "map_pick"]
+        },
+        "external_id": { "type": ["string", "null"] },
+        "display_name": { "type": "string" },
+        "lat": { "type": "number" },
+        "lon": { "type": "number" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "birth_profile": {
+      "type": "object",
+      "required": ["id", "birth_date", "birth_place_id", "timezone_id", "confidence_tier", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "birth_date": { "type": "string" },
+        "birth_time": { "type": ["string", "null"] },
+        "birth_place_id": { "type": "string" },
+        "timezone_id": { "type": "string" },
+        "confidence_tier": {
+          "enum": ["T0", "T1", "T2", "T3", "T4"]
+        },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "client": {
+      "type": "object",
+      "required": ["id", "display_name", "birth_profile_id", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "display_name": { "type": "string" },
+        "birth_profile_id": { "type": "string" },
+        "notes": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "saved_investigation": {
+      "type": "object",
+      "required": [
+        "id",
+        "client_id",
+        "birth_profile_id",
+        "title",
+        "conditions",
+        "viewport",
+        "settings_snapshot",
+        "schema_version"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "client_id": { "type": "string" },
+        "birth_profile_id": { "type": "string" },
+        "title": { "type": "string" },
+        "conditions": { "type": "object" },
+        "viewport": { "type": "object" },
+        "settings_snapshot": { "type": "object" },
+        "default_reopen_mode": {
+          "enum": ["keep_snapshot", "use_current"]
+        },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "favorite_city": {
+      "type": "object",
+      "required": ["id", "client_id", "place_id", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "client_id": { "type": "string" },
+        "place_id": { "type": "string" },
+        "notes": { "type": "string" },
+        "schema_version": { "type": "integer" }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "_storage": "TEMPORARY_LOCAL_SCAFFOLD",
+  "_warning": "NOT PRODUCT STORAGE. NOT AUTHORITATIVE. Parallel to library/library.json until explicit migration.",
+  "storage_schema_version": 2,
+  "supabase_mirror_version": 1,
+  "professional_account": {
+    "id": "acct_local_1",
+    "display_name": "Local Professional",
+    "schema_version": 1,
+    "created_at": null,
+    "updated_at": null
+  },
+  "user_settings": {
+    "settings_version": 1,
+    "house_system": "placidus",
+    "zodiac_mode": "tropical",
+    "orb_defaults": {
+      "conjunction": 8,
+      "square": 6,
+      "opposition": 8,
+      "trine": 8,
+      "sextile": 4
+    },
+    "visible_minor_aspects": false,
+    "helper_layers": {},
+    "ontology_pack_id": null,
+    "updated_at": null
+  },
+  "places": [],
+  "birth_profiles": [],
+  "clients": [],
+  "saved_investigations": [],
+  "favorite_cities": [],
+  "tags": [],
+  "notes": []
+}
