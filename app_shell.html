@@ -3,7 +3,7 @@
   Application shell — clickable walkthrough of future product (Screens 0–6).
 
   Placeholder only: no astrology math, no renderer, no persistence, no AI.
-  Traces to: docs/ux/2026-05-29_application_journey_architecture_v1.md
+  Traces to: docs/architecture/client_chart_data_model_v1_2026-05-29.md
 
   Test hook: window.__rmAppShell
 -->
@@ -22,6 +22,10 @@
     --accent: #1d4ed8;
     --stub: #fef3c7;
     --future: #f3f4f6;
+    --warn: #fef2f2;
+    --warn-border: #fca5a5;
+    --ok: #ecfdf5;
+    --ok-border: #6ee7b7;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
@@ -34,17 +38,15 @@
   header.app-header h1 { margin: 0; font-size: 16px; font-weight: 600; }
   header.app-header .tag { font-size: 11px; color: var(--muted); }
   nav.primary-nav { display: flex; flex-wrap: wrap; gap: 6px; }
-  nav.primary-nav a, nav.primary-nav button.linkish {
+  nav.primary-nav button.linkish {
     font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--line);
-    background: var(--panel); border-radius: 4px; text-decoration: none; color: var(--fg); cursor: pointer;
+    background: var(--panel); border-radius: 4px; color: var(--fg); cursor: pointer;
   }
-  nav.primary-nav a.active, nav.primary-nav button.linkish.active {
+  nav.primary-nav button.linkish.active {
     border-color: var(--accent); background: #eff6ff;
   }
   .screen-meta { margin-left: auto; font-size: 11px; color: var(--muted); }
   main { max-width: 1100px; margin: 0 auto; padding: 16px; }
-  .screen { display: none; }
-  .screen.active { display: block; }
   .screen h2 { margin: 0 0 4px; font-size: 20px; }
   .screen .purpose { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
   .panel {
@@ -52,6 +54,7 @@
     padding: 12px; margin-bottom: 12px;
   }
   .panel h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .panel.owner-card { border-color: var(--accent); background: #f8fafc; }
   .stub {
     background: var(--stub); border: 1px dashed #d97706; padding: 8px 10px; border-radius: 4px;
     font-size: 12px; color: #92400e; margin-bottom: 8px;
@@ -60,9 +63,17 @@
     background: var(--future); border: 1px dashed var(--line); padding: 8px 10px; border-radius: 4px;
     font-size: 12px; color: var(--muted); margin-bottom: 8px;
   }
+  .warn-box {
+    background: var(--warn); border: 1px solid var(--warn-border); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: #991b1b; margin-bottom: 8px;
+  }
+  .notice-box {
+    background: var(--ok); border: 1px solid var(--ok-border); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: #065f46; margin-bottom: 8px;
+  }
   ul.plain { list-style: none; margin: 0; padding: 0; }
   ul.plain li { padding: 8px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px; }
-  ul.plain li .meta { font-size: 12px; color: var(--muted); }
+  ul.plain li .meta { font-size: 12px; color: var(--muted); display: block; margin-top: 4px; }
   button, .btn {
     font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--line);
     background: var(--panel); border-radius: 4px; cursor: pointer; margin-right: 6px; margin-bottom: 6px;
@@ -73,6 +84,7 @@
     width: 100%; max-width: 400px; padding: 6px 8px; border: 1px solid var(--line);
     border-radius: 4px; font: inherit; margin-bottom: 8px;
   }
+  select.inline { max-width: 100%; margin-bottom: 0; }
   label.block { display: block; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
   .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -119,7 +131,11 @@
     padding: 8px 10px; margin-bottom: 12px; font-size: 12px;
   }
   .context-chip .label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
-  .context-chip .placeholder-tag { color: #92400e; font-style: italic; }
+  .context-chip .id-line { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
+  .state-debug {
+    font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted);
+    background: #f3f4f6; padding: 8px; border-radius: 4px; margin-top: 8px; white-space: pre-wrap;
+  }
 </style>
 </head>
 <body>
@@ -130,7 +146,7 @@
 
 <header class="app-header">
   <h1>Relocation App</h1>
-  <span class="tag">Application shell · placeholders only</span>
+  <span class="tag">Chart Record doctrine · placeholders only</span>
   <nav class="primary-nav" id="primaryNav"></nav>
   <span class="screen-meta" id="screenMeta">Screen 0</span>
 </header>
@@ -139,16 +155,16 @@
 
 <footer class="shell-footer">
   <button type="button" class="linkish" id="footerFutureLink">Future rooms — quarantined</button>
-  <span> · not current build · post-AI / Layer 4–5 only</span>
+  <span> · not current build · post-v1 transit / AI / Layer 4–5 only</span>
 </footer>
 
-<!-- Screen 3 — Location Popup (modal overlay) -->
 <div class="modal-backdrop" id="popupModal" aria-hidden="true">
   <div class="modal" role="dialog" aria-labelledby="popupTitle">
     <h3 id="popupTitle">Screen 3 — Location Popup</h3>
-    <p class="purpose">Point truth · evaluation mood</p>
+    <p class="purpose">Point truth · evaluation mood · <span id="popupPlaceLabel"></span></p>
     <div class="stub">Placeholder facts at selected location (ASC/MC, houses, aspects to angles).</div>
-    <div class="module" id="module-popup-facts">
+    <div id="popupTierWarning"></div>
+    <div class="module">
       <h4>Module: popup-facts</h4>
       <ul class="plain">
         <li>ASC in Gemini <span class="meta">placeholder</span></li>
@@ -159,7 +175,6 @@
     <div class="future-only">Future: AI explain (disabled) · voice note (disabled)</div>
     <div class="row">
       <button type="button" class="primary" data-nav="chart">Open full chart (Screen 4)</button>
-      <button type="button" data-action="favorite">Add favorite</button>
       <button type="button" data-action="close-popup">Close</button>
     </div>
     <p class="must-not">Must not appear: dignity scoring, oracle copy, social share primary.</p>
@@ -169,39 +184,102 @@
 <script>
 "use strict";
 
-/** @typedef {"dashboard"|"client"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
+/** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
+
+/** Account default — NOT last-used chart. */
+const DEFAULT_CHART_RECORD_ID = "cr-anna-rivera";
 
 const DEMO = {
-  clients: [
+  defaultChartRecordId: DEFAULT_CHART_RECORD_ID,
+  chartRecords: [
     {
-      id: "client-1", name: "Anna Rivera",
-      birthDate: "1990-03-15", birthTime: "07:42", birthCity: "New York, NY",
+      chartRecordId: "cr-anna-rivera",
+      displayName: "Anna Rivera",
+      recordType: "account owner (self)",
+      birthDate: "1990-03-15",
+      birthTime: "07:42",
+      birthTimeDisplay: "07:42 AM",
+      birthCity: "New York, NY",
       currentCity: "Portland, OR",
-      chartLabel: "Natal chart (placeholder selector)",
-      birth: "1990-03-15 · 07:42 · New York", tier: "T0 — Exact",
+      confidenceTier: "T0 — Exact",
+      hasTimeUncertainty: false,
+      favorites: [
+        { id: "fav-a1", placeName: "Portland, OR" },
+        { id: "fav-a2", placeName: "Lisbon, PT" },
+        { id: "fav-a3", placeName: "Austin, TX" },
+      ],
+      explorations: [
+        {
+          id: "exp-a1",
+          name: "Sun 10th + ASC Gemini",
+          conditions: ["planet-in-house: Sun in 10th", "angle-in-sign: ASC in Gemini"],
+          places: ["Portland, OR"],
+          saved: "auto-save draft",
+        },
+        {
+          id: "exp-a2",
+          name: "Aspect to MC probe",
+          conditions: ["aspect-to-angle: Mars square MC"],
+          places: ["Lisbon, PT"],
+          saved: "2 hours ago",
+        },
+      ],
     },
     {
-      id: "client-2", name: "Jordan Lee",
-      birthDate: "1985-11-02", birthTime: "unknown", birthCity: "Chicago, IL",
-      currentCity: "— (not set · placeholder)",
-      chartLabel: "Solar chart policy (placeholder selector)",
-      birth: "1985-11-02 · unknown time", tier: "T3 — Unknown time",
+      chartRecordId: "cr-jordan-lee",
+      displayName: "Jordan Lee",
+      recordType: "client",
+      birthDate: "1985-11-02",
+      birthTime: null,
+      birthTimeDisplay: "Time uncertain: 9:47 AM–12:30 PM",
+      birthCity: "Chicago, IL",
+      currentCity: "Not set",
+      confidenceTier: "T2 — Bounded range (user-declared metadata)",
+      hasTimeUncertainty: true,
+      favorites: [
+        { id: "fav-j1", placeName: "Chicago, IL" },
+        { id: "fav-j2", placeName: "Denver, CO" },
+      ],
+      explorations: [
+        {
+          id: "exp-j1",
+          name: "Angle-in-sign scan (blocked — honest tier)",
+          conditions: ["angle-in-sign: MC in Capricorn"],
+          places: [],
+          saved: "yesterday",
+        },
+      ],
+    },
+    {
+      chartRecordId: "cr-research-event",
+      displayName: "Research — Summer solstice event",
+      recordType: "research / event",
+      birthDate: "2024-06-21",
+      birthTime: "12:00",
+      birthTimeDisplay: "12:00 PM (event moment)",
+      birthCity: "Stonehenge, UK",
+      currentCity: "—",
+      confidenceTier: "T0 — Exact (event chart)",
+      hasTimeUncertainty: false,
+      favorites: [
+        { id: "fav-r1", placeName: "London, UK" },
+      ],
+      explorations: [
+        {
+          id: "exp-r1",
+          name: "Event chart · Sun angle study",
+          conditions: ["planet-in-house: Sun in 10th"],
+          places: ["London, UK"],
+          saved: "last week",
+        },
+      ],
     },
   ],
-  favorites: [
-    { id: "fav-1", name: "Portland, OR", clientId: "client-1" },
-    { id: "fav-2", name: "Lisbon, PT", clientId: "client-1" },
-  ],
-  explorations: [
-    { id: "inv-1", name: "Sun 10th + ASC Gemini", clientId: "client-1", saved: "auto-save draft" },
-    { id: "inv-2", name: "Untitled exploration", clientId: "client-1", saved: "2 hours ago" },
-  ],
-  comparePlaces: ["Portland, OR", "Lisbon, PT", "Austin, TX"],
 };
 
 const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
-  { id: "client", label: "1 Client", screen: "Screen 1 — Client Page" },
+  { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
   { id: "map", label: "2 Map", screen: "Screen 2 — Map Discovery" },
   { id: "chart", label: "4 Chart", screen: "Screen 4 — View Chart" },
   { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
@@ -217,22 +295,48 @@ const ALL_ROUTES = /** @type {const} */ ([
 
 const state = {
   route: /** @type {Route} */ ("dashboard"),
-  clientId: DEMO.clients[0].id,
-  placeName: "Portland, OR",
+  activeChartRecordId: DEFAULT_CHART_RECORD_ID,
+  originatingChartRecordId: null,
+  activeSavedExplorationId: null,
+  activePlaceName: null,
+  comparisonPlaceNames: ["Portland, OR", "Lisbon, PT", "Austin, TX"],
   drawerOpen: true,
   popupOpen: false,
+  switchNotice: null,
+  mapEntrySource: null,
 };
 
 function $(sel) { return document.querySelector(sel); }
-function el(tag, attrs, html) {
-  const n = document.createElement(tag);
-  if (attrs) Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
-  if (html != null) n.innerHTML = html;
-  return n;
+
+function getChartRecord(id) {
+  return DEMO.chartRecords.find((r) => r.chartRecordId === id) || DEMO.chartRecords[0];
 }
 
-function currentClient() {
-  return DEMO.clients.find((c) => c.id === state.clientId) || DEMO.clients[0];
+function activeRecord() {
+  return getChartRecord(state.activeChartRecordId);
+}
+
+function allExplorations() {
+  return DEMO.chartRecords.flatMap((r) =>
+    r.explorations.map((e) => ({ ...e, chartRecordId: r.chartRecordId, recordName: r.displayName }))
+  );
+}
+
+function activeExploration() {
+  if (!state.activeSavedExplorationId) return null;
+  const rec = activeRecord();
+  return rec.explorations.find((e) => e.id === state.activeSavedExplorationId) || null;
+}
+
+function birthSummaryLine(r) {
+  return `${r.birthDate} · ${r.birthTimeDisplay} · ${r.birthCity}`;
+}
+
+function timeUncertaintyWarning(r) {
+  if (!r.hasTimeUncertainty) return "";
+  return `<div class="warn-box"><strong>Birth time uncertainty.</strong> ${r.birthTimeDisplay}. `
+    + `Relocation overlays cannot be presented as authoritative without honest tier policy. `
+    + `One Chart Record — no separate chart variants. Internal gradient rendering is post-v1 future only.</div>`;
 }
 
 function parseHash() {
@@ -243,27 +347,69 @@ function parseHash() {
   return valid ? /** @type {Route} */ (route) : "dashboard";
 }
 
-function mapContextChip(c) {
+function chartRecordSelectHtml(selectId) {
+  return `<label class="block">Chart Record (explicit switch)
+    <select id="${selectId}" class="inline" data-action="chart-record-select">
+      ${DEMO.chartRecords.map((r) =>
+        `<option value="${r.chartRecordId}"${r.chartRecordId === state.activeChartRecordId ? " selected" : ""}>${r.displayName} (${r.recordType})</option>`
+      ).join("")}
+    </select></label>`;
+}
+
+function activeContextChip(extra) {
+  const r = activeRecord();
+  const exp = activeExploration();
   return `
     <div class="context-chip">
-      <div class="label">Module: active client/chart context · <span class="placeholder-tag">placeholder only</span></div>
-      <strong>${c.name}</strong><br>
-      Birth: ${c.birthDate} · ${c.birthTime}<br>
-      Birth city: ${c.birthCity}<br>
-      Current city: ${c.currentCity}<br>
-      Active chart: <select disabled style="max-width:100%;margin-top:4px"><option>${c.chartLabel}</option></select>
+      <div class="label">Active Chart Record · one user-facing chart per record</div>
+      <strong>${r.displayName}</strong> <span class="meta">(${r.recordType})</span><br>
+      <span class="id-line">${r.chartRecordId}</span><br>
+      Birth: ${r.birthDate} · ${r.birthTimeDisplay}<br>
+      Birth city: ${r.birthCity}<br>
+      Current city: ${r.currentCity}<br>
+      Confidence: ${r.confidenceTier}
+      ${exp ? `<br><br><strong>Resumed exploration:</strong> ${exp.name}<br><span class="meta">${exp.id}</span>` : ""}
+      ${state.activePlaceName ? `<br><strong>Active place:</strong> ${state.activePlaceName}` : ""}
+      ${extra || ""}
     </div>`;
+}
+
+function stateDebugBlock() {
+  return `<div class="state-debug">Shell state (doctrine debug):
+activeChartRecordId: ${state.activeChartRecordId}
+defaultChartRecordId: ${DEMO.defaultChartRecordId}
+originatingChartRecordId: ${state.originatingChartRecordId || "null"}
+activeSavedExplorationId: ${state.activeSavedExplorationId || "null"}
+activePlaceName: ${state.activePlaceName || "null"}
+mapEntrySource: ${state.mapEntrySource || "null"}</div>`;
+}
+
+function openMap(opts) {
+  const o = opts || {};
+  if (o.chartRecordId) state.activeChartRecordId = o.chartRecordId;
+  if (o.explorationId !== undefined) state.activeSavedExplorationId = o.explorationId;
+  if (o.placeName !== undefined) state.activePlaceName = o.placeName;
+  if (o.source) state.mapEntrySource = o.source;
+  if (o.setOriginating) state.originatingChartRecordId = state.activeChartRecordId;
+  state.switchNotice = o.notice || null;
+  navigate("map");
 }
 
 function navigate(route) {
   state.route = route;
   state.popupOpen = false;
+  if (route === "compare" && !state.originatingChartRecordId) {
+    state.originatingChartRecordId = state.activeChartRecordId;
+  }
   location.hash = "#/" + route;
   render();
 }
 
 function openPopup() {
   state.popupOpen = true;
+  const r = activeRecord();
+  $("#popupPlaceLabel").textContent = state.activePlaceName || "selected point";
+  $("#popupTierWarning").innerHTML = timeUncertaintyWarning(r);
   $("#popupModal").classList.add("open");
   $("#popupModal").setAttribute("aria-hidden", "false");
 }
@@ -278,87 +424,125 @@ function renderNav() {
   const nav = $("#primaryNav");
   nav.innerHTML = "";
   NAV_ROUTES.forEach((r) => {
-    const a = el("button", { type: "button", class: "linkish" + (state.route === r.id ? " active" : "") }, r.label);
+    const a = document.createElement("button");
+    a.type = "button";
+    a.className = "linkish" + (state.route === r.id ? " active" : "");
+    a.textContent = r.label;
     a.addEventListener("click", () => navigate(r.id));
     nav.appendChild(a);
   });
 }
 
 function screenDashboard() {
+  const owner = getChartRecord(DEMO.defaultChartRecordId);
   return `
     <div class="breadcrumb">Account library entry</div>
     <h2>Screen 0 — Dashboard</h2>
-    <p class="purpose">Calm professional library · who am I working on?</p>
-    <div class="stub">Placeholder · no map, no conditions, no AI panels.</div>
+    <p class="purpose">Calm library · account owner default · explicit Chart Record entry.</p>
+    <div class="stub">Placeholder · map opens via defaultChartRecordId only — not last-used chart.</div>
+
+    <div class="panel owner-card">
+      <h3>Module: account-owner-chart-record (default)</h3>
+      <p><strong>${owner.displayName}</strong> <span class="meta">${owner.recordType}</span></p>
+      <p class="meta">${birthSummaryLine(owner)}<br>${owner.confidenceTier}</p>
+      <p class="meta">defaultChartRecordId: <code>${DEMO.defaultChartRecordId}</code></p>
+      <button type="button" class="primary" data-action="open-map-default">Open Map (default Chart Record)</button>
+    </div>
+
     <div class="panel">
-      <h3>Module: client-list</h3>
+      <h3>Module: chart-record-library</h3>
       <ul class="plain">
-        ${DEMO.clients.map((c) => `
+        ${DEMO.chartRecords.map((r) => `
           <li>
-            <strong>${c.name}</strong>
-            <div class="meta">${c.birth} · ${c.tier}</div>
-            <button type="button" data-nav="client" data-client="${c.id}">Open client page</button>
+            <strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span>
+            <span class="meta">${birthSummaryLine(r)} · ${r.confidenceTier}</span>
+            <span class="meta">${r.chartRecordId}</span>
+            <button type="button" data-nav="chart-record" data-chart-record="${r.chartRecordId}">Open Chart Record page</button>
           </li>`).join("")}
       </ul>
-      <button type="button" disabled>+ New client (placeholder)</button>
+      <button type="button" disabled>+ New Chart Record (placeholder)</button>
     </div>
+
     <div class="panel">
-      <h3>Module: recent-explorations-across-clients</h3>
+      <h3>Module: recent-explorations-across-records</h3>
       <ul class="plain">
-        ${DEMO.explorations.map((e) => `<li>${e.name} <span class="meta">${e.saved}</span></li>`).join("")}
+        ${allExplorations().map((e) => `
+          <li>
+            <strong>${e.name}</strong>
+            <span class="meta">${e.recordName} · ${e.saved}</span>
+            <button type="button" data-action="resume-exploration"
+              data-chart-record="${e.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
+          </li>`).join("")}
       </ul>
     </div>
-    <p class="must-not">Must not appear: map primary, scoring widgets, AI chat, marketplace.</p>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: map primary, last-used chart default, scoring, AI chat.</p>
   `;
 }
 
-function screenClient() {
-  const c = currentClient();
-  const favs = DEMO.favorites.filter((f) => f.clientId === c.id);
-  const invs = DEMO.explorations.filter((i) => i.clientId === c.id);
+function screenChartRecord() {
+  const r = activeRecord();
   return `
-    <div class="breadcrumb">Client home · ${c.name}</div>
-    <h2>Screen 1 — Client Page</h2>
-    <p class="purpose">Resume exploration for one client.</p>
+    <div class="breadcrumb">Chart Record · ${r.displayName}</div>
+    <h2>Screen 1 — Chart Record Page</h2>
+    <p class="purpose">One Chart Record = one user-facing chart. Resume exploration for this record.</p>
+    ${timeUncertaintyWarning(r)}
     <div class="panel">
-      <h3>Module: birth-summary</h3>
-      <p><strong>${c.name}</strong><br><span class="meta">${c.birth}</span><br><span class="meta">${c.tier}</span></p>
+      <h3>Module: chart-record-summary</h3>
+      <p><strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span></p>
+      <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}</p>
+      <p class="meta"><code>${r.chartRecordId}</code></p>
       <button type="button" data-nav="birth-data">Edit birth data</button>
     </div>
     <div class="row">
-      <button type="button" class="primary" data-nav="map">Open map (Screen 2)</button>
+      <button type="button" class="primary" data-action="open-map-record">Open Map (this Chart Record)</button>
       <button type="button" data-nav="export">Export entry (Screen 6)</button>
       <button type="button" data-nav="settings">Settings</button>
     </div>
     <div class="grid-2">
       <div class="panel">
-        <h3>Module: favorites</h3>
-        <ul class="plain">${favs.map((f) => `
-          <li>${f.name} <button type="button" data-nav="chart" data-place="${f.name}">View chart</button></li>`).join("")}</ul>
+        <h3>Module: favorites (this Chart Record)</h3>
+        <ul class="plain">${r.favorites.map((f) => `
+          <li>
+            ${f.placeName}
+            <span class="meta">owned by ${r.chartRecordId}</span>
+            <button type="button" data-action="open-map-favorite" data-place="${f.placeName}">Open on map</button>
+            <button type="button" data-nav="chart" data-place="${f.placeName}">View chart</button>
+          </li>`).join("")}</ul>
       </div>
       <div class="panel">
-        <h3>Module: saved-explorations</h3>
-        <ul class="plain">${invs.map((i) => `
-          <li>${i.name} <span class="meta">${i.saved}</span>
-            <button type="button" data-nav="map">Resume</button></li>`).join("")}</ul>
+        <h3>Module: saved-explorations (this Chart Record)</h3>
+        <ul class="plain">${r.explorations.map((e) => `
+          <li>
+            <strong>${e.name}</strong>
+            <span class="meta">${e.saved} · ${e.conditions.join("; ")}</span>
+            <button type="button" data-action="resume-exploration"
+              data-chart-record="${r.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
+          </li>`).join("")}</ul>
       </div>
     </div>
-    <p class="must-not">Must not appear: condition stack as primary surface, AI intake, dignity summaries.</p>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: nested charts, solar/natal selector, dignity summaries.</p>
   `;
 }
 
 function screenMap() {
-  const c = currentClient();
+  const r = activeRecord();
+  const exp = activeExploration();
+  const conditions = exp ? exp.conditions : ["planet-in-house: Sun in 10th (draft)", "angle-in-sign: ASC in Gemini (draft)"];
   return `
-    <div class="breadcrumb">${c.name} · Map discovery</div>
+    <div class="breadcrumb">${r.displayName} · Map discovery</div>
     <h2>Screen 2 — Map Discovery</h2>
-    <p class="purpose">Primary instrument · discovery mood.</p>
-    <div class="stub">Map viewport placeholder.
+    <p class="purpose">Primary instrument · activeChartRecordId required.</p>
+    ${state.switchNotice ? `<div class="notice-box">${state.switchNotice}</div>` : ""}
+    ${timeUncertaintyWarning(r)}
+    <div class="stub">Map viewport placeholder · entry: ${state.mapEntrySource || "direct nav"}.
       <a href="/map_CURRENT.html?skipOnboarding=1" target="_blank" rel="noopener">Open production map reference — no shell handoff yet.</a>
     </div>
     <div class="map-placeholder">
       <div>
         <strong>Map module (placeholder)</strong><br>
+        ${state.activePlaceName ? `Centered on: <strong>${state.activePlaceName}</strong><br>` : ""}
         Pan · zoom · overlap regions · inspect point
         <div class="row" style="justify-content:center;margin-top:12px">
           <button type="button" class="primary" data-action="inspect">Inspect point → Screen 3 popup</button>
@@ -370,57 +554,62 @@ function screenMap() {
         <h3>Module: genie-drawer ${state.drawerOpen ? "(expanded)" : "(collapsed chip)"}</h3>
         <button type="button" data-action="toggle-drawer">${state.drawerOpen ? "Collapse to genie" : "Expand drawer"}</button>
         ${state.drawerOpen ? `
-        ${mapContextChip(c)}
+        ${activeContextChip(chartRecordSelectHtml("mapChartRecordSelect"))}
         <div class="module"><h4>Module: location-search</h4>
-          <input type="text" placeholder="Search location (placeholder)" /></div>
-        <div class="module"><h4>Module: add-condition</h4>
+          <input type="text" placeholder="Search location (placeholder)" value="${state.activePlaceName || ""}" /></div>
+        <div class="module"><h4>Module: add-condition (Web 2.0 only)</h4>
           <button type="button" disabled>Planet in House</button>
           <button type="button" disabled>Angle in Sign</button>
-          <button type="button" disabled>Aspect to Angle</button>
-          <button type="button" disabled>Transit</button></div>
-        <div class="module"><h4>Module: condition-cards</h4>
-          <ul class="plain"><li>Sun in 10th <span class="meta">track A</span></li>
-          <li>ASC in Gemini <span class="meta">track B</span></li></ul></div>
+          <button type="button" disabled>Aspect to Angle</button></div>
+        <div class="future-only">Post-v1 only: Transit placement / search — not a Web 2.0 condition.</div>
+        <div class="module"><h4>Module: condition-cards ${exp ? "(from resumed exploration)" : "(draft)"}</h4>
+          <ul class="plain">${conditions.map((c, i) =>
+            `<li>${c} <span class="meta">track ${String.fromCharCode(65 + i)}</span></li>`
+          ).join("")}</ul>
+          ${exp && exp.places.length ? `<p class="meta">Places in exploration: ${exp.places.join(", ")}</p>` : ""}
+        </div>
         <div class="module"><h4>Module: layer-mixer (mute / solo / NOT)</h4>
           <button type="button" disabled>Mute A</button>
           <button type="button" disabled>Solo B</button>
           <button type="button" disabled>NOT C</button></div>
-        <button type="button" class="primary" disabled>Find regions (placeholder)</button>
-        ` : `<p class="meta">Genie chip: 2 conditions · dirty</p>`}
+        <button type="button" class="primary" disabled>${r.hasTimeUncertainty ? "Find regions blocked (time uncertainty)" : "Find regions (placeholder)"}</button>
+        ` : `<p class="meta">Genie chip: ${conditions.length} conditions · ${r.displayName}</p>`}
       </div>
       <div class="panel">
         <h3>Module: map-actions</h3>
         <button type="button" data-nav="chart">Full chart (Screen 4)</button>
-        <button type="button" data-nav="compare">Compare favorites (Screen 5)</button>
+        <button type="button" data-nav="compare">Compare places (Screen 5)</button>
         <button type="button" data-nav="export">Export viewport (Screen 6)</button>
         <button type="button" disabled>Save exploration (auto-save stub)</button>
+        <button type="button" data-nav="chart-record">Back to Chart Record page</button>
       </div>
     </div>
-    <p class="must-not">Must not appear: comparison table inline, AI suggestions, scoring, rain/virga animation.</p>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: multi-chart selector under one record, transit as active condition, silent chart switch.</p>
   `;
 }
 
 function screenChart() {
+  const r = activeRecord();
   return `
-    <div class="breadcrumb">${currentClient().name} · ${state.placeName}</div>
+    <div class="breadcrumb">${r.displayName} · ${state.activePlaceName || "place"}</div>
     <h2>Screen 4 — View Chart</h2>
-    <p class="purpose">Dense relocated facts · evaluation mood.</p>
+    <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
+    ${timeUncertaintyWarning(r)}
     <div class="panel">
       <h3>Module: relocated-chart-table</h3>
       <table class="simple">
         <tr><th>Fact</th><th>Value (placeholder)</th></tr>
+        <tr><td>Chart Record</td><td>${r.displayName}</td></tr>
+        <tr><td>Place</td><td>${state.activePlaceName || "—"}</td></tr>
         <tr><td>ASC</td><td>Gemini 12°</td></tr>
         <tr><td>MC</td><td>Aquarius 18°</td></tr>
         <tr><td>Sun house</td><td>10</td></tr>
       </table>
     </div>
     <div class="panel">
-      <h3>Module: natal-vs-relocated</h3>
-      <div class="stub">Natal block (full aspect matrix allowed) · Relocated block (relocation facts only).</div>
-    </div>
-    <div class="panel">
       <h3>Module: notes · favorite</h3>
-      <textarea rows="2" placeholder="Optional note (placeholder)"></textarea>
+      <textarea rows="2" placeholder="Optional inline note (this Chart Record)"></textarea>
       <button type="button" disabled>Favorite this place</button>
     </div>
     <div class="row">
@@ -428,18 +617,38 @@ function screenChart() {
       <button type="button" data-nav="compare">Add to comparison</button>
       <button type="button" data-nav="export">Export chart</button>
     </div>
-    <p class="must-not">Must not appear: AI interpretation wall, dignity columns, auto verdict.</p>
   `;
 }
 
 function screenCompare() {
+  const r = activeRecord();
+  const originId = state.originatingChartRecordId || state.activeChartRecordId;
+  const origin = getChartRecord(originId);
+  const favOptions = origin.favorites.map((f) => f.placeName);
+  const cols = state.comparisonPlaceNames.slice(0, 5);
   return `
+    <div class="breadcrumb">Comparison · ${origin.displayName} · places only</div>
     <h2>Screen 5 — Comparison</h2>
-    <p class="purpose">Multi-location evaluation · facts only · tension preserved.</p>
+    <p class="purpose">2–5 places under ONE Chart Record · facts only · not multi-chart comparison.</p>
     <div class="panel">
-      <h3>Module: comparison-columns</h3>
-      <table class="simple">
-        <tr><th>Fact</th>${DEMO.comparePlaces.map((p) => `<th>${p}</th>`).join("")}</tr>
+      <h3>Module: originating-chart-record</h3>
+      <p><strong>${origin.displayName}</strong> <span class="meta">${origin.recordType}</span></p>
+      <p class="meta"><code>${origin.chartRecordId}</code> · ${origin.confidenceTier}</p>
+      ${timeUncertaintyWarning(origin)}
+    </div>
+    <div class="panel">
+      <h3>Module: comparison-columns (places)</h3>
+      <p class="meta">Swap column place from favorites — placeholder dropdowns only.</p>
+      <div class="row">
+        ${cols.map((_, i) => `
+          <label class="block" style="flex:1;min-width:120px">Col ${i + 1}
+            <select disabled class="inline">
+              ${favOptions.map((p) => `<option${p === cols[i] ? " selected" : ""}>${p}</option>`).join("")}
+            </select>
+          </label>`).join("")}
+      </div>
+      <table class="simple" style="margin-top:12px">
+        <tr><th>Fact</th>${cols.map((p) => `<th>${p}</th>`).join("")}</tr>
         <tr><td>ASC sign</td><td>Gemini</td><td>Leo</td><td>Scorpio</td></tr>
         <tr><td>Sun house</td><td>10</td><td>7</td><td>4</td></tr>
         <tr><td>MC sign</td><td>Aquarius</td><td>Taurus</td><td>Cancer</td></tr>
@@ -447,84 +656,96 @@ function screenCompare() {
     </div>
     <div class="panel">
       <h3>Module: comparison-notepad</h3>
-      <textarea rows="3" placeholder="Session notes (optional placeholder)"></textarea>
+      <textarea rows="3" placeholder="Session notes (optional · this Comparison Set)"></textarea>
     </div>
-    <div class="future-only">Future: AI assist button (disabled · not v1)</div>
+    <div class="future-only">Future: AI assist (disabled) · multi–Chart Record comparison (not Web 2.0)</div>
     <div class="row">
-      <button type="button" data-nav="map">Back to map</button>
+      <button type="button" data-action="compare-back-map">Back to map (preserve originating record)</button>
+      <button type="button" data-nav="chart-record" data-chart-record="${origin.chartRecordId}">Back to Chart Record page</button>
       <button type="button" data-nav="export">Export comparison</button>
     </div>
-    <p class="must-not">Must not appear: ranked scores, AI narrative default, mandatory intentions.</p>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: client-vs-client columns, ranked scores, multiple active Chart Records.</p>
   `;
 }
 
 function screenExport() {
+  const r = activeRecord();
+  const link = `https://example.com/#/map?chartRecordId=${r.chartRecordId}`
+    + (state.activeSavedExplorationId ? `&explorationId=${state.activeSavedExplorationId}` : "")
+    + (state.activePlaceName ? `&placeId=${encodeURIComponent(state.activePlaceName)}` : "");
   return `
     <h2>Screen 6 — Export / Share</h2>
-    <p class="purpose">Scoped output · decision mood.</p>
+    <p class="purpose">Scoped output · chartRecordId required in deep links.</p>
+    <div class="panel">
+      <h3>Module: export-investigation-link</h3>
+      <input type="text" readonly value="${link}" />
+    </div>
     <div class="panel">
       <h3>Module: export-viewport-png</h3>
       <button type="button" disabled>Export map PNG (illustrative · placeholder)</button>
     </div>
-    <div class="panel">
-      <h3>Module: export-investigation-link</h3>
-      <input type="text" readonly value="https://example.com/#/map?investigation=inv-1 (semantic replay stub)" />
-    </div>
-    <div class="panel">
-      <h3>Module: consumer-share</h3>
-      <button type="button" disabled>Share link (placeholder)</button>
-    </div>
-    <div class="panel">
-      <h3>Module: professional-share</h3>
-      <button type="button" disabled>Client packet PDF (future)</button>
-    </div>
     <div class="future-only">Future: AI session summary (disabled)</div>
-    <button type="button" data-nav="client">Back to client</button>
-    <p class="must-not">Must not appear: debug artifacts as truth, AI closure in shared copy.</p>
+    <button type="button" data-nav="chart-record">Back to Chart Record page</button>
   `;
 }
 
 function screenSettings() {
   return `
-    <h2>S5 — Settings / Ontology (support route)</h2>
-    <p class="purpose">Layer 2 defaults · not a journey destination.</p>
+    <h2>S5 — Settings (support route)</h2>
+    <p class="purpose">Layer 2 defaults · history clear · not a journey destination.</p>
     <div class="panel">
-      <h3>Module: house-system · orbs · helpers</h3>
+      <h3>Module: account-defaults</h3>
+      <label class="block">defaultChartRecordId (account owner default for Dashboard → Map)
+        <select disabled>${DEMO.chartRecords.map((r) =>
+          `<option value="${r.chartRecordId}"${r.chartRecordId === DEMO.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+        ).join("")}</select>
+      </label>
       <label class="block">House system <select disabled><option>Placidus</option></select></label>
-      <label class="block"><input type="checkbox" disabled /> Visible minor aspects</label>
-      <label class="block"><input type="checkbox" disabled /> Helper layers</label>
-      <button type="button" disabled>Save settings (placeholder)</button>
+    </div>
+    <div class="panel">
+      <h3>Module: history (per Chart Record)</h3>
+      <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
+      <button type="button" disabled>Clear all history — separate control (placeholder)</button>
     </div>
     <button type="button" data-nav="dashboard">Back to dashboard</button>
   `;
 }
 
 function screenBirthData() {
+  const r = activeRecord();
   return `
     <h2>S6 — Birth Data Intake (support route)</h2>
-    <p class="purpose">Necessary form · beautiful trustworthy intake.</p>
+    <p class="purpose">One birth profile per Chart Record · uncertainty as metadata — not multiple charts.</p>
     <div class="panel">
-      <h3>Module: birth-data-form</h3>
-      <label class="block">Date <input type="date" /></label>
-      <label class="block">Time <input type="time" /></label>
-      <label class="block">Place <input type="text" placeholder="City, country" /></label>
-      <label class="block">Confidence tier <select><option>T0 — Exact</option><option>T3 — Unknown time</option></select></label>
-      <button type="button" class="primary" data-nav="client">Save & return to client</button>
+      <h3>Module: birth-data-form · ${r.displayName}</h3>
+      <label class="block">Date <input type="date" value="${r.birthDate}" /></label>
+      <label class="block">Time (exact) <input type="time" ${r.hasTimeUncertainty ? "disabled" : ""} value="${r.birthTime || ""}" /></label>
+      <label class="block">Bounded range (metadata — one Chart Record)
+        <input type="text" ${r.hasTimeUncertainty ? `value="${r.birthTimeDisplay.replace("Time uncertain: ", "")}"` : "disabled placeholder=\"Future metadata field\""} />
+      </label>
+      <label class="block">Birth city <input type="text" value="${r.birthCity}" /></label>
+      <label class="block">Confidence tier
+        <select>
+          <option${!r.hasTimeUncertainty ? " selected" : ""}>T0 — Exact</option>
+          <option${r.hasTimeUncertainty ? " selected" : ""}>T2 — Bounded range</option>
+          <option>T3 — Unknown time</option>
+        </select>
+      </label>
+      <button type="button" class="primary" data-nav="chart-record">Save & return to Chart Record page</button>
     </div>
   `;
 }
 
 function screenFuture() {
   return `
-    <div class="stub">Quarantined architecture only — not scheduled, not clickable product features.</div>
+    <div class="stub">Quarantined architecture only — not scheduled.</div>
     <h2>Future Rooms (quarantined)</h2>
-    <p class="purpose">Not current build · post-AI / Layer 4–5 only · docs reference.</p>
     <ul class="plain">
-      <li>AI guidance <span class="meta">not built</span></li>
-      <li>Intent discovery / AI intake <span class="meta">not built</span></li>
-      <li>Layer 4 optimization / ranking <span class="meta">not built</span></li>
-      <li>Layer 5 experiential education (travel-first learning) <span class="meta">docs/future/layer5_experiential_education_through_travel_v1.md</span></li>
-      <li>Road trip mode · course system · marketplace <span class="meta">not built</span></li>
+      <li>Transit placement / search <span class="meta">post-v1 · not Web 2.0</span></li>
+      <li>Birth-time uncertainty gradient (internal calculations, one user-facing chart) <span class="meta">post-v1</span></li>
+      <li>AI guidance · Layer 4 optimization · Layer 5 courses <span class="meta">not built</span></li>
+      <li>Multi–Chart Record comparison columns <span class="meta">future professional edge case</span></li>
     </ul>
     <button type="button" data-nav="dashboard">Back to dashboard</button>
   `;
@@ -532,7 +753,7 @@ function screenFuture() {
 
 const SCREEN_RENDERERS = {
   dashboard: screenDashboard,
-  client: screenClient,
+  "chart-record": screenChartRecord,
   map: screenMap,
   chart: screenChart,
   compare: screenCompare,
@@ -547,30 +768,98 @@ function render() {
   renderNav();
   const meta = ALL_ROUTES.find((r) => r.id === state.route);
   $("#screenMeta").textContent = meta ? meta.screen : state.route;
-  const main = $("#main");
   const fn = SCREEN_RENDERERS[state.route];
-  main.innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
-  bindScreenActions(main);
+  $("#main").innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
+  bindScreenActions($("#main"));
+  if (state.popupOpen) openPopup();
+}
+
+function switchChartRecord(newId, noticePrefix) {
+  if (newId === state.activeChartRecordId) return;
+  const prev = activeRecord().displayName;
+  const next = getChartRecord(newId).displayName;
+  state.activeChartRecordId = newId;
+  state.activeSavedExplorationId = null;
+  state.switchNotice = `${noticePrefix || "Explicit Chart Record switch"}: ${prev} → ${next}. Exploration draft cleared for prior record (placeholder).`;
 }
 
 function bindScreenActions(root) {
   root.querySelectorAll("[data-nav]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const route = btn.getAttribute("data-nav");
-      const clientId = btn.getAttribute("data-client");
+      const chartRecordId = btn.getAttribute("data-chart-record");
       const place = btn.getAttribute("data-place");
-      if (clientId) state.clientId = clientId;
-      if (place) state.placeName = place;
+      if (chartRecordId) state.activeChartRecordId = chartRecordId;
+      if (place) state.activePlaceName = place;
       if (route) navigate(/** @type {Route} */ (route));
     });
   });
+
   root.querySelectorAll("[data-action]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
+      if (action === "open-map-default") {
+        openMap({
+          chartRecordId: DEMO.defaultChartRecordId,
+          explorationId: null,
+          placeName: null,
+          source: "dashboard → map (defaultChartRecordId)",
+          notice: `Opened map for account default: ${getChartRecord(DEMO.defaultChartRecordId).displayName}`,
+        });
+      }
+      if (action === "open-map-record") {
+        openMap({
+          chartRecordId: state.activeChartRecordId,
+          explorationId: null,
+          placeName: null,
+          source: "chart-record → map",
+        });
+      }
+      if (action === "open-map-favorite") {
+        const place = btn.getAttribute("data-place");
+        openMap({
+          chartRecordId: state.activeChartRecordId,
+          explorationId: null,
+          placeName: place,
+          source: "favorite → map",
+          notice: `Hydrated ${activeRecord().displayName} + place: ${place}`,
+        });
+      }
+      if (action === "resume-exploration") {
+        const cr = btn.getAttribute("data-chart-record");
+        const exp = btn.getAttribute("data-exploration");
+        const rec = getChartRecord(cr);
+        const exploration = rec.explorations.find((e) => e.id === exp);
+        openMap({
+          chartRecordId: cr,
+          explorationId: exp,
+          placeName: exploration && exploration.places[0] ? exploration.places[0] : null,
+          source: "saved exploration → map",
+          notice: exploration ? `Resumed exploration: ${exploration.name}` : "Resumed exploration",
+        });
+      }
+      if (action === "compare-back-map") {
+        if (state.originatingChartRecordId) {
+          state.activeChartRecordId = state.originatingChartRecordId;
+        }
+        openMap({
+          source: "comparison → map (originating record preserved)",
+          notice: `Returned to map · originating Chart Record: ${activeRecord().displayName}`,
+        });
+      }
       if (action === "inspect") openPopup();
       if (action === "toggle-drawer") { state.drawerOpen = !state.drawerOpen; render(); }
       if (action === "close-popup") closePopup();
-      if (action === "favorite") { alert("Favorite placeholder"); closePopup(); }
+    });
+  });
+
+  root.querySelectorAll("[data-action=chart-record-select]").forEach((sel) => {
+    sel.addEventListener("change", (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLSelectElement)) return;
+      switchChartRecord(target.value, "Explicit map Chart Record selector");
+      state.mapEntrySource = "map chart selector (explicit)";
+      render();
     });
   });
 }
@@ -579,23 +868,24 @@ document.getElementById("popupModal").addEventListener("click", (e) => {
   const t = e.target;
   if (!(t instanceof HTMLElement)) return;
   if (t.id === "popupModal") { closePopup(); return; }
-  const action = t.getAttribute("data-action");
-  if (action === "close-popup") closePopup();
-  if (action === "favorite") { alert("Favorite placeholder"); closePopup(); }
+  if (t.getAttribute("data-action") === "close-popup") closePopup();
   const nav = t.getAttribute("data-nav");
   if (nav) { closePopup(); navigate(/** @type {Route} */ (nav)); }
 });
 
 window.addEventListener("hashchange", render);
-
 document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
 
 window.__rmAppShell = {
   navigate,
+  openMap,
+  switchChartRecord,
   state,
   DEMO,
   NAV_ROUTES,
   ALL_ROUTES,
+  getChartRecord,
+  activeRecord,
   openPopup,
   closePopup,
 };
