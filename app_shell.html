@@ -671,6 +671,37 @@ function buildLocationHash(ctx) {
   return `#/${ctx.route}${qs ? `?${qs}` : ""}`;
 }
 
+/**
+ * Map Handoff Contract v1 — shell → map_CURRENT.html via URL query params only.
+ * Receive-only on map side; no profile/viewport/renderer wiring.
+ */
+const MAP_HANDOFF_CONTRACT = {
+  strategy: "url-query-params",
+  marker: "app_shell",
+  fields: [
+    "chartRecordId",
+    "placeId",
+    "explorationId",
+    "comparisonSetId",
+    "returnTo",
+    "handoffCreatedAt",
+  ],
+};
+
+function buildMapHandoffUrl(ctx) {
+  const c = ctx || navContext;
+  const params = new URLSearchParams();
+  params.set("skipOnboarding", "1");
+  params.set("handoff", MAP_HANDOFF_CONTRACT.marker);
+  params.set("handoffCreatedAt", new Date().toISOString());
+  for (const key of NAV_CONTEXT_KEYS) {
+    if (c[key]) params.set(key, c[key]);
+  }
+  const returnEnc = encodeReturnTo(c.returnTo);
+  if (returnEnc) params.set("returnTo", returnEnc);
+  return `/map_CURRENT.html?${params.toString()}`;
+}
+
 function normalizeNavContext(partial) {
   const route = partial.route || "dashboard";
   const contract = ROUTE_CONTEXT_CONTRACT[route] || ROUTE_CONTEXT_CONTRACT.dashboard;
@@ -971,7 +1002,7 @@ function screenMap() {
     ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
     ${timeUncertaintyWarning(r)}
     <div class="stub">Map viewport placeholder · entry: ${uiState.mapEntrySource || "direct nav"}.
-      <a href="/map_CURRENT.html?skipOnboarding=1" target="_blank" rel="noopener">Open production map reference — no shell handoff yet.</a>
+      <a href="${buildMapHandoffUrl()}" target="_blank" rel="noopener">Open production map (context handoff v1)</a>
     </div>
     <div class="map-placeholder">
       <div>
@@ -1405,6 +1436,8 @@ window.__rmAppShell = {
   get uiState() { return uiState; },
   ROUTE_CONTEXT_CONTRACT,
   CONTEXT_TRANSPORT_STRATEGY,
+  MAP_HANDOFF_CONTRACT,
+  buildMapHandoffUrl,
   parseLocation,
   buildLocationHash,
   normalizeNavContext,

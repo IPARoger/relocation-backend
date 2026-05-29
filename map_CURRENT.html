@@ -424,6 +424,10 @@ html.map-panel-show-legend #panelLegend { display: block; }
 .library-handoff button:disabled { opacity: 0.55; cursor: not-allowed; }
 .library-handoff-status { margin-top: 4px; color: #475569; min-height: 14px; }
 .library-handoff-status.is-error { color: #b91c1c; }
+.app-shell-handoff { margin-top: 8px; font-size: 11px; border: 1px dashed #94a3b8; border-radius: 4px; padding: 6px 8px; background: #f8fafc; }
+.app-shell-handoff-title { font-weight: 600; color: #334155; margin-bottom: 4px; }
+.app-shell-handoff-body { margin: 0; font-family: ui-monospace, monospace; font-size: 10px; color: #475569; white-space: pre-wrap; word-break: break-word; }
+.app-shell-handoff-note { margin-top: 4px; color: #64748b; font-size: 10px; }
 
 #auraDebugStatus {
     display: none;
@@ -885,6 +889,12 @@ html.map-panel-show-legend #panelLegend { display: block; }
             <div id="libraryHandoffStatus" class="library-handoff-status" aria-live="polite"></div>
         </div>
 
+        <div id="appShellHandoff" class="app-shell-handoff" hidden>
+            <div class="app-shell-handoff-title">App shell handoff (v1 · receive only)</div>
+            <pre id="appShellHandoffBody" class="app-shell-handoff-body"></pre>
+            <div class="app-shell-handoff-note">Informational only — no profile, viewport, or renderer changes.</div>
+        </div>
+
         <div id="panelLegend" aria-hidden="true">
             <p class="legend-caption">Region colors (debug)</p>
             <div class="legend-row"><span class="legend-swatch" style="background:#e8b923"></span> A</div>
@@ -900,6 +910,45 @@ html.map-panel-show-legend #panelLegend { display: block; }
 <script src="/substrate_adapter.js"></script>
 <script>
 const MAP_URL = new URLSearchParams(window.location.search);
+
+/** Map Handoff Contract v1 — URL query params only; receive-only (no map mutations). */
+function readAppShellHandoff() {
+    if (MAP_URL.get("handoff") !== "app_shell") return null;
+    return {
+        source: "app_shell",
+        chartRecordId: MAP_URL.get("chartRecordId") || null,
+        placeId: MAP_URL.get("placeId") || null,
+        explorationId: MAP_URL.get("explorationId") || null,
+        comparisonSetId: MAP_URL.get("comparisonSetId") || null,
+        returnTo: MAP_URL.get("returnTo") || null,
+        handoffCreatedAt: MAP_URL.get("handoffCreatedAt") || null,
+    };
+}
+
+const lastAppShellHandoff = readAppShellHandoff();
+
+function renderAppShellHandoffUI() {
+    const root = document.getElementById("appShellHandoff");
+    const body = document.getElementById("appShellHandoffBody");
+    if (!root || !body) return;
+    if (!lastAppShellHandoff) {
+        root.hidden = true;
+        return;
+    }
+    root.hidden = false;
+    body.textContent = JSON.stringify(lastAppShellHandoff, null, 2);
+}
+
+if (lastAppShellHandoff) {
+    console.info(
+        "[app-shell-handoff] Received (informational only — no map mutations):",
+        lastAppShellHandoff
+    );
+}
+
+window.__rmAppShellHandoff = () => (lastAppShellHandoff ? { ...lastAppShellHandoff } : null);
+renderAppShellHandoffUI();
+
 const substrateAdapter = window.RelocationSubstrateAdapter;
 const RENDERER_SUBSTRATES = Object.freeze({
     LEGACY_SEARCH_REGIONS: "legacy_search_regions",
@@ -1818,7 +1867,8 @@ window.__rmSmokeState = function() {
         renderStatus: document.getElementById("renderStatus")?.textContent || "",
         findBtnDisabled: document.getElementById("findBtn")?.disabled ?? false,
         nonFiniteCoords: nonFinite,
-        libraryHandoff: { ...lastLibraryHandoff }
+        libraryHandoff: { ...lastLibraryHandoff },
+        appShellHandoff: lastAppShellHandoff ? { ...lastAppShellHandoff } : null
     };
 };
 
