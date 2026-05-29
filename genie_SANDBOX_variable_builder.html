@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Genie Sandbox — Modular Variable Builder</title>
+<style>
+:root {
+  --map-bg: #e8eef4;
+  --map-grid: rgba(100, 116, 139, 0.12);
+  --genie-w: 380px;
+  --chip: 44px;
+  --accent: #b45309;
+  --accent-soft: #fef3c7;
+  --danger: #b91c1c;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --card-a: #fef9c3;
+  --card-b: #fce7f3;
+  --card-c: #dbeafe;
+  --card-aspect: #d1fae5;
+  --card-transit: #f1f5f9;
+  --font: system-ui, -apple-system, Segoe UI, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;
+  color: #1e293b;
+  background: #0f172a;
+  min-height: 100vh;
+}
+.app {
+  display: grid;
+  grid-template-columns: 1fr var(--genie-w);
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+}
+.map-surface {
+  position: relative;
+  background: var(--map-bg);
+  background-image:
+    linear-gradient(var(--map-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  min-height: 420px;
+}
+.map-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+  pointer-events: none;
+  text-align: center;
+  padding: 24px;
+}
+/* Map chrome — NOT inside Genie */
+.map-chrome-top {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: min(420px, calc(100% - 120px));
+}
+.city-search {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.08);
+}
+.city-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
+.city-search button {
+  background: #334155;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.map-nav-controls {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 4;
+}
+.map-nav-controls button {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.94);
+  cursor: pointer;
+}
+.map-nav-controls button:disabled { opacity: 0.45; cursor: not-allowed; }
+.map-zoom {
+  position: absolute;
+  bottom: 12px;
+  right: calc(var(--genie-w) + 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 4;
+}
+.map-zoom button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.94);
+  font-size: 18px;
+  cursor: pointer;
+}
+.save-search-stub {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 4;
+  padding: 8px 14px;
+  font-size: 12px;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  background: rgba(254,243,199,0.9);
+  color: #92400e;
+  cursor: default;
+}
+.save-search-stub.hidden { display: none; }
+/* Genie chip + Clear Map slot (top-right of map) */
+.genie-corner {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+  width: var(--chip);
+  height: var(--chip);
+}
+.genie-chip {
+  width: var(--chip);
+  height: var(--chip);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.genie-chip:hover { background: var(--accent-soft); }
+.clear-map-btn {
+  width: var(--chip);
+  height: var(--chip);
+  border: 2px solid var(--danger);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--danger);
+  cursor: pointer;
+  line-height: 1.1;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.clear-map-btn:hover { background: #fef2f2; }
+.clear-map-btn.undo { border-color: #059669; color: #059669; font-size: 8px; }
+/* Genie panel */
+.genie-panel {
+  grid-row: 1 / 3;
+  background: #fff;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  overflow: hidden;
+}
+.genie-panel.collapsed { display: none; }
+.genie-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #f8fafc;
+}
+.genie-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.chart-record-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 15px;
+}
+.chart-record-line button.info {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 12px;
+  cursor: help;
+  color: var(--muted);
+}
+.genie-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.genie-collapse {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--muted);
+  line-height: 1;
+}
+.genie-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+.variable-cards { display: flex; flex-direction: column; gap: 10px; }
+.variable-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  position: relative;
+}
+.variable-card[data-kind="planet_in_house"] { border-left: 4px solid #eab308; background: var(--card-a); }
+.variable-card[data-kind="angle_in_sign"] { border-left: 4px solid #db2777; background: var(--card-b); }
+.variable-card[data-kind="aspect_to_angle"] { border-left: 4px solid #2563eb; background: var(--card-c); }
+.variable-card[data-kind="transit_through_house"],
+.variable-card[data-kind="transiting_aspect_to_angle"] {
+  border-left: 4px solid #94a3b8;
+  background: var(--card-transit);
+  opacity: 0.85;
+}
+.variable-card.incomplete { box-shadow: inset 0 0 0 1px #fbbf24; }
+.variable-card.transit-type::after {
+  content: "Experimental";
+  position: absolute;
+  top: 8px;
+  right: 36px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.card-index { font-size: 11px; font-weight: 700; color: var(--muted); }
+.card-remove {
+  border: none;
+  background: transparent;
+  color: var(--danger);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+.card-remove:disabled { opacity: 0.3; cursor: not-allowed; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.field-row.single { grid-template-columns: 1fr; }
+.field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.field select,
+.field input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  background: #fff;
+}
+.field select:disabled,
+.field input:disabled { background: #f1f5f9; color: #94a3b8; }
+.layer-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+.layer-toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.7);
+}
+.layer-toggles label.active-mute { border-color: #64748b; background: #e2e8f0; }
+.layer-toggles label.active-solo { border-color: #2563eb; background: #dbeafe; }
+.layer-toggles label.active-not { border-color: #b91c1c; background: #fee2e2; }
+.layer-toggles-compact {
+  display: none;
+  gap: 4px;
+  margin-top: 6px;
+}
+.exploration-mode .layer-toggles { display: none; }
+.exploration-mode .layer-toggles-compact { display: flex; }
+.layer-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  title: attr(data-title);
+}
+.genie-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.action-row button {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+.action-row button.primary {
+  background: var(--accent);
+  border-color: #92400e;
+  color: #fff;
+}
+.action-row button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.render-status {
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 16px;
+}
+.mode-toggle {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.debug-panel {
+  grid-column: 1;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 16px;
+  max-height: 280px;
+  overflow: auto;
+  border-top: 1px solid #334155;
+}
+.debug-panel h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+.debug-panel pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.registry-settings {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #334155;
+}
+.registry-settings h3 { margin: 0 0 6px; }
+.registry-settings p {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+.registry-group { margin-bottom: 8px; }
+.registry-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+.registry-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.registry-toggles label {
+  font-size: 10px;
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.registry-toggles label.is-off { color: #64748b; }
+.last-render {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #334155;
+}
+.transit-settings {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.transit-settings label.transit-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+  flex: 1;
+  min-width: 200px;
+}
+.transit-info-btn {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+}
+.transit-info-btn:hover { background: #f1f5f9; color: #334155; }
+.transit-type-hint {
+  width: 100%;
+  font-size: 11px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.transit-type-hint.enabled { color: #64748b; }
+.transit-type-hint button.transit-info-btn { width: 18px; height: 18px; font-size: 11px; }
+.type-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.card-transit-info {
+  display: none;
+  border: none;
+  background: transparent;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+.card-transit-info:hover { background: rgba(255,255,255,0.8); }
+.type-label-row .card-transit-info,
+.variable-card[data-kind="transit_through_house"] .card-top .card-transit-info,
+.variable-card[data-kind="transiting_aspect_to_angle"] .card-top .card-transit-info {
+  display: inline-flex;
+}
+.transit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.transit-modal-backdrop[hidden] { display: none; }
+.transit-modal {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 420px;
+  width: 100%;
+  padding: 18px 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.transit-modal h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #334155;
+}
+.transit-modal p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #475569;
+}
+.transit-modal-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.transit-modal-actions button {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+.transit-modal-actions button.primary {
+  background: #334155;
+  border-color: #1e293b;
+  color: #fff;
+}
+select option.transit-option-disabled { color: #94a3b8; }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .genie-panel { grid-row: auto; max-height: 50vh; }
+  .map-zoom { right: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="map-surface" id="mapSurface">
+    <div class="map-chrome-top">
+      <div class="city-search" aria-label="City search (map surface, not Genie)">
+        <input type="text" id="citySearch" placeholder="City search — top center on map" />
+        <button type="button" id="cityGo" disabled title="Scaffold only">Go</button>
+      </div>
+    </div>
+    <div class="map-nav-controls" aria-label="History navigation (map surface)">
+      <button type="button" id="navBack" disabled>← Back</button>
+      <button type="button" id="navForward" disabled>Forward →</button>
+      <button type="button" id="navPin" disabled title="Pin scaffold">📌 Pin</button>
+    </div>
+    <div class="genie-corner" id="genieCorner"></div>
+    <div class="map-zoom" aria-label="Zoom (map surface)">
+      <button type="button" disabled title="Scaffold">+</button>
+      <button type="button" disabled title="Scaffold">−</button>
+    </div>
+    <div class="save-search-stub hidden" id="saveSearchStub">Save Search (Exploration Mode · map surface)</div>
+    <div class="map-label">Map viewport placeholder<br><small>Genie sandbox — no renderer</small></div>
+  </div>
+
+  <aside class="genie-panel" id="geniePanel" aria-label="Genie workbench">
+    <header class="genie-header">
+      <div class="genie-header-row">
+        <div class="chart-record-line">
+          <span>Anna Rivera</span>
+          <button type="button" class="info" title="Chart Record info (future: view, rename, delete)">ⓘ</button>
+        </div>
+        <button type="button" class="genie-collapse" id="collapseGenie" title="Collapse Genie">×</button>
+      </div>
+      <div class="genie-sub">Configuration Mode · modular variables</div>
+      <label class="mode-toggle">
+        <input type="checkbox" id="explorationModeToggle" />
+        Preview Exploration Mode (compact layer toggles)
+      </label>
+      <div class="transit-settings">
+        <label class="transit-toggle">
+          <input type="checkbox" id="transitEnabledToggle" />
+          <span>Enable experimental transit variables</span>
+        </label>
+        <button type="button" class="transit-info-btn" id="transitInfoBtn" title="About transit variables">?</button>
+      </div>
+      <div class="transit-type-hint" id="transitTypeHint">
+        <span>Transit through house · Transiting aspect to angle</span>
+        <button type="button" class="transit-info-btn" id="transitHintInfoBtn" title="About transit variables">?</button>
+      </div>
+    </header>
+    <div class="genie-body">
+      <div class="variable-cards" id="variableCards"></div>
+    </div>
+    <footer class="genie-footer">
+      <div class="action-row">
+        <button type="button" id="addVariableBtn">Add Variable</button>
+        <button type="button" class="primary" id="renderBtn">Render</button>
+      </div>
+      <div class="render-status" id="renderStatus">Configure at least one complete variable, then Render.</div>
+    </footer>
+  </aside>
+
+  <div class="debug-panel">
+    <div class="registry-settings" id="registrySettingsMock">
+      <h3>Mock Settings — available objects registry</h3>
+      <p>Genie reads enabled vocabulary from the registry only. Toggle objects here to simulate future Settings without changing Genie architecture.</p>
+      <div id="registrySettingsBody"></div>
+    </div>
+    <h3>Variable model (live JSON)</h3>
+    <pre id="debugJson"></pre>
+    <div class="last-render">
+      <h3>Last normalized render payload</h3>
+      <pre id="renderJson">null</pre>
+    </div>
+  </div>
+</div>
+
+<div class="transit-modal-backdrop" id="transitModalBackdrop" hidden>
+  <div class="transit-modal" role="dialog" aria-labelledby="transitModalTitle" aria-modal="true">
+    <h4 id="transitModalTitle">Experimental relocation-transit mode</h4>
+    <p id="transitModalBody">Experimental relocation-transit mode.
+Many astrologers read transits to the natal chart only. Transits to relocated houses or relocated angles are offered for research and experimentation, not as the default interpretive model.</p>
+    <div class="transit-modal-actions">
+      <button type="button" class="primary" id="transitModalEnableBtn" hidden>Enable experimental transit variables</button>
+      <button type="button" id="transitModalCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /**
+   * AVAILABLE OBJECTS REGISTRY (Settings-owned vocabulary)
+   * -------------------------------------------------------
+   * Production: Settings enables/disables catalog entries; Genie consumes registry.list().
+   * Sandbox: mock catalog below + debug-panel toggles simulate Settings.
+   * Genie owns variables and field bindings — not astrological doctrine.
+   */
+  const OBJECT_CATALOG = Object.freeze({
+    bodies: [
+      { id: "sun", label: "Sun", group: "luminary", defaultEnabled: true },
+      { id: "moon", label: "Moon", group: "luminary", defaultEnabled: true },
+      { id: "mercury", label: "Mercury", group: "personal", defaultEnabled: true },
+      { id: "venus", label: "Venus", group: "personal", defaultEnabled: true },
+      { id: "mars", label: "Mars", group: "personal", defaultEnabled: true },
+      { id: "jupiter", label: "Jupiter", group: "social", defaultEnabled: true },
+      { id: "saturn", label: "Saturn", group: "social", defaultEnabled: true },
+      { id: "uranus", label: "Uranus", group: "outer", defaultEnabled: true },
+      { id: "neptune", label: "Neptune", group: "outer", defaultEnabled: true },
+      { id: "pluto", label: "Pluto", group: "outer", defaultEnabled: true },
+      { id: "chiron", label: "Chiron", group: "asteroid", defaultEnabled: true },
+      { id: "north_node", label: "North Node", group: "node", defaultEnabled: false },
+      { id: "south_node", label: "South Node", group: "node", defaultEnabled: false },
+      { id: "lilith", label: "Lilith", group: "point", defaultEnabled: false },
+      { id: "part_of_fortune", label: "Part of Fortune", group: "point", defaultEnabled: false },
+      { id: "vertex", label: "Vertex", group: "point", defaultEnabled: false },
+      { id: "east_point", label: "East Point", group: "point", defaultEnabled: false },
+    ],
+    angles: [
+      { id: "ASC", label: "ASC", defaultEnabled: true },
+      { id: "DSC", label: "DSC", defaultEnabled: true },
+      { id: "MC", label: "MC", defaultEnabled: true },
+      { id: "IC", label: "IC", defaultEnabled: true },
+    ],
+    signs: [
+      { id: "aries", label: "Aries", defaultEnabled: true },
+      { id: "taurus", label: "Taurus", defaultEnabled: true },
+      { id: "gemini", label: "Gemini", defaultEnabled: true },
+      { id: "cancer", label: "Cancer", defaultEnabled: true },
+      { id: "leo", label: "Leo", defaultEnabled: true },
+      { id: "virgo", label: "Virgo", defaultEnabled: true },
+      { id: "libra", label: "Libra", defaultEnabled: true },
+      { id: "scorpio", label: "Scorpio", defaultEnabled: true },
+      { id: "sagittarius", label: "Sagittarius", defaultEnabled: true },
+      { id: "capricorn", label: "Capricorn", defaultEnabled: true },
+      { id: "aquarius", label: "Aquarius", defaultEnabled: true },
+      { id: "pisces", label: "Pisces", defaultEnabled: true },
+    ],
+    houses: Array.from({ length: 12 }, (_, i) => ({
+      id: String(i + 1),
+      label: String(i + 1),
+      defaultEnabled: true,
+    })),
+    aspects: [
+      { id: "conjunction", label: "Conjunction", tier: "major", defaultEnabled: true },
+      { id: "opposition", label: "Opposition", tier: "major", defaultEnabled: true },
+      { id: "square", label: "Square", tier: "major", defaultEnabled: true },
+      { id: "trine", label: "Trine", tier: "major", defaultEnabled: true },
+      { id: "sextile", label: "Sextile", tier: "major", defaultEnabled: true },
+      { id: "hard", label: "All Hard Aspects", tier: "group", defaultEnabled: true },
+      { id: "soft", label: "All Soft Aspects", tier: "group", defaultEnabled: true },
+      { id: "any", label: "All Major Aspects", tier: "group", defaultEnabled: true },
+      { id: "semisextile", label: "Semi-Sextile", tier: "minor", defaultEnabled: false },
+      { id: "quincunx", label: "Quincunx", tier: "minor", defaultEnabled: false },
+      { id: "semisquare", label: "Semi-Square", tier: "minor", defaultEnabled: false },
+      { id: "sesquiquadrate", label: "Sesquiquadrate", tier: "minor", defaultEnabled: false },
+    ],
+    date_presets: [
+      { id: "today", label: "Today", defaultEnabled: true },
+      { id: "next_30", label: "Next 30 Days", defaultEnabled: true },
+      { id: "next_365", label: "Next 365 Days", defaultEnabled: true },
+      { id: "custom", label: "Custom", defaultEnabled: true },
+    ],
+  });
+
+  /** Genie field bindings → registry categories (not doctrine). */
+  const VARIABLE_FIELD_BINDINGS = Object.freeze({
+    planet_in_house: [
+      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "house", category: "houses", label: "House" },
+    ],
+    angle_in_sign: [
+      { field: "angle", category: "angles", label: "Angle" },
+      { field: "sign", category: "signs", label: "Sign" },
+    ],
+    aspect_to_angle: [
+      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "aspect", category: "aspects", label: "Aspect" },
+      { field: "angle", category: "angles", label: "Angle" },
+    ],
+    transit_through_house: [
+      { field: "datePreset", category: "date_presets", label: "Date range" },
+      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "house", category: "houses", label: "House" },
+    ],
+    transiting_aspect_to_angle: [
+      { field: "datePreset", category: "date_presets", label: "Date range" },
+      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "aspect", category: "aspects", label: "Aspect" },
+      { field: "angle", category: "angles", label: "Angle" },
+    ],
+  });
+
+  function createAvailableObjectsRegistry(catalog) {
+    /** @type {Record<string, Record<string, boolean>>} */
+    const enabled = {};
+    Object.keys(catalog).forEach((category) => {
+      enabled[category] = {};
+      catalog[category].forEach((item) => {
+        enabled[category][item.id] = item.defaultEnabled !== false;
+      });
+    });
+
+    return {
+      catalog,
+      list(category) {
+        return (catalog[category] || []).filter((item) => enabled[category]?.[item.id]);
+      },
+      options(category) {
+        return this.list(category).map((item) => [item.id, item.label]);
+      },
+      firstId(category) {
+        const items = this.list(category);
+        return items.length ? items[0].id : "";
+      },
+      isEnabled(category, id) {
+        if (!id) return false;
+        return Boolean(enabled[category]?.[id]);
+      },
+      setEnabled(category, id, on) {
+        if (!(catalog[category] || []).some((item) => item.id === id)) return;
+        enabled[category][id] = Boolean(on);
+      },
+      snapshot() {
+        return JSON.parse(JSON.stringify(enabled));
+      },
+      togglableItems() {
+        const out = {};
+        Object.keys(catalog).forEach((category) => {
+          out[category] = catalog[category].filter((item) => item.defaultEnabled === false);
+        });
+        return out;
+      },
+    };
+  }
+
+  const objectRegistry = createAvailableObjectsRegistry(OBJECT_CATALOG);
+  window.__rmAvailableObjectsRegistry = objectRegistry;
+
+  const MAX_VARIABLES = 12;
+  const VARIABLE_TYPES = [
+    { id: "planet_in_house", label: "Planet in House", transit: false },
+    { id: "angle_in_sign", label: "Angle in Sign", transit: false },
+    { id: "aspect_to_angle", label: "Aspect to Angle", transit: false },
+    { id: "transit_through_house", label: "Transit through House", transit: true },
+    { id: "transiting_aspect_to_angle", label: "Transiting Aspect to Angle", transit: true },
+  ];
+
+  const TRANSIT_INFO_TEXT =
+    "Experimental relocation-transit mode. " +
+    "Many astrologers read transits to the natal chart only. " +
+    "Transits to relocated houses or relocated angles are offered for research and experimentation, " +
+    "not as the default interpretive model.";
+
+  let nextId = 1;
+  let genieOpen = true;
+  let transitEnabled = false;
+  let transitModalShowEnable = false;
+  let clearUndoSnapshot = null;
+  let clearUndoTimer = null;
+  let lastNormalizedPayload = null;
+  let renderCount = 0;
+
+  /** @type {Array<object>} */
+  let variables = [createEmptyVariable()];
+
+  function createEmptyVariable() {
+    return {
+      id: `var-${nextId++}`,
+      type: "",
+      fields: defaultFields(""),
+      layer: { mute: false, solo: false, not: false },
+    };
+  }
+
+  function defaultFields(type) {
+    const base = {
+      datePreset: objectRegistry.firstId("date_presets"),
+      startDate: "",
+      endDate: "",
+      planet: objectRegistry.firstId("bodies"),
+      house: objectRegistry.firstId("houses"),
+      angle: objectRegistry.firstId("angles"),
+      sign: objectRegistry.firstId("signs"),
+      aspect: objectRegistry.firstId("aspects"),
+    };
+    if (!type) {
+      return {
+        datePreset: "",
+        startDate: "",
+        endDate: "",
+        planet: "",
+        house: "",
+        angle: "",
+        sign: "",
+        aspect: "",
+      };
+    }
+    const bindings = VARIABLE_FIELD_BINDINGS[type] || [];
+    const out = { ...base };
+    bindings.forEach(({ field, category }) => {
+      out[field] = objectRegistry.firstId(category);
+    });
+    return out;
+  }
+
+  function bindingFor(type, field) {
+    return (VARIABLE_FIELD_BINDINGS[type] || []).find((b) => b.field === field) || null;
+  }
+
+  function sanitizeVariableFields(v) {
+    if (!v.type) return;
+    (VARIABLE_FIELD_BINDINGS[v.type] || []).forEach(({ field, category }) => {
+      if (!objectRegistry.isEnabled(category, v.fields[field])) {
+        v.fields[field] = objectRegistry.firstId(category);
+      }
+    });
+  }
+
+  function sanitizeAllVariables() {
+    variables.forEach(sanitizeVariableFields);
+  }
+
+  function isTransitType(type) {
+    return type === "transit_through_house" || type === "transiting_aspect_to_angle";
+  }
+
+  function isVariableComplete(v) {
+    if (!v.type) return false;
+    if (isTransitType(v.type) && !transitEnabled) return false;
+    const f = v.fields;
+    const bindings = VARIABLE_FIELD_BINDINGS[v.type] || [];
+    for (const { field, category } of bindings) {
+      if (field === "datePreset") {
+        if (!f.datePreset) return false;
+        if (f.datePreset === "custom" && (!f.startDate || !f.endDate)) return false;
+        continue;
+      }
+      if (!f[field] || !objectRegistry.isEnabled(category, f[field])) return false;
+    }
+    return bindings.length > 0;
+  }
+
+  function allVariablesComplete() {
+    return variables.length > 0 && variables.every(isVariableComplete);
+  }
+
+  function anyIncomplete() {
+    return variables.some((v) => !isVariableComplete(v));
+  }
+
+  function cardColor(kind) {
+    const map = {
+      planet_in_house: "#eab308",
+      angle_in_sign: "#db2777",
+      aspect_to_angle: "#2563eb",
+      transit_through_house: "#94a3b8",
+      transiting_aspect_to_angle: "#94a3b8",
+    };
+    return map[kind] || "#cbd5e1";
+  }
+
+  function normalizePayload() {
+    const houseConditions = [];
+    const angleSignConditions = [];
+    const aspectConditions = [];
+    const transitConditions = [];
+    const layerControls = { muted: [], solo: null, not: [] };
+
+    variables.forEach((v, index) => {
+      if (!isVariableComplete(v)) return;
+      const track = String.fromCharCode(65 + (index % 26));
+      const lc = {
+        track,
+        variableId: v.id,
+        mute: v.layer.mute,
+        solo: v.layer.solo,
+        not: v.layer.not,
+      };
+      if (v.layer.mute) layerControls.muted.push(v.id);
+      if (v.layer.solo) layerControls.solo = v.id;
+      if (v.layer.not) layerControls.not.push(v.id);
+
+      const f = v.fields;
+      if (v.type === "planet_in_house") {
+        houseConditions.push({
+          ...lc,
+          type: "planet_in_house",
+          planet: f.planet,
+          house: parseInt(f.house, 10),
+        });
+      } else if (v.type === "angle_in_sign") {
+        angleSignConditions.push({
+          ...lc,
+          type: "angle_in_sign",
+          angle: f.angle,
+          sign: f.sign,
+        });
+      } else if (v.type === "aspect_to_angle") {
+        aspectConditions.push({
+          ...lc,
+          type: "aspect_to_angle",
+          planet: f.planet,
+          aspect: f.aspect,
+          angle: f.angle,
+        });
+      } else if (v.type === "transit_through_house" && transitEnabled) {
+        transitConditions.push({
+          ...lc,
+          type: "transit_through_house",
+          planet: f.planet,
+          house: parseInt(f.house, 10),
+          date_preset: f.datePreset,
+          start_date: f.startDate || null,
+          end_date: f.endDate || null,
+          experimental: true,
+        });
+      } else if (v.type === "transiting_aspect_to_angle" && transitEnabled) {
+        transitConditions.push({
+          ...lc,
+          type: "transiting_aspect_to_angle",
+          planet: f.planet,
+          aspect: f.aspect,
+          angle: f.angle,
+          date_preset: f.datePreset,
+          start_date: f.startDate || null,
+          end_date: f.endDate || null,
+          experimental: true,
+        });
+      }
+    });
+
+    /** Legacy-compatible bundle (mirrors map_CURRENT collectSavedInvestigationConditions shape). */
+    const legacyCompatible = {
+      schema_version: 1,
+      kind: "saved_investigation",
+      house_conditions: houseConditions.map(({ type, planet, house, track, variableId }) => ({
+        slot: track,
+        type,
+        planet,
+        house,
+        variableId,
+      })),
+      angle_sign_conditions: angleSignConditions.map(({ type, angle, sign, variableId }) => ({
+        type,
+        angle,
+        sign,
+        variableId,
+      })),
+      /** Production map allows one aspect_overlay; sandbox emits array for multi-variable future. */
+      aspect_overlay: aspectConditions.length === 1
+        ? { type: "aspect_to_angle", ...aspectConditions[0] }
+        : aspectConditions.length > 1
+          ? aspectConditions[0]
+          : null,
+      aspect_overlays: aspectConditions,
+    };
+
+    return {
+      schema_version: 1,
+      kind: "genie_sandbox_render",
+      generatedAt: new Date().toISOString(),
+      variableCount: variables.filter(isVariableComplete).length,
+      variables: variables.map(cloneVariable),
+      normalized: {
+        house_conditions: houseConditions,
+        angle_sign_conditions: angleSignConditions,
+        aspect_conditions: aspectConditions,
+        transit_conditions: transitConditions,
+        layer_controls: layerControls,
+        legacy_compatible: legacyCompatible,
+      },
+      exclusions: {
+        planet_aspect_to_planet: false,
+        masculine_sign_preset: false,
+      },
+      transit_enabled: transitEnabled,
+      registry_snapshot: objectRegistry.snapshot(),
+    };
+  }
+
+  function cloneVariable(v) {
+    return {
+      id: v.id,
+      type: v.type,
+      fields: { ...v.fields },
+      layer: { ...v.layer },
+      complete: isVariableComplete(v),
+      transit: isTransitType(v.type),
+    };
+  }
+
+  function getState() {
+    return {
+      genieOpen,
+      transitEnabled,
+      mode: document.getElementById("explorationModeToggle").checked ? "exploration" : "configuration",
+      variableCount: variables.length,
+      maxVariables: MAX_VARIABLES,
+      allComplete: allVariablesComplete(),
+      variables: variables.map(cloneVariable),
+      lastNormalizedPayload,
+      renderCount,
+      registry: objectRegistry.snapshot(),
+    };
+  }
+
+  function selectOptionsFromPairs(pairs, selected, placeholder) {
+    const ph = placeholder
+      ? `<option value="" disabled${selected ? "" : " selected"}>${placeholder}</option>`
+      : "";
+    return ph + pairs.map(([val, label]) =>
+      `<option value="${val}"${val === selected ? " selected" : ""}>${label}</option>`
+    ).join("");
+  }
+
+  function registryFieldSelect(type, field, value, { disabled = false } = {}) {
+    const binding = bindingFor(type, field);
+    if (!binding) return "";
+    const pairs = objectRegistry.options(binding.category);
+    const label = binding.label;
+    return `
+      <div class="field">
+        <label>${label}</label>
+        <select data-field="${field}" ${disabled ? "disabled" : ""}>
+          ${selectOptionsFromPairs(pairs, value)}
+        </select>
+      </div>`;
+  }
+
+  function typeSelectOptions(selected) {
+    let html = `<option value="" disabled${selected ? "" : " selected"}>Select type…</option>`;
+    VARIABLE_TYPES.forEach((t) => {
+      const isSelected = t.id === selected;
+      const disabled = t.transit && !transitEnabled;
+      const suffix = t.transit ? (transitEnabled ? " (experimental)" : " (off)") : "";
+      html += `<option value="${t.id}"${isSelected ? " selected" : ""}${disabled ? " disabled class=\"transit-option-disabled\"" : ""}>${t.label}${suffix}</option>`;
+    });
+    return html;
+  }
+
+  function openTransitModal(showEnable) {
+    transitModalShowEnable = showEnable && !transitEnabled;
+    document.getElementById("transitModalBody").textContent = TRANSIT_INFO_TEXT;
+    document.getElementById("transitModalEnableBtn").hidden = !transitModalShowEnable;
+    document.getElementById("transitModalBackdrop").hidden = false;
+  }
+
+  function closeTransitModal() {
+    document.getElementById("transitModalBackdrop").hidden = true;
+  }
+
+  function enableTransitVariables() {
+    transitEnabled = true;
+    document.getElementById("transitEnabledToggle").checked = true;
+    closeTransitModal();
+    render();
+  }
+
+  function disableTransitVariables() {
+    variables.forEach((v) => {
+      if (isTransitType(v.type)) {
+        v.type = "";
+        v.fields = defaultFields("");
+      }
+    });
+    render();
+  }
+
+  function renderDateFields(v, disabled) {
+    const f = v.fields;
+    const custom = f.datePreset === "custom";
+    return `
+      <div class="field-row">
+        ${registryFieldSelect(v.type, "datePreset", f.datePreset, { disabled })}
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Start date</label>
+          <input type="date" data-field="startDate" value="${f.startDate || ""}"
+            ${disabled || !custom ? "disabled" : ""} />
+        </div>
+        <div class="field">
+          <label>End date</label>
+          <input type="date" data-field="endDate" value="${f.endDate || ""}"
+            ${disabled || !custom ? "disabled" : ""} />
+        </div>
+      </div>`;
+  }
+
+  function renderFieldsForType(v) {
+    const f = v.fields;
+    const transit = isTransitType(v.type);
+    const fieldsDisabled = transit && !transitEnabled;
+    if (!v.type) {
+      return `<p style="margin:0;font-size:12px;color:#64748b">Choose a variable type to configure fields.</p>`;
+    }
+    const bindings = VARIABLE_FIELD_BINDINGS[v.type] || [];
+    if (!bindings.length) return "";
+
+    if (v.type === "planet_in_house") {
+      return `
+        <div class="field-row">
+          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "house", f.house, { disabled: fieldsDisabled })}
+        </div>`;
+    }
+    if (v.type === "angle_in_sign") {
+      return `
+        <div class="field-row">
+          ${registryFieldSelect(v.type, "angle", f.angle, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "sign", f.sign, { disabled: fieldsDisabled })}
+        </div>`;
+    }
+    if (v.type === "aspect_to_angle") {
+      return `
+        <div class="field-row">
+          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "aspect", f.aspect, { disabled: fieldsDisabled })}
+        </div>
+        <div class="field-row single">
+          ${registryFieldSelect(v.type, "angle", f.angle, { disabled: fieldsDisabled })}
+        </div>`;
+    }
+    if (v.type === "transit_through_house") {
+      return `
+        ${renderDateFields(v, fieldsDisabled)}
+        <div class="field-row">
+          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "house", f.house, { disabled: fieldsDisabled })}
+        </div>`;
+    }
+    if (v.type === "transiting_aspect_to_angle") {
+      return `
+        ${renderDateFields(v, fieldsDisabled)}
+        <div class="field-row">
+          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "aspect", f.aspect, { disabled: fieldsDisabled })}
+        </div>
+        <div class="field-row single">
+          ${registryFieldSelect(v.type, "angle", f.angle, { disabled: fieldsDisabled })}
+        </div>`;
+    }
+    return "";
+  }
+
+  function renderLayerToggles(v, index) {
+    const color = cardColor(v.type);
+    const muteCls = v.layer.mute ? "active-mute" : "";
+    const soloCls = v.layer.solo ? "active-solo" : "";
+    const notCls = v.layer.not ? "active-not" : "";
+    return `
+      <div class="layer-toggles">
+        <label class="${muteCls}">
+          <input type="checkbox" data-layer="mute" ${v.layer.mute ? "checked" : ""} /> Mute
+        </label>
+        <label class="${soloCls}">
+          <input type="checkbox" data-layer="solo" ${v.layer.solo ? "checked" : ""} /> Solo
+        </label>
+        <label class="${notCls}">
+          <input type="checkbox" data-layer="not" ${v.layer.not ? "checked" : ""} /> NOT
+        </label>
+      </div>
+      <div class="layer-toggles-compact" title="Exploration Mode scaffold">
+        <span class="layer-dot" style="background:${color}" data-title="Mute"></span>
+        <span class="layer-dot" style="background:${color};opacity:0.5" data-title="Solo"></span>
+        <span class="layer-dot" style="background:${color};opacity:0.25" data-title="NOT"></span>
+        <span style="font-size:9px;color:#64748b">Track ${String.fromCharCode(65 + index)}</span>
+      </div>`;
+  }
+
+  function renderCards() {
+    const root = document.getElementById("variableCards");
+    root.innerHTML = variables.map((v, i) => {
+      const complete = isVariableComplete(v);
+      const transit = isTransitType(v.type);
+      return `
+        <article class="variable-card${complete ? "" : " incomplete"}${transit && transitEnabled ? " transit-type" : ""}"
+          data-id="${v.id}" data-kind="${v.type || "unset"}">
+          <div class="card-top">
+            <span class="card-index">Variable ${i + 1}${complete ? "" : " · incomplete"}</span>
+            <span>
+              ${transit ? `<button type="button" class="card-transit-info" data-card-transit-info title="About transit variables">?</button>` : ""}
+              <button type="button" class="card-remove" data-remove="${v.id}"
+                ${variables.length <= 1 ? "disabled" : ""} title="Remove variable">×</button>
+            </span>
+          </div>
+          <div class="field-row single">
+            <div class="field">
+              <div class="type-label-row">
+                <label>Type</label>
+                ${(!transitEnabled || transit) ? `<button type="button" class="card-transit-info" data-type-transit-info title="About transit variables">?</button>` : ""}
+              </div>
+              <select data-type-select>
+                ${typeSelectOptions(v.type)}
+              </select>
+            </div>
+          </div>
+          ${renderFieldsForType(v)}
+          ${v.type && (!transit || transitEnabled) ? renderLayerToggles(v, i) : ""}
+        </article>`;
+    }).join("");
+
+    root.querySelectorAll("[data-type-select]").forEach((el, i) => {
+      const prevType = variables[i].type;
+      el.addEventListener("change", () => {
+        const nextType = el.value;
+        if (isTransitType(nextType) && !transitEnabled) {
+          el.value = prevType || "";
+          openTransitModal(true);
+          return;
+        }
+        variables[i].type = nextType;
+        variables[i].fields = defaultFields(nextType);
+        syncSoloExclusive(variables[i]);
+        render();
+      });
+    });
+
+    root.querySelectorAll("[data-card-transit-info], [data-type-transit-info]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openTransitModal(!transitEnabled);
+      });
+    });
+
+    root.querySelectorAll("[data-field]").forEach((el) => {
+      el.addEventListener("change", () => {
+        const card = el.closest(".variable-card");
+        const v = variables.find((x) => x.id === card.dataset.id);
+        if (!v) return;
+        v.fields[el.dataset.field] = el.value;
+        render();
+      });
+    });
+
+    root.querySelectorAll("[data-layer]").forEach((el) => {
+      el.addEventListener("change", () => {
+        const card = el.closest(".variable-card");
+        const v = variables.find((x) => x.id === card.dataset.id);
+        if (!v) return;
+        const key = el.dataset.layer;
+        v.layer[key] = el.checked;
+        if (key === "solo" && el.checked) {
+          variables.forEach((other) => {
+            if (other.id !== v.id) other.layer.solo = false;
+          });
+        }
+        render();
+      });
+    });
+
+    root.querySelectorAll("[data-remove]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (variables.length <= 1) return;
+        variables = variables.filter((x) => x.id !== btn.dataset.remove);
+        render();
+      });
+    });
+  }
+
+  function syncSoloExclusive(active) {
+    if (active.layer.solo) {
+      variables.forEach((v) => {
+        if (v.id !== active.id) v.layer.solo = false;
+      });
+    }
+  }
+
+  function updateCornerControl() {
+    const corner = document.getElementById("genieCorner");
+    if (genieOpen) {
+      corner.innerHTML = clearUndoSnapshot
+        ? `<button type="button" class="clear-map-btn undo" id="clearMapBtn">Undo Clear</button>`
+        : `<button type="button" class="clear-map-btn" id="clearMapBtn">Clear Map</button>`;
+      document.getElementById("clearMapBtn").addEventListener("click", onClearMap);
+    } else {
+      corner.innerHTML = `<button type="button" class="genie-chip" id="openGenieChip" title="Open Genie">Genie</button>`;
+      document.getElementById("openGenieChip").addEventListener("click", () => {
+        genieOpen = true;
+        render();
+      });
+    }
+  }
+
+  function onClearMap() {
+    if (clearUndoSnapshot) {
+      variables = clearUndoSnapshot.map((v) => ({
+        ...v,
+        fields: { ...v.fields },
+        layer: { ...v.layer },
+      }));
+      clearUndoSnapshot = null;
+      if (clearUndoTimer) clearTimeout(clearUndoTimer);
+      clearUndoTimer = null;
+      document.getElementById("renderStatus").textContent = "Undo Clear restored variables.";
+      render();
+      return;
+    }
+    clearUndoSnapshot = variables.map((v) => ({
+      ...v,
+      fields: { ...v.fields },
+      layer: { ...v.layer },
+    }));
+    variables = [createEmptyVariable()];
+    lastNormalizedPayload = null;
+    document.getElementById("renderJson").textContent = "null";
+    document.getElementById("renderStatus").textContent = "Map cleared — one empty variable. Undo available briefly.";
+    if (clearUndoTimer) clearTimeout(clearUndoTimer);
+    clearUndoTimer = setTimeout(() => {
+      clearUndoSnapshot = null;
+      updateCornerControl();
+    }, 8000);
+    render();
+  }
+
+  function updateActions() {
+    const addBtn = document.getElementById("addVariableBtn");
+    const renderBtn = document.getElementById("renderBtn");
+    const atMax = variables.length >= MAX_VARIABLES;
+    const canAdd = allVariablesComplete() && !atMax;
+    addBtn.disabled = !canAdd;
+    addBtn.style.display = atMax ? "none" : "";
+    renderBtn.disabled = !allVariablesComplete();
+    if (atMax) {
+      addBtn.title = "Maximum 12 variables";
+    } else if (anyIncomplete()) {
+      addBtn.title = "Complete all variables before adding another";
+    } else {
+      addBtn.title = "";
+    }
+  }
+
+  function updateDebug() {
+    document.getElementById("debugJson").textContent = JSON.stringify(
+      {
+        variables: variables.map(cloneVariable),
+        genieOpen,
+        transitEnabled,
+        renderCount,
+        registry: objectRegistry.snapshot(),
+      },
+      null,
+      2
+    );
+  }
+
+  function renderRegistrySettings() {
+    const root = document.getElementById("registrySettingsBody");
+    const togglable = objectRegistry.togglableItems();
+    const categoryLabels = {
+      bodies: "Bodies & points",
+      aspects: "Aspects",
+      angles: "Angles",
+      signs: "Signs",
+      houses: "Houses",
+      date_presets: "Date presets",
+    };
+    root.innerHTML = Object.entries(togglable)
+      .filter(([, items]) => items.length > 0)
+      .map(([category, items]) => `
+        <div class="registry-group">
+          <div class="registry-group-title">${categoryLabels[category] || category}</div>
+          <div class="registry-toggles">
+            ${items.map((item) => {
+              const on = objectRegistry.isEnabled(category, item.id);
+              return `<label class="${on ? "" : "is-off"}">
+                <input type="checkbox" data-registry-category="${category}" data-registry-id="${item.id}"
+                  ${on ? "checked" : ""} />
+                ${item.label}
+              </label>`;
+            }).join("")}
+          </div>
+        </div>`).join("");
+
+    root.querySelectorAll("[data-registry-category]").forEach((el) => {
+      el.addEventListener("change", () => {
+        objectRegistry.setEnabled(el.dataset.registryCategory, el.dataset.registryId, el.checked);
+        sanitizeAllVariables();
+        render();
+      });
+    });
+  }
+
+  function updateTransitHint() {
+    const hint = document.getElementById("transitTypeHint");
+    hint.classList.toggle("enabled", transitEnabled);
+    hint.querySelector("span").textContent = transitEnabled
+      ? "Experimental transit types available in type menu"
+      : "Transit through house · Transiting aspect to angle (off by default)";
+  }
+
+  function render() {
+    const panel = document.getElementById("geniePanel");
+    const app = document.getElementById("app");
+    const exploration = document.getElementById("explorationModeToggle").checked;
+    panel.classList.toggle("collapsed", !genieOpen);
+    app.classList.toggle("exploration-mode", exploration);
+    document.getElementById("saveSearchStub").classList.toggle("hidden", !exploration);
+    document.getElementById("transitEnabledToggle").checked = transitEnabled;
+    updateTransitHint();
+    renderRegistrySettings();
+    renderCards();
+    updateCornerControl();
+    updateActions();
+    updateDebug();
+  }
+
+  document.getElementById("addVariableBtn").addEventListener("click", () => {
+    if (!allVariablesComplete() || variables.length >= MAX_VARIABLES) return;
+    variables.push(createEmptyVariable());
+    render();
+  });
+
+  document.getElementById("renderBtn").addEventListener("click", () => {
+    if (!allVariablesComplete()) return;
+    lastNormalizedPayload = normalizePayload();
+    renderCount += 1;
+    document.getElementById("renderJson").textContent = JSON.stringify(lastNormalizedPayload, null, 2);
+    document.getElementById("renderStatus").textContent =
+      `Render #${renderCount} — ${lastNormalizedPayload.variableCount} variable(s). No backend call.`;
+    console.info("[genie-sandbox] normalized render payload:", lastNormalizedPayload);
+    updateDebug();
+  });
+
+  document.getElementById("collapseGenie").addEventListener("click", () => {
+    genieOpen = false;
+    render();
+  });
+
+  document.getElementById("explorationModeToggle").addEventListener("change", render);
+
+  document.getElementById("transitEnabledToggle").addEventListener("change", (e) => {
+    transitEnabled = e.target.checked;
+    if (!transitEnabled) disableTransitVariables();
+    else render();
+  });
+
+  document.getElementById("transitInfoBtn").addEventListener("click", () => openTransitModal(!transitEnabled));
+  document.getElementById("transitHintInfoBtn").addEventListener("click", () => openTransitModal(!transitEnabled));
+  document.getElementById("transitModalCloseBtn").addEventListener("click", closeTransitModal);
+  document.getElementById("transitModalEnableBtn").addEventListener("click", enableTransitVariables);
+  document.getElementById("transitModalBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "transitModalBackdrop") closeTransitModal();
+  });
+
+  window.__rmGenieSandbox = {
+    getState,
+    normalizePayload,
+    getRegistry: () => objectRegistry,
+    MAX_VARIABLES,
+    TRANSIT_INFO_TEXT,
+    VARIABLE_TYPES: VARIABLE_TYPES.map((t) => ({ ...t })),
+    VARIABLE_FIELD_BINDINGS,
+    isTransitType,
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>
