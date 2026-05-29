@@ -1886,6 +1886,21 @@ def _build_share_url(chart_id: str) -> str:
     return f"/library.html?chart={chart_id}"
 
 
+def _app_shell_enabled() -> bool:
+    return os.environ.get("RM_APP_SHELL", "1") != "0"
+
+
+def _ensure_app_shell_enabled() -> None:
+    if not _app_shell_enabled():
+        raise HTTPException(status_code=404, detail="App shell disabled")
+
+
+@app.get("/app_shell.html")
+def serve_app_shell_html():
+    _ensure_app_shell_enabled()
+    return FileResponse(APP_DIR / "app_shell.html", media_type="text/html")
+
+
 @app.get("/library.html")
 def serve_library_html():
     _ensure_library_enabled()

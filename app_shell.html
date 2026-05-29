@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<!--
+  Application shell — clickable walkthrough of future product (Screens 0–6).
+
+  Placeholder only: no astrology math, no renderer, no persistence, no AI.
+  Traces to: docs/ux/2026-05-29_application_journey_architecture_v1.md
+
+  Test hook: window.__rmAppShell
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Relocation App — Application Shell</title>
+<style>
+  :root {
+    --fg: #111827;
+    --muted: #6b7280;
+    --line: #d1d5db;
+    --bg: #f9fafb;
+    --panel: #ffffff;
+    --accent: #1d4ed8;
+    --stub: #fef3c7;
+    --future: #f3f4f6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 system-ui, -apple-system, sans-serif; }
+  a { color: var(--accent); }
+  header.app-header {
+    padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  }
+  header.app-header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+  header.app-header .tag { font-size: 11px; color: var(--muted); }
+  nav.primary-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  nav.primary-nav a, nav.primary-nav button.linkish {
+    font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--line);
+    background: var(--panel); border-radius: 4px; text-decoration: none; color: var(--fg); cursor: pointer;
+  }
+  nav.primary-nav a.active, nav.primary-nav button.linkish.active {
+    border-color: var(--accent); background: #eff6ff;
+  }
+  .screen-meta { margin-left: auto; font-size: 11px; color: var(--muted); }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .screen h2 { margin: 0 0 4px; font-size: 20px; }
+  .screen .purpose { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px; margin-bottom: 12px;
+  }
+  .panel h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .stub {
+    background: var(--stub); border: 1px dashed #d97706; padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: #92400e; margin-bottom: 8px;
+  }
+  .future-only {
+    background: var(--future); border: 1px dashed var(--line); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: var(--muted); margin-bottom: 8px;
+  }
+  ul.plain { list-style: none; margin: 0; padding: 0; }
+  ul.plain li { padding: 8px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px; }
+  ul.plain li .meta { font-size: 12px; color: var(--muted); }
+  button, .btn {
+    font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--line);
+    background: var(--panel); border-radius: 4px; cursor: pointer; margin-right: 6px; margin-bottom: 6px;
+  }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  input, textarea, select {
+    width: 100%; max-width: 400px; padding: 6px 8px; border: 1px solid var(--line);
+    border-radius: 4px; font: inherit; margin-bottom: 8px;
+  }
+  label.block { display: block; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+  .module { border-left: 3px solid var(--line); padding-left: 10px; margin-bottom: 12px; }
+  .module h4 { margin: 0 0 6px; font-size: 13px; }
+  .map-placeholder {
+    min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted);
+    padding: 16px; margin-bottom: 12px;
+  }
+  .drawer-placeholder {
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px; background: #fafafa;
+  }
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel); border-radius: 8px; max-width: 420px; width: 100%;
+    padding: 16px; border: 1px solid var(--line);
+  }
+  .modal h3 { margin: 0 0 8px; }
+  table.simple { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.simple th, table.simple td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  table.simple th { background: #f3f4f6; font-weight: 600; }
+  .must-not { font-size: 12px; color: #991b1b; }
+  .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .shell-banner {
+    padding: 8px 16px; background: #fef3c7; border-bottom: 1px solid #d97706;
+    font-size: 13px; font-weight: 600; color: #92400e; text-align: center;
+  }
+  .shell-footer {
+    max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px;
+    font-size: 12px; color: var(--muted); border-top: 1px solid var(--line);
+  }
+  .shell-footer button.linkish {
+    font: inherit; font-size: 12px; padding: 0; border: none; background: none;
+    color: var(--muted); cursor: pointer; text-decoration: underline;
+  }
+  .context-chip {
+    background: #eff6ff; border: 1px dashed var(--accent); border-radius: 6px;
+    padding: 8px 10px; margin-bottom: 12px; font-size: 12px;
+  }
+  .context-chip .label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
+  .context-chip .placeholder-tag { color: #92400e; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="shell-banner" role="status">
+  APPLICATION SHELL — placeholder walkthrough only. Not production UI.
+</div>
+
+<header class="app-header">
+  <h1>Relocation App</h1>
+  <span class="tag">Application shell · placeholders only</span>
+  <nav class="primary-nav" id="primaryNav"></nav>
+  <span class="screen-meta" id="screenMeta">Screen 0</span>
+</header>
+
+<main id="main"></main>
+
+<footer class="shell-footer">
+  <button type="button" class="linkish" id="footerFutureLink">Future rooms — quarantined</button>
+  <span> · not current build · post-AI / Layer 4–5 only</span>
+</footer>
+
+<!-- Screen 3 — Location Popup (modal overlay) -->
+<div class="modal-backdrop" id="popupModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="popupTitle">
+    <h3 id="popupTitle">Screen 3 — Location Popup</h3>
+    <p class="purpose">Point truth · evaluation mood</p>
+    <div class="stub">Placeholder facts at selected location (ASC/MC, houses, aspects to angles).</div>
+    <div class="module" id="module-popup-facts">
+      <h4>Module: popup-facts</h4>
+      <ul class="plain">
+        <li>ASC in Gemini <span class="meta">placeholder</span></li>
+        <li>MC in Aquarius <span class="meta">placeholder</span></li>
+        <li>Sun in 10th house <span class="meta">placeholder</span></li>
+      </ul>
+    </div>
+    <div class="future-only">Future: AI explain (disabled) · voice note (disabled)</div>
+    <div class="row">
+      <button type="button" class="primary" data-nav="chart">Open full chart (Screen 4)</button>
+      <button type="button" data-action="favorite">Add favorite</button>
+      <button type="button" data-action="close-popup">Close</button>
+    </div>
+    <p class="must-not">Must not appear: dignity scoring, oracle copy, social share primary.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/** @typedef {"dashboard"|"client"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
+
+const DEMO = {
+  clients: [
+    {
+      id: "client-1", name: "Anna Rivera",
+      birthDate: "1990-03-15", birthTime: "07:42", birthCity: "New York, NY",
+      currentCity: "Portland, OR",
+      chartLabel: "Natal chart (placeholder selector)",
+      birth: "1990-03-15 · 07:42 · New York", tier: "T0 — Exact",
+    },
+    {
+      id: "client-2", name: "Jordan Lee",
+      birthDate: "1985-11-02", birthTime: "unknown", birthCity: "Chicago, IL",
+      currentCity: "— (not set · placeholder)",
+      chartLabel: "Solar chart policy (placeholder selector)",
+      birth: "1985-11-02 · unknown time", tier: "T3 — Unknown time",
+    },
+  ],
+  favorites: [
+    { id: "fav-1", name: "Portland, OR", clientId: "client-1" },
+    { id: "fav-2", name: "Lisbon, PT", clientId: "client-1" },
+  ],
+  explorations: [
+    { id: "inv-1", name: "Sun 10th + ASC Gemini", clientId: "client-1", saved: "auto-save draft" },
+    { id: "inv-2", name: "Untitled exploration", clientId: "client-1", saved: "2 hours ago" },
+  ],
+  comparePlaces: ["Portland, OR", "Lisbon, PT", "Austin, TX"],
+};
+
+const NAV_ROUTES = /** @type {const} */ ([
+  { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
+  { id: "client", label: "1 Client", screen: "Screen 1 — Client Page" },
+  { id: "map", label: "2 Map", screen: "Screen 2 — Map Discovery" },
+  { id: "chart", label: "4 Chart", screen: "Screen 4 — View Chart" },
+  { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
+  { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
+  { id: "settings", label: "Settings", screen: "S5 — Settings (support route)" },
+  { id: "birth-data", label: "Birth data", screen: "S6 — Birth data intake (support route)" },
+]);
+
+const ALL_ROUTES = /** @type {const} */ ([
+  ...NAV_ROUTES,
+  { id: "future", label: "Future", screen: "Future Rooms (quarantined)" },
+]);
+
+const state = {
+  route: /** @type {Route} */ ("dashboard"),
+  clientId: DEMO.clients[0].id,
+  placeName: "Portland, OR",
+  drawerOpen: true,
+  popupOpen: false,
+};
+
+function $(sel) { return document.querySelector(sel); }
+function el(tag, attrs, html) {
+  const n = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+  if (html != null) n.innerHTML = html;
+  return n;
+}
+
+function currentClient() {
+  return DEMO.clients.find((c) => c.id === state.clientId) || DEMO.clients[0];
+}
+
+function parseHash() {
+  const raw = (location.hash || "#/dashboard").replace(/^#/, "");
+  const path = raw.startsWith("/") ? raw.slice(1) : raw;
+  const route = path.split("/")[0] || "dashboard";
+  const valid = ALL_ROUTES.some((r) => r.id === route);
+  return valid ? /** @type {Route} */ (route) : "dashboard";
+}
+
+function mapContextChip(c) {
+  return `
+    <div class="context-chip">
+      <div class="label">Module: active client/chart context · <span class="placeholder-tag">placeholder only</span></div>
+      <strong>${c.name}</strong><br>
+      Birth: ${c.birthDate} · ${c.birthTime}<br>
+      Birth city: ${c.birthCity}<br>
+      Current city: ${c.currentCity}<br>
+      Active chart: <select disabled style="max-width:100%;margin-top:4px"><option>${c.chartLabel}</option></select>
+    </div>`;
+}
+
+function navigate(route) {
+  state.route = route;
+  state.popupOpen = false;
+  location.hash = "#/" + route;
+  render();
+}
+
+function openPopup() {
+  state.popupOpen = true;
+  $("#popupModal").classList.add("open");
+  $("#popupModal").setAttribute("aria-hidden", "false");
+}
+
+function closePopup() {
+  state.popupOpen = false;
+  $("#popupModal").classList.remove("open");
+  $("#popupModal").setAttribute("aria-hidden", "true");
+}
+
+function renderNav() {
+  const nav = $("#primaryNav");
+  nav.innerHTML = "";
+  NAV_ROUTES.forEach((r) => {
+    const a = el("button", { type: "button", class: "linkish" + (state.route === r.id ? " active" : "") }, r.label);
+    a.addEventListener("click", () => navigate(r.id));
+    nav.appendChild(a);
+  });
+}
+
+function screenDashboard() {
+  return `
+    <div class="breadcrumb">Account library entry</div>
+    <h2>Screen 0 — Dashboard</h2>
+    <p class="purpose">Calm professional library · who am I working on?</p>
+    <div class="stub">Placeholder · no map, no conditions, no AI panels.</div>
+    <div class="panel">
+      <h3>Module: client-list</h3>
+      <ul class="plain">
+        ${DEMO.clients.map((c) => `
+          <li>
+            <strong>${c.name}</strong>
+            <div class="meta">${c.birth} · ${c.tier}</div>
+            <button type="button" data-nav="client" data-client="${c.id}">Open client page</button>
+          </li>`).join("")}
+      </ul>
+      <button type="button" disabled>+ New client (placeholder)</button>
+    </div>
+    <div class="panel">
+      <h3>Module: recent-explorations-across-clients</h3>
+      <ul class="plain">
+        ${DEMO.explorations.map((e) => `<li>${e.name} <span class="meta">${e.saved}</span></li>`).join("")}
+      </ul>
+    </div>
+    <p class="must-not">Must not appear: map primary, scoring widgets, AI chat, marketplace.</p>
+  `;
+}
+
+function screenClient() {
+  const c = currentClient();
+  const favs = DEMO.favorites.filter((f) => f.clientId === c.id);
+  const invs = DEMO.explorations.filter((i) => i.clientId === c.id);
+  return `
+    <div class="breadcrumb">Client home · ${c.name}</div>
+    <h2>Screen 1 — Client Page</h2>
+    <p class="purpose">Resume exploration for one client.</p>
+    <div class="panel">
+      <h3>Module: birth-summary</h3>
+      <p><strong>${c.name}</strong><br><span class="meta">${c.birth}</span><br><span class="meta">${c.tier}</span></p>
+      <button type="button" data-nav="birth-data">Edit birth data</button>
+    </div>
+    <div class="row">
+      <button type="button" class="primary" data-nav="map">Open map (Screen 2)</button>
+      <button type="button" data-nav="export">Export entry (Screen 6)</button>
+      <button type="button" data-nav="settings">Settings</button>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Module: favorites</h3>
+        <ul class="plain">${favs.map((f) => `
+          <li>${f.name} <button type="button" data-nav="chart" data-place="${f.name}">View chart</button></li>`).join("")}</ul>
+      </div>
+      <div class="panel">
+        <h3>Module: saved-explorations</h3>
+        <ul class="plain">${invs.map((i) => `
+          <li>${i.name} <span class="meta">${i.saved}</span>
+            <button type="button" data-nav="map">Resume</button></li>`).join("")}</ul>
+      </div>
+    </div>
+    <p class="must-not">Must not appear: condition stack as primary surface, AI intake, dignity summaries.</p>
+  `;
+}
+
+function screenMap() {
+  const c = currentClient();
+  return `
+    <div class="breadcrumb">${c.name} · Map discovery</div>
+    <h2>Screen 2 — Map Discovery</h2>
+    <p class="purpose">Primary instrument · discovery mood.</p>
+    <div class="stub">Map viewport placeholder.
+      <a href="/map_CURRENT.html?skipOnboarding=1" target="_blank" rel="noopener">Open production map reference — no shell handoff yet.</a>
+    </div>
+    <div class="map-placeholder">
+      <div>
+        <strong>Map module (placeholder)</strong><br>
+        Pan · zoom · overlap regions · inspect point
+        <div class="row" style="justify-content:center;margin-top:12px">
+          <button type="button" class="primary" data-action="inspect">Inspect point → Screen 3 popup</button>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="drawer-placeholder">
+        <h3>Module: genie-drawer ${state.drawerOpen ? "(expanded)" : "(collapsed chip)"}</h3>
+        <button type="button" data-action="toggle-drawer">${state.drawerOpen ? "Collapse to genie" : "Expand drawer"}</button>
+        ${state.drawerOpen ? `
+        ${mapContextChip(c)}
+        <div class="module"><h4>Module: location-search</h4>
+          <input type="text" placeholder="Search location (placeholder)" /></div>
+        <div class="module"><h4>Module: add-condition</h4>
+          <button type="button" disabled>Planet in House</button>
+          <button type="button" disabled>Angle in Sign</button>
+          <button type="button" disabled>Aspect to Angle</button>
+          <button type="button" disabled>Transit</button></div>
+        <div class="module"><h4>Module: condition-cards</h4>
+          <ul class="plain"><li>Sun in 10th <span class="meta">track A</span></li>
+          <li>ASC in Gemini <span class="meta">track B</span></li></ul></div>
+        <div class="module"><h4>Module: layer-mixer (mute / solo / NOT)</h4>
+          <button type="button" disabled>Mute A</button>
+          <button type="button" disabled>Solo B</button>
+          <button type="button" disabled>NOT C</button></div>
+        <button type="button" class="primary" disabled>Find regions (placeholder)</button>
+        ` : `<p class="meta">Genie chip: 2 conditions · dirty</p>`}
+      </div>
+      <div class="panel">
+        <h3>Module: map-actions</h3>
+        <button type="button" data-nav="chart">Full chart (Screen 4)</button>
+        <button type="button" data-nav="compare">Compare favorites (Screen 5)</button>
+        <button type="button" data-nav="export">Export viewport (Screen 6)</button>
+        <button type="button" disabled>Save exploration (auto-save stub)</button>
+      </div>
+    </div>
+    <p class="must-not">Must not appear: comparison table inline, AI suggestions, scoring, rain/virga animation.</p>
+  `;
+}
+
+function screenChart() {
+  return `
+    <div class="breadcrumb">${currentClient().name} · ${state.placeName}</div>
+    <h2>Screen 4 — View Chart</h2>
+    <p class="purpose">Dense relocated facts · evaluation mood.</p>
+    <div class="panel">
+      <h3>Module: relocated-chart-table</h3>
+      <table class="simple">
+        <tr><th>Fact</th><th>Value (placeholder)</th></tr>
+        <tr><td>ASC</td><td>Gemini 12°</td></tr>
+        <tr><td>MC</td><td>Aquarius 18°</td></tr>
+        <tr><td>Sun house</td><td>10</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>Module: natal-vs-relocated</h3>
+      <div class="stub">Natal block (full aspect matrix allowed) · Relocated block (relocation facts only).</div>
+    </div>
+    <div class="panel">
+      <h3>Module: notes · favorite</h3>
+      <textarea rows="2" placeholder="Optional note (placeholder)"></textarea>
+      <button type="button" disabled>Favorite this place</button>
+    </div>
+    <div class="row">
+      <button type="button" data-nav="map">Back to map</button>
+      <button type="button" data-nav="compare">Add to comparison</button>
+      <button type="button" data-nav="export">Export chart</button>
+    </div>
+    <p class="must-not">Must not appear: AI interpretation wall, dignity columns, auto verdict.</p>
+  `;
+}
+
+function screenCompare() {
+  return `
+    <h2>Screen 5 — Comparison</h2>
+    <p class="purpose">Multi-location evaluation · facts only · tension preserved.</p>
+    <div class="panel">
+      <h3>Module: comparison-columns</h3>
+      <table class="simple">
+        <tr><th>Fact</th>${DEMO.comparePlaces.map((p) => `<th>${p}</th>`).join("")}</tr>
+        <tr><td>ASC sign</td><td>Gemini</td><td>Leo</td><td>Scorpio</td></tr>
+        <tr><td>Sun house</td><td>10</td><td>7</td><td>4</td></tr>
+        <tr><td>MC sign</td><td>Aquarius</td><td>Taurus</td><td>Cancer</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>Module: comparison-notepad</h3>
+      <textarea rows="3" placeholder="Session notes (optional placeholder)"></textarea>
+    </div>
+    <div class="future-only">Future: AI assist button (disabled · not v1)</div>
+    <div class="row">
+      <button type="button" data-nav="map">Back to map</button>
+      <button type="button" data-nav="export">Export comparison</button>
+    </div>
+    <p class="must-not">Must not appear: ranked scores, AI narrative default, mandatory intentions.</p>
+  `;
+}
+
+function screenExport() {
+  return `
+    <h2>Screen 6 — Export / Share</h2>
+    <p class="purpose">Scoped output · decision mood.</p>
+    <div class="panel">
+      <h3>Module: export-viewport-png</h3>
+      <button type="button" disabled>Export map PNG (illustrative · placeholder)</button>
+    </div>
+    <div class="panel">
+      <h3>Module: export-investigation-link</h3>
+      <input type="text" readonly value="https://example.com/#/map?investigation=inv-1 (semantic replay stub)" />
+    </div>
+    <div class="panel">
+      <h3>Module: consumer-share</h3>
+      <button type="button" disabled>Share link (placeholder)</button>
+    </div>
+    <div class="panel">
+      <h3>Module: professional-share</h3>
+      <button type="button" disabled>Client packet PDF (future)</button>
+    </div>
+    <div class="future-only">Future: AI session summary (disabled)</div>
+    <button type="button" data-nav="client">Back to client</button>
+    <p class="must-not">Must not appear: debug artifacts as truth, AI closure in shared copy.</p>
+  `;
+}
+
+function screenSettings() {
+  return `
+    <h2>S5 — Settings / Ontology (support route)</h2>
+    <p class="purpose">Layer 2 defaults · not a journey destination.</p>
+    <div class="panel">
+      <h3>Module: house-system · orbs · helpers</h3>
+      <label class="block">House system <select disabled><option>Placidus</option></select></label>
+      <label class="block"><input type="checkbox" disabled /> Visible minor aspects</label>
+      <label class="block"><input type="checkbox" disabled /> Helper layers</label>
+      <button type="button" disabled>Save settings (placeholder)</button>
+    </div>
+    <button type="button" data-nav="dashboard">Back to dashboard</button>
+  `;
+}
+
+function screenBirthData() {
+  return `
+    <h2>S6 — Birth Data Intake (support route)</h2>
+    <p class="purpose">Necessary form · beautiful trustworthy intake.</p>
+    <div class="panel">
+      <h3>Module: birth-data-form</h3>
+      <label class="block">Date <input type="date" /></label>
+      <label class="block">Time <input type="time" /></label>
+      <label class="block">Place <input type="text" placeholder="City, country" /></label>
+      <label class="block">Confidence tier <select><option>T0 — Exact</option><option>T3 — Unknown time</option></select></label>
+      <button type="button" class="primary" data-nav="client">Save & return to client</button>
+    </div>
+  `;
+}
+
+function screenFuture() {
+  return `
+    <div class="stub">Quarantined architecture only — not scheduled, not clickable product features.</div>
+    <h2>Future Rooms (quarantined)</h2>
+    <p class="purpose">Not current build · post-AI / Layer 4–5 only · docs reference.</p>
+    <ul class="plain">
+      <li>AI guidance <span class="meta">not built</span></li>
+      <li>Intent discovery / AI intake <span class="meta">not built</span></li>
+      <li>Layer 4 optimization / ranking <span class="meta">not built</span></li>
+      <li>Layer 5 experiential education (travel-first learning) <span class="meta">docs/future/layer5_experiential_education_through_travel_v1.md</span></li>
+      <li>Road trip mode · course system · marketplace <span class="meta">not built</span></li>
+    </ul>
+    <button type="button" data-nav="dashboard">Back to dashboard</button>
+  `;
+}
+
+const SCREEN_RENDERERS = {
+  dashboard: screenDashboard,
+  client: screenClient,
+  map: screenMap,
+  chart: screenChart,
+  compare: screenCompare,
+  export: screenExport,
+  settings: screenSettings,
+  "birth-data": screenBirthData,
+  future: screenFuture,
+};
+
+function render() {
+  state.route = parseHash();
+  renderNav();
+  const meta = ALL_ROUTES.find((r) => r.id === state.route);
+  $("#screenMeta").textContent = meta ? meta.screen : state.route;
+  const main = $("#main");
+  const fn = SCREEN_RENDERERS[state.route];
+  main.innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
+  bindScreenActions(main);
+}
+
+function bindScreenActions(root) {
+  root.querySelectorAll("[data-nav]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const route = btn.getAttribute("data-nav");
+      const clientId = btn.getAttribute("data-client");
+      const place = btn.getAttribute("data-place");
+      if (clientId) state.clientId = clientId;
+      if (place) state.placeName = place;
+      if (route) navigate(/** @type {Route} */ (route));
+    });
+  });
+  root.querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.getAttribute("data-action");
+      if (action === "inspect") openPopup();
+      if (action === "toggle-drawer") { state.drawerOpen = !state.drawerOpen; render(); }
+      if (action === "close-popup") closePopup();
+      if (action === "favorite") { alert("Favorite placeholder"); closePopup(); }
+    });
+  });
+}
+
+document.getElementById("popupModal").addEventListener("click", (e) => {
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  if (t.id === "popupModal") { closePopup(); return; }
+  const action = t.getAttribute("data-action");
+  if (action === "close-popup") closePopup();
+  if (action === "favorite") { alert("Favorite placeholder"); closePopup(); }
+  const nav = t.getAttribute("data-nav");
+  if (nav) { closePopup(); navigate(/** @type {Route} */ (nav)); }
+});
+
+window.addEventListener("hashchange", render);
+
+document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
+
+window.__rmAppShell = {
+  navigate,
+  state,
+  DEMO,
+  NAV_ROUTES,
+  ALL_ROUTES,
+  openPopup,
+  closePopup,
+};
+
+render();
+</script>
+</body>
+</html>
