@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a local product store JSON file (Phase 3.0a).
+"""Validate a local product store JSON file (Phase 3.0b / v3).
 
 Run:
   ./venv/bin/python scripts/validate_local_product_store.py [path]
@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 
 from local_product_store import (  # noqa: E402
     DEFAULT_STORE_PATH,
+    STORAGE_SCHEMA_VERSION,
     validate_store,
 )
 
@@ -45,27 +46,34 @@ def main() -> int:
         return 1
 
     print(f"OK: {path}")
-    print(f"  clients={len(state.get('clients') or [])}")
+    print(f"  storage_schema_version={state.get('storage_schema_version')}")
+    print(f"  clients (Chart Records)={len(state.get('clients') or [])}")
+    print(f"  default_chart_record_id={state.get('user_settings', {}).get('default_chart_record_id')}")
     print(f"  saved_investigations={len(state.get('saved_investigations') or [])}")
     print(f"  favorite_cities={len(state.get('favorite_cities') or [])}")
+    print(f"  comparison_sets={len(state.get('comparison_sets') or [])}")
+    print(f"  chart_record_history={len(state.get('chart_record_history') or [])}")
 
     # Self-check: forbidden-key detector must catch renderer artifacts.
     probe = {
         "_storage": "TEMPORARY_LOCAL_SCAFFOLD",
-        "storage_schema_version": 2,
+        "storage_schema_version": STORAGE_SCHEMA_VERSION,
         "professional_account": {},
-        "user_settings": {},
+        "user_settings": {"default_chart_record_id": None},
         "places": [],
-        "birth_profiles": [],
-        "clients": [{"id": "c1", "birth_profile_id": "bp1"}],
+        "birth_profiles": [{"id": "bp1", "birth_place_id": "p1", "confidence_tier": "T0", "schema_version": 1}],
+        "clients": [{"id": "c1", "birth_profile_id": "bp1", "schema_version": 1}],
         "saved_investigations": [
             {
                 "id": "inv1",
+                "client_id": "c1",
                 "settings_snapshot": FORBIDDEN_FIXTURE["settings_snapshot"],
                 "conditions": FORBIDDEN_FIXTURE["conditions"],
             }
         ],
         "favorite_cities": [],
+        "comparison_sets": [],
+        "chart_record_history": [],
         "tags": [],
         "notes": [],
     }
