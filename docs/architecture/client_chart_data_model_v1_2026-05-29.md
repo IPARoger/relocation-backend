@@ -64,6 +64,7 @@ The model supports **exploration, refinement, evaluation, and decision-making** 
 | **Birth profile** | Natal input domain (date, time, place, timezone). **1:1 with Chart Record** in current scope. |
 | **Place** | Stable geographic identity (geoname / WOF-style ID when available + lat/lon). |
 | **Saved exploration** | Durable saved search / investigation session (conditions + map context + interaction facts). |
+| **Comparison Set** | 2–5 **saved places / locations** compared under **one** Chart Record — not multi-chart comparison. |
 | **Active chart context** | Exactly one Chart Record selected as the map’s owner at a time. |
 
 Long-term, **Chart Record** may supersede **Client** in schema naming where the record is not literally a paying client (research chart, event chart, self-chart). Current UI may still say “client.”
@@ -98,7 +99,9 @@ Long-term, **Chart Record** may supersede **Client** in schema naming where the 
 
 ## Alternate charts and special cases
 
-If the user needs a **rectified chart**, **alternate birth time**, **event chart**, **research chart**, **composite chart**, **solar chart policy record**, etc. — each is created as a **separate Chart Record** (client-like row), not as a nested chart collection.
+If the user needs a **distinct natal identity** — **event chart**, **research chart**, **composite chart** (future), **solar chart policy record**, etc. — each is created as a **separate Chart Record** (client-like row), not as a nested chart collection.
+
+**Not separate Chart Records:** birth-time uncertainty variants, rectification candidates, or bounded-range hypotheses. Those belong to **one user-facing Chart Record** as internal metadata / future internal calculation domains — see birth-time sections below. **Rectification workflow is out of scope** for Web 2.0.
 
 **Rationale:** Keeps active context, favorites, saved explorations, and map ownership unambiguous. Avoids selector complexity and hidden chart switching in MVP.
 
@@ -133,22 +136,31 @@ Aligns with `docs/future/birth_time_uncertainty_and_confidence_doctrine.md` for 
 
 ### Unknown birth time (Web 2.0)
 
-**True unknown birth time cannot produce reliable relocation astrology.** Houses and angles are time-sensitive; the app must **not fake precision**.
+**Unknown birth time means relocation chart cannot be run honestly.** Houses and angles are time-sensitive; the app must **not fake precision**.
 
 When `birthTime` is unknown (e.g. tier T3):
 
 - Do **not** present relocation overlays or point truth as authoritative without explicit solar-chart or documented policy watermark.
 - Route the user to **guidance**: find birth records, ask family, obtain bounded approximate range — not to silent defaults masquerading as exact.
 - Nullable `birthTime` is allowed **only** with visible tier/policy — never an invisible noon chart.
+- **Very broad uncertainty** should route the user toward finding better birth-time records — not toward pretending a single exact time.
 
 ### Ambiguous / bounded birth time (future box only)
 
 ```text
 ┌──────────────────────────────────────────────┐
-│  FUTURE: Bounded birth-time ranges            │
-│  Later AI (post–Web 2.0) may support          │
-│  user-indicated ranges, likely centers, and   │
-│  gradient/uncertainty rendering — NOT v1.     │
+│  FUTURE: Birth-time uncertainty gradient      │
+│  Post–Web 2.0 AI may support user-indicated   │
+│  bounded ranges, likely centers, and internal │
+│  uncertainty-gradient rendering on ONE Chart  │
+│  Record — NOT v1.                           │
+│                                               │
+│  May involve multiple INTERNAL chart          │
+│  calculations for range endpoints — must NOT  │
+│  surface as multiple user-facing charts.      │
+│                                               │
+│  Very broad ranges → guidance to improve      │
+│  birth-time records, not fake precision.      │
 │  Do not design range engine or UI here.       │
 └──────────────────────────────────────────────┘
 ```
@@ -161,19 +173,19 @@ When `birthTime` is unknown (e.g. tier T3):
 ┌──────────────────────────────────────────────┐
 │  FUTURE: Multi-chart grouping (optional)      │
 │  A "Case" or "Person" entity could group      │
-│  multiple Chart Records (natal, rectified,    │
-│  event) without breaking 1:1 map ownership.   │
+│  multiple Chart Records (natal, event, research)│
+│  without breaking 1:1 map ownership.           │
 │  NOT in Web 2.0 UI or schema requirements.    │
 └──────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────┐
-│  FUTURE: Birth-time variants under one face   │
-│  Later architecture may hold multiple internal │
-│  birth-time candidates under one user-facing   │
-│  Chart Record identity for uncertainty-gradient│
-│  rendering — NOT Web 2.0. Do not normalize or  │
-│  implement now. Map ownership remains one active│
-│  chart domain per session.                     │
+│  FUTURE: Internal birth-time candidates       │
+│  Reserved on one user-facing Chart Record:    │
+│  candidateChartDomains[] or equivalent for      │
+│  bounded-range / uncertainty-gradient work.     │
+│  Multiple internal calculations allowed;        │
+│  ONE user-facing chart identity only.           │
+│  NOT Web 2.0 — do not normalize or implement.   │
 └──────────────────────────────────────────────┘
 ```
 
@@ -214,6 +226,16 @@ Most astrologers use one house system consistently; global default matches that 
 | `createdAt` | |
 
 **Future (not implemented):** import or copy favorites from one Chart Record to another (duplicate place refs + notes). Document as possible migration/utility only.
+
+## Favorite → map / chart (Web 2.0)
+
+| Rule | Detail |
+|------|--------|
+| Ownership | Favorite belongs to its **owning Chart Record** |
+| User-facing identity | In Web 2.0, that owner **is** the same user-facing client/chart record |
+| Open on map | Hydrates **that Chart Record** as `activeChartRecordId` **plus** the favorite’s saved place (center / popup context) |
+| Open chart view | Same owning Chart Record + place-scoped full relocated chart |
+| Never | Silent switch to a different Chart Record |
 
 ---
 
@@ -272,12 +294,34 @@ Store enough data to **reopen**, **audit**, and **understand** a search session 
 
 | Field | Notes |
 |-------|-------|
-| `conditions[]` | Layer 1 intent: planet in house, angle in sign, aspect to angle — **Web 2.0** |
+| `conditions[]` | Layer 1 intent — **Web 2.0 only** (see condition naming below) |
 | `notExclusions[]` | NOT / exclusion conditions — **explicit polarity**, not merged silently into positive conditions |
 | `settingsSnapshot` | Layer 2 at time of search (orbs, house system, visible minors) — from **account** settings snapshot |
 | `mutedLayers`, `soloLayerId` | Optional UI replay state |
 
-**Transit conditions — post-v1 / future:** Not part of Web 2.0 saved exploration persistence. If added later, each transit condition must include **date range and reference time** (and any ephemeris anchor the engine requires). Do not design the transit engine in this document.
+### Web 2.0 search conditions (Layer 1)
+
+| Technical condition type | Meaning |
+|--------------------------|---------|
+| **planet-in-house** | Planet membership in relocated house |
+| **angle-in-sign** | Angle (ASC/MC/etc.) in zodiac sign |
+| **aspect-to-angle** | Aspect relationship to an angle |
+
+These names are **technically accurate** for storage and engine contracts. **User-facing labels may change later** — do not rename condition types in schema or docs until product copy is decided.
+
+### Transit conditions — post-v1 / future box only
+
+**Transits are not Web 2.0.** Current product conditions are planet-in-house, angle-in-sign, and aspect-to-angle only.
+
+```text
+┌──────────────────────────────────────────────┐
+│  FUTURE: Transit placement / search           │
+│  Post-v1. Requires date range + reference     │
+│  time (+ ephemeris anchor). Persist only when │
+│  engine contract exists. Not in v1 UI or      │
+│  saved exploration schema requirements.       │
+└──────────────────────────────────────────────┘
+```
 
 ## Map context (must persist)
 
@@ -324,16 +368,17 @@ Draft explorations may auto-save with partial fields. Auto-save **must not block
 
 | Entry path | Active Chart Record | Additional context |
 |------------|---------------------|-------------------|
-| **Dashboard → map** | Account owner / `defaultChartRecordId` if configured; else prompt to select | No exploration unless user picks recent item |
+| **Dashboard → map** | Account owner’s **`defaultChartRecordId`** (configured default Chart Record). **Not** “last used chart” unless explicitly decided in a later product pass. | Empty draft or user picks recent exploration |
 | **Dashboard → recent exploration → map** | Exploration’s `chartRecordId` | Hydrate saved map state + conditions |
-| **Client / chart page → map** | That page’s Chart Record | |
-| **Favorite → map or chart** | Owning Chart Record. In Web 2.0 this is the same user-facing client/chart record. | Optional center on favorite’s place |
+| **Chart Record page → map** | That page’s Chart Record | Resume that record’s most recent search / history / pinned maps when returning to this page |
+| **Favorite → map or chart** | Favorite’s **owning Chart Record** (same user-facing client/chart record in Web 2.0) | Hydrate record **plus** favorite’s saved place |
 | **Saved exploration → resume** | Exploration’s `chartRecordId` | Full saved exploration semantics + map state |
-| **Comparison workspace** | Active Comparison Set containing 2–5 selected Chart Records / saved locations. The comparison page should preserve the originating Chart Record context when returning to map/client. | Facts only — no ranking |
-| **Map chart selector** | Explicitly switches active Chart Record. This is a user override and becomes the active map context until changed. | Never silent |
+| **Comparison workspace** | Comparison Set’s **originating Chart Record** — set contains **2–5 places / saved locations**, not multiple Chart Records | Facts only — **no ranking, no interpretation** |
+| **Comparison → return to map / chart page** | **Preserve originating Chart Record context** — do not silently switch records on return | Optional restore pre-compare viewport |
+| **Map chart selector** | User-selected Chart Record — **explicit override only** | Becomes active map context **until changed again**. **Never silent.** |
 | **Deep link** | Must include `chartRecordId` + exploration semantics | Not pixels alone |
 
-**Account settings (conceptual):** `defaultChartRecordId` optional — used when opening map from dashboard/global nav without a prior selection.
+**Account settings (conceptual):** `defaultChartRecordId` — account owner’s primary Chart Record for dashboard → map. Do not infer from session “last chart” in Web 2.0 MVP.
 
 **Map rule:** The map always knows `activeChartRecordId`. Switching records clears or forks exploration context per product rules — never orphan favorites/notes onto the wrong record.
 
@@ -404,16 +449,20 @@ Shared entity referenced by favorites, explorations, comparisons, and notes.
 
 ## Comparison set (Screen 5)
 
+**Web 2.0 comparison = 2–5 saved places / locations under one active Chart Record.** It does **not** mean multi-chart comparison columns (future professional edge case only).
+
 | Field | Notes |
 |-------|-------|
 | `comparisonSetId` | |
-| `chartRecordId` | One natal context |
-| `placeIds[]` | Ordered — no hidden ranking |
+| `chartRecordId` | **Originating / owning** Chart Record — one natal context for all columns |
+| `placeIds[]` | 2–5 ordered places / saved locations — **columns are places, not Chart Records** |
 | `savedExplorationId` | Optional parent |
 | `notes` | Session notepad |
 | `createdAt`, `updatedAt` | |
 
-Facts only in comparison columns — no persisted “winner” or score.
+**Return doctrine:** Leaving comparison and returning to map or Chart Record page **preserves the originating Chart Record context**.
+
+Facts only in comparison columns — **no ranking, no interpretation, no persisted “winner” or score**.
 
 ---
 
@@ -470,14 +519,15 @@ The following are **not** part of the current product data model implementation:
 | AI interpretation | No stored AI narratives as product fields |
 | Birth time confidence **computation** / rectification engine | Tier **recording** is in scope; automation is not |
 | AI birth-time inference | Must not write inferred time as exact fact |
-| Rectification workflow | Alternate times → new Chart Record only |
-| Bounded range / gradient birth-time rendering | Future — see future boxes §1 |
-| Transit condition persistence + engine | Post-v1 — requires date range + reference time |
+| Rectification workflow | Out of scope — not a product path in Web 2.0 |
+| Bounded range / gradient birth-time rendering | Future internal property on one Chart Record — see §1 |
+| Transit condition persistence + engine | Post-v1 future box — Web 2.0 uses planet-in-house, angle-in-sign, aspect-to-angle only |
 | Composite chart implementation | Separate record if ever added |
 | Marketplace | No commerce entities |
 | Experiential travel course (Layer 5) | See `docs/future/layer5_experiential_education_through_travel_v1.md` |
 | Multi-chart-per-client UI | No nested chart lists |
-| Internal birth-time variants under one record | Future room only — §1 |
+| Multi–Chart Record comparison columns | Future only — Web 2.0 compares places under one record |
+| Internal birth-time candidates under one record | Future room only — §1; not multiple user-facing charts |
 | Mandatory behavioral analytics pipeline | Post-v1 optional — §10 |
 | Optimization / dignity scoring | No ranking fields on explorations or comparisons |
 | Renderer persistence | GeoJSON, aura, canvas, debug as durable truth |
@@ -546,5 +596,6 @@ Bump `storage_schema_version` when implementing — do not silently migrate.
 |---------|------|--------|
 | v1 | 2026-05-29 | Initial Web 2.0 client/chart data architecture |
 | v1.1 | 2026-05-29 | Doctrine corrections: confidence tier storage, unknown/ambiguous birth time, history, active context paths, inline notes, post-v1 analytics, transit deferred, terminology crosswalk |
+| v1.2 | 2026-05-29 | Comparison = places under one Chart Record; favorite/map hydration; dashboard default not last-chart; birth-time uncertainty gradient box; Web 2.0 condition naming; transit future box |
 
 Future revisions: append date to filename (`client_chart_data_model_v2_YYYY-MM-DD.md`) or bump version segment per repo doc convention.
