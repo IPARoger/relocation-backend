@@ -1,6 +1,8 @@
-"""Phase 3.0a — local product store (file-only scaffold).
+"""Phase 3.0b — local product store (file-only scaffold).
 
 TEMPORARY_LOCAL_SCAFFOLD — not product storage, not connected to map or library.json.
+
+Product language: Chart Record. Storage language: clients[] row (1:1 birth_profiles[]).
 """
 
 from __future__ import annotations
@@ -17,9 +19,12 @@ from typing import Any
 APP_DIR = Path(__file__).resolve().parent
 DEFAULT_STORE_PATH = APP_DIR / "scaffold" / "local_product" / "TEMPORARY_product_store.json"
 
-STORAGE_SCHEMA_VERSION = 2
+STORAGE_SCHEMA_VERSION = 3
 SUPABASE_MIRROR_VERSION = 1
 STORAGE_MARKER = "TEMPORARY_LOCAL_SCAFFOLD"
+
+RECORD_TYPES = frozenset({"self", "client", "research"})
+HISTORY_EVENT_TYPES = frozenset({"map_search", "map_view", "place_inspect"})
 
 FORBIDDEN_KEY_SUBSTRINGS = (
     "geojson",
@@ -45,6 +50,7 @@ DEFAULT_USER_SETTINGS: dict[str, Any] = {
     "visible_minor_aspects": False,
     "helper_layers": {},
     "ontology_pack_id": None,
+    "default_chart_record_id": None,
 }
 
 
@@ -54,6 +60,31 @@ def _now_iso() -> str:
 
 def _new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:12]}"
+
+
+# --- Chart Record adapter (product language ↔ storage) ---
+
+
+def list_chart_records(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """Chart Records are stored as clients[] rows."""
+    return list(state.get("clients") or [])
+
+
+def get_chart_record(state: dict[str, Any], chart_record_id: str) -> dict[str, Any] | None:
+    for client in state.get("clients") or []:
+        if isinstance(client, dict) and str(client.get("id")) == str(chart_record_id):
+            return client
+    return None
+
+
+def chart_record_id(client: dict[str, Any]) -> str:
+    return str(client["id"])
+
+
+def get_default_chart_record_id(state: dict[str, Any]) -> str | None:
+    settings = state.get("user_settings") or {}
+    value = settings.get("default_chart_record_id")
+    return str(value) if value else None
 
 
 def empty_store() -> dict[str, Any]:
@@ -79,6 +110,8 @@ def empty_store() -> dict[str, Any]:
         "clients": [],
         "saved_investigations": [],
         "favorite_cities": [],
+        "comparison_sets": [],
+        "chart_record_history": [],
         "tags": [],
         "notes": [],
     }
@@ -143,7 +176,7 @@ def _layer2_settings_snapshot(state: dict[str, Any]) -> dict[str, Any]:
     snapshot = {
         k: deepcopy(v)
         for k, v in settings.items()
-        if k not in ("updated_at",)
+        if k not in ("updated_at", "default_chart_record_id")
     }
     snapshot["settings_snapshot_version"] = settings.get("settings_version", 1)
     return snapshot
@@ -175,6 +208,8 @@ def validate_store(state: dict[str, Any]) -> list[str]:
         "clients",
         "saved_investigations",
         "favorite_cities",
+        "comparison_sets",
+        "chart_record_history",
         "tags",
         "notes",
     ):
@@ -183,38 +218,72 @@ def validate_store(state: dict[str, Any]) -> list[str]:
 
     places = _index_by_id(state.get("places") or [])
     birth_profiles = _index_by_id(state.get("birth_profiles") or [])
-    clients = state.get("clients") or []
+    clients_list = state.get("clients") or []
+    client_ids = {str(c.get("id")) for c in clients_list if isinstance(c, dict) and c.get("id")}
+
+    settings = state.get("user_settings") or {}
+    default_cr = settings.get("default_chart_record_id")
+    if default_cr is not None and str(default_cr) not in client_ids:
+        errors.append(f"default_chart_record_id references unknown client: {default_cr}")
 
     seen_birth_profiles: set[str] = set()
-    for client in clients:
+    for client in clients_list:
         if not isinstance(client, dict):
             errors.append("each client must be an object")
             continue
+        cid = client.get("id")
         bp_id = client.get("birth_profile_id")
         if not bp_id:
-            errors.append(f"client {client.get('id')} missing birth_profile_id")
+            errors.append(f"client {cid} missing birth_profile_id")
             continue
         if bp_id in seen_birth_profiles:
             errors.append(f"birth_profile_id reused across clients: {bp_id}")
         seen_birth_profiles.add(str(bp_id))
         if str(bp_id) not in birth_profiles:
-            errors.append(f"client {client.get('id')} references unknown birth_profile {bp_id}")
+            errors.append(f"client {cid} references unknown birth_profile {bp_id}")
+
+        record_type = client.get("record_type", "client")
+        if record_type not in RECORD_TYPES:
+            errors.append(f"client {cid} invalid record_type: {record_type}")
+
+        current_loc = client.get("current_location_place_id")
+        if current_loc is not None and str(current_loc) not in places:
+            errors.append(f"client {cid} references unknown current_location_place_id {current_loc}")
 
     for bp_id, bp in birth_profiles.items():
         place_id = bp.get("birth_place_id")
         if place_id and str(place_id) not in places:
             errors.append(f"birth_profile {bp_id} references unknown place {place_id}")
+        meta = bp.get("confidence_metadata")
+        if meta is not None and not isinstance(meta, dict):
+            errors.append(f"birth_profile {bp_id} confidence_metadata must be object")
+
+    investigation_ids = {
+        str(inv.get("id"))
+        for inv in (state.get("saved_investigations") or [])
+        if isinstance(inv, dict) and inv.get("id")
+    }
 
     for inv in state.get("saved_investigations") or []:
         if not isinstance(inv, dict):
             errors.append("each saved_investigation must be an object")
             continue
+        inv_id = inv.get("id")
+        if str(inv.get("client_id")) not in client_ids:
+            errors.append(f"investigation {inv_id} references unknown client_id")
+        origin = inv.get("originating_chart_record_id")
+        if origin is not None and str(origin) not in client_ids:
+            errors.append(f"investigation {inv_id} references unknown originating_chart_record_id")
+        if origin is not None and str(origin) != str(inv.get("client_id")):
+            errors.append(
+                f"investigation {inv_id} originating_chart_record_id must match client_id in v3"
+            )
         if "settings_snapshot" not in inv:
-            errors.append(f"investigation {inv.get('id')} missing settings_snapshot")
+            errors.append(f"investigation {inv_id} missing settings_snapshot")
         elif not isinstance(inv.get("settings_snapshot"), dict):
-            errors.append(f"investigation {inv.get('id')} settings_snapshot must be object")
+            errors.append(f"investigation {inv_id} settings_snapshot must be object")
         if "conditions" not in inv:
-            errors.append(f"investigation {inv.get('id')} missing conditions")
+            errors.append(f"investigation {inv_id} missing conditions")
         forbidden = _collect_forbidden_keys(
             {
                 "conditions": inv.get("conditions"),
@@ -223,18 +292,61 @@ def validate_store(state: dict[str, Any]) -> list[str]:
             }
         )
         for hit in forbidden:
-            errors.append(f"forbidden key in investigation {inv.get('id')}: {hit}")
+            errors.append(f"forbidden key in investigation {inv_id}: {hit}")
 
     forbidden_settings = _collect_forbidden_keys(state.get("user_settings"))
     for hit in forbidden_settings:
         errors.append(f"forbidden key in user_settings: {hit}")
 
     for fav in state.get("favorite_cities") or []:
+        if not isinstance(fav, dict):
+            errors.append("each favorite_city must be an object")
+            continue
         if str(fav.get("place_id")) not in places:
             errors.append(f"favorite {fav.get('id')} references unknown place")
-        client_ids = {str(c.get("id")) for c in clients if isinstance(c, dict)}
         if str(fav.get("client_id")) not in client_ids:
             errors.append(f"favorite {fav.get('id')} references unknown client")
+
+    for cs in state.get("comparison_sets") or []:
+        if not isinstance(cs, dict):
+            errors.append("each comparison_set must be an object")
+            continue
+        cs_id = cs.get("id")
+        if str(cs.get("client_id")) not in client_ids:
+            errors.append(f"comparison_set {cs_id} references unknown client_id")
+        place_ids = cs.get("place_ids")
+        if not isinstance(place_ids, list):
+            errors.append(f"comparison_set {cs_id} place_ids must be array")
+            continue
+        if not (2 <= len(place_ids) <= 5):
+            errors.append(f"comparison_set {cs_id} must have 2–5 place_ids")
+        if len(set(place_ids)) != len(place_ids):
+            errors.append(f"comparison_set {cs_id} place_ids must not contain duplicates")
+        for pid in place_ids:
+            if str(pid) not in places:
+                errors.append(f"comparison_set {cs_id} references unknown place {pid}")
+        parent_inv = cs.get("saved_investigation_id")
+        if parent_inv is not None and str(parent_inv) not in investigation_ids:
+            errors.append(f"comparison_set {cs_id} references unknown saved_investigation_id")
+
+    for row in state.get("chart_record_history") or []:
+        if not isinstance(row, dict):
+            errors.append("each chart_record_history row must be an object")
+            continue
+        hid = row.get("id")
+        if str(row.get("client_id")) not in client_ids:
+            errors.append(f"history {hid} references unknown client_id")
+        event_type = row.get("event_type")
+        if event_type not in HISTORY_EVENT_TYPES:
+            errors.append(f"history {hid} invalid event_type: {event_type}")
+        if not row.get("occurred_at"):
+            errors.append(f"history {hid} missing occurred_at")
+        payload = row.get("payload")
+        if payload is not None and not isinstance(payload, dict):
+            errors.append(f"history {hid} payload must be object")
+        hist_inv = row.get("saved_investigation_id")
+        if hist_inv is not None and str(hist_inv) not in investigation_ids:
+            errors.append(f"history {hid} references unknown saved_investigation_id")
 
     return errors
 
@@ -250,12 +362,13 @@ def create_place(
     admin1: str | None = None,
     country_code: str | None = None,
     country_name: str | None = None,
+    place_id: str | None = None,
 ) -> dict[str, Any]:
     if external_source not in ("geoname", "wof", "manual", "map_pick"):
         raise ValueError(f"invalid external_source: {external_source}")
 
     place = {
-        "id": _new_id("place"),
+        "id": place_id or _new_id("place"),
         "external_source": external_source,
         "external_id": external_id,
         "display_name": display_name,
@@ -282,15 +395,21 @@ def create_client(
     confidence_metadata: dict[str, Any] | None = None,
     notes: str = "",
     tags: list[str] | None = None,
+    record_type: str = "client",
+    current_location_place_id: str | None = None,
+    client_id: str | None = None,
+    birth_profile_id: str | None = None,
 ) -> dict[str, Any]:
     if confidence_tier not in ("T0", "T1", "T2", "T3", "T4"):
         raise ValueError(f"invalid confidence_tier: {confidence_tier}")
+    if record_type not in RECORD_TYPES:
+        raise ValueError(f"invalid record_type: {record_type}")
 
     ts = _now_iso()
     place = create_place(state, **birth_place)
 
     birth_profile = {
-        "id": _new_id("bp"),
+        "id": birth_profile_id or _new_id("bp"),
         "birth_date": birth_date,
         "birth_time": birth_time,
         "birth_place_id": place["id"],
@@ -304,9 +423,11 @@ def create_client(
     state.setdefault("birth_profiles", []).append(birth_profile)
 
     client = {
-        "id": _new_id("client"),
+        "id": client_id or _new_id("client"),
         "display_name": display_name,
         "birth_profile_id": birth_profile["id"],
+        "record_type": record_type,
+        "current_location_place_id": current_location_place_id,
         "notes": notes,
         "tags": list(tags or []),
         "schema_version": 1,
@@ -314,6 +435,14 @@ def create_client(
     }
     state.setdefault("clients", []).append(client)
     return client
+
+
+def set_default_chart_record_id(state: dict[str, Any], chart_record_id: str) -> None:
+    if get_chart_record(state, chart_record_id) is None:
+        raise ValueError(f"unknown chart_record_id: {chart_record_id}")
+    settings = state.setdefault("user_settings", {})
+    settings["default_chart_record_id"] = chart_record_id
+    settings["updated_at"] = _now_iso()
 
 
 def save_investigation(
@@ -326,6 +455,10 @@ def save_investigation(
     settings_snapshot: dict[str, Any] | None = None,
     layer_display_state: dict[str, Any] | None = None,
     default_reopen_mode: str = "keep_snapshot",
+    name: str | None = None,
+    notes: str = "",
+    originating_chart_record_id: str | None = None,
+    investigation_id: str | None = None,
 ) -> dict[str, Any]:
     if default_reopen_mode not in ("keep_snapshot", "use_current"):
         raise ValueError("default_reopen_mode must be keep_snapshot or use_current")
@@ -334,6 +467,10 @@ def save_investigation(
     if client_id not in clients:
         raise ValueError(f"unknown client_id: {client_id}")
 
+    origin = originating_chart_record_id or client_id
+    if origin != client_id:
+        raise ValueError("originating_chart_record_id must match client_id in v3")
+
     client = clients[client_id]
     snapshot = deepcopy(settings_snapshot) if settings_snapshot is not None else _layer2_settings_snapshot(state)
     if not isinstance(snapshot, dict):
@@ -341,10 +478,13 @@ def save_investigation(
 
     ts = _now_iso()
     investigation = {
-        "id": _new_id("inv"),
+        "id": investigation_id or _new_id("inv"),
         "client_id": client_id,
         "birth_profile_id": client["birth_profile_id"],
+        "originating_chart_record_id": origin,
         "title": title,
+        "name": name if name is not None else title,
+        "notes": notes,
         "conditions": conditions,
         "viewport": viewport,
         "settings_snapshot": snapshot,
@@ -366,6 +506,7 @@ def add_favorite_city(
     notes: str = "",
     saved_investigation_id: str | None = None,
     sort_order: int | None = None,
+    favorite_id: str | None = None,
 ) -> dict[str, Any]:
     clients = _index_by_id(state.get("clients") or [])
     places = _index_by_id(state.get("places") or [])
@@ -380,7 +521,7 @@ def add_favorite_city(
             raise ValueError("favorite city already exists for client+place")
 
     favorite = {
-        "id": _new_id("fav"),
+        "id": favorite_id or _new_id("fav"),
         "client_id": client_id,
         "place_id": place_id,
         "saved_investigation_id": saved_investigation_id,
@@ -390,3 +531,77 @@ def add_favorite_city(
     }
     favorites.append(favorite)
     return favorite
+
+
+def create_comparison_set(
+    state: dict[str, Any],
+    *,
+    client_id: str,
+    place_ids: list[str],
+    notes: str = "",
+    saved_investigation_id: str | None = None,
+    comparison_set_id: str | None = None,
+) -> dict[str, Any]:
+    if not (2 <= len(place_ids) <= 5):
+        raise ValueError("comparison set requires 2–5 place_ids")
+    if len(set(place_ids)) != len(place_ids):
+        raise ValueError("comparison set place_ids must be unique")
+
+    clients = _index_by_id(state.get("clients") or [])
+    places = _index_by_id(state.get("places") or [])
+    if client_id not in clients:
+        raise ValueError(f"unknown client_id: {client_id}")
+    for pid in place_ids:
+        if pid not in places:
+            raise ValueError(f"unknown place_id: {pid}")
+
+    if saved_investigation_id is not None:
+        inv_ids = {str(i.get("id")) for i in state.get("saved_investigations") or []}
+        if saved_investigation_id not in inv_ids:
+            raise ValueError(f"unknown saved_investigation_id: {saved_investigation_id}")
+
+    ts = _now_iso()
+    comparison_set = {
+        "id": comparison_set_id or _new_id("cmp"),
+        "client_id": client_id,
+        "place_ids": list(place_ids),
+        "saved_investigation_id": saved_investigation_id,
+        "notes": notes,
+        "schema_version": 1,
+        "updated_at": ts,
+    }
+    state.setdefault("comparison_sets", []).append(comparison_set)
+    return comparison_set
+
+
+def append_chart_record_history(
+    state: dict[str, Any],
+    *,
+    client_id: str,
+    event_type: str,
+    payload: dict[str, Any] | None = None,
+    saved_investigation_id: str | None = None,
+    occurred_at: str | None = None,
+    history_id: str | None = None,
+) -> dict[str, Any]:
+    if event_type not in HISTORY_EVENT_TYPES:
+        raise ValueError(f"invalid event_type: {event_type}")
+    if get_chart_record(state, client_id) is None:
+        raise ValueError(f"unknown client_id: {client_id}")
+
+    if saved_investigation_id is not None:
+        inv_ids = {str(i.get("id")) for i in state.get("saved_investigations") or []}
+        if saved_investigation_id not in inv_ids:
+            raise ValueError(f"unknown saved_investigation_id: {saved_investigation_id}")
+
+    row = {
+        "id": history_id or _new_id("hist"),
+        "client_id": client_id,
+        "event_type": event_type,
+        "occurred_at": occurred_at or _now_iso(),
+        "saved_investigation_id": saved_investigation_id,
+        "payload": payload or {},
+        "schema_version": 1,
+    }
+    state.setdefault("chart_record_history", []).append(row)
+    return row

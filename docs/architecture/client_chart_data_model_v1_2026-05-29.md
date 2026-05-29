@@ -67,13 +67,13 @@ The model supports **exploration, refinement, evaluation, and decision-making** 
 | **Comparison Set** | 2–5 **saved places / locations** compared under **one** Chart Record — not multi-chart comparison. |
 | **Active chart context** | Exactly one Chart Record selected as the map’s owner at a time. |
 
-Long-term, **Chart Record** may supersede **Client** in schema naming where the record is not literally a paying client (research chart, event chart, self-chart). Current UI may still say “client.”
+Long-term, **Chart Record** may supersede **Client** in schema naming where the record is not literally a paying client (research chart, self-chart). Current UI may still say “client.”
 
 ## Terminology crosswalk (storage vs product language)
 
 | This document | Older / internal storage (v2 scaffold, SQL sandbox) |
 |---------------|-----------------------------------------------------|
-| **Chart Record** | User-facing **client / chart / research / event** record — one active natal identity per row |
+| **Chart Record** | User-facing **client / chart / research** record — one active natal identity per row |
 | `chartRecordId` | Often `client.id` in JSON/SQL |
 | Birth profile fields on Chart Record | Separate `birth_profiles` row linked by `birth_profile_id` |
 | Inline `notes` on record / favorite / exploration | Canonical Web 2.0 — not a separate `notes` table yet |
@@ -86,7 +86,7 @@ Long-term, **Chart Record** may supersede **Client** in schema naming where the 
 
 ## Current scope (hard decision)
 
-**One Chart Record = one natal chart = one active client/research/event identity.** No multiple charts inside one record in the current Web 2.0 product.
+**One Chart Record = one natal chart = one active client/research identity.** No multiple charts inside one record in the current Web 2.0 product.
 
 **Web 2.0 ownership rule:** Favorites, inline notes, saved explorations, map/search history, and comparison sets belong to **exactly one Chart Record**. There is no shared favorite pool, note namespace, or history bucket across records except at account settings (e.g. global defaults, clear-all-history as lower priority).
 
@@ -99,7 +99,9 @@ Long-term, **Chart Record** may supersede **Client** in schema naming where the 
 
 ## Alternate charts and special cases
 
-If the user needs a **distinct natal identity** — **event chart**, **research chart**, **composite chart** (future), **solar chart policy record**, etc. — each is created as a **separate Chart Record** (client-like row), not as a nested chart collection.
+If the user needs a **distinct natal identity** — **research chart**, **composite chart** (future), **solar chart policy record** (future), etc. — each is created as a **separate Chart Record** (client-like row), not as a nested chart collection.
+
+**Relocated event charts are not a Web 2.0 MVP use case.** Edge cases belong under **`record_type: research`** without event-chart product UX or storage typing. Dedicated event-chart support remains a future box only (see §11 exclusions).
 
 **Not separate Chart Records:** birth-time uncertainty variants, rectification candidates, or bounded-range hypotheses. Those belong to **one user-facing Chart Record** as internal metadata / future internal calculation domains — see birth-time sections below. **Rectification workflow is out of scope** for Web 2.0.
 
@@ -111,7 +113,8 @@ If the user needs a **distinct natal identity** — **event chart**, **research 
 |-------|----------|-------|
 | `chartRecordId` | yes | Stable ID |
 | `accountId` | yes | Owning professional account |
-| `displayName` | yes | Professional label (“Anna Rivera”, “Research — Solar noon test”) |
+| `displayName` | yes | Professional label (“Anna Rivera”, “Research — Solstice reference”) |
+| `recordType` | yes | Web 2.0: **`self`**, **`client`**, **`research`** only — not `event` |
 | `birthDate` | yes | |
 | `birthTime` | yes / nullable | Nullable only with honest unknown-time or bounded-range policy — see below |
 | `birthPlace` | yes | Place ref or embedded place fields |
@@ -122,6 +125,10 @@ If the user needs a **distinct natal identity** — **event chart**, **research 
 | `notes` | optional | Record-level **inline** note (see Notes section) |
 | `tags` | optional | Organization only |
 | `createdAt`, `updatedAt` | yes | |
+
+### Optional demographic / profile metadata (future only)
+
+Optional fields such as **gender** or similar demographic profile metadata may later support **AI interpretation layers** (post–Web 2.0). They are **not required** for Dumb Web 2.0 and **must not affect Layer 1 geometry** or relocation truth computation. Do not model, require, or surface in MVP UI unless explicitly approved in a future slice.
 
 ### Birth time confidence — in scope vs excluded (Web 2.0)
 
@@ -173,7 +180,7 @@ When `birthTime` is unknown (e.g. tier T3):
 ┌──────────────────────────────────────────────┐
 │  FUTURE: Multi-chart grouping (optional)      │
 │  A "Case" or "Person" entity could group      │
-│  multiple Chart Records (natal, event, research)│
+│  multiple Chart Records (natal, research)│
 │  without breaking 1:1 map ownership.           │
 │  NOT in Web 2.0 UI or schema requirements.    │
 └──────────────────────────────────────────────┘
@@ -440,10 +447,20 @@ Data exists to **support exploration**, not interrupt it.
 
 Shared entity referenced by favorites, explorations, comparisons, and notes.
 
+**Identity doctrine (Web 2.0):**
+
+| Rule | Detail |
+|------|--------|
+| **Canonical key** | `placeId` (storage: `places[].id`) is the stable reference in favorites, saved explorations, comparison sets, and history |
+| **Display only** | `displayName` is for UI — **not** a durable identity key; never use display name alone for persistence or deep links |
+| **Disambiguation (long-term)** | `country_code`, `admin1`, and related country/admin fields are **required long-term** for proper place disambiguation once a geocoder / place database is chosen |
+| **Current scaffold** | Minimal manual places are acceptable until geocoder strategy is decided — doctrine above still applies |
+| **Out of scope now** | Do **not** build geocoder integration or a timezone place database in Web 2.0 — preserve fields and references only |
+
 | Field | Notes |
 |-------|-------|
-| `placeId` | Stable ID when geocoder provides one |
-| `displayName`, `admin1`, `country` | |
+| `placeId` | Stable ID when geocoder provides one; canonical FK target |
+| `displayName`, `admin1`, `country` | Display + disambiguation — not substitutes for `placeId` |
 | `lat`, `lon` | Required |
 | `source` | `geocoder`, `manual`, `map_pick` |
 
@@ -523,6 +540,7 @@ The following are **not** part of the current product data model implementation:
 | Bounded range / gradient birth-time rendering | Future internal property on one Chart Record — see §1 |
 | Transit condition persistence + engine | Post-v1 future box — Web 2.0 uses planet-in-house, angle-in-sign, aspect-to-angle only |
 | Composite chart implementation | Separate record if ever added |
+| Relocated event charts as product type | Not Web 2.0 — use `research` for edge cases; no `record_type: event` |
 | Marketplace | No commerce entities |
 | Experiential travel course (Layer 5) | See `docs/future/layer5_experiential_education_through_travel_v1.md` |
 | Multi-chart-per-client UI | No nested chart lists |
@@ -597,5 +615,6 @@ Bump `storage_schema_version` when implementing — do not silently migrate.
 | v1 | 2026-05-29 | Initial Web 2.0 client/chart data architecture |
 | v1.1 | 2026-05-29 | Doctrine corrections: confidence tier storage, unknown/ambiguous birth time, history, active context paths, inline notes, post-v1 analytics, transit deferred, terminology crosswalk |
 | v1.2 | 2026-05-29 | Comparison = places under one Chart Record; favorite/map hydration; dashboard default not last-chart; birth-time uncertainty gradient box; Web 2.0 condition naming; transit future box |
+| v1.3 | 2026-05-29 | Demote `event` record_type; research-only edge cases; place_id canonical doctrine; optional demographic metadata future box |
 
 Future revisions: append date to filename (`client_chart_data_model_v2_YYYY-MM-DD.md`) or bump version segment per repo doc convention.

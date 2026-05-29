@@ -2,7 +2,8 @@
 <!--
   Application shell — clickable walkthrough of future product (Screens 0–6).
 
-  Placeholder only: no astrology math, no renderer, no persistence, no AI.
+  Placeholder only: no astrology math, no renderer, no writes, no AI.
+  Chart Record library: read-only from Store v3 scaffold (/local-product-store.json).
   Traces to: docs/architecture/client_chart_data_model_v1_2026-05-29.md
 
   Test hook: window.__rmAppShell
@@ -186,96 +187,15 @@
 
 /** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
 
-/** Account default — NOT last-used chart. */
-const DEFAULT_CHART_RECORD_ID = "cr-anna-rivera";
+const STORE_JSON_URL = "/local-product-store.json";
+const STORE_SCHEMA_VERSION = 3;
 
-const DEMO = {
-  defaultChartRecordId: DEFAULT_CHART_RECORD_ID,
-  chartRecords: [
-    {
-      chartRecordId: "cr-anna-rivera",
-      displayName: "Anna Rivera",
-      recordType: "account owner (self)",
-      birthDate: "1990-03-15",
-      birthTime: "07:42",
-      birthTimeDisplay: "07:42 AM",
-      birthCity: "New York, NY",
-      currentCity: "Portland, OR",
-      confidenceTier: "T0 — Exact",
-      hasTimeUncertainty: false,
-      favorites: [
-        { id: "fav-a1", placeName: "Portland, OR" },
-        { id: "fav-a2", placeName: "Lisbon, PT" },
-        { id: "fav-a3", placeName: "Austin, TX" },
-      ],
-      explorations: [
-        {
-          id: "exp-a1",
-          name: "Sun 10th + ASC Gemini",
-          conditions: ["planet-in-house: Sun in 10th", "angle-in-sign: ASC in Gemini"],
-          places: ["Portland, OR"],
-          saved: "auto-save draft",
-        },
-        {
-          id: "exp-a2",
-          name: "Aspect to MC probe",
-          conditions: ["aspect-to-angle: Mars square MC"],
-          places: ["Lisbon, PT"],
-          saved: "2 hours ago",
-        },
-      ],
-    },
-    {
-      chartRecordId: "cr-jordan-lee",
-      displayName: "Jordan Lee",
-      recordType: "client",
-      birthDate: "1985-11-02",
-      birthTime: null,
-      birthTimeDisplay: "Time uncertain: 9:47 AM–12:30 PM",
-      birthCity: "Chicago, IL",
-      currentCity: "Not set",
-      confidenceTier: "T2 — Bounded range (user-declared metadata)",
-      hasTimeUncertainty: true,
-      favorites: [
-        { id: "fav-j1", placeName: "Chicago, IL" },
-        { id: "fav-j2", placeName: "Denver, CO" },
-      ],
-      explorations: [
-        {
-          id: "exp-j1",
-          name: "Angle-in-sign scan (blocked — honest tier)",
-          conditions: ["angle-in-sign: MC in Capricorn"],
-          places: [],
-          saved: "yesterday",
-        },
-      ],
-    },
-    {
-      chartRecordId: "cr-research-event",
-      displayName: "Research — Summer solstice event",
-      recordType: "research / event",
-      birthDate: "2024-06-21",
-      birthTime: "12:00",
-      birthTimeDisplay: "12:00 PM (event moment)",
-      birthCity: "Stonehenge, UK",
-      currentCity: "—",
-      confidenceTier: "T0 — Exact (event chart)",
-      hasTimeUncertainty: false,
-      favorites: [
-        { id: "fav-r1", placeName: "London, UK" },
-      ],
-      explorations: [
-        {
-          id: "exp-r1",
-          name: "Event chart · Sun angle study",
-          conditions: ["planet-in-house: Sun in 10th"],
-          places: ["London, UK"],
-          saved: "last week",
-        },
-      ],
-    },
-  ],
-};
+/** @type {object | null} */
+let storeRaw = null;
+/** @type {object | null} */
+let viewModel = null;
+/** @type {string | null} */
+let storeLoadError = null;
 
 const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
@@ -295,31 +215,278 @@ const ALL_ROUTES = /** @type {const} */ ([
 
 const state = {
   route: /** @type {Route} */ ("dashboard"),
-  activeChartRecordId: DEFAULT_CHART_RECORD_ID,
+  activeChartRecordId: null,
   originatingChartRecordId: null,
   activeSavedExplorationId: null,
   activePlaceName: null,
-  comparisonPlaceNames: ["Portland, OR", "Lisbon, PT", "Austin, TX"],
+  comparisonPlaceNames: [],
   drawerOpen: true,
   popupOpen: false,
   switchNotice: null,
   mapEntrySource: null,
 };
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function indexById(rows) {
+  /** @type {Record<string, object>} */
+  const out = {};
+  for (const row of rows || []) {
+    if (row && row.id != null) out[String(row.id)] = row;
+  }
+  return out;
+}
+
+function capitalize(value) {
+  const s = String(value || "");
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+function ordinalHouse(n) {
+  const num = Number(n);
+  const mod100 = num % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${num}th`;
+  const mod10 = num % 10;
+  if (mod10 === 1) return `${num}st`;
+  if (mod10 === 2) return `${num}nd`;
+  if (mod10 === 3) return `${num}rd`;
+  return `${num}th`;
+}
+
+function formatTime12h(hhmm) {
+  const parts = String(hhmm || "").split(":");
+  const h = Number(parts[0]);
+  const m = Number(parts[1] || 0);
+  if (Number.isNaN(h)) return String(hhmm || "");
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function formatRecordType(recordType) {
+  if (recordType === "self") return "account owner (self)";
+  if (recordType === "research") return "research";
+  return recordType || "client";
+}
+
+function formatConfidenceTier(tier, birthProfile) {
+  const labels = {
+    T0: "T0 — Exact",
+    T1: "T1 — Approximate",
+    T2: "T2 — Bounded range (user-declared metadata)",
+    T3: "T3 — Unknown time",
+    T4: "T4 — Date only",
+  };
+  return labels[tier] || tier;
+}
+
+function hasBirthTimeUncertainty(birthProfile) {
+  const tier = birthProfile.confidence_tier;
+  if (tier === "T2" || tier === "T3" || tier === "T4") return true;
+  return birthProfile.birth_time == null && tier !== "T0";
+}
+
+function formatBirthTimeDisplay(birthProfile) {
+  const meta = birthProfile.confidence_metadata || {};
+  if (meta.time_range_display && birthProfile.birth_time == null) {
+    return `Time uncertain: ${meta.time_range_display}`;
+  }
+  if (birthProfile.birth_time) {
+    return formatTime12h(birthProfile.birth_time);
+  }
+  return "Time unknown";
+}
+
+function formatConditionTrack(track) {
+  if (!track || typeof track !== "object") return String(track);
+  if (track.type === "planet_in_house") {
+    return `planet-in-house: ${capitalize(track.planet)} in ${ordinalHouse(track.house)}`;
+  }
+  if (track.type === "angle_in_sign") {
+    return `angle-in-sign: ${String(track.angle || "").toUpperCase()} in ${capitalize(track.sign)}`;
+  }
+  if (track.type === "aspect_to_angle") {
+    return `aspect-to-angle: ${capitalize(track.planet)} ${track.aspect} ${String(track.angle || "").toUpperCase()}`;
+  }
+  return JSON.stringify(track);
+}
+
+function formatConditions(conditions) {
+  if (!conditions || typeof conditions !== "object") return [];
+  if (Array.isArray(conditions.tracks)) {
+    return conditions.tracks.map(formatConditionTrack);
+  }
+  const out = [];
+  for (const item of conditions.house_conditions || []) out.push(formatConditionTrack(item));
+  for (const item of conditions.angle_sign_conditions || []) out.push(formatConditionTrack(item));
+  if (conditions.aspect_overlay) out.push(formatConditionTrack(conditions.aspect_overlay));
+  return out;
+}
+
+function formatSavedLabel(updatedAt) {
+  if (!updatedAt) return "saved";
+  const ts = Date.parse(updatedAt);
+  if (Number.isNaN(ts)) return String(updatedAt);
+  const diffMs = Date.now() - ts;
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (hours < 1) return "auto-save draft";
+  if (hours < 48) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 14) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return updatedAt.slice(0, 10);
+}
+
+function placesForInvestigation(investigation, placesById, favoriteRows) {
+  /** @type {Set<string>} */
+  const names = new Set();
+  for (const fav of favoriteRows || []) {
+    if (fav.saved_investigation_id === investigation.id) {
+      const place = placesById[fav.place_id];
+      if (place) names.add(place.display_name);
+    }
+  }
+  const vp = investigation.viewport || {};
+  if (vp.center_lat != null && vp.center_lon != null) {
+    for (const place of Object.values(placesById)) {
+      if (
+        Math.abs(place.lat - vp.center_lat) < 0.05
+        && Math.abs(place.lon - vp.center_lon) < 0.05
+      ) {
+        names.add(place.display_name);
+      }
+    }
+  }
+  return [...names];
+}
+
+function adaptStoreToView(store) {
+  if (store.storage_schema_version !== STORE_SCHEMA_VERSION) {
+    throw new Error(`Unsupported storage_schema_version: ${store.storage_schema_version}`);
+  }
+  const placesById = indexById(store.places);
+  const birthProfilesById = indexById(store.birth_profiles);
+  const defaultChartRecordId = store.user_settings?.default_chart_record_id;
+  if (!defaultChartRecordId) {
+    throw new Error("user_settings.default_chart_record_id is required");
+  }
+
+  const chartRecords = (store.clients || []).map((client) => {
+    const birthProfile = birthProfilesById[client.birth_profile_id];
+    if (!birthProfile) {
+      throw new Error(`client ${client.id} missing birth profile ${client.birth_profile_id}`);
+    }
+    const birthPlace = placesById[birthProfile.birth_place_id];
+    const currentPlace = client.current_location_place_id
+      ? placesById[client.current_location_place_id]
+      : null;
+
+    const favorites = (store.favorite_cities || [])
+      .filter((fav) => fav.client_id === client.id)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((fav) => ({
+        id: fav.id,
+        placeId: fav.place_id,
+        placeName: placesById[fav.place_id]?.display_name || fav.place_id,
+        notes: fav.notes || "",
+      }));
+
+    const explorations = (store.saved_investigations || [])
+      .filter((inv) => inv.client_id === client.id)
+      .map((inv) => ({
+        id: inv.id,
+        name: inv.name || inv.title,
+        conditions: formatConditions(inv.conditions),
+        places: placesForInvestigation(inv, placesById, store.favorite_cities),
+        saved: formatSavedLabel(inv.updated_at),
+      }));
+
+    let currentCity = "—";
+    if (currentPlace) currentCity = currentPlace.display_name;
+    else if (client.current_location_place_id == null && client.record_type === "client") {
+      currentCity = "Not set";
+    }
+
+    return {
+      chartRecordId: client.id,
+      displayName: client.display_name,
+      recordType: formatRecordType(client.record_type),
+      birthDate: birthProfile.birth_date,
+      birthTime: birthProfile.birth_time,
+      birthTimeDisplay: formatBirthTimeDisplay(birthProfile),
+      birthCity: birthPlace?.display_name || "—",
+      currentCity,
+      confidenceTier: formatConfidenceTier(birthProfile.confidence_tier, birthProfile),
+      hasTimeUncertainty: hasBirthTimeUncertainty(birthProfile),
+      favorites,
+      explorations,
+    };
+  });
+
+  const comparisonSets = (store.comparison_sets || []).map((cs) => ({
+    id: cs.id,
+    clientId: cs.client_id,
+    placeIds: cs.place_ids || [],
+    placeNames: (cs.place_ids || [])
+      .map((pid) => placesById[pid]?.display_name)
+      .filter(Boolean),
+    notes: cs.notes || "",
+  }));
+
+  if (chartRecords.length === 0) {
+    throw new Error("Store contains no Chart Records (clients[])");
+  }
+
+  return {
+    defaultChartRecordId,
+    chartRecords,
+    comparisonSets,
+    placeNameById: Object.fromEntries(
+      Object.entries(placesById).map(([id, place]) => [id, place.display_name])
+    ),
+    loadSource: STORE_JSON_URL,
+  };
+}
+
+function requireViewModel() {
+  if (!viewModel) throw new Error("Store view model not loaded");
+  return viewModel;
+}
+
+function comparisonPlaceNamesForRecord(chartRecordId) {
+  const vm = requireViewModel();
+  const match = vm.comparisonSets.find((cs) => cs.clientId === chartRecordId);
+  return match ? match.placeNames.slice(0, 5) : [];
+}
+
+function syncComparisonPlaces() {
+  const originId = state.originatingChartRecordId || state.activeChartRecordId;
+  if (!originId) return;
+  const names = comparisonPlaceNamesForRecord(originId);
+  if (names.length >= 2) state.comparisonPlaceNames = names;
+}
+
 function $(sel) { return document.querySelector(sel); }
 
 function getChartRecord(id) {
-  return DEMO.chartRecords.find((r) => r.chartRecordId === id) || DEMO.chartRecords[0];
+  const vm = requireViewModel();
+  return vm.chartRecords.find((r) => r.chartRecordId === id) || vm.chartRecords[0];
+}
+
+function allExplorations() {
+  const vm = requireViewModel();
+  return vm.chartRecords.flatMap((r) =>
+    r.explorations.map((e) => ({ ...e, chartRecordId: r.chartRecordId, recordName: r.displayName }))
+  );
 }
 
 function activeRecord() {
   return getChartRecord(state.activeChartRecordId);
-}
-
-function allExplorations() {
-  return DEMO.chartRecords.flatMap((r) =>
-    r.explorations.map((e) => ({ ...e, chartRecordId: r.chartRecordId, recordName: r.displayName }))
-  );
 }
 
 function activeExploration() {
@@ -348,9 +515,10 @@ function parseHash() {
 }
 
 function chartRecordSelectHtml(selectId) {
+  const vm = requireViewModel();
   return `<label class="block">Chart Record (explicit switch)
     <select id="${selectId}" class="inline" data-action="chart-record-select">
-      ${DEMO.chartRecords.map((r) =>
+      ${vm.chartRecords.map((r) =>
         `<option value="${r.chartRecordId}"${r.chartRecordId === state.activeChartRecordId ? " selected" : ""}>${r.displayName} (${r.recordType})</option>`
       ).join("")}
     </select></label>`;
@@ -375,9 +543,11 @@ function activeContextChip(extra) {
 }
 
 function stateDebugBlock() {
+  const vm = requireViewModel();
   return `<div class="state-debug">Shell state (doctrine debug):
+storeLoadSource: ${vm.loadSource}
 activeChartRecordId: ${state.activeChartRecordId}
-defaultChartRecordId: ${DEMO.defaultChartRecordId}
+defaultChartRecordId: ${vm.defaultChartRecordId}
 originatingChartRecordId: ${state.originatingChartRecordId || "null"}
 activeSavedExplorationId: ${state.activeSavedExplorationId || "null"}
 activePlaceName: ${state.activePlaceName || "null"}
@@ -401,6 +571,7 @@ function navigate(route) {
   if (route === "compare" && !state.originatingChartRecordId) {
     state.originatingChartRecordId = state.activeChartRecordId;
   }
+  if (route === "compare") syncComparisonPlaces();
   location.hash = "#/" + route;
   render();
 }
@@ -434,25 +605,26 @@ function renderNav() {
 }
 
 function screenDashboard() {
-  const owner = getChartRecord(DEMO.defaultChartRecordId);
+  const vm = requireViewModel();
+  const owner = getChartRecord(vm.defaultChartRecordId);
   return `
     <div class="breadcrumb">Account library entry</div>
     <h2>Screen 0 — Dashboard</h2>
     <p class="purpose">Calm library · account owner default · explicit Chart Record entry.</p>
-    <div class="stub">Placeholder · map opens via defaultChartRecordId only — not last-used chart.</div>
+    <div class="stub">Placeholder · map opens via defaultChartRecordId only — not last-used chart. Library loaded read-only from Store v3.</div>
 
     <div class="panel owner-card">
       <h3>Module: account-owner-chart-record (default)</h3>
       <p><strong>${owner.displayName}</strong> <span class="meta">${owner.recordType}</span></p>
       <p class="meta">${birthSummaryLine(owner)}<br>${owner.confidenceTier}</p>
-      <p class="meta">defaultChartRecordId: <code>${DEMO.defaultChartRecordId}</code></p>
+      <p class="meta">defaultChartRecordId: <code>${vm.defaultChartRecordId}</code></p>
       <button type="button" class="primary" data-action="open-map-default">Open Map (default Chart Record)</button>
     </div>
 
     <div class="panel">
       <h3>Module: chart-record-library</h3>
       <ul class="plain">
-        ${DEMO.chartRecords.map((r) => `
+        ${vm.chartRecords.map((r) => `
           <li>
             <strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span>
             <span class="meta">${birthSummaryLine(r)} · ${r.confidenceTier}</span>
@@ -691,14 +863,15 @@ function screenExport() {
 }
 
 function screenSettings() {
+  const vm = requireViewModel();
   return `
     <h2>S5 — Settings (support route)</h2>
     <p class="purpose">Layer 2 defaults · history clear · not a journey destination.</p>
     <div class="panel">
       <h3>Module: account-defaults</h3>
       <label class="block">defaultChartRecordId (account owner default for Dashboard → Map)
-        <select disabled>${DEMO.chartRecords.map((r) =>
-          `<option value="${r.chartRecordId}"${r.chartRecordId === DEMO.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+        <select disabled>${vm.chartRecords.map((r) =>
+          `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
         ).join("")}</select>
       </label>
       <label class="block">House system <select disabled><option>Placidus</option></select></label>
@@ -763,7 +936,38 @@ const SCREEN_RENDERERS = {
   future: screenFuture,
 };
 
+function renderLoadPending() {
+  renderNav();
+  $("#screenMeta").textContent = "Loading…";
+  $("#main").innerHTML = `
+    <section class="screen active">
+      <div class="notice-box"><strong>Loading Chart Record library…</strong> Read-only from ${STORE_JSON_URL}</div>
+    </section>`;
+}
+
+function renderLoadError(message) {
+  renderNav();
+  $("#screenMeta").textContent = "Store load error";
+  $("#main").innerHTML = `
+    <section class="screen active">
+      <div class="warn-box">
+        <strong>Store load failed (read-only shell)</strong><br>
+        ${escapeHtml(message)}<br><br>
+        Expected GET <code>${STORE_JSON_URL}</code> (Store v3 scaffold).<br>
+        No silent demo fallback — fix the route or scaffold file.
+      </div>
+    </section>`;
+}
+
 function render() {
+  if (storeLoadError) {
+    renderLoadError(storeLoadError);
+    return;
+  }
+  if (!viewModel) {
+    renderLoadPending();
+    return;
+  }
   state.route = parseHash();
   renderNav();
   const meta = ALL_ROUTES.find((r) => r.id === state.route);
@@ -799,12 +1003,13 @@ function bindScreenActions(root) {
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
       if (action === "open-map-default") {
+        const vm = requireViewModel();
         openMap({
-          chartRecordId: DEMO.defaultChartRecordId,
+          chartRecordId: vm.defaultChartRecordId,
           explorationId: null,
           placeName: null,
           source: "dashboard → map (defaultChartRecordId)",
-          notice: `Opened map for account default: ${getChartRecord(DEMO.defaultChartRecordId).displayName}`,
+          notice: `Opened map for account default: ${getChartRecord(vm.defaultChartRecordId).displayName}`,
         });
       }
       if (action === "open-map-record") {
@@ -876,12 +1081,45 @@ document.getElementById("popupModal").addEventListener("click", (e) => {
 window.addEventListener("hashchange", render);
 document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
 
+async function loadViewModelFromStore() {
+  const resp = await fetch(STORE_JSON_URL, { cache: "no-store" });
+  if (!resp.ok) {
+    throw new Error(`GET ${STORE_JSON_URL} failed: HTTP ${resp.status}`);
+  }
+  const payload = await resp.json();
+  storeRaw = payload;
+  viewModel = adaptStoreToView(payload);
+  storeLoadError = null;
+  if (!state.activeChartRecordId) {
+    state.activeChartRecordId = viewModel.defaultChartRecordId;
+  }
+  syncComparisonPlaces();
+}
+
+async function bootstrap() {
+  renderLoadPending();
+  try {
+    await loadViewModelFromStore();
+    render();
+  } catch (err) {
+    storeLoadError = err instanceof Error ? err.message : String(err);
+    viewModel = null;
+    storeRaw = null;
+    renderLoadError(storeLoadError);
+  }
+}
+
 window.__rmAppShell = {
   navigate,
   openMap,
   switchChartRecord,
   state,
-  DEMO,
+  viewModel: () => viewModel,
+  storeRaw: () => storeRaw,
+  storeLoadError: () => storeLoadError,
+  loadViewModelFromStore,
+  adaptStoreToView,
+  STORE_JSON_URL,
   NAV_ROUTES,
   ALL_ROUTES,
   getChartRecord,
@@ -890,7 +1128,7 @@ window.__rmAppShell = {
   closePopup,
 };
 
-render();
+bootstrap();
 </script>
 </body>
 </html>

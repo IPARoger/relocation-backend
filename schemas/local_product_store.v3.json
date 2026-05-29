@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "local_product_store.v3.json",
+  "title": "Local Product Store v3 (TEMPORARY_LOCAL_SCAFFOLD)",
+  "description": "Chart Record doctrine alignment — client row = Chart Record in product language.",
+  "type": "object",
+  "required": [
+    "_storage",
+    "_warning",
+    "storage_schema_version",
+    "supabase_mirror_version",
+    "professional_account",
+    "user_settings",
+    "places",
+    "birth_profiles",
+    "clients",
+    "saved_investigations",
+    "favorite_cities",
+    "comparison_sets",
+    "chart_record_history",
+    "tags",
+    "notes"
+  ],
+  "properties": {
+    "_storage": { "const": "TEMPORARY_LOCAL_SCAFFOLD" },
+    "_warning": { "type": "string", "minLength": 1 },
+    "storage_schema_version": { "const": 3 },
+    "supabase_mirror_version": { "type": "integer", "minimum": 1 },
+    "professional_account": {
+      "type": "object",
+      "required": ["id", "display_name", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "display_name": { "type": "string" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "user_settings": {
+      "type": "object",
+      "required": ["settings_version", "house_system", "zodiac_mode"],
+      "properties": {
+        "default_chart_record_id": { "type": ["string", "null"] }
+      }
+    },
+    "places": { "type": "array", "items": { "$ref": "#/$defs/place" } },
+    "birth_profiles": { "type": "array", "items": { "$ref": "#/$defs/birth_profile" } },
+    "clients": { "type": "array", "items": { "$ref": "#/$defs/client" } },
+    "saved_investigations": { "type": "array", "items": { "$ref": "#/$defs/saved_investigation" } },
+    "favorite_cities": { "type": "array", "items": { "$ref": "#/$defs/favorite_city" } },
+    "comparison_sets": { "type": "array", "items": { "$ref": "#/$defs/comparison_set" } },
+    "chart_record_history": { "type": "array", "items": { "$ref": "#/$defs/chart_record_history" } },
+    "tags": { "type": "array" },
+    "notes": { "type": "array" }
+  },
+  "$defs": {
+    "place": {
+      "type": "object",
+      "required": ["id", "external_source", "display_name", "lat", "lon", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "external_source": { "enum": ["geoname", "wof", "manual", "map_pick"] },
+        "external_id": { "type": ["string", "null"] },
+        "display_name": { "type": "string" },
+        "lat": { "type": "number" },
+        "lon": { "type": "number" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "birth_profile": {
+      "type": "object",
+      "required": ["id", "birth_date", "birth_place_id", "timezone_id", "confidence_tier", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "birth_date": { "type": "string" },
+        "birth_time": { "type": ["string", "null"] },
+        "birth_place_id": { "type": "string" },
+        "timezone_id": { "type": "string" },
+        "confidence_tier": { "enum": ["T0", "T1", "T2", "T3", "T4"] },
+        "confidence_metadata": { "type": "object" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "client": {
+      "type": "object",
+      "required": ["id", "display_name", "birth_profile_id", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "display_name": { "type": "string" },
+        "birth_profile_id": { "type": "string" },
+        "record_type": { "enum": ["self", "client", "research"] },
+        "current_location_place_id": { "type": ["string", "null"] },
+        "notes": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "saved_investigation": {
+      "type": "object",
+      "required": [
+        "id",
+        "client_id",
+        "birth_profile_id",
+        "title",
+        "conditions",
+        "viewport",
+        "settings_snapshot",
+        "schema_version"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "client_id": { "type": "string" },
+        "birth_profile_id": { "type": "string" },
+        "title": { "type": "string" },
+        "name": { "type": "string" },
+        "notes": { "type": "string" },
+        "originating_chart_record_id": { "type": "string" },
+        "conditions": { "type": "object" },
+        "viewport": { "type": "object" },
+        "settings_snapshot": { "type": "object" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "favorite_city": {
+      "type": "object",
+      "required": ["id", "client_id", "place_id", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "client_id": { "type": "string" },
+        "place_id": { "type": "string" },
+        "notes": { "type": "string" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "comparison_set": {
+      "type": "object",
+      "required": ["id", "client_id", "place_ids", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "client_id": { "type": "string" },
+        "place_ids": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": { "type": "string" }
+        },
+        "saved_investigation_id": { "type": ["string", "null"] },
+        "notes": { "type": "string" },
+        "schema_version": { "type": "integer" }
+      }
+    },
+    "chart_record_history": {
+      "type": "object",
+      "required": ["id", "client_id", "event_type", "occurred_at", "schema_version"],
+      "properties": {
+        "id": { "type": "string" },
+        "client_id": { "type": "string" },
+        "event_type": { "enum": ["map_search", "map_view", "place_inspect"] },
+        "occurred_at": { "type": "string" },
+        "saved_investigation_id": { "type": ["string", "null"] },
+        "payload": { "type": "object" },
+        "schema_version": { "type": "integer" }
+      }
+    }
+  }
+}
