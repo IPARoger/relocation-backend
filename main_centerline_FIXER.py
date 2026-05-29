@@ -1890,15 +1890,40 @@ def _app_shell_enabled() -> bool:
     return os.environ.get("RM_APP_SHELL", "1") != "0"
 
 
+def _local_product_store_read_enabled() -> bool:
+    if _app_shell_enabled():
+        return True
+    return os.environ.get("RM_PHASE3_LOCAL_PRODUCT", "").strip().lower() in ("1", "true", "yes")
+
+
 def _ensure_app_shell_enabled() -> None:
     if not _app_shell_enabled():
         raise HTTPException(status_code=404, detail="App shell disabled")
+
+
+def _ensure_local_product_store_read_enabled() -> None:
+    if not _local_product_store_read_enabled():
+        raise HTTPException(status_code=404, detail="Local product store read disabled")
+
+
+LOCAL_PRODUCT_STORE_SCAFFOLD = (
+    APP_DIR / "scaffold" / "local_product" / "TEMPORARY_product_store.json"
+)
 
 
 @app.get("/app_shell.html")
 def serve_app_shell_html():
     _ensure_app_shell_enabled()
     return FileResponse(APP_DIR / "app_shell.html", media_type="text/html")
+
+
+@app.get("/local-product-store.json")
+def serve_local_product_store_json():
+    """Read-only scaffold JSON for app_shell Chart Record library (Store v3)."""
+    _ensure_local_product_store_read_enabled()
+    if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
+        raise HTTPException(status_code=404, detail="Local product store scaffold not found")
+    return FileResponse(LOCAL_PRODUCT_STORE_SCAFFOLD, media_type="application/json")
 
 
 @app.get("/library.html")
