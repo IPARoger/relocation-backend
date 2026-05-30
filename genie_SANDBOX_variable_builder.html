@@ -831,6 +831,12 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       transit_aspect_to_angle: "Transit · Aspect · Angle",
       transit_group: "Relocated Transits (Experimental)",
     }),
+    controls: Object.freeze({
+      excludeLabel: "Exclude",
+      excludeCompactLabel: "⊘",
+      muteLabel: "Mute",
+      soloLabel: "Solo",
+    }),
   });
 
   function cardLanguageSnapshot() {
@@ -838,7 +844,12 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       separatorToken: CARD_LANGUAGE_REGISTRY.separatorToken,
       primaryAction: CARD_LANGUAGE_REGISTRY.primaryAction,
       labels: { ...CARD_LANGUAGE_REGISTRY.labels },
+      controls: { ...CARD_LANGUAGE_REGISTRY.controls },
     };
+  }
+
+  function typeLabelFor(v) {
+    return v.type ? (CARD_LANGUAGE_REGISTRY.labels[v.type] || "") : "";
   }
 
   const MAX_VARIABLES = 12;
@@ -949,31 +960,9 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     return !(isTransitType(v.type) && !transitEnabled);
   }
 
-  function bodyLabel(id) {
-    const item = (OBJECT_CATALOG.bodies || []).find((b) => b.id === id);
-    return item ? item.label : id;
-  }
-
   function buildVariableLabel(v) {
     if (!isVariableComplete(v)) return "";
-    const prefix = v.polarity === "exclude" ? "NOT " : "";
-    const f = v.fields;
-    if (v.type === "planet_in_house") {
-      return `${prefix}${bodyLabel(f.body)} in ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} house`;
-    }
-    if (v.type === "angle_in_sign") {
-      return `${prefix}${f.angle} in ${f.sign}`;
-    }
-    if (v.type === "aspect_to_angle") {
-      return `${prefix}${bodyLabel(f.body)} ${f.aspect} ${f.angle}`;
-    }
-    if (v.type === "transit_through_house") {
-      return `${prefix}Transit ${bodyLabel(f.transitBody)} through ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} house`;
-    }
-    if (v.type === "transit_aspect_to_angle") {
-      return `${prefix}Transit ${bodyLabel(f.transitBody)} ${f.aspect} ${f.angle}`;
-    }
-    return prefix.trim();
+    return typeLabelFor(v);
   }
 
   function canonicalFieldsForPayload(v) {
@@ -1448,25 +1437,26 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
 
   function renderLayerToggles(v, index) {
     const color = cardColor(v.type);
+    const ctl = CARD_LANGUAGE_REGISTRY.controls;
     const muteCls = v.layer.mute ? "active-mute" : "";
     const soloCls = v.layer.solo ? "active-solo" : "";
     const notCls = v.polarity === "exclude" ? "active-not" : "";
     return `
       <div class="layer-toggles">
         <label class="${muteCls}">
-          <input type="checkbox" data-layer="mute" ${v.layer.mute ? "checked" : ""} /> Mute
+          <input type="checkbox" data-layer="mute" ${v.layer.mute ? "checked" : ""} /> ${ctl.muteLabel}
         </label>
         <label class="${soloCls}">
-          <input type="checkbox" data-layer="solo" ${v.layer.solo ? "checked" : ""} /> Solo
+          <input type="checkbox" data-layer="solo" ${v.layer.solo ? "checked" : ""} /> ${ctl.soloLabel}
         </label>
         <label class="${notCls}">
-          <input type="checkbox" data-layer="not" ${v.polarity === "exclude" ? "checked" : ""} /> NOT
+          <input type="checkbox" data-layer="not" ${v.polarity === "exclude" ? "checked" : ""} /> ${ctl.excludeLabel}
         </label>
       </div>
       <div class="layer-toggles-compact" title="Exploration Mode scaffold">
-        <span class="layer-dot" style="background:${color}" data-title="Mute"></span>
-        <span class="layer-dot" style="background:${color};opacity:0.5" data-title="Solo"></span>
-        <span class="layer-dot" style="background:${color};opacity:0.25" data-title="NOT"></span>
+        <span class="layer-dot" style="background:${color}" data-title="${ctl.muteLabel}"></span>
+        <span class="layer-dot" style="background:${color};opacity:0.5" data-title="${ctl.soloLabel}"></span>
+        <span class="layer-dot" style="background:${color};opacity:0.25" data-title="${ctl.excludeCompactLabel} ${ctl.excludeLabel}">${ctl.excludeCompactLabel}</span>
         <span style="font-size:9px;color:#64748b">Track ${String.fromCharCode(65 + index)}</span>
       </div>`;
   }

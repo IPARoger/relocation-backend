@@ -143,11 +143,38 @@ def main() -> int:
             and direct["settingsSnapshot"]["registry"]["bodies"]["sun"] is True
             and direct["settingsSnapshot"]["cardLanguage"]["primaryAction"] == "Search Map"
             and direct["settingsSnapshot"]["cardLanguage"]["labels"]["aspect_to_angle"] == "Aspect · Angle"
+            and v0["label"] == "Planet · House"
+            and direct["settingsSnapshot"]["cardLanguage"]["controls"]["excludeLabel"] == "Exclude"
         )
         results.append(("normalize_payload_planet", ok_direct, json.dumps({
             "kind": direct.get("kind"),
             "body": v0["fields"].get("body"),
             "polarity": v0.get("polarity"),
+            "label": v0.get("label"),
+        })))
+
+        exclude_label_ui = page.evaluate(
+            """() => document.querySelector('[data-layer=not]')?.closest('label')?.textContent?.trim()"""
+        )
+        page.evaluate(
+            """() => {
+              const ex = document.querySelector('[data-layer=not]');
+              if (ex) { ex.checked = true; ex.dispatchEvent(new Event('change', {bubbles:true})); }
+            }"""
+        )
+        exclude_payload = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        ev = exclude_payload["variables"][0]
+        ok_registry_exclude = (
+            exclude_label_ui == "Exclude"
+            and ev["label"] == "Planet · House"
+            and ev["polarity"] == "exclude"
+            and ev["id"] in exclude_payload["layerControls"]["excludeVariableIds"]
+            and exclude_payload["settingsSnapshot"]["cardLanguage"]["controls"]["excludeCompactLabel"] == "⊘"
+        )
+        results.append(("registry_composed_labels", ok_registry_exclude, json.dumps({
+            "excludeLabelUi": exclude_label_ui,
+            "label": ev.get("label"),
+            "polarity": ev.get("polarity"),
         })))
 
         page.click("#renderBtn")
