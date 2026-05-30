@@ -108,6 +108,22 @@ def serve_genie_map_engine_adapter():
     )
 
 
+@app.get("/genie_variable_builder.js")
+def serve_genie_variable_builder():
+    return FileResponse(
+        APP_DIR / "genie_variable_builder.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/genie_variable_builder.css")
+def serve_genie_variable_builder_css():
+    return FileResponse(
+        APP_DIR / "genie_variable_builder.css",
+        media_type="text/css",
+    )
+
+
 @app.get("/map_SANDBOX_raindrop_aesthetic.html")
 def serve_map_sandbox_raindrop_aesthetic():
     return FileResponse(

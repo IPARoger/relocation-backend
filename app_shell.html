@@ -14,6 +14,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Relocation App — Application Shell</title>
+<link rel="stylesheet" href="/genie_variable_builder.css" />
 <style>
   :root {
     --fg: #111827;
@@ -101,6 +102,10 @@
   .drawer-placeholder {
     border: 1px solid var(--line); border-radius: 6px; padding: 10px; background: #fafafa;
   }
+  .drawer-placeholder .genie-drawer-mount .genie-panel {
+    border-left: none;
+    max-height: 72vh;
+  }
   .modal-backdrop {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100;
     align-items: center; justify-content: center; padding: 16px;
@@ -183,6 +188,7 @@
   </div>
 </div>
 
+<script src="/genie_variable_builder.js"></script>
 <script>
 "use strict";
 
@@ -1058,29 +1064,13 @@ function screenMap() {
     </div>
     <div class="grid-2">
       <div class="drawer-placeholder">
-        <h3>Module: genie-drawer ${uiState.drawerOpen ? "(expanded)" : "(collapsed chip)"}</h3>
-        <button type="button" data-action="toggle-drawer">${uiState.drawerOpen ? "Collapse to genie" : "Expand drawer"}</button>
-        ${uiState.drawerOpen ? `
-        ${activeContextChip(chartRecordSelectHtml("mapChartRecordSelect"))}
-        <div class="module"><h4>Module: location-search</h4>
-          <input type="text" placeholder="Search location (placeholder)" value="${resolvePlaceName(navContext.placeId) || ""}" /></div>
-        <div class="module"><h4>Module: add-condition (Web 2.0 only)</h4>
-          <button type="button" disabled>Planet in House</button>
-          <button type="button" disabled>Angle in Sign</button>
-          <button type="button" disabled>Aspect to Angle</button></div>
-        <div class="future-only">Post-v1 only: Transit placement / search — not a Web 2.0 condition.</div>
-        <div class="module"><h4>Module: condition-cards ${exp ? "(from resumed exploration)" : "(draft)"}</h4>
-          <ul class="plain">${conditions.map((c, i) =>
-            `<li>${c} <span class="meta">track ${String.fromCharCode(65 + i)}</span></li>`
-          ).join("")}</ul>
-          ${exp && exp.places.length ? `<p class="meta">Places in exploration: ${exp.places.join(", ")}</p>` : ""}
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h3 style="margin:0">Genie ${uiState.drawerOpen ? "(expanded)" : "(collapsed)"}</h3>
+          <button type="button" data-action="toggle-drawer">${uiState.drawerOpen ? "Collapse" : "Expand drawer"}</button>
         </div>
-        <div class="module"><h4>Module: layer-mixer (mute / solo / NOT)</h4>
-          <button type="button" disabled>Mute A</button>
-          <button type="button" disabled>Solo B</button>
-          <button type="button" disabled>NOT C</button></div>
-        <button type="button" class="primary" disabled>${r.hasTimeUncertainty ? "Find regions blocked (time uncertainty)" : "Find regions (placeholder)"}</button>
-        ` : `<p class="meta">Genie chip: ${conditions.length} conditions · ${r.displayName}</p>`}
+        ${uiState.drawerOpen
+          ? `<div id="genieDrawerMount" aria-label="Genie variable builder"></div>`
+          : `<p class="meta">Genie chip · ${r.displayName} · expand to configure variables</p>`}
       </div>
       <div class="panel">
         <h3>Module: map-actions</h3>
@@ -1329,6 +1319,25 @@ function switchChartRecord(newId, noticePrefix) {
   uiState.switchNotice = `${noticePrefix || "Explicit Chart Record switch"}: ${prev} → ${next}. Exploration draft cleared for prior record (placeholder).`;
 }
 
+function mountGenieDrawer(root) {
+  if (navContext.route !== "map" || !uiState.drawerOpen) return;
+  const el = root.querySelector("#genieDrawerMount");
+  if (!el || !window.RelocationGenieVariableBuilder) return;
+  const r = activeRecord();
+  window.__rmAppShellGenie = window.RelocationGenieVariableBuilder.mount(el, {
+    chartRecordId: navContext.chartRecordId || r.chartRecordId,
+    chartRecordName: r.displayName,
+    onSearchMap(payload) {
+      const { url } = prepareGenieRenderHandoff(navContext, payload);
+      window.location.assign(url);
+    },
+    onCollapse() {
+      uiState.drawerOpen = false;
+      render();
+    },
+  });
+}
+
 function bindScreenActions(root) {
   root.querySelectorAll("[data-nav]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1430,6 +1439,8 @@ function bindScreenActions(root) {
       render();
     });
   });
+
+  mountGenieDrawer(root);
 }
 
 document.getElementById("popupModal").addEventListener("click", (e) => {
