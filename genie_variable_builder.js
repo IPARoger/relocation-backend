@@ -1044,7 +1044,15 @@
     updateDebug();
   }
 
-  const MOUNT_HTML = `
+  function buildMountHtml(options) {
+    const externalDebug = Boolean(options && options.externalDebug);
+    const debugStubs = externalDebug
+      ? ""
+      : `
+    <pre id="debugJson" hidden aria-hidden="true"></pre>
+    <pre id="renderJson" hidden aria-hidden="true"></pre>
+    <div id="registrySettingsBody" hidden aria-hidden="true"></div>`;
+    return `
     <div class="genie-panel" id="geniePanel" aria-label="Genie workbench">
       <header class="genie-header">
         <div class="genie-header-row">
@@ -1091,13 +1099,11 @@
           <button type="button" id="transitModalCloseBtn">Close</button>
         </div>
       </div>
-    </div>
-    <pre id="debugJson" hidden aria-hidden="true"></pre>
-    <pre id="renderJson" hidden aria-hidden="true"></pre>
-    <div id="registrySettingsBody" hidden aria-hidden="true"></div>
+    </div>${debugStubs}
   `;
+  }
 
-  /** @type {{ onSearchMap?: (payload: object) => void, onCollapse?: () => void, chartRecordId?: string, chartRecordName?: string }} */
+  /** @type {{ onSearchMap?: (payload: object) => void, onCollapse?: () => void, chartRecordId?: string, chartRecordName?: string, externalDebug?: boolean }} */
   let mountOptions = {};
 
   function activeChartRecordId() {
@@ -1168,7 +1174,7 @@
     if (!root) throw new TypeError("root element required");
     mountOptions = options || {};
     root.classList.add("genie-drawer-mount");
-    root.innerHTML = MOUNT_HTML;
+    root.innerHTML = buildMountHtml(mountOptions);
     updateChartRecordLine();
     wireMountEvents();
     genieOpen = true;

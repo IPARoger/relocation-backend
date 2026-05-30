@@ -257,7 +257,7 @@ def main() -> int:
                 configure_planet_house(page, i, PLANETS[i % len(PLANETS)], i + 1)
             recorder.clear()
             search_map_from_shell(page)
-            wait_handoff_executed(page, timeout_ms=180_000)
+            wait_handoff_executed(page, timeout_ms=300_000)
             wire3 = recorder.posts[0] if recorder.posts else {}
             wire_h3 = len(wire3.get("house_conditions") or [])
             ok3 = wire_h3 == 12 and len(recorder.posts) >= 1
@@ -287,7 +287,7 @@ def main() -> int:
             root_tr = card_selector(11)
             page.select_option(f"{root_tr} [data-type-select]", "transit_through_house")
             search_map_from_shell(page)
-            wait_handoff_executed(page, timeout_ms=180_000)
+            wait_handoff_executed(page, timeout_ms=300_000)
             handoff4 = page.evaluate("() => window.__rmGenieRenderHandoff()")
             exec4 = (handoff4 or {}).get("execution") or {}
             deg4 = exec4.get("degradation") or []

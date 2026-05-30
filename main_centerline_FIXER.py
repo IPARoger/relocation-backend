@@ -124,6 +124,14 @@ def serve_genie_variable_builder_css():
     )
 
 
+@app.get("/genie_SANDBOX_variable_builder.html")
+def serve_genie_sandbox_variable_builder():
+    return FileResponse(
+        APP_DIR / "genie_SANDBOX_variable_builder.html",
+        media_type="text/html",
+    )
+
+
 @app.get("/map_SANDBOX_raindrop_aesthetic.html")
 def serve_map_sandbox_raindrop_aesthetic():
     return FileResponse(
