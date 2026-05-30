@@ -1041,39 +1041,63 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     return map[kind] || "#cbd5e1";
   }
 
-  function buildLegacyCompatibility(houseConditions, angleSignConditions, aspectConditions, notExclusions) {
+  function legacyNotExclusion(v) {
+    const f = v.fields;
+    const planet = legacyBodyField(v);
+    const base = { type: v.type, variableId: v.id, polarity: "exclude" };
+    if (v.type === "planet_in_house") {
+      return { ...base, planet, house: parseInt(f.house, 10) };
+    }
+    if (v.type === "angle_in_sign") {
+      return { ...base, angle: f.angle, sign: f.sign };
+    }
+    if (v.type === "aspect_to_angle") {
+      return { ...base, planet, aspect: f.aspect, angle: f.angle };
+    }
+    if (v.type === "transit_through_house") {
+      return { ...base, planet, house: parseInt(f.house, 10) };
+    }
+    if (v.type === "transit_aspect_to_angle") {
+      return { ...base, planet, aspect: f.aspect, angle: f.angle };
+    }
+    return base;
+  }
+
+  function buildLegacyCompatibility(includeHouses, includeAngles, includeAspects, notExclusions) {
+    const slotLabels = ["A", "B", "C"];
+    const house_conditions = includeHouses.slice(0, 3).map((row, i) => ({
+      slot: slotLabels[i],
+      type: row.type,
+      planet: row.planet,
+      house: row.house,
+      variableId: row.variableId,
+    }));
+    const angle_sign_conditions = includeAngles.slice(0, 1).map(({ type, angle, sign, variableId }) => ({
+      type,
+      angle,
+      sign,
+      variableId,
+    }));
+    const aspectSlice = includeAspects.slice(0, 1);
+    const aspect_overlay = aspectSlice.length === 1
+      ? { type: "aspect_to_angle", ...aspectSlice[0] }
+      : null;
     return {
       schema_version: 1,
       kind: "saved_investigation",
       chart_id: SANDBOX_CHART_RECORD_ID,
-      house_conditions: houseConditions.map(({ type, planet, house, track, variableId }) => ({
-        slot: track,
-        type,
-        planet,
-        house,
-        variableId,
-      })),
-      angle_sign_conditions: angleSignConditions.map(({ type, angle, sign, variableId }) => ({
-        type,
-        angle,
-        sign,
-        variableId,
-      })),
-      /** Production map allows one aspect_overlay; sandbox emits array for multi-variable future. */
-      aspect_overlay: aspectConditions.length === 1
-        ? { type: "aspect_to_angle", ...aspectConditions[0] }
-        : aspectConditions.length > 1
-          ? aspectConditions[0]
-          : null,
-      aspect_overlays: aspectConditions,
+      house_conditions,
+      angle_sign_conditions,
+      aspect_overlay,
+      aspect_overlays: includeAspects,
       notExclusions,
     };
   }
 
   function normalizePayload() {
-    const houseConditions = [];
-    const angleSignConditions = [];
-    const aspectConditions = [];
+    const includeHouses = [];
+    const includeAngles = [];
+    const includeAspects = [];
     const notExclusions = [];
     const layerControls = {
       mutedVariableIds: [],
@@ -1081,73 +1105,40 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       excludeVariableIds: [],
     };
 
-    variables.forEach((v, index) => {
+    variables.forEach((v) => {
       if (!isVariableComplete(v)) return;
-      const track = String.fromCharCode(65 + (index % 26));
-      const planet = legacyBodyField(v);
       if (v.layer.mute) layerControls.mutedVariableIds.push(v.id);
       if (v.layer.solo) layerControls.soloVariableId = v.id;
-      if (v.polarity === "exclude") layerControls.excludeVariableIds.push(v.id);
+      if (v.polarity === "exclude") {
+        layerControls.excludeVariableIds.push(v.id);
+        notExclusions.push(legacyNotExclusion(v));
+        return;
+      }
 
       const f = v.fields;
+      const planet = legacyBodyField(v);
       if (v.type === "planet_in_house") {
-        const row = {
-          track,
+        includeHouses.push({
           variableId: v.id,
           type: "planet_in_house",
           planet,
           house: parseInt(f.house, 10),
-        };
-        houseConditions.push(row);
-        if (v.polarity === "exclude") {
-          notExclusions.push({ ...row, polarity: "exclude" });
-        }
+        });
       } else if (v.type === "angle_in_sign") {
-        const row = {
-          track,
+        includeAngles.push({
           variableId: v.id,
           type: "angle_in_sign",
           angle: f.angle,
           sign: f.sign,
-        };
-        angleSignConditions.push(row);
-        if (v.polarity === "exclude") {
-          notExclusions.push({ ...row, polarity: "exclude" });
-        }
+        });
       } else if (v.type === "aspect_to_angle") {
-        const row = {
-          track,
+        includeAspects.push({
           variableId: v.id,
           type: "aspect_to_angle",
           planet,
           aspect: f.aspect,
           angle: f.angle,
-        };
-        aspectConditions.push(row);
-        if (v.polarity === "exclude") {
-          notExclusions.push({ ...row, polarity: "exclude" });
-        }
-      } else if (v.type === "transit_through_house" && transitEnabled) {
-        if (v.polarity === "exclude") {
-          notExclusions.push({
-            type: "transit_through_house",
-            planet,
-            house: parseInt(f.house, 10),
-            variableId: v.id,
-            polarity: "exclude",
-          });
-        }
-      } else if (v.type === "transit_aspect_to_angle" && transitEnabled) {
-        if (v.polarity === "exclude") {
-          notExclusions.push({
-            type: "transit_aspect_to_angle",
-            planet,
-            aspect: f.aspect,
-            angle: f.angle,
-            variableId: v.id,
-            polarity: "exclude",
-          });
-        }
+        });
       }
     });
 
@@ -1165,9 +1156,9 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
         registry: objectRegistry.snapshot(),
       },
       legacyCompatibility: buildLegacyCompatibility(
-        houseConditions,
-        angleSignConditions,
-        aspectConditions,
+        includeHouses,
+        includeAngles,
+        includeAspects,
         notExclusions,
       ),
     };

@@ -119,7 +119,94 @@ def main() -> int:
         ok_render = st1["renderCount"] == 1 and st1["lastNormalizedPayload"] is not None
         results.append(("render_button", ok_render, f"renderCount={st1['renderCount']}"))
 
+        # Exclude-only legacy: NOT planet_in_house must not enter positive legacy slots
+        page.goto(url, wait_until="domcontentloaded")
+        page.wait_for_selector("#variableCards .variable-card")
+        page.select_option("[data-type-select]", "planet_in_house")
+        page.select_option('[data-field="body"]', "moon")
+        page.select_option('[data-field="house"]', "4")
+        page.evaluate(
+            """() => {
+              const not = document.querySelector('[data-layer=not]');
+              if (not) { not.checked = true; not.dispatchEvent(new Event('change', {bubbles:true})); }
+            }"""
+        )
+        exclude_only = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        var0 = exclude_only["variables"][0]
+        legacy0 = exclude_only["legacyCompatibility"]
+        ok_exclude_only = (
+            var0["polarity"] == "exclude"
+            and var0["id"] in exclude_only["layerControls"]["excludeVariableIds"]
+            and len(legacy0["notExclusions"]) == 1
+            and legacy0["notExclusions"][0]["planet"] == "moon"
+            and legacy0["notExclusions"][0]["house"] == 4
+            and len(legacy0["house_conditions"]) == 0
+            and len(legacy0["angle_sign_conditions"]) == 0
+            and legacy0["aspect_overlay"] is None
+        )
+        results.append(("legacy_exclude_only", ok_exclude_only, json.dumps({
+            "polarity": var0["polarity"],
+            "notExclusions": len(legacy0["notExclusions"]),
+            "house_conditions": len(legacy0["house_conditions"]),
+        })))
+
+        # Mixed legacy: exclude Moon 4H + include Sun 1H
+        page.goto(url, wait_until="domcontentloaded")
+        page.wait_for_selector("#variableCards .variable-card")
+        page.select_option("[data-type-select]", "planet_in_house")
+        page.select_option('[data-field="body"]', "moon")
+        page.select_option('[data-field="house"]', "4")
+        page.evaluate(
+            """() => {
+              const not = document.querySelector('[data-layer=not]');
+              if (not) { not.checked = true; not.dispatchEvent(new Event('change', {bubbles:true})); }
+            }"""
+        )
+        page.evaluate("() => document.getElementById('addVariableBtn').click()")
+        page.evaluate(
+            """() => {
+              const cards = document.querySelectorAll('[data-type-select]');
+              const sel = cards[cards.length - 1];
+              sel.value = 'planet_in_house';
+              sel.dispatchEvent(new Event('change', { bubbles: true }));
+            }"""
+        )
+        page.evaluate(
+            """() => {
+              const bodies = document.querySelectorAll('[data-field=body]');
+              const houses = document.querySelectorAll('[data-field=house]');
+              if (bodies.length) {
+                bodies[bodies.length - 1].value = 'sun';
+                bodies[bodies.length - 1].dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              if (houses.length) {
+                houses[houses.length - 1].value = '1';
+                houses[houses.length - 1].dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }"""
+        )
+        mixed = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        legacy_m = mixed["legacyCompatibility"]
+        ok_mixed = (
+            len(legacy_m["house_conditions"]) == 1
+            and legacy_m["house_conditions"][0]["planet"] == "sun"
+            and legacy_m["house_conditions"][0]["house"] == 1
+            and len(legacy_m["notExclusions"]) == 1
+            and legacy_m["notExclusions"][0]["planet"] == "moon"
+            and legacy_m["notExclusions"][0]["house"] == 4
+            and legacy_m["house_conditions"][0]["planet"] != "moon"
+        )
+        results.append(("legacy_exclude_mixed", ok_mixed, json.dumps({
+            "house": legacy_m["house_conditions"][0] if legacy_m["house_conditions"] else None,
+            "notExclusion": legacy_m["notExclusions"][0] if legacy_m["notExclusions"] else None,
+        })))
+
         # Three-variable payload: Sun 1st, ASC Libra, Venus trine MC
+        page.goto(url, wait_until="domcontentloaded")
+        page.wait_for_selector("#variableCards .variable-card")
+        page.select_option("[data-type-select]", "planet_in_house")
+        page.select_option('[data-field="body"]', "sun")
+        page.select_option('[data-field="house"]', "1")
         page.evaluate(
             """() => {
               document.getElementById('addVariableBtn').click();
@@ -197,6 +284,7 @@ def main() -> int:
             and lc["soloVariableId"] is not None
             and len(lc["excludeVariableIds"]) >= 1
             and first_var["polarity"] == "exclude"
+            and len(layer_payload["legacyCompatibility"]["house_conditions"]) == 0
         )
         results.append(("layer_controls", ok_layers, json.dumps({
             "layerControls": lc,
