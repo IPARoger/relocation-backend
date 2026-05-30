@@ -6,10 +6,11 @@ Verifies:
   * window.__rmGenieSandbox / __rmAvailableObjectsRegistry hooks
   * Default registry vocabulary (core bodies on, advanced off)
   * Variable-card gating (incomplete blocks Add; max 12)
-  * normalizePayload() and Render output shape
+  * normalizePayload() Genie Render Payload Contract v1 shape
   * Registry mock toggles update dropdown vocabulary
   * Transit experimental gating (off by default)
-  * Per-card Mute/Solo/NOT layer toggles in payload
+  * Per-card Mute/Solo/polarity layer controls in payload
+  * transit_aspect_to_angle canonical type id
 
 Run:
   ./venv/bin/python scripts/smoke_genie_sandbox.py
@@ -54,6 +55,12 @@ def main() -> int:
               norm: typeof window.__rmGenieSandbox?.normalizePayload === 'function',
               reg: typeof window.__rmAvailableObjectsRegistry?.options === 'function',
               max: window.__rmGenieSandbox?.MAX_VARIABLES === 12,
+              transitType: window.__rmGenieSandbox?.VARIABLE_TYPES?.some(
+                (t) => t.id === 'transit_aspect_to_angle'
+              ),
+              noLegacyTransitType: !window.__rmGenieSandbox?.VARIABLE_TYPES?.some(
+                (t) => t.id === 'transiting_aspect_to_angle'
+              ),
             })"""
         )
         ok_hooks = all(hooks.values())
@@ -63,6 +70,7 @@ def main() -> int:
         ok_init = (
             st0["variableCount"] == 1
             and st0["variables"][0]["type"] == ""
+            and st0["variables"][0]["polarity"] == "include"
             and st0["transitEnabled"] is False
             and st0["registry"]["bodies"]["sun"] is True
             and st0["registry"]["bodies"]["north_node"] is False
@@ -70,6 +78,7 @@ def main() -> int:
         results.append(("initial_state", ok_init, json.dumps({
             "count": st0["variableCount"],
             "transit": st0["transitEnabled"],
+            "polarity": st0["variables"][0]["polarity"],
         })))
 
         bodies = page.evaluate("() => window.__rmAvailableObjectsRegistry.options('bodies').map(x => x[0])")
@@ -78,21 +87,31 @@ def main() -> int:
         add_disabled = page.evaluate("() => document.getElementById('addVariableBtn').disabled")
         results.append(("add_blocked_incomplete", add_disabled, "addVariableBtn disabled"))
 
-        # Single planet_in_house render
+        # Single planet_in_house render — contract v1 shape
         page.select_option("[data-type-select]", "planet_in_house")
-        page.select_option('[data-field="planet"]', "sun")
+        page.select_option('[data-field="body"]', "sun")
         page.select_option('[data-field="house"]', "1")
         direct = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        v0 = direct["variables"][0]
         ok_direct = (
-            direct["kind"] == "genie_sandbox_render"
-            and direct["variableCount"] == 1
-            and len(direct["normalized"]["house_conditions"]) == 1
-            and direct["normalized"]["house_conditions"][0]["planet"] == "sun"
-            and direct["registry_snapshot"]["bodies"]["sun"] is True
+            direct["kind"] == "genie_render"
+            and isinstance(direct.get("createdAt"), str)
+            and direct["createdAt"]
+            and direct.get("chartRecordId")
+            and direct.get("layerControls") is not None
+            and direct.get("settingsSnapshot", {}).get("transitModeEnabled") is False
+            and direct.get("legacyCompatibility") is not None
+            and v0["polarity"] == "include"
+            and v0["fields"].get("body") == "sun"
+            and "planet" not in v0["fields"]
+            and v0["status"] == "complete"
+            and direct["legacyCompatibility"]["house_conditions"][0]["planet"] == "sun"
+            and direct["settingsSnapshot"]["registry"]["bodies"]["sun"] is True
         )
         results.append(("normalize_payload_planet", ok_direct, json.dumps({
-            "count": direct.get("variableCount"),
-            "house": direct["normalized"]["house_conditions"][0] if direct["normalized"]["house_conditions"] else None,
+            "kind": direct.get("kind"),
+            "body": v0["fields"].get("body"),
+            "polarity": v0.get("polarity"),
         })))
 
         page.click("#renderBtn")
@@ -135,27 +154,28 @@ def main() -> int:
         )
         page.evaluate(
             """() => {
-              const p = document.querySelectorAll('[data-field=planet]');
+              const b = document.querySelectorAll('[data-field=body]');
               const a = document.querySelectorAll('[data-field=aspect]');
               const g = document.querySelectorAll('[data-field=angle]');
-              if (p.length) { p[p.length-1].value = 'venus'; p[p.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
+              if (b.length) { b[b.length-1].value = 'venus'; b[b.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
               if (a.length) { a[a.length-1].value = 'trine'; a[a.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
               if (g.length) { g[g.length-1].value = 'MC'; g[g.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
             }"""
         )
         payload3 = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        complete = [v for v in payload3["variables"] if v["status"] == "complete"]
+        legacy = payload3["legacyCompatibility"]
         ok_three = (
-            payload3["variableCount"] == 3
-            and len(payload3["normalized"]["house_conditions"]) == 1
-            and len(payload3["normalized"]["angle_sign_conditions"]) == 1
-            and len(payload3["normalized"]["aspect_conditions"]) == 1
-            and payload3["normalized"]["legacy_compatible"]["aspect_overlay"] is not None
+            len(complete) == 3
+            and len(legacy["house_conditions"]) == 1
+            and len(legacy["angle_sign_conditions"]) == 1
+            and legacy["aspect_overlay"] is not None
+            and all(v["fields"].get("body") or v["fields"].get("angle") for v in complete)
         )
         results.append(("three_variable_payload", ok_three, json.dumps({
-            "variableCount": payload3.get("variableCount"),
-            "houses": len(payload3["normalized"]["house_conditions"]),
-            "angles": len(payload3["normalized"]["angle_sign_conditions"]),
-            "aspects": len(payload3["normalized"]["aspect_conditions"]),
+            "completeCount": len(complete),
+            "houses": len(legacy["house_conditions"]),
+            "angles": len(legacy["angle_sign_conditions"]),
         })))
 
         # NOT / mute / solo on first card
@@ -170,13 +190,18 @@ def main() -> int:
             }"""
         )
         layer_payload = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
-        lc = layer_payload["normalized"]["layer_controls"]
+        lc = layer_payload["layerControls"]
+        first_var = layer_payload["variables"][0]
         ok_layers = (
-            len(lc["muted"]) >= 1
-            and lc["solo"] is not None
-            and len(lc["not"]) >= 1
+            len(lc["mutedVariableIds"]) >= 1
+            and lc["soloVariableId"] is not None
+            and len(lc["excludeVariableIds"]) >= 1
+            and first_var["polarity"] == "exclude"
         )
-        results.append(("layer_controls", ok_layers, json.dumps(lc)))
+        results.append(("layer_controls", ok_layers, json.dumps({
+            "layerControls": lc,
+            "polarity": first_var["polarity"],
+        })))
 
         # Registry toggle: North Node appears in body dropdown
         page.check('input[data-registry-id="north_node"]')
@@ -192,10 +217,14 @@ def main() -> int:
               && document.getElementById('transitModalBody').textContent.includes('Experimental relocation-transit')"""
         )
         page.click("#transitModalCloseBtn")
-        transit_empty = page.evaluate(
-            "() => window.__rmGenieSandbox.normalizePayload().normalized.transit_conditions"
+        transit_off = page.evaluate(
+            """() => {
+              const p = window.__rmGenieSandbox.normalizePayload();
+              return p.settingsSnapshot.transitModeEnabled === false
+                && !p.variables.some((v) => v.type === 'transit_aspect_to_angle' && v.status === 'experimental');
+            }"""
         )
-        results.append(("transit_off_by_default", modal_ok and len(transit_empty) == 0, str(len(transit_empty))))
+        results.append(("transit_off_by_default", modal_ok and transit_off, str(transit_off)))
 
         # Max 12 variables (fresh page)
         page.goto(url, wait_until="domcontentloaded")

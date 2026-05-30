@@ -249,7 +249,7 @@ body {
 .variable-card[data-kind="angle_in_sign"] { border-left: 4px solid #db2777; background: var(--card-b); }
 .variable-card[data-kind="aspect_to_angle"] { border-left: 4px solid #2563eb; background: var(--card-c); }
 .variable-card[data-kind="transit_through_house"],
-.variable-card[data-kind="transiting_aspect_to_angle"] {
+.variable-card[data-kind="transit_aspect_to_angle"] {
   border-left: 4px solid #94a3b8;
   background: var(--card-transit);
   opacity: 0.85;
@@ -519,7 +519,7 @@ body {
 .card-transit-info:hover { background: rgba(255,255,255,0.8); }
 .type-label-row .card-transit-info,
 .variable-card[data-kind="transit_through_house"] .card-top .card-transit-info,
-.variable-card[data-kind="transiting_aspect_to_angle"] .card-top .card-transit-info {
+.variable-card[data-kind="transit_aspect_to_angle"] .card-top .card-transit-info {
   display: inline-flex;
 }
 .transit-modal-backdrop {
@@ -748,7 +748,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
   /** Genie field bindings → registry categories (not doctrine). */
   const VARIABLE_FIELD_BINDINGS = Object.freeze({
     planet_in_house: [
-      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "body", category: "bodies", label: "Body / Point" },
       { field: "house", category: "houses", label: "House" },
     ],
     angle_in_sign: [
@@ -756,18 +756,18 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       { field: "sign", category: "signs", label: "Sign" },
     ],
     aspect_to_angle: [
-      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "body", category: "bodies", label: "Body / Point" },
       { field: "aspect", category: "aspects", label: "Aspect" },
       { field: "angle", category: "angles", label: "Angle" },
     ],
     transit_through_house: [
       { field: "datePreset", category: "date_presets", label: "Date range" },
-      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "transitBody", category: "bodies", label: "Body / Point" },
       { field: "house", category: "houses", label: "House" },
     ],
-    transiting_aspect_to_angle: [
+    transit_aspect_to_angle: [
       { field: "datePreset", category: "date_presets", label: "Date range" },
-      { field: "planet", category: "bodies", label: "Body / Point" },
+      { field: "transitBody", category: "bodies", label: "Body / Point" },
       { field: "aspect", category: "aspects", label: "Aspect" },
       { field: "angle", category: "angles", label: "Angle" },
     ],
@@ -825,8 +825,10 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     { id: "angle_in_sign", label: "Angle in Sign", transit: false },
     { id: "aspect_to_angle", label: "Aspect to Angle", transit: false },
     { id: "transit_through_house", label: "Transit through House", transit: true },
-    { id: "transiting_aspect_to_angle", label: "Transiting Aspect to Angle", transit: true },
+    { id: "transit_aspect_to_angle", label: "Transiting Aspect to Angle", transit: true },
   ];
+
+  const SANDBOX_CHART_RECORD_ID = "sandbox-chart-record";
 
   const TRANSIT_INFO_TEXT =
     "Experimental relocation-transit mode. " +
@@ -850,8 +852,9 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     return {
       id: `var-${nextId++}`,
       type: "",
+      polarity: "include",
       fields: defaultFields(""),
-      layer: { mute: false, solo: false, not: false },
+      layer: { mute: false, solo: false },
     };
   }
 
@@ -860,7 +863,8 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       datePreset: objectRegistry.firstId("date_presets"),
       startDate: "",
       endDate: "",
-      planet: objectRegistry.firstId("bodies"),
+      body: objectRegistry.firstId("bodies"),
+      transitBody: objectRegistry.firstId("bodies"),
       house: objectRegistry.firstId("houses"),
       angle: objectRegistry.firstId("angles"),
       sign: objectRegistry.firstId("signs"),
@@ -871,7 +875,8 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
         datePreset: "",
         startDate: "",
         endDate: "",
-        planet: "",
+        body: "",
+        transitBody: "",
         house: "",
         angle: "",
         sign: "",
@@ -904,7 +909,101 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
   }
 
   function isTransitType(type) {
-    return type === "transit_through_house" || type === "transiting_aspect_to_angle";
+    return type === "transit_through_house" || type === "transit_aspect_to_angle";
+  }
+
+  function resolveVariableStatus(v) {
+    if (!v.type) return "incomplete";
+    if (isTransitType(v.type) && !transitEnabled) return "disabled";
+    if (!isVariableComplete(v)) return "incomplete";
+    if (isTransitType(v.type) && transitEnabled) return "experimental";
+    return "complete";
+  }
+
+  function resolveVariableEnabled(v) {
+    return !(isTransitType(v.type) && !transitEnabled);
+  }
+
+  function bodyLabel(id) {
+    const item = (OBJECT_CATALOG.bodies || []).find((b) => b.id === id);
+    return item ? item.label : id;
+  }
+
+  function buildVariableLabel(v) {
+    if (!isVariableComplete(v)) return "";
+    const prefix = v.polarity === "exclude" ? "NOT " : "";
+    const f = v.fields;
+    if (v.type === "planet_in_house") {
+      return `${prefix}${bodyLabel(f.body)} in ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} house`;
+    }
+    if (v.type === "angle_in_sign") {
+      return `${prefix}${f.angle} in ${f.sign}`;
+    }
+    if (v.type === "aspect_to_angle") {
+      return `${prefix}${bodyLabel(f.body)} ${f.aspect} ${f.angle}`;
+    }
+    if (v.type === "transit_through_house") {
+      return `${prefix}Transit ${bodyLabel(f.transitBody)} through ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} house`;
+    }
+    if (v.type === "transit_aspect_to_angle") {
+      return `${prefix}Transit ${bodyLabel(f.transitBody)} ${f.aspect} ${f.angle}`;
+    }
+    return prefix.trim();
+  }
+
+  function canonicalFieldsForPayload(v) {
+    const f = v.fields;
+    if (v.type === "planet_in_house") {
+      return { body: f.body, house: parseInt(f.house, 10) };
+    }
+    if (v.type === "angle_in_sign") {
+      return { angle: f.angle, sign: f.sign };
+    }
+    if (v.type === "aspect_to_angle") {
+      return { body: f.body, aspect: f.aspect, angle: f.angle };
+    }
+    if (v.type === "transit_through_house") {
+      return {
+        transitBody: f.transitBody,
+        house: parseInt(f.house, 10),
+        datePreset: f.datePreset,
+        startDate: f.startDate || null,
+        endDate: f.endDate || null,
+        experimental: true,
+      };
+    }
+    if (v.type === "transit_aspect_to_angle") {
+      return {
+        transitBody: f.transitBody,
+        aspect: f.aspect,
+        angle: f.angle,
+        datePreset: f.datePreset,
+        startDate: f.startDate || null,
+        endDate: f.endDate || null,
+        experimental: true,
+      };
+    }
+    return { ...f };
+  }
+
+  function serializePayloadVariable(v) {
+    return {
+      id: v.id,
+      type: v.type,
+      polarity: v.polarity === "exclude" ? "exclude" : "include",
+      enabled: resolveVariableEnabled(v),
+      status: resolveVariableStatus(v),
+      label: buildVariableLabel(v),
+      fields: v.type ? canonicalFieldsForPayload(v) : { ...v.fields },
+    };
+  }
+
+  function legacyBodyField(v) {
+    const f = v.fields;
+    if (v.type === "transit_through_house" || v.type === "transit_aspect_to_angle") {
+      return f.transitBody;
+    }
+    return f.body;
   }
 
   function isVariableComplete(v) {
@@ -937,85 +1036,16 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       angle_in_sign: "#db2777",
       aspect_to_angle: "#2563eb",
       transit_through_house: "#94a3b8",
-      transiting_aspect_to_angle: "#94a3b8",
+      transit_aspect_to_angle: "#94a3b8",
     };
     return map[kind] || "#cbd5e1";
   }
 
-  function normalizePayload() {
-    const houseConditions = [];
-    const angleSignConditions = [];
-    const aspectConditions = [];
-    const transitConditions = [];
-    const layerControls = { muted: [], solo: null, not: [] };
-
-    variables.forEach((v, index) => {
-      if (!isVariableComplete(v)) return;
-      const track = String.fromCharCode(65 + (index % 26));
-      const lc = {
-        track,
-        variableId: v.id,
-        mute: v.layer.mute,
-        solo: v.layer.solo,
-        not: v.layer.not,
-      };
-      if (v.layer.mute) layerControls.muted.push(v.id);
-      if (v.layer.solo) layerControls.solo = v.id;
-      if (v.layer.not) layerControls.not.push(v.id);
-
-      const f = v.fields;
-      if (v.type === "planet_in_house") {
-        houseConditions.push({
-          ...lc,
-          type: "planet_in_house",
-          planet: f.planet,
-          house: parseInt(f.house, 10),
-        });
-      } else if (v.type === "angle_in_sign") {
-        angleSignConditions.push({
-          ...lc,
-          type: "angle_in_sign",
-          angle: f.angle,
-          sign: f.sign,
-        });
-      } else if (v.type === "aspect_to_angle") {
-        aspectConditions.push({
-          ...lc,
-          type: "aspect_to_angle",
-          planet: f.planet,
-          aspect: f.aspect,
-          angle: f.angle,
-        });
-      } else if (v.type === "transit_through_house" && transitEnabled) {
-        transitConditions.push({
-          ...lc,
-          type: "transit_through_house",
-          planet: f.planet,
-          house: parseInt(f.house, 10),
-          date_preset: f.datePreset,
-          start_date: f.startDate || null,
-          end_date: f.endDate || null,
-          experimental: true,
-        });
-      } else if (v.type === "transiting_aspect_to_angle" && transitEnabled) {
-        transitConditions.push({
-          ...lc,
-          type: "transiting_aspect_to_angle",
-          planet: f.planet,
-          aspect: f.aspect,
-          angle: f.angle,
-          date_preset: f.datePreset,
-          start_date: f.startDate || null,
-          end_date: f.endDate || null,
-          experimental: true,
-        });
-      }
-    });
-
-    /** Legacy-compatible bundle (mirrors map_CURRENT collectSavedInvestigationConditions shape). */
-    const legacyCompatible = {
+  function buildLegacyCompatibility(houseConditions, angleSignConditions, aspectConditions, notExclusions) {
+    return {
       schema_version: 1,
       kind: "saved_investigation",
+      chart_id: SANDBOX_CHART_RECORD_ID,
       house_conditions: houseConditions.map(({ type, planet, house, track, variableId }) => ({
         slot: track,
         type,
@@ -1036,28 +1066,110 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
           ? aspectConditions[0]
           : null,
       aspect_overlays: aspectConditions,
+      notExclusions,
     };
+  }
+
+  function normalizePayload() {
+    const houseConditions = [];
+    const angleSignConditions = [];
+    const aspectConditions = [];
+    const notExclusions = [];
+    const layerControls = {
+      mutedVariableIds: [],
+      soloVariableId: null,
+      excludeVariableIds: [],
+    };
+
+    variables.forEach((v, index) => {
+      if (!isVariableComplete(v)) return;
+      const track = String.fromCharCode(65 + (index % 26));
+      const planet = legacyBodyField(v);
+      if (v.layer.mute) layerControls.mutedVariableIds.push(v.id);
+      if (v.layer.solo) layerControls.soloVariableId = v.id;
+      if (v.polarity === "exclude") layerControls.excludeVariableIds.push(v.id);
+
+      const f = v.fields;
+      if (v.type === "planet_in_house") {
+        const row = {
+          track,
+          variableId: v.id,
+          type: "planet_in_house",
+          planet,
+          house: parseInt(f.house, 10),
+        };
+        houseConditions.push(row);
+        if (v.polarity === "exclude") {
+          notExclusions.push({ ...row, polarity: "exclude" });
+        }
+      } else if (v.type === "angle_in_sign") {
+        const row = {
+          track,
+          variableId: v.id,
+          type: "angle_in_sign",
+          angle: f.angle,
+          sign: f.sign,
+        };
+        angleSignConditions.push(row);
+        if (v.polarity === "exclude") {
+          notExclusions.push({ ...row, polarity: "exclude" });
+        }
+      } else if (v.type === "aspect_to_angle") {
+        const row = {
+          track,
+          variableId: v.id,
+          type: "aspect_to_angle",
+          planet,
+          aspect: f.aspect,
+          angle: f.angle,
+        };
+        aspectConditions.push(row);
+        if (v.polarity === "exclude") {
+          notExclusions.push({ ...row, polarity: "exclude" });
+        }
+      } else if (v.type === "transit_through_house" && transitEnabled) {
+        if (v.polarity === "exclude") {
+          notExclusions.push({
+            type: "transit_through_house",
+            planet,
+            house: parseInt(f.house, 10),
+            variableId: v.id,
+            polarity: "exclude",
+          });
+        }
+      } else if (v.type === "transit_aspect_to_angle" && transitEnabled) {
+        if (v.polarity === "exclude") {
+          notExclusions.push({
+            type: "transit_aspect_to_angle",
+            planet,
+            aspect: f.aspect,
+            angle: f.angle,
+            variableId: v.id,
+            polarity: "exclude",
+          });
+        }
+      }
+    });
+
+    const payloadVariables = variables.map(serializePayloadVariable);
 
     return {
       schema_version: 1,
-      kind: "genie_sandbox_render",
-      generatedAt: new Date().toISOString(),
-      variableCount: variables.filter(isVariableComplete).length,
-      variables: variables.map(cloneVariable),
-      normalized: {
-        house_conditions: houseConditions,
-        angle_sign_conditions: angleSignConditions,
-        aspect_conditions: aspectConditions,
-        transit_conditions: transitConditions,
-        layer_controls: layerControls,
-        legacy_compatible: legacyCompatible,
+      kind: "genie_render",
+      createdAt: new Date().toISOString(),
+      chartRecordId: SANDBOX_CHART_RECORD_ID,
+      variables: payloadVariables,
+      layerControls,
+      settingsSnapshot: {
+        transitModeEnabled: transitEnabled,
+        registry: objectRegistry.snapshot(),
       },
-      exclusions: {
-        planet_aspect_to_planet: false,
-        masculine_sign_preset: false,
-      },
-      transit_enabled: transitEnabled,
-      registry_snapshot: objectRegistry.snapshot(),
+      legacyCompatibility: buildLegacyCompatibility(
+        houseConditions,
+        angleSignConditions,
+        aspectConditions,
+        notExclusions,
+      ),
     };
   }
 
@@ -1065,6 +1177,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     return {
       id: v.id,
       type: v.type,
+      polarity: v.polarity === "exclude" ? "exclude" : "include",
       fields: { ...v.fields },
       layer: { ...v.layer },
       complete: isVariableComplete(v),
@@ -1183,7 +1296,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     if (v.type === "planet_in_house") {
       return `
         <div class="field-row">
-          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "body", f.body, { disabled: fieldsDisabled })}
           ${registryFieldSelect(v.type, "house", f.house, { disabled: fieldsDisabled })}
         </div>`;
     }
@@ -1197,7 +1310,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     if (v.type === "aspect_to_angle") {
       return `
         <div class="field-row">
-          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "body", f.body, { disabled: fieldsDisabled })}
           ${registryFieldSelect(v.type, "aspect", f.aspect, { disabled: fieldsDisabled })}
         </div>
         <div class="field-row single">
@@ -1208,15 +1321,15 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       return `
         ${renderDateFields(v, fieldsDisabled)}
         <div class="field-row">
-          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "transitBody", f.transitBody, { disabled: fieldsDisabled })}
           ${registryFieldSelect(v.type, "house", f.house, { disabled: fieldsDisabled })}
         </div>`;
     }
-    if (v.type === "transiting_aspect_to_angle") {
+    if (v.type === "transit_aspect_to_angle") {
       return `
         ${renderDateFields(v, fieldsDisabled)}
         <div class="field-row">
-          ${registryFieldSelect(v.type, "planet", f.planet, { disabled: fieldsDisabled })}
+          ${registryFieldSelect(v.type, "transitBody", f.transitBody, { disabled: fieldsDisabled })}
           ${registryFieldSelect(v.type, "aspect", f.aspect, { disabled: fieldsDisabled })}
         </div>
         <div class="field-row single">
@@ -1230,7 +1343,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     const color = cardColor(v.type);
     const muteCls = v.layer.mute ? "active-mute" : "";
     const soloCls = v.layer.solo ? "active-solo" : "";
-    const notCls = v.layer.not ? "active-not" : "";
+    const notCls = v.polarity === "exclude" ? "active-not" : "";
     return `
       <div class="layer-toggles">
         <label class="${muteCls}">
@@ -1240,7 +1353,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
           <input type="checkbox" data-layer="solo" ${v.layer.solo ? "checked" : ""} /> Solo
         </label>
         <label class="${notCls}">
-          <input type="checkbox" data-layer="not" ${v.layer.not ? "checked" : ""} /> NOT
+          <input type="checkbox" data-layer="not" ${v.polarity === "exclude" ? "checked" : ""} /> NOT
         </label>
       </div>
       <div class="layer-toggles-compact" title="Exploration Mode scaffold">
@@ -1322,7 +1435,11 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
         const v = variables.find((x) => x.id === card.dataset.id);
         if (!v) return;
         const key = el.dataset.layer;
-        v.layer[key] = el.checked;
+        if (key === "not") {
+          v.polarity = el.checked ? "exclude" : "include";
+        } else {
+          v.layer[key] = el.checked;
+        }
         if (key === "solo" && el.checked) {
           variables.forEach((other) => {
             if (other.id !== v.id) other.layer.solo = false;
@@ -1369,6 +1486,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     if (clearUndoSnapshot) {
       variables = clearUndoSnapshot.map((v) => ({
         ...v,
+        polarity: v.polarity === "exclude" ? "exclude" : "include",
         fields: { ...v.fields },
         layer: { ...v.layer },
       }));
@@ -1381,6 +1499,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     }
     clearUndoSnapshot = variables.map((v) => ({
       ...v,
+      polarity: v.polarity === "exclude" ? "exclude" : "include",
       fields: { ...v.fields },
       layer: { ...v.layer },
     }));
@@ -1500,7 +1619,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     renderCount += 1;
     document.getElementById("renderJson").textContent = JSON.stringify(lastNormalizedPayload, null, 2);
     document.getElementById("renderStatus").textContent =
-      `Render #${renderCount} — ${lastNormalizedPayload.variableCount} variable(s). No backend call.`;
+      `Render #${renderCount} — ${lastNormalizedPayload.variables.filter((v) => v.status === "complete" || v.status === "experimental").length} variable(s). No backend call.`;
     console.info("[genie-sandbox] normalized render payload:", lastNormalizedPayload);
     updateDebug();
   });
