@@ -1063,7 +1063,62 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     return base;
   }
 
-  function buildLegacyCompatibility(includeHouses, includeAngles, includeAspects, notExclusions) {
+  function buildLegacyDegradation(includeHouses, includeAngles, includeAspects, includeTransits, payloadVariables) {
+    const unmappedVariableIds = [];
+    const warnings = [];
+
+    includeHouses.slice(3).forEach((row) => {
+      unmappedVariableIds.push(row.variableId);
+      warnings.push(
+        `planet_in_house ${row.variableId} (${row.planet} in ${row.house}${row.house === 1 ? "st" : row.house === 2 ? "nd" : row.house === 3 ? "rd" : "th"} house) exceeds legacy A/B/C capacity`,
+      );
+    });
+
+    includeAngles.slice(1).forEach((row) => {
+      unmappedVariableIds.push(row.variableId);
+      warnings.push(
+        `angle_in_sign ${row.variableId} (${row.angle} in ${row.sign}) exceeds legacy single angle_sign_conditions slot`,
+      );
+    });
+
+    includeAspects.slice(1).forEach((row) => {
+      unmappedVariableIds.push(row.variableId);
+      warnings.push(
+        `aspect_to_angle ${row.variableId} (${row.planet} ${row.aspect} ${row.angle}) exceeds legacy single aspect_overlay slot`,
+      );
+    });
+
+    includeTransits.forEach((row) => {
+      unmappedVariableIds.push(row.variableId);
+      warnings.push(
+        `${row.type} ${row.variableId} has no legacy positive slot (transit experimental)`,
+      );
+    });
+
+    const canonicalVariableCount = payloadVariables.filter(
+      (v) => v.status === "complete" || v.status === "experimental",
+    ).length;
+    const legacyMappedCount =
+      Math.min(includeHouses.length, 3) +
+      Math.min(includeAngles.length, 1) +
+      Math.min(includeAspects.length, 1);
+
+    return {
+      canonicalVariableCount,
+      legacyMappedCount,
+      unmappedVariableIds,
+      warnings,
+    };
+  }
+
+  function buildLegacyCompatibility(
+    includeHouses,
+    includeAngles,
+    includeAspects,
+    notExclusions,
+    includeTransits,
+    payloadVariables,
+  ) {
     const slotLabels = ["A", "B", "C"];
     const house_conditions = includeHouses.slice(0, 3).map((row, i) => ({
       slot: slotLabels[i],
@@ -1091,6 +1146,13 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       aspect_overlay,
       aspect_overlays: includeAspects,
       notExclusions,
+      degradation: buildLegacyDegradation(
+        includeHouses,
+        includeAngles,
+        includeAspects,
+        includeTransits,
+        payloadVariables,
+      ),
     };
   }
 
@@ -1098,6 +1160,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     const includeHouses = [];
     const includeAngles = [];
     const includeAspects = [];
+    const includeTransits = [];
     const notExclusions = [];
     const layerControls = {
       mutedVariableIds: [],
@@ -1139,6 +1202,21 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
           aspect: f.aspect,
           angle: f.angle,
         });
+      } else if (v.type === "transit_through_house" && transitEnabled) {
+        includeTransits.push({
+          variableId: v.id,
+          type: "transit_through_house",
+          planet,
+          house: parseInt(f.house, 10),
+        });
+      } else if (v.type === "transit_aspect_to_angle" && transitEnabled) {
+        includeTransits.push({
+          variableId: v.id,
+          type: "transit_aspect_to_angle",
+          planet,
+          aspect: f.aspect,
+          angle: f.angle,
+        });
       }
     });
 
@@ -1160,6 +1238,8 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
         includeAngles,
         includeAspects,
         notExclusions,
+        includeTransits,
+        payloadVariables,
       ),
     };
   }

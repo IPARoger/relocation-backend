@@ -314,6 +314,104 @@ def main() -> int:
         )
         results.append(("transit_off_by_default", modal_ok and transit_off, str(transit_off)))
 
+        # Legacy degradation: 4 include planet_in_house → 4th unmapped
+        page.goto(url, wait_until="domcontentloaded")
+        page.wait_for_selector("#variableCards .variable-card")
+        page.select_option("[data-type-select]", "planet_in_house")
+        page.select_option('[data-field="body"]', "sun")
+        page.select_option('[data-field="house"]', "1")
+        for body, house in [("moon", "2"), ("mercury", "3"), ("venus", "4")]:
+            page.evaluate("() => document.getElementById('addVariableBtn').click()")
+            page.evaluate(
+                """() => {
+                  const cards = document.querySelectorAll('[data-type-select]');
+                  const sel = cards[cards.length - 1];
+                  sel.value = 'planet_in_house';
+                  sel.dispatchEvent(new Event('change', { bubbles: true }));
+                }"""
+            )
+            page.evaluate(
+                """(pair) => {
+                  const bodies = document.querySelectorAll('[data-field=body]');
+                  const houses = document.querySelectorAll('[data-field=house]');
+                  if (bodies.length) {
+                    bodies[bodies.length - 1].value = pair.body;
+                    bodies[bodies.length - 1].dispatchEvent(new Event('change', { bubbles: true }));
+                  }
+                  if (houses.length) {
+                    houses[houses.length - 1].value = pair.house;
+                    houses[houses.length - 1].dispatchEvent(new Event('change', { bubbles: true }));
+                  }
+                }""",
+                {"body": body, "house": house},
+            )
+        degrade4 = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        leg4 = degrade4["legacyCompatibility"]
+        deg4 = leg4["degradation"]
+        fourth_id = degrade4["variables"][3]["id"]
+        ok_degrade4 = (
+            len(leg4["house_conditions"]) == 3
+            and fourth_id in deg4["unmappedVariableIds"]
+            and len(deg4["warnings"]) >= 1
+            and deg4["canonicalVariableCount"] == 4
+            and deg4["legacyMappedCount"] == 3
+        )
+        results.append(("legacy_degradation_four_houses", ok_degrade4, json.dumps({
+            "house_conditions": len(leg4["house_conditions"]),
+            "unmapped": deg4["unmappedVariableIds"],
+            "warnings": len(deg4["warnings"]),
+        })))
+
+        # Legacy degradation: 2 include aspect_to_angle → 2nd unmapped
+        page.goto(url, wait_until="domcontentloaded")
+        page.wait_for_selector("#variableCards .variable-card")
+        page.select_option("[data-type-select]", "aspect_to_angle")
+        page.evaluate(
+            """() => {
+              const b = document.querySelectorAll('[data-field=body]');
+              const a = document.querySelectorAll('[data-field=aspect]');
+              const g = document.querySelectorAll('[data-field=angle]');
+              if (b.length) { b[0].value = 'venus'; b[0].dispatchEvent(new Event('change', {bubbles:true})); }
+              if (a.length) { a[0].value = 'trine'; a[0].dispatchEvent(new Event('change', {bubbles:true})); }
+              if (g.length) { g[0].value = 'MC'; g[0].dispatchEvent(new Event('change', {bubbles:true})); }
+            }"""
+        )
+        page.evaluate("() => document.getElementById('addVariableBtn').click()")
+        page.evaluate(
+            """() => {
+              const cards = document.querySelectorAll('[data-type-select]');
+              const sel = cards[cards.length - 1];
+              sel.value = 'aspect_to_angle';
+              sel.dispatchEvent(new Event('change', { bubbles: true }));
+            }"""
+        )
+        page.evaluate(
+            """() => {
+              const b = document.querySelectorAll('[data-field=body]');
+              const a = document.querySelectorAll('[data-field=aspect]');
+              const g = document.querySelectorAll('[data-field=angle]');
+              if (b.length) { b[b.length-1].value = 'mars'; b[b.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
+              if (a.length) { a[a.length-1].value = 'square'; a[a.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
+              if (g.length) { g[g.length-1].value = 'ASC'; g[g.length-1].dispatchEvent(new Event('change', {bubbles:true})); }
+            }"""
+        )
+        degrade2a = page.evaluate("() => window.__rmGenieSandbox.normalizePayload()")
+        leg2a = degrade2a["legacyCompatibility"]
+        deg2a = leg2a["degradation"]
+        second_aspect_id = degrade2a["variables"][1]["id"]
+        first_aspect_id = degrade2a["variables"][0]["id"]
+        ok_degrade2a = (
+            leg2a["aspect_overlay"] is not None
+            and leg2a["aspect_overlay"]["variableId"] == first_aspect_id
+            and second_aspect_id in deg2a["unmappedVariableIds"]
+            and len(deg2a["warnings"]) >= 1
+            and deg2a["legacyMappedCount"] == 1
+        )
+        results.append(("legacy_degradation_two_aspects", ok_degrade2a, json.dumps({
+            "aspect_overlay": leg2a["aspect_overlay"]["variableId"] if leg2a["aspect_overlay"] else None,
+            "unmapped": deg2a["unmappedVariableIds"],
+        })))
+
         # Max 12 variables (fresh page)
         page.goto(url, wait_until="domcontentloaded")
         page.wait_for_selector("#variableCards .variable-card")
