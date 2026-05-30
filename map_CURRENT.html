@@ -938,6 +938,38 @@ function readAppShellHandoff() {
 
 const lastAppShellHandoff = readAppShellHandoff();
 
+/** Genie render handoff v2 — sessionStorage side channel; same-tab navigation only. */
+const GENIE_RENDER_STORAGE_PREFIX = "rm_genie_render:";
+
+function readGenieRenderRefFromUrl() {
+    if (MAP_URL.get("handoff") !== "app_shell") return null;
+    return MAP_URL.get("genieRenderRef") || null;
+}
+
+function loadGenieRenderPayloadFromHandoff(ref) {
+    if (!ref) {
+        return { ok: false, error: "missing_ref", payload: null, ref: null };
+    }
+    try {
+        const raw = sessionStorage.getItem(`${GENIE_RENDER_STORAGE_PREFIX}${ref}`);
+        if (!raw) {
+            return { ok: false, error: "payload_not_found", payload: null, ref };
+        }
+        return { ok: true, payload: JSON.parse(raw), ref, error: null };
+    } catch (err) {
+        return {
+            ok: false,
+            error: "parse_error",
+            payload: null,
+            ref,
+            detail: err instanceof Error ? err.message : String(err),
+        };
+    }
+}
+
+/** @type {object | null} */
+let lastGenieRenderHandoffState = null;
+
 function renderAppShellHandoffUI() {
     const root = document.getElementById("appShellHandoff");
     const body = document.getElementById("appShellHandoffBody");
@@ -1325,7 +1357,11 @@ async function loadChartProfiles() {
 
 window.__rmLoadChartProfiles = loadChartProfiles;
 window.__rmLibraryHandoff = () => ({ ...lastLibraryHandoff });
-loadChartProfiles().catch(err => console.error("chart-profiles", err));
+const chartProfilesReady = loadChartProfiles().catch((err) => {
+    console.error("chart-profiles", err);
+    throw err;
+});
+window.__rmChartProfilesReady = chartProfilesReady;
 
 function collectSavedInvestigationConditions() {
     const houseConditions = [];
@@ -1882,6 +1918,16 @@ window.__rmSmokeState = function() {
         appShellHandoff: lastAppShellHandoff ? { ...lastAppShellHandoff } : null,
         genieRender: lastGenieExecutionSummary
             ? JSON.parse(JSON.stringify(lastGenieExecutionSummary))
+            : null,
+        genieRenderHandoff: lastGenieRenderHandoffState
+            ? {
+                ref: lastGenieRenderHandoffState.ref ?? null,
+                variableCount: lastGenieRenderHandoffState.variableCount ?? null,
+                execution: lastGenieRenderHandoffState.execution
+                    ? JSON.parse(JSON.stringify(lastGenieRenderHandoffState.execution))
+                    : null,
+                error: lastGenieRenderHandoffState.error ?? null,
+            }
             : null,
         lastEngineRequestPayload: lastEngineRequestPayload
             ? JSON.parse(JSON.stringify(lastEngineRequestPayload))
@@ -5080,10 +5126,89 @@ async function findRegions() {
     await executeSearchPlan(plan, { source: "legacy_dom" });
 }
 
+async function maybeExecuteGenieRenderHandoff() {
+    if (MAP_URL.get("handoff") !== "app_shell") {
+        return null;
+    }
+    const ref = readGenieRenderRefFromUrl();
+    if (!ref) {
+        return null;
+    }
+
+    const loaded = loadGenieRenderPayloadFromHandoff(ref);
+    if (!loaded.ok || !loaded.payload) {
+        lastGenieRenderHandoffState = {
+            executed: false,
+            ref,
+            variableCount: null,
+            validation: null,
+            execution: null,
+            error: loaded.error || "payload_not_found",
+        };
+        return lastGenieRenderHandoffState;
+    }
+
+    const payload = loaded.payload;
+    const variableCount = Array.isArray(payload.variables) ? payload.variables.length : 0;
+    const adapter = window.RelocationGenieMapEngineAdapter;
+    if (!adapter) {
+        lastGenieRenderHandoffState = {
+            executed: false,
+            ref,
+            variableCount,
+            validation: { ok: false, errors: ["RelocationGenieMapEngineAdapter not loaded"] },
+            execution: null,
+            error: "adapter_missing",
+        };
+        return lastGenieRenderHandoffState;
+    }
+
+    const validation = adapter.validateGenieRender(payload);
+    if (!validation.ok) {
+        lastGenieRenderHandoffState = {
+            executed: false,
+            ref,
+            variableCount,
+            validation,
+            execution: null,
+            error: "validation_failed",
+        };
+        return lastGenieRenderHandoffState;
+    }
+
+    try {
+        const execution = await executeGenieRender(payload);
+        lastGenieRenderHandoffState = {
+            executed: execution.executed === true,
+            ref,
+            variableCount,
+            validation,
+            execution,
+            error: execution.executed === true ? null : "no_executable_include_variables",
+        };
+        return lastGenieRenderHandoffState;
+    } catch (err) {
+        lastGenieRenderHandoffState = {
+            executed: false,
+            ref,
+            variableCount,
+            validation,
+            execution: lastGenieExecutionSummary
+                ? JSON.parse(JSON.stringify(lastGenieExecutionSummary))
+                : null,
+            error: err instanceof Error ? err.message : String(err),
+        };
+        return lastGenieRenderHandoffState;
+    }
+}
+
 window.__rmExecuteGenieRender = executeGenieRender;
 window.__rmGenieMapAdapter = window.RelocationGenieMapEngineAdapter;
 window.__rmGenieRenderExecutionSummary = () => (
     lastGenieExecutionSummary ? JSON.parse(JSON.stringify(lastGenieExecutionSummary)) : null
+);
+window.__rmGenieRenderHandoff = () => (
+    lastGenieRenderHandoffState ? JSON.parse(JSON.stringify(lastGenieRenderHandoffState)) : null
 );
 
 document.getElementById("findBtn").onclick = function() {
@@ -5135,9 +5260,30 @@ if (overlayDebug) {
     });
 }
 
+async function scheduleGenieRenderHandoff() {
+    if (!readGenieRenderRefFromUrl()) {
+        return null;
+    }
+    await chartProfilesReady;
+    return maybeExecuteGenieRenderHandoff();
+}
+
 if (typeof citiesData !== "undefined") {
     renderCities();
 }
+
+scheduleGenieRenderHandoff().catch((err) => {
+    console.error("[genie-render-handoff]", err);
+    lastGenieRenderHandoffState = {
+        executed: false,
+        ref: readGenieRenderRefFromUrl(),
+        variableCount: null,
+        validation: null,
+        execution: null,
+        error: err instanceof Error ? err.message : String(err),
+    };
+});
+
 setRenderStatus("Ready.");
 </script>
 

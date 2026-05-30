@@ -688,8 +688,41 @@ const MAP_HANDOFF_CONTRACT = {
   ],
 };
 
-function buildMapHandoffUrl(ctx) {
+/** sessionStorage key prefix for Genie render handoff v2 (same-tab navigation only). */
+const GENIE_RENDER_STORAGE_PREFIX = "rm_genie_render:";
+
+function generateGenieRenderRef() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `gr_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function storeGenieRenderPayload(ref, payload) {
+  if (!ref || typeof ref !== "string") {
+    throw new TypeError("ref must be a non-empty string");
+  }
+  if (!payload || typeof payload !== "object") {
+    throw new TypeError("payload must be an object");
+  }
+  sessionStorage.setItem(`${GENIE_RENDER_STORAGE_PREFIX}${ref}`, JSON.stringify(payload));
+}
+
+/**
+ * Store genie_render in sessionStorage and build map URL with lightweight genieRenderRef.
+ * Caller must navigate same-tab (sessionStorage does not survive target=_blank).
+ * @returns {{ ref: string, url: string }}
+ */
+function prepareGenieRenderHandoff(ctx, payload) {
+  const ref = generateGenieRenderRef();
+  storeGenieRenderPayload(ref, payload);
+  const url = buildMapHandoffUrl(ctx, { genieRenderRef: ref });
+  return { ref, url };
+}
+
+function buildMapHandoffUrl(ctx, options) {
   const c = ctx || navContext;
+  const opts = options || {};
   const params = new URLSearchParams();
   params.set("skipOnboarding", "1");
   params.set("handoff", MAP_HANDOFF_CONTRACT.marker);
@@ -699,6 +732,7 @@ function buildMapHandoffUrl(ctx) {
   }
   const returnEnc = encodeReturnTo(c.returnTo);
   if (returnEnc) params.set("returnTo", returnEnc);
+  if (opts.genieRenderRef) params.set("genieRenderRef", opts.genieRenderRef);
   return `/map_CURRENT.html?${params.toString()}`;
 }
 
@@ -1437,6 +1471,10 @@ window.__rmAppShell = {
   ROUTE_CONTEXT_CONTRACT,
   CONTEXT_TRANSPORT_STRATEGY,
   MAP_HANDOFF_CONTRACT,
+  GENIE_RENDER_STORAGE_PREFIX,
+  generateGenieRenderRef,
+  storeGenieRenderPayload,
+  prepareGenieRenderHandoff,
   buildMapHandoffUrl,
   parseLocation,
   buildLocationHash,
