@@ -15,6 +15,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 APP_DIR = Path(__file__).resolve().parent
 DEFAULT_STORE_PATH = APP_DIR / "scaffold" / "local_product" / "TEMPORARY_product_store.json"
@@ -85,6 +86,95 @@ def get_default_chart_record_id(state: dict[str, Any]) -> str | None:
     settings = state.get("user_settings") or {}
     value = settings.get("default_chart_record_id")
     return str(value) if value else None
+
+
+class ChartRecordBirthResolutionError(Exception):
+    """Failed to resolve Store v3 Chart Record natal inputs to engine birth params."""
+
+    def __init__(self, reason: str, message: str | None = None) -> None:
+        self.reason = reason
+        self.message = message or reason
+        super().__init__(self.message)
+
+
+def get_birth_profile_for_chart_record(
+    state: dict[str, Any], chart_record_id: str
+) -> dict[str, Any] | None:
+    client = get_chart_record(state, chart_record_id)
+    if client is None:
+        return None
+    birth_profiles = _index_by_id(state.get("birth_profiles") or [])
+    bp_id = client.get("birth_profile_id")
+    if not bp_id:
+        return None
+    return birth_profiles.get(str(bp_id))
+
+
+def birth_profile_to_engine_params(
+    birth_profile: dict[str, Any], *, chart_record_id: str | None = None
+) -> dict[str, Any]:
+    birth_date = birth_profile.get("birth_date")
+    birth_time = birth_profile.get("birth_time")
+    timezone_id = birth_profile.get("timezone_id")
+
+    if birth_time is None or str(birth_time).strip() == "":
+        raise ChartRecordBirthResolutionError(
+            "birth_time_required",
+            "Chart Record birth profile has no exact birth_time",
+        )
+    if not birth_date or not timezone_id:
+        raise ChartRecordBirthResolutionError(
+            "invalid_birth_data",
+            "birth_date and timezone_id are required",
+        )
+
+    try:
+        year_s, month_s, day_s = str(birth_date).split("-", 2)
+        year, month, day = int(year_s), int(month_s), int(day_s)
+        time_parts = str(birth_time).split(":")
+        hour = int(time_parts[0])
+        minute = int(time_parts[1]) if len(time_parts) > 1 else 0
+        second = int(time_parts[2]) if len(time_parts) > 2 else 0
+    except (TypeError, ValueError, IndexError) as exc:
+        raise ChartRecordBirthResolutionError(
+            "invalid_birth_data",
+            f"invalid birth_date or birth_time: {birth_date!r} {birth_time!r}",
+        ) from exc
+
+    try:
+        local_dt = datetime(
+            year, month, day, hour, minute, second, tzinfo=ZoneInfo(str(timezone_id))
+        )
+    except Exception as exc:
+        raise ChartRecordBirthResolutionError(
+            "invalid_birth_data",
+            f"invalid timezone_id: {timezone_id!r}",
+        ) from exc
+
+    utc_dt = local_dt.astimezone(timezone.utc)
+    params: dict[str, Any] = {
+        "birth_year": utc_dt.year,
+        "birth_month": utc_dt.month,
+        "birth_day": utc_dt.day,
+        "birth_hour_utc": utc_dt.hour + utc_dt.minute / 60 + utc_dt.second / 3600,
+    }
+    if chart_record_id is not None:
+        params["chart_record_id"] = chart_record_id
+    return params
+
+
+def resolve_engine_birth_params(
+    state: dict[str, Any], chart_record_id: str
+) -> dict[str, Any]:
+    birth_profile = get_birth_profile_for_chart_record(state, chart_record_id)
+    if birth_profile is None:
+        raise ChartRecordBirthResolutionError(
+            "chart_record_not_found",
+            f"unknown chart_record_id: {chart_record_id}",
+        )
+    return birth_profile_to_engine_params(
+        birth_profile, chart_record_id=str(chart_record_id)
+    )
 
 
 def empty_store() -> dict[str, Any]:

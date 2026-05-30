@@ -30,6 +30,11 @@ from aura_field_engine import (
     is_aura_poc_overlay,
     signed_angle_diff as aura_signed_angle_diff,
 )
+from local_product_store import (
+    ChartRecordBirthResolutionError,
+    load as load_product_store,
+    resolve_engine_birth_params,
+)
 
 app = FastAPI()
 CHARTS_FILE = Path(__file__).parent / "charts" / "chart_profiles.json"
@@ -1956,6 +1961,23 @@ def serve_local_product_store_json():
     if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
         raise HTTPException(status_code=404, detail="Local product store scaffold not found")
     return FileResponse(LOCAL_PRODUCT_STORE_SCAFFOLD, media_type="application/json")
+
+
+@app.get("/chart-records/{chart_record_id}/engine-birth")
+def get_chart_record_engine_birth(chart_record_id: str):
+    """Resolve Store v3 Chart Record natal inputs to engine birth parameters."""
+    _ensure_local_product_store_read_enabled()
+    if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
+        raise HTTPException(status_code=404, detail="Local product store scaffold not found")
+    try:
+        state = load_product_store(LOCAL_PRODUCT_STORE_SCAFFOLD)
+        return resolve_engine_birth_params(state, chart_record_id)
+    except ChartRecordBirthResolutionError as err:
+        status = 404 if err.reason == "chart_record_not_found" else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": err.message},
+        ) from err
 
 
 @app.get("/library.html")

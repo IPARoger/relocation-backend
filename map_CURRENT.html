@@ -2839,6 +2839,61 @@ function getBirthParamsFromProfile() {
     };
 }
 
+function handoffChartRecordIdForBirth() {
+    if (MAP_URL.get("handoff") !== "app_shell") {
+        return null;
+    }
+    return lastAppShellHandoff?.chartRecordId || null;
+}
+
+async function fetchEngineBirthForChartRecord(chartRecordId) {
+    const response = await fetch(
+        `/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`
+    );
+    let body = {};
+    try {
+        body = await response.json();
+    } catch (e) { /* ignore */ }
+    if (!response.ok) {
+        const detail = body && body.detail && typeof body.detail === "object"
+            ? body.detail
+            : body;
+        return {
+            ok: false,
+            error: detail.error || `http_${response.status}`,
+            message: detail.message || detail.error || `HTTP ${response.status}`,
+            chartRecordId,
+        };
+    }
+    return { ok: true, birth: body, chartRecordId, source: "chart_record" };
+}
+
+async function resolveBirthParamsForGenieRender() {
+    const chartRecordId = handoffChartRecordIdForBirth();
+    if (!chartRecordId) {
+        return { ok: true, birth: getBirthParamsFromProfile(), source: "chart_profile" };
+    }
+    return fetchEngineBirthForChartRecord(chartRecordId);
+}
+
+function failGenieBirthResolution(birthResolution, validation) {
+    lastGenieExecutionSummary = {
+        ok: false,
+        executed: false,
+        validation,
+        plan: null,
+        degradation: [],
+        requestPayload: null,
+        birthResolution,
+    };
+    renderGenieRenderStatusUI(lastGenieExecutionSummary);
+    const reason = birthResolution.error || "birth_resolution_failed";
+    setRenderStatus(
+        `Genie render blocked: ${reason} (${birthResolution.chartRecordId || "unknown record"}).`
+    );
+    return lastGenieExecutionSummary;
+}
+
 async function postAuraField(payload) {
     const response = await fetch("http://127.0.0.1:8000/aura-field", {
         method: "POST",
@@ -5089,7 +5144,11 @@ async function executeGenieRender(payload) {
         return lastGenieExecutionSummary;
     }
 
-    const birth = getBirthParamsFromProfile();
+    const birthResolution = await resolveBirthParamsForGenieRender();
+    if (!birthResolution.ok) {
+        return failGenieBirthResolution(birthResolution, validation);
+    }
+    const birth = birthResolution.birth;
     const plan = adapter.buildEngineExecutionPlan(payload, birth);
 
     if (!planHasExecutableConditions(plan)) {
@@ -5116,6 +5175,10 @@ async function executeGenieRender(payload) {
         requestPayload: lastEngineRequestPayload
             ? JSON.parse(JSON.stringify(lastEngineRequestPayload))
             : null,
+        birthResolution: {
+            source: birthResolution.source,
+            chartRecordId: birthResolution.chartRecordId || null,
+        },
     };
     renderGenieRenderStatusUI(lastGenieExecutionSummary);
     return lastGenieExecutionSummary;
@@ -5184,7 +5247,9 @@ async function maybeExecuteGenieRenderHandoff() {
             variableCount,
             validation,
             execution,
-            error: execution.executed === true ? null : "no_executable_include_variables",
+            error: execution.executed === true
+                ? null
+                : (execution.birthResolution?.error || "no_executable_include_variables"),
         };
         return lastGenieRenderHandoffState;
     } catch (err) {
