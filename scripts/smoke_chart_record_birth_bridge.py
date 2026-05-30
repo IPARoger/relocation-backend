@@ -67,17 +67,24 @@ def spawn_server(port: int) -> subprocess.Popen:
 
 def ensure_server() -> tuple[str, subprocess.Popen | None]:
     proc: subprocess.Popen | None = None
-    try:
-        with urllib.request.urlopen(f"{BASE}/chart-records/cr-anna-rivera/engine-birth", timeout=2) as resp:
-            if resp.status != 200:
-                raise OSError("engine-birth unavailable")
-    except Exception:
+
+    def probe(base: str) -> bool:
+        try:
+            with urllib.request.urlopen(f"{base}/chart-records/cr-anna-rivera/engine-birth", timeout=2) as resp:
+                if resp.status != 200:
+                    return False
+            with urllib.request.urlopen(f"{base}/chart-records", timeout=2) as resp:
+                return resp.status == 200
+        except Exception:
+            return False
+
+    if not probe(BASE):
         alt = 8017
         if not port_free(alt):
             fail(f"Server unavailable at {BASE} and port {alt} busy")
         proc = spawn_server(alt)
         base = f"http://127.0.0.1:{alt}"
-        if not wait_server(base):
+        if not wait_server(base) or not probe(base):
             proc.terminate()
             fail(f"Could not start temp server on {base}")
         return base, proc
@@ -123,7 +130,7 @@ def open_genie_drawer(page, base: str, chart_record_id: str) -> None:
         wait_until="domcontentloaded",
     )
     page.wait_for_function(
-        "() => window.__rmAppShell && window.RelocationGenieVariableBuilder",
+        "() => window.__rmAppShell && window.__rmAppShell.viewModel() && window.RelocationGenieVariableBuilder",
         timeout=15_000,
     )
     page.wait_for_selector("#genieDrawerMount #renderBtn", timeout=15_000)
@@ -415,22 +422,22 @@ def main() -> int:
             })))
 
             browser.close()
+
+        # B5 — legacy map regression (while temp server still up)
+        env = {**os.environ, "BASE_URL": base}
+        proc5 = subprocess.run(
+            [str(PYTHON), "scripts/smoke_map_current.py"],
+            cwd=str(ROOT),
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        ok_b5 = proc5.returncode == 0
+        results.append(("B5_legacy_map_regression", ok_b5, proc5.stdout.strip()[-200:] if proc5.stdout else proc5.stderr[-200:]))
     finally:
         if proc is not None:
             proc.terminate()
             proc.wait(timeout=5)
-
-    # B5 — legacy map regression
-    env = {**os.environ, "BASE_URL": base}
-    proc5 = subprocess.run(
-        [str(PYTHON), "scripts/smoke_map_current.py"],
-        cwd=str(ROOT),
-        env=env,
-        capture_output=True,
-        text=True,
-    )
-    ok_b5 = proc5.returncode == 0
-    results.append(("B5_legacy_map_regression", ok_b5, proc5.stdout.strip()[-200:] if proc5.stdout else proc5.stderr[-200:]))
 
     failed = [name for name, ok, _ in results if not ok]
     for name, ok, detail in results:

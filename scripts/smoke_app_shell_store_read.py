@@ -101,16 +101,20 @@ def main() -> int:
             fail(f"Could not start temp server on {base}")
     else:
         st_probe, _ = fetch_status(base, STORE_PATH)
-        if st_probe != 200:
+        st_chart_records, _ = fetch_status(base, "/chart-records")
+        if st_probe != 200 or st_chart_records != 200:
             alt_port = 8010
             if port_free(alt_port):
                 proc = spawn_server(alt_port, {**os.environ, "RM_APP_SHELL": "1"})
                 base = f"http://127.0.0.1:{alt_port}"
                 if not wait_server(base):
                     proc.terminate()
-                    fail(f"Store route missing on {BASE}; temp server failed on {base}")
+                    fail(f"Store/chart-records missing on {BASE}; temp server failed on {base}")
             else:
-                fail(f"{STORE_PATH} returned {st_probe} on {base} and port {alt_port} busy")
+                fail(
+                    f"{STORE_PATH}={st_probe} /chart-records={st_chart_records} on {base} "
+                    f"and port {alt_port} busy"
+                )
 
     try:
         st_shell, shell_body = fetch_status(base, "/app_shell.html")
@@ -167,6 +171,10 @@ def main() -> int:
         ok = st_map == 200
         results.append(("map_current_200", ok, f"status={st_map}"))
 
+        st_cr, _ = fetch_status(base, "/chart-records")
+        ok = st_cr == 200
+        results.append(("chart_records_api_200", ok, f"status={st_cr}"))
+
         # Browser hook: shell loads store view model
         browser_ok = False
         browser_detail = "playwright not run"
@@ -194,6 +202,9 @@ def main() -> int:
                         annaFavorites: anna?.favorites?.length || 0,
                         annaExplorations: anna?.explorations?.length || 0,
                         jordanUncertainty: !!jordan?.hasTimeUncertainty,
+                        annaEngineOk: anna?.engineBirth?.ok === true,
+                        jordanEngineBlocked: jordan?.engineBirth?.ok === false
+                          && jordan?.engineBirth?.reason === 'birth_time_required',
                         comparisonPlaces: vm.comparisonSets[0]?.placeNames || [],
                         loadSource: vm.loadSource,
                         error: window.__rmAppShell.storeLoadError(),
@@ -217,6 +228,8 @@ def main() -> int:
                     and hooks.get("annaFavorites") == 3
                     and hooks.get("annaExplorations") == 2
                     and hooks.get("jordanUncertainty") is True
+                    and hooks.get("annaEngineOk") is True
+                    and hooks.get("jordanEngineBlocked") is True
                     and len(hooks.get("comparisonPlaces") or []) == 3
                     and hooks.get("loadSource") == "/local-product-store.json"
                     and not hooks.get("error")

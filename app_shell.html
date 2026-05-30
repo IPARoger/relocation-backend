@@ -195,7 +195,9 @@
 /** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
 
 const STORE_JSON_URL = "/local-product-store.json";
+const CHART_RECORDS_API_URL = "/chart-records";
 const STORE_SCHEMA_VERSION = 3;
+const RESUME_CONTEXT_STUB = "Resume passes context only; saved conditions not replayed on map (v1).";
 
 /** @type {object | null} */
 let storeRaw = null;
@@ -820,6 +822,19 @@ function birthSummaryLine(r) {
   return `${r.birthDate} · ${r.birthTimeDisplay} · ${r.birthCity}`;
 }
 
+function engineEligibilityLine(r) {
+  const eb = r.engineBirth;
+  if (!eb) return `<span class="meta">Engine: unknown (summary not loaded)</span>`;
+  if (eb.ok === true) {
+    return `<span class="meta">Engine: executable</span>`;
+  }
+  return `<span class="meta">Engine: blocked — ${eb.reason || "unknown"}</span>`;
+}
+
+function resumeContextStubHtml() {
+  return `<span class="meta">${RESUME_CONTEXT_STUB}</span>`;
+}
+
 function timeUncertaintyWarning(r) {
   if (!r.hasTimeUncertainty) return "";
   return `<div class="warn-box"><strong>Birth time uncertainty.</strong> ${r.birthTimeDisplay}. `
@@ -956,7 +971,7 @@ function screenDashboard() {
     <div class="panel owner-card">
       <h3>Module: account-owner-chart-record (default)</h3>
       <p><strong>${owner.displayName}</strong> <span class="meta">${owner.recordType}</span></p>
-      <p class="meta">${birthSummaryLine(owner)}<br>${owner.confidenceTier}</p>
+      <p class="meta">${birthSummaryLine(owner)}<br>${owner.confidenceTier}<br>${engineEligibilityLine(owner)}</p>
       <p class="meta">defaultChartRecordId: <code>${vm.defaultChartRecordId}</code></p>
       <button type="button" class="primary" data-action="open-map-default">Open Map (default Chart Record)</button>
     </div>
@@ -968,6 +983,7 @@ function screenDashboard() {
           <li>
             <strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span>
             <span class="meta">${birthSummaryLine(r)} · ${r.confidenceTier}</span>
+            <span class="meta">${engineEligibilityLine(r)}</span>
             <span class="meta">${r.chartRecordId}</span>
             <button type="button" data-nav="chart-record" data-chart-record="${r.chartRecordId}">Open Chart Record page</button>
           </li>`).join("")}
@@ -982,6 +998,7 @@ function screenDashboard() {
           <li>
             <strong>${e.name}</strong>
             <span class="meta">${e.recordName} · ${e.saved}</span>
+            <br>${resumeContextStubHtml()}
             <button type="button" data-action="resume-exploration"
               data-chart-record="${e.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
           </li>`).join("")}
@@ -1002,7 +1019,7 @@ function screenChartRecord() {
     <div class="panel">
       <h3>Module: chart-record-summary</h3>
       <p><strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span></p>
-      <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}</p>
+      <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}<br>${engineEligibilityLine(r)}</p>
       <p class="meta"><code>${r.chartRecordId}</code></p>
       <button type="button" data-nav="birth-data">Edit birth data</button>
     </div>
@@ -1028,6 +1045,7 @@ function screenChartRecord() {
           <li>
             <strong>${e.name}</strong>
             <span class="meta">${e.saved} · ${e.conditions.join("; ")}</span>
+            <br>${resumeContextStubHtml()}
             <button type="button" data-action="resume-exploration"
               data-chart-record="${r.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
           </li>`).join("")}</ul>
@@ -1048,6 +1066,7 @@ function screenMap() {
     <p class="purpose">Primary instrument · activeChartRecordId required.</p>
     ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
     ${timeUncertaintyWarning(r)}
+    ${navContext.explorationId ? `<div class="stub">${RESUME_CONTEXT_STUB}</div>` : ""}
     <div class="stub">Map viewport placeholder · entry: ${uiState.mapEntrySource || "direct nav"}.
       <!-- Context-only v1 handoff (target=_blank). Genie payload requires prepareGenieRenderHandoff + same-tab. -->
       <a href="${buildMapHandoffUrl()}" target="_blank" rel="noopener">Open production map (context handoff v1)</a>
@@ -1455,6 +1474,20 @@ document.getElementById("popupModal").addEventListener("click", (e) => {
 window.addEventListener("hashchange", render);
 document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
 
+async function attachEngineSummaries(vm) {
+  const resp = await fetch(CHART_RECORDS_API_URL, { cache: "no-store" });
+  if (!resp.ok) {
+    throw new Error(`GET ${CHART_RECORDS_API_URL} failed: HTTP ${resp.status}`);
+  }
+  const payload = await resp.json();
+  const byId = Object.fromEntries(
+    (payload.chartRecords || []).map((row) => [row.chartRecordId, row.engineBirth])
+  );
+  for (const record of vm.chartRecords) {
+    record.engineBirth = byId[record.chartRecordId] || null;
+  }
+}
+
 async function loadViewModelFromStore() {
   const resp = await fetch(STORE_JSON_URL, { cache: "no-store" });
   if (!resp.ok) {
@@ -1463,6 +1496,7 @@ async function loadViewModelFromStore() {
   const payload = await resp.json();
   storeRaw = payload;
   viewModel = adaptStoreToView(payload);
+  await attachEngineSummaries(viewModel);
   storeLoadError = null;
   syncNavContextFromLocation();
 }
@@ -1505,6 +1539,8 @@ window.__rmAppShell = {
   loadViewModelFromStore,
   adaptStoreToView,
   STORE_JSON_URL,
+  CHART_RECORDS_API_URL,
+  RESUME_CONTEXT_STUB,
   NAV_ROUTES,
   ALL_ROUTES,
   getChartRecord,

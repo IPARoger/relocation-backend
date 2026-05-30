@@ -79,17 +79,24 @@ def spawn_server(port: int) -> subprocess.Popen:
 
 def ensure_server() -> tuple[str, subprocess.Popen | None]:
     proc: subprocess.Popen | None = None
-    try:
-        with urllib.request.urlopen(f"{BASE}/health", timeout=2) as resp:
-            if resp.status != 200:
-                raise OSError("bad health")
-    except Exception:
+
+    def probe(base: str) -> bool:
+        try:
+            with urllib.request.urlopen(f"{base}/health", timeout=2) as resp:
+                if resp.status != 200:
+                    return False
+            with urllib.request.urlopen(f"{base}/chart-records", timeout=2) as resp:
+                return resp.status == 200
+        except Exception:
+            return False
+
+    if not probe(BASE):
         alt = 8015
         if not port_free(alt):
             fail(f"Server unavailable at {BASE} and port {alt} busy")
         proc = spawn_server(alt)
         base = f"http://127.0.0.1:{alt}"
-        if not wait_server(base):
+        if not wait_server(base) or not probe(base):
             proc.terminate()
             fail(f"Could not start temp server on {base}")
         return base, proc
@@ -222,7 +229,10 @@ def wait_handoff_settled(page, timeout_ms: int = 120_000) -> None:
 def prepare_and_navigate(page, base: str, payload: dict) -> dict:
     """Same-tab handoff: shell stores payload, map loads with genieRenderRef."""
     page.goto(f"{base}/app_shell.html#/map?chartRecordId=cr-anna-rivera", wait_until="domcontentloaded")
-    page.wait_for_function("() => window.__rmAppShell?.prepareGenieRenderHandoff", timeout=15_000)
+    page.wait_for_function(
+        "() => window.__rmAppShell?.viewModel() && window.__rmAppShell?.prepareGenieRenderHandoff",
+        timeout=15_000,
+    )
     handoff = page.evaluate(
         """(p) => window.__rmAppShell.prepareGenieRenderHandoff(null, p)""",
         payload,

@@ -70,6 +70,9 @@ def ensure_server() -> tuple[str, subprocess.Popen | None]:
     def builder_available(base: str) -> bool:
         try:
             with urllib.request.urlopen(f"{base}/genie_variable_builder.js", timeout=2) as resp:
+                if resp.status != 200:
+                    return False
+            with urllib.request.urlopen(f"{base}/chart-records", timeout=2) as resp:
                 return resp.status == 200
         except Exception:
             return False
@@ -120,7 +123,7 @@ class SearchRegionsRecorder:
 def open_genie_drawer(page, base: str) -> None:
     page.goto(f"{base}/app_shell.html#/map?chartRecordId=cr-anna-rivera", wait_until="domcontentloaded")
     page.wait_for_function(
-        "() => window.__rmAppShell && window.RelocationGenieVariableBuilder",
+        "() => window.__rmAppShell && window.__rmAppShell.viewModel() && window.RelocationGenieVariableBuilder",
         timeout=15_000,
     )
     page.wait_for_selector("#genieDrawerMount #renderBtn", timeout=15_000)

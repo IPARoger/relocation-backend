@@ -32,8 +32,10 @@ from aura_field_engine import (
 )
 from local_product_store import (
     ChartRecordBirthResolutionError,
+    list_chart_record_summaries,
     load as load_product_store,
     resolve_engine_birth_params,
+    summarize_chart_record,
 )
 
 app = FastAPI()
@@ -1961,6 +1963,32 @@ def serve_local_product_store_json():
     if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
         raise HTTPException(status_code=404, detail="Local product store scaffold not found")
     return FileResponse(LOCAL_PRODUCT_STORE_SCAFFOLD, media_type="application/json")
+
+
+@app.get("/chart-records")
+def list_chart_records_api():
+    """Read-only Chart Record library summaries (Store v3)."""
+    _ensure_local_product_store_read_enabled()
+    if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
+        raise HTTPException(status_code=404, detail="Local product store scaffold not found")
+    state = load_product_store(LOCAL_PRODUCT_STORE_SCAFFOLD)
+    return {"chartRecords": list_chart_record_summaries(state)}
+
+
+@app.get("/chart-records/{chart_record_id}")
+def get_chart_record_summary(chart_record_id: str):
+    """Read-only Chart Record summary for one record."""
+    _ensure_local_product_store_read_enabled()
+    if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
+        raise HTTPException(status_code=404, detail="Local product store scaffold not found")
+    state = load_product_store(LOCAL_PRODUCT_STORE_SCAFFOLD)
+    summary = summarize_chart_record(state, chart_record_id)
+    if summary is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "chart_record_not_found", "message": f"unknown chart_record_id: {chart_record_id}"},
+        )
+    return summary
 
 
 @app.get("/chart-records/{chart_record_id}/engine-birth")

@@ -177,6 +177,81 @@ def resolve_engine_birth_params(
     )
 
 
+def _birth_time_display(birth_profile: dict[str, Any]) -> str:
+    meta = birth_profile.get("confidence_metadata") or {}
+    if meta.get("time_range_display") and birth_profile.get("birth_time") is None:
+        return f"Time uncertain: {meta['time_range_display']}"
+    if birth_profile.get("birth_time"):
+        return str(birth_profile["birth_time"])
+    return "Time unknown"
+
+
+def _has_birth_time_uncertainty(birth_profile: dict[str, Any]) -> bool:
+    tier = birth_profile.get("confidence_tier")
+    if tier in ("T2", "T3", "T4"):
+        return True
+    return birth_profile.get("birth_time") is None and tier != "T0"
+
+
+def summarize_chart_record(
+    state: dict[str, Any], chart_record_id: str
+) -> dict[str, Any] | None:
+    """Read-only Chart Record summary for library UI (product language)."""
+    client = get_chart_record(state, chart_record_id)
+    if client is None:
+        return None
+
+    birth_profile = get_birth_profile_for_chart_record(state, chart_record_id)
+    if birth_profile is None:
+        return None
+
+    places = _index_by_id(state.get("places") or [])
+    birth_place = places.get(str(birth_profile.get("birth_place_id")))
+    current_place_id = client.get("current_location_place_id")
+    current_place = (
+        places.get(str(current_place_id)) if current_place_id is not None else None
+    )
+
+    try:
+        params = resolve_engine_birth_params(state, chart_record_id)
+        engine_birth: dict[str, Any] = {"ok": True, **params}
+    except ChartRecordBirthResolutionError as err:
+        engine_birth = {
+            "ok": False,
+            "reason": err.reason,
+            "message": err.message,
+        }
+
+    birth_city = birth_place.get("display_name") if birth_place else "—"
+    birth_summary = (
+        f"{birth_profile.get('birth_date')} · "
+        f"{_birth_time_display(birth_profile)} · {birth_city}"
+    )
+
+    return {
+        "chartRecordId": str(chart_record_id),
+        "displayName": client.get("display_name"),
+        "recordType": client.get("record_type", "client"),
+        "birthSummary": birth_summary,
+        "confidenceTier": birth_profile.get("confidence_tier"),
+        "hasTimeUncertainty": _has_birth_time_uncertainty(birth_profile),
+        "birthCity": birth_city,
+        "currentCity": current_place.get("display_name") if current_place else None,
+        "engineBirth": engine_birth,
+    }
+
+
+def list_chart_record_summaries(state: dict[str, Any]) -> list[dict[str, Any]]:
+    summaries: list[dict[str, Any]] = []
+    for client in state.get("clients") or []:
+        if not isinstance(client, dict) or not client.get("id"):
+            continue
+        summary = summarize_chart_record(state, str(client["id"]))
+        if summary is not None:
+            summaries.append(summary)
+    return summaries
+
+
 def empty_store() -> dict[str, Any]:
     ts = _now_iso()
     return {
