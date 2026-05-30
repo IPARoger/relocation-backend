@@ -432,6 +432,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 .genie-render-status-title { font-weight: 600; color: #334155; margin-bottom: 4px; }
 .genie-render-status-body { margin: 0; font-family: ui-monospace, monospace; font-size: 10px; color: #475569; white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow: auto; }
 .genie-render-status-note { margin-top: 4px; color: #64748b; font-size: 10px; }
+.genie-render-status-resolved-birth { margin-top: 4px; font-size: 10px; color: #334155; font-family: ui-monospace, monospace; }
 
 #auraDebugStatus {
     display: none;
@@ -901,6 +902,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
         <div id="genieRenderStatus" class="genie-render-status" hidden>
             <div class="genie-render-status-title">Genie render execution (dev)</div>
+            <div id="genieRenderStatusResolvedBirth" class="genie-render-status-resolved-birth" hidden></div>
             <pre id="genieRenderStatusBody" class="genie-render-status-body"></pre>
             <div class="genie-render-status-note">Adapter reads variables[] only — not legacyCompatibility.</div>
         </div>
@@ -2846,6 +2848,29 @@ function handoffChartRecordIdForBirth() {
     return lastAppShellHandoff?.chartRecordId || null;
 }
 
+function isAppShellGenieHandoffActive() {
+    return MAP_URL.get("handoff") === "app_shell" && Boolean(readGenieRenderRefFromUrl());
+}
+
+function formatUtcTimeFromEngineBirth(birth) {
+    const h = birth.birth_hour_utc;
+    const hh = Math.floor(h);
+    const mm = Math.round((h - hh) * 60);
+    return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")} UTC`;
+}
+
+function formatResolvedBirthDebugLine(birthResolution) {
+    if (!birthResolution?.ok || birthResolution.source !== "chart_record") {
+        return null;
+    }
+    const b = birthResolution.birth;
+    if (!b) return null;
+    const id = birthResolution.chartRecordId || b.chart_record_id || "unknown";
+    const mo = String(b.birth_month).padStart(2, "0");
+    const day = String(b.birth_day).padStart(2, "0");
+    return `Birth resolved from Chart Record: ${id} — ${b.birth_year}-${mo}-${day} ${formatUtcTimeFromEngineBirth(b)}`;
+}
+
 async function fetchEngineBirthForChartRecord(chartRecordId) {
     const response = await fetch(
         `/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`
@@ -2868,12 +2893,35 @@ async function fetchEngineBirthForChartRecord(chartRecordId) {
     return { ok: true, birth: body, chartRecordId, source: "chart_record" };
 }
 
-async function resolveBirthParamsForGenieRender() {
-    const chartRecordId = handoffChartRecordIdForBirth();
-    if (!chartRecordId) {
+async function resolveBirthParamsForGenieRender(payload) {
+    if (!isAppShellGenieHandoffActive()) {
         return { ok: true, birth: getBirthParamsFromProfile(), source: "chart_profile" };
     }
-    return fetchEngineBirthForChartRecord(chartRecordId);
+
+    const urlChartRecordId = handoffChartRecordIdForBirth();
+    if (!urlChartRecordId) {
+        return {
+            ok: false,
+            error: "chart_record_id_required_for_handoff",
+            message: "app_shell Genie handoff requires chartRecordId in URL",
+            chartRecordId: null,
+        };
+    }
+
+    const payloadChartRecordId = payload && payload.chartRecordId
+        ? String(payload.chartRecordId)
+        : null;
+    if (payloadChartRecordId && payloadChartRecordId !== urlChartRecordId) {
+        return {
+            ok: false,
+            error: "chart_record_id_mismatch",
+            message: `URL chartRecordId (${urlChartRecordId}) does not match payload (${payloadChartRecordId})`,
+            chartRecordId: urlChartRecordId,
+            payloadChartRecordId,
+        };
+    }
+
+    return fetchEngineBirthForChartRecord(urlChartRecordId);
 }
 
 function failGenieBirthResolution(birthResolution, validation) {
@@ -4930,12 +4978,25 @@ async function dispatchOverlayRequest(payload, options = {}) {
 function renderGenieRenderStatusUI(summary) {
     const root = document.getElementById("genieRenderStatus");
     const body = document.getElementById("genieRenderStatusBody");
+    const resolvedEl = document.getElementById("genieRenderStatusResolvedBirth");
     if (!root || !body) return;
     if (!summary) {
         root.hidden = true;
+        if (resolvedEl) resolvedEl.hidden = true;
         return;
     }
     root.hidden = false;
+    const resolvedLine = summary.birthResolution?.resolvedBirthLine
+        || formatResolvedBirthDebugLine(summary.birthResolution);
+    if (resolvedEl) {
+        if (resolvedLine) {
+            resolvedEl.textContent = resolvedLine;
+            resolvedEl.hidden = false;
+        } else {
+            resolvedEl.textContent = "";
+            resolvedEl.hidden = true;
+        }
+    }
     const panel = {
         executed: summary.executed,
         source: summary.plan?.source || null,
@@ -4945,6 +5006,7 @@ function renderGenieRenderStatusUI(summary) {
         requestHouseCount: summary.requestPayload?.house_conditions?.length ?? null,
         degradation: summary.degradation || summary.plan?.degradation || [],
         validationErrors: summary.validation?.errors || null,
+        birthResolution: summary.birthResolution || null,
     };
     body.textContent = JSON.stringify(panel, null, 2);
 }
@@ -5144,11 +5206,12 @@ async function executeGenieRender(payload) {
         return lastGenieExecutionSummary;
     }
 
-    const birthResolution = await resolveBirthParamsForGenieRender();
+    const birthResolution = await resolveBirthParamsForGenieRender(payload);
     if (!birthResolution.ok) {
         return failGenieBirthResolution(birthResolution, validation);
     }
     const birth = birthResolution.birth;
+    const resolvedBirthLine = formatResolvedBirthDebugLine(birthResolution);
     const plan = adapter.buildEngineExecutionPlan(payload, birth);
 
     if (!planHasExecutableConditions(plan)) {
@@ -5178,6 +5241,8 @@ async function executeGenieRender(payload) {
         birthResolution: {
             source: birthResolution.source,
             chartRecordId: birthResolution.chartRecordId || null,
+            birth: birth ? JSON.parse(JSON.stringify(birth)) : null,
+            resolvedBirthLine,
         },
     };
     renderGenieRenderStatusUI(lastGenieExecutionSummary);

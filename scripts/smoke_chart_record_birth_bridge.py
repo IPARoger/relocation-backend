@@ -8,6 +8,8 @@ Cases:
   B4  GET /chart-records/{id}/engine-birth endpoint
   B5  Legacy direct map (no handoff) regression via smoke_map_current.py
   B6  v1 context handoff unchanged (no genie ref)
+  B7  URL/payload chartRecordId mismatch → fail visible, zero POSTs
+  B8  genieRenderRef without URL chartRecordId → chart_record_id_required_for_handoff
 
 Run:
   ./venv/bin/python scripts/smoke_chart_record_birth_bridge.py
@@ -346,6 +348,70 @@ def main() -> int:
             results.append(("B6_v1_handoff_unchanged", ok_b6, json.dumps({
                 "handoff": v1,
                 "genieRenderRef": genie_ref,
+            })))
+
+            # B7 — URL/payload chartRecordId mismatch
+            ref7 = "bridge-smoke-mismatch-ref"
+            page.evaluate(
+                """([ref, payload]) => {
+                    sessionStorage.setItem('rm_genie_render:' + ref, JSON.stringify(payload));
+                }""",
+                [ref7, base_genie_payload(chartRecordId="other")],
+            )
+            recorder.clear()
+            page.goto(handoff_url(base, "cr-anna-rivera", ref7), wait_until="domcontentloaded")
+            page.wait_for_function(
+                "() => window.__rmGenieRenderHandoff && window.__rmExecuteGenieRender",
+                timeout=15_000,
+            )
+            wait_handoff_done(page, timeout_ms=30_000)
+            handoff7 = page.evaluate("() => window.__rmGenieRenderHandoff()")
+            status7 = page.evaluate("() => document.getElementById('renderStatus')?.textContent || ''")
+            ok_b7 = (
+                handoff7
+                and handoff7.get("executed") is False
+                and handoff7.get("error") == "chart_record_id_mismatch"
+                and len(recorder.posts) == 0
+                and "chart_record_id_mismatch" in status7
+            )
+            results.append(("B7_chart_record_id_mismatch", ok_b7, json.dumps({
+                "error": handoff7.get("error") if handoff7 else None,
+                "posts": len(recorder.posts),
+                "renderStatus": status7[:120],
+            })))
+
+            # B8 — genie handoff without URL chartRecordId
+            ref8 = "bridge-smoke-no-chart-record-ref"
+            page.evaluate(
+                """([ref, payload]) => {
+                    sessionStorage.setItem('rm_genie_render:' + ref, JSON.stringify(payload));
+                }""",
+                [ref8, base_genie_payload(chartRecordId="cr-anna-rivera")],
+            )
+            recorder.clear()
+            page.goto(
+                f"{base}/map_CURRENT.html?skipOnboarding=1&handoff=app_shell"
+                f"&handoffCreatedAt=2026-05-30T12%3A00%3A00.000Z&genieRenderRef={ref8}",
+                wait_until="domcontentloaded",
+            )
+            page.wait_for_function(
+                "() => window.__rmGenieRenderHandoff && window.__rmExecuteGenieRender",
+                timeout=15_000,
+            )
+            wait_handoff_done(page, timeout_ms=30_000)
+            handoff8 = page.evaluate("() => window.__rmGenieRenderHandoff()")
+            status8 = page.evaluate("() => document.getElementById('renderStatus')?.textContent || ''")
+            ok_b8 = (
+                handoff8
+                and handoff8.get("executed") is False
+                and handoff8.get("error") == "chart_record_id_required_for_handoff"
+                and len(recorder.posts) == 0
+                and "chart_record_id_required_for_handoff" in status8
+            )
+            results.append(("B8_chart_record_id_required", ok_b8, json.dumps({
+                "error": handoff8.get("error") if handoff8 else None,
+                "posts": len(recorder.posts),
+                "renderStatus": status8[:120],
             })))
 
             browser.close()

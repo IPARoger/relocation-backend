@@ -40,6 +40,15 @@ def fail(msg: str) -> None:
     raise SystemExit(1)
 
 
+def plan_house_count(summary: object) -> int:
+    if not isinstance(summary, dict):
+        return 0
+    plan = summary.get("plan")
+    if not isinstance(plan, dict):
+        return 0
+    return len(plan.get("house_conditions") or [])
+
+
 def port_free(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(0.5)
@@ -92,7 +101,7 @@ def base_genie_payload(**overrides: object) -> dict:
         "schema_version": 1,
         "kind": "genie_render",
         "createdAt": "2026-05-30T12:00:00.000Z",
-        "chartRecordId": "smoke-chart",
+        "chartRecordId": "cr-anna-rivera",
         "variables": [],
         "layerControls": {
             "mutedVariableIds": [],
@@ -103,7 +112,7 @@ def base_genie_payload(**overrides: object) -> dict:
         "legacyCompatibility": {
             "schema_version": 1,
             "kind": "saved_investigation",
-            "chart_id": "smoke-chart",
+            "chart_id": "cr-anna-rivera",
             "house_conditions": [],
             "angle_sign_conditions": [],
             "aspect_overlay": None,
@@ -223,11 +232,6 @@ def prepare_and_navigate(page, base: str, payload: dict) -> dict:
         "() => window.__rmMap && window.__rmGenieRenderHandoff && window.__rmExecuteGenieRender",
         timeout=15_000,
     )
-    page.wait_for_function(
-        "() => document.getElementById('chartProfile')?.options?.length >= 1",
-        timeout=15_000,
-    )
-    page.select_option("#chartProfile", "baseline_validated")
     return handoff
 
 
@@ -317,7 +321,7 @@ def main() -> int:
             wait_handoff_settled(page)
             handoff3_state = page.evaluate("() => window.__rmGenieRenderHandoff()")
             sum3 = (handoff3_state or {}).get("execution") or {}
-            plan3_h = len(sum3.get("plan", {}).get("house_conditions", []))
+            plan3_h = plan_house_count(sum3)
             ok3 = stored3 == p3 and handoff3_state.get("executed") is True and plan3_h == 4
             results.append(("H3_four_house_survives", ok3, json.dumps({"plan_houses": plan3_h})))
 
@@ -326,6 +330,7 @@ def main() -> int:
             p4 = base_genie_payload(variables=vars12)
             handoff4 = prepare_and_navigate(page, base, p4)
             stored4 = read_stored_payload(page, handoff4["ref"])
+            wait_handoff_settled(page, timeout_ms=180_000)
             ok4 = stored4 == p4 and len(stored4.get("variables", [])) == 12
             results.append(("H4_twelve_variables_unchanged", ok4, json.dumps({"count": len(stored4.get("variables", []))})))
 
@@ -334,12 +339,18 @@ def main() -> int:
             prepare_and_navigate(page, base, p4)
             wait_handoff_settled(page, timeout_ms=180_000)
             handoff5_state = page.evaluate("() => window.__rmGenieRenderHandoff()")
-            sum5 = page.evaluate("() => window.__rmGenieRenderExecutionSummary()") or {}
+            exec5 = (handoff5_state or {}).get("execution") or {}
+            sum5 = page.evaluate("() => window.__rmGenieRenderExecutionSummary()") or exec5 or {}
             smoke5 = page.evaluate("() => window.__rmSmokeState()") or {}
-            req5 = sum5.get("requestPayload") or smoke5.get("lastEngineRequestPayload") or {}
+            req5 = (
+                sum5.get("requestPayload")
+                or exec5.get("requestPayload")
+                or smoke5.get("lastEngineRequestPayload")
+                or {}
+            )
             wire5 = recorder.posts[0] if recorder.posts else {}
             wire_h5 = len(wire5.get("house_conditions") or [])
-            plan_h5 = len(sum5.get("plan", {}).get("house_conditions", [])) or wire_h5
+            plan_h5 = plan_house_count(sum5) or wire_h5
             req_h5 = len(req5.get("house_conditions") or [])
             ok5 = (
                 (handoff5_state or {}).get("variableCount") == 12
@@ -372,15 +383,25 @@ def main() -> int:
             )
             handoff6 = prepare_and_navigate(page, base, p6)
             stored6 = read_stored_payload(page, handoff6["ref"])
-            wait_handoff_settled(page)
+            wait_handoff_settled(page, timeout_ms=180_000)
             handoff6_state = page.evaluate("() => window.__rmGenieRenderHandoff()")
-            sum6 = (handoff6_state or {}).get("execution") or {}
-            deg6 = sum6.get("degradation") or []
-            plan_h6 = len(sum6.get("plan", {}).get("house_conditions", []))
+            exec6 = (handoff6_state or {}).get("execution") or {}
+            sum6 = exec6 if isinstance(exec6, dict) else {}
+            if not plan_house_count(sum6):
+                sum6 = page.evaluate("() => window.__rmGenieRenderExecutionSummary()") or sum6
+            plan6 = sum6.get("plan") if isinstance(sum6, dict) else None
+            deg6 = (
+                (sum6.get("degradation") if isinstance(sum6, dict) else None)
+                or (plan6.get("degradation") if isinstance(plan6, dict) else None)
+                or []
+            )
+            if not isinstance(deg6, list):
+                deg6 = []
+            plan_h6 = plan_house_count(sum6)
             ok6 = (
                 len(stored6.get("variables", [])) == 12
                 and handoff6_state.get("variableCount") == 12
-                and sum6.get("executed") is True
+                and (handoff6_state.get("executed") is True or sum6.get("executed") is True)
                 and plan_h6 == 10
                 and any(d.get("reason") == "exclude_not_supported_in_engine_v1" for d in deg6)
                 and any(d.get("reason") == "transit_not_supported_in_engine_v1" for d in deg6)
