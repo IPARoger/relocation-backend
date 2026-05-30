@@ -100,6 +100,14 @@ def serve_substrate_adapter():
     )
 
 
+@app.get("/genie_map_engine_adapter.js")
+def serve_genie_map_engine_adapter():
+    return FileResponse(
+        APP_DIR / "genie_map_engine_adapter.js",
+        media_type="application/javascript",
+    )
+
+
 @app.get("/map_SANDBOX_raindrop_aesthetic.html")
 def serve_map_sandbox_raindrop_aesthetic():
     return FileResponse(

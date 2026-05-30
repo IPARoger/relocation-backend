@@ -428,6 +428,10 @@ html.map-panel-show-legend #panelLegend { display: block; }
 .app-shell-handoff-title { font-weight: 600; color: #334155; margin-bottom: 4px; }
 .app-shell-handoff-body { margin: 0; font-family: ui-monospace, monospace; font-size: 10px; color: #475569; white-space: pre-wrap; word-break: break-word; }
 .app-shell-handoff-note { margin-top: 4px; color: #64748b; font-size: 10px; }
+.genie-render-status { margin-top: 8px; font-size: 11px; border: 1px dashed #64748b; border-radius: 4px; padding: 6px 8px; background: #f1f5f9; }
+.genie-render-status-title { font-weight: 600; color: #334155; margin-bottom: 4px; }
+.genie-render-status-body { margin: 0; font-family: ui-monospace, monospace; font-size: 10px; color: #475569; white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow: auto; }
+.genie-render-status-note { margin-top: 4px; color: #64748b; font-size: 10px; }
 
 #auraDebugStatus {
     display: none;
@@ -895,6 +899,12 @@ html.map-panel-show-legend #panelLegend { display: block; }
             <div class="app-shell-handoff-note">Informational only — no profile, viewport, or renderer changes.</div>
         </div>
 
+        <div id="genieRenderStatus" class="genie-render-status" hidden>
+            <div class="genie-render-status-title">Genie render execution (dev)</div>
+            <pre id="genieRenderStatusBody" class="genie-render-status-body"></pre>
+            <div class="genie-render-status-note">Adapter reads variables[] only — not legacyCompatibility.</div>
+        </div>
+
         <div id="panelLegend" aria-hidden="true">
             <p class="legend-caption">Region colors (debug)</p>
             <div class="legend-row"><span class="legend-swatch" style="background:#e8b923"></span> A</div>
@@ -908,6 +918,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 </div>
 
 <script src="/substrate_adapter.js"></script>
+<script src="/genie_map_engine_adapter.js"></script>
 <script>
 const MAP_URL = new URLSearchParams(window.location.search);
 
@@ -1868,7 +1879,13 @@ window.__rmSmokeState = function() {
         findBtnDisabled: document.getElementById("findBtn")?.disabled ?? false,
         nonFiniteCoords: nonFinite,
         libraryHandoff: { ...lastLibraryHandoff },
-        appShellHandoff: lastAppShellHandoff ? { ...lastAppShellHandoff } : null
+        appShellHandoff: lastAppShellHandoff ? { ...lastAppShellHandoff } : null,
+        genieRender: lastGenieExecutionSummary
+            ? JSON.parse(JSON.stringify(lastGenieExecutionSummary))
+            : null,
+        lastEngineRequestPayload: lastEngineRequestPayload
+            ? JSON.parse(JSON.stringify(lastEngineRequestPayload))
+            : null
     };
 };
 
@@ -2155,6 +2172,10 @@ if (productionShadowSelfCheck) {
 }
 
 let currentRenderToken = 0;
+/** Last POST body sent to /search-regions (house pass) — smoke hook for Genie adapter proof. */
+let lastEngineRequestPayload = null;
+/** Last Genie render execution summary — dev panel + smoke hook. */
+let lastGenieExecutionSummary = null;
 let debounceTimer = null;
 /** Last rendered display features for overlayDebug point-in-polygon checks. */
 let lastDisplayFeatureCollection = null;
@@ -4805,7 +4826,71 @@ async function dispatchOverlayRequest(payload, options = {}) {
     throw new Error(`Unknown renderer substrate: ${substrate}`);
 }
 
-async function findRegions() {
+function renderGenieRenderStatusUI(summary) {
+    const root = document.getElementById("genieRenderStatus");
+    const body = document.getElementById("genieRenderStatusBody");
+    if (!root || !body) return;
+    if (!summary) {
+        root.hidden = true;
+        return;
+    }
+    root.hidden = false;
+    const panel = {
+        executed: summary.executed,
+        source: summary.plan?.source || null,
+        houseConditionCount: summary.plan?.house_conditions?.length ?? 0,
+        angleSignCount: summary.plan?.angle_sign_conditions?.length ?? 0,
+        hasAspect: Boolean(summary.plan?.aspectOverlay),
+        requestHouseCount: summary.requestPayload?.house_conditions?.length ?? null,
+        degradation: summary.degradation || summary.plan?.degradation || [],
+        validationErrors: summary.validation?.errors || null,
+    };
+    body.textContent = JSON.stringify(panel, null, 2);
+}
+
+function planHasExecutableConditions(plan) {
+    return (
+        (plan.house_conditions && plan.house_conditions.length > 0)
+        || (plan.angle_sign_conditions && plan.angle_sign_conditions.length > 0)
+        || Boolean(plan.aspectOverlay)
+    );
+}
+
+/** Legacy DOM → engine plan (compatibility path; not canonical truth). */
+function buildPlanFromLegacyDom() {
+    const birth = getBirthParamsFromProfile();
+    const conditions = [];
+    conditions.push({
+        planet: document.getElementById("planetA").value,
+        house: parseInt(document.getElementById("houseA").value, 10),
+    });
+    const planetB = document.getElementById("planetB").value;
+    if (planetB) {
+        conditions.push({
+            planet: planetB,
+            house: parseInt(document.getElementById("houseB").value, 10),
+        });
+    }
+    const planetC = document.getElementById("planetC").value;
+    if (planetC) {
+        conditions.push({
+            planet: planetC,
+            house: parseInt(document.getElementById("houseC").value, 10),
+        });
+    }
+    const angleSignCondition = getSelectedAngleSignCondition();
+    const angle_sign_conditions = angleSignCondition ? [angleSignCondition] : [];
+    return {
+        source: "legacy_dom",
+        birth,
+        house_conditions: conditions,
+        angle_sign_conditions,
+        aspectOverlay: getSelectedAspectOverlay(),
+        degradation: [],
+    };
+}
+
+async function executeSearchPlan(plan, meta = {}) {
     document.getElementById("findBtn").disabled = true;
     map.closePopup();
 
@@ -4834,52 +4919,25 @@ async function findRegions() {
         currentDebugMetrics.aspectResolution = "n/a";
         renderDebugStatus();
 
-        const selectedOption = document.getElementById("chartProfile").selectedOptions[0];
-        const profile = JSON.parse(selectedOption.dataset.profile);
-        const [year, month, day] = profile.date.split("-").map(Number);
-        const [hour, minute] = profile.time.split(":").map(Number);
-        const birthHourUTC = hour + minute / 60;
-
-        const conditions = [];
-        conditions.push({
-            planet: document.getElementById("planetA").value,
-            house: parseInt(document.getElementById("houseA").value, 10)
-        });
-        const planetB = document.getElementById("planetB").value;
-        if (planetB) {
-            conditions.push({
-                planet: planetB,
-                house: parseInt(document.getElementById("houseB").value, 10)
-            });
-        }
-        const planetC = document.getElementById("planetC").value;
-        if (planetC) {
-            conditions.push({
-                planet: planetC,
-                house: parseInt(document.getElementById("houseC").value, 10)
-            });
-        }
-
-        const angleSignCondition = getSelectedAngleSignCondition();
-        const angle_sign_conditions = angleSignCondition ? [angleSignCondition] : [];
-
+        const birth = plan.birth;
         const basePayload = {
-            birth_year: year,
-            birth_month: month,
-            birth_day: day,
-            birth_hour_utc: birthHourUTC,
-            house_conditions: conditions,
-            angle_sign_conditions,
+            birth_year: birth.birth_year,
+            birth_month: birth.birth_month,
+            birth_day: birth.birth_day,
+            birth_hour_utc: birth.birth_hour_utc,
+            house_conditions: plan.house_conditions,
+            angle_sign_conditions: plan.angle_sign_conditions || [],
             resolution: 1.5,
             generation_mode: requestedGenerationMode,
             truth_grid_resolution: 0.75,
-            truth_grid_boundary_refine: true
+            truth_grid_boundary_refine: true,
         };
+        lastEngineRequestPayload = JSON.parse(JSON.stringify(basePayload));
 
-        const aspectOverlay = getSelectedAspectOverlay();
+        const aspectOverlay = plan.aspectOverlay || null;
         const data = await dispatchOverlayRequest(basePayload);
 
-        if (token !== currentRenderToken) return;
+        if (token !== currentRenderToken) return { token, cancelled: true };
 
         const displayData = prepareDisplayFeatures(data);
         lastDisplayFeatureCollection = displayData;
@@ -4893,11 +4951,11 @@ async function findRegions() {
                 const stages = [
                     { name: "coarse", label: "coarse", aspect_resolution: 2.0 },
                     { name: "medium", label: "medium", aspect_resolution: 1.0 },
-                    { name: "final", label: "final", aspect_resolution: 0.5 }
+                    { name: "final", label: "final", aspect_resolution: 0.5 },
                 ];
                 for (const stage of stages) {
                     const ok = await renderSingleOverlayStage(basePayload, aspectOverlay, stage, token);
-                    if (!ok) return;
+                    if (!ok) return { token, cancelled: true };
                 }
             } else {
                 const aspectData = await dispatchOverlayRequest({
@@ -4906,9 +4964,9 @@ async function findRegions() {
                     angle_sign_conditions: [],
                     aspect_overlay: aspectOverlay,
                     aspect_resolution: 0.5,
-                    overlay_stage: "final"
+                    overlay_stage: "final",
                 });
-                if (token !== currentRenderToken) return;
+                if (token !== currentRenderToken) return { token, cancelled: true };
                 aspectLayer.clearLayers();
                 renderAspectFeatures(prepareDisplayFeatures(aspectData));
                 if (isAuraPocOverlay(aspectOverlay)) {
@@ -4916,40 +4974,40 @@ async function findRegions() {
                 }
                 updateAspectDebugStatus(aspectData, "ready");
                 if (
-                    (useAdaptiveAura || debugProgressiveRevealMode) &&
-                    isAuraPocOverlay(aspectOverlay)
+                    (useAdaptiveAura || debugProgressiveRevealMode)
+                    && isAuraPocOverlay(aspectOverlay)
                 ) {
                     await renderAdaptiveAuraProgressive(
                         {
-                            birth_year: year,
-                            birth_month: month,
-                            birth_day: day,
-                            birth_hour_utc: birthHourUTC
+                            birth_year: birth.birth_year,
+                            birth_month: birth.birth_month,
+                            birth_day: birth.birth_day,
+                            birth_hour_utc: birth.birth_hour_utc,
                         },
                         aspectOverlay,
-                        token
+                        token,
                     );
                 } else if (useRasterAura && isAuraPocOverlay(aspectOverlay)) {
                     await renderRasterAuraProgressive(
                         {
-                            birth_year: year,
-                            birth_month: month,
-                            birth_day: day,
-                            birth_hour_utc: birthHourUTC
+                            birth_year: birth.birth_year,
+                            birth_month: birth.birth_month,
+                            birth_day: birth.birth_day,
+                            birth_hour_utc: birth.birth_hour_utc,
                         },
                         aspectOverlay,
-                        token
+                        token,
                     );
                 } else if (usePolygonAura && isAuraPocOverlay(aspectOverlay)) {
                     console.warn(
-                        "[aura-poc] Polygon path skipped — not truth raster. Add ?rasterAura=1"
+                        "[aura-poc] Polygon path skipped — not truth raster. Add ?rasterAura=1",
                     );
                     setRenderStatus(
-                        "Polygon aura disabled; use ?rasterAura=1 for truth scalar field"
+                        "Polygon aura disabled; use ?rasterAura=1 for truth scalar field",
                     );
                 } else if (useRasterAura) {
                     setRenderStatus(
-                        "Truth raster: select Sun · conjunction · ASC overlay"
+                        "Truth raster: select Sun · conjunction · ASC overlay",
                     );
                 } else {
                     setRenderStatus("Angular overlay ready");
@@ -4957,12 +5015,76 @@ async function findRegions() {
             }
         }
         renderCities();
+        return { token, cancelled: false, requestPayload: lastEngineRequestPayload };
     } catch (err) {
         console.error(err);
+        throw err;
     } finally {
         document.getElementById("findBtn").disabled = false;
     }
 }
+
+async function executeGenieRender(payload) {
+    const adapter = window.RelocationGenieMapEngineAdapter;
+    if (!adapter) {
+        throw new Error("RelocationGenieMapEngineAdapter not loaded");
+    }
+    const validation = adapter.validateGenieRender(payload);
+    if (!validation.ok) {
+        lastGenieExecutionSummary = {
+            ok: false,
+            executed: false,
+            validation,
+            plan: null,
+            degradation: [],
+            requestPayload: null,
+        };
+        renderGenieRenderStatusUI(lastGenieExecutionSummary);
+        return lastGenieExecutionSummary;
+    }
+
+    const birth = getBirthParamsFromProfile();
+    const plan = adapter.buildEngineExecutionPlan(payload, birth);
+
+    if (!planHasExecutableConditions(plan)) {
+        lastGenieExecutionSummary = {
+            ok: true,
+            executed: false,
+            validation,
+            plan,
+            degradation: plan.degradation,
+            requestPayload: null,
+        };
+        renderGenieRenderStatusUI(lastGenieExecutionSummary);
+        setRenderStatus("Genie render: no executable include variables.");
+        return lastGenieExecutionSummary;
+    }
+
+    await executeSearchPlan(plan, { source: "genie_render" });
+    lastGenieExecutionSummary = {
+        ok: true,
+        executed: true,
+        validation,
+        plan,
+        degradation: plan.degradation,
+        requestPayload: lastEngineRequestPayload
+            ? JSON.parse(JSON.stringify(lastEngineRequestPayload))
+            : null,
+    };
+    renderGenieRenderStatusUI(lastGenieExecutionSummary);
+    return lastGenieExecutionSummary;
+}
+
+async function findRegions() {
+    const plan = buildPlanFromLegacyDom();
+    await executeSearchPlan(plan, { source: "legacy_dom" });
+}
+
+window.__rmExecuteGenieRender = executeGenieRender;
+window.__rmGenieMapAdapter = window.RelocationGenieMapEngineAdapter;
+window.__rmGenieRenderExecutionSummary = () => (
+    lastGenieExecutionSummary ? JSON.parse(JSON.stringify(lastGenieExecutionSummary)) : null
+);
 
 document.getElementById("findBtn").onclick = function() {
     clearTimeout(debounceTimer);
