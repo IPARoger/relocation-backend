@@ -9,6 +9,7 @@ Cases:
   H5  12 executable houses reach engine (wire proof)
   H6  10 houses + 1 exclude + 1 transit — 12 variables, honest degradation
   H7  v1 handoff unchanged (no genieRenderRef)
+  H7b Contract surface includes optional genieRenderRef; stub link omits it
   H8  Invalid ref — no execute, clear failure state
 
 Run:
@@ -397,6 +398,28 @@ def main() -> int:
             # H7 — v1 handoff without genieRenderRef (unchanged)
             page.goto(f"{base}/app_shell.html#/map?chartRecordId=cr-anna-rivera", wait_until="domcontentloaded")
             page.wait_for_function("() => window.__rmAppShell", timeout=15_000)
+            contract_ok = page.evaluate(
+                """() => {
+                  const c = window.__rmAppShell.MAP_HANDOFF_CONTRACT;
+                  return Array.isArray(c.optionalFields) && c.optionalFields.includes('genieRenderRef');
+                }"""
+            )
+            results.append((
+                "H7_contract_includes_genieRenderRef",
+                contract_ok,
+                "MAP_HANDOFF_CONTRACT.optionalFields includes genieRenderRef",
+            ))
+
+            stub_href = page.evaluate(
+                '() => document.querySelector(\'a[href*="map_CURRENT.html"]\')?.getAttribute("href") || ""'
+            )
+            stub_no_ref = parse_ref_from_url(stub_href) is None
+            results.append((
+                "H7_stub_link_no_genieRenderRef",
+                stub_no_ref,
+                stub_href or "missing stub link",
+            ))
+
             v1_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
             page.goto(f"{base}{v1_url}", wait_until="domcontentloaded")
             page.wait_for_function("() => window.__rmMap && window.__rmAppShellHandoff", timeout=15_000)

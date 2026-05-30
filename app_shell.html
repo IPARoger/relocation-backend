@@ -674,6 +674,12 @@ function buildLocationHash(ctx) {
 /**
  * Map Handoff Contract v1 — shell → map_CURRENT.html via URL query params only.
  * Receive-only on map side; no profile/viewport/renderer wiring.
+ *
+ * Optional v2 field `genieRenderRef`: lightweight pointer to a full genie_render
+ * payload stored in sessionStorage (`rm_genie_render:{ref}`). Same-tab navigation
+ * is required — sessionStorage does not survive target="_blank". Context-only v1
+ * links (target="_blank") must not carry genieRenderRef or pretend to transport
+ * Genie payload; use prepareGenieRenderHandoff() + same-tab navigation for that.
  */
 const MAP_HANDOFF_CONTRACT = {
   strategy: "url-query-params",
@@ -686,6 +692,7 @@ const MAP_HANDOFF_CONTRACT = {
     "returnTo",
     "handoffCreatedAt",
   ],
+  optionalFields: ["genieRenderRef"],
 };
 
 /** sessionStorage key prefix for Genie render handoff v2 (same-tab navigation only). */
@@ -1036,6 +1043,7 @@ function screenMap() {
     ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
     ${timeUncertaintyWarning(r)}
     <div class="stub">Map viewport placeholder · entry: ${uiState.mapEntrySource || "direct nav"}.
+      <!-- Context-only v1 handoff (target=_blank). Genie payload requires prepareGenieRenderHandoff + same-tab. -->
       <a href="${buildMapHandoffUrl()}" target="_blank" rel="noopener">Open production map (context handoff v1)</a>
     </div>
     <div class="map-placeholder">
