@@ -55,7 +55,7 @@ These ids are **fixed** for payload, storage, and renderer routing. Display labe
 | `transit_through_house` | transit | Experimental; gated by Settings |
 | `transit_aspect_to_angle` | transit | Experimental; gated by Settings |
 
-**Sandbox note:** prototype may still expose `transiting_aspect_to_angle`; canonical id is `transit_aspect_to_angle` per render payload contract.
+**Sandbox note (through `9e448e0`):** sandbox uses canonical type id `transit_aspect_to_angle` in payload and type menu. ~~Earlier prototype exposed `transiting_aspect_to_angle`~~ — superseded.
 
 ---
 
@@ -383,4 +383,4 @@ AI-generated labels follow the same snapshot rules: once accepted and rendered, 
 |----------|--------------|
 | `genie_render_payload_v1_2026-05-30.md` | Stable ids, `label` snapshots, language stability doctrine |
 | `client_chart_data_model_v1_2026-05-29.md` | Saved Exploration durability and settings snapshots |
-| `genie_SANDBOX_variable_builder.html` | Prototype uses “Render”, `transiting_aspect_to_angle`, hardcoded type labels — pre-contract |
+| `genie_SANDBOX_variable_builder.html` | Prototype; primary action **Search Map**; registry-composed type labels; `CARD_LANGUAGE_REGISTRY` snapshot in payload |

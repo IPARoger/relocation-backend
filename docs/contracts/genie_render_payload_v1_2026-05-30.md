@@ -269,6 +269,8 @@ interface SettingsSnapshot {
 type RegistrySnapshot = Record<string, Record<string, boolean>>;
 ```
 
+**Sandbox extension (through `9e448e0`):** sandbox also snapshots `settingsSnapshot.cardLanguage` from `CARD_LANGUAGE_REGISTRY`. Optional; not required for engine execution.
+
 - **Settings** is the authority for which objects exist and default enablement.
 - **Genie** reads registry at render and copies into `settingsSnapshot` so replay stays honest if account settings change later.
 - Transit variables require `transitModeEnabled: true` to reach `status: "experimental"`. When false, transit cards are `disabled` and omitted from search truth.
@@ -614,19 +616,34 @@ A legacy-only map renderer loading **only** `legacyCompatibility` will search 3 
 
 # Implementation notes
 
-1. **Sandbox alignment slice (future):** `genie_SANDBOX_variable_builder.html` currently emits `kind: "genie_sandbox_render"`, `generatedAt`, `planet` field names, `layer.not`, type id `transiting_aspect_to_angle`, and nests adapter output under `normalized.legacy_compatible` without `degradation`. Implement contract v1 in sandbox as a focused migration; update `smoke_genie_sandbox.py` accordingly.
+### Current alignment (through commit `9e448e0`)
 
-2. **Adapter function:** Implement `buildLegacyCompatibility(variables, chartRecordId)` as a pure function from canonical payload → legacy bundle. Map `body` → legacy `planet`, `transitBody` → legacy `planet` in transit records when transit engine exists.
+| Area | Status |
+|------|--------|
+| **Sandbox payload** | `genie_SANDBOX_variable_builder.html` emits `kind: "genie_render"`, `createdAt`, canonical `body` / `transitBody`, `polarity`, `legacyCompatibility.degradation`, and `settingsSnapshot.cardLanguage` (sandbox extension). Primary action: **Search Map**. |
+| **Sandbox smoke** | `smoke_genie_sandbox.py` asserts v1 payload shape, language registry, exclude polarity, and legacy degradation overflow. |
+| **Map engine path** | `genie_map_engine_adapter.js` + `map_CURRENT.html` expose hook-only `window.__rmExecuteGenieRender(payload)`. Adapter consumes **`variables[]` only** — not `legacyCompatibility`. `smoke_genie_map_engine.py` proves four house conditions reach `/search-regions`. No auto-execute on map load. |
+| **App shell handoff** | Still **nav context only**; does not transport `genie_render`. See `genie_app_shell_handoff_audit_v1_2026-05-30.md`. |
 
-3. **Render gate:** Search Map should be disabled while any card is `incomplete`, matching sandbox gating (Add blocked until all complete). Payload may still expose `normalizePayload()` for debug.
+### Superseded notes (pre-v1 sandbox — historical)
 
-4. **Editor cap vs schema:** Keep `MAX_VARIABLES = 12` as UI constant; do not encode in `schema_version`.
+The following described the sandbox **before** commits `1acc7d9`–`ada0f43` and are **no longer accurate**:
 
-5. **Saved exploration embedding:** When save is implemented, persist full `genie_render` payload (or `variables[]` + `settingsSnapshot` + `layerControls`) on saved exploration; store `legacyCompatibility` only as optional cache for old map paths.
+- ~~Emitted `kind: "genie_sandbox_render"`, `generatedAt`, legacy `planet` field names, `layer.not`, type id `transiting_aspect_to_angle`~~
+- ~~Nested adapter output under `normalized.legacy_compatible` without `degradation`~~
+- ~~`smoke_genie_sandbox.py` needed v1 adoption~~
 
-6. **Smoke coverage:** Extend smoke to assert `kind`, `polarity`, `body`/`transitBody`, `degradation` when sandbox adopts v1.
+### Still open / future slices
 
-7. **Handoff:** Map shell transport (URL params, postMessage) should carry a **render payload id** or compressed canonical JSON — not legacy slots alone. Out of scope for this doc.
+1. **Handoff transport:** Shell → map should carry a **render payload ref** + same-origin side channel — not legacy slots alone. Out of scope for this contract; see handoff audit.
+
+2. **Render gate:** Search Map disabled while any card is `incomplete` — **implemented in sandbox** (Add blocked until all complete). Payload may still expose `normalizePayload()` for debug.
+
+3. **Editor cap vs schema:** Keep `MAX_VARIABLES = 12` as UI constant; do not encode in `schema_version`. **Implemented in sandbox.**
+
+4. **Saved exploration embedding:** When save is implemented, persist full `genie_render` payload (or `variables[]` + `settingsSnapshot` + `layerControls`) on saved exploration; store `legacyCompatibility` only as optional cache for old map paths.
+
+5. **Product wiring:** Embed Genie in app shell; connect Search Map → handoff → map auto-execute (or explicit user confirm). Hook-only map path exists; product path does not.
 
 ---
 
@@ -641,7 +658,7 @@ A legacy-only map renderer loading **only** `legacyCompatibility` will search 3 
 | 5 | Transit variables in canonical payload when backend has no transit engine: strip at render, or emit `experimental` and no-op with UI watermark? |
 | 6 | Stable `renderId` (uuid) in addition to `createdAt` for pin/save deduplication? |
 | 7 | Registry snapshot: full catalog vs enabled-only map — sandbox uses enabled-only; confirm Settings export shape. |
-| 8 | Rename path: `transiting_aspect_to_angle` → `transit_aspect_to_angle` in UI type menu and payload for consistency. |
+| 8 | Rename path: `transiting_aspect_to_angle` → `transit_aspect_to_angle` in UI type menu and payload for consistency. **Sandbox aligned** (commit `1acc7d9`+); confirm at product integration. |
 
 ---
 
@@ -654,7 +671,7 @@ A legacy-only map renderer loading **only** `legacyCompatibility` will search 3 
 - AI interpretation of variables or natural-language card entry
 - Planet-aspect-to-planet, sign presets, or rectification domains
 - Committing or modifying production files (`map_CURRENT.html`, backend, Store v3)
-- Requiring legacy map to consume unlimited variables without a Genie-aware code path
+- Requiring legacy map to consume unlimited variables without a Genie-aware code path — **partial exception:** hook-only `__rmExecuteGenieRender` path exists (commit `9e448e0`); legacy DOM Find regions still capped at A/B/C
 
 ---
 
@@ -664,5 +681,7 @@ A legacy-only map renderer loading **only** `legacyCompatibility` will search 3 
 |--------|--------------|
 | `client_chart_data_model_v1` | `chartRecordId`, `settingsSnapshot`, `notExclusions[]`, saved exploration ownership |
 | `map_CURRENT` `collectSavedInvestigationConditions` | Legacy adapter target (3 house slots, 1 angle sign, 1 aspect overlay) |
-| `genie_SANDBOX_variable_builder.html` | Prototype; precedes this contract in several field names |
-| `smoke_genie_sandbox.py` | Validates sandbox hooks; will need revision when sandbox adopts v1 |
+| `genie_map_engine_adapter.js` | Map-side adapter; reads `variables[]` only → `/search-regions` (commit `9e448e0`) |
+| `genie_SANDBOX_variable_builder.html` | Prototype emitter; aligned to v1 payload shape |
+| `smoke_genie_sandbox.py` | Validates sandbox payload, language, exclude, degradation |
+| `smoke_genie_map_engine.py` | Validates hook-only map execution path |
