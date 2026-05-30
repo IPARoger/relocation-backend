@@ -43,6 +43,28 @@ The Genie editor may hold **live, mutable card state**. Render freezes that stat
 
 ---
 
+# Language stability doctrine
+
+Genie variable **types**, **category labels**, and **stored `label` strings** participate in long-lived product records (render snapshots, history, Saved Explorations). Terminology choices therefore outlive any single UI pass.
+
+### Principles
+
+- **Category labels should change rarely.** Variable type names, field group headings, and polarity wording are part of the product’s durable vocabulary.
+- **Dropdown contents may expand through Settings.** Users may gain new bodies, aspects, or angles without a Genie redesign.
+- **Registry vocabulary may expand.** New registry ids may appear; existing ids should remain stable once shipped.
+- **User-created searches should remain understandable years later.** A saved “Sun in 1st house” must still read clearly after UI refreshes.
+- **Saved Explorations should not become confusing because a category was renamed.** Prefer stable **type ids** (`planet_in_house`, `aspect_to_angle`) and honest **snapshot labels** at render time over live re-labeling on replay.
+
+### Therefore
+
+- **Prefer boring labels over clever labels.** Plain astrological language beats branded coinages in Genie and saved search copy.
+- **Prefer clarity over branding.** If a label needs explanation, it is probably wrong for a category name.
+- **Branding may occur through visual design, not terminology.** Color, typography, and layout carry brand; type names and field labels stay literal.
+
+**Payload implication:** `variables[].type` and registry ids are **stable keys**. `variables[].label` is a **render-time snapshot** for human replay; do not rewrite historical labels when marketing copy changes.
+
+---
+
 # Top-level payload
 
 Emitted once per successful Genie render (Search Map).
