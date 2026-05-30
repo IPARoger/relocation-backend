@@ -10,6 +10,7 @@ Verifies:
   * Registry mock toggles update dropdown vocabulary
   * Transit experimental gating (off by default)
   * Per-card Mute/Solo/polarity layer controls in payload
+  * Card language registry (Search Map, type labels, angle display)
   * transit_aspect_to_angle canonical type id
 
 Run:
@@ -87,6 +88,38 @@ def main() -> int:
         add_disabled = page.evaluate("() => document.getElementById('addVariableBtn').disabled")
         results.append(("add_blocked_incomplete", add_disabled, "addVariableBtn disabled"))
 
+        lang_ui = page.evaluate(
+            """() => {
+              const typeOpts = [...document.querySelector('[data-type-select]').options].map((o) => o.text);
+              return {
+                primaryAction: document.getElementById('renderBtn').textContent.trim(),
+                typeOpts,
+                registry: window.__rmGenieSandbox.getCardLanguageRegistry?.(),
+              };
+            }"""
+        )
+        ok_lang_ui = (
+            lang_ui["primaryAction"] == "Search Map"
+            and "Planet · House" in lang_ui["typeOpts"]
+            and "Angle · Sign" in lang_ui["typeOpts"]
+            and "Aspect · Angle" in lang_ui["typeOpts"]
+            and lang_ui["registry"]["separatorToken"] == "·"
+            and lang_ui["registry"]["labels"]["planet_in_house"] == "Planet · House"
+        )
+        results.append(("language_registry_ui", ok_lang_ui, json.dumps({
+            "primaryAction": lang_ui["primaryAction"],
+            "typeOptsSample": lang_ui["typeOpts"][:5],
+        })))
+
+        page.select_option("[data-type-select]", "angle_in_sign")
+        angle_opts = page.evaluate(
+            """() => [...document.querySelector('[data-field=angle]').options]
+              .map((o) => ({ text: o.text, value: o.value }))"""
+        )
+        asc = next((o for o in angle_opts if o["value"] == "ASC"), None)
+        ok_angle_label = asc is not None and asc["text"] == "Ascendant (ASC)"
+        results.append(("angle_dropdown_labels", ok_angle_label, json.dumps(asc)))
+
         # Single planet_in_house render — contract v1 shape
         page.select_option("[data-type-select]", "planet_in_house")
         page.select_option('[data-field="body"]', "sun")
@@ -102,11 +135,14 @@ def main() -> int:
             and direct.get("settingsSnapshot", {}).get("transitModeEnabled") is False
             and direct.get("legacyCompatibility") is not None
             and v0["polarity"] == "include"
+            and v0["type"] == "planet_in_house"
             and v0["fields"].get("body") == "sun"
             and "planet" not in v0["fields"]
             and v0["status"] == "complete"
             and direct["legacyCompatibility"]["house_conditions"][0]["planet"] == "sun"
             and direct["settingsSnapshot"]["registry"]["bodies"]["sun"] is True
+            and direct["settingsSnapshot"]["cardLanguage"]["primaryAction"] == "Search Map"
+            and direct["settingsSnapshot"]["cardLanguage"]["labels"]["aspect_to_angle"] == "Aspect · Angle"
         )
         results.append(("normalize_payload_planet", ok_direct, json.dumps({
             "kind": direct.get("kind"),

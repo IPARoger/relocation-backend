@@ -634,7 +634,7 @@ select option.transit-option-disabled { color: #94a3b8; }
     <footer class="genie-footer">
       <div class="action-row">
         <button type="button" id="addVariableBtn">Add Variable</button>
-        <button type="button" class="primary" id="renderBtn">Render</button>
+        <button type="button" class="primary" id="renderBtn">Search Map</button>
       </div>
       <div class="render-status" id="renderStatus">Configure at least one complete variable, then Render.</div>
     </footer>
@@ -699,10 +699,10 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       { id: "east_point", label: "East Point", group: "point", defaultEnabled: false },
     ],
     angles: [
-      { id: "ASC", label: "ASC", defaultEnabled: true },
-      { id: "DSC", label: "DSC", defaultEnabled: true },
-      { id: "MC", label: "MC", defaultEnabled: true },
-      { id: "IC", label: "IC", defaultEnabled: true },
+      { id: "ASC", label: "Ascendant (ASC)", defaultEnabled: true },
+      { id: "DSC", label: "Descendant (DSC)", defaultEnabled: true },
+      { id: "MC", label: "Midheaven (MC)", defaultEnabled: true },
+      { id: "IC", label: "Imum Coeli (IC)", defaultEnabled: true },
     ],
     signs: [
       { id: "aries", label: "Aries", defaultEnabled: true },
@@ -819,14 +819,39 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
   const objectRegistry = createAvailableObjectsRegistry(OBJECT_CATALOG);
   window.__rmAvailableObjectsRegistry = objectRegistry;
 
+  /** Presentation language — swappable; stable type ids unchanged (variable_card_language v1). */
+  const CARD_LANGUAGE_REGISTRY = Object.freeze({
+    separatorToken: "·",
+    primaryAction: "Search Map",
+    labels: Object.freeze({
+      planet_in_house: "Planet · House",
+      angle_in_sign: "Angle · Sign",
+      aspect_to_angle: "Aspect · Angle",
+      transit_through_house: "Transit · House",
+      transit_aspect_to_angle: "Transit · Aspect · Angle",
+      transit_group: "Relocated Transits (Experimental)",
+    }),
+  });
+
+  function cardLanguageSnapshot() {
+    return {
+      separatorToken: CARD_LANGUAGE_REGISTRY.separatorToken,
+      primaryAction: CARD_LANGUAGE_REGISTRY.primaryAction,
+      labels: { ...CARD_LANGUAGE_REGISTRY.labels },
+    };
+  }
+
   const MAX_VARIABLES = 12;
   const VARIABLE_TYPES = [
-    { id: "planet_in_house", label: "Planet in House", transit: false },
-    { id: "angle_in_sign", label: "Angle in Sign", transit: false },
-    { id: "aspect_to_angle", label: "Aspect to Angle", transit: false },
-    { id: "transit_through_house", label: "Transit through House", transit: true },
-    { id: "transit_aspect_to_angle", label: "Transiting Aspect to Angle", transit: true },
-  ];
+    { id: "planet_in_house", transit: false },
+    { id: "angle_in_sign", transit: false },
+    { id: "aspect_to_angle", transit: false },
+    { id: "transit_through_house", transit: true },
+    { id: "transit_aspect_to_angle", transit: true },
+  ].map((t) => ({
+    ...t,
+    label: CARD_LANGUAGE_REGISTRY.labels[t.id],
+  }));
 
   const SANDBOX_CHART_RECORD_ID = "sandbox-chart-record";
 
@@ -1232,6 +1257,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
       settingsSnapshot: {
         transitModeEnabled: transitEnabled,
         registry: objectRegistry.snapshot(),
+        cardLanguage: cardLanguageSnapshot(),
       },
       legacyCompatibility: buildLegacyCompatibility(
         includeHouses,
@@ -1296,12 +1322,22 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
 
   function typeSelectOptions(selected) {
     let html = `<option value="" disabled${selected ? "" : " selected"}>Select type…</option>`;
-    VARIABLE_TYPES.forEach((t) => {
+    const core = VARIABLE_TYPES.filter((t) => !t.transit);
+    const transit = VARIABLE_TYPES.filter((t) => t.transit);
+    core.forEach((t) => {
       const isSelected = t.id === selected;
-      const disabled = t.transit && !transitEnabled;
-      const suffix = t.transit ? (transitEnabled ? " (experimental)" : " (off)") : "";
-      html += `<option value="${t.id}"${isSelected ? " selected" : ""}${disabled ? " disabled class=\"transit-option-disabled\"" : ""}>${t.label}${suffix}</option>`;
+      html += `<option value="${t.id}"${isSelected ? " selected" : ""}>${t.label}</option>`;
     });
+    if (transit.length) {
+      html += `<optgroup label="${CARD_LANGUAGE_REGISTRY.labels.transit_group}">`;
+      transit.forEach((t) => {
+        const isSelected = t.id === selected;
+        const disabled = !transitEnabled;
+        const suffix = transitEnabled ? " (experimental)" : " (off)";
+        html += `<option value="${t.id}"${isSelected ? " selected" : ""}${disabled ? " disabled class=\"transit-option-disabled\"" : ""}>${t.label}${suffix}</option>`;
+      });
+      html += "</optgroup>";
+    }
     return html;
   }
 
@@ -1594,6 +1630,7 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     addBtn.disabled = !canAdd;
     addBtn.style.display = atMax ? "none" : "";
     renderBtn.disabled = !allVariablesComplete();
+    renderBtn.textContent = CARD_LANGUAGE_REGISTRY.primaryAction;
     if (atMax) {
       addBtn.title = "Maximum 12 variables";
     } else if (anyIncomplete()) {
@@ -1720,6 +1757,8 @@ Many astrologers read transits to the natal chart only. Transits to relocated ho
     getState,
     normalizePayload,
     getRegistry: () => objectRegistry,
+    getCardLanguageRegistry: () => cardLanguageSnapshot(),
+    CARD_LANGUAGE_REGISTRY,
     MAX_VARIABLES,
     TRANSIT_INFO_TEXT,
     VARIABLE_TYPES: VARIABLE_TYPES.map((t) => ({ ...t })),
