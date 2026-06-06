@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="spring">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Overlay Color Test — real geometry</title>
+
+<!--
+  map_SANDBOX_overlay_color_test.html  —  judge overlay colors against REAL geometry
+  ------------------------------------------------------------------------------------
+  Purpose: a low-risk harness for choosing map overlay colors. It renders REAL
+  relocation overlay geometry (captured from the backend /search-regions endpoint)
+  instead of fake random circles, so overlaps / child colors / exclusion read truthfully.
+
+  Geometry source (in priority order):
+    1. Live backend  POST http://127.0.0.1:8000/search-regions   (button: "Try live backend")
+    2. Captured real fixture  fixtures/overlay_fixture_real.geojson  (default)
+  Both are real brute-force relocation regions (NOT astrocartography).
+
+  Palettes (data palette is SEPARATE from atmosphere theme):
+    - Seasonal: the active Color-Doctrine theme's 12 overlay colors.
+    - Beta Overlay Palette: stronger, rainbow/astrological-inspired, muted ~20%.
+
+  The Leaflet 'regions' pane uses mix-blend-mode:multiply so overlaps produce
+  readable child colors automatically. Opacity slider + per-variable Exclude
+  (charcoal redaction, never pure black) + fixed viewport for cross-theme compares.
+
+  Open via the local server (fetch() needs http, not file://):
+    python3 -m http.server 8731   ->   http://localhost:8731/map_SANDBOX_overlay_color_test.html
+-->
+
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+<link rel="stylesheet" href="theme/relocation_themes.css" />
+<script src="theme/relocation_theme.js"></script>
+<style>
+  :root{
+    --ink:var(--th-ink,#23303a); --ink-soft:var(--th-ink-soft,#56646e); --ink-faint:var(--th-ink-faint,#8893a0);
+    --line:var(--th-line,#d6dee4); --surface:var(--th-surface,#eef2f5); --card:var(--th-card,#fbfdff);
+    --accent:var(--th-accent,#3f74a8);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; font-family:var(--sans); color:var(--ink); }
+  #map{ position:absolute; inset:0 0 0 320px; background:#bcd6e6; }
+  .panel{ position:absolute; left:0; top:0; bottom:0; width:320px; background:var(--card); border-right:1px solid var(--line);
+    overflow:auto; padding:16px 16px 28px; z-index:1000; transition:background .35s ease, color .35s ease; }
+  .panel h1{ font-family:var(--serif); font-size:17px; margin:0 0 2px; }
+  .panel .sub{ font-size:11.5px; color:var(--ink-faint); margin:0 0 14px; }
+  .grp{ margin:14px 0 6px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); }
+
+  .themes{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+  .tbtn{ border:1.5px solid var(--line); background:var(--surface); color:var(--ink); border-radius:9px; padding:7px 6px; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+  .tbtn .d{ width:10px; height:10px; border-radius:50%; }
+  .tbtn.on{ border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 24%,transparent); font-weight:700; }
+
+  .seg{ display:flex; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:2px; }
+  .seg button{ flex:1; border:none; background:transparent; color:var(--ink-soft); font-size:12px; padding:7px 6px; border-radius:7px; cursor:pointer; }
+  .seg button.on{ background:var(--card); color:var(--ink); font-weight:700; box-shadow:0 1px 2px rgba(0,0,0,.12); }
+
+  .slider{ display:flex; align-items:center; gap:9px; }
+  .slider input{ flex:1; accent-color:var(--accent); }
+  .slider .v{ font-size:11px; color:var(--ink-faint); width:34px; text-align:right; }
+
+  .legend{ display:flex; flex-direction:column; gap:3px; }
+  .lrow{ display:grid; grid-template-columns:18px 1fr auto auto; gap:8px; align-items:center; font-size:12.5px; padding:5px 0; border-top:1px solid var(--th-line-soft,#e7eef2); }
+  .lrow:first-child{ border-top:none; }
+  .sw{ width:16px; height:16px; border-radius:5px; box-shadow:0 0 0 1.5px rgba(20,26,32,.85); }
+  .lrow.excluded .name{ color:var(--ink-faint); text-decoration:line-through; }
+  .lrow.hidden .name{ opacity:.4; }
+  .mini{ border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:10.5px; border-radius:6px; padding:3px 6px; cursor:pointer; }
+  .mini.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .mini.exc.on{ background:#3A3F45; border-color:#3A3F45; color:#eef2f6; }
+
+  .btn{ width:100%; font-size:12.5px; font-weight:600; border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:9px; padding:8px; cursor:pointer; }
+  .btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .note{ font-size:11px; color:var(--ink-faint); margin-top:8px; line-height:1.5; }
+  .src{ font-size:11px; padding:6px 9px; border-radius:8px; background:var(--surface); color:var(--ink-soft); margin-bottom:10px; }
+  .src b{ color:var(--ink); }
+  .swatches{ display:grid; grid-template-columns:repeat(12,1fr); gap:3px; margin-top:8px; }
+  .swatches i{ height:16px; border-radius:4px; box-shadow:0 0 0 1px rgba(20,26,32,.18); }
+  .city{ font:600 11px var(--sans); color:#1b2530; text-shadow:0 1px 2px rgba(255,255,255,.9),0 0 2px rgba(255,255,255,.7); }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<aside class="panel">
+  <h1>Overlay color test</h1>
+  <p class="sub">Real relocation geometry · atmosphere theme and data palette are separate.</p>
+
+  <div class="src" id="srcline">Loading geometry…</div>
+
+  <div class="grp">Atmosphere theme</div>
+  <div class="themes" id="themes"></div>
+
+  <div class="grp">Overlay (data) palette</div>
+  <div class="seg" id="palSeg">
+    <button data-pal="seasonal">Seasonal</button>
+    <button data-pal="beta" class="on">Beta</button>
+  </div>
+  <div class="swatches" id="palSwatches"></div>
+
+  <div class="grp">Overlay opacity</div>
+  <div class="slider"><input id="op" type="range" min="10" max="85" value="55"><span class="v" id="opV">55%</span></div>
+
+  <div class="grp">Variables · M=show E=exclude</div>
+  <div class="legend" id="legend"></div>
+
+  <div class="grp">View</div>
+  <button class="btn" id="resetView">Reset to shared viewport</button>
+  <button class="btn" id="liveBtn" style="margin-top:6px">Try live backend (/search-regions)</button>
+  <div class="note" id="note"></div>
+</aside>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+(function(){
+  "use strict";
+  var RT = window.RelocationTheme;
+
+  /* Beta Overlay Palette: rainbow/astrological-inspired, muted ~20% — distinct + readable, not neon. */
+  var BETA = ["#C24B3F","#CF7A3C","#D7A53F","#B0B24C","#5FA757","#3FA08F","#3E93B0","#3F6FAE","#5A5BAE","#8A5BAE","#B0519A","#C05875"];
+  var BETA_NOT = "#3A3F45";          // exclusion charcoal — deliberately not pure black
+
+  var SHARED_VIEW = { center:[34,4], zoom:2 };   // same viewport across themes/palettes
+  var state = { palette:"beta", opacity:0.55, vars:[], excluded:{}, hidden:{}, source:"fixture" };
+
+  /* ---- map ---- */
+  var map = L.map("map",{ zoomControl:true, attributionControl:false, worldCopyJump:true, minZoom:2 })
+    .setView(SHARED_VIEW.center, SHARED_VIEW.zoom);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ subdomains:"abc", maxZoom:12, crossOrigin:true }).addTo(map);
+  map.createPane("regions"); map.getPane("regions").style.zIndex=440; map.getPane("regions").style.mixBlendMode="multiply";
+  map.createPane("lines");   map.getPane("lines").style.zIndex=455;
+  map.createPane("labels");  map.getPane("labels").style.zIndex=460;
+  var regionLayer = L.layerGroup().addTo(map);
+  var lineLayer   = L.layerGroup().addTo(map);
+  function fix(){ try{ map.invalidateSize(false); }catch(e){} }
+  map.whenReady(function(){ requestAnimationFrame(fix); setTimeout(fix,200); });
+  window.addEventListener("resize", fix);
+
+  // a few reference cities to check label readability under overlaps
+  var CITIES=[["Lisbon",38.72,-9.14],["Vienna",48.21,16.37],["Dakar",14.69,-17.45],["São Paulo",-23.55,-46.63],["Mumbai",19.07,72.88],["Chicago",41.88,-87.63]];
+  CITIES.forEach(function(c){ L.marker([c[1],c[2]],{ pane:"labels", icon:L.divIcon({className:"city",html:c[0],iconSize:[80,14]}) }).addTo(map); });
+
+  function cap(s){ return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
+  var ASP={conjunction:"\u260C",sextile:"\u26B9",square:"\u25A1",trine:"\u25B3",opposition:"\u260D"};
+
+  /* ---- palette resolution ---- */
+  function palColors(){ return state.palette==="beta" ? BETA : RT.overlays(); }
+  function notColor(){ return state.palette==="beta" ? BETA_NOT : RT.not(); }
+  function colorFor(i){ var p=palColors(); return p[i % p.length]; }
+
+  /* ---- ingest geometry into variables ---- */
+  function ingest(geo){
+    var feats=(geo&&geo.features)||[];
+    var polyVars={}, order=[], lines=[];
+    feats.forEach(function(f){
+      var g=f.geometry, p=f.properties||{}; if(!g) return;
+      if(g.type==="Polygon"||g.type==="MultiPolygon"){
+        var key=(p.condition_index!=null)?("c"+p.condition_index):("k"+(p.planet||"")+(p.house||""));
+        if(!polyVars[key]){ polyVars[key]={ key:key, label:(p.planet?cap(p.planet)+" in House "+p.house:"Region"), feats:[] }; order.push(key); }
+        polyVars[key].feats.push(f);
+      } else if(g.type==="LineString"||g.type==="MultiLineString"){
+        lines.push(f);
+      }
+    });
+    state.vars = order.map(function(k,idx){ var v=polyVars[k]; v.idx=idx; return v; });
+    // aspect line(s) -> one variable appended (rendered as crisp line, not filled region)
+    if(lines.length){
+      var lp=lines[0].properties||{};
+      var lbl = lp.planet ? (cap(lp.planet)+" "+(ASP[lp.aspect]||lp.aspect||"")+" "+(lp.angle||"")) : "Aspect line";
+      state.vars.push({ key:"line", label:lbl.trim(), feats:lines, idx:state.vars.length, isLine:true });
+    }
+  }
+
+  /* ---- render ---- */
+  function draw(){
+    regionLayer.clearLayers(); lineLayer.clearLayers();
+    state.vars.forEach(function(v){
+      if(state.hidden[v.key]) return;
+      var excluded = !!state.excluded[v.key];
+      var col = excluded ? notColor() : colorFor(v.idx);
+      v.feats.forEach(function(f){
+        if(v.isLine){
+          L.geoJSON(f,{ pane:"lines", style:{ color:col, weight:excluded?2:3, opacity:excluded?.6:.95, dashArray:excluded?"4 4":null } }).addTo(lineLayer);
+        } else {
+          L.geoJSON(f,{ pane:"regions", style:{
+            stroke:!excluded, color:col, weight:1, opacity:.5,
+            fillColor:col, fillOpacity: excluded ? Math.min(.82, state.opacity+0.2) : state.opacity
+          }}).addTo(regionLayer);
+        }
+      });
+    });
+  }
+
+  /* ---- UI ---- */
+  function buildThemes(){
+    var host=document.getElementById("themes"); var cur=RT.get();
+    host.innerHTML=RT.THEMES.map(function(t){
+      var probe=document.documentElement.cloneNode(false); // not needed; read via temp
+      return '<button class="tbtn'+(t===cur?' on':'')+'" data-theme="'+t+'"><span class="d" data-dot="'+t+'"></span>'+t.charAt(0).toUpperCase()+t.slice(1)+'</button>';
+    }).join('');
+    // dot colors per theme accent
+    var tmp=document.createElement("div"); tmp.style.display="none"; document.body.appendChild(tmp);
+    RT.THEMES.forEach(function(t){ tmp.setAttribute("data-theme",t);
+      host.querySelector('[data-dot="'+t+'"]').style.background=getComputedStyle(tmp).getPropertyValue("--th-accent").trim(); });
+    document.body.removeChild(tmp);
+  }
+  function buildPalSwatches(){
+    var p=palColors(), host=document.getElementById("palSwatches");
+    host.innerHTML=p.map(function(c){return '<i style="background:'+c+'"></i>';}).join('');
+  }
+  function buildLegend(){
+    var host=document.getElementById("legend");
+    host.innerHTML=state.vars.map(function(v){
+      var col = state.excluded[v.key] ? notColor() : colorFor(v.idx);
+      return '<div class="lrow'+(state.excluded[v.key]?' excluded':'')+(state.hidden[v.key]?' hidden':'')+'" data-key="'+v.key+'">'+
+        '<span class="sw" style="background:'+col+'"></span>'+
+        '<span class="name">'+v.label+(v.isLine?' · line':'')+'</span>'+
+        '<button class="mini'+(state.hidden[v.key]?'':' on')+'" data-act="show">M</button>'+
+        '<button class="mini exc'+(state.excluded[v.key]?' on':'')+'" data-act="exc">E</button>'+
+      '</div>';
+    }).join('');
+  }
+  function refreshColors(){ buildPalSwatches(); buildLegend(); draw(); }
+
+  /* ---- events ---- */
+  document.getElementById("themes").addEventListener("click",function(e){
+    var b=e.target.closest("[data-theme]"); if(!b) return;
+    RT.set(b.getAttribute("data-theme"));
+    Array.prototype.forEach.call(this.querySelectorAll(".tbtn"),function(x){x.classList.toggle("on",x===b);});
+    if(state.palette==="seasonal") refreshColors();   // seasonal palette tracks theme
+  });
+  document.getElementById("palSeg").addEventListener("click",function(e){
+    var b=e.target.closest("[data-pal]"); if(!b) return;
+    state.palette=b.getAttribute("data-pal");
+    Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+    refreshColors();
+  });
+  document.getElementById("op").addEventListener("input",function(e){
+    state.opacity=(+e.target.value)/100; document.getElementById("opV").textContent=e.target.value+"%"; draw();
+  });
+  document.getElementById("legend").addEventListener("click",function(e){
+    var b=e.target.closest(".mini"); if(!b) return;
+    var key=b.closest(".lrow").getAttribute("data-key"), act=b.getAttribute("data-act");
+    if(act==="exc") state.excluded[key]=!state.excluded[key];
+    else state.hidden[key]=!state.hidden[key];
+    buildLegend(); draw();
+  });
+  document.getElementById("resetView").addEventListener("click",function(){ map.setView(SHARED_VIEW.center,SHARED_VIEW.zoom); });
+  // theme changes from elsewhere (e.g. Settings tab) keep seasonal palette in sync
+  window.addEventListener("relocation:theme",function(){ buildThemes(); if(state.palette==="seasonal") refreshColors(); });
+
+  /* ---- load geometry: fixture by default, live backend on demand ---- */
+  function setSrc(txt){ document.getElementById("srcline").innerHTML=txt; }
+  function loadFixture(){
+    fetch("fixtures/overlay_fixture_real.geojson").then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(geo){ state.source="fixture"; ingest(geo);
+        setSrc('Source: <b>captured real fixture</b> · '+state.vars.length+' variables'); refreshColors(); })
+      .catch(function(err){ setSrc('Could not load fixture ('+err.message+'). Open via the local server.'); });
+  }
+  var SAMPLE_PAYLOAD = {
+    birth_year:1989, birth_month:3, birth_day:14, birth_hour_utc:7.7,
+    house_conditions:[{planet:"sun",house:1},{planet:"moon",house:4},{planet:"mercury",house:7},{planet:"venus",house:10},{planet:"mars",house:2},{planet:"jupiter",house:9}],
+    angle_sign_conditions:[], aspect_overlay:{planet:"saturn",angle:"MC",aspect:"conjunction"},
+    generation_mode:"contour", resolution:1.5, aspect_resolution:0.5
+  };
+  document.getElementById("liveBtn").addEventListener("click",function(){
+    setSrc("Contacting live backend…");
+    fetch("http://127.0.0.1:8000/search-regions",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(SAMPLE_PAYLOAD) })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(geo){ state.source="live"; ingest(geo);
+        setSrc('Source: <b>live backend</b> /search-regions · '+state.vars.length+' variables'); refreshColors(); })
+      .catch(function(err){ setSrc('Live backend unavailable ('+err.message+') — showing captured fixture.'); loadFixture(); });
+  });
+
+  document.getElementById("note").textContent="Overlaps blend via multiply to reveal child colors. Exclusion uses charcoal (not pure black) so it stays distinct from dark sign colors.";
+
+  buildThemes(); buildPalSwatches();
+  loadFixture();
+})();
+</script>
+</body>
+</html>
