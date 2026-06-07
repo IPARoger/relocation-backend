@@ -1,0 +1,93 @@
+# =====================================================
+# RELOCATION APP
+# CURSOR CONTEXT BOUNDARY
+#
+# Purpose:
+# Keep Cursor focused on active canon only.
+# Prevent archaeology, historical experiments,
+# abandoned renderers, onboarding generations,
+# validation archives, and transfer-document sprawl
+# from polluting context windows.
+#
+# Active doctrine remains available below.
+# Everything else is ignored by default.
+# =====================================================
+
+
+# =====================================================
+# IGNORE EVERYTHING FIRST
+# =====================================================
+
+*
+
+
+# =====================================================
+# ACTIVE CANON LIBRARY
+# =====================================================
+
+!docs/
+
+!docs/bootstrap/
+!docs/bootstrap/**
+
+!docs/constitutional/
+!docs/constitutional/**
+
+!docs/architecture/
+!docs/architecture/**
+
+!docs/product/
+!docs/product/**
+
+!docs/ai/
+!docs/ai/**
+
+!docs/governance/
+!docs/governance/**
+
+!docs/resolutions/
+!docs/resolutions/**
+
+
+# =====================================================
+# ROOT PROJECT FILES
+# (Allow only if actively used)
+# =====================================================
+
+!README.md
+!.cursor/rules/**
+!.cursor/rules
+
+
+# =====================================================
+# EXPLICITLY BLOCK ARCHAEOLOGY
+# =====================================================
+
+docs/archive/**
+docs/archives/**
+docs/old/**
+docs/history/**
+docs/onboarding/**
+docs/validation/**
+docs/reviews/**
+docs/experiments/**
+docs/sandboxes/**
+docs/transfer/**
+docs/transfers/**
+docs/deprecated/**
+docs/superseded/**
+docs/memory_archaeology/**
+docs/raw_continuity/**
+docs/continuity_volumes/**
+docs/rain/**
+docs/virga/**
+docs/web3/**
+docs/future_v2/**
+docs/second_take/**
+docs/json_exports/**
+docs/backups/**
+
+
+# =====================================================
+# END
+# =====================================================

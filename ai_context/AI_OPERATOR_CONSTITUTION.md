@@ -109,3 +109,18 @@ Do not:
 - expose debug internals in commercial UI
 - flatten human judgment into ranking or oracle language
 
+
+## Required Reading
+
+Before any task:
+
+1. Read AI_WORK_PROTOCOL.md
+2. Follow all requirements in AI_WORK_PROTOCOL.md
+3. Then read only the minimum additional documents required for the task
+
+AI_WORK_PROTOCOL.md governs repository reading behavior,
+scope expansion, workflow discipline, browser verification,
+versioning discipline, and commit discipline.
+
+Its requirements are mandatory.
+

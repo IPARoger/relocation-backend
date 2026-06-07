@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="spring">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Comparison — Relocation</title>
+<link rel="stylesheet" href="theme/relocation_themes.css" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:     var(--th-ink,    #1c1a18);
+  --surface: var(--th-base,   #f6f4f0);
+  --card:    var(--th-card,   #ffffff);
+  --line:    var(--th-line,   #e2dfd9);
+  --accent:  var(--th-accent, #4a7c6f);
+  --muted:   #8c8882;
+  --nav-h:   52px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background: var(--surface); color: var(--ink); font-size: 14px; line-height: 1.5; }
+
+/* NAV */
+.app-nav { position: sticky; top: 0; z-index: 100; height: var(--nav-h); background: var(--card); border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 24px; }
+.nav-logo { font-weight: 600; font-size: 15px; letter-spacing: -.02em; color: var(--ink); text-decoration: none; }
+.nav-links { display: flex; align-items: center; gap: 22px; list-style: none; justify-content: center; }
+.nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color .15s; }
+.nav-links a:hover { color: var(--ink); }
+.nav-links a.active { color: var(--ink); font-weight: 500; border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
+.nav-account { font-size: 13px; color: var(--muted); text-align: right; }
+
+/* PROFILE BLOCK */
+.profile-block { background: var(--card); border-bottom: 1px solid var(--line); padding: 14px 24px; display: flex; gap: 36px; align-items: flex-start; }
+.profile-main { display: flex; gap: 10px; align-items: flex-start; }
+.profile-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--line); display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--muted); flex-shrink: 0; margin-top: 2px; }
+.profile-name-row { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+.profile-name { font-weight: 600; font-size: 15px; }
+.profile-caret { font-size: 10px; color: var(--muted); cursor: pointer; }
+.profile-actions { display: flex; gap: 6px; margin-left: 10px; }
+.profile-btn { font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 3px; padding: 1px 7px; cursor: pointer; }
+.profile-btn:hover { color: var(--ink); border-color: var(--muted); }
+.profile-line { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.profile-line.coords { font-variant-numeric: tabular-nums; }
+.profile-line.system { font-size: 11px; margin-top: 3px; }
+.profile-current { padding-left: 14px; border-left: 1px solid var(--line); }
+.pcurr-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 3px; }
+.pcurr-place { font-size: 13px; }
+.pcurr-coords { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* PAGE */
+.page { max-width: 1080px; margin: 0 auto; padding: 0 24px 100px; }
+.comp-header { display: flex; align-items: baseline; gap: 10px; padding: 18px 0 4px; }
+.comp-title { font-size: 22px; font-weight: 600; letter-spacing: -.025em; }
+.comp-count { font-size: 12px; color: var(--muted); }
+.mobile-hint { font-size: 11px; color: var(--muted); padding: 4px 0 2px; }
+
+/* CITY BAR */
+.city-bar-wrap { position: sticky; top: var(--nav-h); z-index: 50; background: var(--card); border-top: 1px solid var(--line); border-bottom: 2px solid var(--ink); overflow-x: auto; margin-top: 16px; }
+.city-bar-table { border-collapse: collapse; }
+.bar-label { width: 1px; }
+.bar-city { padding: 8px 12px; border-left: 1px solid var(--line); vertical-align: top; }
+.bar-add { padding: 8px 10px; border-left: 1px solid var(--line); vertical-align: middle; text-align: center; }
+.bar-hidden-label { padding: 4px 8px 4px 0; border-top: 1px dashed var(--line); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); vertical-align: middle; white-space: nowrap; }
+.bar-hidden-stubs { padding: 4px 0; border-top: 1px dashed var(--line); vertical-align: middle; }
+.bname { font-weight: 600; font-size: 13px; }
+.city-tag { font-size: 10px; background: var(--line); border-radius: 3px; padding: 1px 5px; margin-left: 5px; color: var(--muted); }
+.city-coords { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.city-ctrls { display: flex; align-items: center; gap: 1px; margin-top: 5px; }
+.cc { font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 2px 5px; border-radius: 3px; transition: background .1s, color .1s; white-space: nowrap; }
+.cc:hover:not(:disabled) { background: var(--line); color: var(--ink); }
+.cc:disabled { opacity: .3; cursor: default; }
+.cc-info { font-size: 14px; padding: 1px 4px; }
+.cc-arr { font-size: 15px; padding: 1px 3px; line-height: 1; }
+.cc-rep { font-style: italic; }
+.add-city-btn { font-size: 11px; color: var(--muted); background: none; border: 1px dashed var(--line); border-radius: 4px; padding: 5px 7px; cursor: pointer; display: block; width: 100%; transition: color .15s, border-color .15s; }
+.add-city-btn:hover { color: var(--ink); border-color: var(--muted); }
+.city-stub-pill { font-size: 11px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 2px 9px; cursor: pointer; margin-right: 5px; transition: color .15s; }
+.city-stub-pill:hover { color: var(--ink); }
+
+/* BLOCKS */
+.block { margin-top: 26px; }
+.block-header { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.block-header-left { display: flex; align-items: center; cursor: pointer; user-select: none; gap: 0; flex: 1; }
+.block-header-left:hover .block-title { opacity: .75; }
+.block-arrow { font-size: 10px; color: var(--muted); margin-right: 7px; flex-shrink: 0; width: 12px; }
+.block-title { font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
+.block-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.notes-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 12px; padding: 3px 6px; border-radius: 3px; transition: background .1s, color .1s; }
+.notes-btn:hover { background: var(--line); color: var(--ink); }
+.angle-tabs { display: flex; gap: 2px; }
+.angle-tab { font-size: 11px; background: none; border: 1px solid var(--line); border-radius: 3px; padding: 2px 7px; cursor: pointer; color: var(--muted); transition: all .15s; }
+.angle-tab:hover { color: var(--ink); border-color: var(--muted); }
+.angle-tab.active { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.block-body { overflow: hidden; }
+.block-body.collapsed { display: none; }
+
+/* TABLES */
+.fact-table-wrap { overflow-x: auto; }
+.fact-table { border-collapse: collapse; }
+.fact-table td { padding: 7px 12px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: middle; }
+.fact-table tr:last-child td { border-bottom: none; }
+.fact-table tr:nth-child(even) td { background: rgba(0,0,0,.016); }
+.label-col { font-size: 12px; color: var(--muted); font-weight: 500; border-right: 1px solid var(--line); padding-left: 0; white-space: nowrap; }
+.val-col { font-variant-numeric: tabular-nums; }
+
+/* NOTES */
+.notes-box { display: none; border-top: 1px solid var(--line); padding: 10px 0 14px; max-width: var(--grid-w, 600px); }
+.notes-box.open { display: block; }
+.notes-composer { border: 1px solid var(--line); border-radius: 5px; background: var(--card); overflow: hidden; }
+.notes-textarea { width: 100%; border: none; padding: 10px 12px; font-size: 13px; font-family: inherit; resize: none; background: transparent; color: var(--ink); outline: none; min-height: 60px; }
+.notes-textarea::placeholder { color: var(--muted); }
+.notes-toolbar { display: flex; align-items: center; gap: 4px; padding: 5px 8px; border-top: 1px solid var(--line); background: var(--surface); }
+.notes-tool { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 2px 5px; border-radius: 3px; line-height: 1; }
+.notes-tool:hover { color: var(--ink); }
+.notes-save { margin-left: auto; font-size: 12px; background: none; border: 1px solid var(--line); border-radius: 3px; padding: 3px 10px; cursor: pointer; color: var(--muted); }
+.notes-save:hover { color: var(--ink); border-color: var(--muted); }
+
+/* MASTER NOTES */
+.master-notes { margin-top: 36px; max-width: var(--grid-w, 600px); }
+.master-notes-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+/* CITY INTELLIGENCE */
+.ci-section { margin-top: 56px; }
+.ci-section-title { font-size: 14px; font-weight: 600; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 16px; }
+.ci-grid { display: flex; gap: 14px; flex-wrap: wrap; max-width: var(--grid-w, 700px); }
+.ci-card { flex: 1; min-width: 120px; background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px 10px; }
+.ci-name { font-weight: 600; font-size: 13px; margin-bottom: 1px; }
+.ci-coords { font-size: 11px; color: var(--muted); margin-bottom: 9px; }
+.ci-list { list-style: none; font-size: 12px; }
+.ci-list li { padding: 4px 0; border-bottom: 1px solid var(--line); color: var(--muted); line-height: 1.4; }
+.ci-list li:last-child { border-bottom: none; }
+.ci-open-btn { display: block; width: 100%; text-align: left; margin-top: 10px; font-size: 12px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; }
+.ci-open-btn:hover { text-decoration: underline; }
+
+/* WHEEL NOTE */
+.wheel-note { margin-top: 44px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); letter-spacing: .03em; }
+
+/* MODALS */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.3); align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 20px 24px 18px; max-width: 380px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+.modal-title { font-weight: 600; font-size: 15px; margin-bottom: 10px; }
+.modal-body { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.modal-btn { font-size: 13px; background: none; border: 1px solid var(--line); border-radius: 4px; padding: 6px 16px; cursor: pointer; color: var(--muted); }
+.modal-btn:hover { color: var(--ink); border-color: var(--muted); }
+.ci-list-modal { list-style: none; margin: 10px 0; }
+.ci-list-modal li { padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.ci-list-modal li:last-child { border-bottom: none; }
+
+@media (max-width: 768px) {
+  .profile-block { flex-direction: column; gap: 12px; }
+  .profile-current { border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 10px; }
+  .nav-account { display: none; }
+  .mobile-hint { display: block; }
+}
+@media (min-width: 769px) { .mobile-hint { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="app-nav">
+  <a class="nav-logo" href="#">&#9702; Relocation</a>
+  <ul class="nav-links">
+    <li><a href="#">Help</a></li>
+    <li><a href="#">Settings</a></li>
+    <li><a href="#">Profile</a></li>
+    <li><a href="#">Map</a></li>
+    <li><a href="#" class="active">Compare</a></li>
+  </ul>
+  <div class="nav-account">Dave Goodman</div>
+</nav>
+
+<!-- PROFILE BLOCK -->
+<div class="profile-block">
+  <div class="profile-main">
+    <div class="profile-avatar">&#9702;</div>
+    <div class="profile-details">
+      <div class="profile-name-row">
+        <span class="profile-name">Anna Rivera</span>
+        <span class="profile-caret">&#9660;</span>
+        <div class="profile-actions">
+          <button class="profile-btn">Edit</button>
+          <button class="profile-btn">Add</button>
+        </div>
+      </div>
+      <div class="profile-line">Feb 14, 1990 &middot; 10:30 AM &middot; UTC &minus;5</div>
+      <div class="profile-line">New York, New York, USA</div>
+      <div class="profile-line coords">40.7128&deg; N, 74.0060&deg; W</div>
+      <div class="profile-line system">Tropical &middot; Placidus</div>
+    </div>
+  </div>
+  <div class="profile-current">
+    <div class="pcurr-label">Current Location</div>
+    <div class="pcurr-place">Austin, Texas, USA</div>
+    <div class="pcurr-coords">30.2672&deg; N, 97.7431&deg; W</div>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <div class="comp-header">
+    <h1 class="comp-title">Comparison</h1>
+    <span class="comp-count" id="comp-count">3 locations</span>
+  </div>
+  <div class="mobile-hint">Scroll right to see all cities &rsaquo;</div>
+
+  <!-- STICKY CITY BAR -->
+  <div class="city-bar-wrap">
+    <div id="city-bar-inner"></div>
+  </div>
+
+  <!-- BLOCK 1: ANGLE IN SIGN -->
+  <div class="block" id="block-ais">
+    <div class="block-header">
+      <div class="block-header-left" onclick="toggleBlock('ais')">
+        <span class="block-arrow" id="arrow-ais">&#9660;</span>
+        <span class="block-title">Angle in Sign</span>
+      </div>
+      <div class="block-header-right">
+        <button class="notes-btn" onclick="toggleNotes('ais')">&#9998;&thinsp;Notes</button>
+      </div>
+    </div>
+    <div class="block-body" id="body-ais">
+      <div class="fact-table-wrap"><div id="table-ais"></div></div>
+      <div class="notes-box" id="notes-ais">
+        <div class="notes-composer">
+          <textarea class="notes-textarea" placeholder="Angle in Sign notes&hellip;" rows="3"></textarea>
+          <div class="notes-toolbar">
+            <button class="notes-tool" title="Bullet">&#8801;</button>
+            <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+            <button class="notes-save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2: PLANET IN HOUSE -->
+  <div class="block" id="block-pih">
+    <div class="block-header">
+      <div class="block-header-left" onclick="toggleBlock('pih')">
+        <span class="block-arrow" id="arrow-pih">&#9660;</span>
+        <span class="block-title">Planet in House</span>
+      </div>
+      <div class="block-header-right">
+        <button class="notes-btn" onclick="toggleNotes('pih')">&#9998;&thinsp;Notes</button>
+      </div>
+    </div>
+    <div class="block-body" id="body-pih">
+      <div class="fact-table-wrap"><div id="table-pih"></div></div>
+      <div class="notes-box" id="notes-pih">
+        <div class="notes-composer">
+          <textarea class="notes-textarea" placeholder="Planet in House notes&hellip;" rows="3"></textarea>
+          <div class="notes-toolbar">
+            <button class="notes-tool" title="Bullet">&#8801;</button>
+            <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+            <button class="notes-save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: ASPECT TO ANGLE -->
+  <div class="block" id="block-ata">
+    <div class="block-header">
+      <div class="block-header-left" onclick="toggleBlock('ata')">
+        <span class="block-arrow" id="arrow-ata">&#9660;</span>
+        <span class="block-title">Aspect to Angle</span>
+      </div>
+      <div class="block-header-right">
+        <div class="angle-tabs" id="angle-tabs">
+          <button class="angle-tab active" data-angle="ASC" onclick="setAngle('ASC')">ASC</button>
+          <button class="angle-tab" data-angle="DSC" onclick="setAngle('DSC')">DSC</button>
+          <button class="angle-tab" data-angle="MC"  onclick="setAngle('MC')">MC</button>
+          <button class="angle-tab" data-angle="IC"  onclick="setAngle('IC')">IC</button>
+        </div>
+        <button class="notes-btn" onclick="toggleNotes('ata')">&#9998;&thinsp;Notes</button>
+      </div>
+    </div>
+    <div class="block-body" id="body-ata">
+      <div class="fact-table-wrap"><div id="table-ata"></div></div>
+      <div class="notes-box" id="notes-ata">
+        <div class="notes-composer">
+          <textarea class="notes-textarea" placeholder="Aspect to Angle notes&hellip;" rows="3"></textarea>
+          <div class="notes-toolbar">
+            <button class="notes-tool" title="Bullet">&#8801;</button>
+            <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+            <button class="notes-save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wheel-note">Wheel view &mdash; available as future mode</div>
+
+  <!-- MASTER COMPARISON NOTES -->
+  <div class="master-notes">
+    <div class="master-notes-label">Comparison Notes</div>
+    <div class="notes-composer">
+      <textarea class="notes-textarea" placeholder="Overall comparison notes&hellip;" rows="4"></textarea>
+      <div class="notes-toolbar">
+        <button class="notes-tool" title="Bullet">&#8801;</button>
+        <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+        <button class="notes-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CITY INTELLIGENCE -->
+  <div class="ci-section">
+    <div class="ci-section-title">City Intelligence</div>
+    <div class="ci-grid" id="ci-cards"></div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-replace" onclick="if(event.target===this)closeModal('replace')">
+  <div class="modal-box">
+    <div class="modal-title">Replace City</div>
+    <div class="modal-body" id="modal-replace-body">Replacing this city will create a new comparison record. The original comparison will be preserved intact.</div>
+    <div class="modal-actions"><button class="modal-btn" onclick="closeModal('replace')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-addcity" onclick="if(event.target===this)closeModal('addcity')">
+  <div class="modal-box">
+    <div class="modal-title">Add City</div>
+    <div class="modal-body">Adding a city will create a new comparison record. The original comparison will be preserved intact.</div>
+    <div class="modal-actions"><button class="modal-btn" onclick="closeModal('addcity')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cityinfo" onclick="if(event.target===this)closeModal('cityinfo')">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-ci-title">City Intelligence</div>
+    <ul class="ci-list-modal" id="modal-ci-list"></ul>
+    <div class="modal-actions" style="margin-top:14px"><button class="modal-btn" onclick="closeModal('cityinfo')">Close</button></div>
+  </div>
+</div>
+
+<script src="theme/relocation_theme.js"></script>
+<script>
+// ── Layout constants ──────────────────────────────────────────
+var COL_LABEL = 120, COL_CITY = 112, COL_ADD = 52;
+
+// ── City data ─────────────────────────────────────────────────
+var CITY_DATA = {
+  lisbon: { name:'Lisbon', country:'Portugal', shortName:'Lisbon', coords:'38.7223\u00b0 N, 9.1393\u00b0 W', tag:null,
+    ci:['Population: ~505,000 (metro 2.9M)','Climate: Mediterranean \u00b7 mild winters, hot dry summers','Economy: tourism, services, emerging tech sector','Safety: low crime \u00b7 generally safe for residents','City type: capital \u00b7 historic \u00b7 digital nomad friendly'] },
+  austin: { name:'Austin', country:'Texas, USA', shortName:'Austin', coords:'30.2672\u00b0 N, 97.7431\u00b0 W', tag:'Current Location',
+    ci:['Population: ~978,000 (metro 2.3M)','Climate: humid subtropical \u00b7 hot summers, mild winters','Economy: tech sector, state government, UT Austin','Safety: moderate crime \u00b7 varies by neighborhood','City type: business hub \u00b7 university city \u00b7 music scene'] },
+  bali:   { name:'Bali', country:'Indonesia', shortName:'Bali', coords:'8.3405\u00b0 S, 115.0920\u00b0 E', tag:null,
+    ci:['Population: ~4.2M (island province)','Climate: tropical \u00b7 warm year-round, wet/dry seasons','Economy: tourism dominant, emerging creative economy','Safety: generally safe \u00b7 tourist-oriented infrastructure','City type: island region \u00b7 digital nomad destination'] }
+};
+
+// ── State ─────────────────────────────────────────────────────
+var cityOrder = ['lisbon','austin','bali'];
+var cityHidden = {};
+var activeAngle = 'ASC';
+
+function visibleCities() { return cityOrder.filter(function(id){ return !cityHidden[id]; }); }
+
+// ── Fact data ─────────────────────────────────────────────────
+var AIS_LABELS = ['ASC','DSC','MC','IC'];
+var AIS_DATA = {
+  lisbon: ['18\u00b0 Virgo 34\u2032','18\u00b0 Pisces 34\u2032','15\u00b0 Gemini 21\u2032','15\u00b0 Sagittarius 21\u2032'],
+  austin: ['12\u00b0 Virgo 11\u2032','12\u00b0 Pisces 11\u2032','4\u00b0 Gemini 56\u2032','4\u00b0 Sagittarius 56\u2032'],
+  bali:   ['5\u00b0 Scorpio 27\u2032','5\u00b0 Taurus 27\u2032','20\u00b0 Leo 13\u2032','20\u00b0 Aquarius 13\u2032']
+};
+
+var PIH_LABELS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Chiron','North Node','South Node'];
+var PIH_DATA = {
+  lisbon: [5,11,5,7,3,1,2,12,4,1,8,6,12],
+  austin: [10,2,10,11,7,1,12,4,3,9,2,11,5],
+  bali:   [1,4,1,2,10,7,5,6,9,12,3,8,2]
+};
+
+var ATA_PLANETS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Chiron'];
+var ATA_DATA = {
+  ASC:{
+    lisbon: ['\u260c 2\u00b014\u2032','\u25b3 3\u00b018\u2032',null,'\u25b3 1\u00b032\u2032','\u25a1 4\u00b045\u2032',null,'\u25a1 4\u00b008\u2032',null,'\u2736 2\u00b041\u2032',null,'\u25b3 1\u00b014\u2032'],
+    austin: [null,'\u2736 1\u00b044\u2032','\u260c 0\u00b047\u2032',null,'\u2736 3\u00b021\u2032','\u25a1 2\u00b014\u2032','\u260d 5\u00b018\u2032',null,null,'\u260d 2\u00b055\u2032',null],
+    bali:   ['\u25b3 5\u00b002\u2032','\u260c 1\u00b018\u2032','\u25b3 2\u00b031\u2032',null,'\u260d 2\u00b008\u2032','\u260c 3\u00b044\u2032',null,'\u25a1 0\u00b033\u2032',null,'\u25b3 1\u00b047\u2032','\u2736 3\u00b022\u2032']
+  },
+  DSC:{
+    lisbon: ['\u260d 2\u00b014\u2032','\u25a1 1\u00b042\u2032',null,'\u260d 1\u00b032\u2032',null,'\u25b3 3\u00b011\u2032',null,'\u2736 2\u00b007\u2032',null,'\u260d 3\u00b022\u2032',null],
+    austin: ['\u25b3 4\u00b018\u2032',null,'\u260d 0\u00b047\u2032','\u25b3 2\u00b033\u2032',null,null,'\u260c 3\u00b044\u2032','\u25a1 1\u00b056\u2032','\u2736 2\u00b018\u2032',null,'\u25b3 4\u00b007\u2032'],
+    bali:   [null,'\u260d 1\u00b018\u2032',null,'\u25a1 3\u00b015\u2032','\u260c 2\u00b008\u2032',null,'\u25b3 4\u00b022\u2032',null,'\u25b3 1\u00b044\u2032',null,null]
+  },
+  MC:{
+    lisbon: ['\u2736 3\u00b007\u2032',null,'\u25a1 2\u00b044\u2032',null,'\u25b3 1\u00b018\u2032','\u260c 4\u00b002\u2032',null,'\u25a1 3\u00b017\u2032','\u25b3 0\u00b054\u2032',null,'\u25a1 2\u00b038\u2032'],
+    austin: ['\u260c 1\u00b033\u2032','\u25b3 2\u00b011\u2032','\u260c 0\u00b028\u2032',null,null,'\u2736 3\u00b048\u2032',null,null,'\u25a1 1\u00b022\u2032','\u25b3 3\u00b007\u2032',null],
+    bali:   ['\u25a1 4\u00b018\u2032','\u2736 3\u00b002\u2032',null,'\u25b3 2\u00b044\u2032','\u260c 0\u00b047\u2032',null,'\u25a1 2\u00b011\u2032','\u25b3 4\u00b008\u2032',null,null,'\u260c 1\u00b033\u2032']
+  },
+  IC:{
+    lisbon: [null,'\u260c 2\u00b044\u2032','\u2736 1\u00b018\u2032','\u25a1 3\u00b007\u2032',null,'\u260d 4\u00b002\u2032','\u25b3 2\u00b011\u2032',null,'\u260d 0\u00b054\u2032','\u25a1 3\u00b044\u2032',null],
+    austin: ['\u260d 1\u00b033\u2032',null,'\u260d 0\u00b028\u2032','\u2736 2\u00b007\u2032','\u25a1 3\u00b044\u2032',null,'\u25b3 1\u00b018\u2032','\u260c 2\u00b033\u2032',null,null,'\u2736 2\u00b011\u2032'],
+    bali:   [null,'\u260d 3\u00b002\u2032','\u25b3 1\u00b044\u2032',null,'\u260d 0\u00b047\u2032','\u25b3 2\u00b018\u2032',null,null,'\u2736 3\u00b007\u2032','\u25a1 2\u00b044\u2032',null]
+  }
+};
+
+// ── Render helpers ────────────────────────────────────────────
+function buildTable(labels, getData) {
+  var vis = visibleCities();
+  var W = COL_LABEL + vis.length * COL_CITY;
+  var h = '<table class="fact-table" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
+  h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
+  vis.forEach(function(){ h += '<col style="width:' + COL_CITY + 'px">'; });
+  h += '</colgroup><tbody>';
+  labels.forEach(function(label, i) {
+    h += '<tr><td class="label-col">' + label + '</td>';
+    vis.forEach(function(id) {
+      var v = getData(id, i);
+      h += '<td class="val-col">' + (v !== null && v !== undefined ? v : '&mdash;') + '</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+
+function renderAIS() { document.getElementById('table-ais').innerHTML = buildTable(AIS_LABELS, function(id,i){ return AIS_DATA[id][i]; }); }
+function renderPIH() { document.getElementById('table-pih').innerHTML = buildTable(PIH_LABELS, function(id,i){ return PIH_DATA[id][i]; }); }
+function renderATA() {
+  var d = ATA_DATA[activeAngle];
+  document.getElementById('table-ata').innerHTML = buildTable(ATA_PLANETS, function(id,i){ return d[id][i]; });
+  document.querySelectorAll('.angle-tab').forEach(function(btn){ btn.classList.toggle('active', btn.dataset.angle === activeAngle); });
+}
+
+function renderCityBar() {
+  var vis = visibleCities();
+  var hiddenList = cityOrder.filter(function(id){ return cityHidden[id]; });
+  var W = COL_LABEL + vis.length * COL_CITY + COL_ADD;
+  var h = '<table class="city-bar-table" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
+  h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
+  vis.forEach(function(){ h += '<col style="width:' + COL_CITY + 'px">'; });
+  h += '<col style="width:' + COL_ADD + 'px"></colgroup>';
+  h += '<tbody><tr><td class="bar-label"></td>';
+  vis.forEach(function(id, idx) {
+    var c = CITY_DATA[id];
+    var isFirst = idx === 0, isLast = idx === vis.length - 1;
+    h += '<td class="bar-city"><div style="display:flex;align-items:center;gap:0">'
+      + '<span class="bname">' + c.name + ', ' + c.country + '</span>'
+      + (c.tag ? '<span class="city-tag">' + c.tag + '</span>' : '')
+      + '</div>'
+      + '<div class="city-coords">' + c.coords + '</div>'
+      + '<div class="city-ctrls">'
+      + '<button class="cc cc-info" onclick="openCityInfo(\'' + id + '\')" title="City Intelligence">\u24d8</button>'
+      + '<button class="cc" onclick="toggleHide(\'' + id + '\')">Hide</button>'
+      + '<button class="cc cc-arr" onclick="moveCity(\'' + id + '\',-1)"' + (isFirst?' disabled':'') + '>\u2039</button>'
+      + '<button class="cc cc-arr" onclick="moveCity(\'' + id + '\',1)"'  + (isLast?' disabled':'')  + '>\u203a</button>'
+      + '<button class="cc cc-rep" onclick="openReplace(\'' + id + '\')">Replace</button>'
+      + '</div></td>';
+  });
+  h += '<td class="bar-add"><button class="add-city-btn" onclick="openAddCity()">+ Add</button></td>';
+  h += '</tr>';
+  if (hiddenList.length) {
+    h += '<tr><td class="bar-hidden-label">Hidden</td><td class="bar-hidden-stubs" colspan="' + (vis.length + 1) + '">';
+    hiddenList.forEach(function(id){ h += '<button class="city-stub-pill" onclick="toggleHide(\'' + id + '\')">' + CITY_DATA[id].shortName + ' \u21a9</button>'; });
+    h += '</td></tr>';
+  }
+  h += '</tbody></table>';
+  document.getElementById('city-bar-inner').innerHTML = h;
+}
+
+function renderCI() {
+  var vis = visibleCities();
+  var h = '';
+  vis.forEach(function(id) {
+    var c = CITY_DATA[id];
+    h += '<div class="ci-card"><div class="ci-name">' + c.name + ', ' + c.country + '</div>'
+      + '<div class="ci-coords">' + c.coords + '</div><ul class="ci-list">'
+      + c.ci.map(function(b){ return '<li>' + b + '</li>'; }).join('')
+      + '</ul><button class="ci-open-btn" onclick="return false">Open Full City Page</button></div>';
+  });
+  document.getElementById('ci-cards').innerHTML = h;
+}
+
+function renderAll() {
+  var vis = visibleCities();
+  var gw = COL_LABEL + vis.length * COL_CITY;
+  document.documentElement.style.setProperty('--grid-w', gw + 'px');
+  var total = cityOrder.length;
+  var countEl = document.getElementById('comp-count');
+  if (countEl) countEl.textContent = vis.length === total ? total + ' locations' : vis.length + ' of ' + total + ' visible';
+  renderCityBar();
+  renderAIS();
+  renderPIH();
+  renderATA();
+  renderCI();
+}
+
+// ── Controls ──────────────────────────────────────────────────
+function toggleHide(id) { cityHidden[id] = !cityHidden[id]; renderAll(); }
+function moveCity(id, dir) {
+  var idx = cityOrder.indexOf(id), ni = idx + dir;
+  if (ni < 0 || ni >= cityOrder.length) return;
+  var tmp = cityOrder[idx]; cityOrder[idx] = cityOrder[ni]; cityOrder[ni] = tmp;
+  renderAll();
+}
+function setAngle(a) { activeAngle = a; renderATA(); }
+function toggleBlock(id) {
+  var body = document.getElementById('body-' + id);
+  var arrow = document.getElementById('arrow-' + id);
+  var closing = !body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', closing);
+  arrow.innerHTML = closing ? '&#9654;' : '&#9660;';
+}
+function toggleNotes(id) { document.getElementById('notes-' + id).classList.toggle('open'); }
+function openCityInfo(id) {
+  var c = CITY_DATA[id];
+  document.getElementById('modal-ci-title').textContent = c.name + ', ' + c.country;
+  document.getElementById('modal-ci-list').innerHTML = c.ci.map(function(b){ return '<li>' + b + '</li>'; }).join('');
+  openModal('cityinfo');
+}
+function openReplace(id) {
+  document.getElementById('modal-replace-body').textContent = 'Replacing ' + CITY_DATA[id].name + ' will create a new comparison record. The original comparison will be preserved intact.';
+  openModal('replace');
+}
+function openAddCity() { openModal('addcity'); }
+function openModal(id) { document.getElementById('modal-' + id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+
+renderAll();
+</script>
+</body>
+</html>

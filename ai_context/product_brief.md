@@ -65,3 +65,7 @@ Validation records, reports, screenshots, and narratives are part of the proof c
 - Dropdown and UX regressions.
 
 Validation should remain visible and durable enough that future chats can continue without losing the reasoning trail.
+
+## Institutional memory (archaeology)
+
+Raw multi-chat extractions live under `memory_archaeology_raw/pending_imports/`. Themed synthesis (non-authoritative over the raw text, but easier onboarding) lives under `memory_archaeology_raw/consolidated_notes/`. A bridge summary with explicit **implemented vs roadmap vs speculative** labeling lives in `docs/institutional_memory_synthesis.md`.

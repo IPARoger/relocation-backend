@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="spring">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparison — Relocation</title>
+  <link rel="stylesheet" href="theme/relocation_themes.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:     var(--th-ink,    #1a1a1a);
+      --surface: var(--th-base,   #f7f5f1);
+      --card:    var(--th-card,   #ffffff);
+      --line:    var(--th-line,   #e0ddd8);
+      --accent:  var(--th-accent, #4a7c6f);
+      --muted:   #8a8680;
+      --nav-h:   52px;
+      --col-label: 152px;
+      --col-city:  190px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    }
+
+    .app-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--card); border-bottom: 1px solid var(--line);
+      height: var(--nav-h); display: flex; align-items: center; padding: 0 28px;
+    }
+    .nav-logo { font-weight: 600; font-size: 15px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; margin-right: auto; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color .15s; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a.active { color: var(--ink); font-weight: 500; border-bottom: 2px solid var(--ink); padding-bottom: 3px; }
+
+    .profile-strip {
+      background: var(--card); border-bottom: 1px solid var(--line);
+      padding: 14px 28px;
+      display: grid; grid-template-columns: 44px auto 1fr 1fr 1fr; gap: 0 24px; align-items: start;
+    }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--line); display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--muted); margin-top: 2px; }
+    .profile-identity .name  { font-weight: 600; font-size: 14px; }
+    .profile-identity .birth { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .profile-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 5px; }
+    .profile-value { font-size: 13px; }
+    .profile-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .intent-bar    { height: 5px; background: var(--line); border-radius: 3px; width: 75%; opacity: .6; margin-bottom: 4px; }
+
+    .page { max-width: 1120px; margin: 0 auto; padding: 0 28px 100px; }
+
+    .breadcrumb { padding: 16px 0 4px; font-size: 13px; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--ink); }
+
+    .comparison-title-row { display: flex; align-items: baseline; gap: 12px; padding: 8px 0 0; }
+    .comparison-title-row h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.025em; }
+    .comparison-count { font-size: 13px; color: var(--muted); }
+
+    .mobile-hint { display: none; font-size: 11px; color: var(--muted); padding: 6px 0 2px; }
+
+    /* ---- Sticky city bar ---- */
+    .city-bar {
+      position: sticky; top: var(--nav-h); z-index: 50;
+      background: var(--card);
+      border-top: 1px solid var(--line); border-bottom: 2px solid var(--ink);
+      display: flex; align-items: stretch;
+      margin-top: 20px; overflow: hidden;
+    }
+    .city-bar-label {
+      width: var(--col-label); flex-shrink: 0;
+      display: flex; align-items: center; padding: 0 16px 0 0;
+      font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+      border-right: 1px solid var(--line);
+    }
+    .city-cols { display: flex; flex: 1; overflow: hidden; }
+    .city-col {
+      flex: 1; min-width: var(--col-city);
+      border-right: 1px solid var(--line);
+      padding: 10px 16px;
+      transition: flex .28s ease, min-width .28s ease, padding .28s ease;
+      overflow: hidden; position: relative;
+    }
+    .city-col:last-child { border-right: none; }
+    .city-col.city-hidden-col { flex: 0 0 0; min-width: 0; padding: 0; border-right: none; }
+
+    .city-stubs { display: flex; align-items: stretch; }
+    .city-stub { display: none; align-items: center; border-left: 1px solid var(--line); padding: 0 8px; cursor: pointer; }
+    .city-stub.visible { display: flex; }
+    .city-stub-inner { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11px; color: var(--muted); white-space: nowrap; user-select: none; }
+    .city-stub-inner:hover { color: var(--ink); }
+
+    .city-name   { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .city-coords { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .city-controls { display: flex; align-items: center; margin-top: 5px; flex-wrap: nowrap; }
+    .city-ctrl {
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      padding: 1px 6px 1px 0; background: none; border: none;
+      transition: color .15s; white-space: nowrap;
+    }
+    .city-ctrl:hover { color: var(--ink); }
+    .city-ctrl.future { opacity: .35; cursor: default; pointer-events: none; }
+    .city-ctrl-sep { font-size: 10px; color: var(--line); padding-right: 6px; line-height: 1.6; }
+
+    .city-col-header { position: relative; }
+    .city-info-popup {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 300;
+      background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+      padding: 14px 16px 12px; width: 210px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.09); font-size: 12px;
+    }
+    .city-info-popup.open { display: block; }
+    .popup-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .popup-title { font-weight: 600; font-size: 13px; }
+    .popup-close { background: none; border: none; font-size: 15px; cursor: pointer; color: var(--muted); line-height: 1; padding: 0; }
+    .popup-close:hover { color: var(--ink); }
+    .popup-bullets { list-style: none; }
+    .popup-bullets li { padding: 4px 0; border-bottom: 1px solid var(--line); color: var(--muted); line-height: 1.4; }
+    .popup-bullets li:last-child { border-bottom: none; }
+    .popup-link { display: block; margin-top: 10px; font-size: 12px; color: var(--accent); text-decoration: none; }
+    .popup-link:hover { text-decoration: underline; }
+
+    /* ---- Blocks ---- */
+    .block { margin-top: 36px; }
+    .block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--line);
+      cursor: pointer; user-select: none;
+    }
+    .block-header:hover .block-toggle { color: var(--ink); }
+    .block-title    { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .block-subtitle { font-size: 12px; color: var(--muted); margin-left: 10px; font-weight: 400; }
+    .block-toggle   { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .block-body          { overflow: hidden; }
+    .block-body.collapsed { display: none; }
+
+    /* ---- Fact matrix ---- */
+    .fact-matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .fact-matrix {
+      width: 100%; border-collapse: collapse;
+      min-width: calc(var(--col-label) + var(--col-city) * 3);
+      table-layout: fixed;
+    }
+    .fact-matrix td {
+      padding: 9px 16px; border-bottom: 1px solid var(--line);
+      vertical-align: middle; font-size: 13px; font-variant-numeric: tabular-nums;
+    }
+    .fact-matrix tr:last-child td { border-bottom: none; }
+    .fact-matrix tr:nth-child(odd) td { background: rgba(0,0,0,.018); }
+    .label-col {
+      width: var(--col-label); font-size: 12px; color: var(--muted);
+      font-weight: 500; border-right: 1px solid var(--line);
+      padding-left: 0; white-space: nowrap;
+    }
+    .val-col { width: var(--col-city); }
+    .val-col.city-hidden { display: none; }
+
+    /* ---- Notes ---- */
+    .block-notes  { border-top: 1px solid var(--line); }
+    .notes-toggle {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0; font-size: 12px; color: var(--muted);
+      cursor: pointer; background: none; border: none;
+      width: 100%; text-align: left; transition: color .15s;
+    }
+    .notes-toggle:hover { color: var(--ink); }
+    .notes-hint { font-size: 11px; color: var(--muted); }
+    .notes-body { display: none; padding: 2px 0 16px; }
+    .notes-body.open { display: block; }
+    .notes-area {
+      width: 100%; min-height: 70px; border: 1px solid var(--line); border-radius: 4px;
+      padding: 10px 12px; font-size: 13px; font-family: inherit;
+      color: var(--ink); background: var(--card); resize: vertical;
+    }
+    .notes-area::placeholder { color: var(--muted); }
+
+    .placeholder-block {
+      margin: 18px 0; background: var(--card);
+      border: 1px dashed var(--line); border-radius: 5px;
+      padding: 22px 20px; text-align: center; color: var(--muted); font-size: 13px;
+    }
+    .placeholder-block strong { display: block; font-size: 14px; color: var(--ink); margin-bottom: 6px; font-weight: 600; }
+
+    .wheel-reserved {
+      margin-top: 52px; padding: 12px 0;
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+      text-align: center; font-size: 11px; color: var(--muted); letter-spacing: .04em;
+    }
+
+    /* ---- City Intelligence ---- */
+    .ci-section { margin-top: 72px; }
+    .ci-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 22px; }
+    .ci-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+    .ci-card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px 14px; }
+    .ci-card-name   { font-weight: 600; font-size: 14px; margin-bottom: 1px; }
+    .ci-card-coords { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+    .ci-bullets { list-style: none; font-size: 12px; }
+    .ci-bullets li { padding: 5px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
+    .ci-bullets li:last-child { border-bottom: none; }
+    .ci-open-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--accent); text-decoration: none; }
+    .ci-open-link:hover { text-decoration: underline; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+      :root { --col-label: 108px; --col-city: 140px; }
+      .profile-strip { grid-template-columns: 40px 1fr; row-gap: 10px; }
+      .profile-strip > *:nth-child(n+3) { grid-column: 1 / -1; }
+      .city-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .label-col { position: sticky; left: 0; background: var(--surface); z-index: 5; }
+      .fact-matrix tr:nth-child(odd) .label-col { background: rgba(247,245,241,0.97); }
+      .ci-cards { grid-template-columns: 1fr; }
+      .mobile-hint { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <a class="nav-logo" href="#">&#9702; Relocation</a>
+  <ul class="nav-links">
+    <li><a href="#">Help</a></li>
+    <li><a href="#">Settings</a></li>
+    <li><a href="#">Profile</a></li>
+    <li><a href="#">Map</a></li>
+    <li><a href="#" class="active">Compare</a></li>
+  </ul>
+</nav>
+
+<div class="profile-strip">
+  <div class="profile-avatar">&#9702;</div>
+  <div class="profile-identity">
+    <div class="name">Anna Rivera</div>
+    <div class="birth">Feb 14, 1990 &middot; 10:30 AM</div>
+    <div class="birth">New York, New York, USA &middot; 40.7128&deg; N, 74.0060&deg; W</div>
+  </div>
+  <div>
+    <div class="profile-label">Who You Are</div>
+    <div class="intent-bar"></div>
+    <div class="intent-bar" style="width:55%"></div>
+  </div>
+  <div>
+    <div class="profile-label">Where You Are</div>
+    <div class="profile-value">Austin, Texas, USA</div>
+    <div class="profile-sub">30.2672&deg; N, 97.7431&deg; W</div>
+  </div>
+  <div>
+    <div class="profile-label">Intent</div>
+    <div class="intent-bar"></div>
+    <div class="intent-bar" style="width:45%"></div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="breadcrumb"><a href="#">&larr; Map</a></div>
+
+  <div class="comparison-title-row">
+    <h1>Comparison</h1>
+    <span class="comparison-count" id="loc-count">3 locations</span>
+  </div>
+  <div class="mobile-hint">Scroll right to compare all cities &rsaquo;</div>
+
+  <!-- STICKY CITY BAR -->
+  <div class="city-bar">
+    <div class="city-bar-label">Location</div>
+    <div class="city-cols" id="city-cols">
+
+      <div class="city-col" id="col-lisbon" data-city="lisbon">
+        <div class="city-col-header">
+          <div class="city-name">Lisbon, Portugal</div>
+          <div class="city-coords">38.7223&deg; N, 9.1393&deg; W</div>
+          <div class="city-controls">
+            <button class="city-ctrl" onclick="openInfo('lisbon')">Info</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl" id="hide-lisbon" onclick="toggleHide('lisbon')">Hide</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl future" title="Reorder &mdash; future">Reorder</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl future" title="Replace creates a new comparison record &mdash; future">Replace</button>
+          </div>
+          <div class="city-info-popup" id="popup-lisbon">
+            <div class="popup-head">
+              <div class="popup-title">Lisbon, Portugal</div>
+              <button class="popup-close" onclick="closeInfo('lisbon')">&#215;</button>
+            </div>
+            <ul class="popup-bullets">
+              <li>Western Iberia &middot; Atlantic coast</li>
+              <li>Central European Time &mdash; UTC +0 / +1</li>
+              <li>38.7&deg; N &mdash; northern hemisphere, coastal latitude</li>
+              <li>Placeholder orientation note</li>
+              <li>Placeholder orientation note</li>
+            </ul>
+            <a class="popup-link" href="#">Open full city page &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="city-col" id="col-austin" data-city="austin">
+        <div class="city-col-header">
+          <div class="city-name">Austin, Texas, USA</div>
+          <div class="city-coords">30.2672&deg; N, 97.7431&deg; W</div>
+          <div class="city-controls">
+            <button class="city-ctrl" onclick="openInfo('austin')">Info</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl" id="hide-austin" onclick="toggleHide('austin')">Hide</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl future" title="Reorder &mdash; future">Reorder</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl future" title="Replace creates a new comparison record &mdash; future">Replace</button>
+          </div>
+          <div class="city-info-popup" id="popup-austin">
+            <div class="popup-head">
+              <div class="popup-title">Austin, Texas, USA</div>
+              <button class="popup-close" onclick="closeInfo('austin')">&#215;</button>
+            </div>
+            <ul class="popup-bullets">
+              <li>South-central Texas &middot; inland plateau</li>
+              <li>Central Time &mdash; UTC &minus;6 / &minus;5</li>
+              <li>30.3&deg; N &mdash; subtropical latitude</li>
+              <li>Placeholder orientation note</li>
+              <li>Placeholder orientation note</li>
+            </ul>
+            <a class="popup-link" href="#">Open full city page &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="city-col" id="col-bali" data-city="bali">
+        <div class="city-col-header">
+          <div class="city-name">Bali, Indonesia</div>
+          <div class="city-coords">8.3405&deg; S, 115.0920&deg; E</div>
+          <div class="city-controls">
+            <button class="city-ctrl" onclick="openInfo('bali')">Info</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl" id="hide-bali" onclick="toggleHide('bali')">Hide</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl future" title="Reorder &mdash; future">Reorder</button>
+            <span class="city-ctrl-sep">&middot;</span>
+            <button class="city-ctrl future" title="Replace creates a new comparison record &mdash; future">Replace</button>
+          </div>
+          <div class="city-info-popup" id="popup-bali">
+            <div class="popup-head">
+              <div class="popup-title">Bali, Indonesia</div>
+              <button class="popup-close" onclick="closeInfo('bali')">&#215;</button>
+            </div>
+            <ul class="popup-bullets">
+              <li>Indonesian archipelago &middot; tropical island</li>
+              <li>WITA &mdash; UTC +8</li>
+              <li>8.3&deg; S &mdash; southern hemisphere, equatorial</li>
+              <li>Placeholder orientation note</li>
+              <li>Placeholder orientation note</li>
+            </ul>
+            <a class="popup-link" href="#">Open full city page &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="city-stubs" id="city-stubs">
+      <div class="city-stub" id="stub-lisbon" onclick="toggleHide('lisbon')" title="Show Lisbon">
+        <div class="city-stub-inner">Lisbon</div>
+      </div>
+      <div class="city-stub" id="stub-austin" onclick="toggleHide('austin')" title="Show Austin">
+        <div class="city-stub-inner">Austin</div>
+      </div>
+      <div class="city-stub" id="stub-bali" onclick="toggleHide('bali')" title="Show Bali">
+        <div class="city-stub-inner">Bali</div>
+      </div>
+    </div>
+
+  </div><!-- /city-bar -->
+
+  <!-- BLOCK 1: ANGLE IN SIGN -->
+  <div class="block">
+    <div class="block-header" onclick="toggleBlock('ais')">
+      <div>
+        <span class="block-title">Angle in Sign</span>
+        <span class="block-subtitle">ASC &middot; MC &middot; DSC &middot; IC</span>
+      </div>
+      <span class="block-toggle" id="toggle-ais">&#9650; collapse</span>
+    </div>
+    <div class="block-body" id="body-ais">
+      <div class="fact-matrix-wrap">
+        <table class="fact-matrix">
+          <tbody>
+            <tr>
+              <td class="label-col">ASC</td>
+              <td class="val-col" data-city="lisbon">Virgo 18&deg; 34&prime;</td>
+              <td class="val-col" data-city="austin">Virgo 12&deg; 11&prime;</td>
+              <td class="val-col" data-city="bali">Scorpio 5&deg; 27&prime;</td>
+            </tr>
+            <tr>
+              <td class="label-col">MC</td>
+              <td class="val-col" data-city="lisbon">Gemini 15&deg; 21&prime;</td>
+              <td class="val-col" data-city="austin">Gemini 4&deg; 56&prime;</td>
+              <td class="val-col" data-city="bali">Leo 20&deg; 13&prime;</td>
+            </tr>
+            <tr>
+              <td class="label-col">DSC</td>
+              <td class="val-col" data-city="lisbon">Pisces 18&deg; 34&prime;</td>
+              <td class="val-col" data-city="austin">Pisces 12&deg; 11&prime;</td>
+              <td class="val-col" data-city="bali">Taurus 5&deg; 27&prime;</td>
+            </tr>
+            <tr>
+              <td class="label-col">IC</td>
+              <td class="val-col" data-city="lisbon">Sagittarius 15&deg; 21&prime;</td>
+              <td class="val-col" data-city="austin">Sagittarius 4&deg; 56&prime;</td>
+              <td class="val-col" data-city="bali">Aquarius 20&deg; 13&prime;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="block-notes">
+        <button class="notes-toggle" onclick="toggleNotes('ais')">
+          <span>+ Notes</span>
+          <span class="notes-hint">Block notes &mdash; angle placements across locations</span>
+        </button>
+        <div class="notes-body" id="notes-ais">
+          <textarea class="notes-area" placeholder="Observations about angle-in-sign across these locations&hellip;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2: PLANET IN HOUSE -->
+  <div class="block">
+    <div class="block-header" onclick="toggleBlock('pih')">
+      <div>
+        <span class="block-title">Planet in House</span>
+        <span class="block-subtitle">Sun &middot; Moon &middot; Mercury &middot; Venus &middot; Mars &middot; Jupiter &middot; Saturn &middot; Uranus &middot; Neptune &middot; Pluto</span>
+      </div>
+      <span class="block-toggle" id="toggle-pih">&#9650; collapse</span>
+    </div>
+    <div class="block-body" id="body-pih">
+      <div class="fact-matrix-wrap">
+        <table class="fact-matrix">
+          <tbody>
+            <tr><td class="label-col">Sun</td>     <td class="val-col" data-city="lisbon">5th</td>  <td class="val-col" data-city="austin">10th</td> <td class="val-col" data-city="bali">1st</td></tr>
+            <tr><td class="label-col">Moon</td>    <td class="val-col" data-city="lisbon">11th</td> <td class="val-col" data-city="austin">2nd</td>  <td class="val-col" data-city="bali">4th</td></tr>
+            <tr><td class="label-col">Mercury</td> <td class="val-col" data-city="lisbon">5th</td>  <td class="val-col" data-city="austin">10th</td> <td class="val-col" data-city="bali">1st</td></tr>
+            <tr><td class="label-col">Venus</td>   <td class="val-col" data-city="lisbon">7th</td>  <td class="val-col" data-city="austin">11th</td> <td class="val-col" data-city="bali">2nd</td></tr>
+            <tr><td class="label-col">Mars</td>    <td class="val-col" data-city="lisbon">3rd</td>  <td class="val-col" data-city="austin">7th</td>  <td class="val-col" data-city="bali">10th</td></tr>
+            <tr><td class="label-col">Jupiter</td> <td class="val-col" data-city="lisbon">1st</td>  <td class="val-col" data-city="austin">1st</td>  <td class="val-col" data-city="bali">7th</td></tr>
+            <tr><td class="label-col">Saturn</td>  <td class="val-col" data-city="lisbon">2nd</td>  <td class="val-col" data-city="austin">12th</td> <td class="val-col" data-city="bali">5th</td></tr>
+            <tr><td class="label-col">Uranus</td>  <td class="val-col" data-city="lisbon">12th</td> <td class="val-col" data-city="austin">4th</td>  <td class="val-col" data-city="bali">6th</td></tr>
+            <tr><td class="label-col">Neptune</td> <td class="val-col" data-city="lisbon">4th</td>  <td class="val-col" data-city="austin">3rd</td>  <td class="val-col" data-city="bali">9th</td></tr>
+            <tr><td class="label-col">Pluto</td>   <td class="val-col" data-city="lisbon">1st</td>  <td class="val-col" data-city="austin">9th</td>  <td class="val-col" data-city="bali">12th</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="block-notes">
+        <button class="notes-toggle" onclick="toggleNotes('pih')">
+          <span>+ Notes</span>
+          <span class="notes-hint">Block notes &mdash; planetary house placements across locations</span>
+        </button>
+        <div class="notes-body" id="notes-pih">
+          <textarea class="notes-area" placeholder="Observations about planet-in-house across these locations&hellip;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: ASPECT TO ANGLE (placeholder) -->
+  <div class="block">
+    <div class="block-header" onclick="toggleBlock('ata')">
+      <div>
+        <span class="block-title">Aspect to Angle</span>
+        <span class="block-subtitle">Placeholder</span>
+      </div>
+      <span class="block-toggle" id="toggle-ata">&#9650; collapse</span>
+    </div>
+    <div class="block-body" id="body-ata">
+      <div class="placeholder-block">
+        <strong>Aspect-to-Angle</strong>
+        Aspect-to-Angle comparison format will be imported from the Profile page.<br>
+        <span style="font-size:11px;margin-top:5px;display:block;opacity:.7">No new format is being invented here.</span>
+      </div>
+      <div class="block-notes">
+        <button class="notes-toggle" onclick="toggleNotes('ata')">
+          <span>+ Notes</span>
+          <span class="notes-hint">Reserved for aspect-to-angle observations</span>
+        </button>
+        <div class="notes-body" id="notes-ata">
+          <textarea class="notes-area" placeholder="Observations about aspect-to-angle across these locations&hellip;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wheel-reserved">Wheel comparison &mdash; future mode</div>
+
+  <!-- CITY INTELLIGENCE -->
+  <div class="ci-section">
+    <div class="ci-title">City Intelligence</div>
+    <div class="ci-cards">
+
+      <div class="ci-card">
+        <div class="ci-card-name">Lisbon, Portugal</div>
+        <div class="ci-card-coords">38.7223&deg; N, 9.1393&deg; W</div>
+        <ul class="ci-bullets">
+          <li>Western Iberia &middot; Atlantic coast</li>
+          <li>Central European Time &mdash; UTC +0 / +1</li>
+          <li>38.7&deg; N &mdash; northern hemisphere, coastal latitude</li>
+          <li>Placeholder orientation note</li>
+          <li>Placeholder orientation note</li>
+        </ul>
+        <a class="ci-open-link" href="#">Open full city page &rarr;</a>
+      </div>
+
+      <div class="ci-card">
+        <div class="ci-card-name">Austin, Texas, USA</div>
+        <div class="ci-card-coords">30.2672&deg; N, 97.7431&deg; W</div>
+        <ul class="ci-bullets">
+          <li>South-central Texas &middot; inland plateau</li>
+          <li>Central Time &mdash; UTC &minus;6 / &minus;5</li>
+          <li>30.3&deg; N &mdash; subtropical latitude</li>
+          <li>Placeholder orientation note</li>
+          <li>Placeholder orientation note</li>
+        </ul>
+        <a class="ci-open-link" href="#">Open full city page &rarr;</a>
+      </div>
+
+      <div class="ci-card">
+        <div class="ci-card-name">Bali, Indonesia</div>
+        <div class="ci-card-coords">8.3405&deg; S, 115.0920&deg; E</div>
+        <ul class="ci-bullets">
+          <li>Indonesian archipelago &middot; tropical island</li>
+          <li>WITA &mdash; UTC +8</li>
+          <li>8.3&deg; S &mdash; southern hemisphere, equatorial</li>
+          <li>Placeholder orientation note</li>
+          <li>Placeholder orientation note</li>
+        </ul>
+        <a class="ci-open-link" href="#">Open full city page &rarr;</a>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script src="theme/relocation_theme.js"></script>
+<script>
+const CITIES = ['lisbon','austin','bali'];
+const hidden = { lisbon:false, austin:false, bali:false };
+
+function refreshCount() {
+  const n = CITIES.filter(c => !hidden[c]).length;
+  document.getElementById('loc-count').textContent =
+    n === CITIES.length ? CITIES.length + ' locations' : n + ' of ' + CITIES.length + ' locations visible';
+}
+
+function toggleHide(city) {
+  hidden[city] = !hidden[city];
+  const isHidden = hidden[city];
+  document.getElementById('col-' + city).classList.toggle('city-hidden-col', isHidden);
+  document.getElementById('stub-' + city).classList.toggle('visible', isHidden);
+  document.querySelectorAll('.val-col[data-city="' + city + '"]').forEach(function(td) {
+    td.classList.toggle('city-hidden', isHidden);
+  });
+  var btn = document.getElementById('hide-' + city);
+  if (btn) btn.textContent = isHidden ? 'Show' : 'Hide';
+  refreshCount();
+}
+
+function openInfo(city) {
+  CITIES.forEach(function(c) { if (c !== city) closeInfo(c); });
+  document.getElementById('popup-' + city).classList.toggle('open');
+}
+function closeInfo(city) {
+  document.getElementById('popup-' + city).classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.city-col-header')) CITIES.forEach(closeInfo);
+});
+
+function toggleBlock(id) {
+  var body = document.getElementById('body-' + id);
+  var tog  = document.getElementById('toggle-' + id);
+  var closing = !body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', closing);
+  tog.innerHTML = closing ? '&#9660; expand' : '&#9650; collapse';
+}
+
+function toggleNotes(id) {
+  document.getElementById('notes-' + id).classList.toggle('open');
+}
+</script>
+</body>
+</html>
