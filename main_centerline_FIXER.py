@@ -2990,3 +2990,41 @@ def api_revoke_share_link(share_link_id: str):
 
     _share_link_or_404(share_link_id)
     return revoke_share_link(share_link_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0K — Profile Library aggregate (read-only, repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+@app.get("/profile-library/{profile_id}")
+def api_profile_library(profile_id: str):
+    from repositories.profiles_repository import get_profile
+    from repositories.birth_records_repository import list_birth_records
+    from repositories.saved_searches_repository import list_saved_searches
+    from repositories.comparison_sets_repository import list_comparison_sets
+    from repositories.favorite_places_repository import list_favorite_places
+    from repositories.visited_places_repository import list_visited_places
+    from repositories.notes_repository import list_notes
+    from repositories.share_links_repository import list_share_links
+
+    try:
+        profile = get_profile(profile_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="profile not found") from e
+        raise
+    if profile is None:
+        raise HTTPException(status_code=404, detail="profile not found")
+
+    return {
+        "profile": profile,
+        "birth_records": list_birth_records(profile_id),
+        "saved_searches": list_saved_searches(profile_id),
+        "comparison_sets": list_comparison_sets(profile_id),
+        "favorite_places": list_favorite_places(profile_id),
+        "visited_places": list_visited_places(profile_id),
+        "notes": list_notes(profile_id),
+        "share_links": list_share_links(profile_id),
+    }
