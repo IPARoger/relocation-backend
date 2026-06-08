@@ -2919,3 +2919,74 @@ def api_update_user_settings(settings_id: str, payload: UserSettingsUpdate):
     if updated is None:
         raise HTTPException(status_code=404, detail="user settings not found")
     return updated
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0J — Share Links API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+def _share_link_or_404(share_link_id: str):
+    from repositories.share_links_repository import get_share_link
+
+    try:
+        existing = get_share_link(share_link_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="share link not found") from e
+        raise
+    if existing is None:
+        raise HTTPException(status_code=404, detail="share link not found")
+    return existing
+
+
+class ShareLinkCreate(BaseModel):
+    profile_id: str
+    target_type: str
+    target_id: str
+    slug: str
+    visibility: str | None = None
+    hide_birth_data: bool | None = None
+    include_notes: bool | None = None
+    include_tables: bool | None = None
+    include_chart_wheel: bool | None = None
+    expires_at: str | None = None
+
+
+@app.get("/share-links/{profile_id}")
+def api_list_share_links(profile_id: str):
+    from repositories.share_links_repository import list_share_links
+
+    return list_share_links(profile_id)
+
+
+@app.get("/share-link/{share_link_id}")
+def api_get_share_link(share_link_id: str):
+    return _share_link_or_404(share_link_id)
+
+
+@app.post("/share-links")
+def api_create_share_link(payload: ShareLinkCreate):
+    from repositories.share_links_repository import create_share_link
+
+    return create_share_link(
+        profile_id=payload.profile_id,
+        target_type=payload.target_type,
+        target_id=payload.target_id,
+        slug=payload.slug,
+        visibility=payload.visibility,
+        hide_birth_data=payload.hide_birth_data,
+        include_notes=payload.include_notes,
+        include_tables=payload.include_tables,
+        include_chart_wheel=payload.include_chart_wheel,
+        expires_at=payload.expires_at,
+    )
+
+
+@app.post("/share-link/{share_link_id}/revoke")
+def api_revoke_share_link(share_link_id: str):
+    from repositories.share_links_repository import revoke_share_link
+
+    _share_link_or_404(share_link_id)
+    return revoke_share_link(share_link_id)
