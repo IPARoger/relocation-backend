@@ -2637,3 +2637,87 @@ def api_remove_place_from_comparison_set(comparison_set_id: str, place_id: str):
 
     _comparison_set_or_404(comparison_set_id)
     return remove_place_from_comparison_set(comparison_set_id, place_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0F — Favorite Places API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+def _favorite_place_or_404(favorite_place_id: str):
+    from repositories.favorite_places_repository import get_favorite_place
+
+    try:
+        existing = get_favorite_place(favorite_place_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="favorite place not found") from e
+        raise
+    if existing is None:
+        raise HTTPException(status_code=404, detail="favorite place not found")
+    return existing
+
+
+class FavoritePlaceCreate(BaseModel):
+    profile_id: str
+    place_id: str
+    intention_profile_id: str | None = None
+    label: str | None = None
+    rank: int | None = None
+    starred: bool | None = None
+
+
+class FavoritePlaceUpdate(BaseModel):
+    intention_profile_id: str | None = None
+    label: str | None = None
+    rank: int | None = None
+    starred: bool | None = None
+
+
+@app.get("/favorite-places/{profile_id}")
+def api_list_favorite_places(profile_id: str):
+    from repositories.favorite_places_repository import list_favorite_places
+
+    return list_favorite_places(profile_id)
+
+
+@app.get("/favorite-place/{favorite_place_id}")
+def api_get_favorite_place(favorite_place_id: str):
+    return _favorite_place_or_404(favorite_place_id)
+
+
+@app.post("/favorite-places")
+def api_create_favorite_place(body: FavoritePlaceCreate):
+    from repositories.favorite_places_repository import create_favorite_place
+
+    return create_favorite_place(
+        profile_id=body.profile_id,
+        place_id=body.place_id,
+        intention_profile_id=body.intention_profile_id,
+        label=body.label,
+        rank=body.rank,
+        starred=body.starred,
+    )
+
+
+@app.patch("/favorite-place/{favorite_place_id}")
+def api_update_favorite_place(favorite_place_id: str, body: FavoritePlaceUpdate):
+    from repositories.favorite_places_repository import update_favorite_place
+
+    _favorite_place_or_404(favorite_place_id)
+    return update_favorite_place(
+        favorite_place_id,
+        intention_profile_id=body.intention_profile_id,
+        label=body.label,
+        rank=body.rank,
+        starred=body.starred,
+    )
+
+
+@app.post("/favorite-place/{favorite_place_id}/archive")
+def api_archive_favorite_place(favorite_place_id: str):
+    from repositories.favorite_places_repository import archive_favorite_place
+
+    _favorite_place_or_404(favorite_place_id)
+    return archive_favorite_place(favorite_place_id)
