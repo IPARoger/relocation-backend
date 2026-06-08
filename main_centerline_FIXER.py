@@ -1786,6 +1786,33 @@ def relocated_chart(
         "cusp_transition_visual_deg": 2.0,
         "planet_houses": planet_houses,
     }
+@app.get("/health/supabase")
+def health_supabase():
+    import os
+    from dotenv import load_dotenv
+    from supabase import create_client
+
+    load_dotenv()
+
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+    if not url:
+        return {"connected": False, "error": "SUPABASE_URL missing"}
+
+    if not key:
+        return {"connected": False, "error": "SUPABASE_SERVICE_ROLE_KEY missing"}
+
+    client = create_client(url, key)
+    result = client.table("profiles").select("id").limit(1).execute()
+
+    return {
+        "connected": True,
+        "table": "profiles",
+        "rows_returned": len(result.data),
+    }
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
