@@ -2159,3 +2159,68 @@ def patch_library_settings(body: LibrarySettingsPatch):
     state["settings"] = {**state["settings"], **incoming}
     save_library_state(state)
     return state["settings"]
+
+# ---------------------------------------------------------------------------
+# Phase 2.0A — Profiles API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+class ProfileCreate(BaseModel):
+    display_name: str
+    account_user_id: str
+    profile_type: str = "human"
+
+
+class ProfileUpdate(BaseModel):
+    display_name: str | None = None
+    profile_type: str | None = None
+
+
+@app.get("/profiles")
+def api_list_profiles():
+    from repositories.profiles_repository import list_profiles
+
+    return list_profiles()
+
+
+@app.get("/profiles/{profile_id}")
+def api_get_profile(profile_id: str):
+    from repositories.profiles_repository import get_profile
+
+    profile = get_profile(profile_id)
+    if profile is None:
+        raise HTTPException(status_code=404, detail="profile not found")
+    return profile
+
+
+@app.post("/profiles")
+def api_create_profile(body: ProfileCreate):
+    from repositories.profiles_repository import create_profile
+
+    return create_profile(
+        display_name=body.display_name,
+        account_user_id=body.account_user_id,
+        profile_type=body.profile_type,
+    )
+
+
+@app.patch("/profiles/{profile_id}")
+def api_update_profile(profile_id: str, body: ProfileUpdate):
+    from repositories.profiles_repository import get_profile, update_profile
+
+    if get_profile(profile_id) is None:
+        raise HTTPException(status_code=404, detail="profile not found")
+    return update_profile(
+        profile_id,
+        display_name=body.display_name,
+        profile_type=body.profile_type,
+    )
+
+
+@app.post("/profiles/{profile_id}/archive")
+def api_archive_profile(profile_id: str):
+    from repositories.profiles_repository import archive_profile, get_profile
+
+    if get_profile(profile_id) is None:
+        raise HTTPException(status_code=404, detail="profile not found")
+    return archive_profile(profile_id)
