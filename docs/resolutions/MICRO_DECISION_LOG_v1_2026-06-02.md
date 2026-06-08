@@ -1364,3 +1364,74 @@ This is a presentation and interpretive-support layer.
 
 It must not corrupt Layer 1 house geometry.
 
+
+### 0094 — No Dashboard Doctrine
+
+The product does not contain a generic SaaS dashboard.
+
+The primary surfaces are:
+
+- Map
+- Profile
+- Comparison
+- City Intelligence
+
+These surfaces are co-equal product destinations.
+
+The Map is the flagship experience and primary differentiator, but it is not the parent page of the application.
+
+Users should generally resume meaningful work rather than being routed through an administrative dashboard layer.
+
+### 0095 — Active Profile As Global Context
+
+The currently selected profile is global application context.
+
+The active profile influences:
+
+- Map calculations
+- Comparison analysis
+- Profile study
+- City Intelligence
+- AI interpretation
+- Notes
+- Saved investigations
+
+Profile selection should remain available throughout the application via the active-profile selector.
+
+Users should not be required to navigate to a separate profile-management page simply to change context.
+
+### 0096 — Resume Behavior Privacy Setting
+
+Session resume behavior should be configurable.
+
+Some users may prefer:
+
+- Resume where I left off
+
+Others may prefer:
+
+- Open on account-owner profile
+
+Reasons include:
+
+- privacy
+- discretion
+- shared devices
+- professional use
+
+Resume behavior should become a user setting rather than a fixed system assumption.
+
+### 0097 — Comparison Profile Switching Boundary
+
+Comparison is strongly tied to a specific profile.
+
+If the active profile changes while on the Comparison surface, the system should either:
+
+- disable profile switching while comparing
+
+or
+
+- clear comparison candidates and restart comparison context
+
+The system must never silently compare cities against the wrong chart.
+
