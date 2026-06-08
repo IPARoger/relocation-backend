@@ -1435,3 +1435,42 @@ or
 
 The system must never silently compare cities against the wrong chart.
 
+
+### 0098 — Layer 2 Is a Broad Selection and Interpretation Layer
+
+Layer 2 is not a minor settings layer.
+
+Layer 2 includes selected rules and preferences such as:
+
+- orb selections
+- house system selection
+- visible / hidden planets
+- visible / hidden aspects
+- subsequent-house orb rules
+- interpretation dictionaries for Planet-in-House meanings
+- interpretation dictionaries for aspect-to-angle meanings
+
+The pre-AI version does not need to implement the interpretation dictionaries yet.
+
+Layer 2 remains modular so different dictionaries or rule sets can be switched later.
+
+### 0099 — Chart Rendering Uses Layer 1 Math With Layer 2 Inputs
+
+The chart math engine remains Layer 1.
+
+Chart drawing and chart display should be generated from Layer 1 truth, influenced by Layer 2 selected inputs such as house system, orbs, visible planets, visible aspects, and display rules.
+
+The math engine should not change merely because the selected inputs change.
+
+### 0100 — Favorites Defaults and Sorting
+
+Natal and Current Location should appear in Favorites by default.
+
+Favorites and related saved-place lists should support useful sort modes, including:
+
+- alphabetical
+- most recent
+- geographic proximity
+
+Confirm whether these sort controls exist in the current profile prototype before implementing them.
+
