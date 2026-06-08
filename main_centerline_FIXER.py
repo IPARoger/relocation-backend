@@ -2328,3 +2328,83 @@ def api_archive_birth_record(record_id: str):
     if get_birth_record(record_id) is None:
         raise HTTPException(status_code=404, detail="birth record not found")
     return archive_birth_record(record_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0C — Places API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+class PlaceCreate(BaseModel):
+    display_name: str
+    latitude: float
+    longitude: float
+    provider: str | None = None
+    provider_place_id: str | None = None
+    geonames_id: str | None = None
+    canonical_name: str | None = None
+    admin1: str | None = None
+    admin2: str | None = None
+    country_code: str | None = None
+    country_name: str | None = None
+    timezone_id: str | None = None
+    population: int | None = None
+    importance_rank: float | None = None
+    language_code: str | None = None
+    alternate_names_json: dict | None = None
+    source_json: dict | None = None
+
+
+@app.get("/places")
+def api_list_places(limit: int = 50):
+    from repositories.places_repository import list_places
+
+    return list_places(limit)
+
+
+@app.get("/places/search")
+def api_search_places(q: str, limit: int = 20):
+    from repositories.places_repository import search_places
+
+    return search_places(q, limit)
+
+
+@app.get("/place/{place_id}")
+def api_get_place(place_id: str):
+    from repositories.places_repository import get_place
+
+    try:
+        place = get_place(place_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="place not found") from e
+        raise
+    if place is None:
+        raise HTTPException(status_code=404, detail="place not found")
+    return place
+
+
+@app.post("/places")
+def api_create_place(body: PlaceCreate):
+    from repositories.places_repository import create_place
+
+    return create_place(
+        display_name=body.display_name,
+        latitude=body.latitude,
+        longitude=body.longitude,
+        provider=body.provider,
+        provider_place_id=body.provider_place_id,
+        geonames_id=body.geonames_id,
+        canonical_name=body.canonical_name,
+        admin1=body.admin1,
+        admin2=body.admin2,
+        country_code=body.country_code,
+        country_name=body.country_name,
+        timezone_id=body.timezone_id,
+        population=body.population,
+        importance_rank=body.importance_rank,
+        language_code=body.language_code,
+        alternate_names_json=body.alternate_names_json,
+        source_json=body.source_json,
+    )
