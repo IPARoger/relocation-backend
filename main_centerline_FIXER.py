@@ -1788,22 +1788,9 @@ def relocated_chart(
     }
 @app.get("/health/supabase")
 def health_supabase():
-    import os
-    from dotenv import load_dotenv
-    from supabase import create_client
+    from services.supabase_client import get_supabase
 
-    load_dotenv()
-
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-
-    if not url:
-        return {"connected": False, "error": "SUPABASE_URL missing"}
-
-    if not key:
-        return {"connected": False, "error": "SUPABASE_SERVICE_ROLE_KEY missing"}
-
-    client = create_client(url, key)
+    client = get_supabase()
     result = client.table("profiles").select("id").limit(1).execute()
 
     return {
