@@ -2861,3 +2861,61 @@ def api_archive_note(note_id: str):
 
     _note_or_404(note_id)
     return archive_note(note_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0I — User Settings API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+class UserSettingsCreate(BaseModel):
+    account_user_id: str
+    settings_json: dict
+    profile_id: str | None = None
+
+
+class UserSettingsUpdate(BaseModel):
+    settings_json: dict | None = None
+
+
+@app.get("/user-settings/{account_user_id}")
+def api_get_user_settings(account_user_id: str, profile_id: str = None):
+    from repositories.user_settings_repository import get_user_settings
+
+    try:
+        settings = get_user_settings(account_user_id, profile_id=profile_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="user settings not found") from e
+        raise
+    if settings is None:
+        raise HTTPException(status_code=404, detail="user settings not found")
+    return settings
+
+
+@app.post("/user-settings")
+def api_create_user_settings(payload: UserSettingsCreate):
+    from repositories.user_settings_repository import create_user_settings
+
+    return create_user_settings(
+        account_user_id=payload.account_user_id,
+        settings_json=payload.settings_json,
+        profile_id=payload.profile_id,
+    )
+
+
+@app.patch("/user-settings/{settings_id}")
+def api_update_user_settings(settings_id: str, payload: UserSettingsUpdate):
+    from repositories.user_settings_repository import update_user_settings
+
+    try:
+        updated = update_user_settings(settings_id, settings_json=payload.settings_json)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="user settings not found") from e
+        raise
+    if updated is None:
+        raise HTTPException(status_code=404, detail="user settings not found")
+    return updated
