@@ -2408,3 +2408,119 @@ def api_create_place(body: PlaceCreate):
         alternate_names_json=body.alternate_names_json,
         source_json=body.source_json,
     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0D — Saved Searches API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+class SavedSearchCreate(BaseModel):
+    profile_id: str
+    title: str
+    intention_profile_id: str | None = None
+    search_type: str | None = None
+    conditions_json: dict | None = None
+    viewport_json: dict | None = None
+    settings_snapshot_json: dict | None = None
+    date_start: str | None = None
+    date_end: str | None = None
+
+
+class SavedSearchUpdate(BaseModel):
+    title: str | None = None
+    intention_profile_id: str | None = None
+    search_type: str | None = None
+    conditions_json: dict | None = None
+    viewport_json: dict | None = None
+    settings_snapshot_json: dict | None = None
+    date_start: str | None = None
+    date_end: str | None = None
+
+
+@app.get("/saved-searches/{profile_id}")
+def api_list_saved_searches(profile_id: str):
+    from repositories.saved_searches_repository import list_saved_searches
+
+    return list_saved_searches(profile_id)
+
+
+@app.get("/saved-search/{saved_search_id}")
+def api_get_saved_search(saved_search_id: str):
+    from repositories.saved_searches_repository import get_saved_search
+
+    try:
+        saved_search = get_saved_search(saved_search_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="saved search not found") from e
+        raise
+    if saved_search is None:
+        raise HTTPException(status_code=404, detail="saved search not found")
+    return saved_search
+
+
+@app.post("/saved-searches")
+def api_create_saved_search(body: SavedSearchCreate):
+    from repositories.saved_searches_repository import create_saved_search
+
+    return create_saved_search(
+        profile_id=body.profile_id,
+        title=body.title,
+        intention_profile_id=body.intention_profile_id,
+        search_type=body.search_type,
+        conditions_json=body.conditions_json,
+        viewport_json=body.viewport_json,
+        settings_snapshot_json=body.settings_snapshot_json,
+        date_start=body.date_start,
+        date_end=body.date_end,
+    )
+
+
+@app.patch("/saved-search/{saved_search_id}")
+def api_update_saved_search(saved_search_id: str, body: SavedSearchUpdate):
+    from repositories.saved_searches_repository import (
+        get_saved_search,
+        update_saved_search,
+    )
+
+    try:
+        existing = get_saved_search(saved_search_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="saved search not found") from e
+        raise
+    if existing is None:
+        raise HTTPException(status_code=404, detail="saved search not found")
+    return update_saved_search(
+        saved_search_id,
+        title=body.title,
+        intention_profile_id=body.intention_profile_id,
+        search_type=body.search_type,
+        conditions_json=body.conditions_json,
+        viewport_json=body.viewport_json,
+        settings_snapshot_json=body.settings_snapshot_json,
+        date_start=body.date_start,
+        date_end=body.date_end,
+    )
+
+
+@app.post("/saved-search/{saved_search_id}/archive")
+def api_archive_saved_search(saved_search_id: str):
+    from repositories.saved_searches_repository import (
+        archive_saved_search,
+        get_saved_search,
+    )
+
+    try:
+        existing = get_saved_search(saved_search_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="saved search not found") from e
+        raise
+    if existing is None:
+        raise HTTPException(status_code=404, detail="saved search not found")
+    return archive_saved_search(saved_search_id)
