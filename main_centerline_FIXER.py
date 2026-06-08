@@ -2524,3 +2524,116 @@ def api_archive_saved_search(saved_search_id: str):
     if existing is None:
         raise HTTPException(status_code=404, detail="saved search not found")
     return archive_saved_search(saved_search_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0E — Comparison Sets API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+def _comparison_set_or_404(comparison_set_id: str):
+    from repositories.comparison_sets_repository import get_comparison_set
+
+    try:
+        existing = get_comparison_set(comparison_set_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="comparison set not found") from e
+        raise
+    if existing is None:
+        raise HTTPException(status_code=404, detail="comparison set not found")
+    return existing
+
+
+class ComparisonSetCreate(BaseModel):
+    profile_id: str
+    title: str
+    intention_profile_id: str | None = None
+    settings_snapshot_json: dict | None = None
+
+
+class ComparisonSetUpdate(BaseModel):
+    title: str | None = None
+    intention_profile_id: str | None = None
+    settings_snapshot_json: dict | None = None
+
+
+class ComparisonSetPlaceAdd(BaseModel):
+    place_id: str
+    sort_order: int = 0
+    role: str | None = None
+
+
+@app.get("/comparison-sets/{profile_id}")
+def api_list_comparison_sets(profile_id: str):
+    from repositories.comparison_sets_repository import list_comparison_sets
+
+    return list_comparison_sets(profile_id)
+
+
+@app.get("/comparison-set/{comparison_set_id}")
+def api_get_comparison_set(comparison_set_id: str):
+    return _comparison_set_or_404(comparison_set_id)
+
+
+@app.post("/comparison-sets")
+def api_create_comparison_set(body: ComparisonSetCreate):
+    from repositories.comparison_sets_repository import create_comparison_set
+
+    return create_comparison_set(
+        profile_id=body.profile_id,
+        title=body.title,
+        intention_profile_id=body.intention_profile_id,
+        settings_snapshot_json=body.settings_snapshot_json,
+    )
+
+
+@app.patch("/comparison-set/{comparison_set_id}")
+def api_update_comparison_set(comparison_set_id: str, body: ComparisonSetUpdate):
+    from repositories.comparison_sets_repository import update_comparison_set
+
+    _comparison_set_or_404(comparison_set_id)
+    return update_comparison_set(
+        comparison_set_id,
+        title=body.title,
+        intention_profile_id=body.intention_profile_id,
+        settings_snapshot_json=body.settings_snapshot_json,
+    )
+
+
+@app.post("/comparison-set/{comparison_set_id}/archive")
+def api_archive_comparison_set(comparison_set_id: str):
+    from repositories.comparison_sets_repository import archive_comparison_set
+
+    _comparison_set_or_404(comparison_set_id)
+    return archive_comparison_set(comparison_set_id)
+
+
+@app.get("/comparison-set/{comparison_set_id}/places")
+def api_list_comparison_set_places(comparison_set_id: str):
+    from repositories.comparison_sets_repository import list_comparison_set_places
+
+    _comparison_set_or_404(comparison_set_id)
+    return list_comparison_set_places(comparison_set_id)
+
+
+@app.post("/comparison-set/{comparison_set_id}/places")
+def api_add_place_to_comparison_set(comparison_set_id: str, body: ComparisonSetPlaceAdd):
+    from repositories.comparison_sets_repository import add_place_to_comparison_set
+
+    _comparison_set_or_404(comparison_set_id)
+    return add_place_to_comparison_set(
+        comparison_set_id=comparison_set_id,
+        place_id=body.place_id,
+        sort_order=body.sort_order,
+        role=body.role,
+    )
+
+
+@app.delete("/comparison-set/{comparison_set_id}/places/{place_id}")
+def api_remove_place_from_comparison_set(comparison_set_id: str, place_id: str):
+    from repositories.comparison_sets_repository import remove_place_from_comparison_set
+
+    _comparison_set_or_404(comparison_set_id)
+    return remove_place_from_comparison_set(comparison_set_id, place_id)
