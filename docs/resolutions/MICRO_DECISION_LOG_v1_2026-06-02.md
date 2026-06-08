@@ -1305,3 +1305,62 @@ Likely mobile adaptations:
 - touch-first city and point inspection
 - mobile-specific map layer controls
 
+
+### 0090 — Shared CSS Before Final Page Polish
+
+After the major prototype pages are baseline acceptable, the next design step should be harmonization through shared CSS rather than continued page-by-page styling.
+
+The non-map pages should converge toward a common component language:
+- Profile
+- Comparison
+- Settings
+- City Intelligence
+- Comparison pre-screen
+- Minor settings/profile management pages
+
+The Map page may remain visually distinct, but should still share family traits such as typography, arrows, dropdown logic, button behavior, account/profile blocks, and color ancestry.
+
+### 0091 — Table Glow As Quiet Material Life
+
+Tables may borrow the chart-wheel glow concept as subtle material life.
+
+The goal is not visible glow, decoration, or mystical effect.
+
+The goal is a neutral grey/table surface that feels gently inhabited.
+
+Possible approach:
+- neutral grey base
+- 3–5% hidden color contamination
+- extremely soft inner/edge light
+- multiple almost-invisible tint families
+- no conscious color coding unless the data requires it
+
+Table atmosphere should support long study sessions without implying symbolic judgment about planets, houses, angles, aspects, or locations.
+
+### 0092 — Aspect-to-Angle Overlay Design Remains Open
+
+Aspect-to-angle overlay geometry has had serious validation work and a promising visual direction.
+
+However, the current visual design should not be treated as final.
+
+Future passes should preserve the validated math and truth structure while exploring whether the overlay language can become more beautiful, quieter, more premium, and less obviously technical.
+
+Do not reopen the math unless validation requires it.
+
+Reopen the visual surface.
+
+### 0093 — Late-House Gradient Doctrine
+
+The last degrees of a house may be treated as transitional into the following house.
+
+Default doctrine:
+- last 2 degrees of a house receive a gentle gradient toward the next house
+- tables should mark such placements subtly, for example by greying the house number and adding a small explanatory ? affordance
+- the UI must explain that many astrologers read late-house planets as influencing the next house
+- the default orb is 2 degrees
+- advanced users should be able to adjust this setting
+
+This is a presentation and interpretive-support layer.
+
+It must not corrupt Layer 1 house geometry.
+
