@@ -2771,3 +2771,93 @@ def api_create_visited_place(body: VisitedPlaceCreate):
         source=body.source,
         notes=body.notes,
     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0H — Notes API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+def _note_or_404(note_id: str):
+    from repositories.notes_repository import get_note
+
+    try:
+        existing = get_note(note_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="note not found") from e
+        raise
+    if existing is None:
+        raise HTTPException(status_code=404, detail="note not found")
+    return existing
+
+
+class NoteCreate(BaseModel):
+    profile_id: str
+    target_type: str
+    body: str
+    intention_profile_id: str | None = None
+    target_id: str | None = None
+    section_key: str | None = None
+    title: str | None = None
+
+
+class NoteUpdate(BaseModel):
+    target_type: str | None = None
+    body: str | None = None
+    intention_profile_id: str | None = None
+    target_id: str | None = None
+    section_key: str | None = None
+    title: str | None = None
+
+
+@app.get("/notes/{profile_id}")
+def api_list_notes(profile_id: str):
+    from repositories.notes_repository import list_notes
+
+    return list_notes(profile_id)
+
+
+@app.get("/note/{note_id}")
+def api_get_note(note_id: str):
+    return _note_or_404(note_id)
+
+
+@app.post("/notes")
+def api_create_note(payload: NoteCreate):
+    from repositories.notes_repository import create_note
+
+    return create_note(
+        profile_id=payload.profile_id,
+        target_type=payload.target_type,
+        body=payload.body,
+        intention_profile_id=payload.intention_profile_id,
+        target_id=payload.target_id,
+        section_key=payload.section_key,
+        title=payload.title,
+    )
+
+
+@app.patch("/note/{note_id}")
+def api_update_note(note_id: str, payload: NoteUpdate):
+    from repositories.notes_repository import update_note
+
+    _note_or_404(note_id)
+    return update_note(
+        note_id,
+        target_type=payload.target_type,
+        body=payload.body,
+        intention_profile_id=payload.intention_profile_id,
+        target_id=payload.target_id,
+        section_key=payload.section_key,
+        title=payload.title,
+    )
+
+
+@app.post("/note/{note_id}/archive")
+def api_archive_note(note_id: str):
+    from repositories.notes_repository import archive_note
+
+    _note_or_404(note_id)
+    return archive_note(note_id)
