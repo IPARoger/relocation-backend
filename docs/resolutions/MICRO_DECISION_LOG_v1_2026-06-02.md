@@ -1183,3 +1183,125 @@ Avoid these palette drifts:
 
 The target is optimistic becoming, not accomplishment, melancholy, or performance.
 
+
+### 0084 — Micro Log Numbering Discipline
+
+The active numbered Micro file is:
+
+docs/resolutions/MICRO_DECISION_LOG_v1_2026-06-02.md
+
+New Micro entries must use the next highest number in this file, not backup files or timestamp-only logs.
+
+Known historical numbering irregularities exist:
+- 0049 duplicated
+- 0050 duplicated
+- 0051 duplicated
+- 0052 duplicated
+- 0060 duplicated
+
+Do not renumber old entries casually because chronology and references matter.
+
+Future AI/operator workflow:
+1. Check highest existing Micro number.
+2. Append the next number.
+3. Run verification grep.
+4. Confirm success from output.
+5. Only then continue.
+
+
+### 0085 — City Intelligence Terrain Layer
+
+City Intelligence should include terrain and settlement descriptors.
+
+Examples:
+- Coastal
+- Inland
+- Island
+- River
+- Lake
+- Mountain
+- Hilly
+- Valley
+- Desert
+- Forest
+- Plains
+- Dense Urban
+- Mixed Urban
+- Suburban
+- Rural
+- Sprawl
+
+Purpose:
+
+Help users narrow candidate locations after astrological search discovery.
+
+Terrain is Layer 5 city intelligence and does not modify astrological truth.
+
+### 0086 — Share vs Export Distinction
+
+Sharing and exporting are different product functions.
+
+Share:
+- consumer-friendly
+- collaborative
+- exploratory
+- supports viral growth
+- preserves interaction
+
+Export:
+- professional-facing
+- printable or deliverable
+- supports branding or unbranded delivery
+- supports client reports
+- may include static maps and chart outputs
+
+Do not merge these concepts.
+
+### 0087 — Future Ontology Marketplace
+
+Layer 1 truth remains sovereign.
+
+Future versions may allow professionals to create, share, license, or sell Layer 2 ontology systems.
+
+Examples:
+- Modern Western
+- Traditional Western
+- Psychological
+- Evolutionary
+- Hellenistic
+- Medieval
+- Vedic
+- Custom Professional Systems
+
+Ontology packs must not alter Layer 1 geometry.
+
+### 0088 — Future Glyph System
+
+Users may eventually select from approved glyph families.
+
+Initial releases should provide a small curated set.
+
+The product is not intended to become a general glyph marketplace.
+
+Artist participation is permitted, but glyph sharing should remain subordinate to the primary relocation product.
+
+
+### 0089 — Mobile Comes After Shared UI Foundations
+
+Mobile is important but should follow shared UI fundamentals and backend/persistence stabilization.
+
+Sequence:
+1. Stabilize shared UI language across Profile, Comparison, Settings, City Intelligence, and Map.
+2. Stabilize backend, auth, city search, saved objects, and Supabase.
+3. Adapt the established product language into mobile-specific layouts.
+
+Mobile should not be designed as a separate product.
+
+Likely mobile adaptations:
+- compact drawers
+- bottom sheets
+- reduced comparison density
+- simplified Genie/search controls
+- touch-first city and point inspection
+- mobile-specific map layer controls
+
