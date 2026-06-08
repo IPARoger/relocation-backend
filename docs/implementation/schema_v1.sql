@@ -53,6 +53,18 @@ create table if not exists birth_records (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists intention_profiles (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid not null references profiles(id) on delete cascade,
+  title text not null,
+  intention_type text,
+  description text,
+  settings_json jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  archived_at timestamptz
+);
+
 create table if not exists current_location_history (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references profiles(id) on delete cascade,
@@ -207,3 +219,9 @@ create index if not exists idx_comparison_sets_profile_id on comparison_sets(pro
 create index if not exists idx_notes_profile_id on notes(profile_id);
 create index if not exists idx_notes_target on notes(target_type, target_id);
 create index if not exists idx_share_links_slug on share_links(slug);
+
+create index if not exists idx_intention_profiles_profile_id on intention_profiles(profile_id);
+create index if not exists idx_favorite_places_intention_profile_id on favorite_places(intention_profile_id);
+create index if not exists idx_saved_searches_intention_profile_id on saved_searches(intention_profile_id);
+create index if not exists idx_comparison_sets_intention_profile_id on comparison_sets(intention_profile_id);
+create index if not exists idx_notes_intention_profile_id on notes(intention_profile_id);
