@@ -2721,3 +2721,53 @@ def api_archive_favorite_place(favorite_place_id: str):
 
     _favorite_place_or_404(favorite_place_id)
     return archive_favorite_place(favorite_place_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0G — Visited Places API (Supabase-backed repository passthrough).
+# Note: no update/archive endpoints — schema has no updated_at/archived_at.
+# ---------------------------------------------------------------------------
+
+
+class VisitedPlaceCreate(BaseModel):
+    profile_id: str
+    place_id: str
+    visited_at: str | None = None
+    source: str | None = None
+    notes: str | None = None
+
+
+@app.get("/visited-places/{profile_id}")
+def api_list_visited_places(profile_id: str):
+    from repositories.visited_places_repository import list_visited_places
+
+    return list_visited_places(profile_id)
+
+
+@app.get("/visited-place/{visited_place_id}")
+def api_get_visited_place(visited_place_id: str):
+    from repositories.visited_places_repository import get_visited_place
+
+    try:
+        visited_place = get_visited_place(visited_place_id)
+    except Exception as e:  # noqa: BLE001
+        msg = str(e)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise HTTPException(status_code=404, detail="visited place not found") from e
+        raise
+    if visited_place is None:
+        raise HTTPException(status_code=404, detail="visited place not found")
+    return visited_place
+
+
+@app.post("/visited-places")
+def api_create_visited_place(body: VisitedPlaceCreate):
+    from repositories.visited_places_repository import create_visited_place
+
+    return create_visited_place(
+        profile_id=body.profile_id,
+        place_id=body.place_id,
+        visited_at=body.visited_at,
+        source=body.source,
+        notes=body.notes,
+    )
