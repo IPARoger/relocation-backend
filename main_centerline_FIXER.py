@@ -2224,3 +2224,107 @@ def api_archive_profile(profile_id: str):
     if get_profile(profile_id) is None:
         raise HTTPException(status_code=404, detail="profile not found")
     return archive_profile(profile_id)
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.0B — Birth Records API (Supabase-backed repository passthrough).
+# ---------------------------------------------------------------------------
+
+
+class BirthRecordCreate(BaseModel):
+    profile_id: str
+    birth_date: str | None = None
+    birth_time_mode: str | None = None
+    birth_time_start: str | None = None
+    birth_time_end: str | None = None
+    birth_place_id: str | None = None
+    timezone_id: str | None = None
+    utc_datetime_start: str | None = None
+    utc_datetime_end: str | None = None
+    confidence_notes: str | None = None
+    chart_settings_json: dict | None = None
+
+
+class BirthRecordUpdate(BaseModel):
+    birth_date: str | None = None
+    birth_time_mode: str | None = None
+    birth_time_start: str | None = None
+    birth_time_end: str | None = None
+    birth_place_id: str | None = None
+    timezone_id: str | None = None
+    utc_datetime_start: str | None = None
+    utc_datetime_end: str | None = None
+    confidence_notes: str | None = None
+    chart_settings_json: dict | None = None
+
+
+@app.get("/birth-records/{profile_id}")
+def api_list_birth_records(profile_id: str):
+    from repositories.birth_records_repository import list_birth_records
+
+    return list_birth_records(profile_id)
+
+
+@app.get("/birth-record/{record_id}")
+def api_get_birth_record(record_id: str):
+    from repositories.birth_records_repository import get_birth_record
+
+    record = get_birth_record(record_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="birth record not found")
+    return record
+
+
+@app.post("/birth-records")
+def api_create_birth_record(body: BirthRecordCreate):
+    from repositories.birth_records_repository import create_birth_record
+
+    return create_birth_record(
+        profile_id=body.profile_id,
+        birth_date=body.birth_date,
+        birth_time_mode=body.birth_time_mode,
+        birth_time_start=body.birth_time_start,
+        birth_time_end=body.birth_time_end,
+        birth_place_id=body.birth_place_id,
+        timezone_id=body.timezone_id,
+        utc_datetime_start=body.utc_datetime_start,
+        utc_datetime_end=body.utc_datetime_end,
+        confidence_notes=body.confidence_notes,
+        chart_settings_json=body.chart_settings_json,
+    )
+
+
+@app.patch("/birth-record/{record_id}")
+def api_update_birth_record(record_id: str, body: BirthRecordUpdate):
+    from repositories.birth_records_repository import (
+        get_birth_record,
+        update_birth_record,
+    )
+
+    if get_birth_record(record_id) is None:
+        raise HTTPException(status_code=404, detail="birth record not found")
+    return update_birth_record(
+        record_id,
+        birth_date=body.birth_date,
+        birth_time_mode=body.birth_time_mode,
+        birth_time_start=body.birth_time_start,
+        birth_time_end=body.birth_time_end,
+        birth_place_id=body.birth_place_id,
+        timezone_id=body.timezone_id,
+        utc_datetime_start=body.utc_datetime_start,
+        utc_datetime_end=body.utc_datetime_end,
+        confidence_notes=body.confidence_notes,
+        chart_settings_json=body.chart_settings_json,
+    )
+
+
+@app.post("/birth-record/{record_id}/archive")
+def api_archive_birth_record(record_id: str):
+    from repositories.birth_records_repository import (
+        archive_birth_record,
+        get_birth_record,
+    )
+
+    if get_birth_record(record_id) is None:
+        raise HTTPException(status_code=404, detail="birth record not found")
+    return archive_birth_record(record_id)
