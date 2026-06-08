@@ -310,3 +310,113 @@ Do not build yet:
 
 Leave room, but do not decorate empty rooms.
 
+
+## Schema Audit Addendum 001
+
+### Birth Time Range
+
+The schema must explicitly preserve min/max birth time.
+
+Even if MVP defaults to exact birth time, birth_records must support:
+
+- birth_time_mode
+- birth_time_start
+- birth_time_end
+- utc_datetime_start
+- utc_datetime_end
+
+For exact birth time:
+
+birth_time_start = birth_time_end
+
+For range/approximate birth time:
+
+birth_time_start and birth_time_end define the chart calculation boundary.
+
+Unknown birth time may be stored, but relocation mapping must warn that useful relocation geometry requires reliable birth time.
+
+### Intention Profiles As Sub-Profiles
+
+Future intention profiles act like sub-profiles or sub-personalities.
+
+Examples:
+- Home
+- Career
+- Relationship
+- Retreat
+- Health
+- Creative work
+
+Favorites, saved searches, saved comparisons, notes, and future transit lab saved searches should all be able to attach either to:
+
+- profile_id only
+- profile_id + intention_profile_id
+
+For MVP, intention_profile_id may remain null.
+
+### Notes Scope
+
+Notes may exist at multiple local points and aggregate upward into notebook views.
+
+Comparison notes may include:
+- PiH notes
+- A2A notes
+- AiS notes
+- master comparison notes
+
+Saved search notes may include:
+- general saved search note
+- PiH notes
+- A2A notes
+- AiS notes
+
+Future Transit Lab notes should be supported by the same notes architecture.
+
+### Future Transit Lab Saved Searches
+
+Transit Lab is deferred, but schema should leave room for saved temporal investigations.
+
+Future transit saved searches may require:
+- profile_id
+- intention_profile_id nullable
+- beginning calendar date
+- ending calendar date
+- transit conditions
+- settings snapshot
+- notes
+
+Do not build Transit Lab tables yet unless required.
+
+### City Intelligence Cache
+
+City Intelligence cache is deferred from MVP schema execution but must be anticipated.
+
+Future city intelligence cache may store:
+- place_id
+- provider
+- data_domain
+- payload_json
+- fetched_at
+- expires_at
+- source_version
+- language_code
+
+### AI Intake Cache
+
+AI intake is deferred.
+
+Future AI intake may be large and should not be forced into profile fields.
+
+Future storage may require:
+- profile_id
+- intention_profile_id nullable
+- intake_payload_json
+- extracted_preferences_json
+- search_guidance_json
+- tradeoff_guidance_json
+- substitution_guidance_json
+- created_at
+- updated_at
+
+Do not build AI intake tables yet.
+
