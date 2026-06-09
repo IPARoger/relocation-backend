@@ -350,6 +350,9 @@ html.map-panel-show-legend #panelLegend { display: block; }
     visibility: hidden;
 }
 
+.popup-chart .popup-action-status { font-size: 11px; margin-top: 4px; color: #475569; }
+.popup-chart .popup-action-status.is-error { color: #b91c1c; }
+
 .popup-chart .popup-actions { display: flex; gap: 5px; margin-top: 2px; }
 
 .popup-chart .popup-actions button {
@@ -1879,10 +1882,190 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
             </table>
             <div class="popup-actions">
                 <button type="button">Open chart</button>
-                <button type="button">Favorite</button>
+                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom")}
             </div>
+            <div class="popup-action-status" aria-live="polite" hidden></div>
         </div>`;
 }
+
+// ---- Phase 2.6A: map city / custom location -> favorite_place ------------
+// Smallest vertical slice. Existing endpoints only:
+//   GET /places/search, POST /places, POST /favorite-places,
+//   GET /favorite-places/{profile_id}. Active profile = Phase 2.5 handoff.
+// No comparison, no new entities, no schema changes.
+function escapeAttr(value) {
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function favoriteButtonHtml(name, lat, lon, country, admin, origin) {
+    return `<button type="button" class="popup-action-favorite"`
+        + ` data-fav-name="${escapeAttr(name)}"`
+        + ` data-fav-lat="${lat}"`
+        + ` data-fav-lon="${lon}"`
+        + ` data-fav-country="${escapeAttr(country || "")}"`
+        + ` data-fav-admin="${escapeAttr(admin || "")}"`
+        + ` data-fav-origin="${escapeAttr(origin || "map_custom")}">Favorite</button>`;
+}
+
+// Fallback popup when the relocated chart can't be computed (e.g. the active
+// profile has no birth math yet). Place identity + Favorite stay available so
+// the city -> favorite slice still works. The chart-success popup is unchanged.
+function buildPlaceFallbackPopupHtml(meta, lat, lon, message) {
+    const title = meta && meta.title ? meta.title : "Custom location";
+    const placeBits = [];
+    if (meta && meta.admin) placeBits.push(meta.admin);
+    if (meta && meta.country) placeBits.push(meta.country);
+    const coordsMid = placeBits.length ? ` \u00b7 ${placeBits.join(", ")}` : "";
+    return `
+        <div class="popup-chart">
+            <div class="popup-title">${escapeAttr(title)}</div>
+            <p class="popup-coords">Lat ${lat.toFixed(4)} \u00b7 Lon ${lon.toFixed(4)}${coordsMid}</p>
+            <p class="popup-policy-note">${escapeAttr(message)}</p>
+            <div class="popup-actions">
+                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom")}
+            </div>
+            <div class="popup-action-status" aria-live="polite" hidden></div>
+        </div>`;
+}
+
+// Active *profile* UUID (Supabase profile) or null. Prefers the selected
+// #chartProfile Supabase option, then the Phase 2.5 url/sessionStorage
+// handoff. Built-in chart profiles (baseline_validated, ...) are not
+// profiles and yield null.
+function getActiveFavoriteProfileId() {
+    const select = document.getElementById("chartProfile");
+    const opt = select && select.selectedOptions[0];
+    if (opt && opt.dataset.profileSource === "supabase" && opt.value) {
+        return opt.value;
+    }
+    const handoff = readActiveProfileIdFromUrlOrSession();
+    return handoff ? handoff.id : null;
+}
+
+// Resolve an existing place by name + coordinate proximity, else create one.
+// Returns the place row (with .id) or throws.
+async function resolvePlaceFromMapSelection(selection) {
+    const { displayName, lat, lon, country, admin, origin } = selection;
+    const COORD_TOLERANCE = 0.02; // ~2 km; keeps distinct custom points distinct
+    let matches = [];
+    try {
+        const resp = await fetch(
+            `${LIBRARY_API_BASE}/places/search?q=${encodeURIComponent(displayName)}`
+        );
+        if (resp.ok) matches = await resp.json();
+    } catch (e) {
+        matches = [];
+    }
+    const norm = s => String(s || "").trim().toLowerCase();
+    const existing = Array.isArray(matches)
+        ? matches.find(p =>
+            norm(p.display_name) === norm(displayName) &&
+            Math.abs(Number(p.latitude) - lat) <= COORD_TOLERANCE &&
+            Math.abs(Number(p.longitude) - lon) <= COORD_TOLERANCE)
+        : null;
+    if (existing) return existing;
+
+    const body = {
+        display_name: displayName,
+        latitude: lat,
+        longitude: lon,
+        provider: origin === "city_dataset" ? "cities_js" : "map_custom",
+    };
+    if (country) body.country_name = country;
+    if (admin) body.admin1 = admin;
+    const createResp = await fetch(`${LIBRARY_API_BASE}/places`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+    if (!createResp.ok) throw new Error(`place_create_failed_${createResp.status}`);
+    return createResp.json();
+}
+
+async function favoriteMapSelectionFromButton(btn) {
+    const shell = btn.closest(".popup-chart");
+    const statusEl = shell ? shell.querySelector(".popup-action-status") : null;
+    const setStatus = (msg, isError) => {
+        if (!statusEl) return;
+        statusEl.hidden = false;
+        statusEl.textContent = msg;
+        statusEl.classList.toggle("is-error", Boolean(isError));
+    };
+
+    const profileId = getActiveFavoriteProfileId();
+    if (!profileId) {
+        setStatus("Select a saved profile to favorite places.", true);
+        return;
+    }
+
+    const selection = {
+        displayName: btn.dataset.favName || "Custom location",
+        lat: Number(btn.dataset.favLat),
+        lon: Number(btn.dataset.favLon),
+        country: btn.dataset.favCountry || null,
+        admin: btn.dataset.favAdmin || null,
+        origin: btn.dataset.favOrigin || "map_custom",
+    };
+
+    btn.disabled = true;
+    setStatus("Saving\u2026", false);
+    try {
+        const place = await resolvePlaceFromMapSelection(selection);
+        if (!place || !place.id) throw new Error("place_unresolved");
+
+        // Idempotent feedback: skip duplicate (profile_id, place_id) rows.
+        let already = false;
+        try {
+            const favResp = await fetch(
+                `${LIBRARY_API_BASE}/favorite-places/${encodeURIComponent(profileId)}`
+            );
+            if (favResp.ok) {
+                const favs = await favResp.json();
+                already = Array.isArray(favs) && favs.some(f => f.place_id === place.id);
+            }
+        } catch (e) { /* non-fatal */ }
+
+        if (already) {
+            btn.textContent = "Favorited \u2713";
+            setStatus("Already in favorites.", false);
+            return;
+        }
+
+        const resp = await fetch(`${LIBRARY_API_BASE}/favorite-places`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                profile_id: profileId,
+                place_id: place.id,
+                label: selection.displayName,
+            }),
+        });
+        if (!resp.ok) throw new Error(`favorite_failed_${resp.status}`);
+        btn.textContent = "Favorited \u2713";
+        setStatus("Saved to favorites.", false);
+    } catch (err) {
+        console.error("[favorite]", err);
+        btn.disabled = false;
+        setStatus("Could not save favorite.", true);
+    }
+}
+
+// One delegated listener: Leaflet re-creates popups, so per-popup binding is brittle.
+document.addEventListener("click", function(ev) {
+    const btn = ev.target.closest && ev.target.closest(".popup-action-favorite");
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    favoriteMapSelectionFromButton(btn);
+});
+
+window.__rmResolvePlaceFromMapSelection = resolvePlaceFromMapSelection;
+window.__rmGetActiveFavoriteProfileId = getActiveFavoriteProfileId;
 
 map.getContainer().addEventListener("contextmenu", async function(ev) {
     ev.preventDefault();
@@ -1930,7 +2113,7 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
         );
     } catch (err) {
         console.error("relocated-chart", err);
-        popup.setContent('<div class="popup-chart"><p class="popup-coords">Could not load chart for this point.</p></div>');
+        popup.setContent(buildPlaceFallbackPopupHtml({ title: "Custom location" }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
     }
 });
 
@@ -2877,7 +3060,12 @@ async function openDatasetCityPopup(city) {
         );
     } catch (err) {
         console.error("relocated-chart (city)", err);
-        popup.setContent('<div class="popup-chart"><p class="popup-coords">Could not load chart for this city.</p></div>');
+        popup.setContent(buildPlaceFallbackPopupHtml({
+            title: city.name,
+            origin: "city_dataset",
+            country: city.country || null,
+            admin: city.admin || city.state || null
+        }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
     }
 }
 
