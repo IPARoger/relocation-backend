@@ -1245,6 +1245,9 @@ async function fetchLibraryStateSafe() {
     }
 }
 
+// LEGACY local-library handoff (Phase 2.0/2.1). Quarantined, not removed.
+// Reads #libraryActive=<chart_id> / sessionStorage.rm_library_active.
+// Superseded by readActiveProfileIdFromUrlOrSession() for active-profile context.
 function readActiveLibraryChartIdFromUrlOrSession() {
     let id = null;
     let source = null;
@@ -1286,6 +1289,50 @@ function applyLibraryActiveSelection() {
     lastLibraryHandoff.selectionAppliedFrom = handoff.source;
     lastLibraryHandoff.selectionAppliedId = handoff.id;
     try { sessionStorage.setItem("rm_library_active", handoff.id); } catch (e) { /* ignore */ }
+    return true;
+}
+
+// Phase 2.5A — active-profile handoff (preferred over legacy library handoff).
+// Reads #profileId=<profile_id> first, then sessionStorage.rm_active_profile_id.
+// Does NOT touch the legacy libraryActive / rm_library_active keys.
+function readActiveProfileIdFromUrlOrSession() {
+    let id = null;
+    let source = null;
+    const hash = window.location.hash || "";
+    const hashMatch = hash.match(/[#&]profileId=([^&]+)/);
+    if (hashMatch) {
+        id = decodeURIComponent(hashMatch[1]);
+        source = "hash";
+    } else {
+        try {
+            const stored = sessionStorage.getItem("rm_active_profile_id");
+            if (stored) {
+                id = stored;
+                source = "sessionStorage";
+            }
+        } catch (e) { /* ignore */ }
+    }
+    return id ? { id, source } : null;
+}
+
+// Selects the matching option in the existing #chartProfile <select> by profile_id.
+// On success, persists rm_active_profile_id (never overwrites rm_library_active).
+// On a present-but-unmatched profileId, logs a warning and returns false so the
+// caller can fall back to existing default behavior. No crash.
+function applyActiveProfileSelection() {
+    const select = document.getElementById("chartProfile");
+    if (!select) return false;
+    const handoff = readActiveProfileIdFromUrlOrSession();
+    if (!handoff) return false;
+    const option = [...select.options].find(o => o.value === handoff.id);
+    if (!option) {
+        console.warn("active profile handoff: no matching profile for profileId", handoff.id, "(source:", handoff.source + ")");
+        return false;
+    }
+    select.value = handoff.id;
+    lastLibraryHandoff.activeProfileAppliedFrom = handoff.source;
+    lastLibraryHandoff.activeProfileAppliedId = handoff.id;
+    try { sessionStorage.setItem("rm_active_profile_id", handoff.id); } catch (e) { /* ignore */ }
     return true;
 }
 
@@ -1347,10 +1394,40 @@ async function loadChartProfiles() {
     } catch (err) {
         // Library is optional; ignore failures so renderer behavior is unchanged.
     }
+    // Phase 2.5B: bridge real Supabase profiles into #chartProfile so a
+    // #profileId=<uuid> handoff can select an actual profile. These options
+    // carry no birth math payload (profiles have no date/time), so we mark
+    // them with data-profile-source="supabase" and intentionally omit
+    // dataset.profile. /profiles is optional: any failure is swallowed so the
+    // map still loads the existing /chart-profiles options unchanged.
+    try {
+        const profilesResponse = await fetch(`${LIBRARY_API_BASE}/profiles`);
+        if (profilesResponse.ok) {
+            const supabaseProfiles = await profilesResponse.json();
+            if (Array.isArray(supabaseProfiles)) {
+                const existingIds = new Set([...select.options].map(o => o.value));
+                supabaseProfiles.forEach(profile => {
+                    if (!profile || !profile.id || existingIds.has(profile.id)) return;
+                    if (profile.archived_at) return;
+                    const option = document.createElement("option");
+                    option.value = profile.id;
+                    option.textContent = profile.display_name || profile.name || `Profile ${profile.id}`;
+                    option.dataset.profileSource = "supabase";
+                    select.appendChild(option);
+                    existingIds.add(profile.id);
+                });
+            }
+        }
+    } catch (err) {
+        // Supabase profiles are optional; ignore failures so the map still
+        // loads with the existing /chart-profiles options.
+    }
     if (previous && [...select.options].some(o => o.value === previous)) {
         select.value = previous;
     }
-    const selectionApplied = applyLibraryActiveSelection();
+    // Phase 2.5A priority: active profile_id (URL hash, then sessionStorage),
+    // then legacy library handoff (#libraryActive / rm_library_active), then default.
+    const selectionApplied = applyActiveProfileSelection() || applyLibraryActiveSelection();
     lastLibraryHandoff.viewRequestedId = readLibraryViewIdFromUrl();
     renderLibraryHandoffUI(libraryState);
     applyLibrarySavedViewReplay(libraryState);

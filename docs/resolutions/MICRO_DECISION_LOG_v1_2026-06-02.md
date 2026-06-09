@@ -1474,3 +1474,25 @@ Favorites and related saved-place lists should support useful sort modes, includ
 
 Confirm whether these sort controls exist in the current profile prototype before implementing them.
 
+
+### 0101 — Chart Version Snapshots
+
+Saved charts are not currently required as a primary storage object.
+
+However, future chart-version snapshots may be required to preserve the original Layer 2 settings used when a chart was created.
+
+Examples include:
+
+- house system (Placidus, Koch, Equal, etc.)
+- tropical vs sidereal/Vedic
+- orb selections
+- visible/hidden planets
+- visible/hidden aspects
+- other chart-generation settings
+
+This prevents future settings changes from silently altering previously created chart outputs.
+
+Most users will likely maintain a single preferred system, so this is primarily a future-proofing and edge-case concern.
+
+Current architecture should remain modular enough to support chart-version snapshots later without requiring retroactive changes to all existing charts.
+
