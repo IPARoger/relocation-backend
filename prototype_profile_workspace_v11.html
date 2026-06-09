@@ -277,6 +277,7 @@
 
 <div class="modal-back" id="modalBack"><div class="modal" id="modal"></div></div>
 
+<script src="place_resolution.js"></script>
 <script>
   (function(){
     var acct=document.getElementById('account'), btn=document.getElementById('accountBtn');
@@ -568,7 +569,14 @@
         return;
       }
       return; }
-    if(act==='addcity'){ FAVORITES.push({name:b.getAttribute('data-name'),fav:false}); renderLower();
+    if(act==='addcity'){
+      var latAttr=b.getAttribute('data-lat'), lonAttr=b.getAttribute('data-lon');
+      addCityFavoriteFromSelection({
+        displayName: b.getAttribute('data-name'),
+        latitude: latAttr ? Number(latAttr) : undefined,
+        longitude: lonAttr ? Number(lonAttr) : undefined,
+        country: b.getAttribute('data-country') || undefined
+      });
       requestAnimationFrame(function(){ var inp=document.getElementById('cityAdd'); if(inp) inp.focus(); }); return; }
   });
 
@@ -581,8 +589,21 @@
   ];
   var COMPARISONS=[{t:"Lisbon vs. Austin",meta:"2 charts"},{t:"Lyon vs. Wellington vs. Lisbon",meta:"3 charts"}];
   var SEARCHES=[{t:"Venus line within 200km of coast",meta:"Europe"},{t:"Strong MC relocations",meta:"Global"}];
-  var CITY_SUGGEST=["Barcelona, Spain","Berlin, Germany","Mexico City, Mexico","Bali, Indonesia",
-    "Lyon, France","Wellington, New Zealand","Philadelphia, PA USA","Boston, MA USA","Cape Town, South Africa","Kyoto, Japan"];
+  /* Phase 2.6D-2: coordinates added so a selected suggestion can resolve/create
+     a real place via the shared resolver. Free-typed names (no coords) keep the
+     local-only fallback. */
+  var CITY_SUGGEST=[
+    {name:"Barcelona, Spain", lat:41.3874, lon:2.1686, country:"Spain"},
+    {name:"Berlin, Germany", lat:52.5200, lon:13.4050, country:"Germany"},
+    {name:"Mexico City, Mexico", lat:19.4326, lon:-99.1332, country:"Mexico"},
+    {name:"Bali, Indonesia", lat:-8.3405, lon:115.0920, country:"Indonesia"},
+    {name:"Lyon, France", lat:45.7640, lon:4.8357, country:"France"},
+    {name:"Wellington, New Zealand", lat:-41.2865, lon:174.7762, country:"New Zealand"},
+    {name:"Philadelphia, PA USA", lat:39.9526, lon:-75.1652, country:"USA"},
+    {name:"Boston, MA USA", lat:42.3601, lon:-71.0589, country:"USA"},
+    {name:"Cape Town, South Africa", lat:-33.9249, lon:18.4241, country:"South Africa"},
+    {name:"Kyoto, Japan", lat:35.0116, lon:135.7681, country:"Japan"}
+  ];
 
   function favoritesPanel(){
     var rows=FAVORITES.map(function(c,i){
@@ -649,6 +670,41 @@
   }
   loadFavoritesFromStorage();
 
+  /* ============ Phase 2.6D-2: Add City -> real favorite (implicit) ============ */
+  /* Doctrine: selecting a city in Profile search implies favorite intent. No
+     popup/confirmation. Reuses the shared resolver + existing favorites API.
+     Falls back to local-only push when there is no active profile, the resolver
+     is unavailable, or the city cannot be resolved (e.g. free-typed name with
+     no coordinates and no exact stored match). */
+  function addCityFavoriteFromSelection(sel){
+    var localFallback=function(){ FAVORITES.push({name:sel.displayName,fav:false}); renderLower(); };
+    var pid=readActiveProfileId();
+    if(!pid){ localFallback(); return; }
+    if(!window.RMPlaceResolution || !window.RMPlaceResolution.resolvePlaceFromCitySelection){ localFallback(); return; }
+    window.RMPlaceResolution.resolvePlaceFromCitySelection({
+      displayName: sel.displayName,
+      latitude: sel.latitude,
+      longitude: sel.longitude,
+      country: sel.country,
+      origin: 'profile_city_search'
+    }, { apiBase: FAV_API_BASE })
+      .then(function(place){
+        if(!place || !place.id) throw new Error('place_unresolved');
+        /* Avoid duplicates, same philosophy as the map side. */
+        return fetch(FAV_API_BASE+'/favorite-places/'+encodeURIComponent(pid))
+          .then(function(r){ return r.ok?r.json():[]; })
+          .then(function(favs){
+            var already=Array.isArray(favs) && favs.some(function(f){ return f.place_id===place.id; });
+            if(already){ loadFavoritesFromStorage(); return; }
+            return fetch(FAV_API_BASE+'/favorite-places',{
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({ profile_id: pid, place_id: place.id, label: sel.displayName })
+            }).then(function(resp){ if(!resp.ok) throw new Error('favorite_failed_'+resp.status); loadFavoritesFromStorage(); });
+          });
+      })
+      .catch(function(){ localFallback(); });
+  }
+
   (function(){
     var lower=document.getElementById('lower');
     lower.addEventListener('change',function(e){ if(e.target.classList.contains('fav-check')) refreshCompare(); });
@@ -677,8 +733,8 @@
       if(e.target.id!=='cityAdd') return;
       var q=e.target.value.trim().toLowerCase(), box=document.getElementById('suggest');
       if(!q){ box.classList.remove('open'); box.innerHTML=''; return; }
-      var matches=CITY_SUGGEST.filter(function(c){ return c.toLowerCase().indexOf(q)>-1; }).slice(0,6);
-      box.innerHTML=matches.length?matches.map(function(c){ return '<button data-act="addcity" data-name="'+c+'">'+c+'</button>'; }).join('')
+      var matches=CITY_SUGGEST.filter(function(c){ return c.name.toLowerCase().indexOf(q)>-1; }).slice(0,6);
+      box.innerHTML=matches.length?matches.map(function(c){ return '<button data-act="addcity" data-name="'+c.name+'" data-lat="'+c.lat+'" data-lon="'+c.lon+'" data-country="'+(c.country||'')+'">'+c.name+'</button>'; }).join('')
         :'<button data-act="addcity" data-name="'+e.target.value.trim()+'">Add “'+e.target.value.trim()+'”</button>';
       box.classList.add('open');
     });

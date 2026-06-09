@@ -924,6 +924,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
 <script src="/substrate_adapter.js"></script>
 <script src="/genie_map_engine_adapter.js"></script>
+<script src="/place_resolution.js"></script>
 <script>
 const MAP_URL = new URLSearchParams(window.location.search);
 
@@ -1949,42 +1950,23 @@ function getActiveFavoriteProfileId() {
 
 // Resolve an existing place by name + coordinate proximity, else create one.
 // Returns the place row (with .id) or throws.
+// Phase 2.6D-1: thin wrapper over the shared RMPlaceResolution utility
+// (place_resolution.js). Map behavior preserved exactly: same field mapping,
+// same provider values ("cities_js" / "map_custom"), same 0.02 tolerance.
 async function resolvePlaceFromMapSelection(selection) {
     const { displayName, lat, lon, country, admin, origin } = selection;
-    const COORD_TOLERANCE = 0.02; // ~2 km; keeps distinct custom points distinct
-    let matches = [];
-    try {
-        const resp = await fetch(
-            `${LIBRARY_API_BASE}/places/search?q=${encodeURIComponent(displayName)}`
-        );
-        if (resp.ok) matches = await resp.json();
-    } catch (e) {
-        matches = [];
+    const providerOrigin = origin === "city_dataset" ? "cities_js" : "map_custom";
+    if (!window.RMPlaceResolution || !window.RMPlaceResolution.resolvePlaceFromCitySelection) {
+        throw new Error("place_resolution_unavailable");
     }
-    const norm = s => String(s || "").trim().toLowerCase();
-    const existing = Array.isArray(matches)
-        ? matches.find(p =>
-            norm(p.display_name) === norm(displayName) &&
-            Math.abs(Number(p.latitude) - lat) <= COORD_TOLERANCE &&
-            Math.abs(Number(p.longitude) - lon) <= COORD_TOLERANCE)
-        : null;
-    if (existing) return existing;
-
-    const body = {
-        display_name: displayName,
+    return window.RMPlaceResolution.resolvePlaceFromCitySelection({
+        displayName,
         latitude: lat,
         longitude: lon,
-        provider: origin === "city_dataset" ? "cities_js" : "map_custom",
-    };
-    if (country) body.country_name = country;
-    if (admin) body.admin1 = admin;
-    const createResp = await fetch(`${LIBRARY_API_BASE}/places`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-    });
-    if (!createResp.ok) throw new Error(`place_create_failed_${createResp.status}`);
-    return createResp.json();
+        country,
+        admin,
+        origin: providerOrigin,
+    }, { apiBase: LIBRARY_API_BASE, coordTolerance: 0.02 });
 }
 
 async function favoriteMapSelectionFromButton(btn) {

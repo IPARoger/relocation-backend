@@ -152,6 +152,14 @@ def serve_cities_js():
     return FileResponse(APP_DIR / "cities.js", media_type="application/javascript")
 
 
+@app.get("/place_resolution.js")
+def serve_place_resolution_js():
+    return FileResponse(
+        APP_DIR / "place_resolution.js",
+        media_type="application/javascript",
+    )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
