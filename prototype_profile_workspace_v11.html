@@ -195,6 +195,8 @@
   .slin-r { animation: slideInRight .56s cubic-bezier(.22,.61,.36,1) both; }
   .slin-l { animation: slideInLeft  .56s cubic-bezier(.22,.61,.36,1) both; }
   .comp-in { animation: slideInRight .66s cubic-bezier(.22,.61,.36,1) .06s both; }
+  /* Phase 2.7A: restrained recent-favorite highlight (no toast/modal/spectacle). */
+  .fav li.fav-new { background:rgba(184,154,85,.16); border-radius:9px; transition:background 1.2s ease; }
 
   /* saved */
   .lower { margin-top:50px; padding-top:30px; border-top:1px solid var(--line);
@@ -605,9 +607,17 @@
     {name:"Kyoto, Japan", lat:35.0116, lon:135.7681, country:"Japan"}
   ];
 
+  /* Phase 2.7A: transient highlight for a just-created favorite. Set by Add City
+     now, and by a future Map -> Profile handoff via sessionStorage. Consumed once. */
+  var highlightFavoritePlaceId = null;
+  try {
+    var handoffFav = sessionStorage.getItem('rm_recent_favorite_place_id');
+    if (handoffFav) { highlightFavoritePlaceId = handoffFav; sessionStorage.removeItem('rm_recent_favorite_place_id'); }
+  } catch (e) { /* ignore */ }
+
   function favoritesPanel(){
     var rows=FAVORITES.map(function(c,i){
-      return '<li>'+
+      return '<li'+((c.placeId && c.placeId===highlightFavoritePlaceId)?' class="fav-new"':'')+'>'+
         '<input type="checkbox" class="fav-check" data-i="'+i+'"'+(i<2?' checked':'')+'>'+
         '<span class="star'+(c.fav?' on':'')+'" data-i="'+i+'">\u2605</span>'+
         '<span class="city" data-i="'+i+'"><span class="name">'+c.name+'</span><span class="go">›</span></span>'+
@@ -630,6 +640,15 @@
     document.getElementById('lower').innerHTML=
       favoritesPanel()+listPanel('Saved Comparisons',COMPARISONS,'comparison')+listPanel('Saved Searches',SEARCHES,'search');
     refreshCompare();
+    if(highlightFavoritePlaceId){
+      var highlighted=document.querySelector('ul.fav li.fav-new');
+      if(highlighted){
+        setTimeout(function(){
+          highlightFavoritePlaceId=null;
+          highlighted.classList.remove('fav-new');
+        },1600);
+      }
+    }
   }
   function refreshCompare(){
     var lower=document.getElementById('lower'), compareBtn=document.getElementById('compareBtn');
@@ -699,7 +718,7 @@
             return fetch(FAV_API_BASE+'/favorite-places',{
               method:'POST', headers:{'Content-Type':'application/json'},
               body:JSON.stringify({ profile_id: pid, place_id: place.id, label: sel.displayName })
-            }).then(function(resp){ if(!resp.ok) throw new Error('favorite_failed_'+resp.status); loadFavoritesFromStorage(); });
+            }).then(function(resp){ if(!resp.ok) throw new Error('favorite_failed_'+resp.status); highlightFavoritePlaceId=place.id; loadFavoritesFromStorage(); });
           });
       })
       .catch(function(){ localFallback(); });

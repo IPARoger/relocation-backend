@@ -2013,6 +2013,8 @@ async function favoriteMapSelectionFromButton(btn) {
         } catch (e) { /* non-fatal */ }
 
         if (already) {
+            // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
+            try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
             btn.textContent = "Favorited \u2713";
             setStatus("Already in favorites.", false);
             return;
@@ -2028,6 +2030,8 @@ async function favoriteMapSelectionFromButton(btn) {
             }),
         });
         if (!resp.ok) throw new Error(`favorite_failed_${resp.status}`);
+        // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
+        try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
         btn.textContent = "Favorited \u2713";
         setStatus("Saved to favorites.", false);
     } catch (err) {
@@ -2048,6 +2052,51 @@ document.addEventListener("click", function(ev) {
 
 window.__rmResolvePlaceFromMapSelection = resolvePlaceFromMapSelection;
 window.__rmGetActiveFavoriteProfileId = getActiveFavoriteProfileId;
+
+// Phase 2.7A: read-only favorite-state check for a freshly rendered popup.
+// MUST NOT create places or mutate storage. Only GET /places/search (match,
+// no create) + GET /favorite-places. If the place is already favorited for the
+// active profile, flip the button to "Favorited \u2713". Otherwise leave it
+// as "Favorite". Any failure leaves the default label untouched.
+async function applyMapFavoriteButtonState(popup) {
+    const root = popup && popup.getElement ? popup.getElement() : null;
+    const btn = root ? root.querySelector(".popup-action-favorite") : null;
+    if (!btn) return;
+    const profileId = getActiveFavoriteProfileId();
+    if (!profileId) return;
+    const displayName = btn.dataset.favName || "";
+    if (!displayName) return;
+    const lat = Number(btn.dataset.favLat);
+    const lon = Number(btn.dataset.favLon);
+    const norm = s => String(s || "").trim().toLowerCase();
+    const TOL = 0.02;
+    try {
+        const searchResp = await fetch(
+            `${LIBRARY_API_BASE}/places/search?q=${encodeURIComponent(displayName)}`
+        );
+        if (!searchResp.ok) return;
+        const matches = await searchResp.json();
+        const place = Array.isArray(matches)
+            ? matches.find(p =>
+                norm(p.display_name) === norm(displayName) &&
+                (!Number.isFinite(lat) || Math.abs(Number(p.latitude) - lat) <= TOL) &&
+                (!Number.isFinite(lon) || Math.abs(Number(p.longitude) - lon) <= TOL))
+            : null;
+        if (!place || !place.id) return; // place never created => not favorited
+        const favResp = await fetch(
+            `${LIBRARY_API_BASE}/favorite-places/${encodeURIComponent(profileId)}`
+        );
+        if (!favResp.ok) return;
+        const favs = await favResp.json();
+        const already = Array.isArray(favs)
+            && favs.some(f => f.place_id === place.id && !f.archived_at);
+        if (already) {
+            btn.textContent = "Favorited \u2713";
+            btn.disabled = true;
+        }
+    } catch (e) { /* read-only; leave default label on failure */ }
+}
+window.__rmApplyMapFavoriteButtonState = applyMapFavoriteButtonState;
 
 map.getContainer().addEventListener("contextmenu", async function(ev) {
     ev.preventDefault();
@@ -2093,9 +2142,11 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
         popup.setContent(
             buildRelocatedPopupHtml(data, lat, lon, { title: "Custom location" }) + extra
         );
+        applyMapFavoriteButtonState(popup);
     } catch (err) {
         console.error("relocated-chart", err);
         popup.setContent(buildPlaceFallbackPopupHtml({ title: "Custom location" }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
+        applyMapFavoriteButtonState(popup);
     }
 });
 
@@ -3040,6 +3091,7 @@ async function openDatasetCityPopup(city) {
                 admin: city.admin || city.state || null
             })
         );
+        applyMapFavoriteButtonState(popup);
     } catch (err) {
         console.error("relocated-chart (city)", err);
         popup.setContent(buildPlaceFallbackPopupHtml({
@@ -3048,6 +3100,7 @@ async function openDatasetCityPopup(city) {
             country: city.country || null,
             admin: city.admin || city.state || null
         }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
+        applyMapFavoriteButtonState(popup);
     }
 }
 
