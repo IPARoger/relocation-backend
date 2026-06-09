@@ -553,10 +553,21 @@
     }
     if(act==='popout'){ openWheelModal(key); return; }
     if(act==='del'){ var kind=b.getAttribute('data-kind'), i=+b.getAttribute('data-i');
-      if(kind==='comparison') COMPARISONS.splice(i,1);
-      else if(kind==='search') SEARCHES.splice(i,1);
-      else if(kind==='fav') FAVORITES.splice(i,1);
-      renderLower(); return; }
+      if(kind==='comparison'){ COMPARISONS.splice(i,1); renderLower(); return; }
+      if(kind==='search'){ SEARCHES.splice(i,1); renderLower(); return; }
+      if(kind==='fav'){
+        var favItem=FAVORITES[i];
+        if(favItem && favItem.favoriteId){
+          /* Phase 2.6C: archive live favorite_place; splice/render only on success. */
+          fetch(FAV_API_BASE+'/favorite-place/'+encodeURIComponent(favItem.favoriteId)+'/archive',{method:'POST'})
+            .then(function(r){ if(!r.ok) throw new Error('archive_failed'); FAVORITES.splice(i,1); renderLower(); })
+            .catch(function(){ /* leave row in place on failure */ });
+        } else {
+          FAVORITES.splice(i,1); renderLower(); /* local-only fallback */
+        }
+        return;
+      }
+      return; }
     if(act==='addcity'){ FAVORITES.push({name:b.getAttribute('data-name'),fav:false}); renderLower();
       requestAnimationFrame(function(){ var inp=document.getElementById('cityAdd'); if(inp) inp.focus(); }); return; }
   });
@@ -626,7 +637,8 @@
       .then(function(r){ return r.ok?r.json():null; })
       .then(function(rows){
         if(!Array.isArray(rows)) return;
-        FAVORITES=rows.map(function(row){
+        /* Phase 2.6C: hide archived favorites (list API returns them; repo unchanged). */
+        FAVORITES=rows.filter(function(row){ return !row.archived_at; }).map(function(row){
           return { name: row.label || row.place_id || 'Saved place',
                    fav: !!row.starred,
                    favoriteId: row.id, placeId: row.place_id };
@@ -641,7 +653,24 @@
     var lower=document.getElementById('lower');
     lower.addEventListener('change',function(e){ if(e.target.classList.contains('fav-check')) refreshCompare(); });
     lower.addEventListener('click',function(e){
-      var star=e.target.closest('.star'); if(star){ star.classList.toggle('on'); return; }
+      var star=e.target.closest('.star');
+      if(star){
+        var si=+star.getAttribute('data-i');
+        var favItem=FAVORITES[si];
+        var nextValue=!(favItem && favItem.fav);
+        if(favItem && favItem.favoriteId){
+          /* Phase 2.6C: persist starred; update fav + .on only on success. */
+          fetch(FAV_API_BASE+'/favorite-place/'+encodeURIComponent(favItem.favoriteId),{
+            method:'PATCH', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ starred: nextValue })
+          })
+            .then(function(r){ if(!r.ok) throw new Error('patch_failed'); favItem.fav=nextValue; star.classList.toggle('on', nextValue); })
+            .catch(function(){ /* leave visual unchanged on failure */ });
+        } else {
+          star.classList.toggle('on'); /* local-only visual fallback */
+        }
+        return;
+      }
       var nl=e.target.closest('.notes-link'); if(nl){ e.preventDefault(); openNotesModal(nl.getAttribute('data-kind'),+nl.getAttribute('data-i')); }
     });
     lower.addEventListener('input',function(e){
