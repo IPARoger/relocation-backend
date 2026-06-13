@@ -155,6 +155,7 @@
   <h1>Relocation App</h1>
   <span class="tag">Chart Record doctrine · placeholders only</span>
   <nav class="primary-nav" id="primaryNav"></nav>
+  <button id="rm-acct-drawer-btn" type="button" data-action="open-account-drawer">Account</button>
   <span class="screen-meta" id="screenMeta">Screen 0</span>
 </header>
 
@@ -188,6 +189,25 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="guidedOnboardingModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="guidedOnboardingTitle">
+    <h3 id="guidedOnboardingTitle">Welcome to Relocation App</h3>
+    <p class="purpose">A quick start before you explore the map.</p>
+    <p>Pick a profile, open the map, and right-click any city to see your relocated chart there. Your birth data stays fixed — the map shows how your chart shifts across the planet.</p>
+    <div class="row">
+      <button type="button" class="primary" data-action="guided-onboarding-start">Start here</button>
+      <button type="button" data-action="guided-onboarding-skip">Skip</button>
+    </div>
+  </div>
+</div>
+
+<script src="/supabase_client.js"></script>
+<script src="/auth_guard.js"></script>
+<script src="/user_profile.js"></script>
+<script src="/supabase_store_bridge.js"></script>
+<script src="/first_profile_intake.js"></script>
+<script src="/current_location_editor.js"></script>
+<script src="/account_drawer.js"></script>
 <script src="/genie_variable_builder.js"></script>
 <script>
 "use strict";
@@ -206,6 +226,25 @@ let viewModel = null;
 /** @type {string | null} */
 let storeLoadError = null;
 
+// Profile selection persistence — namespaced by userId to prevent cross-user bleed.
+// Falls back to user_settings.default_chart_record_id when nothing is stored.
+// localStorage is acceptable for v1; user_settings write path not yet implemented.
+function _loadPersistedChartRecord() {
+  try {
+    const uid = window.CurrentUser && window.CurrentUser.userId;
+    if (!uid) return null;
+    return localStorage.getItem("rm_selected_chart_" + uid) || null;
+  } catch (e) { return null; }
+}
+
+function _savePersistedChartRecord(id) {
+  try {
+    const uid = window.CurrentUser && window.CurrentUser.userId;
+    if (!uid || !id) return;
+    localStorage.setItem("rm_selected_chart_" + uid, id);
+  } catch (e) { /* localStorage unavailable */ }
+}
+
 const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
   { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
@@ -220,6 +259,7 @@ const NAV_ROUTES = /** @type {const} */ ([
 const ALL_ROUTES = /** @type {const} */ ([
   ...NAV_ROUTES,
   { id: "future", label: "Future", screen: "Future Rooms (quarantined)" },
+  { id: "help", label: "Help & Learn", screen: "Help & Learn" },
 ]);
 
 /**
@@ -297,6 +337,12 @@ const ROUTE_CONTEXT_CONTRACT = {
     comparisonSetId: "none",
   },
   future: {
+    chartRecordId: "none",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+  help: {
     chartRecordId: "none",
     placeId: "none",
     explorationId: "none",
@@ -988,7 +1034,7 @@ function screenDashboard() {
             <button type="button" data-nav="chart-record" data-chart-record="${r.chartRecordId}">Open Chart Record page</button>
           </li>`).join("")}
       </ul>
-      <button type="button" disabled>+ New Chart Record (placeholder)</button>
+      <button type="button" data-action="add-chart-record">+ Add Profile</button>
     </div>
 
     <div class="panel">
@@ -1009,6 +1055,23 @@ function screenDashboard() {
   `;
 }
 
+function chartNoteKey(chartRecordId) {
+  return "rm_note_" + chartRecordId;
+}
+
+function loadChartNote(chartRecordId) {
+  if (!chartRecordId) return "";
+  try { return localStorage.getItem(chartNoteKey(chartRecordId)) || ""; }
+  catch (e) { return ""; }
+}
+
+function escapeHtml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 function screenChartRecord() {
   const r = activeRecord();
   return `
@@ -1022,6 +1085,15 @@ function screenChartRecord() {
       <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}<br>${engineEligibilityLine(r)}</p>
       <p class="meta"><code>${r.chartRecordId}</code></p>
       <button type="button" data-nav="birth-data">Edit birth data</button>
+      <button type="button" data-action="set-current-location">Set Current Location</button>
+    </div>
+    <div class="panel">
+      <h3>Module: chart-record-notes</h3>
+      <textarea id="rm-chart-note" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Notes for this Chart Record (saved on this device)">${escapeHtml(loadChartNote(r.chartRecordId))}</textarea>
+      <div class="row" style="margin-top:8px;align-items:center;">
+        <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
+        <span id="rm-chart-note-msg" class="meta" style="min-height:1.2em;"></span>
+      </div>
     </div>
     <div class="row">
       <button type="button" class="primary" data-action="open-map-record">Open Map (this Chart Record)</button>
@@ -1213,24 +1285,45 @@ function screenExport() {
 
 function screenSettings() {
   const vm = requireViewModel();
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const us = raw.user_settings || {};
+  const curHouse = us.house_system || "placidus";
+  const HOUSE_OPTIONS = [
+    { value: "placidus",   label: "Placidus" },
+    { value: "whole_sign", label: "Whole Sign" },
+    { value: "equal",      label: "Equal" },
+    { value: "koch",       label: "Koch" },
+  ];
   return `
-    <h2>S5 — Settings (support route)</h2>
-    <p class="purpose">Layer 2 defaults · history clear · not a journey destination.</p>
+    <h2>S5 — Settings</h2>
+    <p class="purpose">Layer 2 defaults · not a journey destination.</p>
     <div class="panel">
       <h3>Module: account-defaults</h3>
-      <label class="block">defaultChartRecordId (account owner default for Dashboard → Map)
-        <select disabled>${vm.chartRecords.map((r) =>
-          `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
-        ).join("")}</select>
+      <label class="block">Default Chart Record (Dashboard → Map)
+        <select id="rm-settings-default-cr">
+          ${vm.chartRecords.map((r) =>
+            `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+          ).join("")}
+        </select>
       </label>
-      <label class="block">House system <select disabled><option>Placidus</option></select></label>
+      <label class="block">House system
+        <select id="rm-settings-house">
+          ${HOUSE_OPTIONS.map((o) =>
+            `<option value="${o.value}"${o.value === curHouse ? " selected" : ""}>${o.label}</option>`
+          ).join("")}
+        </select>
+      </label>
     </div>
     <div class="panel">
       <h3>Module: history (per Chart Record)</h3>
       <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
       <button type="button" disabled>Clear all history — separate control (placeholder)</button>
     </div>
-    <button type="button" data-nav="dashboard">Back to dashboard</button>
+    <div class="row">
+      <button type="button" class="primary" data-action="save-settings">Save Settings</button>
+      <button type="button" data-nav="dashboard">Back to dashboard</button>
+    </div>
+    <p id="rm-settings-msg" style="font-size:0.85rem;min-height:1.4em;"></p>
   `;
 }
 
@@ -1259,6 +1352,51 @@ function screenBirthData() {
   `;
 }
 
+function screenHelp() {
+  return `
+    <h2>Help &amp; Learn</h2>
+    <p class="purpose">Static reference · no tutorial engine · Web 2.0 only.</p>
+    <div class="panel">
+      <h3>Start Here</h3>
+      <p>This instrument maps astrological chart structure onto geography. Select a birth profile, open the map, and right-click any city to see your relocated chart for that location.</p>
+      <p>Your birth data stays fixed. The map shows how your chart angles and house cusps shift as you move around the planet.</p>
+    </div>
+    <div class="panel">
+      <h3>How to Use the Map</h3>
+      <ul class="plain">
+        <li><strong>Right-click</strong> anywhere on the map to open a relocated chart popup.</li>
+        <li>Use the <strong>city search bar</strong> to jump to a specific location.</li>
+        <li>Use <strong>Find Regions</strong> to highlight areas matching astrological conditions.</li>
+        <li>Use <strong>Genie</strong> (drawer) to define and layer conditions visually.</li>
+        <li>Switch profiles from the Chart Record page or Account drawer.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Beginner Path</h3>
+      <ul class="plain">
+        <li>Create your first profile with birth date, time, and city.</li>
+        <li>Open the map and right-click a few cities you are curious about.</li>
+        <li>Notice which planets land near the Ascendant or Midheaven in different places.</li>
+        <li>Save cities you want to revisit as favorites.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Professional Path</h3>
+      <ul class="plain">
+        <li>Add multiple client profiles — each gets its own chart record and map.</li>
+        <li>Use Find Regions with specific planetary conditions to narrow geographic candidates.</li>
+        <li>Use comparison sets to evaluate multiple cities side by side.</li>
+        <li>Export chart records for client reports.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Feedback</h3>
+      <p>Found a bug or have a suggestion? <a href="mailto:feedback@relocationapp.com">feedback@relocationapp.com</a></p>
+    </div>
+    <button type="button" data-nav="dashboard">Back to dashboard</button>
+  `;
+}
+
 function screenFuture() {
   return `
     <div class="stub">Quarantined architecture only — not scheduled.</div>
@@ -1283,6 +1421,7 @@ const SCREEN_RENDERERS = {
   settings: screenSettings,
   "birth-data": screenBirthData,
   future: screenFuture,
+  help: screenHelp,
 };
 
 function renderLoadPending() {
@@ -1329,6 +1468,7 @@ function render() {
 
 function switchChartRecord(newId, noticePrefix) {
   if (newId === navContext.chartRecordId) return;
+  _savePersistedChartRecord(newId);
   const prev = getChartRecord(navContext.chartRecordId).displayName;
   const next = getChartRecord(newId).displayName;
   navigate(navContext.route, {
@@ -1446,6 +1586,88 @@ function bindScreenActions(root) {
       if (action === "inspect") openPopup();
       if (action === "toggle-drawer") { uiState.drawerOpen = !uiState.drawerOpen; render(); }
       if (action === "close-popup") closePopup();
+      if (action === "add-chart-record") {
+        if (typeof window.__showFirstProfileIntake === "function") {
+          window.__showFirstProfileIntake();
+        }
+      }
+      if (action === "set-current-location") {
+        if (typeof window.__showCurrentLocationEditor === "function") {
+          window.__showCurrentLocationEditor(navContext.chartRecordId);
+        }
+      }
+      if (action === "open-account-drawer") {
+        if (typeof window.__showAccountDrawer === "function") {
+          window.__showAccountDrawer();
+        }
+      }
+      if (action === "save-chart-note") {
+        const noteEl = document.getElementById("rm-chart-note");
+        const noteMsg = document.getElementById("rm-chart-note-msg");
+        const crId = navContext.chartRecordId;
+        if (!noteEl || !crId) {
+          if (noteMsg) noteMsg.textContent = "No active Chart Record.";
+          return;
+        }
+        try {
+          localStorage.setItem(chartNoteKey(crId), noteEl.value);
+          if (noteMsg) noteMsg.textContent = "Saved.";
+        } catch (e) {
+          if (noteMsg) noteMsg.textContent = "Could not save (storage unavailable).";
+        }
+      }
+      if (action === "save-settings") {
+        const msgEl = document.getElementById("rm-settings-msg");
+        const defCrEl = document.getElementById("rm-settings-default-cr");
+        const houseEl = document.getElementById("rm-settings-house");
+        if (!defCrEl || !houseEl) return;
+        if (msgEl) msgEl.textContent = "Saving…";
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            const user = window.CurrentUser;
+            if (!client || !user) throw new Error("Session unavailable. Reload and try again.");
+            const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+            const existing = raw.user_settings || {};
+            const merged = Object.assign({}, existing, {
+              default_chart_record_id: defCrEl.value,
+              house_system: houseEl.value,
+            });
+            // Try to find existing account-level row, then update or insert.
+            const { data: rows, error: selErr } = await client
+              .from("user_settings")
+              .select("id")
+              .eq("account_id", user.accountId)
+              .is("profile_id", null)
+              .limit(1);
+            if (selErr) throw selErr;
+            let writeErr;
+            if (rows && rows.length > 0) {
+              const { error: upErr } = await client
+                .from("user_settings")
+                .update({ settings_json: merged })
+                .eq("id", rows[0].id);
+              writeErr = upErr;
+            } else {
+              const { error: insErr } = await client
+                .from("user_settings")
+                .insert({
+                  account_id:      user.accountId,
+                  account_user_id: user.userId,
+                  profile_id:      null,
+                  settings_json:   merged,
+                });
+              writeErr = insErr;
+            }
+            if (writeErr) throw writeErr;
+            if (msgEl) msgEl.textContent = "✓ Saved.";
+            setTimeout(() => { window.location.reload(); }, 800);
+          } catch (err) {
+            const msgEl2 = document.getElementById("rm-settings-msg");
+            if (msgEl2) msgEl2.textContent = "Error: " + (err.message || String(err));
+          }
+        })();
+      }
     });
   });
 
@@ -1489,13 +1711,45 @@ async function attachEngineSummaries(vm) {
 }
 
 async function loadViewModelFromStore() {
-  const resp = await fetch(STORE_JSON_URL, { cache: "no-store" });
-  if (!resp.ok) {
-    throw new Error(`GET ${STORE_JSON_URL} failed: HTTP ${resp.status}`);
+  let payload = null;
+
+  // Use Supabase live store if available (supabase_store_bridge.js loaded)
+  if (typeof window.SupabaseStoreReady !== "undefined") {
+    try {
+      payload = await window.SupabaseStoreReady;
+      console.log("[app_shell] Using Supabase store bridge.");
+    } catch (err) {
+      // Authenticated user with no profiles/birth records — show intake overlay,
+      // do NOT fall back to mock data (that would mislead the user).
+      if (err.message && err.message.indexOf("Intake overlay required") !== -1) {
+        throw new Error("INTAKE_REQUIRED");
+      }
+      console.warn(
+        "[app_shell] Supabase bridge unavailable, falling back to local store:",
+        err.message
+      );
+      payload = null;
+    }
   }
-  const payload = await resp.json();
+
+  // Fallback: local product store (always available, no auth required)
+  if (!payload) {
+    const resp = await fetch(STORE_JSON_URL, { cache: "no-store" });
+    if (!resp.ok) {
+      throw new Error(`GET ${STORE_JSON_URL} failed: HTTP ${resp.status}`);
+    }
+    payload = await resp.json();
+  }
+
   storeRaw = payload;
   viewModel = adaptStoreToView(payload);
+
+  // Override defaultChartRecordId with last user selection if valid
+  const _savedChart = _loadPersistedChartRecord();
+  if (_savedChart && viewModel.chartRecords.some(function(r) { return r.chartRecordId === _savedChart; })) {
+    viewModel.defaultChartRecordId = _savedChart;
+  }
+
   await attachEngineSummaries(viewModel);
   storeLoadError = null;
   syncNavContextFromLocation();
@@ -1506,12 +1760,53 @@ async function bootstrap() {
   try {
     await loadViewModelFromStore();
     render();
+    maybeShowGuidedOnboarding();
   } catch (err) {
-    storeLoadError = err instanceof Error ? err.message : String(err);
+    const msg = err instanceof Error ? err.message : String(err);
+    // Intake overlay: first_profile_intake.js handles the display.
+    // Stay in the pending/loading state — do not render error or mock store.
+    if (msg === "INTAKE_REQUIRED") {
+      if (typeof window.__showFirstProfileIntake === "function") {
+        window.__showFirstProfileIntake();
+      }
+      return;
+    }
+    storeLoadError = msg;
     viewModel = null;
     storeRaw = null;
     renderLoadError(storeLoadError);
   }
+}
+
+var GUIDED_ONBOARDING_KEY = "rm_guided_onboarding_dismissed";
+
+function dismissGuidedOnboarding() {
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  try { localStorage.setItem(GUIDED_ONBOARDING_KEY, "1"); } catch (e) { /* storage unavailable */ }
+}
+
+function maybeShowGuidedOnboarding() {
+  var dismissed = false;
+  try { dismissed = localStorage.getItem(GUIDED_ONBOARDING_KEY) === "1"; } catch (e) { dismissed = false; }
+  if (dismissed) return;
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (!modal) return;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  var startBtn = modal.querySelector("[data-action=guided-onboarding-start]");
+  var skipBtn = modal.querySelector("[data-action=guided-onboarding-skip]");
+  if (startBtn) startBtn.addEventListener("click", function () {
+    dismissGuidedOnboarding();
+    navigate("help");
+  });
+  if (skipBtn) skipBtn.addEventListener("click", dismissGuidedOnboarding);
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) dismissGuidedOnboarding();
+  });
 }
 
 window.__rmAppShell = {

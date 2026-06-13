@@ -673,6 +673,11 @@ html.map-panel-show-legend #panelLegend { display: block; }
     color: #333;
 }
 </style>
+<script src="/supabase_client.js"></script>
+<script src="/auth_guard.js"></script>
+<script src="/user_profile.js"></script>
+<script src="/supabase_store_bridge.js"></script>
+    <script src="/first_profile_intake.js"></script>
 </head>
 <body>
 
@@ -1816,11 +1821,51 @@ function getActiveProfileBirthParams() {
 }
 
 async function fetchRelocatedChart(lat, lon) {
-    const p = getActiveProfileBirthParams();
-    if (!p) throw new Error("no_profile");
-    const { year, month, day, birthHourUTC } = p;
+    // Resolution priority:
+    //   A. Selected #chartProfile option — legacy (dataset.profile) or Supabase (async endpoint)
+    //   B. App_shell handoff chartRecordId (when navigated from app_shell.html)
+    //   C. ?chartRecordId=<uuid> bare URL param (direct share link, no handoff)
+    let birth = null;
+
+    // Path A: delegate to getBirthParamsFromProfile() which handles both
+    //   legacy (dataset.profile inline parse) and Supabase (fetchEngineBirthForChartRecord)
+    try {
+        birth = await getBirthParamsFromProfile();
+    } catch (err) {
+        throw new Error(err.message || "Birth time is required for chart calculations.");
+    }
+
+    // Path B: app_shell handoff — covers case where dropdown hasn't loaded profile yet
+    if (!birth) {
+        const cid = (lastAppShellHandoff && lastAppShellHandoff.chartRecordId) || null;
+        if (cid) {
+            const resolved = await fetchEngineBirthForChartRecord(cid);
+            if (resolved.ok && resolved.birth) {
+                birth = resolved.birth;
+            } else if (!resolved.ok) {
+                throw new Error(resolved.message || "no_profile");
+            }
+        }
+    }
+
+    // Path C: bare ?chartRecordId=<uuid> URL param (direct link without handoff=app_shell)
+    if (!birth) {
+        const urlCid = MAP_URL.get("chartRecordId") || null;
+        if (urlCid && SUPABASE_UUID_PATTERN.test(urlCid)) {
+            const resolved = await fetchEngineBirthForChartRecord(urlCid);
+            if (resolved.ok && resolved.birth) {
+                birth = resolved.birth;
+            } else if (!resolved.ok) {
+                throw new Error(resolved.message || "no_profile");
+            }
+        }
+    }
+
+    if (!birth) throw new Error("no_profile");
+
+    const { birth_year, birth_month, birth_day, birth_hour_utc } = birth;
     const response = await fetch(
-        `http://127.0.0.1:8000/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${year}&birth_month=${month}&birth_day=${day}&birth_hour_utc=${birthHourUTC}`
+        `http://127.0.0.1:8000/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}`
     );
     if (!response.ok) throw new Error("relocated_failed");
     return response.json();
@@ -1966,7 +2011,7 @@ async function resolvePlaceFromMapSelection(selection) {
         country,
         admin,
         origin: providerOrigin,
-    }, { apiBase: LIBRARY_API_BASE, coordTolerance: 0.02 });
+    }, { apiBase: "http://127.0.0.1:8004", coordTolerance: 0.02 });
 }
 
 async function favoriteMapSelectionFromButton(btn) {
@@ -2122,7 +2167,7 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
         const data = await fetchRelocatedChart(lat, lon);
         let extra = "";
         if (debugAuraMode && isAuraPocOverlay(getSelectedAspectOverlay())) {
-            const birth = getBirthParamsFromProfile();
+            const birth = await getBirthParamsFromProfile();
             const q = new URLSearchParams({
                 lat: String(lat),
                 lon: String(lon),
@@ -3128,17 +3173,38 @@ function isAuraPocOverlay(aspectOverlay) {
     return planet === "sun" && aspect === "conjunction" && angle === "ASC";
 }
 
-function getBirthParamsFromProfile() {
+async function getBirthParamsFromProfile() {
     const selectedOption = document.getElementById("chartProfile").selectedOptions[0];
-    const profile = JSON.parse(selectedOption.dataset.profile);
-    const [year, month, day] = profile.date.split("-").map(Number);
-    const [hour, minute] = profile.time.split(":").map(Number);
-    return {
-        birth_year: year,
-        birth_month: month,
-        birth_day: day,
-        birth_hour_utc: hour + minute / 60
-    };
+    if (!selectedOption) return null;
+
+    // Legacy path: chart_profiles.json and library profiles carry birth data inline.
+    if (selectedOption.dataset.profile) {
+        const profile = JSON.parse(selectedOption.dataset.profile);
+        const [year, month, day] = profile.date.split("-").map(Number);
+        const [hour, minute] = profile.time.split(":").map(Number);
+        return {
+            birth_year: year,
+            birth_month: month,
+            birth_day: day,
+            birth_hour_utc: hour + minute / 60,
+        };
+    }
+
+    // Supabase path: options have data-profile-source="supabase" but no birth payload.
+    // Resolve via the validated Supabase engine-birth endpoint.
+    if (selectedOption.dataset.profileSource === "supabase" && selectedOption.value) {
+        const resolved = await fetchEngineBirthForChartRecord(selectedOption.value);
+        if (resolved.ok && resolved.birth) {
+            return resolved.birth;
+        }
+        const err = new Error(
+            resolved.message || "Birth time is required for chart calculations."
+        );
+        err.birthResolutionError = resolved.error || "birth_resolution_failed";
+        throw err;
+    }
+
+    return null;
 }
 
 function handoffChartRecordIdForBirth() {
@@ -3171,7 +3237,36 @@ function formatResolvedBirthDebugLine(birthResolution) {
     return `Birth resolved from Chart Record: ${id} — ${b.birth_year}-${mo}-${day} ${formatUtcTimeFromEngineBirth(b)}`;
 }
 
+/** Matches standard UUID v4 format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx */
+const SUPABASE_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 async function fetchEngineBirthForChartRecord(chartRecordId) {
+    // For Supabase UUIDs, try the Supabase birth endpoint first.
+    // Falls back to the legacy mock-store endpoint on 404 (legacy IDs, not-yet-migrated records).
+    if (SUPABASE_UUID_PATTERN.test(chartRecordId)) {
+        const sbResp = await fetch(
+            `/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`
+        );
+        let sbBody = {};
+        try { sbBody = await sbResp.json(); } catch (e) { /* ignore */ }
+
+        if (sbResp.ok) {
+            return { ok: true, birth: sbBody, chartRecordId, source: "supabase_chart_record" };
+        }
+        if (sbResp.status === 422) {
+            const detail = (sbBody && sbBody.detail) || {};
+            return {
+                ok: false,
+                error: detail.error || "birth_time_required",
+                message: detail.message || "Birth time is unknown. Exact birth time is required for chart calculations.",
+                chartRecordId,
+                source: "supabase_chart_record",
+            };
+        }
+        // 404 or unexpected error — fall through to legacy endpoint
+    }
+
+    // Legacy endpoint: reads TEMPORARY_product_store.json + library.json
     const response = await fetch(
         `/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`
     );
@@ -3195,7 +3290,23 @@ async function fetchEngineBirthForChartRecord(chartRecordId) {
 
 async function resolveBirthParamsForGenieRender(payload) {
     if (!isAppShellGenieHandoffActive()) {
-        return { ok: true, birth: getBirthParamsFromProfile(), source: "chart_profile" };
+        try {
+            const birth = await getBirthParamsFromProfile();
+            if (!birth) {
+                return {
+                    ok: false,
+                    error: "no_profile_selected",
+                    message: "No profile selected.",
+                };
+            }
+            return { ok: true, birth, source: "chart_profile" };
+        } catch (err) {
+            return {
+                ok: false,
+                error: err.birthResolutionError || "birth_resolution_failed",
+                message: err.message || "Birth data could not be resolved for selected profile.",
+            };
+        }
     }
 
     const urlChartRecordId = handoffChartRecordIdForBirth();
@@ -5320,8 +5431,8 @@ function planHasExecutableConditions(plan) {
 }
 
 /** Legacy DOM → engine plan (compatibility path; not canonical truth). */
-function buildPlanFromLegacyDom() {
-    const birth = getBirthParamsFromProfile();
+async function buildPlanFromLegacyDom() {
+    const birth = await getBirthParamsFromProfile();
     const conditions = [];
     conditions.push({
         planet: document.getElementById("planetA").value,
@@ -5550,7 +5661,17 @@ async function executeGenieRender(payload) {
 }
 
 async function findRegions() {
-    const plan = buildPlanFromLegacyDom();
+    let plan;
+    try {
+        plan = await buildPlanFromLegacyDom();
+    } catch (err) {
+        setRenderStatus(err.message || "Birth data required to find regions.");
+        return;
+    }
+    if (!plan || !plan.birth) {
+        setRenderStatus("No profile selected. Select a profile to find regions.");
+        return;
+    }
     await executeSearchPlan(plan, { source: "legacy_dom" });
 }
 

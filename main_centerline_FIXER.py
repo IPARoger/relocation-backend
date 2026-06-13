@@ -160,6 +160,81 @@ def serve_place_resolution_js():
     )
 
 
+@app.get("/supabase_store_bridge.js")
+def serve_supabase_store_bridge_js():
+    return FileResponse(
+        APP_DIR / "supabase_store_bridge.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/first_profile_intake.js")
+def serve_first_profile_intake_js():
+    return FileResponse(
+        APP_DIR / "first_profile_intake.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/current_location_editor.js")
+def serve_current_location_editor_js():
+    return FileResponse(
+        APP_DIR / "current_location_editor.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/account_drawer.js")
+def serve_account_drawer_js():
+    return FileResponse(
+        APP_DIR / "account_drawer.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/user_profile.js")
+def serve_user_profile_js():
+    return FileResponse(
+        APP_DIR / "user_profile.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/auth_guard.js")
+def serve_auth_guard_js():
+    return FileResponse(
+        APP_DIR / "auth_guard.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/supabase_client.js")
+def serve_supabase_client_js():
+    return FileResponse(
+        APP_DIR / "supabase_client.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/config/supabase")
+def get_supabase_config():
+    """Return the public Supabase config (URL + anon key) for frontend initialization.
+    The anon key is not a secret — it is designed to be embedded in frontend code and
+    is restricted by RLS policies. The service-role key is never returned here.
+    """
+    from dotenv import load_dotenv
+    load_dotenv()
+    url = os.getenv("SUPABASE_URL", "")
+    anon_key = os.getenv("SUPABASE_ANON_KEY", "")
+    if not url or not anon_key:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=503,
+            content={"error": "SUPABASE_URL or SUPABASE_ANON_KEY not configured in server environment"},
+        )
+    return {"url": url, "anonKey": anon_key}
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -1972,6 +2047,11 @@ LOCAL_PRODUCT_STORE_SCAFFOLD = (
 )
 
 
+@app.get("/auth.html")
+def serve_auth_html():
+    return FileResponse(APP_DIR / "auth.html", media_type="text/html")
+
+
 @app.get("/app_shell.html")
 def serve_app_shell_html():
     _ensure_app_shell_enabled()
@@ -2028,6 +2108,110 @@ def get_chart_record_engine_birth(chart_record_id: str):
             status_code=status,
             detail={"error": err.reason, "message": err.message},
         ) from err
+
+
+@app.get("/supabase/chart-records/{profile_id}/engine-birth")
+def get_supabase_chart_record_engine_birth(profile_id: str):
+    """Resolve a Supabase profile_id to UTC engine birth parameters.
+
+    Reads birth_records (and optionally places) via the service-role client.
+    Returns the same JSON shape as /chart-records/{id}/engine-birth so
+    map_CURRENT.html can use either endpoint transparently.
+
+    Errors:
+      404 — profile_id has no birth record in Supabase
+      422 — birth time is unknown (engine requires exact time)
+      422 — birth_date or timezone_id missing or invalid
+    """
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo
+    from services.supabase_client import get_supabase
+
+    svc = get_supabase()
+
+    # Fetch the most recent birth record for this profile
+    result = svc.table("birth_records")         .select("id, profile_id, birth_date, birth_time_mode, birth_time_start, birth_place_id, timezone_id")         .eq("profile_id", profile_id)         .order("created_at", desc=True)         .limit(1)         .execute()
+
+    if not result.data:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "birth_record_not_found",
+                "message": f"No birth record found for profile_id: {profile_id}",
+            },
+        )
+
+    br = result.data[0]
+
+    # Unknown birth time — engine cannot calculate without exact time
+    if br.get("birth_time_mode") == "unknown" or not br.get("birth_time_start"):
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "birth_time_required",
+                "message": (
+                    "This profile has an unknown birth time. "
+                    "Exact birth time is required for chart calculations."
+                ),
+            },
+        )
+
+    # Resolve timezone: prefer birth_record.timezone_id, fall back to places.timezone_id
+    timezone_id = br.get("timezone_id")
+    if not timezone_id and br.get("birth_place_id"):
+        place_result = svc.table("places")             .select("timezone_id")             .eq("id", br["birth_place_id"])             .limit(1)             .execute()
+        if place_result.data:
+            timezone_id = place_result.data[0].get("timezone_id")
+
+    if not timezone_id:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "invalid_birth_data",
+                "message": "No timezone found for birth record. Cannot compute UTC birth time.",
+            },
+        )
+
+    birth_date = br["birth_date"]
+    birth_time_start = br["birth_time_start"]
+
+    try:
+        year_s, month_s, day_s = str(birth_date).split("-", 2)
+        year, month, day = int(year_s), int(month_s), int(day_s)
+        time_parts = str(birth_time_start).split(":")
+        hour = int(time_parts[0])
+        minute = int(time_parts[1]) if len(time_parts) > 1 else 0
+        # Postgres time may have sub-second precision; take integer seconds only
+        second = int(str(time_parts[2]).split(".")[0]) if len(time_parts) > 2 else 0
+    except (TypeError, ValueError, IndexError) as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "invalid_birth_data",
+                "message": f"Cannot parse birth_date/time: {birth_date!r} {birth_time_start!r}",
+            },
+        ) from exc
+
+    try:
+        local_dt = datetime(year, month, day, hour, minute, second,
+                            tzinfo=ZoneInfo(str(timezone_id)))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "invalid_birth_data",
+                "message": f"Invalid timezone_id: {timezone_id!r}",
+            },
+        ) from exc
+
+    utc_dt = local_dt.astimezone(timezone.utc)
+    return {
+        "birth_year":     utc_dt.year,
+        "birth_month":    utc_dt.month,
+        "birth_day":      utc_dt.day,
+        "birth_hour_utc": utc_dt.hour + utc_dt.minute / 60 + utc_dt.second / 3600,
+        "chart_record_id": profile_id,
+    }
 
 
 @app.get("/library.html")
