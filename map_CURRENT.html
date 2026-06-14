@@ -1367,8 +1367,18 @@ function renderLibraryHandoffUI(libraryState) {
 }
 
 async function loadChartProfiles() {
-    const response = await fetch(`${LIBRARY_API_BASE}/chart-profiles`);
-    const profiles = await response.json();
+    // Legacy /chart-profiles (port 8000) is optional in Web2. If it is down,
+    // continue with an empty legacy list so the 8004 Supabase /profiles block
+    // below still runs and populates #chartProfile.
+    let profiles = [];
+    try {
+        const response = await fetch(`${LIBRARY_API_BASE}/chart-profiles`);
+        if (response.ok) {
+            profiles = await response.json();
+        }
+    } catch (err) {
+        // Legacy library API unavailable; proceed with Supabase profiles only.
+    }
     const select = document.getElementById("chartProfile");
     const previous = select.value;
     select.innerHTML = "";
@@ -1410,7 +1420,7 @@ async function loadChartProfiles() {
     // dataset.profile. /profiles is optional: any failure is swallowed so the
     // map still loads the existing /chart-profiles options unchanged.
     try {
-        const profilesResponse = await fetch(`${LIBRARY_API_BASE}/profiles`);
+        const profilesResponse = await fetch(`http://127.0.0.1:8004/profiles`);
         if (profilesResponse.ok) {
             const supabaseProfiles = await profilesResponse.json();
             if (Array.isArray(supabaseProfiles)) {
@@ -2045,17 +2055,25 @@ async function favoriteMapSelectionFromButton(btn) {
         const place = await resolvePlaceFromMapSelection(selection);
         if (!place || !place.id) throw new Error("place_unresolved");
 
-        // Idempotent feedback: skip duplicate (profile_id, place_id) rows.
+        // Idempotent feedback: skip duplicate (profile_id, place_id) rows — Supabase direct.
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        if (!accountId) throw new Error("no_account_id");
+
+        const sbClient = window.SupabaseClient || window._supabaseClient;
+        if (!sbClient) throw new Error("supabase_client_unavailable");
+
         let already = false;
         try {
-            const favResp = await fetch(
-                `${LIBRARY_API_BASE}/favorite-places/${encodeURIComponent(profileId)}`
-            );
-            if (favResp.ok) {
-                const favs = await favResp.json();
-                already = Array.isArray(favs) && favs.some(f => f.place_id === place.id);
-            }
-        } catch (e) { /* non-fatal */ }
+            const { data: existingFavs } = await sbClient
+                .from("favorite_places")
+                .select("id")
+                .eq("account_id", accountId)
+                .eq("profile_id", profileId)
+                .eq("place_id", place.id)
+                .is("archived_at", null)
+                .limit(1);
+            already = Array.isArray(existingFavs) && existingFavs.length > 0;
+        } catch (e) { /* non-fatal — proceed to insert; DB unique constraint is safety net */ }
 
         if (already) {
             // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
@@ -2065,16 +2083,16 @@ async function favoriteMapSelectionFromButton(btn) {
             return;
         }
 
-        const resp = await fetch(`${LIBRARY_API_BASE}/favorite-places`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+        const { error: insertError } = await sbClient
+            .from("favorite_places")
+            .insert({
+                account_id: accountId,
                 profile_id: profileId,
                 place_id: place.id,
                 label: selection.displayName,
-            }),
-        });
-        if (!resp.ok) throw new Error(`favorite_failed_${resp.status}`);
+                rank: null,
+            });
+        if (insertError) throw new Error("favorite_failed: " + insertError.message);
         // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
         try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
         btn.textContent = "Favorited \u2713";
@@ -2116,8 +2134,14 @@ async function applyMapFavoriteButtonState(popup) {
     const norm = s => String(s || "").trim().toLowerCase();
     const TOL = 0.02;
     try {
+        const sbClient = window.SupabaseClient || window._supabaseClient;
+        if (!sbClient) return;
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        if (!accountId) return;
+
+        // Resolve place by name search against 8004 — read-only, does not create.
         const searchResp = await fetch(
-            `${LIBRARY_API_BASE}/places/search?q=${encodeURIComponent(displayName)}`
+            `http://127.0.0.1:8004/places/search?q=${encodeURIComponent(displayName)}`
         );
         if (!searchResp.ok) return;
         const matches = await searchResp.json();
@@ -2128,13 +2152,16 @@ async function applyMapFavoriteButtonState(popup) {
                 (!Number.isFinite(lon) || Math.abs(Number(p.longitude) - lon) <= TOL))
             : null;
         if (!place || !place.id) return; // place never created => not favorited
-        const favResp = await fetch(
-            `${LIBRARY_API_BASE}/favorite-places/${encodeURIComponent(profileId)}`
-        );
-        if (!favResp.ok) return;
-        const favs = await favResp.json();
-        const already = Array.isArray(favs)
-            && favs.some(f => f.place_id === place.id && !f.archived_at);
+
+        const { data: favs } = await sbClient
+            .from("favorite_places")
+            .select("id")
+            .eq("account_id", accountId)
+            .eq("profile_id", profileId)
+            .eq("place_id", place.id)
+            .is("archived_at", null)
+            .limit(1);
+        const already = Array.isArray(favs) && favs.length > 0;
         if (already) {
             btn.textContent = "Favorited \u2713";
             btn.disabled = true;
@@ -4455,7 +4482,7 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
 }
 
 async function postSearchRegions(payload) {
-    const response = await fetch("http://127.0.0.1:8000/search-regions", {
+    const response = await fetch("http://127.0.0.1:8004/search-regions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(normalizeAnglesForApiPayload(payload))
