@@ -523,6 +523,43 @@ function formatConditions(conditions) {
   return out;
 }
 
+function deriveConditionTitle(conditions) {
+  if (!conditions || typeof conditions !== "object") return "";
+  const ASPECT_SYMBOLS = { conjunction: "☌", opposition: "☍", square: "□", trine: "△", sextile: "⚹" };
+  const parts = [];
+  for (const item of conditions.house_conditions || []) {
+    if (item && item.planet != null && item.house != null) {
+      parts.push(`${capitalize(item.planet)} ${item.house}H`);
+    }
+  }
+  for (const item of conditions.angle_sign_conditions || []) {
+    if (item && item.angle && item.sign) {
+      parts.push(`${String(item.angle).toUpperCase()} ${capitalize(item.sign)}`);
+    }
+  }
+  const ao = conditions.aspect_overlay;
+  if (ao && ao.planet && ao.angle) {
+    const sym = ASPECT_SYMBOLS[ao.aspect] || ao.aspect || "";
+    parts.push(`${capitalize(ao.planet)} ${sym} ${String(ao.angle).toUpperCase()}`.replace(/\s+/g, " ").trim());
+  }
+  return parts.join(" · ");
+}
+
+function isDefaultInvestigationTitle(title) {
+  if (!title || title === "Untitled") return true;
+  return /^Investigation \d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(title);
+}
+
+// Condition-derived display title. Renamed (non-default) titles are preserved;
+// default timestamp titles are replaced by a title derived from saved conditions;
+// if no conditions exist, the original title is kept as a fallback.
+function investigationDisplayTitle(title, conditions) {
+  if (title && !isDefaultInvestigationTitle(title)) return title;
+  const derived = deriveConditionTitle(conditions);
+  if (derived) return derived;
+  return title || "Untitled";
+}
+
 function formatSavedLabel(updatedAt) {
   if (!updatedAt) return "saved";
   const ts = Date.parse(updatedAt);
@@ -601,7 +638,7 @@ function adaptStoreToView(store) {
         const placeIds = placesForInvestigationIds(inv, placesById, store.favorite_cities);
         return {
           id: inv.id,
-          name: inv.name || inv.title,
+          name: investigationDisplayTitle(inv.name || inv.title, inv.conditions),
           conditions: formatConditions(inv.conditions),
           placeIds,
           places: placeIds.map((id) => placesById[id]?.display_name || id),
@@ -1069,6 +1106,10 @@ function screenDashboard() {
             <br>${resumeContextStubHtml()}
             <button type="button" data-action="resume-exploration"
               data-chart-record="${e.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
+            <button type="button" data-action="rename-exploration"
+              data-exploration="${e.id}" data-current-title="${escapeHtml(e.name).replace(/"/g, '&quot;')}">Rename</button>
+            <button type="button" data-action="archive-exploration"
+              data-exploration="${e.id}">Archive</button>
           </li>`).join("")}
       </ul>
     </div>
@@ -1142,6 +1183,10 @@ function screenChartRecord() {
             <br>${resumeContextStubHtml()}
             <button type="button" data-action="resume-exploration"
               data-chart-record="${r.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
+            <button type="button" data-action="rename-exploration"
+              data-exploration="${e.id}" data-current-title="${escapeHtml(e.name).replace(/"/g, '&quot;')}">Rename</button>
+            <button type="button" data-action="archive-exploration"
+              data-exploration="${e.id}">Archive</button>
           </li>`).join("")}</ul>
       </div>
     </div>
@@ -1674,6 +1719,48 @@ function bindScreenActions(root) {
           source: "saved exploration → map",
           notice: exploration ? `Resumed exploration: ${exploration.name}` : "Resumed exploration",
         });
+      }
+      if (action === "rename-exploration") {
+        const exp = btn.getAttribute("data-exploration");
+        if (!exp) return;
+        const current = btn.getAttribute("data-current-title") || "";
+        const next = window.prompt("Rename investigation", current);
+        if (next === null) return;
+        const trimmed = next.trim();
+        if (!trimmed) { window.alert("Title cannot be blank."); return; }
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            const { error } = await client
+              .from("saved_searches")
+              .update({ title: trimmed })
+              .eq("id", exp);
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Rename failed: " + (err.message || String(err)));
+          }
+        })();
+      }
+      if (action === "archive-exploration") {
+        const exp = btn.getAttribute("data-exploration");
+        if (!exp) return;
+        if (!window.confirm("Archive this investigation? It will be removed from the list.")) return;
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            const { error } = await client
+              .from("saved_searches")
+              .update({ archived_at: new Date().toISOString() })
+              .eq("id", exp);
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
       }
       if (action === "compare-back-map") {
         const rt = navContext.returnTo;
