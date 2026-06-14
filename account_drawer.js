@@ -8,6 +8,8 @@
  * Calls:   window.__showFirstProfileIntake()      (first_profile_intake.js)
  *          window.__showCurrentLocationEditor()   (current_location_editor.js)
  *          window.logout()                        (auth_guard.js)
+ *          window.__rmAppShell.saveAccountSettingsPatch()
+ *          window.__rmAppShell.savePersistedChartRecord()
  */
 (function () {
   "use strict";
@@ -57,6 +59,22 @@
       "  display:inline-block;margin-right:6px;flex-shrink:0;",
       "}",
       "#" + DRAWER_ID + " .ad-city { font-size:11px;color:#94a3b8;margin-left:4px; }",
+      "#" + DRAWER_ID + " .ad-star {",
+      "  background:none;border:none;cursor:pointer;font-size:15px;",
+      "  color:#cbd5e1;padding:2px 4px;line-height:1;flex-shrink:0;",
+      "  transition:color .15s;",
+      "}",
+      "#" + DRAWER_ID + " .ad-star:hover { color:#f59e0b; }",
+      "#" + DRAWER_ID + " .ad-star.is-default {",
+      "  color:#f59e0b;cursor:default;",
+      "}",
+      "#" + DRAWER_ID + " .ad-row-actions {",
+      "  display:flex;align-items:center;gap:6px;flex-shrink:0;",
+      "}",
+      "#ad-default-msg {",
+      "  font-size:11px;min-height:14px;margin-top:6px;color:#64748b;",
+      "}",
+      "#ad-default-msg.is-error { color:#b91c1c; }",
       "#" + DRAWER_ID + " .ad-btn {",
       "  display:block;width:100%;text-align:left;background:none;border:1px solid #e2e8f0;",
       "  border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px;color:#1e293b;",
@@ -88,30 +106,43 @@
   function buildDrawerHtml() {
     var user = window.CurrentUser || {};
     var accountName = user.accountName || "Account";
-    var accountType = user.accountType || "—";
-    var role        = user.role        || "—";
+    var accountType = user.accountType || "\u2014";
+    var role        = user.role        || "\u2014";
 
     var profilesHtml = "";
-    var activeId = getActiveProfileId();
+    var activeId  = getActiveProfileId();
+    var defaultId = null;
     var activeRecord = null;
     try {
       var vm = window.__rmAppShell && window.__rmAppShell.viewModel();
       var records = (vm && vm.chartRecords) || [];
+      defaultId   = (vm && vm.defaultChartRecordId) || null;
       activeRecord = records.find(function (r) { return r.chartRecordId === activeId; }) || records[0] || null;
       if (records.length) {
         profilesHtml = records.map(function (r) {
-          var isActive = r.chartRecordId === activeId;
+          var isActive   = r.chartRecordId === activeId;
+          var isDefault  = r.chartRecordId === defaultId;
           var dot = isActive
             ? '<span class="ad-active-dot" title="Active"></span>'
             : '<span style="display:inline-block;width:7px;margin-right:6px;"></span>';
-          var city = r.currentCity && r.currentCity !== "—"
+          var city = r.currentCity && r.currentCity !== "\u2014"
             ? '<span class="ad-city">' + r.currentCity + '</span>' : "";
           var locBtn = isActive
             ? '<button type="button" class="ad-btn" style="width:auto;padding:3px 8px;font-size:11px;margin:0;" data-action="ad-set-location">Set Location</button>'
             : "";
-          return '<div class="ad-profile-row">' +
-            '<span>' + dot + r.displayName + city + '</span>' +
-            locBtn + '</div>';
+          var starTitle = isDefault ? "Default profile" : "Set as default profile";
+          var starClass = "ad-star" + (isDefault ? " is-default" : "");
+          var starBtn = '<button type="button" class="' + starClass + '"'
+            + ' data-action="ad-set-default"'
+            + ' data-chart-record="' + r.chartRecordId + '"'
+            + ' title="' + starTitle + '"'
+            + ' aria-label="' + (isDefault ? "Default profile" : "Set " + r.displayName + " as default") + '"'
+            + ' aria-pressed="' + (isDefault ? "true" : "false") + '"'
+            + '>' + (isDefault ? "\u2605" : "\u2606") + '</button>';
+          return '<div class="ad-profile-row">'
+            + '<span>' + dot + r.displayName + city + '</span>'
+            + '<div class="ad-row-actions">' + starBtn + locBtn + '</div>'
+            + '</div>';
         }).join("");
       } else {
         profilesHtml = '<p style="font-size:12px;color:#94a3b8;margin:0;">No profiles loaded.</p>';
@@ -120,10 +151,10 @@
       profilesHtml = '<p style="font-size:12px;color:#94a3b8;margin:0;">Could not load profiles.</p>';
     }
 
-    var activeProfileName = activeRecord ? activeRecord.displayName : "—";
+    var activeProfileName = activeRecord ? activeRecord.displayName : "\u2014";
     var activeCity = activeRecord
-      ? (activeRecord.currentCity && activeRecord.currentCity !== "—" ? activeRecord.currentCity : "Not set")
-      : "—";
+      ? (activeRecord.currentCity && activeRecord.currentCity !== "\u2014" ? activeRecord.currentCity : "Not set")
+      : "\u2014";
     var profileCount = 0;
     try {
       var vm2 = window.__rmAppShell && window.__rmAppShell.viewModel();
@@ -133,11 +164,11 @@
     return [
       '<div class="ad-header">',
       '  <h2>Account</h2>',
-      '  <button class="ad-close" id="rm-ad-close" aria-label="Close">×</button>',
+      '  <button class="ad-close" id="rm-ad-close" aria-label="Close">\u00d7</button>',
       '</div>',
 
       '<div class="ad-section">',
-      '  <div class="ad-section-label">A — Account</div>',
+      '  <div class="ad-section-label">A \u2014 Account</div>',
       '  <div class="ad-field"><span class="label">Name</span>' + accountName + '</div>',
       '  <div class="ad-field"><span class="label">Type</span>' + accountType + '</div>',
       '  <div class="ad-field"><span class="label">Role</span>' + role + '</div>',
@@ -146,18 +177,19 @@
       '</div>',
 
       '<div class="ad-section">',
-      '  <div class="ad-section-label">B — Profiles (' + profileCount + ')</div>',
+      '  <div class="ad-section-label">B \u2014 Profiles (' + profileCount + ')</div>',
       profilesHtml,
+      '  <div id="ad-default-msg" aria-live="polite"></div>',
       '  <button type="button" class="ad-btn" style="margin-top:10px;" data-action="ad-add-profile">+ Add Profile</button>',
       '</div>',
 
       '<div class="ad-section">',
-      '  <div class="ad-section-label">C — Preferences</div>',
+      '  <div class="ad-section-label">C \u2014 Preferences</div>',
       '  <button type="button" class="ad-btn" data-action="ad-settings">Settings \u2192</button>',
       '</div>',
 
       '<div class="ad-section">',
-      '  <div class="ad-section-label">D — Help</div>',
+      '  <div class="ad-section-label">D \u2014 Help</div>',
       '  <button type="button" class="ad-btn" data-action="ad-help">Learn &amp; Tutorials</button>',
       '  <button type="button" class="ad-btn" data-action="ad-help">About Relocation Astrology</button>',
       '  <a href="mailto:feedback@relocationapp.com" style="display:block;font-size:13px;color:#7c3aed;padding:5px 0;">Feedback \u2197</a>',
@@ -167,6 +199,27 @@
       '  <button type="button" class="ad-btn primary" data-action="ad-logout">Log out</button>',
       '</div>',
     ].join("\n");
+  }
+
+  /* Re-renders star buttons in an already-open drawer without rebuilding everything. */
+  function refreshProfilesSection(drawer, newDefaultId) {
+    try {
+      var vm = window.__rmAppShell && window.__rmAppShell.viewModel();
+      var records = (vm && vm.chartRecords) || [];
+      var rows = drawer.querySelectorAll(".ad-profile-row");
+      records.forEach(function (r, i) {
+        var row = rows[i];
+        if (!row) return;
+        var isDefault = r.chartRecordId === newDefaultId;
+        var starBtn = row.querySelector(".ad-star");
+        if (!starBtn) return;
+        starBtn.textContent = isDefault ? "\u2605" : "\u2606";
+        starBtn.className   = "ad-star" + (isDefault ? " is-default" : "");
+        starBtn.title       = isDefault ? "Default profile" : "Set as default profile";
+        starBtn.setAttribute("aria-label", isDefault ? "Default profile" : "Set " + r.displayName + " as default");
+        starBtn.setAttribute("aria-pressed", isDefault ? "true" : "false");
+      });
+    } catch (e) { /* non-fatal — drawer rebuilds on next open */ }
   }
 
   function open() {
@@ -193,6 +246,48 @@
       var btn = e.target.closest("[data-action]");
       if (!btn) return;
       var action = btn.getAttribute("data-action");
+
+      if (action === "ad-set-default") {
+        var newDefaultId = btn.getAttribute("data-chart-record");
+        if (!newDefaultId) return;
+
+        var vm = window.__rmAppShell && window.__rmAppShell.viewModel();
+        if (vm && vm.defaultChartRecordId === newDefaultId) return;
+
+        var prevDefaultId = vm ? vm.defaultChartRecordId : null;
+        if (vm) vm.defaultChartRecordId = newDefaultId;
+        refreshProfilesSection(drawer, newDefaultId);
+
+        var msgEl = document.getElementById("ad-default-msg");
+        if (msgEl) { msgEl.textContent = "Saving\u2026"; msgEl.className = ""; }
+
+        var shell = window.__rmAppShell;
+        if (!shell || typeof shell.saveAccountSettingsPatch !== "function") {
+          if (msgEl) { msgEl.textContent = "Error: helper not available."; msgEl.className = "is-error"; }
+          return;
+        }
+
+        shell.saveAccountSettingsPatch({ default_chart_record_id: newDefaultId })
+          .then(function () {
+            if (typeof shell.savePersistedChartRecord === "function") {
+              shell.savePersistedChartRecord(newDefaultId);
+            }
+            if (msgEl) {
+              msgEl.textContent = "\u2713 Default updated.";
+              msgEl.className = "";
+              setTimeout(function () { if (msgEl) msgEl.textContent = ""; }, 2500);
+            }
+          })
+          .catch(function (err) {
+            if (vm) vm.defaultChartRecordId = prevDefaultId;
+            refreshProfilesSection(drawer, prevDefaultId);
+            if (msgEl) {
+              msgEl.textContent = "Error: " + (err && err.message ? err.message : String(err));
+              msgEl.className = "is-error";
+            }
+          });
+        return;
+      }
 
       if (action === "ad-add-profile") {
         close();
