@@ -672,6 +672,30 @@ html.map-panel-show-legend #panelLegend { display: block; }
     font-weight: 600;
     color: #333;
 }
+/* ── Save Investigation ──────────────────────────────────────────────────── */
+#saveInvestigationBtn {
+    width: 100%;
+    margin-top: 6px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    border: 1px solid #3b82f6;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #1d4ed8;
+    color: #f8fafc;
+    box-sizing: border-box;
+}
+#saveInvestigationBtn:hover:not(:disabled) { background: #1e40af; }
+#saveInvestigationBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+#saveInvestigationStatus {
+    margin-top: 4px;
+    font-size: 12px;
+    min-height: 1.3em;
+    color: #475569;
+    line-height: 1.4;
+}
+#saveInvestigationStatus.is-error { color: #b91c1c; }
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -895,6 +919,8 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
         <button id="findBtn" type="button">Find regions</button>
         <div id="renderStatus">Ready.</div>
+        <button id="saveInvestigationBtn" type="button">Save Investigation</button>
+        <div id="saveInvestigationStatus" aria-live="polite"></div>
 
         <div id="libraryHandoff" class="library-handoff" hidden>
             <a id="libraryOpenLink" href="/library.html" target="_blank" rel="noopener">Open Chart Library</a>
@@ -1420,7 +1446,11 @@ async function loadChartProfiles() {
     // dataset.profile. /profiles is optional: any failure is swallowed so the
     // map still loads the existing /chart-profiles options unchanged.
     try {
-        const profilesResponse = await fetch(`http://127.0.0.1:8004/profiles`);
+        const { data: { session: _profilesSession } } = await window.SupabaseClient.auth.getSession();
+        const _profilesToken = _profilesSession?.access_token;
+        const profilesResponse = await fetch(`http://127.0.0.1:8004/profiles`, {
+            headers: _profilesToken ? { Authorization: `Bearer ${_profilesToken}` } : {}
+        });
         if (profilesResponse.ok) {
             const supabaseProfiles = await profilesResponse.json();
             if (Array.isArray(supabaseProfiles)) {
@@ -1581,9 +1611,101 @@ async function saveCurrentViewToLibrary() {
 
 window.__rmSaveCurrentViewToLibrary = saveCurrentViewToLibrary;
 
+// Phase 2.8 — Save current map investigation to Supabase saved_searches.
+// Requires: window.SupabaseClient, window.CurrentUser, getActiveFavoriteProfileId().
+// Direct Supabase write — same auth pattern as Favorites.
+async function saveCurrentInvestigation() {
+    const statusEl = document.getElementById("saveInvestigationStatus");
+    const btn      = document.getElementById("saveInvestigationBtn");
+
+    function setStatus(msg, isErr) {
+        if (!statusEl) return;
+        statusEl.textContent = msg;
+        statusEl.className = isErr ? "is-error" : "";
+    }
+
+    const profileId = getActiveFavoriteProfileId();
+    if (!profileId) {
+        setStatus("Select a Supabase profile first.", true);
+        return;
+    }
+    const accountId = window.CurrentUser && window.CurrentUser.accountId;
+    if (!accountId) {
+        setStatus("Not signed in. Reload and try again.", true);
+        return;
+    }
+    const sbClient = window.SupabaseClient || window._supabaseClient;
+    if (!sbClient) {
+        setStatus("Supabase client unavailable.", true);
+        return;
+    }
+
+    // Title: "Investigation YYYY-MM-DD HH:MM"
+    const _now = new Date();
+    const _pad = (n) => String(n).padStart(2, "0");
+    const title = `Investigation ${_now.getFullYear()}-${_pad(_now.getMonth()+1)}-${_pad(_now.getDate())} ${_pad(_now.getHours())}:${_pad(_now.getMinutes())}`;
+
+    // conditions_json — reuse existing collectors
+    const _rawConds = collectSavedInvestigationConditions();
+    const _c = (_rawConds && _rawConds[0]) || {};
+    const conditions_json = {
+        schema_version: 1,
+        kind: "saved_investigation",
+        house_conditions:       _c.house_conditions       || [],
+        angle_sign_conditions:  _c.angle_sign_conditions  || [],
+        aspect_overlay:         _c.aspect_overlay         || null,
+    };
+
+    // viewport_json — read live Leaflet state
+    let viewport_json = {};
+    if (window.__rmMap) {
+        const _b = window.__rmMap.getBounds();
+        const _ct = window.__rmMap.getCenter();
+        viewport_json = {
+            center_lat: _ct.lat,
+            center_lon: _ct.lng,
+            north:  _b.getNorth(),
+            south:  _b.getSouth(),
+            east:   _b.getEast(),
+            west:   _b.getWest(),
+            zoom:   window.__rmMap.getZoom(),
+        };
+    }
+
+    if (btn) btn.disabled = true;
+    setStatus("Saving…", false);
+
+    try {
+        const { error: _saveErr } = await sbClient
+            .from("saved_searches")
+            .insert({
+                account_id:            accountId,
+                profile_id:            profileId,
+                title,
+                search_type:           "map",
+                conditions_json,
+                viewport_json,
+                settings_snapshot_json: {},
+            });
+        if (_saveErr) throw _saveErr;
+        setStatus(`Saved: ${title}`, false);
+    } catch (err) {
+        setStatus("Save failed: " + (err.message || String(err)), true);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+window.__rmSaveCurrentInvestigation = saveCurrentInvestigation;
+
 document.addEventListener("DOMContentLoaded", () => {
     const btn = document.getElementById("saveCurrentViewBtn");
     if (btn) btn.addEventListener("click", () => { saveCurrentViewToLibrary(); });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const saveBtn = document.getElementById("saveInvestigationBtn");
+    if (saveBtn) saveBtn.addEventListener("click", () => { saveCurrentInvestigation(); });
 });
 
 function viewportCenterFromSavedView(viewport) {
