@@ -696,6 +696,15 @@ html.map-panel-show-legend #panelLegend { display: block; }
     line-height: 1.4;
 }
 #saveInvestigationStatus.is-error { color: #b91c1c; }
+/* ── Reopen Investigation status ─────────────────────────────────────────── */
+#reopenInvestigationStatus {
+    margin-top: 4px;
+    font-size: 12px;
+    min-height: 1.3em;
+    color: #475569;
+    line-height: 1.4;
+}
+#reopenInvestigationStatus.is-error { color: #b91c1c; }
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -921,6 +930,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
         <div id="renderStatus">Ready.</div>
         <button id="saveInvestigationBtn" type="button">Save Investigation</button>
         <div id="saveInvestigationStatus" aria-live="polite"></div>
+        <div id="reopenInvestigationStatus" aria-live="polite"></div>
 
         <div id="libraryHandoff" class="library-handoff" hidden>
             <a id="libraryOpenLink" href="/library.html" target="_blank" rel="noopener">Open Chart Library</a>
@@ -1824,6 +1834,75 @@ function applyLibrarySavedViewReplay(libraryState) {
 }
 
 window.__rmApplyLibrarySavedViewReplay = applyLibrarySavedViewReplay;
+
+// Phase 2.9 — Reopen Supabase saved_searches investigation from app_shell handoff.
+// Requires: lastAppShellHandoff.explorationId, window.SupabaseClient, window.CurrentUser.
+// Direct Supabase fetch — works same-tab and new-tab (no sessionStorage dependency).
+async function applySupabaseSavedInvestigationReplay() {
+    const statusEl = document.getElementById("reopenInvestigationStatus");
+    function setStatus(msg, isErr) {
+        if (!statusEl) return;
+        statusEl.textContent = msg;
+        statusEl.className = isErr ? "is-error" : "";
+    }
+
+    const explorationId = lastAppShellHandoff && lastAppShellHandoff.explorationId;
+    if (!explorationId) return false;
+
+    const sbClient = window.SupabaseClient || window._supabaseClient;
+    if (!sbClient) {
+        setStatus("Cannot reopen: Supabase client unavailable.", true);
+        return false;
+    }
+
+    const accountId = window.CurrentUser && window.CurrentUser.accountId;
+
+    try {
+        const { data: row, error: fetchErr } = await sbClient
+            .from("saved_searches")
+            .select("id, account_id, title, conditions_json, viewport_json, archived_at")
+            .eq("id", explorationId)
+            .is("archived_at", null)
+            .maybeSingle();
+
+        if (fetchErr) throw fetchErr;
+        if (!row) {
+            setStatus("Saved investigation not found or archived.", true);
+            return false;
+        }
+        if (accountId && row.account_id && row.account_id !== accountId) {
+            setStatus("Saved investigation not available for this account.", true);
+            return false;
+        }
+
+        const conditions_json = row.conditions_json || {};
+        const view = { conditions: [conditions_json] };
+        applySavedInvestigationConditions(view);
+
+        const viewport = row.viewport_json || {};
+        const center = viewportCenterFromSavedView(viewport);
+        const zoom = Number(viewport.zoom);
+        if (center && Number.isFinite(zoom) && window.__rmMap) {
+            window.__rmMap.setView([center.lat, center.lon], zoom, { animate: false });
+        }
+
+        const title = row.title || "Saved investigation";
+        setStatus(`Reopened: ${title}`, false);
+        return true;
+    } catch (err) {
+        setStatus("Reopen failed: " + (err.message || String(err)), true);
+        return false;
+    }
+}
+
+window.__rmApplySupabaseSavedInvestigationReplay = applySupabaseSavedInvestigationReplay;
+
+async function scheduleSupabaseSavedInvestigationReplay() {
+    if (!lastAppShellHandoff || !lastAppShellHandoff.explorationId) return false;
+    await chartProfilesReady;
+    return applySupabaseSavedInvestigationReplay();
+}
+
 
 const map = L.map("map", {
     maxBounds: MAP_MAX_BOUNDS,
@@ -5971,6 +6050,10 @@ async function scheduleGenieRenderHandoff() {
 if (typeof citiesData !== "undefined") {
     renderCities();
 }
+
+scheduleSupabaseSavedInvestigationReplay().catch((err) => {
+    console.error("[saved-investigation-replay]", err);
+});
 
 scheduleGenieRenderHandoff().catch((err) => {
     console.error("[genie-render-handoff]", err);
