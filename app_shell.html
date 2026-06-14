@@ -993,15 +993,18 @@ function openMap(opts) {
   const placeId = o.placeId !== undefined
     ? o.placeId
     : (o.placeName !== undefined ? resolvePlaceIdFromDisplayName(o.placeName) : navContext.placeId);
-  navigate("map", {
+  // Build the nav context we want to hand off — same shape as before,
+  // but now we navigate directly to map_CURRENT.html (same tab) instead
+  // of the in-shell placeholder. buildMapHandoffUrl() is the existing
+  // contract; no new parameters introduced here.
+  const mapCtx = {
     chartRecordId: o.chartRecordId || navContext.chartRecordId,
     explorationId: o.explorationId !== undefined ? o.explorationId : null,
     placeId: placeId || null,
     comparisonSetId: null,
     returnTo: o.clearReturn ? null : navContext.returnTo,
-  });
-  uiState.switchNotice = o.notice || null;
-  if (o.source) uiState.mapEntrySource = o.source;
+  };
+  window.location.assign(buildMapHandoffUrl(mapCtx));
 }
 
 function navigate(route, patch = {}, options = {}) {
