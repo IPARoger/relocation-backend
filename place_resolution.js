@@ -59,6 +59,34 @@
     var lat = Number(selection.latitude);
     var lon = Number(selection.longitude);
 
+    // Prefer deterministic identity via GeoNames id when present. This avoids
+    // creating duplicate places when display_name formats differ (e.g. map
+    // passes the short city name while the canonical row is
+    // "City, Region, Country"). Reads the shared places table directly
+    // (RLS: authenticated select). Falls back to name + coordinate matching,
+    // then to create — existing behavior is preserved when no id/client.
+    var geonamesId = selection.geonamesId != null
+      ? String(selection.geonamesId).trim()
+      : "";
+    var sbClient = (options && options.supabaseClient)
+      || (typeof window !== "undefined" && (window.SupabaseClient || window._supabaseClient))
+      || null;
+    if (geonamesId && sbClient && typeof sbClient.from === "function") {
+      try {
+        var gidResult = await sbClient
+          .from("places")
+          .select("*")
+          .eq("geonames_id", geonamesId)
+          .limit(1);
+        if (!gidResult.error &&
+            Array.isArray(gidResult.data) &&
+            gidResult.data.length &&
+            gidResult.data[0].id) {
+          return gidResult.data[0];
+        }
+      } catch (e) { /* non-fatal — fall through to name/coordinate matching */ }
+    }
+
     var matches = [];
     try {
       var resp = await fetch(base + "/places/search?q=" + encodeURIComponent(displayName));

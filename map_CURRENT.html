@@ -2139,7 +2139,7 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
             </table>
             <div class="popup-actions">
                 <button type="button">Open chart</button>
-                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom")}
+                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
             </div>
             <div class="popup-action-status" aria-live="polite" hidden></div>
         </div>`;
@@ -2159,13 +2159,14 @@ function escapeAttr(value) {
         .replace(/'/g, "&#39;");
 }
 
-function favoriteButtonHtml(name, lat, lon, country, admin, origin) {
+function favoriteButtonHtml(name, lat, lon, country, admin, origin, geonamesId) {
     return `<button type="button" class="popup-action-favorite"`
         + ` data-fav-name="${escapeAttr(name)}"`
         + ` data-fav-lat="${lat}"`
         + ` data-fav-lon="${lon}"`
         + ` data-fav-country="${escapeAttr(country || "")}"`
         + ` data-fav-admin="${escapeAttr(admin || "")}"`
+        + ` data-fav-geonames="${escapeAttr(geonamesId || "")}"`
         + ` data-fav-origin="${escapeAttr(origin || "map_custom")}">Favorite</button>`;
 }
 
@@ -2184,7 +2185,7 @@ function buildPlaceFallbackPopupHtml(meta, lat, lon, message) {
             <p class="popup-coords">Lat ${lat.toFixed(4)} \u00b7 Lon ${lon.toFixed(4)}${coordsMid}</p>
             <p class="popup-policy-note">${escapeAttr(message)}</p>
             <div class="popup-actions">
-                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom")}
+                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
             </div>
             <div class="popup-action-status" aria-live="polite" hidden></div>
         </div>`;
@@ -2210,7 +2211,7 @@ function getActiveFavoriteProfileId() {
 // (place_resolution.js). Map behavior preserved exactly: same field mapping,
 // same provider values ("cities_js" / "map_custom"), same 0.02 tolerance.
 async function resolvePlaceFromMapSelection(selection) {
-    const { displayName, lat, lon, country, admin, origin } = selection;
+    const { displayName, lat, lon, country, admin, origin, geonamesId } = selection;
     const providerOrigin = origin === "city_dataset" ? "cities_js" : "map_custom";
     if (!window.RMPlaceResolution || !window.RMPlaceResolution.resolvePlaceFromCitySelection) {
         throw new Error("place_resolution_unavailable");
@@ -2222,6 +2223,7 @@ async function resolvePlaceFromMapSelection(selection) {
         country,
         admin,
         origin: providerOrigin,
+        geonamesId: geonamesId || null,
     }, { apiBase: "http://127.0.0.1:8004", coordTolerance: 0.02 });
 }
 
@@ -2248,6 +2250,7 @@ async function favoriteMapSelectionFromButton(btn) {
         country: btn.dataset.favCountry || null,
         admin: btn.dataset.favAdmin || null,
         origin: btn.dataset.favOrigin || "map_custom",
+        geonamesId: btn.dataset.favGeonames || null,
     };
 
     btn.disabled = true;
@@ -2329,7 +2332,8 @@ async function applyMapFavoriteButtonState(popup) {
     const profileId = getActiveFavoriteProfileId();
     if (!profileId) return;
     const displayName = btn.dataset.favName || "";
-    if (!displayName) return;
+    const geonamesId = btn.dataset.favGeonames || "";
+    if (!displayName && !geonamesId) return;
     const lat = Number(btn.dataset.favLat);
     const lon = Number(btn.dataset.favLon);
     const norm = s => String(s || "").trim().toLowerCase();
@@ -2340,18 +2344,34 @@ async function applyMapFavoriteButtonState(popup) {
         const accountId = window.CurrentUser && window.CurrentUser.accountId;
         if (!accountId) return;
 
-        // Resolve place by name search against 8004 — read-only, does not create.
-        const searchResp = await fetch(
-            `http://127.0.0.1:8004/places/search?q=${encodeURIComponent(displayName)}`
-        );
-        if (!searchResp.ok) return;
-        const matches = await searchResp.json();
-        const place = Array.isArray(matches)
-            ? matches.find(p =>
-                norm(p.display_name) === norm(displayName) &&
-                (!Number.isFinite(lat) || Math.abs(Number(p.latitude) - lat) <= TOL) &&
-                (!Number.isFinite(lon) || Math.abs(Number(p.longitude) - lon) <= TOL))
-            : null;
+        // Prefer deterministic geonames_id linkage; fall back to name + coordinate
+        // search against 8004. Read-only — does not create places.
+        let place = null;
+        if (geonamesId && typeof sbClient.from === "function") {
+            try {
+                const { data: gidRows } = await sbClient
+                    .from("places")
+                    .select("id")
+                    .eq("geonames_id", geonamesId)
+                    .limit(1);
+                if (Array.isArray(gidRows) && gidRows.length && gidRows[0].id) {
+                    place = gidRows[0];
+                }
+            } catch (e) { /* fall through to name search */ }
+        }
+        if (!place && displayName) {
+            const searchResp = await fetch(
+                `http://127.0.0.1:8004/places/search?q=${encodeURIComponent(displayName)}`
+            );
+            if (!searchResp.ok) return;
+            const matches = await searchResp.json();
+            place = Array.isArray(matches)
+                ? matches.find(p =>
+                    norm(p.display_name) === norm(displayName) &&
+                    (!Number.isFinite(lat) || Math.abs(Number(p.latitude) - lat) <= TOL) &&
+                    (!Number.isFinite(lon) || Math.abs(Number(p.longitude) - lon) <= TOL))
+                : null;
+        }
         if (!place || !place.id) return; // place never created => not favorited
 
         const { data: favs } = await sbClient
@@ -3361,7 +3381,8 @@ async function openDatasetCityPopup(city) {
                 title: city.name,
                 origin: "city_dataset",
                 country: city.country || null,
-                admin: city.admin || city.state || null
+                admin: city.admin || city.state || null,
+                geonamesId: city.geoname_id || null
             })
         );
         applyMapFavoriteButtonState(popup);
@@ -3371,7 +3392,8 @@ async function openDatasetCityPopup(city) {
             title: city.name,
             origin: "city_dataset",
             country: city.country || null,
-            admin: city.admin || city.state || null
+            admin: city.admin || city.state || null,
+            geonamesId: city.geoname_id || null
         }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
         applyMapFavoriteButtonState(popup);
     }

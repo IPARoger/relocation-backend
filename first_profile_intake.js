@@ -183,9 +183,9 @@
     state.placeResults.forEach(function (place) {
       var item = document.createElement("div");
       item.className = "place-result";
+      // display_name already includes region + country (post ADMIN1-FIX-3),
+      // so we do not re-append admin1/country_code (avoids duplicate labels).
       var label = place.display_name;
-      if (place.admin1)    label += ", " + place.admin1;
-      if (place.country_code) label += " (" + place.country_code + ")";
       item.textContent = label;
       item.addEventListener("click", function () {
         selectPlace(place, label);
