@@ -156,6 +156,14 @@
   .pm-count-item { display:flex;align-items:center;gap:4px; }
   .pm-actions { display:flex;gap:6px;flex-wrap:wrap;margin-top:4px; }
   .pm-actions button { font-size:12px;padding:4px 10px; }
+  /* ── Settings: Location section ──────────────────────────────────────── */
+  .loc-row { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0; }
+  .loc-row-text { display:flex;flex-direction:column;gap:2px; }
+  .loc-future { margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px; }
+  .loc-future-head { font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:4px; }
+  .loc-future-row { opacity:.55; }
+  .loc-soon { font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #cbd5e1;background:#f1f5f9;color:#94a3b8;cursor:not-allowed; }
+  .loc-soon:disabled { pointer-events:none; }
 </style>
 </head>
 <body>
@@ -1337,6 +1345,36 @@ function screenSettings() {
       <h3>Module: profiles</h3>
       <p class="meta">Manage your profiles — open, set locations, add new.</p>
       <button type="button" data-nav="profiles">Manage Profiles →</button>
+    </div>
+    <div class="panel">
+      <h3>Module: location</h3>
+      <div class="loc-row">
+        <div class="loc-row-text">
+          <strong>Current location</strong>
+          <span class="meta">Set manually per profile via Location Search. Each profile carries its own current location for relocation comparisons.</span>
+        </div>
+        <button type="button" data-nav="profiles">Manage Profiles →</button>
+      </div>
+      <p class="meta" style="margin-top:8px;">Open Profile Management to set current location per profile.</p>
+      <div class="loc-future">
+        <div class="loc-future-head">Experimental · not yet available</div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>Road Trip Mode</strong><span class="meta">Continuous route-based location.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>GPS / device location</strong><span class="meta">Use device location instead of manual search.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>Notifications</strong><span class="meta">Location-aware alerts.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>Offline / Airplane mode</strong><span class="meta">Use saved location data without a connection.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+      </div>
     </div>
     <div class="row">
       <button type="button" class="primary" data-action="save-settings">Save Settings</button>
