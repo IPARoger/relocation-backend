@@ -1172,6 +1172,7 @@ function screenChartRecord() {
             <span class="meta">owned by ${r.chartRecordId}</span>
             <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
             <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View chart</button>
+            <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
           </li>`).join("")}</ul>
       </div>
       <div class="panel">
@@ -1755,6 +1756,31 @@ function bindScreenActions(root) {
               .from("saved_searches")
               .update({ archived_at: new Date().toISOString() })
               .eq("id", exp);
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
+      }
+      if (action === "archive-favorite") {
+        const favId = btn.getAttribute("data-favorite-id");
+        if (!favId) return;
+        const placeLabel = btn.getAttribute("data-place") || "this place";
+        if (!window.confirm(`Archive ${placeLabel}? It will be removed from this profile's favorites.`)) return;
+        const profileId = btn.getAttribute("data-chart-record");
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            let query = client
+              .from("favorite_places")
+              .update({ archived_at: new Date().toISOString() })
+              .eq("id", favId);
+            if (profileId) query = query.eq("profile_id", profileId);
+            if (accountId) query = query.eq("account_id", accountId);
+            const { error } = await query;
             if (error) throw error;
             window.location.reload();
           } catch (err) {
