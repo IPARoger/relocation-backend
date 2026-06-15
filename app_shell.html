@@ -2194,33 +2194,16 @@ function bindScreenActions(root) {
           try {
             const client = await window.SupabaseReady;
             if (!client) throw new Error("Supabase unavailable.");
-            let q = client
-              .from("profiles")
-              .select("id, display_name")
-              .is("archived_at", null)
-              .order("created_at", { ascending: true });
-            if (accountId) q = q.eq("account_id", accountId);
-            const { data: activeProfiles, error: loadErr } = await q;
-            if (loadErr) throw loadErr;
-            const active = activeProfiles || [];
-            if (active.length <= 1) {
+            const plan = await planProfileArchive(profileId);
+            if (plan.blocked === "only-profile") {
               window.alert("You cannot archive your only profile. Add another profile first.");
               return;
             }
-            if (!active.some((p) => p.id === profileId)) {
+            if (plan.blocked === "not-active") {
               window.alert("That profile is no longer active.");
               return;
             }
-            const currentDefault = (viewModel && viewModel.defaultChartRecordId) || null;
-            const remaining = active.filter((p) => p.id !== profileId);
-            const replacementId =
-              (currentDefault && currentDefault !== profileId
-                && remaining.some((p) => p.id === currentDefault))
-                ? currentDefault
-                : remaining[0].id;
-            const replacement = remaining.find((p) => p.id === replacementId);
-            const replacementName = (replacement && replacement.display_name) || "another profile";
-            const wasDefault = !!(currentDefault && currentDefault === profileId);
+            const { replacementId, replacementName, wasDefault } = plan;
             let msg = `Archive "${currentName}"? It will be hidden from your profiles. `
               + "Its favorites, saved searches, and comparisons are kept but hidden. "
               + "Archived profiles are hidden, not deleted.";
@@ -2533,6 +2516,46 @@ async function renameProfile(profileId, displayName) {
   if (accountId) query = query.eq("account_id", accountId);
   const { error } = await query;
   if (error) throw error;
+}
+
+async function planProfileArchive(profileId) {
+  const client = await window.SupabaseReady;
+  if (!client) throw new Error("Supabase unavailable.");
+  const accountId = window.CurrentUser && window.CurrentUser.accountId;
+  let q = client
+    .from("profiles")
+    .select("id, display_name")
+    .is("archived_at", null)
+    .order("created_at", { ascending: true });
+  if (accountId) q = q.eq("account_id", accountId);
+  const { data: activeProfiles, error: loadErr } = await q;
+  if (loadErr) throw loadErr;
+  const active = activeProfiles || [];
+  if (active.length <= 1) {
+    return { blocked: "only-profile" };
+  }
+  if (!active.some((p) => p.id === profileId)) {
+    return { blocked: "not-active" };
+  }
+  const currentDefault = (viewModel && viewModel.defaultChartRecordId) || null;
+  const remaining = active.filter((p) => p.id !== profileId);
+  const replacementId =
+    (currentDefault && currentDefault !== profileId
+      && remaining.some((p) => p.id === currentDefault))
+      ? currentDefault
+      : remaining[0].id;
+  const replacement = remaining.find((p) => p.id === replacementId);
+  const replacementName = (replacement && replacement.display_name) || "another profile";
+  const wasDefault = !!(currentDefault && currentDefault === profileId);
+  return {
+    blocked: null,
+    active,
+    remaining,
+    currentDefault,
+    replacementId,
+    replacementName,
+    wasDefault,
+  };
 }
 
 window.__rmAppShell = {
