@@ -1248,27 +1248,57 @@ function screenMap() {
   `;
 }
 
+// Resolve a place's lat/lon from the loaded store (Supabase bridge uses lat/lon;
+// local fallback store may use latitude/longitude). Returns null if unresolved.
+function resolvePlaceLatLon(placeId) {
+  if (!placeId || !storeRaw || !Array.isArray(storeRaw.places)) return null;
+  const p = storeRaw.places.find((pl) => pl.id === placeId);
+  if (!p) return null;
+  const lat = Number(p.lat != null ? p.lat : p.latitude);
+  const lon = Number(p.lon != null ? p.lon : p.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return { lat, lon };
+}
+
 function screenChart() {
-  const r = activeRecord();
+  const chartRecordId = navContext.chartRecordId;
+  const placeId = navContext.placeId;
+  if (!chartRecordId || !placeId) {
+    return `
+    <div class="breadcrumb">View Chart</div>
+    <h2>Screen 4 — View Chart</h2>
+    <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
+    <div class="warn-box"><strong>Cannot show relocated chart.</strong><br>
+      This screen needs both a Chart Record and a place. Open it from a Chart Record favorite (View chart).</div>
+    <div class="row"><button type="button" data-nav="map">Back to map</button></div>
+    `;
+  }
+  const r = getChartRecord(chartRecordId);
+  const placeName = resolvePlaceName(placeId) || placeId;
+  const coords = resolvePlaceLatLon(placeId);
+  const factsInner = coords
+    ? `<p class="meta" id="rm-screen4-status">Loading relocated chart…</p>`
+    : `<div class="warn-box"><strong>Cannot resolve this place's coordinates.</strong><br>
+        Place id: <code>${escapeHtml(placeId)}</code></div>`;
   return `
-    <div class="breadcrumb">${r.displayName} · ${resolvePlaceName(navContext.placeId) || "place"}</div>
+    <div class="breadcrumb">${escapeHtml(r.displayName)} · ${escapeHtml(placeName)}</div>
     <h2>Screen 4 — View Chart</h2>
     <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
     ${timeUncertaintyWarning(r)}
     <div class="panel">
       <h3>Module: relocated-chart-table</h3>
-      <table class="simple">
-        <tr><th>Fact</th><th>Value (placeholder)</th></tr>
-        <tr><td>Chart Record</td><td>${r.displayName}</td></tr>
-        <tr><td>Place</td><td>${resolvePlaceName(navContext.placeId) || navContext.placeId || "—"}</td></tr>
-        <tr><td>ASC</td><td>Gemini 12°</td></tr>
-        <tr><td>MC</td><td>Aquarius 18°</td></tr>
-        <tr><td>Sun house</td><td>10</td></tr>
-      </table>
+      <div id="rm-screen4-facts"
+           data-chart-record="${escapeHtml(chartRecordId)}"
+           data-place-id="${escapeHtml(placeId)}"
+           data-place-name="${escapeHtml(placeName)}"
+           data-record-name="${escapeHtml(r.displayName)}"
+           ${coords ? `data-lat="${coords.lat}" data-lon="${coords.lon}"` : ""}>
+        ${factsInner}
+      </div>
     </div>
     <div class="panel">
       <h3>Module: notes · favorite</h3>
-      <textarea rows="2" placeholder="Optional inline note (this Chart Record)"></textarea>
+      <textarea rows="2" placeholder="Optional inline note (placeholder — not saved)"></textarea>
       <button type="button" disabled>Favorite this place</button>
     </div>
     <div class="row">
@@ -1277,6 +1307,95 @@ function screenChart() {
       <button type="button" data-nav="export">Export chart</button>
     </div>
   `;
+}
+
+// Render the real relocated-chart facts into Screen 4's container.
+function renderRelocatedChartHtml(recordName, placeName, chart) {
+  const angles = `
+    <table class="simple">
+      <tr><th>Fact</th><th>Value</th></tr>
+      <tr><td>Chart Record</td><td>${escapeHtml(recordName)}</td></tr>
+      <tr><td>Place</td><td>${escapeHtml(placeName)}</td></tr>
+      <tr><td>ASC</td><td>${escapeHtml(chart.asc || "—")}</td></tr>
+      <tr><td>MC</td><td>${escapeHtml(chart.mc || "—")}</td></tr>
+      <tr><td>DSC</td><td>${escapeHtml(chart.dc || chart.desc || "—")}</td></tr>
+      <tr><td>IC</td><td>${escapeHtml(chart.ic || "—")}</td></tr>
+    </table>`;
+  const ph = chart.planet_houses || {};
+  const rows = Object.keys(ph).map((name) => {
+    const info = ph[name] || {};
+    const house = info.house == null ? "—" : info.house;
+    return `<tr><td>${escapeHtml(name)}</td><td>${house}</td><td>${escapeHtml(info.longitude_formatted || "—")}</td></tr>`;
+  }).join("");
+  const planets = `
+    <h4 style="margin:12px 0 4px">Planet houses</h4>
+    <table class="simple">
+      <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
+      ${rows}
+    </table>`;
+  return angles + planets;
+}
+
+let _screen4Token = 0;
+// Hydrate Screen 4 with real relocated-chart facts (existing endpoints only).
+async function hydrateRelocatedChart(root) {
+  if (navContext.route !== "chart") return;
+  const container = (root || document).querySelector("#rm-screen4-facts");
+  if (!container) return;
+  const lat = container.getAttribute("data-lat");
+  const lon = container.getAttribute("data-lon");
+  if (lat === null || lon === null) return; // coordinates unresolved — blocked state already shown
+  const chartRecordId = container.getAttribute("data-chart-record");
+  const placeId = container.getAttribute("data-place-id");
+  const recordName = container.getAttribute("data-record-name") || chartRecordId;
+  const placeName = container.getAttribute("data-place-name") || placeId;
+  const token = ++_screen4Token;
+  const setStatus = (msg) => {
+    const el = document.getElementById("rm-screen4-status");
+    if (el) el.textContent = msg;
+  };
+  const stillCurrent = () =>
+    token === _screen4Token &&
+    navContext.route === "chart" &&
+    navContext.chartRecordId === chartRecordId &&
+    navContext.placeId === placeId &&
+    document.body.contains(container);
+  try {
+    setStatus("Resolving birth data…");
+    const birthResp = await fetch(`/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`);
+    let birthBody = {};
+    try { birthBody = await birthResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!birthResp.ok) {
+      const detail = (birthBody && birthBody.detail) || {};
+      container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
+        ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
+      return;
+    }
+    setStatus("Calculating relocated chart…");
+    const q = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lon),
+      birth_year: String(birthBody.birth_year),
+      birth_month: String(birthBody.birth_month),
+      birth_day: String(birthBody.birth_day),
+      birth_hour_utc: String(birthBody.birth_hour_utc),
+    });
+    const chartResp = await fetch(`/relocated-chart?${q.toString()}`);
+    let chart = {};
+    try { chart = await chartResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!chartResp.ok) {
+      container.innerHTML = `<div class="warn-box"><strong>Could not calculate relocated chart.</strong><br>
+        HTTP ${chartResp.status}</div>`;
+      return;
+    }
+    container.innerHTML = renderRelocatedChartHtml(recordName, placeName, chart);
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<div class="warn-box"><strong>Relocated chart request failed.</strong><br>
+      ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
+  }
 }
 
 function screenCompare() {
@@ -1890,6 +2009,7 @@ function bindScreenActions(root) {
   });
 
   mountGenieDrawer(root);
+  hydrateRelocatedChart(root);
 }
 
 document.getElementById("popupModal").addEventListener("click", (e) => {
