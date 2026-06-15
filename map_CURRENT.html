@@ -1254,7 +1254,7 @@ function normalizeAnglesForApiPayload(payload) {
 // observable state. They never trigger a render, never change astrology
 // math, and never alter the active substrate. They degrade gracefully if
 // the library scaffold is disabled (RM_PHASE2_LIBRARY=0 returns 404).
-const LIBRARY_API_BASE = "http://127.0.0.1:8000";
+const LIBRARY_API_BASE = "";
 let lastLibraryHandoff = {
     libraryAvailable: false,
     libraryChartCount: 0,
@@ -2103,7 +2103,7 @@ async function fetchRelocatedChart(lat, lon) {
 
     const { birth_year, birth_month, birth_day, birth_hour_utc } = birth;
     const response = await fetch(
-        `http://127.0.0.1:8000/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}`
+        `/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}`
     );
     if (!response.ok) throw new Error("relocated_failed");
     return response.json();
@@ -2453,7 +2453,7 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
                 aspect: "conjunction",
                 angle: "ASC"
             });
-            const orbResp = await fetch(`http://127.0.0.1:8000/aspect-orb-at-point?${q}`);
+            const orbResp = await fetch(`/aspect-orb-at-point?${q}`);
             if (orbResp.ok) {
                 const orb = await orbResp.json();
                 extra = buildAuraOrbDebugPopupHtml(orb);
@@ -3631,7 +3631,7 @@ function failGenieBirthResolution(birthResolution, validation) {
 }
 
 async function postAuraField(payload) {
-    const response = await fetch("http://127.0.0.1:8000/aura-field", {
+    const response = await fetch("/aura-field", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -3644,7 +3644,7 @@ async function postAuraField(payload) {
 }
 
 async function postAuraRaster(payload) {
-    const response = await fetch("http://127.0.0.1:8000/aura-raster", {
+    const response = await fetch("/aura-raster", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -3657,7 +3657,7 @@ async function postAuraRaster(payload) {
 }
 
 async function postAuraRasterAdaptive(payload) {
-    const response = await fetch("http://127.0.0.1:8000/aura-raster-adaptive", {
+    const response = await fetch("/aura-raster-adaptive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -5155,7 +5155,7 @@ function buildScreenPixelTruthPayload(basePayload, points) {
 }
 
 async function postScreenPixelTruth(payload) {
-    const response = await fetch("http://127.0.0.1:8000/screen-pixel-truth", {
+    const response = await fetch("/screen-pixel-truth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(normalizeAnglesForApiPayload(payload))
