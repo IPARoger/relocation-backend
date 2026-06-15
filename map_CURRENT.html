@@ -2165,7 +2165,7 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
                 <tbody>${planetHouseHtml}</tbody>
             </table>
             <div class="popup-actions">
-                <button type="button">Open chart</button>
+                <button type="button" disabled aria-disabled="true" title="Full chart coming soon">Full chart coming soon</button>
                 ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
             </div>
             <div class="popup-action-status" aria-live="polite" hidden></div>
