@@ -1348,6 +1348,9 @@ function readActiveProfileIdFromUrlOrSession() {
     if (hashMatch) {
         id = decodeURIComponent(hashMatch[1]);
         source = "hash";
+    } else if (MAP_URL.get("chartRecordId")) {
+        id = MAP_URL.get("chartRecordId");
+        source = "query.chartRecordId";
     } else {
         try {
             const stored = sessionStorage.getItem("rm_active_profile_id");
@@ -1456,7 +1459,9 @@ async function loadChartProfiles() {
     // dataset.profile. /profiles is optional: any failure is swallowed so the
     // map still loads the existing /chart-profiles options unchanged.
     try {
-        const { data: { session: _profilesSession } } = await window.SupabaseClient.auth.getSession();
+        const supabaseClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null);
+        if (!supabaseClient) throw new Error("Supabase client unavailable");
+        const { data: { session: _profilesSession } } = await supabaseClient.auth.getSession();
         const _profilesToken = _profilesSession?.access_token;
         const profilesResponse = await fetch(`http://127.0.0.1:8004/profiles`, {
             headers: _profilesToken ? { Authorization: `Bearer ${_profilesToken}` } : {}
