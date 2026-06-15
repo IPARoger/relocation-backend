@@ -1150,7 +1150,7 @@ function screenChartRecord() {
       <p><strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span></p>
       <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}<br>${engineEligibilityLine(r)}</p>
       <p class="meta"><code>${r.chartRecordId}</code></p>
-      <button type="button" data-nav="birth-data">Edit birth data</button>
+      <button type="button" data-nav="birth-data">View birth data</button>
       <button type="button" data-action="set-current-location">Set Current Location</button>
     </div>
     <div class="panel">
@@ -1169,18 +1169,22 @@ function screenChartRecord() {
     <div class="grid-2">
       <div class="panel">
         <h3>Module: favorites (this Chart Record)</h3>
-        <ul class="plain">${r.favorites.map((f) => `
+        ${r.favorites.length === 0
+          ? `<p class="meta">No favorite places saved yet.<br>Open the map and save a location to begin building comparisons.</p>`
+          : `<ul class="plain">${r.favorites.map((f) => `
           <li>
             ${f.placeName}
             <span class="meta">owned by ${r.chartRecordId}</span>
             <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
             <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View chart</button>
             <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
-          </li>`).join("")}</ul>
+          </li>`).join("")}</ul>`}
       </div>
       <div class="panel">
         <h3>Module: saved-explorations (this Chart Record)</h3>
-        <ul class="plain">${r.explorations.map((e) => `
+        ${r.explorations.length === 0
+          ? `<p class="meta">No saved explorations yet.<br>Open the map, run a search, and save it to resume later.</p>`
+          : `<ul class="plain">${r.explorations.map((e) => `
           <li>
             <strong>${e.name}</strong>
             <span class="meta">${e.saved} · ${e.conditions.join("; ")}</span>
@@ -1191,12 +1195,105 @@ function screenChartRecord() {
               data-exploration="${e.id}" data-current-title="${escapeHtml(e.name).replace(/"/g, '&quot;')}">Rename</button>
             <button type="button" data-action="archive-exploration"
               data-exploration="${e.id}">Archive</button>
-          </li>`).join("")}</ul>
+          </li>`).join("")}</ul>`}
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Module: comparison-sets (this Chart Record)</h3>
+      <div id="rm-cr-comparison-sets" data-chart-record="${escapeHtml(r.chartRecordId)}">
+        <p class="meta">Loading comparison sets…</p>
       </div>
     </div>
     ${stateDebugBlock()}
     <p class="must-not">Must not appear: nested charts, solar/natal selector, dignity summaries.</p>
   `;
+}
+
+let _crComparisonToken = 0;
+// Chart Record "Comparison Sets" module: lists active comparison_sets for the
+// current profile with title, timestamp, place count, Open + Archive. Uses the
+// existing Supabase client (same pattern as comparison build). app_shell only.
+async function hydrateChartRecordComparisonSets(root) {
+  if (navContext.route !== "chart-record") return;
+  const container = (root || document).querySelector("#rm-cr-comparison-sets");
+  if (!container) return;
+  const chartRecordId = container.getAttribute("data-chart-record");
+  if (!chartRecordId) return;
+  const token = ++_crComparisonToken;
+  const stillCurrent = () =>
+    token === _crComparisonToken && navContext.route === "chart-record" && document.body.contains(container);
+  const accountId = window.CurrentUser && window.CurrentUser.accountId;
+  try {
+    const client = await window.SupabaseReady;
+    if (!client) throw new Error("Supabase unavailable.");
+    let q = client
+      .from("comparison_sets")
+      .select("id, title, created_at, updated_at")
+      .eq("profile_id", chartRecordId)
+      .is("archived_at", null)
+      .order("updated_at", { ascending: false });
+    if (accountId) q = q.eq("account_id", accountId);
+    const { data: sets, error } = await q;
+    if (error) throw error;
+    if (!stillCurrent()) return;
+    const rows = Array.isArray(sets) ? sets : [];
+    if (rows.length === 0) {
+      container.innerHTML = `<p class="meta">No comparison sets yet. Build a comparison from saved places.</p>`;
+      return;
+    }
+    // Place counts (best-effort; non-fatal if it fails)
+    const counts = {};
+    try {
+      const ids = rows.map((r) => r.id);
+      const { data: cspRows } = await client
+        .from("comparison_set_places")
+        .select("comparison_set_id")
+        .in("comparison_set_id", ids);
+      (cspRows || []).forEach((r) => { counts[r.comparison_set_id] = (counts[r.comparison_set_id] || 0) + 1; });
+    } catch (e) { /* counts optional */ }
+    if (!stillCurrent()) return;
+    container.innerHTML = `<ul class="plain">${rows.map((cs) => {
+      const title = cs.title || "Comparison";
+      const when = formatSavedLabel(cs.updated_at || cs.created_at);
+      const n = counts[cs.id];
+      const countLabel = (n != null) ? ` · ${n} place${n === 1 ? "" : "s"}` : "";
+      return `<li>
+        <strong>${escapeHtml(title)}</strong>
+        <span class="meta">${escapeHtml(when)}${countLabel}</span>
+        <button type="button" class="rm-cr-cmp-open" data-cmp-id="${escapeHtml(cs.id)}">Open comparison</button>
+        <button type="button" class="rm-cr-cmp-archive" data-cmp-id="${escapeHtml(cs.id)}" data-cmp-title="${escapeHtml(title)}">Archive</button>
+      </li>`;
+    }).join("")}</ul>`;
+    container.querySelectorAll(".rm-cr-cmp-open").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        navigate("compare", { chartRecordId, comparisonSetId: btn.getAttribute("data-cmp-id") }, { pushReturn: true });
+      });
+    });
+    container.querySelectorAll(".rm-cr-cmp-archive").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const setId = btn.getAttribute("data-cmp-id");
+        const title = btn.getAttribute("data-cmp-title") || "this comparison";
+        if (!setId) return;
+        if (!window.confirm(`Archive ${title}? It will be removed from this Chart Record's active list.`)) return;
+        (async () => {
+          try {
+            const c = await window.SupabaseReady;
+            if (!c) throw new Error("Supabase unavailable.");
+            let upd = c.from("comparison_sets").update({ archived_at: new Date().toISOString() }).eq("id", setId);
+            if (accountId) upd = upd.eq("account_id", accountId);
+            const { error: archErr } = await upd;
+            if (archErr) throw archErr;
+            hydrateChartRecordComparisonSets(document);
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
+      });
+    });
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<p class="meta">Could not load comparison sets: ${escapeHtml(err && err.message ? err.message : String(err))}</p>`;
+  }
 }
 
 function screenMap() {
@@ -1398,43 +1495,144 @@ async function hydrateRelocatedChart(root) {
   }
 }
 
+// Render Screen 5's comparison columns (facts only) into the hydration container.
+function renderComparisonTableHtml(cols) {
+  const headers = cols.map((c) =>
+    `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open relocated chart (Screen 4)">${escapeHtml(c.name)}</button></th>`
+  ).join("");
+  const angleRow = (label, key) =>
+    `<tr><td>${label}</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && c.chart[key]) || "—")}</td>`).join("")}</tr>`;
+  const dscRow =
+    `<tr><td>DSC</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && (c.chart.dc || c.chart.desc)) || "—")}</td>`).join("")}</tr>`;
+  const planetNames = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  const planetRows = planetNames.map((pn) =>
+    `<tr><td>${pn} house</td>${cols.map((c) => {
+      if (c.error) return "<td>—</td>";
+      const ph = (c.chart && c.chart.planet_houses) || {};
+      const info = ph[pn] || {};
+      return `<td>${info.house == null ? "—" : info.house}</td>`;
+    }).join("")}</tr>`
+  ).join("");
+  const failed = cols.filter((c) => c.error);
+  const errNote = failed.length
+    ? `<p class="meta">Could not resolve: ${failed.map((c) => escapeHtml(c.name) + " (" + escapeHtml(c.error) + ")").join(", ")}</p>`
+    : "";
+  return `
+    <p class="meta">Click a place to open its relocated chart (Screen 4).</p>
+    <table class="simple">
+      <tr><th>Fact</th>${headers}</tr>
+      ${angleRow("ASC", "asc")}
+      ${angleRow("MC", "mc")}
+      ${dscRow}
+      ${angleRow("IC", "ic")}
+      ${planetRows}
+    </table>
+    ${errNote}`;
+}
+
+let _screen5Token = 0;
+// Hydrate Screen 5 with real relocated facts per selected place (existing endpoints only).
+async function hydrateComparisonColumns(root) {
+  if (navContext.route !== "compare") return;
+  const container = (root || document).querySelector("#rm-screen5-columns");
+  if (!container) return;
+  const chartRecordId = container.getAttribute("data-chart-record");
+  const placeIds = (container.getAttribute("data-place-ids") || "").split(",").filter(Boolean);
+  if (!chartRecordId || placeIds.length === 0) return;
+  const token = ++_screen5Token;
+  const setStatus = (m) => { const e = document.getElementById("rm-screen5-status"); if (e) e.textContent = m; };
+  const stillCurrent = () =>
+    token === _screen5Token && navContext.route === "compare" && document.body.contains(container);
+  try {
+    setStatus("Resolving birth data…");
+    const birthResp = await fetch(`/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`);
+    let birth = {};
+    try { birth = await birthResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!birthResp.ok) {
+      const detail = (birth && birth.detail) || {};
+      container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
+        ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
+      return;
+    }
+    setStatus("Calculating relocated charts…");
+    const cols = await Promise.all(placeIds.map(async (pid) => {
+      const name = resolvePlaceName(pid) || pid;
+      const coords = resolvePlaceLatLon(pid);
+      if (!coords) return { placeId: pid, name, error: "no coordinates" };
+      const q = new URLSearchParams({
+        lat: String(coords.lat), lon: String(coords.lon),
+        birth_year: String(birth.birth_year), birth_month: String(birth.birth_month),
+        birth_day: String(birth.birth_day), birth_hour_utc: String(birth.birth_hour_utc),
+      });
+      const r = await fetch(`/relocated-chart?${q.toString()}`);
+      let chart = {};
+      try { chart = await r.json(); } catch (e) { /* ignore */ }
+      if (!r.ok) return { placeId: pid, name, error: "HTTP " + r.status };
+      return { placeId: pid, name, chart };
+    }));
+    if (!stillCurrent()) return;
+    container.innerHTML = renderComparisonTableHtml(cols);
+    container.querySelectorAll("[data-cmp-open]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        navigate("chart", { chartRecordId, placeId: btn.getAttribute("data-cmp-open") });
+      });
+    });
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<div class="warn-box"><strong>Comparison request failed.</strong><br>
+      ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
+  }
+}
+
 function screenCompare() {
   const origin = getChartRecord(navContext.chartRecordId);
-  const favOptions = origin.favorites.map((f) => f.placeName);
-  const cols = comparisonPlaceNamesFromContext();
+  const favs = origin.favorites || [];
   const cs = getComparisonSet(navContext.comparisonSetId);
+  const selectedIds = cs ? cs.placeIds.slice(0, 5) : [];
+
+  const pickerRows = favs.map((f) => {
+    const checked = selectedIds.includes(f.placeId) ? " checked" : "";
+    return `<label class="block" style="min-width:160px"><input type="checkbox" class="rm-cmp-pick" value="${escapeHtml(f.placeId)}" data-place-name="${escapeHtml(f.placeName)}"${checked}> ${escapeHtml(f.placeName)}</label>`;
+  }).join("");
+
+  const pickerPanel = favs.length < 2
+    ? `<div class="panel"><h3>Module: choose places</h3>
+        <div class="warn-box"><strong>Need at least 2 saved places.</strong><br>
+        Add favorite places to <strong>${escapeHtml(origin.displayName)}</strong> (from the map) to build a comparison.</div></div>`
+    : `<div class="panel"><h3>Module: choose places (2–5)</h3>
+        <p class="meta">Select 2–5 saved places under this Chart Record, then build the comparison.</p>
+        <div class="row" style="flex-wrap:wrap">${pickerRows}</div>
+        <div class="row" style="margin-top:8px;align-items:center">
+          <button type="button" data-action="compare-build">Build comparison</button>
+          <span class="meta" id="rm-cmp-build-msg"></span>
+        </div></div>`;
+
+  const columnsPanel = cs
+    ? `<div class="panel"><h3>Module: comparison-columns (places · facts only)</h3>
+        <div id="rm-screen5-columns"
+             data-chart-record="${escapeHtml(origin.chartRecordId)}"
+             data-place-ids="${escapeHtml(selectedIds.join(','))}">
+          <p class="meta" id="rm-screen5-status">Loading relocated facts…</p>
+        </div></div>`
+    : "";
+
   return `
-    <div class="breadcrumb">Comparison · ${origin.displayName} · places only</div>
+    <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>
     <h2>Screen 5 — Comparison</h2>
     <p class="purpose">2–5 places under ONE Chart Record · facts only · not multi-chart comparison.</p>
-    <p class="meta">comparisonSetId: <code>${navContext.comparisonSetId || "—"}</code>${cs ? ` · ${cols.length} places` : ""}</p>
+    <p class="meta">comparisonSetId: <code>${navContext.comparisonSetId || "—"}</code>${cs ? ` · ${selectedIds.length} places` : ""}</p>
     <div class="panel">
       <h3>Module: originating-chart-record</h3>
-      <p><strong>${origin.displayName}</strong> <span class="meta">${origin.recordType}</span></p>
+      <p><strong>${escapeHtml(origin.displayName)}</strong> <span class="meta">${origin.recordType}</span></p>
       <p class="meta"><code>${origin.chartRecordId}</code> · ${origin.confidenceTier}</p>
       ${timeUncertaintyWarning(origin)}
     </div>
-    <div class="panel">
-      <h3>Module: comparison-columns (places)</h3>
-      <p class="meta">Swap column place from favorites — placeholder dropdowns only.</p>
-      <div class="row">
-        ${cols.map((_, i) => `
-          <label class="block" style="flex:1;min-width:120px">Col ${i + 1}
-            <select disabled class="inline">
-              ${favOptions.map((p) => `<option${p === cols[i] ? " selected" : ""}>${p}</option>`).join("")}
-            </select>
-          </label>`).join("")}
-      </div>
-      <table class="simple" style="margin-top:12px">
-        <tr><th>Fact</th>${cols.map((p) => `<th>${p}</th>`).join("")}</tr>
-        <tr><td>ASC sign</td><td>Gemini</td><td>Leo</td><td>Scorpio</td></tr>
-        <tr><td>Sun house</td><td>10</td><td>7</td><td>4</td></tr>
-        <tr><td>MC sign</td><td>Aquarius</td><td>Taurus</td><td>Cancer</td></tr>
-      </table>
-    </div>
+    ${pickerPanel}
+    ${columnsPanel}
     <div class="panel">
       <h3>Module: comparison-notepad</h3>
-      <textarea rows="3" placeholder="Session notes (optional · this Comparison Set)"></textarea>
+      <textarea rows="3" placeholder="Session notes (placeholder — not saved)"></textarea>
     </div>
     <div class="future-only">Future: AI assist (disabled) · multi–Chart Record comparison (not Web 2.0)</div>
     <div class="row">
@@ -1610,24 +1808,17 @@ function screenProfileList() {
 function screenBirthData() {
   const r = activeRecord();
   return `
-    <h2>S6 — Birth Data Intake (support route)</h2>
+    <h2>S6 — Birth Data (support route)</h2>
     <p class="purpose">One birth profile per Chart Record · uncertainty as metadata — not multiple charts.</p>
     <div class="panel">
-      <h3>Module: birth-data-form · ${r.displayName}</h3>
-      <label class="block">Date <input type="date" value="${r.birthDate}" /></label>
-      <label class="block">Time (exact) <input type="time" ${r.hasTimeUncertainty ? "disabled" : ""} value="${r.birthTime || ""}" /></label>
-      <label class="block">Bounded range (metadata — one Chart Record)
-        <input type="text" ${r.hasTimeUncertainty ? `value="${r.birthTimeDisplay.replace("Time uncertain: ", "")}"` : "disabled placeholder=\"Future metadata field\""} />
-      </label>
-      <label class="block">Birth city <input type="text" value="${r.birthCity}" /></label>
-      <label class="block">Confidence tier
-        <select>
-          <option${!r.hasTimeUncertainty ? " selected" : ""}>T0 — Exact</option>
-          <option${r.hasTimeUncertainty ? " selected" : ""}>T2 — Bounded range</option>
-          <option>T3 — Unknown time</option>
-        </select>
-      </label>
-      <button type="button" class="primary" data-nav="chart-record">Save & return to Chart Record page</button>
+      <h3>Module: birth-data · ${r.displayName}</h3>
+      <p class="warn-box">Birth data editing is not enabled here yet.</p>
+      <p class="block"><strong>Date:</strong> ${escapeHtml(r.birthDate)}</p>
+      <p class="block"><strong>Time (exact):</strong> ${r.hasTimeUncertainty ? "—" : escapeHtml(r.birthTime || "—")}</p>
+      <p class="block"><strong>Bounded range (metadata — one Chart Record):</strong> ${r.hasTimeUncertainty ? escapeHtml(r.birthTimeDisplay.replace("Time uncertain: ", "")) : "—"}</p>
+      <p class="block"><strong>Birth city:</strong> ${escapeHtml(r.birthCity)}</p>
+      <p class="block"><strong>Confidence tier:</strong> ${escapeHtml(r.confidenceTier)}</p>
+      <button type="button" data-nav="chart-record">Back to Chart Record page</button>
     </div>
   `;
 }
@@ -1910,6 +2101,46 @@ function bindScreenActions(root) {
           }
         })();
       }
+      if (action === "compare-build") {
+        const msg = document.getElementById("rm-cmp-build-msg");
+        const picks = Array.from(document.querySelectorAll(".rm-cmp-pick:checked"));
+        if (picks.length < 2 || picks.length > 5) {
+          if (msg) msg.textContent = "Choose between 2 and 5 places.";
+          return;
+        }
+        const chartRecordId = navContext.chartRecordId;
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        if (!chartRecordId || !accountId) {
+          if (msg) msg.textContent = "Missing chart record or account.";
+          return;
+        }
+        const placeIds = picks.map((el) => el.value);
+        if (msg) msg.textContent = "Saving…";
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
+            const ins = await client.from("comparison_sets")
+              .insert({ profile_id: chartRecordId, account_id: accountId, title })
+              .select("id").single();
+            if (ins.error) throw ins.error;
+            const setId = ins.data.id;
+            const rows = placeIds.map((pid, i) => ({
+              comparison_set_id: setId, place_id: pid, account_id: accountId, sort_order: i + 1,
+            }));
+            const insP = await client.from("comparison_set_places").insert(rows);
+            if (insP.error) throw insP.error;
+            location.hash = buildLocationHash({
+              route: "compare", chartRecordId, comparisonSetId: setId,
+              placeId: null, explorationId: null, returnTo: null,
+            });
+            window.location.reload();
+          } catch (err) {
+            if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+          }
+        })();
+      }
       if (action === "compare-back-map") {
         const rt = navContext.returnTo;
         if (rt) {
@@ -2010,6 +2241,8 @@ function bindScreenActions(root) {
 
   mountGenieDrawer(root);
   hydrateRelocatedChart(root);
+  hydrateComparisonColumns(root);
+  hydrateChartRecordComparisonSets(root);
 }
 
 document.getElementById("popupModal").addEventListener("click", (e) => {
