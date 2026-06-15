@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3.15 Real Single Polygon</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #eef3f5;
+    }
+
+    .error {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: none;
+      max-width: 440px;
+      padding: 10px 12px;
+      border: 1px solid rgba(127, 29, 29, 0.35);
+      border-radius: 10px;
+      background: rgba(254, 242, 242, 0.94);
+      color: #7f1d1d;
+      font: 13px/1.4 system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="World map with one real Sun-in-1 relocation polygon"></div>
+  <div id="error" class="error" role="alert"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    "use strict";
+
+    const API_BASE = "http://127.0.0.1:8000";
+    const REQUEST_BODY = {
+      birth_year: 1976,
+      birth_month: 1,
+      birth_day: 13,
+      birth_hour_utc: 12.78333,
+      house_conditions: [{ planet: "sun", house: 1 }],
+      angle_sign_conditions: [],
+      generation_mode: "contour",
+      resolution: 1.5,
+    };
+
+    const map = L.map("map", {
+      zoomSnap: 0.25,
+      zoomDelta: 0.25,
+      worldCopyJump: false,
+      minZoom: 1,
+      maxZoom: 8,
+    }).setView([4, -18], 2.65);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "\u00a9 OSM",
+      noWrap: true,
+      bounds: [[-85, -180], [85, 180]],
+    }).addTo(map);
+
+    function showError(text) {
+      const el = document.getElementById("error");
+      el.textContent = text;
+      el.style.display = "block";
+    }
+
+    async function fetchRealPolygon() {
+      const res = await fetch(`${API_BASE}/search-regions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(REQUEST_BODY),
+      });
+      if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+      const geojson = await res.json();
+      const features = Array.isArray(geojson.features) ? geojson.features : [];
+      const polygons = features.filter(
+        feature =>
+          feature &&
+          feature.geometry &&
+          feature.geometry.type === "Polygon" &&
+          feature.properties &&
+          feature.properties.planet === "sun" &&
+          feature.properties.house === 1
+      );
+      if (polygons.length !== 1) {
+        throw new Error(`Expected one Sun-in-1 polygon, got ${polygons.length}`);
+      }
+      return {
+        type: "FeatureCollection",
+        features: polygons,
+        properties: geojson.properties || {},
+      };
+    }
+
+    async function main() {
+      const geojson = await fetchRealPolygon();
+
+      const layer = L.geoJSON(geojson, {
+        style: {
+          stroke: false,
+          fillColor: "#d8a11d",
+          fillOpacity: 0.22,
+        },
+      }).addTo(map);
+
+      window.__phase315State = {
+        ok: true,
+        featureCount: geojson.features.length,
+        pipeline: "POST /search-regions generation_mode=contour",
+        request: REQUEST_BODY,
+        properties: geojson.features[0].properties,
+      };
+    }
+
+    main().catch((err) => {
+      console.error(err);
+      window.__phase315State = { ok: false, error: err.message };
+      showError(err.message);
+    });
+  </script>
+</body>
+</html>

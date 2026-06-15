@@ -1,0 +1,193 @@
+{
+  "cache_window_assessment": {
+    "note": "Projection uses measured in-process full-payload timing, not HTTP overhead and not multiprocessing.",
+    "ten_second_plausible_for_0p5deg_world_payload": true,
+    "ten_second_plausible_for_83040_payload": true,
+    "three_second_plausible_for_0p5deg_world_payload": true,
+    "three_second_plausible_for_83040_payload": true
+  },
+  "environment": {
+    "platform": "macOS-26.4.1-arm64-arm-64bit",
+    "processor": "arm",
+    "python": "3.11.15"
+  },
+  "first_run_issues": [],
+  "generated_at_utc": "2026-05-25T19:00:12.252568+00:00",
+  "limitations": [
+    "In-process benchmark only; no HTTP serialization overhead measured.",
+    "No multiprocessing or worker-pool optimization measured.",
+    "Point generation is deterministic synthetic coverage, not exact production viewport sampling.",
+    "0.5 degree and 0.25 degree world grids are projected from measured per-point timing unless later explicitly benchmarked.",
+    "No production caching behavior was implemented."
+  ],
+  "profile": {
+    "date": "1976-01-13",
+    "id": "baseline_validated",
+    "lat": 0,
+    "lon": 0,
+    "name": "Baseline Validated Chart",
+    "notes": "Current validated baseline chart.",
+    "place": "Test",
+    "time": "12:47",
+    "timezone": "UTC"
+  },
+  "projections": {
+    "83040_samples_seconds": 0.714,
+    "basis_workload": {
+      "classified_count": 83040,
+      "point_count": 83040,
+      "points_per_second": 116332.24,
+      "seconds_per_point": 8.596e-06,
+      "total_seconds": 0.713818,
+      "workload": "B_full_relocated_point_payload"
+    },
+    "world_0p25deg_points": 748800,
+    "world_0p25deg_projected_seconds": 6.437,
+    "world_0p5deg_points": 187200,
+    "world_0p5deg_projected_seconds": 1.609
+  },
+  "recommendations": {
+    "cache_immediately": [
+      "natal planet/point longitudes",
+      "initial relocated cusp/angle payload for current/first viewport or coarse world grid",
+      "house spans needed for dynamic side caps",
+      "currently selected user variable"
+    ],
+    "cache_on_demand": [
+      "minor/custom aspects",
+      "alternate house systems",
+      "alternate zodiac/ayanamsa modes",
+      "fine-grained 0.25 degree world fields",
+      "user-overridden orb/cap-percent variants"
+    ]
+  },
+  "results": [
+    {
+      "classified_count": 1,
+      "point_count": 1,
+      "points_per_second": 54174.11,
+      "seconds_per_point": 1.8459e-05,
+      "total_seconds": 1.8e-05,
+      "workload": "A_swe_houses_only"
+    },
+    {
+      "classified_count": 1,
+      "point_count": 1,
+      "points_per_second": 79207.96,
+      "seconds_per_point": 1.2625e-05,
+      "total_seconds": 1.3e-05,
+      "workload": "B_full_relocated_point_payload"
+    },
+    {
+      "classified_count": 1,
+      "evaluation_counts": {
+        "angle_sign_evaluations": 4,
+        "aspect_to_angle_evaluations": 200,
+        "dynamic_side_cap_evaluations": 8,
+        "planet_in_house_evaluations": 10
+      },
+      "point_count": 1,
+      "points_per_second": 37499.54,
+      "seconds_per_point": 2.6667e-05,
+      "total_seconds": 2.7e-05,
+      "workload": "C_derived_classifiers_from_cached_payload"
+    },
+    {
+      "classified_count": 1000,
+      "point_count": 1000,
+      "points_per_second": 170902.43,
+      "seconds_per_point": 5.851e-06,
+      "total_seconds": 0.005851,
+      "workload": "A_swe_houses_only"
+    },
+    {
+      "classified_count": 1000,
+      "point_count": 1000,
+      "points_per_second": 125918.81,
+      "seconds_per_point": 7.942e-06,
+      "total_seconds": 0.007942,
+      "workload": "B_full_relocated_point_payload"
+    },
+    {
+      "classified_count": 1000,
+      "evaluation_counts": {
+        "angle_sign_evaluations": 4000,
+        "aspect_to_angle_evaluations": 200000,
+        "dynamic_side_cap_evaluations": 8000,
+        "planet_in_house_evaluations": 10000
+      },
+      "point_count": 1000,
+      "points_per_second": 56541.63,
+      "seconds_per_point": 1.7686e-05,
+      "total_seconds": 0.017686,
+      "workload": "C_derived_classifiers_from_cached_payload"
+    },
+    {
+      "classified_count": 10000,
+      "point_count": 10000,
+      "points_per_second": 167111.49,
+      "seconds_per_point": 5.984e-06,
+      "total_seconds": 0.05984,
+      "workload": "A_swe_houses_only"
+    },
+    {
+      "classified_count": 10000,
+      "point_count": 10000,
+      "points_per_second": 129351.46,
+      "seconds_per_point": 7.731e-06,
+      "total_seconds": 0.077309,
+      "workload": "B_full_relocated_point_payload"
+    },
+    {
+      "classified_count": 10000,
+      "evaluation_counts": {
+        "angle_sign_evaluations": 40000,
+        "aspect_to_angle_evaluations": 2000000,
+        "dynamic_side_cap_evaluations": 80000,
+        "planet_in_house_evaluations": 100000
+      },
+      "point_count": 10000,
+      "points_per_second": 58816.02,
+      "seconds_per_point": 1.7002e-05,
+      "total_seconds": 0.170022,
+      "workload": "C_derived_classifiers_from_cached_payload"
+    },
+    {
+      "classified_count": 83040,
+      "point_count": 83040,
+      "points_per_second": 166230.88,
+      "seconds_per_point": 6.016e-06,
+      "total_seconds": 0.499546,
+      "workload": "A_swe_houses_only"
+    },
+    {
+      "classified_count": 83040,
+      "point_count": 83040,
+      "points_per_second": 116332.24,
+      "seconds_per_point": 8.596e-06,
+      "total_seconds": 0.713818,
+      "workload": "B_full_relocated_point_payload"
+    },
+    {
+      "classified_count": 83040,
+      "evaluation_counts": {
+        "angle_sign_evaluations": 332160,
+        "aspect_to_angle_evaluations": 16608000,
+        "dynamic_side_cap_evaluations": 664320,
+        "planet_in_house_evaluations": 830400
+      },
+      "point_count": 83040,
+      "points_per_second": 55860.47,
+      "seconds_per_point": 1.7902e-05,
+      "total_seconds": 1.486561,
+      "workload": "C_derived_classifiers_from_cached_payload"
+    }
+  ],
+  "sample_sizes": [
+    1,
+    1000,
+    10000,
+    83040
+  ],
+  "schema": "relocated_truth_field_benchmark@1"
+}

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Genie Sandbox — Modular Variable Builder</title>
+<!--
+  Thin host for Genie variable builder — shared module is source of truth.
+  Requires HTTP serve (loads /genie_variable_builder.js + .css). file:// will not work.
+-->
+<link rel="stylesheet" href="/genie_variable_builder.css" />
+<style>
+:root {
+  --map-bg: #e8eef4;
+  --map-grid: rgba(100, 116, 139, 0.12);
+  --genie-w: 380px;
+  --chip: 44px;
+  --accent: #b45309;
+  --accent-soft: #fef3c7;
+  --danger: #b91c1c;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --font: system-ui, -apple-system, Segoe UI, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;
+  color: #1e293b;
+  background: #0f172a;
+  min-height: 100vh;
+}
+.app {
+  display: grid;
+  grid-template-columns: 1fr var(--genie-w);
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+}
+.map-surface {
+  position: relative;
+  background: var(--map-bg);
+  background-image:
+    linear-gradient(var(--map-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  min-height: 420px;
+}
+.map-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+  pointer-events: none;
+  text-align: center;
+  padding: 24px;
+}
+.map-chrome-top {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: min(420px, calc(100% - 120px));
+}
+.city-search {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.08);
+}
+.city-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
+.city-search button {
+  background: #334155;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.map-nav-controls {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 4;
+}
+.map-nav-controls button {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.94);
+  cursor: pointer;
+}
+.map-nav-controls button:disabled { opacity: 0.45; cursor: not-allowed; }
+.map-zoom {
+  position: absolute;
+  bottom: 12px;
+  right: calc(var(--genie-w) + 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 4;
+}
+.map-zoom button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.94);
+  font-size: 18px;
+  cursor: pointer;
+}
+.save-search-stub {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 4;
+  padding: 8px 14px;
+  font-size: 12px;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  background: rgba(254,243,199,0.9);
+  color: #92400e;
+  cursor: default;
+}
+.save-search-stub.hidden { display: none; }
+.genie-corner {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+  width: var(--chip);
+  height: var(--chip);
+}
+.genie-chip {
+  width: var(--chip);
+  height: var(--chip);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.genie-chip:hover { background: var(--accent-soft); }
+.clear-map-btn {
+  width: var(--chip);
+  height: var(--chip);
+  border: 2px solid var(--danger);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--danger);
+  cursor: pointer;
+  line-height: 1.1;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.clear-map-btn:hover { background: #fef2f2; }
+.clear-map-btn.undo { border-color: #059669; color: #059669; font-size: 8px; }
+#genieMount.genie-drawer-mount {
+  grid-row: 1 / 3;
+  min-height: 0;
+}
+#genieMount.genie-drawer-mount .genie-panel {
+  grid-row: unset;
+  height: 100%;
+}
+.debug-panel {
+  grid-column: 1 / -1;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  font-size: 12px;
+  max-height: 220px;
+  overflow: auto;
+}
+.debug-panel h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+.debug-panel pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.registry-settings {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #334155;
+}
+.registry-settings h3 { margin: 0 0 6px; }
+.registry-settings p {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+.registry-group { margin-bottom: 8px; }
+.registry-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+.registry-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.registry-toggles label {
+  font-size: 10px;
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.registry-toggles label.is-off { color: #64748b; }
+.last-render {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #334155;
+}
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  #genieMount.genie-drawer-mount .genie-panel { max-height: 50vh; }
+  .map-zoom { right: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="map-surface" id="mapSurface">
+    <div class="map-chrome-top">
+      <div class="city-search" aria-label="City search (map surface, not Genie)">
+        <input type="text" id="citySearch" placeholder="City search — top center on map" />
+        <button type="button" id="cityGo" disabled title="Scaffold only">Go</button>
+      </div>
+    </div>
+    <div class="map-nav-controls" aria-label="History navigation (map surface)">
+      <button type="button" id="navBack" disabled>← Back</button>
+      <button type="button" id="navForward" disabled>Forward →</button>
+      <button type="button" id="navPin" disabled title="Pin scaffold">📌 Pin</button>
+    </div>
+    <div class="genie-corner" id="genieCorner"></div>
+    <div class="map-zoom" aria-label="Zoom (map surface)">
+      <button type="button" disabled title="Scaffold">+</button>
+      <button type="button" disabled title="Scaffold">−</button>
+    </div>
+    <div class="save-search-stub hidden" id="saveSearchStub">Save Search (Exploration Mode · map surface)</div>
+    <div class="map-label">Map viewport placeholder<br><small>Genie sandbox — shared builder module</small></div>
+  </div>
+
+  <div id="genieMount" aria-label="Genie workbench mount"></div>
+
+  <div class="debug-panel">
+    <div class="registry-settings" id="registrySettingsMock">
+      <h3>Mock Settings — available objects registry</h3>
+      <p>Genie reads enabled vocabulary from the registry only. Toggle objects here to simulate future Settings without changing Genie architecture.</p>
+      <div id="registrySettingsBody"></div>
+    </div>
+    <h3>Variable model (live JSON)</h3>
+    <pre id="debugJson"></pre>
+    <div class="last-render">
+      <h3>Last normalized render payload</h3>
+      <pre id="renderJson">null</pre>
+    </div>
+  </div>
+</div>
+
+<script src="/genie_variable_builder.js"></script>
+<script>
+(function () {
+  "use strict";
+  const mountRoot = document.getElementById("genieMount");
+  if (!mountRoot || !window.RelocationGenieVariableBuilder) {
+    console.error("[genie-sandbox] RelocationGenieVariableBuilder not loaded");
+    return;
+  }
+  window.RelocationGenieVariableBuilder.mount(mountRoot, {
+    chartRecordId: "sandbox-chart-record",
+    chartRecordName: "Anna Rivera",
+    externalDebug: true,
+  });
+})();
+</script>
+</body>
+</html>

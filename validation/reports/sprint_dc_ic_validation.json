@@ -1,0 +1,54 @@
+{
+  "description": "DC/IC sprint validation \u2014 relocated chart parity + angle-in-sign spot checks.",
+  "base_url": "http://127.0.0.1:8000",
+  "generated_at_utc": "2026-05-24T15:58:36.029031+00:00",
+  "checks": [
+    {
+      "endpoint": "relocated-chart",
+      "status": 200,
+      "checks": [
+        {
+          "name": "dc_deg_matches_desc_deg",
+          "pass": true,
+          "dc": 27.645747954229364,
+          "desc": 27.645747954229364
+        },
+        {
+          "name": "ic_deg_opposes_mc_deg",
+          "pass": true,
+          "ic": 286.98396478007214,
+          "mc": 106.98396478007216
+        },
+        {
+          "name": "dc_sign_matches_desc_sign",
+          "pass": true
+        },
+        {
+          "name": "planet_cusp_fields_present",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "endpoint": "search-regions (DC angle sign)",
+      "status": 200,
+      "validation_contradictions": 0,
+      "point_inside_some_dc_polygon": true,
+      "pass": true
+    },
+    {
+      "endpoint": "search-regions (IC angle sign)",
+      "status": 200,
+      "validation_contradictions": 0,
+      "point_inside_some_ic_polygon": true,
+      "pass": true
+    },
+    {
+      "endpoint": "search-regions (aspect to DC)",
+      "status": 200,
+      "dc_linestring_count": 1,
+      "pass": true
+    }
+  ],
+  "overall_pass": true
+}

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="spring">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Comparison — Relocation</title>
+<link rel="stylesheet" href="theme/relocation_themes.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:var(--th-ink,#1c1a18);
+  --surface:var(--th-base,#f6f4f0);
+  --card:var(--th-card,#ffffff);
+  --line:var(--th-line,#e2dfd9);
+  --accent:var(--th-accent,#4a7c6f);
+  --muted:#8c8882;
+  --nav-h:52px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--surface);color:var(--ink);font-size:14px;line-height:1.5}
+
+/* NAV */
+.app-nav{position:sticky;top:0;z-index:100;height:var(--nav-h);background:var(--card);border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 24px}
+.nav-logo{font-weight:600;font-size:15px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:22px;list-style:none;justify-content:center}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.active{color:var(--ink);font-weight:500;border-bottom:2px solid var(--ink);padding-bottom:2px}
+.nav-account{font-size:13px;color:var(--muted);text-align:right;cursor:pointer}
+
+/* PROFILE */
+.profile-block{background:var(--card);border-bottom:1px solid var(--line);padding:18px 24px;display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+.profile-main{display:flex;gap:12px;align-items:flex-start}
+.profile-avatar{width:44px;height:44px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--muted);flex-shrink:0;margin-top:2px}
+.profile-name-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.profile-name{font-weight:600;font-size:16px}
+.profile-caret{font-size:11px;color:var(--muted);cursor:pointer}
+.profile-actions{display:flex;gap:6px;margin-left:10px}
+.profile-btn{font-size:11px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:3px;padding:2px 8px;cursor:pointer}
+.profile-btn:hover{color:var(--ink);border-color:var(--muted)}
+.profile-line{font-size:13px;color:var(--muted);margin-top:2px}
+.profile-line.coords{font-variant-numeric:tabular-nums}
+.profile-line.system{font-size:12px;margin-top:4px}
+.profile-current{padding-left:16px;border-left:1px solid var(--line)}
+.pcurr-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px}
+.pcurr-place{font-size:14px}
+.pcurr-coords{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* PAGE */
+.page{max-width:1080px;margin:0 auto;padding:0 24px 100px}
+.comp-header{display:flex;align-items:baseline;gap:10px;padding:18px 0 4px}
+.comp-title{font-size:22px;font-weight:600;letter-spacing:-.025em}
+.comp-count{font-size:12px;color:var(--muted)}
+.mobile-hint{display:none;font-size:11px;color:var(--muted);padding:4px 0}
+
+/* CITY BAR */
+.city-bar-wrap{position:sticky;top:var(--nav-h);z-index:50;background:var(--card);border-top:1px solid var(--line);border-bottom:2px solid var(--ink);overflow-x:auto;margin-top:16px}
+.city-bar-table{border-collapse:collapse}
+.bar-label{width:1px}
+.bar-city{padding:10px 14px;border-left:1px solid var(--line);vertical-align:top}
+.bar-stub{border-left:1px dashed var(--line);vertical-align:middle;text-align:center;padding:6px 2px}
+.bar-add{padding:10px;border-left:1px solid var(--line);vertical-align:middle;text-align:center}
+.city-nameplate{text-align:center;margin-bottom:8px}
+.bname{font-weight:600;font-size:13px}
+.city-tag{font-size:10px;background:var(--line);border-radius:3px;padding:1px 5px;color:var(--muted);display:inline-block;margin-top:3px}
+.city-tag-empty{visibility:hidden}
+.city-coords{font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+/* controls: no pipe separators, clean gap */
+.city-ctrls{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:nowrap}
+.cc{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:3px;transition:background .1s,color .1s;white-space:nowrap}
+.cc:hover:not(:disabled){background:var(--line);color:var(--ink)}
+.cc:disabled{opacity:.3;cursor:default}
+.cc-info{width:20px;height:20px;padding:0;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-style:italic;font-weight:700;flex-shrink:0}
+.cc-arr{font-size:14px;padding:2px 4px;line-height:1;font-weight:600}
+.cc-rep{font-style:italic}
+.stub-restore{font-size:10px;color:var(--muted);background:none;border:1px dashed var(--line);border-radius:3px;padding:3px 2px;cursor:pointer;writing-mode:vertical-rl;transform:rotate(180deg);display:block;width:100%;text-align:center;line-height:1.5;white-space:nowrap}
+.stub-restore:hover{color:var(--ink);border-color:var(--muted)}
+.add-city-btn{font-size:11px;color:var(--muted);background:none;border:1px dashed var(--line);border-radius:4px;padding:6px 4px;cursor:pointer;display:block;width:100%;transition:color .15s,border-color .15s}
+.add-city-btn:hover{color:var(--ink);border-color:var(--muted)}
+
+/* BLOCKS */
+.block{margin-top:28px}
+.block-header{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.block-header-left{display:flex;align-items:center;gap:0;flex:1;min-width:0;cursor:pointer;user-select:none}
+.block-header-left:hover .block-title{opacity:.75}
+.block-arrow{font-size:12px;color:var(--muted);margin-right:8px;flex-shrink:0;transition:transform .18s ease;display:inline-block;line-height:1}
+.block-title{font-size:14px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.angle-sep{color:var(--muted);margin:0 10px;font-size:13px;flex-shrink:0}
+.angle-tabs{display:flex;gap:2px;align-items:center;flex-shrink:0}
+.angle-tab{font-size:11px;background:none;border:none;border-bottom:2px solid transparent;padding:2px 7px 4px;cursor:pointer;color:var(--muted);transition:color .15s,border-color .15s;line-height:1.4;font-weight:500}
+.angle-tab:hover{color:var(--ink)}
+.angle-tab.active{color:var(--ink);font-weight:700;border-bottom-color:var(--ink)}
+.block-body{overflow:hidden}
+.block-body.collapsed{display:none}
+
+/* TABLES — tighter rows, softer shading */
+.fact-table-wrap{overflow-x:auto}
+.fact-table{border-collapse:collapse}
+.fact-table td{padding:5px 14px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle;white-space:nowrap}
+.fact-table tr:last-child td{border-bottom:none}
+.fact-table tr:nth-child(even) td{background:rgba(0,0,0,.011)}
+.label-col{font-size:12px;color:var(--muted);font-weight:500;border-right:1px solid var(--line);padding-left:0;white-space:nowrap}
+.val-col{font-variant-numeric:tabular-nums;text-align:center}
+
+/* NOTES BELOW BLOCKS */
+.block-notes-area{padding:8px 0 4px;max-width:var(--grid-w,640px)}
+.notes-toggle-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;padding:3px 5px;border-radius:3px;display:inline-flex;align-items:center;gap:5px;transition:color .15s}
+.notes-toggle-btn:hover{color:var(--ink)}
+.notes-icon{font-size:13px;line-height:1}
+.notes-box{display:none;padding:8px 0 12px}
+.notes-box.open{display:block}
+.notes-composer{border:1px solid var(--line);border-radius:5px;background:var(--card);overflow:hidden}
+.notes-textarea{width:100%;border:none;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;background:transparent;color:var(--ink);outline:none;min-height:64px}
+.notes-textarea::placeholder{color:var(--muted)}
+.notes-toolbar{display:flex;align-items:center;gap:2px;padding:5px 8px;border-top:1px solid var(--line);background:var(--surface)}
+.notes-tool{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:2px 6px;border-radius:3px;line-height:1;min-width:26px;text-align:center}
+.notes-tool:hover{color:var(--ink);background:var(--line)}
+.notes-save{margin-left:auto;font-size:12px;background:none;border:1px solid var(--line);border-radius:3px;padding:3px 10px;cursor:pointer;color:var(--muted)}
+.notes-save:hover{color:var(--ink);border-color:var(--muted)}
+
+/* GENERAL NOTES */
+.general-notes-section{margin-top:36px;max-width:var(--grid-w,640px)}
+.general-notes-label{font-size:13px;font-weight:600;margin-bottom:8px}
+
+/* CITY INTELLIGENCE */
+.ci-section{margin-top:48px}
+.ci-section-title{font-size:14px;font-weight:600;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px;max-width:var(--grid-w,640px)}
+.ci-grid{display:flex;gap:12px;flex-wrap:wrap;max-width:var(--grid-w,700px)}
+.ci-card{flex:1;min-width:140px;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:12px 14px;display:flex;flex-direction:column}
+.ci-name{font-weight:600;font-size:13px;margin-bottom:2px}
+.ci-coords{font-size:11px;color:var(--muted);margin-bottom:8px}
+.ci-list{list-style:none;font-size:12px;flex:1}
+.ci-list li{padding:3px 0;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.4}
+.ci-list li:last-child{border-bottom:none}
+.ci-list li b{color:var(--ink);font-weight:500}
+.ci-open-btn{display:block;width:100%;text-align:left;margin-top:auto;padding-top:8px;font-size:12px;color:var(--accent);background:none;border:none;border-top:1px solid var(--line);cursor:pointer;padding-left:0}
+.ci-open-btn:hover{text-decoration:underline}
+
+/* WHEEL NOTE */
+.wheel-note{margin-top:40px;padding:8px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);letter-spacing:.03em;max-width:var(--grid-w,640px)}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.3);align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--card);border-radius:8px;padding:24px;min-width:300px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:14px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal-btn{font-size:13px;background:none;border:1px solid var(--line);border-radius:4px;padding:6px 14px;cursor:pointer;color:var(--muted)}
+.modal-btn:hover:not(:disabled){color:var(--ink);border-color:var(--muted)}
+.modal-btn-save{background:var(--ink);color:var(--card);border-color:var(--ink);opacity:.35;cursor:default}
+.picker-input{width:100%;border:1px solid var(--line);border-radius:4px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--muted);background:var(--surface);margin-bottom:4px;outline:none}
+.ci-modal-list{list-style:none;font-size:13px;margin-top:4px}
+.ci-modal-list li{padding:6px 0;border-bottom:1px solid var(--line);color:var(--muted)}
+.ci-modal-list li:last-child{border-bottom:none}
+
+@media(max-width:680px){
+  .page{padding:0 12px 80px}
+  .profile-block{gap:14px}
+  .profile-current{padding-left:0;border-left:none;border-top:1px solid var(--line);padding-top:10px;width:100%}
+  .mobile-hint{display:block}
+}
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <a class="nav-logo" href="#">Relocation</a>
+  <ul class="nav-links">
+    <li><a href="#">Map</a></li>
+    <li><a href="#">Charts</a></li>
+    <li><a href="#" class="active">Compare</a></li>
+    <li><a href="#">Settings</a></li>
+  </ul>
+  <span class="nav-account">Sarah K. &#9662;</span>
+</nav>
+
+<div class="profile-block">
+  <div class="profile-main">
+    <div class="profile-avatar">&#9728;</div>
+    <div>
+      <div class="profile-name-row">
+        <span class="profile-name">Sarah Kessler</span>
+        <span class="profile-caret">&#9662;</span>
+        <div class="profile-actions">
+          <button class="profile-btn">Edit</button>
+          <button class="profile-btn">Add</button>
+        </div>
+      </div>
+      <div class="profile-line">Sep 12 1985 &middot; 14:32 UTC</div>
+      <div class="profile-line">New York, NY</div>
+      <div class="profile-line coords">40.7128&deg;&thinsp;N, 74.0060&deg;&thinsp;W</div>
+      <div class="profile-line system">Tropical &middot; Placidus</div>
+    </div>
+  </div>
+  <div class="profile-current">
+    <div class="pcurr-label">Current Location</div>
+    <div class="pcurr-place">Austin, TX</div>
+    <div class="pcurr-coords">30.2672&deg;&thinsp;N, 97.7431&deg;&thinsp;W</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="comp-header">
+    <span class="comp-title">Comparison</span>
+    <span class="comp-count" id="comp-count"></span>
+  </div>
+  <p class="mobile-hint">Scroll right to see all cities.</p>
+
+  <div class="city-bar-wrap">
+    <div id="city-bar-inner"></div>
+  </div>
+
+  <!-- Angle in Sign -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-header-left" onclick="toggleBlock('ais')">
+        <span class="block-arrow" id="arrow-ais">&#9660;</span>
+        <span class="block-title">Angle in Sign</span>
+      </div>
+    </div>
+    <div class="block-body" id="body-ais">
+      <div class="fact-table-wrap"><div id="table-ais"></div></div>
+      <div class="block-notes-area">
+        <button class="notes-toggle-btn" id="ntbtn-ais" onclick="toggleNotes('ais')">
+          <span class="notes-icon">&#9998;</span> Notes
+        </button>
+        <div class="notes-box" id="notes-ais">
+          <div class="notes-composer">
+            <textarea class="notes-textarea" placeholder="Angle in Sign notes&#8230;" rows="3"></textarea>
+            <div class="notes-toolbar">
+              <button class="notes-tool" title="Bold"><b>B</b></button>
+              <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
+              <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
+              <button class="notes-tool" title="Bullet list">&#8801;</button>
+              <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+              <button class="notes-save">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Planet in House -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-header-left" onclick="toggleBlock('pih')">
+        <span class="block-arrow" id="arrow-pih">&#9660;</span>
+        <span class="block-title">Planet in House</span>
+      </div>
+    </div>
+    <div class="block-body" id="body-pih">
+      <div class="fact-table-wrap"><div id="table-pih"></div></div>
+      <div class="block-notes-area">
+        <button class="notes-toggle-btn" id="ntbtn-pih" onclick="toggleNotes('pih')">
+          <span class="notes-icon">&#9998;</span> Notes
+        </button>
+        <div class="notes-box" id="notes-pih">
+          <div class="notes-composer">
+            <textarea class="notes-textarea" placeholder="Planet in House notes&#8230;" rows="3"></textarea>
+            <div class="notes-toolbar">
+              <button class="notes-tool" title="Bold"><b>B</b></button>
+              <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
+              <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
+              <button class="notes-tool" title="Bullet list">&#8801;</button>
+              <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+              <button class="notes-save">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aspect to Angle -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-header-left" onclick="toggleBlock('ata')">
+        <span class="block-arrow" id="arrow-ata">&#9660;</span>
+        <span class="block-title">Aspect to Angle</span>
+        <span class="angle-sep">&middot;</span>
+        <div class="angle-tabs" onclick="event.stopPropagation()">
+          <button class="angle-tab active" data-angle="ASC" onclick="setAngle(this.dataset.angle)">ASC</button>
+          <button class="angle-tab" data-angle="DSC" onclick="setAngle(this.dataset.angle)">DSC</button>
+          <button class="angle-tab" data-angle="MC"  onclick="setAngle(this.dataset.angle)">MC</button>
+          <button class="angle-tab" data-angle="IC"  onclick="setAngle(this.dataset.angle)">IC</button>
+        </div>
+      </div>
+    </div>
+    <div class="block-body" id="body-ata">
+      <div class="fact-table-wrap"><div id="table-ata"></div></div>
+      <div class="block-notes-area">
+        <button class="notes-toggle-btn" id="ntbtn-ata" onclick="toggleNotes('ata')">
+          <span class="notes-icon">&#9998;</span> Notes
+        </button>
+        <div class="notes-box" id="notes-ata">
+          <div class="notes-composer">
+            <textarea class="notes-textarea" placeholder="Aspect to Angle notes&#8230;" rows="3"></textarea>
+            <div class="notes-toolbar">
+              <button class="notes-tool" title="Bold"><b>B</b></button>
+              <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
+              <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
+              <button class="notes-tool" title="Bullet list">&#8801;</button>
+              <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+              <button class="notes-save">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="wheel-note">City names reserved for chart wheel preview.</p>
+
+  <!-- General Notes (separate layer from block notes) -->
+  <div class="general-notes-section">
+    <div class="general-notes-label">General Notes</div>
+    <div class="notes-composer">
+      <textarea class="notes-textarea" placeholder="General comparison notes&#8230;" rows="4"></textarea>
+      <div class="notes-toolbar">
+        <button class="notes-tool" title="Bold"><b>B</b></button>
+        <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
+        <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
+        <button class="notes-tool" title="Bullet list">&#8801;</button>
+        <button class="notes-tool" title="Voice note (future)">&#127897;</button>
+        <button class="notes-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- City Intelligence -->
+  <div class="ci-section">
+    <div class="ci-section-title">City Intelligence</div>
+    <div class="ci-grid" id="ci-cards"></div>
+  </div>
+</div>
+
+<!-- City picker modal (Replace + Add City) -->
+<div class="modal-overlay" id="modal-picker" onclick="if(event.target===this)closeModal('picker')">
+  <div class="modal-box">
+    <div class="modal-title" id="picker-title">Select City</div>
+    <input class="picker-input" type="text" placeholder="Search for a city&#8230;" disabled/>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal('picker')">Cancel</button>
+      <button class="modal-btn modal-btn-save" disabled>Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- City Intelligence modal -->
+<div class="modal-overlay" id="modal-cityinfo" onclick="if(event.target===this)closeModal('cityinfo')">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-ci-title"></div>
+    <ul class="ci-modal-list" id="modal-ci-list"></ul>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal('cityinfo')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Constants (COL_CITY measured at runtime) ──────────────────────────────
+var COL_LABEL = 110;
+var COL_STUB  = 28;
+var COL_ADD   = 52;
+var COL_CITY  = 160;
+
+// ── City data ────────────────────────────────────────────────────
+var CITY_DATA = {
+  lisbon: {
+    name: 'Lisbon', country: 'Portugal', shortName: 'Lisbon',
+    coords: '38.7223° N, 9.1393° W', tag: null,
+    ci: ['<b>Pop</b> · ~505,000 (metro 2.9M)',
+         '<b>Climate</b> · Mediterranean, mild winters, hot dry summers',
+         '<b>Economy</b> · tourism, tech, finance',
+         '<b>Safety</b> · low violent crime, generally safe',
+         '<b>Type</b> · historic capital, expat destination']
+  },
+  austin: {
+    name: 'Austin', country: 'Texas, USA', shortName: 'Austin',
+    coords: '30.2672° N, 97.7431° W', tag: 'Current Location',
+    ci: ['<b>Pop</b> · ~978,000 (metro 2.3M)',
+         '<b>Climate</b> · humid subtropical, hot summers, mild winters',
+         '<b>Economy</b> · tech, government, music industry',
+         '<b>Safety</b> · moderate, growing metro challenges',
+         '<b>Type</b> · university/tech hub, high growth']
+  },
+  bali: {
+    name: 'Bali', country: 'Indonesia', shortName: 'Bali',
+    coords: '8.3405° S, 115.0920° E', tag: null,
+    ci: ['<b>Pop</b> · ~4.2M (island province)',
+         '<b>Climate</b> · tropical, warm year-round, wet/dry seasons',
+         '<b>Economy</b> · tourism dominant, emerging creative sector',
+         '<b>Safety</b> · tourist-oriented infrastructure, generally safe',
+         '<b>Type</b> · island region, digital nomad destination']
+  }
+};
+
+// ── State ──────────────────────────────────────────────────────────
+var cityOrder = ['lisbon', 'austin', 'bali'];
+var cityHidden = {};
+var activeAngle = 'ASC';
+function visibleCities() {
+  return cityOrder.filter(function(id) { return !cityHidden[id]; });
+}
+
+// ── Fact data ──────────────────────────────────────────────────
+var AIS_LABELS = ['ASC', 'DSC', 'MC', 'IC'];
+var AIS_DATA = {
+  lisbon: ['18° Virgo 34′',    '18° Pisces 34′',    '15° Gemini 21′',    '15° Sagittarius 21′'],
+  austin: ['12° Virgo 11′',    '12° Pisces 11′',    '4° Gemini 56′',     '4° Sagittarius 56′'],
+  bali:   ['5° Scorpio 27′',   '5° Taurus 27′',     '20° Leo 13′',       '20° Aquarius 13′']
+};
+
+var PIH_LABELS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Chiron','North Node','South Node'];
+var PIH_DATA = {
+  lisbon: [5,11,5,7,3,1,2,12,4,1,8,6,12],
+  austin: [10,2,10,11,7,1,12,4,3,9,2,11,5],
+  bali:   [1,4,1,2,10,7,5,6,9,12,3,8,2]
+};
+
+// Raw ATA data uses Unicode glyphs; fmtAspect() converts to readable text at render time
+var ATA_PLANETS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Chiron'];
+var ATA_DATA = {
+  ASC: {
+    lisbon: ['☌ 2°14′','△ 3°18′',null,'△ 1°32′','□ 4°45′',null,'□ 4°08′',null,'✶ 2°41′',null,'△ 1°14′'],
+    austin: [null,'✶ 1°44′','☌ 0°47′',null,'✶ 3°21′','□ 2°14′','☍ 5°18′',null,null,'☍ 2°55′',null],
+    bali:   ['△ 5°02′','☌ 1°18′','△ 2°31′',null,'☍ 2°08′','☌ 3°44′',null,'□ 0°33′',null,'△ 1°47′','✶ 3°22′']
+  },
+  DSC: {
+    lisbon: ['☍ 2°14′','□ 1°42′',null,'☍ 1°32′',null,'△ 3°11′',null,'✶ 2°07′',null,'☍ 3°22′',null],
+    austin: ['△ 4°18′',null,'☍ 0°47′','△ 2°33′',null,null,'☌ 3°44′','□ 1°56′','✶ 2°18′',null,'△ 4°07′'],
+    bali:   [null,'☍ 1°18′',null,'□ 3°15′','☌ 2°08′',null,'△ 4°22′',null,'△ 1°44′',null,null]
+  },
+  MC: {
+    lisbon: ['✶ 3°07′',null,'□ 2°44′',null,'△ 1°18′','☌ 4°02′',null,'□ 3°17′','△ 0°54′',null,'□ 2°38′'],
+    austin: ['☌ 1°33′','△ 2°11′','☌ 0°28′',null,null,'✶ 3°48′',null,null,'□ 1°22′','△ 3°07′',null],
+    bali:   ['□ 4°18′','✶ 3°02′',null,'△ 2°44′','☌ 0°47′',null,'□ 2°11′','△ 4°08′',null,null,'☌ 1°33′']
+  },
+  IC: {
+    lisbon: [null,'☌ 2°44′','✶ 1°18′','□ 3°07′',null,'☍ 4°02′','△ 2°11′',null,'☍ 0°54′','□ 3°44′',null],
+    austin: ['☍ 1°33′',null,'☍ 0°28′','✶ 2°07′','□ 3°44′',null,'△ 1°18′','☌ 2°33′',null,null,'✶ 2°11′'],
+    bali:   [null,'☍ 3°02′','△ 1°44′',null,'☍ 0°47′','△ 2°18′',null,null,'✶ 3°07′','□ 2°44′',null]
+  }
+};
+
+// ── Ordinals ─────────────────────────────────────────────────────────
+function ord(n) {
+  var s = n % 100, t = n % 10;
+  if (s >= 11 && s <= 13) return n + 'th';
+  return n + (t === 1 ? 'st' : t === 2 ? 'nd' : t === 3 ? 'rd' : 'th');
+}
+
+// ── Aspect name formatter (glyph → readable text) ────────────────────────────
+var ASPECT_NAMES = {};
+ASPECT_NAMES['☌'] = 'Conj';
+ASPECT_NAMES['△'] = 'Trine';
+ASPECT_NAMES['□'] = 'Sq';
+ASPECT_NAMES['☍'] = 'Opp';
+ASPECT_NAMES['✶'] = 'Sex';
+function fmtAspect(v) {
+  if (!v) return null;
+  var name = ASPECT_NAMES[v.charAt(0)];
+  return name ? name + ' ' + v.slice(2) : v;
+}
+
+// ── Measure column width at runtime ───────────────────────────────────
+function measureColWidth() {
+  var samples = [
+    '18° Sagittarius 34′',
+    '15° Capricorn 21′',
+    'Trine 4°45′'
+  ];
+  var span = document.createElement('span');
+  var s = span.style;
+  s.position = 'absolute'; s.top = '-9999px'; s.left = '-9999px';
+  s.visibility = 'hidden'; s.whiteSpace = 'nowrap';
+  s.fontSize = '13px';
+  s.fontFamily = getComputedStyle(document.body).fontFamily;
+  document.body.appendChild(span);
+  var maxW = 0;
+  samples.forEach(function(v) {
+    span.textContent = v;
+    maxW = Math.max(maxW, span.getBoundingClientRect().width);
+  });
+  document.body.removeChild(span);
+  COL_CITY = Math.ceil(maxW) + 30;
+  if (COL_CITY < 148) COL_CITY = 148;
+}
+
+// ── Build fact table (visible cities only, tables always reflow) ─────────────────
+function buildTable(labels, getData) {
+  var vis = visibleCities();
+  var W = COL_LABEL + vis.length * COL_CITY;
+  var h = '<table class="fact-table" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
+  h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
+  vis.forEach(function() { h += '<col style="width:' + COL_CITY + 'px">'; });
+  h += '</colgroup><tbody>';
+  labels.forEach(function(label, i) {
+    h += '<tr><td class="label-col">' + label + '</td>';
+    vis.forEach(function(id) {
+      var v = getData(id, i);
+      h += '<td class="val-col">' + (v != null ? v : '&mdash;') + '</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+
+// ── Render functions ──────────────────────────────────────────────────────────
+function renderAIS() {
+  document.getElementById('table-ais').innerHTML =
+    buildTable(AIS_LABELS, function(id, i) { return AIS_DATA[id][i]; });
+}
+function renderPIH() {
+  document.getElementById('table-pih').innerHTML =
+    buildTable(PIH_LABELS, function(id, i) { return ord(PIH_DATA[id][i]); });
+}
+function renderATA() {
+  var d = ATA_DATA[activeAngle];
+  document.getElementById('table-ata').innerHTML =
+    buildTable(ATA_PLANETS, function(id, i) { return fmtAspect(d[id][i]); });
+  document.querySelectorAll('.angle-tab').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.angle === activeAngle);
+  });
+}
+
+function renderCityBar() {
+  var vis = visibleCities();
+  var W = COL_LABEL;
+  cityOrder.forEach(function(id) { W += cityHidden[id] ? COL_STUB : COL_CITY; });
+  W += COL_ADD;
+
+  var h = '<table class="city-bar-table" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
+  h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
+  cityOrder.forEach(function(id) {
+    h += '<col style="width:' + (cityHidden[id] ? COL_STUB : COL_CITY) + 'px">';
+  });
+  h += '<col style="width:' + COL_ADD + 'px"></colgroup><tbody><tr><td class="bar-label"></td>';
+
+  cityOrder.forEach(function(id) {
+    if (cityHidden[id]) {
+      h += '<td class="bar-stub">';
+      h += '<button class="stub-restore" data-id="' + id + '" onclick="toggleHide(this.dataset.id)" title="Restore ' + CITY_DATA[id].name + '">';
+      h += CITY_DATA[id].shortName + '</button>';
+      h += '</td>';
+    } else {
+      var vidx = vis.indexOf(id);
+      var isFirst = vidx === 0, isLast = vidx === vis.length - 1;
+      var c = CITY_DATA[id];
+      // Always render tag div; use city-tag-empty to reserve height without showing
+      var tagHtml = c.tag
+        ? '<div class="city-tag">' + c.tag + '</div>'
+        : '<div class="city-tag city-tag-empty">&nbsp;</div>';
+      h += '<td class="bar-city">';
+      h += '<div class="city-nameplate">';
+      h += '<div class="bname">' + c.name + ', ' + c.country + '</div>';
+      h += tagHtml;
+      h += '<div class="city-coords">' + c.coords + '</div>';
+      h += '</div>';
+      h += '<div class="city-ctrls">';
+      h += '<button class="cc cc-info" data-id="' + id + '" onclick="openCityInfo(this.dataset.id)" title="City Intelligence">i</button>';
+      h += '<button class="cc" data-id="' + id + '" onclick="toggleHide(this.dataset.id)">Hide</button>';
+      h += '<button class="cc cc-arr" data-id="' + id + '" onclick="moveCity(this.dataset.id,-1)"' + (isFirst ? ' disabled' : '') + '>&#8249;</button>';
+      h += '<button class="cc cc-arr" data-id="' + id + '" onclick="moveCity(this.dataset.id,1)"'  + (isLast  ? ' disabled' : '') + '>&#8250;</button>';
+      h += '<button class="cc cc-rep" data-id="' + id + '" onclick="openPicker(this.dataset.id,false)">Replace</button>';
+      h += '</div>';
+      h += '</td>';
+    }
+  });
+
+  h += '<td class="bar-add"><button class="add-city-btn" onclick="openPicker(null,true)">+ Add</button></td>';
+  h += '</tr></tbody></table>';
+  document.getElementById('city-bar-inner').innerHTML = h;
+}
+
+function renderCI() {
+  var vis = visibleCities();
+  var h = '';
+  // Future: dignity mode
+  vis.forEach(function(id) {
+    var c = CITY_DATA[id];
+    h += '<div class="ci-card">';
+    h += '<div class="ci-name">' + c.name + ', ' + c.country + '</div>';
+    h += '<div class="ci-coords">' + c.coords + '</div>';
+    h += '<ul class="ci-list">' + c.ci.map(function(b) { return '<li>' + b + '</li>'; }).join('') + '</ul>';
+    h += '<button class="ci-open-btn" onclick="return false">Open Full City Page</button>';
+    h += '</div>';
+  });
+  document.getElementById('ci-cards').innerHTML = h;
+}
+
+function renderAll() {
+  var vis = visibleCities();
+  var gw = COL_LABEL + vis.length * COL_CITY;
+  document.documentElement.style.setProperty('--grid-w', gw + 'px');
+  var total = cityOrder.length;
+  var hidden = total - vis.length;
+  var el = document.getElementById('comp-count');
+  if (el) el.textContent = hidden > 0 ? vis.length + ' of ' + total + ' visible' : total + ' locations';
+  renderCityBar();
+  renderAIS();
+  renderPIH();
+  renderATA();
+  renderCI();
+}
+
+// ── Controls ─────────────────────────────────────────────────────────────
+function toggleHide(id) {
+  cityHidden[id] = !cityHidden[id];
+  renderAll();
+}
+function moveCity(id, dir) {
+  var idx = cityOrder.indexOf(id);
+  var ni = idx + (dir < 0 ? -1 : 1);
+  if (ni < 0 || ni >= cityOrder.length) return;
+  var tmp = cityOrder[idx]; cityOrder[idx] = cityOrder[ni]; cityOrder[ni] = tmp;
+  renderAll();
+}
+function setAngle(a) {
+  activeAngle = a;
+  renderATA();
+}
+function toggleBlock(id) {
+  var body  = document.getElementById('body-'  + id);
+  var arrow = document.getElementById('arrow-' + id);
+  var closing = !body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', closing);
+  arrow.style.transform = closing ? 'rotate(-90deg)' : '';
+}
+function toggleNotes(id) {
+  var box = document.getElementById('notes-' + id);
+  var isOpen = box.classList.toggle('open');
+  var btn = document.getElementById('ntbtn-' + id);
+  if (btn) {
+    btn.innerHTML = isOpen
+      ? '<span class="notes-icon">&#10005;</span> Notes'
+      : '<span class="notes-icon">&#9998;</span> Notes';
+  }
+}
+function openCityInfo(id) {
+  var c = CITY_DATA[id];
+  document.getElementById('modal-ci-title').textContent = c.name + ', ' + c.country;
+  document.getElementById('modal-ci-list').innerHTML = c.ci.map(function(b) { return '<li>' + b + '</li>'; }).join('');
+  openModal('cityinfo');
+}
+// picker-note intentionally omitted (doctrine internal)
+function openPicker(id, isAdd) {
+  document.getElementById('picker-title').textContent = isAdd ? 'Add City' : 'Replace City';
+  openModal('picker');
+}
+function openModal(id)  { document.getElementById('modal-' + id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+
+// ── Init ────────────────────────────────────────────────────────────────
+measureColWidth();
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="spring">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings</title>
+
+<!--
+  prototype_settings_v1.html  —  Settings control surface + color theme testing
+  Theme tokens: theme/relocation_themes.css   Theme engine: theme/relocation_theme.js
+  Functional now: theme switching, 12 overlay swatches per theme, overlay preview +
+  opacity, date/time format, aspect notation, Capricorn glyph, body/point checklist,
+  restore-defaults, delete confirmations, data export.
+  Note: seasonal themes set UI atmosphere; map overlay colors are a SEPARATE palette
+  (a shared overlay system is planned). Most non-color controls are placeholders.
+-->
+
+<link rel="stylesheet" href="theme/relocation_themes.css" />
+<script src="theme/relocation_theme.js"></script>
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; height:100%; }
+  body{
+    font-family:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+    font-size:15px; line-height:1.5; color:var(--th-ink); background:var(--th-base);
+    transition:background .4s ease, color .4s ease;
+  }
+  body.texture::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='0.035'/></svg>"); }
+  :root{ --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif; }
+  a{ color:inherit; }
+  button{ font:inherit; cursor:pointer; }
+  h1,h2,h3{ margin:0; font-weight:600; }
+
+  .topbar{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:14px; height:54px; padding:0 22px;
+    background:color-mix(in srgb, var(--th-card) 86%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--th-line); }
+  .brand{ font-family:var(--serif); font-size:19px; font-weight:600; color:var(--th-ink); }
+  .crumb{ color:var(--th-ink-faint); font-size:14px; }
+  .acct{ margin-left:auto; font-size:13.5px; color:var(--th-ink-soft); }
+
+  .wrap{ position:relative; z-index:1; display:grid; grid-template-columns:220px 1fr; gap:26px; max-width:1060px; margin:0 auto; padding:24px 22px 90px; }
+
+  .nav{ position:sticky; top:74px; align-self:start; display:flex; flex-direction:column; gap:1px; max-height:calc(100vh - 96px); overflow:auto; }
+  .nav a{ text-decoration:none; color:var(--th-ink-soft); font-size:13.5px; padding:8px 11px; border-radius:9px; display:flex; align-items:center; gap:9px; }
+  .nav a:hover{ background:var(--th-surface); color:var(--th-ink); }
+  .nav a.on{ background:var(--th-card); color:var(--th-ink); font-weight:600; box-shadow:0 1px 2px rgba(37,42,46,.08); }
+
+  .col{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .card{ background:var(--th-card); border:1px solid var(--th-line); border-radius:16px; padding:20px 22px;
+    box-shadow:0 1px 2px rgba(37,42,46,.05), 0 18px 36px -28px rgba(37,42,46,.4); scroll-margin-top:74px; }
+  .sec-head{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+  .sec-head h2{ font-size:17px; }
+  .sec-sub{ color:var(--th-ink-faint); font-size:12.5px; margin:2px 0 14px; }
+  .subhead{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--th-ink-faint); margin:18px 0 4px; }
+
+  .badge{ font-size:10px; letter-spacing:.04em; text-transform:uppercase; padding:2px 7px; border-radius:999px; font-weight:700; }
+  .b-soon{ background:var(--th-surface); color:var(--th-ink-faint); }
+  .b-pro{ background:color-mix(in srgb, var(--th-warm) 30%, var(--th-card)); color:var(--th-ink); }
+
+  .row{ display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding:11px 0; border-top:1px solid var(--th-line-soft); }
+  .row.nb{ border-top:none; }
+  .row .lab{ font-size:13.5px; font-weight:600; }
+  .row .desc{ font-size:12px; color:var(--th-ink-faint); margin-top:2px; max-width:50ch; }
+  .row .ctl{ flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+  .help{ font-size:12px; color:var(--th-ink-faint); margin-top:8px; }
+  .warn{ font-size:12px; color:var(--th-ink-soft); margin-top:8px; padding:8px 11px; border-radius:9px;
+    background:color-mix(in srgb, var(--th-warm) 14%, var(--th-card)); border:1px solid color-mix(in srgb, var(--th-warm) 38%, var(--th-card)); }
+  .warn b{ color:var(--th-ink); }
+
+  select,input[type=text],input[type=email]{ font:inherit; font-size:13px; color:var(--th-ink); background:var(--th-surface);
+    border:1px solid var(--th-line); border-radius:9px; padding:8px 11px; min-width:160px; }
+  select:disabled,input:disabled{ opacity:.55; cursor:not-allowed; }
+  select:focus,input:focus{ outline:none; border-color:var(--th-accent); }
+  .btn{ font-size:13px; font-weight:600; border-radius:9px; padding:8px 14px; border:1px solid var(--th-line); background:var(--th-surface); color:var(--th-ink); }
+  .btn:hover{ border-color:var(--th-accent); color:var(--th-accent); }
+  .btn.ghost{ background:transparent; }
+  .btn.tiny{ padding:5px 9px; font-size:12px; }
+  .btn.danger{ background:transparent; border-color:color-mix(in srgb,#b8463f 50%,var(--th-card)); color:#b8463f; }
+  .btn.danger:hover{ background:color-mix(in srgb,#b8463f 12%,var(--th-card)); }
+  .btn[disabled]{ opacity:.5; cursor:not-allowed; }
+
+  .sw{ position:relative; width:42px; height:24px; border-radius:999px; background:var(--th-surface); border:1px solid var(--th-line); transition:background .2s; flex:0 0 auto; }
+  .sw::after{ content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .2s; }
+  .sw.on{ background:var(--th-accent); border-color:var(--th-accent); }
+  .sw.on::after{ left:20px; }
+  .sw.locked{ opacity:.55; cursor:not-allowed; }
+
+  .seg{ display:inline-flex; background:var(--th-surface); border:1px solid var(--th-line); border-radius:9px; padding:2px; }
+  .seg button{ border:none; background:transparent; color:var(--th-ink-soft); font-size:12.5px; padding:6px 11px; border-radius:7px; }
+  .seg button.on{ background:var(--th-card); color:var(--th-ink); font-weight:600; box-shadow:0 1px 2px rgba(37,42,46,.12); }
+
+  /* body / point checklist */
+  .checklist{ display:grid; grid-template-columns:repeat(2,1fr); gap:2px 20px; margin-top:8px; }
+  .cl-group{ grid-column:1/-1; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--th-ink-faint); font-weight:700; margin-top:10px; }
+  .cl-item{ display:flex; align-items:center; gap:9px; padding:5px 0; font-size:13px; color:var(--th-ink); }
+  .cl-item input{ width:16px; height:16px; accent-color:var(--th-accent); flex:0 0 auto; }
+  .cl-item.locked{ color:var(--th-ink-soft); }
+  .cl-item .tag{ font-size:10px; color:var(--th-ink-faint); margin-left:auto; }
+
+  /* theme picker */
+  .themes{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .theme-card{ text-align:left; border:1.5px solid var(--th-line); border-radius:13px; padding:12px; background:var(--th-card); }
+  .theme-card.on{ border-color:var(--th-accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--th-accent) 22%, transparent); }
+  .theme-card .tname{ font-size:13.5px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .theme-card .dot{ width:11px; height:11px; border-radius:50%; }
+  .swrow{ display:flex; gap:0; border-radius:6px; overflow:hidden; border:1px solid var(--th-line); }
+  .swrow i{ display:block; height:18px; flex:1; }
+  .accents{ display:flex; gap:5px; margin-top:8px; }
+  .accents i{ width:16px; height:16px; border-radius:50%; box-shadow:0 0 0 1px rgba(37,42,46,.12); }
+
+  /* overlay preview */
+  .ovpreview{ position:relative; height:190px; border-radius:13px; overflow:hidden; border:1px solid var(--th-line); margin-top:12px;
+    background:linear-gradient(180deg,#cfe2ee,#bcd6e6); }
+  .ovpreview .land{ position:absolute; inset:0; background:
+    radial-gradient(120px 90px at 30% 60%, var(--th-base) 0 60%, transparent 62%),
+    radial-gradient(150px 100px at 68% 40%, var(--th-base) 0 60%, transparent 62%),
+    radial-gradient(90px 70px at 50% 85%, var(--th-base) 0 60%, transparent 62%); opacity:.9; }
+  .ovpreview .blobs{ position:absolute; inset:0; mix-blend-mode:multiply; }
+  .ovpreview .blob{ position:absolute; border-radius:50%; }
+  .ovpreview .city{ position:absolute; font-size:10px; color:var(--th-ink); text-shadow:0 1px 2px rgba(255,255,255,.8); }
+  .swatch12{ display:grid; grid-template-columns:repeat(12,1fr); gap:5px; margin-top:12px; }
+  .swatch12 .s{ height:28px; border-radius:6px; box-shadow:0 0 0 1px rgba(37,42,46,.1); position:relative; }
+  .swatch12 .s span{ position:absolute; left:0; right:0; bottom:-14px; text-align:center; font-size:8.5px; color:var(--th-ink-faint); }
+
+  /* profiles */
+  .profile-grid{ display:flex; flex-direction:column; gap:10px; }
+  .pcard{ display:grid; grid-template-columns:24px 1fr auto; gap:13px; align-items:start; padding:13px 15px;
+    border:1px solid var(--th-line); border-radius:12px; background:var(--th-card); }
+  .pcard.newp{ grid-template-columns:1fr; text-align:center; border-style:dashed; color:var(--th-accent); font-weight:600; cursor:pointer; padding:12px; }
+  .pcard.newp:hover{ background:var(--th-surface); }
+  .pstar{ color:var(--th-warm); font-size:15px; background:none; border:none; padding:0; line-height:1; margin-top:1px; }
+  .pstar.off{ color:var(--th-ink-faint); opacity:.45; }
+  .pname{ font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .owner-tag{ font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--th-ink); background:color-mix(in srgb,var(--th-warm) 26%, var(--th-card)); padding:2px 7px; border-radius:999px; }
+  .pmeta{ font-size:12px; color:var(--th-ink-faint); margin-top:2px; }
+  .pmeta b{ color:var(--th-ink-soft); font-weight:600; }
+  .pactions{ display:flex; gap:6px; }
+
+  .sample{ font-family:var(--serif); font-size:16px; padding:8px 13px; background:var(--th-surface); border-radius:9px; display:inline-block; min-width:200px; }
+
+  .modal-bg{ position:fixed; inset:0; background:rgba(20,24,28,.5); z-index:100; display:none; align-items:center; justify-content:center; }
+  .modal-bg.show{ display:flex; }
+  .modal{ width:360px; background:var(--th-card); border:1px solid var(--th-line); border-radius:16px; padding:20px; box-shadow:0 30px 70px -20px rgba(0,0,0,.5); }
+  .modal h3{ font-size:16px; margin-bottom:6px; }
+  .modal p{ font-size:13px; color:var(--th-ink-soft); margin:0 0 12px; }
+  .modal .conf{ width:100%; margin-bottom:12px; }
+  .modal .acts{ display:flex; justify-content:flex-end; gap:8px; }
+
+  @media(max-width:780px){ .wrap{ grid-template-columns:1fr; } .nav{ position:static; flex-direction:row; flex-wrap:wrap; max-height:none; }
+    .themes{ grid-template-columns:1fr; } .checklist{ grid-template-columns:1fr; } .pcard{ grid-template-columns:24px 1fr; } .pactions{ grid-column:2; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="brand">Relocation</span>
+  <span class="crumb">· Settings</span>
+  <span class="acct">David Goodman ▾</span>
+</header>
+
+<div class="wrap">
+  <nav class="nav" id="nav"></nav>
+  <main class="col" id="col"></main>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="mTitle">Confirm</h3>
+    <p id="mBody"></p>
+    <input class="conf" id="mConfirm" type="text" placeholder="" style="display:none" />
+    <div class="acts">
+      <button class="btn ghost" data-m="cancel">Cancel</button>
+      <button class="btn danger" id="mGo" data-m="go">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var RT = window.RelocationTheme;
+  var LS = "relocation.settings";
+
+  var prefs = load();
+  function load(){
+    var d={ texture:false, overlayDepth:42, dateFmt:"d MMM yyyy", timeFmt:"ampm", aspect:"Sun Conj Saturn", cap:"us" };
+    var s={}; try{ s=JSON.parse(localStorage.getItem(LS)||"{}"); }catch(e){}
+    if(s.aspectFmt && !s.aspect){ s.aspect=({short:"Sun Conj Saturn",full:"Sun Conjunction Saturn",glyph:"\u2609 \u260C \u2644",hybrid:"\u2609 Conj \u2644"})[s.aspectFmt]; delete s.aspectFmt; }
+    return Object.assign(d,s);
+  }
+  function save(){ try{ localStorage.setItem(LS, JSON.stringify(prefs)); }catch(e){} }
+
+  /* body / point groups */
+  var ANGLES = ["ASC","MC","DSC","IC"];                         // required
+  var MAIN   = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune"]; // locked unless advanced
+  var OUTER  = ["Pluto","Chiron"];                              // on, adjustable
+  var NODES  = ["North Node","South Node"];                     // optional, off by default
+  var ADVPTS = ["Lilith","Vertex","Part of Fortune"];           // advanced, off
+
+  var ASPECT_FORMATS = ["Sun Conj Saturn","Sun Conjunction Saturn","\u2609 \u260C \u2644","\u2609 Conj \u2644","Sun \u260C Saturn"];
+  var DATE_FORMATS = [
+    {v:"d MMM yyyy",  t:"13 Jan 1976"},
+    {v:"MMM d, yyyy", t:"Jan 13, 1976"},
+    {v:"dd/MM/yyyy",  t:"13/01/1976"},
+    {v:"MM/dd/yyyy",  t:"01/13/1976"},
+    {v:"yyyy-MM-dd",  t:"1976-01-13"}
+  ];
+
+  var SECTIONS = [
+    {id:"account", n:1, t:"My Account", build:secAccount},
+    {id:"profiles", n:2, t:"My Profiles", build:secProfiles},
+    {id:"charts", n:3, t:"Charts", build:secCharts},
+    {id:"map", n:4, t:"My Map", build:secMap},
+    {id:"appearance", n:5, t:"Appearance", build:secAppearance},
+    {id:"location", n:6, t:"Location", build:secLocation},
+    {id:"language", n:7, t:"Language & Regional", build:secLanguage},
+    {id:"sharing", n:8, t:"Sharing & Exports", build:secSharing},
+    {id:"data", n:9, t:"My Data", build:secData},
+    {id:"technical", n:10, t:"Technical", build:secTechnical},
+    {id:"personalization", n:11, t:"Personalization", build:secPersonalization}
+  ];
+
+  /* ---------- helpers ---------- */
+  function el(html){ var d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+  function head(t, badge){ return '<div class="sec-head"><h2>'+t+'</h2>'+(badge||'')+'</div>'; }
+  function b(kind,txt){ return '<span class="badge b-'+kind+'">'+txt+'</span>'; }
+  function row(lab,desc,ctl){ return '<div class="row"><div><div class="lab">'+lab+'</div>'+(desc?'<div class="desc">'+desc+'</div>':'')+'</div><div class="ctl">'+ctl+'</div></div>'; }
+  function selDis(opts){ return '<select disabled>'+opts.map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'; }
+  function clItem(name, opts){ opts=opts||{};
+    var cls="cl-item"+(opts.locked?" locked":"");
+    var attrs='type="checkbox"'+(opts.on?" checked":"")+(opts.locked||opts.required?" disabled":"")+' data-body="'+name+'"'+(opts.main?' data-main="1"':'');
+    return '<label class="'+cls+'"><input '+attrs+'><span>'+name+'</span>'+(opts.tag?'<span class="tag">'+opts.tag+'</span>':'')+'</label>';
+  }
+
+  /* ---------- 1. Account ---------- */
+  function secAccount(){
+    var c=el('<section class="card" id="sec-account"></section>');
+    c.innerHTML =
+      head("My Account")+
+      row("Account owner","Name shown on charts and exports.",'<input type="text" value="David Goodman" disabled>')+
+      row("Email","",'<input type="email" value="you@example.com" disabled>')+
+      row("Sign-in","",'<button class="btn" disabled>Manage sign-in</button> '+b("soon","soon"))+
+      row("Plan","",'<select disabled><option>Free</option><option>Individual</option><option>Professional</option></select>')+
+      row("Billing","",'<button class="btn" disabled>Manage billing</button> '+b("soon","soon"))+
+      '<div class="help">Paid plans add more profiles, saved work, exports, and advanced tools.</div>';
+    return c;
+  }
+
+  /* ---------- 2. Profiles ---------- */
+  function profileCard(p){
+    return '<div class="pcard">'+
+      '<button class="pstar'+(p.fav?'':' off')+'" title="Favorite / default">\u2605</button>'+
+      '<div>'+
+        '<div class="pname">'+p.name+(p.owner?' <span class="owner-tag">Account Owner</span>':'')+'</div>'+
+        '<div class="pmeta">'+p.date+' \u00b7 '+p.time+'</div>'+
+        '<div class="pmeta">'+p.place+'</div>'+
+        (p.current?'<div class="pmeta"><b>Current:</b> '+p.current+'</div>':'')+
+      '</div>'+
+      '<div class="pactions"><button class="btn tiny" disabled>Notes</button><button class="btn tiny" disabled>Edit</button></div>'+
+    '</div>';
+  }
+  function secProfiles(){
+    var sample=[
+      {owner:true, fav:true, name:"Avery Rhodes", date:fmtDate("1989-03-14"), time:fmtTime("07:42"), place:"Lisbon, Portugal", current:"Berlin, Germany"},
+      {fav:false, name:"M. Okafor", date:fmtDate("1976-01-13"), time:fmtTime("18:05"), place:"Lagos, Nigeria", current:""},
+      {fav:false, name:"J. Park", date:fmtDate("1991-11-02"), time:fmtTime("03:20"), place:"Seoul, South Korea", current:"Los Angeles, USA"}
+    ];
+    var c=el('<section class="card" id="sec-profiles"></section>');
+    c.innerHTML =
+      head("My Profiles")+
+      row("Sort by","",selDis(["Alphabetical","Most recent","Most used","Birth date"])+' '+b("soon","soon"))+
+      '<div class="profile-grid" id="pgrid" style="margin-top:12px">'+
+        '<div class="pcard newp">+ New Profile</div>'+
+        sample.map(profileCard).join('')+
+      '</div>'+
+      '<div class="help">Profiles will later gain Intention spaces that group their saved searches and work.</div>';
+    return c;
+  }
+
+  /* ---------- 3. Charts ---------- */
+  function secCharts(){
+    var c=el('<section class="card" id="sec-charts"></section>');
+    c.innerHTML =
+      head("Charts")+
+      '<div class="sec-sub">Sensible defaults, adjustable when you need them.</div>'+
+      row("Zodiac","",'<select id="zodiac"><option value="tropical">Tropical</option><option value="sidereal" disabled>Sidereal (advanced)</option></select>')+
+      '<div class="warn">Changing the zodiac remaps charts and maps. It may affect saved searches, notes, and comparisons.</div>'+
+      row("House system","",'<select id="house"><option>Placidus</option><option disabled>Whole Sign</option><option disabled>Equal</option><option disabled>Koch</option></select>')+
+      '<div class="warn">A different house system changes your cusps and angles, and can alter relocation results.</div>'+
+      '<div class="subhead">Chart points &amp; bodies</div>'+
+      '<div class="desc">Defaults are set for you. Angles are required in a relocation chart. Open advanced settings to change the main planets.</div>'+
+      '<div class="checklist" id="bodies">'+
+        '<div class="cl-group">Angles \u00b7 required</div>'+
+        ANGLES.map(function(x){return clItem(x,{on:true,required:true,tag:"required"});}).join('')+
+        '<div class="cl-group">Planets</div>'+
+        MAIN.map(function(x){return clItem(x,{on:true,locked:true,main:true});}).join('')+
+        OUTER.map(function(x){return clItem(x,{on:true});}).join('')+
+        '<div class="cl-group">Other points</div>'+
+        NODES.map(function(x){return clItem(x,{on:false,tag:"optional"});}).join('')+
+      '</div>'+
+      '<div class="warn">Removing Pluto or Chiron changes both chart and map readings.</div>'+
+      '<div class="row"><div style="flex:1"><div class="lab">Advanced chart settings</div><div class="desc">Technical calculation choices.</div></div>'+
+        '<div class="ctl"><button class="btn ghost tiny" data-toggle="advchart" data-unlock="1">Show \u25be</button></div></div>'+
+      '<div id="advchart" style="display:none">'+
+        '<div class="checklist">'+
+          '<div class="cl-group">Additional points</div>'+
+          ADVPTS.map(function(x){return clItem(x,{on:false});}).join('')+
+        '</div>'+
+        row("Sidereal &amp; ayanamsa","",selDis(["Lahiri","Fagan/Bradley","Krishnamurti"])+' '+b("soon","soon"))+
+        row("House systems","",'<button class="btn" disabled>Configure</button> '+b("soon","soon"))+
+        row("Custom orbs","",'<button class="btn" disabled>Open</button> '+b("soon","soon"))+
+        row("Angularity model","",selDis(["Fixed orb","Orb widens by latitude"])+' '+b("soon","soon"))+
+        row("Polar / high-latitude handling","",selDis(["Auto fallback"])+' '+b("soon","soon"))+
+        row("Record calculation settings on saved work","",'<span class="sw on locked"></span> '+b("soon","soon"))+
+        '<div class="warn">Wider orbs reveal more but add noise.</div>'+
+      '</div>'+
+      '<div class="row"><div></div><div class="ctl"><button class="btn" data-restore="charts">Restore chart defaults</button></div></div>';
+    return c;
+  }
+
+  /* ---------- 4. My Map ---------- */
+  function secMap(){
+    var c=el('<section class="card" id="sec-map"></section>');
+    c.innerHTML =
+      head("My Map")+
+      row("Show aspect bands","",'<span class="sw on" data-toggle2="bands"></span>')+
+      row("Aspect band profile","",selDis(["Balanced","Gentle","Mountain / steep","Custom slope"])+' '+b("soon","soon"))+
+      row("Show exact centerlines","",'<span class="sw" data-toggle2="centerlines"></span>')+
+      row("Exclusion style","How excluded areas are marked on the map.",
+        '<span id="ovNotChip" style="display:inline-block;width:30px;height:18px;border-radius:5px;vertical-align:middle"></span> '+
+        '<select disabled><option>Charcoal redaction</option><option>Diagonal hatch</option><option>Redacted stripe</option><option>Heavier mask</option></select>')+
+      row("Mute behavior","",'<select><option>Hide layer</option><option>Dim layer</option></select>')+
+      row("Solo behavior","",'<select><option>Hide others</option><option>Dim others</option></select>')+
+      row("City labels","",'<select><option>Clickable labels</option><option>Labels only</option><option>Minimal labels</option><option>Dense labels</option></select>')+
+      row("Color-blind-safe palette","",'<span class="sw" data-toggle2="cvd" data-soon="1"></span> '+b("soon","soon"))+
+      '<div class="help">Map overlay colors live in Appearance \u2192 Colors.</div>'+
+      '<div class="row"><div></div><div class="ctl"><button class="btn" data-restore="map">Restore map defaults</button></div></div>';
+    return c;
+  }
+
+  /* ---------- 5. Appearance ---------- */
+  function secAppearance(){
+    var c=el('<section class="card" id="sec-appearance"></section>');
+    c.innerHTML =
+      head("Appearance")+
+      '<div class="subhead">Colors</div>'+
+      '<div class="themes" id="themePicker"></div>'+
+      '<div class="ovpreview" id="ovPrev"><div class="land"></div><div class="blobs" id="ovBlobs"></div>'+
+        '<span class="city" style="left:26%;top:58%">Lisboa</span><span class="city" style="left:60%;top:38%">Wien</span><span class="city" style="left:47%;top:80%">Dakar</span></div>'+
+      '<div class="swatch12" id="ovSwatches"></div>'+
+      '<div style="height:16px"></div>'+
+      row("Map overlay opacity","",'<input id="ovDepth" type="range" min="14" max="78">')+
+      row("Overlay color system","",selDis(["Relocation Default","Traditional / sign-inspired","Soft","High contrast","Color-blind-safe"])+' '+b("soon","soon"))+
+      '<div class="help">Color themes set the app\u2019s atmosphere. Map overlay colors are a separate palette.</div>'+
+
+      '<div class="subhead">Symbols &amp; notation</div>'+
+      row("Glyph family","",selDis(["Default"])+' '+b("soon","soon"))+
+      row("Capricorn glyph","",'<div class="seg" id="capSeg"><button data-cap="us">US \u2651</button><button data-cap="euro">Euro \u2651\ufe0e</button></div>')+
+      row("Uranus glyph","",selDis(["Default"])+' '+b("soon","soon"))+
+      row("Pluto glyph","",selDis(["Pluto \u2647","Pluto P"])+' '+b("soon","soon"))+
+      row("Aspect notation","",'<select id="aspSel">'+ASPECT_FORMATS.map(function(f){return '<option value="'+f+'">'+f+'</option>';}).join('')+'</select>')+
+      '<div class="row nb"><div class="lab">Preview</div><div class="ctl"><span class="sample" id="aspSample"></span></div></div>'+
+
+      '<div class="subhead">Wheel</div>'+
+      row("Wheel style","",selDis(["Default wheel"])+' '+b("soon","soon"))+
+
+      '<div class="row"><div style="flex:1"><div class="lab">Advanced visual settings</div></div>'+
+        '<div class="ctl"><button class="btn ghost tiny" data-toggle="advvis">Show \u25be</button></div></div>'+
+      '<div id="advvis" style="display:none">'+
+        row("Surface texture","",'<span class="sw" data-toggle2="texture"></span>')+
+        row("Mars glyph style","",selDis(["Default","Alternate"])+' '+b("soon","soon"))+
+        row("Chart inner glow","",'<span class="sw locked"></span> '+b("soon","soon"))+
+      '</div>'+
+      '<div class="row"><div></div><div class="ctl"><button class="btn" data-restore="appearance">Restore visual defaults</button></div></div>';
+    return c;
+  }
+
+  /* ---------- 6. Location ---------- */
+  function secLocation(){
+    var c=el('<section class="card" id="sec-location"></section>');
+    c.innerHTML =
+      head("Location")+
+      '<div class="subhead">Current location</div>'+
+      row("Ask for current location when needed","",'<span class="sw" data-toggle2="geo" data-soon="1"></span>')+
+      row("Manual current-location override","",'<input type="text" placeholder="e.g. Berlin, Germany" disabled>')+
+      '<div class="subhead">Travel / Road Trip Mode '+b("soon","future")+'</div>'+
+      row("Continuous route tracking","",'<span class="sw locked"></span>')+
+      row("Route planning","",'<button class="btn" disabled>Plan route</button>')+
+      row("Notifications","",'<span class="sw locked"></span>')+
+      row("Predictive condition changes","",'<span class="sw locked"></span>')+
+      row("Airplane Mode Live","Downloads your route so the app keeps tracking changes offline or in flight.",'<button class="btn" disabled>Download</button>');
+    return c;
+  }
+
+  /* ---------- 7. Language & Regional ---------- */
+  function secLanguage(){
+    var c=el('<section class="card" id="sec-language"></section>');
+    c.innerHTML =
+      head("Language &amp; Regional")+
+      row("Interface language","",selDis(["English"])+' '+b("soon","soon"))+
+      row("AI language","Follows the interface language by default.",selDis(["Match interface"])+' '+b("soon","soon"))+
+      row("Map / city-label language","",selDis(["App language","Local language","English"])+' '+b("soon","soon"))+
+      row("Date format","",'<select id="dateSel">'+DATE_FORMATS.map(function(f){return '<option value="'+f.v+'">'+f.t+'</option>';}).join('')+'</select>')+
+      row("Time format","",'<div class="seg" id="timeSeg"><button data-time="ampm">AM / PM</button><button data-time="24">24-hour</button></div>');
+    return c;
+  }
+
+  /* ---------- 8. Sharing & Exports ---------- */
+  function secSharing(){
+    var c=el('<section class="card" id="sec-sharing"></section>');
+    c.innerHTML =
+      head("Sharing &amp; Exports")+
+      '<div class="subhead">Sharing</div>'+
+      '<div class="desc">Quick, one-click sharing.</div>'+
+      row("Default share link","",'<select><option>Public link</option><option disabled>Private link \u2014 Pro</option></select>')+
+      row("Hide birth data","",'<span class="sw on" data-toggle2="hidebirth"></span>')+
+      row("Include notes","",'<span class="sw" data-toggle2="incnotes"></span>')+
+      row("Include tables","",'<span class="sw on" data-toggle2="inctables"></span>')+
+      row("Include chart wheel","",'<span class="sw on" data-toggle2="incwheel"></span>')+
+      '<div class="subhead">Reports &amp; exports</div>'+
+      '<div class="desc">Reports are customizable exports, mainly for professionals.</div>'+
+      row("Hide branding","Available on Professional plans.",'<span class="sw locked"></span> '+b("pro","pro"))+
+      row("Export defaults","",'<button class="btn" disabled>Configure</button> '+b("soon","soon"))+
+      row("Report templates","",selDis(["Client report","Comparison report","Map search report","Natal & relocated chart report"])+' '+b("soon","soon"))+
+      '<div class="help">Each export can still be adjusted at export time.</div>';
+    return c;
+  }
+
+  /* ---------- 9. My Data ---------- */
+  function secData(){
+    var c=el('<section class="card" id="sec-data"></section>');
+    c.innerHTML =
+      head("My Data")+
+      '<div class="subhead">Data management</div>'+
+      row("Saved searches","",'<b>23</b> <button class="btn tiny" disabled>Manage</button>')+
+      row("Saved comparisons","",'<b>6</b> <button class="btn tiny" disabled>Manage</button>')+
+      row("Favorites","",'<b>7</b> <button class="btn tiny" disabled>Manage</button>')+
+      row("Notes","",'<b>11</b> <button class="btn tiny" disabled>Manage</button>')+
+      row("History","",'<b>140</b> <button class="btn tiny" disabled>View</button>')+
+      row("Export my data","",'<select disabled><option>Everything</option></select> <button class="btn" data-act="exportData">Export</button>')+
+      '<div class="help">Export contents (wheels, tables, notes, saved work, profiles, settings) will be customizable.</div>'+
+      '<div class="subhead">AI &amp; privacy</div>'+
+      row("Allow anonymized usage to improve AI assistance","You can change this anytime.",'<span class="sw on" data-toggle2="aiuse" data-soon="1"></span> '+b("soon","soon"))+
+      '<div class="subhead">Delete data</div>'+
+      row("Delete history","",'<button class="btn danger" data-del="history" data-label="all history">Delete</button>')+
+      row("Delete all saved searches","",'<button class="btn danger" data-del="searches" data-label="all saved searches">Delete</button>')+
+      row("Delete all comparisons","",'<button class="btn danger" data-del="comparisons" data-label="all comparisons">Delete</button>')+
+      row("Delete all favorites","",'<button class="btn danger" data-del="favorites" data-label="all favorites">Delete</button>')+
+      row("Delete all profiles","Permanently deletes all profiles and their saved work.",'<button class="btn danger" data-del="profiles" data-confirm="DELETE" data-label="all profiles and their saved work">Delete all profiles</button>')+
+      '<div class="subhead">Account deletion</div>'+
+      row("Delete account","",'<button class="btn danger" data-del="account" data-confirm="DELETE" data-label="your entire account" disabled>Delete account</button> '+b("soon","soon"));
+    return c;
+  }
+
+  /* ---------- 10. Technical ---------- */
+  function secTechnical(){
+    var c=el('<section class="card" id="sec-technical"></section>');
+    c.innerHTML =
+      head("Technical")+
+      '<div class="row"><div style="flex:1"><div class="lab">Diagnostics &amp; developer options</div></div>'+
+        '<div class="ctl"><button class="btn ghost tiny" data-toggle="techbox">Show \u25be</button></div></div>'+
+      '<div id="techbox" style="display:none">'+
+        row("Debug mode","",'<span class="sw" data-toggle2="debug"></span>')+
+        row("Show calculation metadata","",'<span class="sw" data-toggle2="meta"></span>')+
+        row("Cache reset","",'<button class="btn" disabled>Reset cache</button> '+b("soon","soon"))+
+        row("Experimental features","",'<span class="sw" data-toggle2="exp"></span>')+
+        row("Version / build","",'<span class="pmeta">Settings prototype \u00b7 '+new Date().toISOString().slice(0,10)+'</span>')+
+      '</div>';
+    return c;
+  }
+
+  /* ---------- 11. Personalization (future) ---------- */
+  function secPersonalization(){
+    var c=el('<section class="card" id="sec-personalization"></section>');
+    c.innerHTML =
+      head("Personalization", b("soon","future"))+
+      '<div class="sec-sub">Coming later.</div>'+
+      row("Design your own glyphs","Use private glyph designs in your account.",'<button class="btn" disabled>Open</button>')+
+      row("Personal definitions library","Build your own interpretation library.",'<button class="btn" disabled>Open</button>')+
+      row("Guided setup","A wizard helps build it; defaults fill anything you skip.",'<button class="btn" disabled>Start</button>');
+    return c;
+  }
+
+  /* ---------- formatting ---------- */
+  function fmtDate(iso){
+    var mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var p=iso.split("-"); if(p.length<3) return iso; var y=p[0],m=+p[1],d=+p[2];
+    var dd=(d<10?"0":"")+d, mm=(m<10?"0":"")+m;
+    switch(prefs.dateFmt){
+      case "MMM d, yyyy": return mon[m-1]+" "+d+", "+y;
+      case "dd/MM/yyyy":  return dd+"/"+mm+"/"+y;
+      case "MM/dd/yyyy":  return mm+"/"+dd+"/"+y;
+      case "yyyy-MM-dd":  return iso;
+      default:            return d+" "+mon[m-1]+" "+y;
+    }
+  }
+  function fmtTime(hhmm){ var p=hhmm.split(":"),h=+p[0],m=p[1];
+    if(prefs.timeFmt==="24") return (h<10?"0":"")+h+":"+m;
+    var ap=h>=12?"PM":"AM",h12=h%12; if(h12===0)h12=12; return h12+":"+m+" "+ap;
+  }
+
+  /* ---------- theme picker ---------- */
+  function buildThemePicker(){
+    var host=document.getElementById("themePicker"); if(!host) return;
+    var cur=RT.get();
+    host.innerHTML = RT.THEMES.map(function(t){
+      return '<button class="theme-card'+(t===cur?' on':'')+'" data-theme-pick="'+t+'">'+
+        '<div class="tname"><span class="dot" data-acc="'+t+'"></span>'+RT.LABELS[t]+'</div>'+
+        '<div class="swrow" data-swrow="'+t+'"></div>'+
+        '<div class="accents" data-accrow="'+t+'"></div>'+
+      '</button>';
+    }).join('');
+    RT.THEMES.forEach(function(t){
+      var vals=themeTokens(t);
+      host.querySelector('[data-swrow="'+t+'"]').innerHTML=vals.ov.map(function(c){return '<i style="background:'+c+'"></i>';}).join('');
+      host.querySelector('[data-accrow="'+t+'"]').innerHTML=[vals.accent,vals.accent2,vals.warm,vals.not].map(function(c){return '<i style="background:'+c+'"></i>';}).join('');
+      host.querySelector('[data-acc="'+t+'"]').style.background=vals.accent;
+    });
+  }
+  var probe=document.createElement("div"); probe.style.display="none"; document.body.appendChild(probe);
+  function themeTokens(t){
+    probe.setAttribute("data-theme",t);
+    var s=getComputedStyle(probe), ov=[];
+    for(var i=1;i<=12;i++) ov.push(s.getPropertyValue("--th-ov-"+i).trim());
+    return { ov:ov, accent:s.getPropertyValue("--th-accent").trim(), accent2:s.getPropertyValue("--th-accent-2").trim(),
+      warm:s.getPropertyValue("--th-warm").trim(), not:s.getPropertyValue("--th-not").trim() };
+  }
+
+  /* ---------- overlay preview ---------- */
+  function buildOverlayPreview(){
+    var blobs=document.getElementById("ovBlobs");
+    var ov=RT.overlays();
+    if(blobs){
+      var spec=[[20,30,120,ov[0]],[44,18,150,ov[2]],[34,48,110,ov[3]],[60,40,130,ov[1]]];
+      var op=(prefs.overlayDepth/100);
+      blobs.innerHTML=spec.map(function(s){
+        return '<span class="blob" style="left:'+s[0]+'%;top:'+s[1]+'%;width:'+s[2]+'px;height:'+s[2]+'px;background:'+s[3]+';opacity:'+op+'"></span>';
+      }).join('')+
+      '<span class="blob" style="left:70%;top:64%;width:90px;height:60px;border-radius:6px;background:'+RT.not()+';opacity:'+Math.min(.72,op+0.18)+'"></span>';
+    }
+    var sw=document.getElementById("ovSwatches");
+    if(sw) sw.innerHTML=ov.map(function(c,i){return '<div class="s" style="background:'+c+'"><span>'+(i+1)+'</span></div>';}).join('');
+    var nc=document.getElementById("ovNotChip"); if(nc) nc.style.background=RT.not();
+  }
+
+  /* ---------- mount ---------- */
+  function mount(){
+    var nav=document.getElementById("nav"), col=document.getElementById("col");
+    nav.innerHTML=SECTIONS.map(function(s){return '<a href="#sec-'+s.id+'" data-go="'+s.id+'">'+s.t+'</a>';}).join('');
+    SECTIONS.forEach(function(s){ col.appendChild(s.build()); });
+
+    buildThemePicker();
+    buildOverlayPreview();
+
+    document.body.classList.toggle("texture", !!prefs.texture);
+    var od=document.getElementById("ovDepth"); if(od) od.value=prefs.overlayDepth;
+    var ds=document.getElementById("dateSel"); if(ds) ds.value=prefs.dateFmt;
+    var as=document.getElementById("aspSel"); if(as) as.value=prefs.aspect;
+    activate("timeSeg","data-time",prefs.timeFmt);
+    activate("capSeg","data-cap",prefs.cap);
+    syncToggle("texture",prefs.texture);
+    var asp=document.getElementById("aspSample"); if(asp) asp.textContent=prefs.aspect;
+  }
+  function activate(segId,attr,val){ var s=document.getElementById(segId); if(!s) return;
+    Array.prototype.forEach.call(s.querySelectorAll("button"),function(btn){ btn.classList.toggle("on", btn.getAttribute(attr)===val); }); }
+  function syncToggle(name,on){ var t=document.querySelector('[data-toggle2="'+name+'"]'); if(t) t.classList.toggle("on",!!on); }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click", function(e){
+    var t;
+    if((t=e.target.closest("[data-go]"))){ setNavActive(t.getAttribute("data-go")); return; }
+
+    if((t=e.target.closest("[data-theme-pick]"))){
+      RT.set(t.getAttribute("data-theme-pick"));
+      Array.prototype.forEach.call(document.querySelectorAll(".theme-card"),function(x){x.classList.toggle("on",x===t);});
+      buildOverlayPreview(); return;
+    }
+    if((t=e.target.closest("[data-toggle]"))){
+      var box=document.getElementById(t.getAttribute("data-toggle"));
+      if(box){ var show=box.style.display==="none"; box.style.display=show?"block":"none"; t.textContent=(show?"Hide \u25b4":"Show \u25be");
+        if(t.getAttribute("data-unlock")) setMainBodiesLocked(!show); }
+      return;
+    }
+    if((t=e.target.closest("[data-toggle2]"))){ if(t.classList.contains("locked")||t.getAttribute("data-soon")) return;
+      var name=t.getAttribute("data-toggle2"); t.classList.toggle("on");
+      if(name==="texture"){ prefs.texture=t.classList.contains("on"); document.body.classList.toggle("texture",prefs.texture); save(); }
+      return; }
+    if((t=e.target.closest("#timeSeg button"))){ prefs.timeFmt=t.getAttribute("data-time"); save(); activate("timeSeg","data-time",prefs.timeFmt); refreshProfiles(); return; }
+    if((t=e.target.closest("#capSeg button"))){ prefs.cap=t.getAttribute("data-cap"); save(); activate("capSeg","data-cap",prefs.cap); return; }
+    if((t=e.target.closest("[data-restore]"))){ restore(t.getAttribute("data-restore")); return; }
+    if((t=e.target.closest('[data-act="exportData"]'))){ exportData(); return; }
+    if((t=e.target.closest("[data-del]"))){ if(t.disabled) return; openConfirm(t); return; }
+    if((t=e.target.closest("[data-m]"))){ var act=t.getAttribute("data-m"); if(act==="cancel") closeModal(); else if(act==="go") closeModal(); return; }
+  });
+
+  document.addEventListener("input", function(e){
+    if(e.target.id==="ovDepth"){ prefs.overlayDepth=+e.target.value; save(); buildOverlayPreview(); }
+  });
+  document.addEventListener("change", function(e){
+    if(e.target.id==="dateSel"){ prefs.dateFmt=e.target.value; save(); refreshProfiles(); }
+    if(e.target.id==="aspSel"){ prefs.aspect=e.target.value; save(); var s=document.getElementById("aspSample"); if(s) s.textContent=prefs.aspect; }
+  });
+
+  window.addEventListener("relocation:theme", function(){ buildOverlayPreview();
+    var cur=RT.get(); Array.prototype.forEach.call(document.querySelectorAll(".theme-card"),function(x){ x.classList.toggle("on", x.getAttribute("data-theme-pick")===cur); }); });
+
+  function setNavActive(id){ Array.prototype.forEach.call(document.querySelectorAll(".nav a"),function(a){ a.classList.toggle("on", a.getAttribute("data-go")===id); }); }
+  function setMainBodiesLocked(locked){
+    Array.prototype.forEach.call(document.querySelectorAll('#bodies input[data-main]'),function(cb){
+      cb.disabled=locked; cb.closest(".cl-item").classList.toggle("locked",locked);
+    });
+  }
+  function refreshProfiles(){ var old=document.getElementById("sec-profiles"); if(old) old.replaceWith(secProfiles()); }
+
+  function restore(which){
+    if(which==="appearance"){ prefs.texture=false; prefs.aspect="Sun Conj Saturn"; prefs.cap="us"; document.body.classList.remove("texture");
+      syncToggle("texture",false); var as=document.getElementById("aspSel"); if(as) as.value=prefs.aspect; var s=document.getElementById("aspSample"); if(s) s.textContent=prefs.aspect; activate("capSeg","data-cap","us"); save(); }
+    if(which==="map"){ prefs.overlayDepth=42; var od=document.getElementById("ovDepth"); if(od) od.value=42; buildOverlayPreview(); save(); }
+    if(which==="charts"){
+      Array.prototype.forEach.call(document.querySelectorAll('#bodies input[data-body]'),function(cb){
+        var n=cb.getAttribute("data-body");
+        cb.checked = ANGLES.indexOf(n)>=0 || MAIN.indexOf(n)>=0 || OUTER.indexOf(n)>=0;
+      });
+    }
+    flash(which);
+  }
+  function flash(which){ var btn=document.querySelector('[data-restore="'+which+'"]'); if(btn){ var o=btn.textContent; btn.textContent="Restored \u2713"; setTimeout(function(){btn.textContent=o;},1100); } }
+
+  function exportData(){
+    var blob={ exportedAt:new Date().toISOString(), theme:RT.get(), prefs:prefs, note:"Prototype export \u2014 sample structure only." };
+    var a=document.createElement("a");
+    a.href="data:application/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(blob,null,2));
+    a.download="relocation_settings_export.json"; a.click();
+  }
+
+  /* ---------- delete confirmation ---------- */
+  var pendingDel=null;
+  function openConfirm(btn){
+    pendingDel=btn;
+    var label=btn.getAttribute("data-label"), conf=btn.getAttribute("data-confirm");
+    document.getElementById("mTitle").textContent="Delete?";
+    document.getElementById("mBody").innerHTML="This permanently deletes <b>"+label+"</b>. This cannot be undone."+(conf?" Type <b>"+conf+"</b> to confirm.":"");
+    var ci=document.getElementById("mConfirm");
+    if(conf){ ci.style.display="block"; ci.value=""; ci.placeholder="Type "+conf; } else { ci.style.display="none"; }
+    document.getElementById("mGo").disabled=!!conf;
+    document.getElementById("modalBg").classList.add("show");
+    if(conf) ci.focus();
+  }
+  document.getElementById("mConfirm").addEventListener("input", function(e){
+    var conf=pendingDel&&pendingDel.getAttribute("data-confirm");
+    document.getElementById("mGo").disabled = !(e.target.value===conf);
+  });
+  function closeModal(){ document.getElementById("modalBg").classList.remove("show"); pendingDel=null; }
+  document.getElementById("modalBg").addEventListener("click", function(e){ if(e.target.id==="modalBg") closeModal(); });
+
+  mount();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+/* ============================================================
+   relocation_themes.css  —  Version 1 Color Doctrine token layer
+   ------------------------------------------------------------
+   One shared Core Ink travels through all four seasonal themes.
+   Pages style against --th-* tokens; switching [data-theme] on
+   <html> re-themes everything live. Values come straight from
+   docs/product_doctrine/VERSION_1_COLOR_DOCTRINE.md.
+
+   Token contract (consumed by Settings + Map prototype):
+     --th-ink / --th-ink-soft / --th-ink-faint   text + UI ink (Core Ink shared)
+     --th-base / --th-surface / --th-card         page / panel / card surfaces
+     --th-line / --th-line-soft                   borders
+     --th-accent / --th-accent-2 / --th-accent-3  accents (primary action = --th-accent)
+     --th-warm                                    warm accent (gold/brass action)
+     --th-not                                     NOT / exclusion redaction (per-theme, never midnight)
+     --th-ov-1 .. --th-ov-12                      the 12 overlay/data colors
+   ============================================================ */
+
+:root,
+:root[data-theme="spring"] {
+  /* Spring — Possibility */
+  --th-ink:#252A2E; --th-ink-soft:#565E64; --th-ink-faint:#8A9198;
+  --th-base:#F4F5F1; --th-surface:#E7ECE7; --th-card:#FBFCFA;
+  --th-line:#DDE3DD; --th-line-soft:#EAEFEA;
+  --th-accent:#6E93AE; --th-accent-2:#88A97F; --th-accent-3:#D0A66B;
+  --th-warm:#D0A66B; --th-not:#2C3338;
+  --th-ov-1:#6E93AE; --th-ov-2:#88A97F; --th-ov-3:#A8B99D; --th-ov-4:#8EB6B0;
+  --th-ov-5:#5E8F95; --th-ov-6:#D0A66B; --th-ov-7:#D89B74; --th-ov-8:#B76D5D;
+  --th-ov-9:#C98792; --th-ov-10:#9A93B7; --th-ov-11:#7C8A96; --th-ov-12:#6675A8;
+}
+
+:root[data-theme="summer"] {
+  /* Summer — Expansion */
+  --th-ink:#252A2E; --th-ink-soft:#565E64; --th-ink-faint:#8A9198;
+  --th-base:#F5F4EF; --th-surface:#E8E9E4; --th-card:#FBFAF6;
+  --th-line:#DCDDD7; --th-line-soft:#EAEAE4;
+  --th-accent:#4F83B5; --th-accent-2:#D67A65; --th-accent-3:#D3B15F;
+  --th-warm:#D3B15F; --th-not:#2A2F38;
+  --th-ov-1:#4F83B5; --th-ov-2:#5FA7A5; --th-ov-3:#6FAE84; --th-ov-4:#A7BE65;
+  --th-ov-5:#D3B15F; --th-ov-6:#D89B52; --th-ov-7:#D67A65; --th-ov-8:#B95F52;
+  --th-ov-9:#D38DA0; --th-ov-10:#9686C8; --th-ov-11:#718AA2; --th-ov-12:#556A94;
+}
+
+:root[data-theme="autumn"] {
+  /* Autumn — Study */
+  --th-ink:#252A2E; --th-ink-soft:#565E64; --th-ink-faint:#8A9198;
+  --th-base:#F2EDE4; --th-surface:#E7E0D3; --th-card:#FAF6EE;
+  --th-line:#DAD2C4; --th-line-soft:#EAE3D6;
+  --th-accent:#748A98; --th-accent-2:#CDA066; --th-accent-3:#86749A;
+  --th-warm:#CDA066; --th-not:#2E2A26;
+  --th-ov-1:#748A98; --th-ov-2:#95A28C; --th-ov-3:#A9A063; --th-ov-4:#C5A15C;
+  --th-ov-5:#CDA066; --th-ov-6:#C8875E; --th-ov-7:#B76A58; --th-ov-8:#BC8784;
+  --th-ov-9:#A38AA1; --th-ov-10:#86749A; --th-ov-11:#7D848C; --th-ov-12:#6574A0;
+}
+
+:root[data-theme="winter"] {
+  /* Winter — Threshold */
+  --th-ink:#252A2E; --th-ink-soft:#565E64; --th-ink-faint:#8A9198;
+  --th-base:#F7F8F6; --th-surface:#E8EBED; --th-card:#FCFDFB;
+  --th-line:#DCE1E3; --th-line-soft:#EAEEEF;
+  --th-accent:#5A7EA4; --th-accent-2:#AAB3BA; --th-accent-3:#7FA6A2;
+  --th-warm:#B9A271; --th-not:#272D34;
+  --th-ov-1:#5A7EA4; --th-ov-2:#6D91A5; --th-ov-3:#7FA6A2; --th-ov-4:#7F9A81;
+  --th-ov-5:#B9A271; --th-ov-6:#B97D67; --th-ov-7:#B06D62; --th-ov-8:#B78B9B;
+  --th-ov-9:#9B92B4; --th-ov-10:#8278A4; --th-ov-11:#7E8B95; --th-ov-12:#596B8F;
+}

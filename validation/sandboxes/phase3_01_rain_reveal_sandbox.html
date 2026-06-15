@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3.09 Probe Reproduction Sandbox</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #f4f4f5;
+      color: #e5edf6;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #f4f4f5;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(7, 17, 28, 0.7);
+      color: rgba(226, 232, 240, 0.58);
+      border: 0;
+    }
+
+    .truth-substrate-canvas {
+      pointer-events: none;
+    }
+
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 1000;
+      display: grid;
+      gap: 6px;
+      max-width: min(520px, calc(100vw - 28px));
+      padding: 11px 13px;
+      border: 1px solid rgba(226, 232, 240, 0.12);
+      border-radius: 14px;
+      background: rgba(7, 17, 28, 0.78);
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.34);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .hud strong {
+      font-size: 13px;
+      letter-spacing: 0.01em;
+    }
+
+    .muted {
+      color: rgba(226, 232, 240, 0.66);
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid rgba(226, 232, 240, 0.14);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.68);
+      color: rgba(226, 232, 240, 0.82);
+      padding: 4px 8px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    button {
+      border: 1px solid rgba(226, 232, 240, 0.18);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.76);
+      color: rgba(226, 232, 240, 0.9);
+      cursor: pointer;
+      font: inherit;
+      padding: 4px 8px;
+    }
+
+    button[aria-pressed="true"] {
+      background: rgba(134, 197, 165, 0.24);
+      border-color: rgba(134, 197, 165, 0.52);
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="Global Leaflet map with quiet truth substrate"></div>
+  <section class="hud" aria-label="Sandbox status">
+    <strong>Phase 3.09 Probe Reproduction Sandbox — validation only</strong>
+    <span class="muted">Layer 1 sampling visualization: scouts seed local reproduction near hidden truth regions and corridors. No interpretation, polygon, hard edge, final fill, backend work, caching, or production integration.</span>
+    <div class="controls">
+      <button type="button" id="playPause">Pause</button>
+      <button type="button" id="restart">Restart</button>
+      <button type="button" id="speed">Speed: 1x</button>
+      <button type="button" id="guides" aria-pressed="false">Show target guides</button>
+    </div>
+    <span class="pill" id="status">latent probes initializing</span>
+  </section>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    "use strict";
+
+    const MAP_MAX_BOUNDS = [[-85, -180], [85, 180]];
+    const MAP_DEFAULT_CENTER = [18, 0];
+    const MAP_DEFAULT_ZOOM = 2.75;
+    const SCOUT_PROBE_COUNT = 620;
+    const REPRODUCTION_PROBE_COUNT = 2600;
+    const GHOST_PROBE_COUNT = 520;
+    const MOTION_DELAY_MS = 360;
+    const MIN_PROBE_RADIUS = 1.43;
+    const MIN_PROBE_ALPHA = 0.68;
+    const SELECTED_CONTOUR_INDEX = 0;
+    const GHOST_CONTOUR_INDICES = [1, 2];
+    const SIDE_COLORS = {
+      positive: { body: [42, 145, 183], core: [204, 244, 255], label: "right-side boundary candidates" },
+      negative: { body: [176, 113, 62], core: [255, 225, 180], label: "left-side boundary candidates" },
+      wrong: { body: [133, 91, 144], core: [229, 204, 255], label: "wrong-side samples" },
+      interior: { body: [54, 137, 106], core: [198, 245, 220], label: "interior candidates" },
+      ghost: { body: [124, 111, 180], core: [226, 218, 255], label: "ghost candidate region" },
+      unresolved: { body: [90, 100, 116], core: [220, 226, 236], label: "unresolved samples" },
+    };
+    const CLASS_COLORS = {
+      classA: { body: [46, 122, 174], core: [208, 238, 255], label: "sample class A" },
+      classB: { body: [119, 82, 185], core: [224, 209, 255], label: "sample class B" },
+      classC: { body: [176, 118, 43], core: [255, 221, 142], label: "sample class C" },
+    };
+    const CONTOUR_COLORS = [
+      { body: [46, 122, 174], core: [208, 238, 255], label: "proto-contour A" },
+      { body: [119, 82, 185], core: [224, 209, 255], label: "proto-contour B" },
+      { body: [176, 118, 43], core: [255, 221, 142], label: "proto-contour C" },
+    ];
+    const CLASS_TO_CONTOUR_INDEX = { classA: 0, classB: 1, classC: 2 };
+
+    const map = L.map("map", {
+      maxBounds: MAP_MAX_BOUNDS,
+      maxBoundsViscosity: 0.85,
+      doubleClickZoom: true,
+      keyboard: false,
+      minZoom: 2.5,
+      zoomSnap: 0.25,
+      zoomDelta: 0.25,
+      wheelPxPerZoomLevel: 270,
+      wheelDebounceTime: 100,
+      inertia: true,
+      inertiaDeceleration: 2800,
+      worldCopyJump: false,
+      zoomControl: true,
+    }).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      noWrap: true,
+      bounds: MAP_MAX_BOUNDS,
+      attribution: "\u00a9 OSM",
+    }).addTo(map);
+
+    function mulberry32(seed) {
+      return function random() {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function createProbes(size) {
+      const random = mulberry32(30302);
+      const probes = [];
+      const contours = protoContours(size);
+      const selectedContour = contours[SELECTED_CONTOUR_INDEX];
+
+      for (let i = 0; i < SCOUT_PROBE_COUNT; i++) {
+        const radiusRoll = random();
+        const radius = radiusRoll > 0.965 ? 2.12 : radiusRoll > 0.70 ? 1.54 : 1.25;
+        const prioritySeed = random() > 0.96;
+        const start = {
+          x: random() * size.x,
+          y: random() * size.y,
+        };
+        const roll = random();
+        const structure = roll < 0.68
+          ? sampleSelectedCandidate(selectedContour, random, roll < 0.46 ? "boundary" : "interior")
+          : roll < 0.84
+            ? sampleGhostCandidate(contours, random)
+            : evaluateHiddenGeometry(start, [selectedContour]);
+        const contour = contours[structure.contourIndex] || selectedContour;
+        const active = structure.regionType !== "unresolved";
+        const tangentSlide = structure.along || 0;
+        const targetPull = structure.structuralRole === "boundary"
+          ? 0.78 + random() * 0.16
+          : structure.structuralRole === "interior"
+            ? 0.38 + random() * 0.20
+            : structure.regionType === "ghost"
+              ? 0.55 + random() * 0.16
+              : 0.03 + random() * 0.03;
+        const targetPoint = structure.anchor || (structure.nearest ? {
+          x: structure.nearest.point.x + structure.nearest.normal.x * ((random() - 0.5) * contour.width * 0.7),
+          y: structure.nearest.point.y + structure.nearest.normal.y * ((random() - 0.5) * contour.width * 0.7),
+        } : start);
+        probes.push({
+          generation: "scout",
+          start,
+          target: {
+            x: start.x + (targetPoint.x - start.x) * targetPull,
+            y: start.y + (targetPoint.y - start.y) * targetPull,
+          },
+          sampleClass: contour.sampleClass,
+          regionType: structure.regionType,
+          structuralRole: structure.structuralRole || structure.role,
+          boundarySide: structure.boundarySide || 0,
+          candidateSide: structure.candidateSide || "unresolved",
+          overlapCount: structure.overlapCount,
+          tangentDirection: random() > 0.5 ? 1 : -1,
+          tangentSlide,
+          active,
+          prioritySeed,
+          delay: structure.regionType === "ghost"
+            ? 860 + structure.activationDelay + random() * 380
+            : structure.activationDelay + random() * 180,
+          radius,
+          alpha: active ? 0.64 + random() * 0.18 : 0.32 + random() * 0.12,
+        });
+      }
+      createReproductionProbes(probes, contours, random);
+      return probes;
+    }
+
+    function createReproductionProbes(probes, contours, random) {
+      const selectedContour = contours[SELECTED_CONTOUR_INDEX];
+      for (let i = 0; i < REPRODUCTION_PROBE_COUNT; i++) {
+        const roleRoll = random();
+        const role = roleRoll < 0.66 ? "boundary" : "interior";
+        const structure = sampleSelectedCandidate(selectedContour, random, role);
+        const sampledContour = selectedContour;
+        const anchor = structure.anchor;
+        const germJitter = role === "boundary" ? 7 : 18;
+        const start = {
+          x: anchor.x + (random() - 0.5) * germJitter,
+          y: anchor.y + (random() - 0.5) * germJitter,
+        };
+        const target = {
+          x: anchor.x + structure.nearest.tangent.x * ((random() - 0.5) * (role === "interior" ? 34 : 16)),
+          y: anchor.y + structure.nearest.tangent.y * ((random() - 0.5) * (role === "interior" ? 34 : 16)),
+        };
+        const radiusRoll = random();
+        probes.push({
+          generation: "spawn",
+          start,
+          target,
+          sampleClass: sampledContour.sampleClass,
+          regionType: "selected",
+          structuralRole: role,
+          boundarySide: structure.boundarySide,
+          candidateSide: structure.candidateSide,
+          overlapCount: 1,
+          tangentDirection: random() > 0.5 ? 1 : -1,
+          tangentSlide: structure.along,
+          active: true,
+          prioritySeed: false,
+          delay: role === "boundary"
+            ? 930 + sampledContour.activationDelay + random() * 760
+            : 1880 + sampledContour.activationDelay + random() * 1150,
+          radius: radiusRoll > 0.92 ? 1.42 : radiusRoll > 0.58 ? 1.12 : 0.88,
+          alpha: role === "boundary" ? 0.58 + random() * 0.24 : 0.42 + random() * 0.17,
+        });
+      }
+      for (let i = 0; i < GHOST_PROBE_COUNT; i++) {
+        const structure = sampleGhostCandidate(contours, random);
+        const contour = contours[structure.contourIndex];
+        const anchor = structure.anchor;
+        const start = {
+          x: anchor.x + (random() - 0.5) * 10,
+          y: anchor.y + (random() - 0.5) * 10,
+        };
+        const target = {
+          x: anchor.x + structure.nearest.tangent.x * ((random() - 0.5) * 28),
+          y: anchor.y + structure.nearest.tangent.y * ((random() - 0.5) * 28),
+        };
+        const radiusRoll = random();
+        probes.push({
+          generation: "ghost-spawn",
+          start,
+          target,
+          sampleClass: contour.sampleClass,
+          regionType: "ghost",
+          structuralRole: "boundary",
+          boundarySide: structure.boundarySide,
+          candidateSide: "outside",
+          overlapCount: 1,
+          tangentDirection: random() > 0.5 ? 1 : -1,
+          tangentSlide: structure.along,
+          active: true,
+          prioritySeed: false,
+          delay: 1850 + contour.activationDelay + random() * 980,
+          radius: radiusRoll > 0.90 ? 1.28 : radiusRoll > 0.56 ? 1.02 : 0.78,
+          alpha: 0.46 + random() * 0.18,
+        });
+      }
+    }
+
+    function sampleSelectedCandidate(contour, random, role) {
+      const boundarySide = random() > 0.5 ? 1 : -1;
+      const candidateSide = role === "boundary"
+        ? random() < 0.58 ? "inside" : "outside"
+        : "inside";
+      const base = sampleBoundaryCorridor([contour], random);
+      const interiorDepth = contour.width * (0.26 + random() * 0.48);
+      const boundaryNoise = (random() - 0.5) * contour.boundaryJitter;
+      const offset = role === "interior"
+        ? boundarySide * interiorDepth
+        : boundarySide * (contour.width + (candidateSide === "outside" ? 1 : -1) * (5 + random() * 14) + boundaryNoise);
+      const along = role === "boundary"
+        ? (random() - 0.5) * 54
+        : (random() - 0.5) * 86;
+      return {
+        regionType: "selected",
+        structuralRole: role,
+        nearest: base.nearest,
+        anchor: {
+          x: base.nearest.point.x + base.nearest.normal.x * offset + base.nearest.tangent.x * along,
+          y: base.nearest.point.y + base.nearest.normal.y * offset + base.nearest.tangent.y * along,
+        },
+        contourIndex: contour.index,
+        boundarySide,
+        candidateSide,
+        along,
+        overlapCount: 1,
+        activationDelay: contour.activationDelay,
+      };
+    }
+
+    function sampleGhostCandidate(contours, random) {
+      const ghostIndex = GHOST_CONTOUR_INDICES[Math.floor(random() * GHOST_CONTOUR_INDICES.length)];
+      const contour = contours[ghostIndex];
+      const boundarySide = random() > 0.5 ? 1 : -1;
+      const base = sampleBoundaryCorridor([contour], random);
+      const offset = boundarySide * (contour.width + (random() - 0.15) * contour.boundaryJitter * 0.72);
+      const along = (random() - 0.5) * 62;
+      return {
+        regionType: "ghost",
+        structuralRole: "boundary",
+        nearest: base.nearest,
+        anchor: {
+          x: base.nearest.point.x + base.nearest.normal.x * offset + base.nearest.tangent.x * along,
+          y: base.nearest.point.y + base.nearest.normal.y * offset + base.nearest.tangent.y * along,
+        },
+        contourIndex: contour.index,
+        boundarySide,
+        candidateSide: "outside",
+        along,
+        overlapCount: 1,
+        activationDelay: contour.activationDelay,
+      };
+    }
+
+    function protoContours(size) {
+      return [
+        buildContour(0, "classA", 68, 70, [
+          [0.03, 0.58], [0.18, 0.44], [0.36, 0.38], [0.56, 0.48], [0.78, 0.58], [1.03, 0.49],
+        ], size),
+        buildContour(1, "classB", 58, 250, [
+          [-0.04, 0.31], [0.14, 0.28], [0.35, 0.37], [0.50, 0.53], [0.65, 0.70], [0.87, 0.78],
+        ], size),
+        buildContour(2, "classC", 52, 430, [
+          [0.25, 0.86], [0.40, 0.73], [0.56, 0.60], [0.73, 0.45], [0.92, 0.34], [1.10, 0.26],
+        ], size),
+      ];
+    }
+
+    function buildContour(index, sampleClass, width, activationDelay, normalizedPoints, size) {
+      const points = normalizedPoints.map(([x, y]) => ({ x: x * size.x, y: y * size.y }));
+      return {
+        index,
+        sampleClass,
+        width,
+        activationDelay,
+        boundaryJitter: width * 0.36,
+        color: CONTOUR_COLORS[index],
+        points,
+      };
+    }
+
+    function nearestOnSegment(point, a, b) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len2 = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / len2));
+      const nearest = { x: a.x + dx * t, y: a.y + dy * t };
+      const len = Math.sqrt(len2);
+      return {
+        point: nearest,
+        distance: Math.hypot(point.x - nearest.x, point.y - nearest.y),
+        tangent: { x: dx / len, y: dy / len },
+        normal: { x: -dy / len, y: dx / len },
+      };
+    }
+
+    function nearestOnContour(point, contour) {
+      let best = null;
+      for (let i = 0; i < contour.points.length - 1; i++) {
+        const candidate = nearestOnSegment(point, contour.points[i], contour.points[i + 1]);
+        if (!best || candidate.distance < best.distance) best = candidate;
+      }
+      return best;
+    }
+
+    function sampleContourPoint(contour, t) {
+      const segmentFloat = Math.max(0, Math.min(contour.points.length - 2, t * (contour.points.length - 1)));
+      const index = Math.floor(segmentFloat);
+      const localT = segmentFloat - index;
+      const a = contour.points[index];
+      const b = contour.points[index + 1];
+      return {
+        x: a.x + (b.x - a.x) * localT,
+        y: a.y + (b.y - a.y) * localT,
+      };
+    }
+
+    function evaluateHiddenGeometry(point, contours) {
+      let best = null;
+      let bestIndex = 0;
+      let overlapCount = 0;
+      for (const contour of contours) {
+        const nearest = nearestOnContour(point, contour);
+        if (nearest.distance < contour.width * 1.08) overlapCount += 1;
+        if (!best || nearest.distance < best.nearest.distance) {
+          best = { contour, nearest };
+          bestIndex = contour.index;
+        }
+      }
+      const width = best.contour.width;
+      const distance = best.nearest.distance;
+      const boundaryDistance = Math.abs(distance - width);
+      const role = overlapCount > 1
+        ? "overlap"
+        : boundaryDistance < 32
+          ? "boundary"
+          : distance < width * 0.72
+            ? "interior"
+            : "low";
+      return {
+        role,
+        regionType: role === "low" ? "unresolved" : "selected",
+        structuralRole: role === "low" ? "unresolved" : role,
+        nearest: best.nearest,
+        contourIndex: bestIndex,
+        overlapCount,
+        activationDelay: best.contour.activationDelay,
+      };
+    }
+
+    function sampleBoundaryCorridor(contours, random) {
+      const contour = contours[Math.floor(random() * contours.length)];
+      const segmentIndex = Math.floor(random() * (contour.points.length - 1));
+      const a = contour.points[segmentIndex];
+      const b = contour.points[segmentIndex + 1];
+      const t = random();
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const tangent = { x: dx / len, y: dy / len };
+      const normal = { x: -dy / len, y: dx / len };
+      const point = {
+        x: a.x + dx * t,
+        y: a.y + dy * t,
+      };
+      const overlapCandidate = random() < 0.30;
+      return {
+        role: overlapCandidate ? "overlap" : "boundary",
+        nearest: {
+          point,
+          distance: contour.width,
+          tangent,
+          normal,
+        },
+        contourIndex: contour.index,
+        overlapCount: overlapCandidate ? 2 : 1,
+        activationDelay: overlapCandidate ? contour.activationDelay + 180 : contour.activationDelay,
+      };
+    }
+
+    function sampleOverlapWorkZone(contours, random) {
+      const pairs = [[0, 1], [0, 2], [1, 2]];
+      const pair = pairs[Math.floor(random() * pairs.length)];
+      const a = sampleBoundaryCorridor([contours[pair[0]]], random);
+      const b = sampleBoundaryCorridor([contours[pair[1]]], random);
+      const tangent = {
+        x: a.nearest.tangent.x + b.nearest.tangent.x,
+        y: a.nearest.tangent.y + b.nearest.tangent.y,
+      };
+      const len = Math.hypot(tangent.x, tangent.y) || 1;
+      const unitTangent = { x: tangent.x / len, y: tangent.y / len };
+      return {
+        role: "overlap",
+        nearest: {
+          point: {
+            x: (a.nearest.point.x + b.nearest.point.x) * 0.5,
+            y: (a.nearest.point.y + b.nearest.point.y) * 0.5,
+          },
+          distance: 0,
+          tangent: unitTangent,
+          normal: { x: -unitTangent.y, y: unitTangent.x },
+        },
+        contourIndex: random() > 0.5 ? pair[0] : pair[1],
+        overlapCount: 2,
+        activationDelay: Math.max(contours[pair[0]].activationDelay, contours[pair[1]].activationDelay) + 260,
+      };
+    }
+
+    const TruthSubstrateLayer = L.Layer.extend({
+      onAdd(m) {
+        this._map = m;
+        this._canvas = L.DomUtil.create("canvas", "truth-substrate-canvas", m.getPane("overlayPane"));
+        this._canvas.style.position = "absolute";
+        this._ctx = this._canvas.getContext("2d");
+        this._probes = [];
+        this._startedAt = performance.now();
+        this._elapsedBeforePause = 0;
+        this._paused = false;
+        this._speed = 1;
+        this._showGuides = false;
+        m.on("viewreset zoomend moveend resize", this._sync, this);
+        this._sync();
+        this._animate();
+      },
+
+      onRemove(m) {
+        L.DomUtil.remove(this._canvas);
+        m.off("viewreset zoomend moveend resize", this._sync, this);
+      },
+
+      _sync() {
+        const size = this._map.getSize();
+        const topLeft = this._map.containerPointToLayerPoint([0, 0]);
+        L.DomUtil.setPosition(this._canvas, topLeft);
+        this._canvas.width = size.x;
+        this._canvas.height = size.y;
+        this._probes = createProbes(size);
+      },
+
+      restart() {
+        this._startedAt = performance.now();
+        this._elapsedBeforePause = 0;
+        this._paused = false;
+        this._probes = createProbes(this._map.getSize());
+      },
+
+      setPaused(paused) {
+        if (paused === this._paused) return;
+        if (paused) {
+          this._elapsedBeforePause = (performance.now() - this._startedAt) * this._speed;
+        } else {
+          this._startedAt = performance.now() - this._elapsedBeforePause / this._speed;
+        }
+        this._paused = paused;
+      },
+
+      setSpeed(speed) {
+        const now = performance.now();
+        this._elapsedBeforePause = this._paused
+          ? this._elapsedBeforePause
+          : (now - this._startedAt) * this._speed;
+        this._speed = speed;
+        this._startedAt = now - this._elapsedBeforePause / this._speed;
+      },
+
+      _draw(now) {
+        const ctx = this._ctx;
+        const elapsed = this._paused ? this._elapsedBeforePause : (now - this._startedAt) * this._speed;
+        const motionT = Math.max(0, Math.min(1, (elapsed - MOTION_DELAY_MS) / 1100));
+        const reproductionT = Math.max(0, Math.min(1, (elapsed - MOTION_DELAY_MS - 1050) / 2600));
+        const confidenceT = Math.max(0, Math.min(1, (elapsed - MOTION_DELAY_MS - 3300) / 1800));
+        const ghostAbortT = Math.max(0, Math.min(1, (elapsed - MOTION_DELAY_MS - 4300) / 1800));
+        const interiorFillT = Math.max(0, Math.min(1, (elapsed - MOTION_DELAY_MS - 3900) / 2700));
+        const easedMotion = motionT * motionT * (3 - 2 * motionT);
+        const easedConfidence = confidenceT * confidenceT * (3 - 2 * confidenceT);
+        const easedGhostAbort = ghostAbortT * ghostAbortT * (3 - 2 * ghostAbortT);
+        const easedInteriorFill = interiorFillT * interiorFillT * (3 - 2 * interiorFillT);
+        document.getElementById("status").textContent = motionT > 0
+          ? ghostAbortT > 0.05
+            ? "ghost candidate samples fading"
+            : confidenceT > 0.10
+              ? "boundary confidence culling wrong-side samples"
+              : reproductionT > 0.08
+                ? "local reproduction near boundary candidates"
+                : "scouts searching hidden regions"
+          : "latent probes initializing";
+
+        ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        if (this._showGuides) {
+          this._drawGuides(ctx);
+        }
+        const contours = protoContours(this._map.getSize());
+        for (const probe of this._probes) {
+          const isGhost = probe.regionType === "ghost";
+          const isSpawn = probe.generation === "spawn" || probe.generation === "ghost-spawn";
+          const localDuration = isSpawn
+            ? isGhost
+              ? 1500
+              : probe.structuralRole === "interior"
+                ? 2250
+                : 1650
+            : 1250;
+          const localT = Math.max(0, Math.min(1, (elapsed - MOTION_DELAY_MS - probe.delay) / localDuration));
+          if (isSpawn && localT <= 0) continue;
+          const easedLocal = localT * localT * (3 - 2 * localT);
+          const organizationT = easedMotion * (0.36 + easedLocal * 0.64);
+          const contour = contours[CLASS_TO_CONTOUR_INDEX[probe.sampleClass]];
+          const nearest = contour ? nearestOnContour(probe.target, contour) : null;
+          const flowT = probe.structuralRole === "boundary"
+            ? Math.sin(easedLocal * Math.PI) * (isSpawn ? 8 : 15) * probe.tangentDirection
+            : probe.structuralRole === "interior"
+              ? Math.sin(easedLocal * Math.PI) * 3 * probe.tangentDirection
+              : 0;
+          const baseX = probe.start.x + (probe.target.x - probe.start.x) * organizationT;
+          const baseY = probe.start.y + (probe.target.y - probe.start.y) * organizationT;
+          const x = nearest ? baseX + nearest.tangent.x * flowT : baseX;
+          const y = nearest ? baseY + nearest.tangent.y * flowT : baseY;
+          const isWrongSide = probe.regionType === "selected" && probe.structuralRole === "boundary" && probe.candidateSide === "outside";
+          const birthPresence = isSpawn ? easedLocal : 1;
+          const wrongSidePresence = isWrongSide ? Math.max(0.08, 1 - easedConfidence * 0.92) : 1;
+          const ghostPresence = isGhost ? Math.max(0, birthPresence * (1 - easedGhostAbort * 0.96)) : 1;
+          const unresolvedPresence = probe.regionType === "unresolved" ? Math.max(0.16, 1 - reproductionT * 0.72) : 1;
+          const interiorPresence = probe.regionType === "selected" && probe.structuralRole === "interior"
+            ? 0.78 + easedInteriorFill * 0.38
+            : 1;
+          const boundaryConfidenceBoost = probe.regionType === "selected" && probe.structuralRole === "boundary" && !isWrongSide
+            ? 1 + easedConfidence * 0.16
+            : 1;
+          const stableAlpha = probe.alpha
+            * birthPresence
+            * wrongSidePresence
+            * ghostPresence
+            * unresolvedPresence
+            * interiorPresence
+            * boundaryConfidenceBoost;
+          if (stableAlpha < 0.025) continue;
+          const visibleRadius = Math.max(
+            isSpawn ? 0.34 : MIN_PROBE_RADIUS,
+            (probe.radius
+              + (probe.regionType === "selected" ? easedLocal * 0.12 : 0)
+              + (probe.structuralRole === "boundary" ? easedLocal * 0.28 : 0)
+              + (probe.structuralRole === "interior" ? easedInteriorFill * 0.12 : 0))
+              * (isSpawn ? 0.42 + birthPresence * 0.58 : 1)
+          );
+          const classStyle = isGhost
+            ? SIDE_COLORS.ghost
+            : isWrongSide
+              ? SIDE_COLORS.wrong
+              : probe.regionType === "unresolved"
+                ? SIDE_COLORS.unresolved
+                : probe.structuralRole === "interior"
+                  ? SIDE_COLORS.interior
+                  : probe.boundarySide > 0
+                    ? SIDE_COLORS.positive
+                    : SIDE_COLORS.negative;
+          const base = isGhost
+            ? [76, 71, 105]
+            : probe.regionType === "unresolved"
+              ? [70, 76, 88]
+              : probe.structuralRole === "interior"
+                ? [44, 95, 78]
+                : probe.boundarySide > 0
+                  ? [48, 93, 118]
+                  : [118, 82, 50];
+          const highlight = probe.prioritySeed
+            ? [184, 145, 58]
+            : classStyle.body;
+          const colorT = Math.min(1, motionT * 0.28 + easedLocal * 0.68 + easedConfidence * 0.18);
+          const red = Math.round(base[0] + (highlight[0] - base[0]) * colorT);
+          const green = Math.round(base[1] + (highlight[1] - base[1]) * colorT);
+          const blue = Math.round(base[2] + (highlight[2] - base[2]) * colorT);
+
+          ctx.save();
+          ctx.globalAlpha = stableAlpha * 0.74;
+          ctx.fillStyle = `rgb(${Math.max(54, red - 34)}, ${Math.max(62, green - 34)}, ${Math.max(70, blue - 32)})`;
+          ctx.beginPath();
+          ctx.arc(x, y, visibleRadius + 0.22, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.globalAlpha = Math.min(0.94, stableAlpha + 0.06);
+          ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+          ctx.beginPath();
+          ctx.arc(x, y, visibleRadius, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.globalAlpha = Math.min(0.72, stableAlpha + 0.14);
+          ctx.fillStyle = `rgb(${classStyle.core[0]}, ${classStyle.core[1]}, ${classStyle.core[2]})`;
+          ctx.beginPath();
+          ctx.arc(x - visibleRadius * 0.26, y - visibleRadius * 0.30, Math.max(0.36, visibleRadius * 0.24), 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        }
+      },
+
+      _drawGuides(ctx) {
+        const contours = protoContours(this._map.getSize());
+        const selected = contours[SELECTED_CONTOUR_INDEX];
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.globalAlpha = 0.11;
+        ctx.strokeStyle = "rgb(54, 137, 106)";
+        ctx.lineWidth = selected.width * 1.42;
+        this._traceContour(ctx, selected.points);
+        ctx.stroke();
+
+        ctx.globalAlpha = 0.34;
+        ctx.strokeStyle = "rgb(54, 137, 106)";
+        ctx.lineWidth = Math.max(4, selected.width * 0.08);
+        this._traceContour(ctx, selected.points);
+        ctx.stroke();
+        this._drawGuideLabel(ctx, "selected hidden region", selected.points[2], SIDE_COLORS.interior.body);
+
+        this._drawBoundaryZoneGuide(ctx, selected, 1, SIDE_COLORS.positive.body, "right-side boundary candidates");
+        this._drawBoundaryZoneGuide(ctx, selected, -1, SIDE_COLORS.negative.body, "left-side boundary candidates");
+        this._drawBoundaryZoneGuide(ctx, selected, 1.26, SIDE_COLORS.wrong.body, "wrong-side samples");
+        this._drawBoundaryZoneGuide(ctx, selected, -1.26, SIDE_COLORS.wrong.body, "wrong-side samples");
+
+        for (const index of GHOST_CONTOUR_INDICES) {
+          const ghost = contours[index];
+          ctx.globalAlpha = 0.08;
+          ctx.strokeStyle = "rgb(124, 111, 180)";
+          ctx.lineWidth = ghost.width * 1.12;
+          this._traceContour(ctx, ghost.points);
+          ctx.stroke();
+          this._drawBoundaryZoneGuide(ctx, ghost, 1, SIDE_COLORS.ghost.body, "ghost one-sided boundary zone");
+          this._drawGuideLabel(ctx, "ghost candidate region", ghost.points[Math.floor(ghost.points.length * 0.46)], SIDE_COLORS.ghost.body);
+        }
+        ctx.restore();
+      },
+
+      _drawBoundaryZoneGuide(ctx, contour, side, color, label) {
+        const points = this._offsetContourPoints(contour.points, contour.width * side);
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.globalAlpha = Math.abs(side) > 1.1 ? 0.22 : 0.38;
+        ctx.strokeStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        ctx.lineWidth = Math.max(3, contour.width * (Math.abs(side) > 1.1 ? 0.055 : 0.075));
+        this._traceContour(ctx, points);
+        ctx.stroke();
+        const labelPoint = points[Math.floor(points.length * (side > 0 ? 0.62 : 0.34))];
+        this._drawGuideLabel(ctx, label, labelPoint, color);
+        ctx.restore();
+      },
+
+      _drawGuideLabel(ctx, label, point, color) {
+        ctx.save();
+        ctx.globalAlpha = 0.62;
+        ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        ctx.font = "12px Inter, system-ui, sans-serif";
+        ctx.fillText(label, point.x + 10, point.y - 10);
+        ctx.restore();
+      },
+
+      _offsetContourPoints(points, offset) {
+        return points.map((point, index) => {
+          const prev = points[Math.max(0, index - 1)];
+          const next = points[Math.min(points.length - 1, index + 1)];
+          const dx = next.x - prev.x;
+          const dy = next.y - prev.y;
+          const len = Math.hypot(dx, dy) || 1;
+          return {
+            x: point.x + (-dy / len) * offset,
+            y: point.y + (dx / len) * offset,
+          };
+        });
+      },
+
+      _traceContour(ctx, points) {
+        ctx.beginPath();
+        points.forEach((point, index) => {
+          if (index === 0) ctx.moveTo(point.x, point.y);
+          else ctx.lineTo(point.x, point.y);
+        });
+      },
+
+      _animate(now = performance.now()) {
+        this._draw(now);
+        requestAnimationFrame((next) => this._animate(next));
+      },
+    });
+
+    const substrateLayer = new TruthSubstrateLayer().addTo(map);
+    const playPauseButton = document.getElementById("playPause");
+    const restartButton = document.getElementById("restart");
+    const speedButton = document.getElementById("speed");
+    const guidesButton = document.getElementById("guides");
+
+    playPauseButton.addEventListener("click", () => {
+      substrateLayer.setPaused(!substrateLayer._paused);
+      playPauseButton.textContent = substrateLayer._paused ? "Play" : "Pause";
+    });
+
+    restartButton.addEventListener("click", () => {
+      substrateLayer.restart();
+      playPauseButton.textContent = "Pause";
+    });
+
+    speedButton.addEventListener("click", () => {
+      const nextSpeed = substrateLayer._speed === 1 ? 4 : 1;
+      substrateLayer.setSpeed(nextSpeed);
+      speedButton.textContent = `Speed: ${nextSpeed}x`;
+    });
+
+    guidesButton.addEventListener("click", () => {
+      substrateLayer._showGuides = !substrateLayer._showGuides;
+      guidesButton.setAttribute("aria-pressed", String(substrateLayer._showGuides));
+      guidesButton.textContent = substrateLayer._showGuides ? "Hide target guides" : "Show target guides";
+    });
+
+    window.__truthSubstrateSandbox = {
+      mode: "layer1-purposeful-discovery-field",
+      sampleClassCount: 3,
+      hasComputationalDiscovery: true,
+      hasEdgeLogic: false,
+      hasPolygonLogic: false,
+      hasLayer2Symbolism: false,
+      hasLayer3Interpretation: false,
+      hasLayer4Optimization: false,
+      hasMotion: true,
+      startsMotionAfterMs: MOTION_DELAY_MS,
+      hasSampleClassification: true,
+      getProbeCount: () => substrateLayer._probes.length,
+      setSpeed: (speed) => substrateLayer.setSpeed(speed),
+      restart: () => substrateLayer.restart(),
+      setGuides: (show) => {
+        substrateLayer._showGuides = Boolean(show);
+        guidesButton.setAttribute("aria-pressed", String(substrateLayer._showGuides));
+        guidesButton.textContent = substrateLayer._showGuides ? "Hide target guides" : "Show target guides";
+      },
+      getState: () => ({
+        speed: substrateLayer._speed,
+        paused: substrateLayer._paused,
+        showGuides: substrateLayer._showGuides,
+      }),
+    };
+  </script>
+</body>
+</html>

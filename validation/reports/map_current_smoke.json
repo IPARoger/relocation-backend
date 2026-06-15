@@ -1,0 +1,400 @@
+{
+  "description": "map_CURRENT.html browser smoke test",
+  "url": "http://127.0.0.1:8000/map_CURRENT.html?bust=1779652586&skipOnboarding=1",
+  "generated_at_utc": "2026-05-24T19:56:52.984251+00:00",
+  "overall_pass": true,
+  "checks": [
+    {
+      "id": "page_loads",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "title": "Relocation Mapper"
+      }
+    },
+    {
+      "id": "profile_options",
+      "pass": true,
+      "detail": {
+        "labels": [
+          "Baseline Validated Chart",
+          "Edge Case \u2014 High Northern Birth",
+          "Edge Case \u2014 Southern Hemisphere Birth"
+        ]
+      }
+    },
+    {
+      "id": "profile_select_stable_on_open",
+      "pass": true,
+      "detail": {
+        "before": "baseline_validated",
+        "after_open": "baseline_validated"
+      }
+    },
+    {
+      "id": "profile_select_changes",
+      "pass": true,
+      "detail": {
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "baseline_validated",
+        "after": "edge_high_north"
+      }
+    },
+    {
+      "id": "planet_select_changes",
+      "pass": true,
+      "detail": {
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "sun",
+        "after": "moon"
+      }
+    },
+    {
+      "id": "house_select_changes",
+      "pass": true,
+      "detail": {
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "1",
+        "after": "7"
+      }
+    },
+    {
+      "id": "angle_select_changes",
+      "pass": true,
+      "detail": {
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "",
+        "after": "ASC"
+      }
+    },
+    {
+      "id": "sign_select_changes",
+      "pass": true,
+      "detail": {
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "aries",
+        "after": "sagittarius"
+      }
+    },
+    {
+      "id": "aspect_select",
+      "pass": true,
+      "detail": {
+        "labels": [
+          "Conjunction",
+          "Opposition",
+          "Square",
+          "Trine",
+          "Sextile",
+          "All Hard Aspects",
+          "All Soft Aspects",
+          "All Major Aspects"
+        ],
+        "focused_on_click": true,
+        "value_changed": true,
+        "before": "conjunction",
+        "after": "any"
+      }
+    },
+    {
+      "id": "find_regions_clickable",
+      "pass": true,
+      "detail": {
+        "visible": true,
+        "enabled": true,
+        "in_viewport": true
+      }
+    },
+    {
+      "id": "overlay_generation",
+      "pass": true,
+      "detail": {
+        "polygonLayers": 429,
+        "aspectLayers": 10,
+        "auraLayers": 0,
+        "rasterAura": {
+          "initialized": false,
+          "stage": null,
+          "sampleCount": 0,
+          "gridWidth": null,
+          "gridHeight": null,
+          "latCap": "ON",
+          "renderMode": "raster",
+          "sampleReductionPct": null,
+          "leafCount": null
+        },
+        "substrateAdapter": {
+          "version": 1,
+          "hostOwns": [
+            "leaflet_map",
+            "visible_layers",
+            "sidebar_inputs",
+            "popup_truth",
+            "render_status",
+            "debug_panels"
+          ],
+          "substrateOwns": [
+            "classification_requests",
+            "point_order",
+            "mask_order",
+            "refinement_metrics",
+            "cancellation_signal"
+          ],
+          "cacheOwns": [
+            "cache_key_shape",
+            "foreground_background_priority",
+            "abort_without_commit",
+            "budget_accounting"
+          ]
+        },
+        "rendererSubstrate": "legacy_search_regions",
+        "rendererSubstrates": {
+          "LEGACY_SEARCH_REGIONS": "legacy_search_regions",
+          "CANONICAL_SCREEN_SPACE": "canonical_screen_space"
+        },
+        "canonicalRendererBranchActive": false,
+        "canonicalDryRunEnabled": false,
+        "canonicalVisibleDebugEnabled": false,
+        "canonicalShowAllSamplesEnabled": false,
+        "canonicalEdgeRefinementEnabled": false,
+        "canonicalDebugBlockPx": 12,
+        "canonicalDryRun": null,
+        "canonicalVisibleDebug": null,
+        "canonicalVisibleDebugLayers": 0,
+        "latCap": "ON",
+        "renderStatus": "ASC overlay final ready",
+        "findBtnDisabled": false,
+        "nonFiniteCoords": 0,
+        "libraryHandoff": {
+          "libraryAvailable": true,
+          "libraryChartCount": 1,
+          "activeLibraryChartId": "lib_chart_1",
+          "activeLibraryChartSource": null,
+          "selectionAppliedFrom": null,
+          "selectionAppliedId": null,
+          "viewRequestedId": null,
+          "viewAppliedId": null,
+          "viewAppliedChartId": null,
+          "viewAppliedSource": null,
+          "investigationConditionsSaved": 0,
+          "investigationConditionsApplied": 0,
+          "investigationReplayError": null,
+          "viewReplayError": null
+        }
+      }
+    },
+    {
+      "id": "default_renderer_substrate",
+      "pass": true,
+      "detail": {
+        "rendererSubstrate": "legacy_search_regions",
+        "canonicalRendererBranchActive": false,
+        "canonicalVisibleDebugEnabled": false,
+        "canonicalDryRunEnabled": false
+      }
+    },
+    {
+      "id": "find_regions_repeat",
+      "pass": true,
+      "detail": {
+        "polygonLayers": 429,
+        "aspectLayers": 10,
+        "auraLayers": 0,
+        "rasterAura": {
+          "initialized": false,
+          "stage": null,
+          "sampleCount": 0,
+          "gridWidth": null,
+          "gridHeight": null,
+          "latCap": "ON",
+          "renderMode": "raster",
+          "sampleReductionPct": null,
+          "leafCount": null
+        },
+        "substrateAdapter": {
+          "version": 1,
+          "hostOwns": [
+            "leaflet_map",
+            "visible_layers",
+            "sidebar_inputs",
+            "popup_truth",
+            "render_status",
+            "debug_panels"
+          ],
+          "substrateOwns": [
+            "classification_requests",
+            "point_order",
+            "mask_order",
+            "refinement_metrics",
+            "cancellation_signal"
+          ],
+          "cacheOwns": [
+            "cache_key_shape",
+            "foreground_background_priority",
+            "abort_without_commit",
+            "budget_accounting"
+          ]
+        },
+        "rendererSubstrate": "legacy_search_regions",
+        "rendererSubstrates": {
+          "LEGACY_SEARCH_REGIONS": "legacy_search_regions",
+          "CANONICAL_SCREEN_SPACE": "canonical_screen_space"
+        },
+        "canonicalRendererBranchActive": false,
+        "canonicalDryRunEnabled": false,
+        "canonicalVisibleDebugEnabled": false,
+        "canonicalShowAllSamplesEnabled": false,
+        "canonicalEdgeRefinementEnabled": false,
+        "canonicalDebugBlockPx": 12,
+        "canonicalDryRun": null,
+        "canonicalVisibleDebug": null,
+        "canonicalVisibleDebugLayers": 0,
+        "latCap": "ON",
+        "renderStatus": "ASC overlay final ready",
+        "findBtnDisabled": false,
+        "nonFiniteCoords": 0,
+        "libraryHandoff": {
+          "libraryAvailable": true,
+          "libraryChartCount": 1,
+          "activeLibraryChartId": "lib_chart_1",
+          "activeLibraryChartSource": null,
+          "selectionAppliedFrom": null,
+          "selectionAppliedId": null,
+          "viewRequestedId": null,
+          "viewAppliedId": null,
+          "viewAppliedChartId": null,
+          "viewAppliedSource": null,
+          "investigationConditionsSaved": 0,
+          "investigationConditionsApplied": 0,
+          "investigationReplayError": null,
+          "viewReplayError": null
+        }
+      }
+    },
+    {
+      "id": "profile_switch_rerender",
+      "pass": true,
+      "detail": {
+        "polygonLayers": 623,
+        "aspectLayers": 10,
+        "auraLayers": 0,
+        "rasterAura": {
+          "initialized": false,
+          "stage": null,
+          "sampleCount": 0,
+          "gridWidth": null,
+          "gridHeight": null,
+          "latCap": "ON",
+          "renderMode": "raster",
+          "sampleReductionPct": null,
+          "leafCount": null
+        },
+        "substrateAdapter": {
+          "version": 1,
+          "hostOwns": [
+            "leaflet_map",
+            "visible_layers",
+            "sidebar_inputs",
+            "popup_truth",
+            "render_status",
+            "debug_panels"
+          ],
+          "substrateOwns": [
+            "classification_requests",
+            "point_order",
+            "mask_order",
+            "refinement_metrics",
+            "cancellation_signal"
+          ],
+          "cacheOwns": [
+            "cache_key_shape",
+            "foreground_background_priority",
+            "abort_without_commit",
+            "budget_accounting"
+          ]
+        },
+        "rendererSubstrate": "legacy_search_regions",
+        "rendererSubstrates": {
+          "LEGACY_SEARCH_REGIONS": "legacy_search_regions",
+          "CANONICAL_SCREEN_SPACE": "canonical_screen_space"
+        },
+        "canonicalRendererBranchActive": false,
+        "canonicalDryRunEnabled": false,
+        "canonicalVisibleDebugEnabled": false,
+        "canonicalShowAllSamplesEnabled": false,
+        "canonicalEdgeRefinementEnabled": false,
+        "canonicalDebugBlockPx": 12,
+        "canonicalDryRun": null,
+        "canonicalVisibleDebug": null,
+        "canonicalVisibleDebugLayers": 0,
+        "latCap": "ON",
+        "renderStatus": "ASC overlay final ready",
+        "findBtnDisabled": false,
+        "nonFiniteCoords": 0,
+        "libraryHandoff": {
+          "libraryAvailable": true,
+          "libraryChartCount": 1,
+          "activeLibraryChartId": "lib_chart_1",
+          "activeLibraryChartSource": null,
+          "selectionAppliedFrom": null,
+          "selectionAppliedId": null,
+          "viewRequestedId": null,
+          "viewAppliedId": null,
+          "viewAppliedChartId": null,
+          "viewAppliedSource": null,
+          "investigationConditionsSaved": 0,
+          "investigationConditionsApplied": 0,
+          "investigationReplayError": null,
+          "viewReplayError": null
+        }
+      }
+    },
+    {
+      "id": "map_bounds_snapback",
+      "pass": true,
+      "detail": {
+        "within_max_bounds_before": true,
+        "within_max_bounds_after_drag": true
+      }
+    },
+    {
+      "id": "double_click_zoom",
+      "pass": true,
+      "detail": {
+        "before": 3,
+        "after_first": 3.25,
+        "after_second": 3.5
+      }
+    },
+    {
+      "id": "popup_open_and_close",
+      "pass": true,
+      "detail": {
+        "opened": true,
+        "closed_after_map_click": true
+      }
+    },
+    {
+      "id": "console_clean",
+      "pass": true,
+      "detail": {
+        "errors": []
+      }
+    },
+    {
+      "id": "backend_validation",
+      "pass": true,
+      "detail": {
+        "exit_code": 0,
+        "overall_pass": true,
+        "stdout": "{\n  \"overall_pass\": true,\n  \"report\": \"/Users/davegoodman/Desktop/relocation-backend/validation/reports/sprint_dc_ic_validation.json\"\n}",
+        "stderr": ""
+      }
+    }
+  ]
+}

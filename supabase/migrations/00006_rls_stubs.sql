@@ -1,0 +1,127 @@
+-- Schema sandbox only. Not applied. No app integration.
+-- RLS policy STUBS ONLY — entire file is documentation for a future auth slice.
+-- DO NOT uncomment or ENABLE ROW LEVEL SECURITY in the schema sandbox phase.
+
+-- ---------------------------------------------------------------------------
+-- Future auth integration notes
+-- ---------------------------------------------------------------------------
+-- When auth is approved:
+--   1. Map auth.users.id -> professional_accounts (or join table).
+--   2. ENABLE ROW LEVEL SECURITY on each table below.
+--   3. Uncomment and adapt policies.
+--   4. Validate with integration tests — not before.
+--
+-- Sandbox phase: no RLS, no auth dependency, no supabase-js in app.
+
+-- ---------------------------------------------------------------------------
+-- professional_accounts
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE professional_accounts ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY professional_accounts_select_own
+--     ON professional_accounts
+--     FOR SELECT
+--     USING (id = current_professional_account_id());
+--
+-- CREATE POLICY professional_accounts_update_own
+--     ON professional_accounts
+--     FOR UPDATE
+--     USING (id = current_professional_account_id());
+
+-- ---------------------------------------------------------------------------
+-- clients (scoped to account)
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY clients_account_isolation
+--     ON clients
+--     FOR ALL
+--     USING (account_id = current_professional_account_id());
+
+-- ---------------------------------------------------------------------------
+-- birth_profiles (via client ownership)
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE birth_profiles ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY birth_profiles_via_client
+--     ON birth_profiles
+--     FOR ALL
+--     USING (
+--         EXISTS (
+--             SELECT 1 FROM clients c
+--             WHERE c.birth_profile_id = birth_profiles.id
+--               AND c.account_id = current_professional_account_id()
+--         )
+--     );
+
+-- ---------------------------------------------------------------------------
+-- places (shared reference data — policy TBD at auth slice)
+-- ---------------------------------------------------------------------------
+-- Places may be readable across accounts (geoname catalog) or scoped.
+-- Decision deferred. Do not enable until place ownership model is defined.
+--
+-- ALTER TABLE places ENABLE ROW LEVEL SECURITY;
+
+-- ---------------------------------------------------------------------------
+-- saved_investigations, saved_charts, favorite_cities, comparison_sets
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE saved_investigations ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE saved_charts ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE favorite_cities ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE comparison_sets ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY saved_investigations_account_isolation
+--     ON saved_investigations
+--     FOR ALL
+--     USING (
+--         EXISTS (
+--             SELECT 1 FROM clients c
+--             WHERE c.id = saved_investigations.client_id
+--               AND c.account_id = current_professional_account_id()
+--         )
+--     );
+--
+-- (Mirror pattern for saved_charts, favorite_cities, comparison_sets via client_id.)
+
+-- ---------------------------------------------------------------------------
+-- comparison_set_places (via comparison_sets)
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE comparison_set_places ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY comparison_set_places_via_set
+--     ON comparison_set_places
+--     FOR ALL
+--     USING (
+--         EXISTS (
+--             SELECT 1
+--             FROM comparison_sets cs
+--             JOIN clients c ON c.id = cs.client_id
+--             WHERE cs.id = comparison_set_places.comparison_set_id
+--               AND c.account_id = current_professional_account_id()
+--         )
+--     );
+
+-- ---------------------------------------------------------------------------
+-- user_settings, tags, entity_tags, notes
+-- ---------------------------------------------------------------------------
+-- ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE entity_tags ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+--
+-- CREATE POLICY user_settings_account_own
+--     ON user_settings
+--     FOR ALL
+--     USING (account_id = current_professional_account_id());
+--
+-- CREATE POLICY tags_account_own
+--     ON tags
+--     FOR ALL
+--     USING (account_id = current_professional_account_id());
+--
+-- CREATE POLICY notes_account_own
+--     ON notes
+--     FOR ALL
+--     USING (account_id = current_professional_account_id());
+
+-- End of RLS stubs. No statements above this line are executed in sandbox phase.

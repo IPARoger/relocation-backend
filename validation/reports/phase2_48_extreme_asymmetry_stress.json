@@ -1,0 +1,193 @@
+{
+  "aesthetic_improved": false,
+  "artifact": "validation/visual_targets/phase2_48_extreme_asymmetry_stress.png",
+  "cases": {
+    "dynamic_10_to_0_5": {
+      "left_width": 10,
+      "right_width": "10 -> 0.5"
+    },
+    "dynamic_3_to_0_25": {
+      "left_width": 10,
+      "right_width": "3 -> 0.25"
+    },
+    "fixed_10_0_5": {
+      "left_width": 10,
+      "right_width": 0.5
+    },
+    "fixed_10_1": {
+      "left_width": 10,
+      "right_width": 1
+    }
+  },
+  "forbidden_operations": {
+    "aesthetic_improvement": false,
+    "commit": false,
+    "map_integration": false,
+    "production_integration": false,
+    "staging": false,
+    "texture_redesign": false,
+    "transport_redesign": false
+  },
+  "frozen_invariants": [
+    "transport",
+    "geometry",
+    "local (s,u) architecture",
+    "asymmetry handling",
+    "hierarchy logic",
+    "surface coherence logic"
+  ],
+  "generated_at_utc": "2026-05-26T13:02:13.484706+00:00",
+  "goal": "stress-test proportional side-local material scaling under near-collapse conditions",
+  "governance": {
+    "committed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "staged": false,
+    "validation_only": true
+  },
+  "phase": "2.48",
+  "qa": {
+    "continuity_survival": "pass for rendered stress board; no cross-section discontinuity observed",
+    "cropped_line_behavior": "not used algorithmically; visual line-likeness at smallest widths is an expected near-collapse display artifact",
+    "proportional_ridge_collapse": "pass with caveat - side-local u compresses the full hierarchy into the tiny side width; at 0.5 and 0.25 units the display can become nearly line-like due pixel resolution",
+    "ridge_becomes_stroke_like": "borderline only at near-collapse widths; caused by physical/display width, not separate stroke rendering or inherited large-scale ridge",
+    "same_material_smaller_scale": "pass - compressed side samples full local profile over side_u 0..1 instead of cropping the 10-unit side",
+    "tonal_hierarchy_survival": "pass at 1 unit, marginal but structurally truthful at 0.5/0.25 unit due severe pixel compression"
+  },
+  "revision": "extreme_asymmetry_stress_v1",
+  "stats": {
+    "graphite diagnostic": {
+      "dynamic 10 / 10 -> 0.5": {
+        "left_pixels": 872303,
+        "left_u_minmax": [
+          1.0754820323199965e-06,
+          0.9999966621398926
+        ],
+        "pixels_inside": 1326071,
+        "right_pixels": 453768,
+        "right_pixels_per_left_ratio": 0.5201953908217672,
+        "right_u_minmax": [
+          2.5408974124729866e-06,
+          0.9999994039535522
+        ],
+        "right_width_max_px": 400.0,
+        "right_width_min_px": 20.0
+      },
+      "dynamic 10 / 3 -> 0.25": {
+        "left_pixels": 873551,
+        "left_u_minmax": [
+          1.0893401167777483e-06,
+          0.9999977350234985
+        ],
+        "pixels_inside": 1013855,
+        "right_pixels": 140304,
+        "right_pixels_per_left_ratio": 0.16061340436906374,
+        "right_u_minmax": [
+          6.29770283921971e-06,
+          0.9999997615814209
+        ],
+        "right_width_max_px": 120.0,
+        "right_width_min_px": 10.0
+      },
+      "fixed 10 / 0.5": {
+        "left_pixels": 872303,
+        "left_u_minmax": [
+          1.3227108865976334e-06,
+          0.9999970197677612
+        ],
+        "pixels_inside": 915619,
+        "right_pixels": 43316,
+        "right_pixels_per_left_ratio": 0.04965705723813858,
+        "right_u_minmax": [
+          2.299584411957767e-05,
+          0.9999893307685852
+        ],
+        "right_width_max_px": 20.0,
+        "right_width_min_px": 20.0
+      },
+      "fixed 10 / 1": {
+        "left_pixels": 869333,
+        "left_u_minmax": [
+          1.1704629514497356e-06,
+          0.9999969601631165
+        ],
+        "pixels_inside": 955728,
+        "right_pixels": 86395,
+        "right_pixels_per_left_ratio": 0.09938078963987333,
+        "right_u_minmax": [
+          1.1497922059788834e-05,
+          0.999987781047821
+        ],
+        "right_width_max_px": 40.0,
+        "right_width_min_px": 40.0
+      }
+    },
+    "teal diagnostic": {
+      "dynamic 10 / 10 -> 0.5": {
+        "left_pixels": 872303,
+        "left_u_minmax": [
+          1.0754820323199965e-06,
+          0.9999966621398926
+        ],
+        "pixels_inside": 1326071,
+        "right_pixels": 453768,
+        "right_pixels_per_left_ratio": 0.5201953908217672,
+        "right_u_minmax": [
+          2.6308503038308118e-06,
+          0.9999993443489075
+        ],
+        "right_width_max_px": 400.0,
+        "right_width_min_px": 20.0
+      },
+      "dynamic 10 / 3 -> 0.25": {
+        "left_pixels": 873551,
+        "left_u_minmax": [
+          1.0893401167777483e-06,
+          0.9999977350234985
+        ],
+        "pixels_inside": 1013855,
+        "right_pixels": 140304,
+        "right_pixels_per_left_ratio": 0.16061340436906374,
+        "right_u_minmax": [
+          6.577658496098593e-06,
+          0.9999999403953552
+        ],
+        "right_width_max_px": 120.0,
+        "right_width_min_px": 10.0
+      },
+      "fixed 10 / 0.5": {
+        "left_pixels": 872303,
+        "left_u_minmax": [
+          1.3128947102813981e-06,
+          0.9999970197677612
+        ],
+        "pixels_inside": 915619,
+        "right_pixels": 43316,
+        "right_pixels_per_left_ratio": 0.04965705723813858,
+        "right_u_minmax": [
+          2.4030357963056304e-05,
+          0.9999893307685852
+        ],
+        "right_width_max_px": 20.0,
+        "right_width_min_px": 20.0
+      },
+      "fixed 10 / 1": {
+        "left_pixels": 869333,
+        "left_u_minmax": [
+          1.160651436293847e-06,
+          0.9999969601631165
+        ],
+        "pixels_inside": 955728,
+        "right_pixels": 86395,
+        "right_pixels_per_left_ratio": 0.09938078963987333,
+        "right_u_minmax": [
+          1.2015178981528152e-05,
+          0.9999874234199524
+        ],
+        "right_width_max_px": 40.0,
+        "right_width_min_px": 40.0
+      }
+    }
+  },
+  "texture_redesigned": false
+}

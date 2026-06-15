@@ -1,0 +1,128 @@
+name: two-agent-relay
+
+# SAFE BY DEFAULT:
+# - Runs ONLY when you click "Run workflow" (no automatic schedule yet).
+# - Defaults to dry_run = true: it calls NO paid APIs and changes nothing.
+# - Live runs do a cheap preflight first; if your OpenAI balance is empty it
+#   sends a Telegram "low-balance" warning and STOPS before any expensive work,
+#   so you are never charged twice for the same task.
+# - To fully automate later, uncomment the "schedule" block at the bottom.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no paid API calls, no changes)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout relay branch
+        uses: actions/checkout@v4
+        with:
+          ref: checkpoint/pre-phase-2-3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ---- DRY RUN PATH (free rehearsal) ----
+      - name: Dry-run rehearsal
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          python scripts/relay_preflight.py --dry-run
+          python scripts/relay_planner.py --dry-run
+          python scripts/relay_executor.py --dry-run
+
+      # ---- LIVE PATH ----
+      - name: Preflight balance check (cheap)
+        id: preflight
+        if: ${{ inputs.dry_run == false }}
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+        run: |
+          set +e
+          OUT="$(python scripts/relay_preflight.py)"; CODE=$?
+          echo "$OUT"
+          echo "result=$OUT" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Warn low balance and stop
+        if: ${{ inputs.dry_run == false && steps.preflight.outputs.code == '5' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python scripts/relay_notify.py low-balance
+          echo "Stopping: OpenAI balance is low. Top up and re-run." >&2
+          exit 1
+
+      - name: Install Cursor SDK (executor only)
+        if: ${{ inputs.dry_run == false && steps.preflight.outputs.code == '0' }}
+        run: pip install cursor-sdk
+
+      - name: Plan next task (GPT brain)
+        id: plan
+        if: ${{ inputs.dry_run == false && steps.preflight.outputs.code == '0' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+        run: |
+          OUT="$(python scripts/relay_planner.py)"; echo "$OUT"
+          echo "planner_out=$OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Commit new task to branch
+        if: ${{ inputs.dry_run == false && startsWith(steps.plan.outputs.planner_out, 'PLANNED') }}
+        run: |
+          git config user.name "relay-bot"
+          git config user.email "relay-bot@users.noreply.github.com"
+          git add tasks/
+          git commit -m "relay: plan ${{ steps.plan.outputs.planner_out }}" || echo "nothing to commit"
+          git push origin HEAD:checkpoint/pre-phase-2-3
+
+      - name: Execute task (Cursor cloud agent -> opens PR)
+        id: exec
+        if: ${{ inputs.dry_run == false && steps.preflight.outputs.code == '0' }}
+        continue-on-error: true
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          CURSOR_MODEL: ${{ secrets.CURSOR_MODEL }}
+          RELAY_BRANCH: checkpoint/pre-phase-2-3
+        run: |
+          set +e
+          OUT="$(python scripts/relay_executor.py)"; CODE=$?
+          echo "$OUT"
+          echo "exec_out=$OUT" >> "$GITHUB_OUTPUT"
+          echo "exec_code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Warn low balance (Cursor side)
+        if: ${{ inputs.dry_run == false && steps.exec.outputs.exec_code == '5' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/relay_notify.py low-balance
+
+      - name: Notify human — approval needed
+        if: ${{ inputs.dry_run == false && (startsWith(steps.plan.outputs.planner_out, 'PAUSE') || startsWith(steps.exec.outputs.exec_out, 'EXECUTED')) }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/relay_notify.py approval
+
+# To fully automate later, uncomment this. Scheduled runs use dry_run's default
+# (true). To run live on a schedule, also change the live-path steps to not
+# require inputs.dry_run == false.
+# on:
+#   schedule:
+#     - cron: "*/30 * * * *"   # every 30 minutes

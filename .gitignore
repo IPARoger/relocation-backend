@@ -10,3 +10,15 @@ ai_context/private/
 openai_api_key*
 *.secret
 .tmp-chrome-*/
+.playwright-browsers/
+
+# Phase 2.0 library scaffold persistence (local-only, never committed)
+library/library.json
+library/library.*.json
+
+# Secrets / env files (never commit — keys live in GitHub Actions secrets)
+.env.*
+!.env.example
+*api_key*
+*API_KEY*
+*.token

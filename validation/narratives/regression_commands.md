@@ -22,6 +22,29 @@ The same URL can be pasted directly into Chrome:
 
 `http://127.0.0.1:8000/map_CURRENT.html?generation_mode=truth_grid&debugGeometry=1`
 
+## UI handoff workflow
+
+See **`validation/narratives/smoke_and_handoff_workflow.md`** for the full gate:
+
+`IMPLEMENT → VALIDATE MATH → RUN SMOKE → REPORT → HUMAN QA → COMMIT`
+
+## map_CURRENT browser smoke (required before human QA)
+
+One-time setup:
+
+```bash
+./venv/bin/pip install playwright
+./venv/bin/playwright install chromium
+```
+
+Run (server must be up):
+
+```bash
+./venv/bin/python3 scripts/smoke_map_current.py
+```
+
+Writes `validation/reports/map_current_smoke.json`. Exit code `0` = all checks pass (controls, map, popup, overlay generation, repeat find, profile re-render, console clean, backend validation).
+
 ## Quick Served-route Smoke Test
 
 ```bash

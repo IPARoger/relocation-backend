@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<!--
+  Application shell — clickable walkthrough of future product (Screens 0–6).
+
+  Placeholder only: no astrology math, no renderer, no writes, no AI.
+  Chart Record library: read-only from Store v3 scaffold (/local-product-store.json).
+  Context transport: hash route + query params (see ROUTE_CONTEXT_CONTRACT).
+  Traces to: docs/architecture/client_chart_data_model_v1_2026-05-29.md
+
+  Test hook: window.__rmAppShell
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Relocation App — Application Shell</title>
+<link rel="stylesheet" href="/genie_variable_builder.css" />
+<style>
+  :root {
+    --fg: #111827;
+    --muted: #6b7280;
+    --line: #d1d5db;
+    --bg: #f9fafb;
+    --panel: #ffffff;
+    --accent: #1d4ed8;
+    --stub: #fef3c7;
+    --future: #f3f4f6;
+    --warn: #fef2f2;
+    --warn-border: #fca5a5;
+    --ok: #ecfdf5;
+    --ok-border: #6ee7b7;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 system-ui, -apple-system, sans-serif; }
+  a { color: var(--accent); }
+  header.app-header {
+    padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  }
+  header.app-header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+  header.app-header .tag { font-size: 11px; color: var(--muted); }
+  nav.primary-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  nav.primary-nav button.linkish {
+    font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--line);
+    background: var(--panel); border-radius: 4px; color: var(--fg); cursor: pointer;
+  }
+  nav.primary-nav button.linkish.active {
+    border-color: var(--accent); background: #eff6ff;
+  }
+  .screen-meta { margin-left: auto; font-size: 11px; color: var(--muted); }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  .screen h2 { margin: 0 0 4px; font-size: 20px; }
+  .screen .purpose { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px; margin-bottom: 12px;
+  }
+  .panel h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .panel.owner-card { border-color: var(--accent); background: #f8fafc; }
+  .stub {
+    background: var(--stub); border: 1px dashed #d97706; padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: #92400e; margin-bottom: 8px;
+  }
+  .future-only {
+    background: var(--future); border: 1px dashed var(--line); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: var(--muted); margin-bottom: 8px;
+  }
+  .warn-box {
+    background: var(--warn); border: 1px solid var(--warn-border); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: #991b1b; margin-bottom: 8px;
+  }
+  .notice-box {
+    background: var(--ok); border: 1px solid var(--ok-border); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; color: #065f46; margin-bottom: 8px;
+  }
+  ul.plain { list-style: none; margin: 0; padding: 0; }
+  ul.plain li { padding: 8px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px; }
+  ul.plain li .meta { font-size: 12px; color: var(--muted); display: block; margin-top: 4px; }
+  button, .btn {
+    font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--line);
+    background: var(--panel); border-radius: 4px; cursor: pointer; margin-right: 6px; margin-bottom: 6px;
+  }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  input, textarea, select {
+    width: 100%; max-width: 400px; padding: 6px 8px; border: 1px solid var(--line);
+    border-radius: 4px; font: inherit; margin-bottom: 8px;
+  }
+  select.inline { max-width: 100%; margin-bottom: 0; }
+  label.block { display: block; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+  .module { border-left: 3px solid var(--line); padding-left: 10px; margin-bottom: 12px; }
+  .module h4 { margin: 0 0 6px; font-size: 13px; }
+  .map-placeholder {
+    min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted);
+    padding: 16px; margin-bottom: 12px;
+  }
+  .drawer-placeholder {
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px; background: #fafafa;
+  }
+  .drawer-placeholder .genie-drawer-mount .genie-panel {
+    border-left: none;
+    max-height: 72vh;
+  }
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel); border-radius: 8px; max-width: 420px; width: 100%;
+    padding: 16px; border: 1px solid var(--line);
+  }
+  .modal h3 { margin: 0 0 8px; }
+  table.simple { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.simple th, table.simple td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  table.simple th { background: #f3f4f6; font-weight: 600; }
+  .must-not { font-size: 12px; color: #991b1b; }
+  .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .shell-banner {
+    padding: 8px 16px; background: #fef3c7; border-bottom: 1px solid #d97706;
+    font-size: 13px; font-weight: 600; color: #92400e; text-align: center;
+  }
+  .shell-footer {
+    max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px;
+    font-size: 12px; color: var(--muted); border-top: 1px solid var(--line);
+  }
+  .shell-footer button.linkish {
+    font: inherit; font-size: 12px; padding: 0; border: none; background: none;
+    color: var(--muted); cursor: pointer; text-decoration: underline;
+  }
+  .context-chip {
+    background: #eff6ff; border: 1px dashed var(--accent); border-radius: 6px;
+    padding: 8px 10px; margin-bottom: 12px; font-size: 12px;
+  }
+  .context-chip .label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
+  .context-chip .id-line { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
+  .state-debug {
+    font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted);
+    background: #f3f4f6; padding: 8px; border-radius: 4px; margin-top: 8px; white-space: pre-wrap;
+  }
+
+  /* ── Profile Management screen ───────────────────────────────────────── */
+  .pm-grid { display:flex;flex-direction:column;gap:12px;margin-top:4px; }
+  .pm-card { display:flex;flex-direction:column;gap:6px; }
+  .pm-card-header { display:flex;align-items:baseline;gap:8px; }
+  .pm-card-name { font-size:14px;font-weight:600;color:#1e293b; }
+  .pm-card-default { color:#f59e0b;font-size:13px;flex-shrink:0; }
+  .pm-card-type { font-size:11px;color:#94a3b8; }
+  .pm-meta { font-size:12px;color:#475569;line-height:1.5; }
+  .pm-counts { font-size:12px;color:#64748b;display:flex;gap:12px;margin-top:2px; }
+  .pm-count-item { display:flex;align-items:center;gap:4px; }
+  .pm-actions { display:flex;gap:6px;flex-wrap:wrap;margin-top:4px; }
+  .pm-actions button { font-size:12px;padding:4px 10px; }
+  /* ── Settings: Location section ──────────────────────────────────────── */
+  .loc-row { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0; }
+  .loc-row-text { display:flex;flex-direction:column;gap:2px; }
+  .loc-future { margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px; }
+  .loc-future-head { font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:4px; }
+  .loc-future-row { opacity:.55; }
+  .loc-soon { font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #cbd5e1;background:#f1f5f9;color:#94a3b8;cursor:not-allowed; }
+  .loc-soon:disabled { pointer-events:none; }
+</style>
+</head>
+<body>
+
+<div class="shell-banner" role="status">
+  APPLICATION SHELL — placeholder walkthrough only. Not production UI.
+</div>
+
+<header class="app-header">
+  <h1>Relocation App</h1>
+  <span class="tag">Chart Record doctrine · placeholders only</span>
+  <nav class="primary-nav" id="primaryNav"></nav>
+  <button id="rm-acct-drawer-btn" type="button" data-action="open-account-drawer">Account</button>
+  <span class="screen-meta" id="screenMeta">Screen 0</span>
+</header>
+
+<main id="main"></main>
+
+<footer class="shell-footer">
+  <button type="button" class="linkish" id="footerFutureLink">Future rooms — quarantined</button>
+  <span> · not current build · post-v1 transit / AI / Layer 4–5 only</span>
+</footer>
+
+<div class="modal-backdrop" id="popupModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="popupTitle">
+    <h3 id="popupTitle">Screen 3 — Location Popup</h3>
+    <p class="purpose">Point truth · evaluation mood · <span id="popupPlaceLabel"></span></p>
+    <div id="popupTierWarning"></div>
+    <div class="module">
+      <p>Production map opens in the main map tool. Relocated chart facts are shown there and on the View Chart screen.</p>
+    </div>
+    <div class="row">
+      <button type="button" data-action="close-popup">Close</button>
+    </div>
+    <p class="must-not">Must not appear: dignity scoring, oracle copy, social share primary.</p>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="guidedOnboardingModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="guidedOnboardingTitle">
+    <h3 id="guidedOnboardingTitle">Welcome to Relocation App</h3>
+    <p class="purpose">A quick start before you explore the map.</p>
+    <p>Pick a profile, open the map, and right-click any city to see your relocated chart there. Your birth data stays fixed — the map shows how your chart shifts across the planet.</p>
+    <div class="row">
+      <button type="button" class="primary" data-action="guided-onboarding-start">Start here</button>
+      <button type="button" data-action="guided-onboarding-skip">Skip</button>
+    </div>
+  </div>
+</div>
+
+<script src="/supabase_client.js"></script>
+<script src="/auth_guard.js"></script>
+<script src="/user_profile.js"></script>
+<script src="/supabase_store_bridge.js"></script>
+<script src="/first_profile_intake.js"></script>
+<script src="/current_location_editor.js"></script>
+<script src="/account_drawer.js"></script>
+<script src="/genie_variable_builder.js"></script>
+<script>
+"use strict";
+
+/** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
+
+const STORE_JSON_URL = "/local-product-store.json";
+const CHART_RECORDS_API_URL = "/chart-records";
+const STORE_SCHEMA_VERSION = 3;
+const RESUME_CONTEXT_STUB = "Resume passes context only; saved conditions not replayed on map (v1).";
+
+/** @type {object | null} */
+let storeRaw = null;
+/** @type {object | null} */
+let viewModel = null;
+/** @type {string | null} */
+let storeLoadError = null;
+
+// Profile selection persistence — namespaced by userId to prevent cross-user bleed.
+// Falls back to user_settings.default_chart_record_id when nothing is stored.
+// localStorage is acceptable for v1; user_settings write path not yet implemented.
+function _loadPersistedChartRecord() {
+  try {
+    const uid = window.CurrentUser && window.CurrentUser.userId;
+    if (!uid) return null;
+    return localStorage.getItem("rm_selected_chart_" + uid) || null;
+  } catch (e) { return null; }
+}
+
+function _savePersistedChartRecord(id) {
+  try {
+    const uid = window.CurrentUser && window.CurrentUser.userId;
+    if (!uid || !id) return;
+    localStorage.setItem("rm_selected_chart_" + uid, id);
+  } catch (e) { /* localStorage unavailable */ }
+}
+
+const NAV_ROUTES = /** @type {const} */ ([
+  { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
+  { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
+  { id: "map", label: "2 Map", screen: "Screen 2 — Map Discovery" },
+  { id: "chart", label: "4 Chart", screen: "Screen 4 — View Chart" },
+  { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
+  { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
+  { id: "settings", label: "Settings", screen: "S5 — Settings (support route)" },
+  { id: "birth-data", label: "Birth data", screen: "S6 — Birth data intake (support route)" },
+]);
+
+const ALL_ROUTES = /** @type {const} */ ([
+  ...NAV_ROUTES,
+  { id: "future", label: "Future", screen: "Future Rooms (quarantined)" },
+  { id: "help", label: "Help & Learn", screen: "Help & Learn" },
+  { id: "profiles", label: "Profiles", screen: "Profile Management" },
+]);
+
+/**
+ * Context Transport Contract v1
+ *
+ * Strategy: HASH_ROUTE + QUERY_PARAMS on location.hash
+ *   Example: #/map?chartRecordId=cr-anna-rivera&placeId=place_portland&explorationId=exp-a1
+ *
+ * Rejected for Web 2.0 shell:
+ *   - Session-only state (breaks refresh, back/forward, deep links)
+ *   - Path-segment IDs (#/chart/cr-anna/map) — heavier route table for placeholder shell
+ *
+ * returnTo: pipe-encoded return snapshot — route|chartRecordId|placeId|explorationId|comparisonSetId
+ */
+const CONTEXT_TRANSPORT_STRATEGY = "hash-route-query";
+
+/**
+ * @typedef {Object} NavContext
+ * @property {Route} route
+ * @property {string|null} chartRecordId
+ * @property {string|null} placeId
+ * @property {string|null} explorationId
+ * @property {string|null} comparisonSetId
+ * @property {NavContext|null} returnTo
+ */
+
+/** @type {Record<Route, Record<string, "required"|"optional"|"none">>} */
+const ROUTE_CONTEXT_CONTRACT = {
+  dashboard: {
+    chartRecordId: "optional",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+  "chart-record": {
+    chartRecordId: "required",
+    placeId: "optional",
+    explorationId: "optional",
+    comparisonSetId: "optional",
+  },
+  map: {
+    chartRecordId: "required",
+    placeId: "optional",
+    explorationId: "optional",
+    comparisonSetId: "none",
+  },
+  chart: {
+    chartRecordId: "required",
+    placeId: "required",
+    explorationId: "optional",
+    comparisonSetId: "none",
+  },
+  compare: {
+    chartRecordId: "required",
+    placeId: "optional",
+    explorationId: "optional",
+    comparisonSetId: "required",
+  },
+  export: {
+    chartRecordId: "required",
+    placeId: "optional",
+    explorationId: "optional",
+    comparisonSetId: "optional",
+  },
+  settings: {
+    chartRecordId: "optional",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+  "birth-data": {
+    chartRecordId: "required",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+  future: {
+    chartRecordId: "none",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+  help: {
+    chartRecordId: "none",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+};
+
+const NAV_CONTEXT_KEYS = /** @type {const} */ ([
+  "chartRecordId",
+  "placeId",
+  "explorationId",
+  "comparisonSetId",
+]);
+
+/** @type {NavContext} */
+let navContext = {
+  route: "dashboard",
+  chartRecordId: null,
+  placeId: null,
+  explorationId: null,
+  comparisonSetId: null,
+  returnTo: null,
+};
+
+const uiState = {
+  drawerOpen: true,
+  popupOpen: false,
+  switchNotice: null,
+  mapEntrySource: null,
+};
+
+/** Back-compat test surface — mirrors navContext field names used by earlier shell smokes. */
+const state = {
+  get route() { return navContext.route; },
+  set route(v) { navContext.route = v; },
+  get activeChartRecordId() { return navContext.chartRecordId; },
+  set activeChartRecordId(v) { navContext.chartRecordId = v; },
+  get activeSavedExplorationId() { return navContext.explorationId; },
+  set activeSavedExplorationId(v) { navContext.explorationId = v; },
+  get activePlaceName() { return resolvePlaceName(navContext.placeId); },
+  set activePlaceName(displayName) {
+    navContext.placeId = resolvePlaceIdFromDisplayName(displayName);
+  },
+  get originatingChartRecordId() { return navContext.route === "compare" ? navContext.chartRecordId : null; },
+  get comparisonPlaceNames() { return comparisonPlaceNamesFromContext(); },
+  get drawerOpen() { return uiState.drawerOpen; },
+  set drawerOpen(v) { uiState.drawerOpen = v; },
+  get popupOpen() { return uiState.popupOpen; },
+  set popupOpen(v) { uiState.popupOpen = v; },
+  get switchNotice() { return uiState.switchNotice; },
+  set switchNotice(v) { uiState.switchNotice = v; },
+  get mapEntrySource() { return uiState.mapEntrySource; },
+  set mapEntrySource(v) { uiState.mapEntrySource = v; },
+};
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function indexById(rows) {
+  /** @type {Record<string, object>} */
+  const out = {};
+  for (const row of rows || []) {
+    if (row && row.id != null) out[String(row.id)] = row;
+  }
+  return out;
+}
+
+function capitalize(value) {
+  const s = String(value || "");
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+function ordinalHouse(n) {
+  const num = Number(n);
+  const mod100 = num % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${num}th`;
+  const mod10 = num % 10;
+  if (mod10 === 1) return `${num}st`;
+  if (mod10 === 2) return `${num}nd`;
+  if (mod10 === 3) return `${num}rd`;
+  return `${num}th`;
+}
+
+function formatTime12h(hhmm) {
+  const parts = String(hhmm || "").split(":");
+  const h = Number(parts[0]);
+  const m = Number(parts[1] || 0);
+  if (Number.isNaN(h)) return String(hhmm || "");
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function formatRecordType(recordType) {
+  if (recordType === "self") return "account owner (self)";
+  if (recordType === "research") return "research";
+  return recordType || "client";
+}
+
+function formatConfidenceTier(tier, birthProfile) {
+  const labels = {
+    T0: "T0 — Exact",
+    T1: "T1 — Approximate",
+    T2: "T2 — Bounded range (user-declared metadata)",
+    T3: "T3 — Unknown time",
+    T4: "T4 — Date only",
+  };
+  return labels[tier] || tier;
+}
+
+function hasBirthTimeUncertainty(birthProfile) {
+  const tier = birthProfile.confidence_tier;
+  if (tier === "T2" || tier === "T3" || tier === "T4") return true;
+  return birthProfile.birth_time == null && tier !== "T0";
+}
+
+function formatBirthTimeDisplay(birthProfile) {
+  const meta = birthProfile.confidence_metadata || {};
+  if (meta.time_range_display && birthProfile.birth_time == null) {
+    return `Time uncertain: ${meta.time_range_display}`;
+  }
+  if (birthProfile.birth_time) {
+    return formatTime12h(birthProfile.birth_time);
+  }
+  return "Time unknown";
+}
+
+function formatConditionTrack(track) {
+  if (!track || typeof track !== "object") return String(track);
+  if (track.type === "planet_in_house") {
+    return `planet-in-house: ${capitalize(track.planet)} in ${ordinalHouse(track.house)}`;
+  }
+  if (track.type === "angle_in_sign") {
+    return `angle-in-sign: ${String(track.angle || "").toUpperCase()} in ${capitalize(track.sign)}`;
+  }
+  if (track.type === "aspect_to_angle") {
+    return `aspect-to-angle: ${capitalize(track.planet)} ${track.aspect} ${String(track.angle || "").toUpperCase()}`;
+  }
+  return JSON.stringify(track);
+}
+
+function formatConditions(conditions) {
+  if (!conditions || typeof conditions !== "object") return [];
+  if (Array.isArray(conditions.tracks)) {
+    return conditions.tracks.map(formatConditionTrack);
+  }
+  const out = [];
+  for (const item of conditions.house_conditions || []) out.push(formatConditionTrack(item));
+  for (const item of conditions.angle_sign_conditions || []) out.push(formatConditionTrack(item));
+  if (conditions.aspect_overlay) out.push(formatConditionTrack(conditions.aspect_overlay));
+  return out;
+}
+
+function deriveConditionTitle(conditions) {
+  if (!conditions || typeof conditions !== "object") return "";
+  const ASPECT_SYMBOLS = { conjunction: "☌", opposition: "☍", square: "□", trine: "△", sextile: "⚹" };
+  const parts = [];
+  for (const item of conditions.house_conditions || []) {
+    if (item && item.planet != null && item.house != null) {
+      parts.push(`${capitalize(item.planet)} ${item.house}H`);
+    }
+  }
+  for (const item of conditions.angle_sign_conditions || []) {
+    if (item && item.angle && item.sign) {
+      parts.push(`${String(item.angle).toUpperCase()} ${capitalize(item.sign)}`);
+    }
+  }
+  const ao = conditions.aspect_overlay;
+  if (ao && ao.planet && ao.angle) {
+    const sym = ASPECT_SYMBOLS[ao.aspect] || ao.aspect || "";
+    parts.push(`${capitalize(ao.planet)} ${sym} ${String(ao.angle).toUpperCase()}`.replace(/\s+/g, " ").trim());
+  }
+  return parts.join(" · ");
+}
+
+function isDefaultInvestigationTitle(title) {
+  if (!title || title === "Untitled") return true;
+  return /^Investigation \d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(title);
+}
+
+// Condition-derived display title. Renamed (non-default) titles are preserved;
+// default timestamp titles are replaced by a title derived from saved conditions;
+// if no conditions exist, the original title is kept as a fallback.
+function investigationDisplayTitle(title, conditions) {
+  if (title && !isDefaultInvestigationTitle(title)) return title;
+  const derived = deriveConditionTitle(conditions);
+  if (derived) return derived;
+  return title || "Untitled";
+}
+
+function formatSavedLabel(updatedAt) {
+  if (!updatedAt) return "saved";
+  const ts = Date.parse(updatedAt);
+  if (Number.isNaN(ts)) return String(updatedAt);
+  const diffMs = Date.now() - ts;
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (hours < 1) return "auto-save draft";
+  if (hours < 48) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 14) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return updatedAt.slice(0, 10);
+}
+
+function placesForInvestigation(investigation, placesById, favoriteRows) {
+  return placesForInvestigationIds(investigation, placesById, favoriteRows).map(
+    (id) => placesById[id]?.display_name || id
+  );
+}
+
+function placesForInvestigationIds(investigation, placesById, favoriteRows) {
+  /** @type {Set<string>} */
+  const ids = new Set();
+  for (const fav of favoriteRows || []) {
+    if (fav.saved_investigation_id === investigation.id && fav.place_id) {
+      ids.add(fav.place_id);
+    }
+  }
+  const vp = investigation.viewport || {};
+  if (vp.center_lat != null && vp.center_lon != null) {
+    for (const place of Object.values(placesById)) {
+      if (
+        Math.abs(place.lat - vp.center_lat) < 0.05
+        && Math.abs(place.lon - vp.center_lon) < 0.05
+      ) {
+        ids.add(place.id);
+      }
+    }
+  }
+  return [...ids];
+}
+
+function adaptStoreToView(store) {
+  if (store.storage_schema_version !== STORE_SCHEMA_VERSION) {
+    throw new Error(`Unsupported storage_schema_version: ${store.storage_schema_version}`);
+  }
+  const placesById = indexById(store.places);
+  const birthProfilesById = indexById(store.birth_profiles);
+  const defaultChartRecordId = store.user_settings?.default_chart_record_id;
+  if (!defaultChartRecordId) {
+    throw new Error("user_settings.default_chart_record_id is required");
+  }
+
+  const chartRecords = (store.clients || []).map((client) => {
+    const birthProfile = birthProfilesById[client.birth_profile_id];
+    if (!birthProfile) {
+      throw new Error(`client ${client.id} missing birth profile ${client.birth_profile_id}`);
+    }
+    const birthPlace = placesById[birthProfile.birth_place_id];
+    const currentPlace = client.current_location_place_id
+      ? placesById[client.current_location_place_id]
+      : null;
+
+    const favorites = (store.favorite_cities || [])
+      .filter((fav) => fav.client_id === client.id)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((fav) => ({
+        id: fav.id,
+        placeId: fav.place_id,
+        placeName: placesById[fav.place_id]?.display_name || fav.place_id,
+        notes: fav.notes || "",
+      }));
+
+    const explorations = (store.saved_investigations || [])
+      .filter((inv) => inv.client_id === client.id)
+      .map((inv) => {
+        const placeIds = placesForInvestigationIds(inv, placesById, store.favorite_cities);
+        return {
+          id: inv.id,
+          name: investigationDisplayTitle(inv.name || inv.title, inv.conditions),
+          conditions: formatConditions(inv.conditions),
+          placeIds,
+          places: placeIds.map((id) => placesById[id]?.display_name || id),
+          saved: formatSavedLabel(inv.updated_at),
+        };
+      });
+
+    let currentCity = "—";
+    if (currentPlace) currentCity = currentPlace.display_name;
+    else if (client.current_location_place_id == null && client.record_type === "client") {
+      currentCity = "Not set";
+    }
+
+    return {
+      chartRecordId: client.id,
+      displayName: client.display_name,
+      recordType: formatRecordType(client.record_type),
+      birthDate: birthProfile.birth_date,
+      birthTime: birthProfile.birth_time,
+      birthTimeDisplay: formatBirthTimeDisplay(birthProfile),
+      birthCity: birthPlace?.display_name || "—",
+      currentCity,
+      confidenceTier: formatConfidenceTier(birthProfile.confidence_tier, birthProfile),
+      hasTimeUncertainty: hasBirthTimeUncertainty(birthProfile),
+      favorites,
+      explorations,
+    };
+  });
+
+  const comparisonSets = (store.comparison_sets || []).map((cs) => ({
+    id: cs.id,
+    clientId: cs.client_id,
+    placeIds: cs.place_ids || [],
+    placeNames: (cs.place_ids || [])
+      .map((pid) => placesById[pid]?.display_name)
+      .filter(Boolean),
+    notes: cs.notes || "",
+  }));
+
+  if (chartRecords.length === 0) {
+    throw new Error("Store contains no Chart Records (clients[])");
+  }
+
+  return {
+    defaultChartRecordId,
+    chartRecords,
+    comparisonSets,
+    placeNameById: Object.fromEntries(
+      Object.entries(placesById).map(([id, place]) => [id, place.display_name])
+    ),
+    loadSource: STORE_JSON_URL,
+  };
+}
+
+function requireViewModel() {
+  if (!viewModel) throw new Error("Store view model not loaded");
+  return viewModel;
+}
+
+function comparisonPlaceNamesForRecord(chartRecordId) {
+  const vm = requireViewModel();
+  const match = vm.comparisonSets.find((cs) => cs.clientId === chartRecordId);
+  return match ? match.placeNames.slice(0, 5) : [];
+}
+
+function getComparisonSet(comparisonSetId) {
+  if (!comparisonSetId || !viewModel) return null;
+  return viewModel.comparisonSets.find((cs) => cs.id === comparisonSetId) || null;
+}
+
+function comparisonPlaceNamesFromContext() {
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  return cs ? cs.placeNames.slice(0, 5) : [];
+}
+
+function resolvePlaceName(placeId) {
+  if (!placeId || !viewModel) return null;
+  return viewModel.placeNameById[placeId] || null;
+}
+
+function resolvePlaceIdFromDisplayName(displayName) {
+  if (!displayName || !viewModel) return null;
+  for (const [id, name] of Object.entries(viewModel.placeNameById)) {
+    if (name === displayName) return id;
+  }
+  return null;
+}
+
+function encodeReturnTo(returnTo) {
+  if (!returnTo || !returnTo.route) return null;
+  return [
+    returnTo.route,
+    returnTo.chartRecordId || "",
+    returnTo.placeId || "",
+    returnTo.explorationId || "",
+    returnTo.comparisonSetId || "",
+  ].join("|");
+}
+
+function decodeReturnTo(raw) {
+  if (!raw) return null;
+  const [route, chartRecordId, placeId, explorationId, comparisonSetId] = raw.split("|");
+  if (!ALL_ROUTES.some((r) => r.id === route)) return null;
+  return normalizeNavContext({
+    route: /** @type {Route} */ (route),
+    chartRecordId: chartRecordId || null,
+    placeId: placeId || null,
+    explorationId: explorationId || null,
+    comparisonSetId: comparisonSetId || null,
+    returnTo: null,
+  });
+}
+
+function parseLocation() {
+  const raw = (location.hash || "#/dashboard").replace(/^#/, "");
+  const qIndex = raw.indexOf("?");
+  const pathPart = qIndex >= 0 ? raw.slice(0, qIndex) : raw;
+  const queryPart = qIndex >= 0 ? raw.slice(qIndex + 1) : "";
+  const path = pathPart.startsWith("/") ? pathPart.slice(1) : pathPart;
+  const routeSegment = path.split("/")[0] || "dashboard";
+  const route = ALL_ROUTES.some((r) => r.id === routeSegment)
+    ? /** @type {Route} */ (routeSegment)
+    : "dashboard";
+  const params = new URLSearchParams(queryPart);
+  return {
+    route,
+    chartRecordId: params.get("chartRecordId"),
+    placeId: params.get("placeId"),
+    explorationId: params.get("explorationId"),
+    comparisonSetId: params.get("comparisonSetId"),
+    returnTo: decodeReturnTo(params.get("returnTo")),
+  };
+}
+
+function buildLocationHash(ctx) {
+  const params = new URLSearchParams();
+  for (const key of NAV_CONTEXT_KEYS) {
+    if (ctx[key]) params.set(key, ctx[key]);
+  }
+  const returnEnc = encodeReturnTo(ctx.returnTo);
+  if (returnEnc) params.set("returnTo", returnEnc);
+  const qs = params.toString();
+  return `#/${ctx.route}${qs ? `?${qs}` : ""}`;
+}
+
+/**
+ * Map Handoff Contract v1 — shell → map_CURRENT.html via URL query params only.
+ * Receive-only on map side; no profile/viewport/renderer wiring.
+ *
+ * Optional v2 field `genieRenderRef`: lightweight pointer to a full genie_render
+ * payload stored in sessionStorage (`rm_genie_render:{ref}`). Same-tab navigation
+ * is required — sessionStorage does not survive target="_blank". Context-only v1
+ * links (target="_blank") must not carry genieRenderRef or pretend to transport
+ * Genie payload; use prepareGenieRenderHandoff() + same-tab navigation for that.
+ */
+const MAP_HANDOFF_CONTRACT = {
+  strategy: "url-query-params",
+  marker: "app_shell",
+  fields: [
+    "chartRecordId",
+    "placeId",
+    "explorationId",
+    "comparisonSetId",
+    "returnTo",
+    "handoffCreatedAt",
+  ],
+  optionalFields: ["genieRenderRef"],
+};
+
+/** sessionStorage key prefix for Genie render handoff v2 (same-tab navigation only). */
+const GENIE_RENDER_STORAGE_PREFIX = "rm_genie_render:";
+
+function generateGenieRenderRef() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `gr_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function storeGenieRenderPayload(ref, payload) {
+  if (!ref || typeof ref !== "string") {
+    throw new TypeError("ref must be a non-empty string");
+  }
+  if (!payload || typeof payload !== "object") {
+    throw new TypeError("payload must be an object");
+  }
+  sessionStorage.setItem(`${GENIE_RENDER_STORAGE_PREFIX}${ref}`, JSON.stringify(payload));
+}
+
+/**
+ * Store genie_render in sessionStorage and build map URL with lightweight genieRenderRef.
+ * Caller must navigate same-tab (sessionStorage does not survive target=_blank).
+ * @returns {{ ref: string, url: string }}
+ */
+function prepareGenieRenderHandoff(ctx, payload) {
+  const ref = generateGenieRenderRef();
+  storeGenieRenderPayload(ref, payload);
+  const url = buildMapHandoffUrl(ctx, { genieRenderRef: ref });
+  return { ref, url };
+}
+
+function buildMapHandoffUrl(ctx, options) {
+  const c = ctx || navContext;
+  const opts = options || {};
+  const params = new URLSearchParams();
+  params.set("skipOnboarding", "1");
+  params.set("handoff", MAP_HANDOFF_CONTRACT.marker);
+  params.set("handoffCreatedAt", new Date().toISOString());
+  for (const key of NAV_CONTEXT_KEYS) {
+    if (c[key]) params.set(key, c[key]);
+  }
+  const returnEnc = encodeReturnTo(c.returnTo);
+  if (returnEnc) params.set("returnTo", returnEnc);
+  if (opts.genieRenderRef) params.set("genieRenderRef", opts.genieRenderRef);
+  return `/map_CURRENT.html?${params.toString()}`;
+}
+
+function normalizeNavContext(partial) {
+  const route = partial.route || "dashboard";
+  const contract = ROUTE_CONTEXT_CONTRACT[route] || ROUTE_CONTEXT_CONTRACT.dashboard;
+  /** @type {NavContext} */
+  const out = {
+    route,
+    chartRecordId: partial.chartRecordId || null,
+    placeId: partial.placeId || null,
+    explorationId: partial.explorationId || null,
+    comparisonSetId: partial.comparisonSetId || null,
+    returnTo: partial.returnTo || null,
+  };
+
+  if (contract.chartRecordId === "required" && !out.chartRecordId && viewModel) {
+    out.chartRecordId = viewModel.defaultChartRecordId;
+  }
+  if (contract.comparisonSetId === "required" && !out.comparisonSetId && viewModel && out.chartRecordId) {
+    const cs = viewModel.comparisonSets.find((c) => c.clientId === out.chartRecordId);
+    if (cs) out.comparisonSetId = cs.id;
+  }
+
+  for (const key of NAV_CONTEXT_KEYS) {
+    if (contract[key] === "none") out[key] = null;
+  }
+  return out;
+}
+
+function syncNavContextFromLocation() {
+  if (!viewModel) return;
+  navContext = normalizeNavContext(parseLocation());
+}
+
+function snapshotNavContext() {
+  return {
+    route: navContext.route,
+    chartRecordId: navContext.chartRecordId,
+    placeId: navContext.placeId,
+    explorationId: navContext.explorationId,
+    comparisonSetId: navContext.comparisonSetId,
+    returnTo: null,
+  };
+}
+
+function $(sel) { return document.querySelector(sel); }
+
+function getChartRecord(id) {
+  const vm = requireViewModel();
+  return vm.chartRecords.find((r) => r.chartRecordId === id) || vm.chartRecords[0];
+}
+
+function allExplorations() {
+  const vm = requireViewModel();
+  return vm.chartRecords.flatMap((r) =>
+    r.explorations.map((e) => ({ ...e, chartRecordId: r.chartRecordId, recordName: r.displayName }))
+  );
+}
+
+function activeRecord() {
+  return getChartRecord(navContext.chartRecordId);
+}
+
+function activeExploration() {
+  if (!navContext.explorationId) return null;
+  const rec = activeRecord();
+  return rec.explorations.find((e) => e.id === navContext.explorationId) || null;
+}
+
+function birthSummaryLine(r) {
+  return `${r.birthDate} · ${r.birthTimeDisplay} · ${r.birthCity}`;
+}
+
+function engineEligibilityLine(r) {
+  const eb = r.engineBirth;
+  if (!eb) return `<span class="meta">Engine: unknown (summary not loaded)</span>`;
+  if (eb.ok === true) {
+    return `<span class="meta">Engine: executable</span>`;
+  }
+  return `<span class="meta">Engine: blocked — ${eb.reason || "unknown"}</span>`;
+}
+
+function resumeContextStubHtml() {
+  return `<span class="meta">${RESUME_CONTEXT_STUB}</span>`;
+}
+
+function timeUncertaintyWarning(r) {
+  if (!r.hasTimeUncertainty) return "";
+  return `<div class="warn-box"><strong>Birth time uncertainty.</strong> ${r.birthTimeDisplay}. `
+    + `Relocation overlays cannot be presented as authoritative without honest tier policy. `
+    + `One Chart Record — no separate chart variants. Internal gradient rendering is post-v1 future only.</div>`;
+}
+
+function parseHashRoute() {
+  return parseLocation().route;
+}
+
+function chartRecordSelectHtml(selectId) {
+  const vm = requireViewModel();
+  return `<label class="block">Chart Record (explicit switch)
+    <select id="${selectId}" class="inline" data-action="chart-record-select">
+      ${vm.chartRecords.map((r) =>
+        `<option value="${r.chartRecordId}"${r.chartRecordId === navContext.chartRecordId ? " selected" : ""}>${r.displayName} (${r.recordType})</option>`
+      ).join("")}
+    </select></label>`;
+}
+
+function activeContextChip(extra) {
+  const r = activeRecord();
+  const exp = activeExploration();
+  return `
+    <div class="context-chip">
+      <div class="label">Active Chart Record · one user-facing chart per record</div>
+      <strong>${r.displayName}</strong> <span class="meta">(${r.recordType})</span><br>
+      <span class="id-line">${r.chartRecordId}</span><br>
+      Birth: ${r.birthDate} · ${r.birthTimeDisplay}<br>
+      Birth city: ${r.birthCity}<br>
+      Current city: ${r.currentCity}<br>
+      Confidence: ${r.confidenceTier}
+      ${exp ? `<br><br><strong>Resumed exploration:</strong> ${exp.name}<br><span class="meta">${exp.id}</span>` : ""}
+      ${navContext.placeId ? `<br><strong>Active place:</strong> ${resolvePlaceName(navContext.placeId) || navContext.placeId}<br><span class="meta">${navContext.placeId}</span>` : ""}
+      ${extra || ""}
+    </div>`;
+}
+
+function stateDebugBlock() {
+  const vm = requireViewModel();
+  return `<div class="state-debug">Nav context (transport contract v1 · ${CONTEXT_TRANSPORT_STRATEGY}):
+${JSON.stringify(navContext, null, 2)}
+location.hash: ${location.hash}
+storeLoadSource: ${vm.loadSource}
+mapEntrySource: ${uiState.mapEntrySource || "null"}</div>`;
+}
+
+function openMap(opts) {
+  const o = opts || {};
+  const placeId = o.placeId !== undefined
+    ? o.placeId
+    : (o.placeName !== undefined ? resolvePlaceIdFromDisplayName(o.placeName) : navContext.placeId);
+  // Build the nav context we want to hand off — same shape as before,
+  // but now we navigate directly to map_CURRENT.html (same tab) instead
+  // of the in-shell placeholder. buildMapHandoffUrl() is the existing
+  // contract; no new parameters introduced here.
+  const mapCtx = {
+    chartRecordId: o.chartRecordId || navContext.chartRecordId,
+    explorationId: o.explorationId !== undefined ? o.explorationId : null,
+    placeId: placeId || null,
+    comparisonSetId: null,
+    returnTo: o.clearReturn ? null : navContext.returnTo,
+  };
+  window.location.assign(buildMapHandoffUrl(mapCtx));
+}
+
+function navigate(route, patch = {}, options = {}) {
+  const returnSnapshot = options.pushReturn ? snapshotNavContext() : null;
+  const next = normalizeNavContext({
+    ...navContext,
+    ...patch,
+    route,
+  });
+  if (options.pushReturn) {
+    next.returnTo = returnSnapshot;
+  }
+  navContext = next;
+  uiState.popupOpen = false;
+  const hash = buildLocationHash(navContext);
+  if (location.hash !== hash) {
+    location.hash = hash;
+  } else {
+    render();
+  }
+}
+
+function openPopup() {
+  uiState.popupOpen = true;
+  const r = activeRecord();
+  $("#popupPlaceLabel").textContent = resolvePlaceName(navContext.placeId) || "selected point";
+  $("#popupTierWarning").innerHTML = timeUncertaintyWarning(r);
+  $("#popupModal").classList.add("open");
+  $("#popupModal").setAttribute("aria-hidden", "false");
+}
+
+function closePopup() {
+  uiState.popupOpen = false;
+  $("#popupModal").classList.remove("open");
+  $("#popupModal").setAttribute("aria-hidden", "true");
+}
+
+function renderNav() {
+  const nav = $("#primaryNav");
+  nav.innerHTML = "";
+  NAV_ROUTES.forEach((r) => {
+    const a = document.createElement("button");
+    a.type = "button";
+    a.className = "linkish" + (navContext.route === r.id ? " active" : "");
+    a.textContent = r.label;
+    a.addEventListener("click", () => {
+      if (r.id === "dashboard") {
+        navigate("dashboard", {
+          chartRecordId: null,
+          placeId: null,
+          explorationId: null,
+          comparisonSetId: null,
+          returnTo: null,
+        });
+      } else if (r.id === "map") {
+        // Primary "Map" nav opens the real production map (map_CURRENT.html),
+        // not the in-shell placeholder. Use active record when available,
+        // otherwise the account default.
+        openMap({
+          chartRecordId: navContext.chartRecordId || (viewModel && viewModel.defaultChartRecordId) || null,
+          explorationId: null,
+          source: "primary nav → production map",
+        });
+      } else {
+        navigate(/** @type {Route} */ (r.id));
+      }
+    });
+    nav.appendChild(a);
+  });
+}
+
+function screenDashboard() {
+  const vm = requireViewModel();
+  const owner = getChartRecord(vm.defaultChartRecordId);
+  return `
+    <div class="breadcrumb">Account library entry</div>
+    <h2>Screen 0 — Dashboard</h2>
+    <p class="purpose">Calm library · account owner default · explicit Chart Record entry.</p>
+    <div class="stub">Placeholder · map opens via defaultChartRecordId only — not last-used chart. Library loaded read-only from Store v3.</div>
+
+    <div class="panel owner-card">
+      <h3>Module: account-owner-chart-record (default)</h3>
+      <p><strong>${owner.displayName}</strong> <span class="meta">${owner.recordType}</span></p>
+      <p class="meta">${birthSummaryLine(owner)}<br>${owner.confidenceTier}<br>${engineEligibilityLine(owner)}</p>
+      <p class="meta">defaultChartRecordId: <code>${vm.defaultChartRecordId}</code></p>
+      <button type="button" class="primary" data-action="open-map-default">Open Map (default Chart Record)</button>
+    </div>
+
+    <div class="panel">
+      <h3>Module: chart-record-library</h3>
+      <ul class="plain">
+        ${vm.chartRecords.map((r) => `
+          <li>
+            <strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span>
+            <span class="meta">${birthSummaryLine(r)} · ${r.confidenceTier}</span>
+            <span class="meta">${engineEligibilityLine(r)}</span>
+            <span class="meta">${r.chartRecordId}</span>
+            <button type="button" data-nav="chart-record" data-chart-record="${r.chartRecordId}">Open Chart Record page</button>
+          </li>`).join("")}
+      </ul>
+      <button type="button" data-action="add-chart-record">+ Add Profile</button>
+    </div>
+
+    <div class="panel">
+      <h3>Module: recent-explorations-across-records</h3>
+      <ul class="plain">
+        ${allExplorations().map((e) => `
+          <li>
+            <strong>${e.name}</strong>
+            <span class="meta">${e.recordName} · ${e.saved}</span>
+            <br>${resumeContextStubHtml()}
+            <button type="button" data-action="resume-exploration"
+              data-chart-record="${e.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
+            <button type="button" data-action="rename-exploration"
+              data-exploration="${e.id}" data-current-title="${escapeHtml(e.name).replace(/"/g, '&quot;')}">Rename</button>
+            <button type="button" data-action="archive-exploration"
+              data-exploration="${e.id}">Archive</button>
+          </li>`).join("")}
+      </ul>
+    </div>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: map primary, last-used chart default, scoring, AI chat.</p>
+  `;
+}
+
+function chartNoteKey(chartRecordId) {
+  return "rm_note_" + chartRecordId;
+}
+
+function loadChartNote(chartRecordId) {
+  if (!chartRecordId) return "";
+  try { return localStorage.getItem(chartNoteKey(chartRecordId)) || ""; }
+  catch (e) { return ""; }
+}
+
+function escapeHtml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function screenChartRecord() {
+  const r = activeRecord();
+  return `
+    <div class="breadcrumb">Chart Record · ${r.displayName}</div>
+    <h2>Screen 1 — Chart Record Page</h2>
+    <p class="purpose">One Chart Record = one user-facing chart. Resume exploration for this record.</p>
+    ${timeUncertaintyWarning(r)}
+    <div class="panel">
+      <h3>Module: chart-record-summary</h3>
+      <p><strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span></p>
+      <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}<br>${engineEligibilityLine(r)}</p>
+      <p class="meta"><code>${r.chartRecordId}</code></p>
+      <button type="button" data-nav="birth-data">View birth data</button>
+      <button type="button" data-action="set-current-location">Set Current Location</button>
+    </div>
+    <div class="panel">
+      <h3>Module: chart-record-notes</h3>
+      <textarea id="rm-chart-note" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Notes for this Chart Record (saved on this device)">${escapeHtml(loadChartNote(r.chartRecordId))}</textarea>
+      <div class="row" style="margin-top:8px;align-items:center;">
+        <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
+        <span id="rm-chart-note-msg" class="meta" style="min-height:1.2em;"></span>
+      </div>
+    </div>
+    <div class="row">
+      <button type="button" class="primary" data-action="open-map-record">Open Map (this Chart Record)</button>
+      <button type="button" data-nav="export">Export entry (Screen 6)</button>
+      <button type="button" data-nav="settings">Settings</button>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Module: favorites (this Chart Record)</h3>
+        ${r.favorites.length === 0
+          ? `<p class="meta">No favorite places saved yet.<br>Open the map and save a location to begin building comparisons.</p>`
+          : `<ul class="plain">${r.favorites.map((f) => `
+          <li>
+            ${f.placeName}
+            <span class="meta">owned by ${r.chartRecordId}</span>
+            <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
+            <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View chart</button>
+            <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
+          </li>`).join("")}</ul>`}
+      </div>
+      <div class="panel">
+        <h3>Module: saved-explorations (this Chart Record)</h3>
+        ${r.explorations.length === 0
+          ? `<p class="meta">No saved explorations yet.<br>Open the map, run a search, and save it to resume later.</p>`
+          : `<ul class="plain">${r.explorations.map((e) => `
+          <li>
+            <strong>${e.name}</strong>
+            <span class="meta">${e.saved} · ${e.conditions.join("; ")}</span>
+            <br>${resumeContextStubHtml()}
+            <button type="button" data-action="resume-exploration"
+              data-chart-record="${r.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
+            <button type="button" data-action="rename-exploration"
+              data-exploration="${e.id}" data-current-title="${escapeHtml(e.name).replace(/"/g, '&quot;')}">Rename</button>
+            <button type="button" data-action="archive-exploration"
+              data-exploration="${e.id}">Archive</button>
+          </li>`).join("")}</ul>`}
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Module: comparison-sets (this Chart Record)</h3>
+      <div id="rm-cr-comparison-sets" data-chart-record="${escapeHtml(r.chartRecordId)}">
+        <p class="meta">Loading comparison sets…</p>
+      </div>
+    </div>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: nested charts, solar/natal selector, dignity summaries.</p>
+  `;
+}
+
+let _crComparisonToken = 0;
+// Chart Record "Comparison Sets" module: lists active comparison_sets for the
+// current profile with title, timestamp, place count, Open + Archive. Uses the
+// existing Supabase client (same pattern as comparison build). app_shell only.
+async function hydrateChartRecordComparisonSets(root) {
+  if (navContext.route !== "chart-record") return;
+  const container = (root || document).querySelector("#rm-cr-comparison-sets");
+  if (!container) return;
+  const chartRecordId = container.getAttribute("data-chart-record");
+  if (!chartRecordId) return;
+  const token = ++_crComparisonToken;
+  const stillCurrent = () =>
+    token === _crComparisonToken && navContext.route === "chart-record" && document.body.contains(container);
+  const accountId = window.CurrentUser && window.CurrentUser.accountId;
+  try {
+    const client = await window.SupabaseReady;
+    if (!client) throw new Error("Supabase unavailable.");
+    let q = client
+      .from("comparison_sets")
+      .select("id, title, created_at, updated_at")
+      .eq("profile_id", chartRecordId)
+      .is("archived_at", null)
+      .order("updated_at", { ascending: false });
+    if (accountId) q = q.eq("account_id", accountId);
+    const { data: sets, error } = await q;
+    if (error) throw error;
+    if (!stillCurrent()) return;
+    const rows = Array.isArray(sets) ? sets : [];
+    if (rows.length === 0) {
+      container.innerHTML = `<p class="meta">No comparison sets yet. Build a comparison from saved places.</p>`;
+      return;
+    }
+    // Place counts (best-effort; non-fatal if it fails)
+    const counts = {};
+    try {
+      const ids = rows.map((r) => r.id);
+      const { data: cspRows } = await client
+        .from("comparison_set_places")
+        .select("comparison_set_id")
+        .in("comparison_set_id", ids);
+      (cspRows || []).forEach((r) => { counts[r.comparison_set_id] = (counts[r.comparison_set_id] || 0) + 1; });
+    } catch (e) { /* counts optional */ }
+    if (!stillCurrent()) return;
+    container.innerHTML = `<ul class="plain">${rows.map((cs) => {
+      const title = cs.title || "Comparison";
+      const when = formatSavedLabel(cs.updated_at || cs.created_at);
+      const n = counts[cs.id];
+      const countLabel = (n != null) ? ` · ${n} place${n === 1 ? "" : "s"}` : "";
+      return `<li>
+        <strong>${escapeHtml(title)}</strong>
+        <span class="meta">${escapeHtml(when)}${countLabel}</span>
+        <button type="button" class="rm-cr-cmp-open" data-cmp-id="${escapeHtml(cs.id)}">Open comparison</button>
+        <button type="button" class="rm-cr-cmp-archive" data-cmp-id="${escapeHtml(cs.id)}" data-cmp-title="${escapeHtml(title)}">Archive</button>
+      </li>`;
+    }).join("")}</ul>`;
+    container.querySelectorAll(".rm-cr-cmp-open").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        navigate("compare", { chartRecordId, comparisonSetId: btn.getAttribute("data-cmp-id") }, { pushReturn: true });
+      });
+    });
+    container.querySelectorAll(".rm-cr-cmp-archive").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const setId = btn.getAttribute("data-cmp-id");
+        const title = btn.getAttribute("data-cmp-title") || "this comparison";
+        if (!setId) return;
+        if (!window.confirm(`Archive ${title}? It will be removed from this Chart Record's active list.`)) return;
+        (async () => {
+          try {
+            const c = await window.SupabaseReady;
+            if (!c) throw new Error("Supabase unavailable.");
+            let upd = c.from("comparison_sets").update({ archived_at: new Date().toISOString() }).eq("id", setId);
+            if (accountId) upd = upd.eq("account_id", accountId);
+            const { error: archErr } = await upd;
+            if (archErr) throw archErr;
+            hydrateChartRecordComparisonSets(document);
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
+      });
+    });
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<p class="meta">Could not load comparison sets: ${escapeHtml(err && err.message ? err.message : String(err))}</p>`;
+  }
+}
+
+function screenMap() {
+  const r = activeRecord();
+  const exp = activeExploration();
+  const conditions = exp ? exp.conditions : ["planet-in-house: Sun in 10th (draft)", "angle-in-sign: ASC in Gemini (draft)"];
+  return `
+    <div class="breadcrumb">${r.displayName} · Map discovery</div>
+    <h2>Screen 2 — Map Discovery</h2>
+    <p class="purpose">Primary instrument · activeChartRecordId required.</p>
+    ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
+    ${timeUncertaintyWarning(r)}
+    ${navContext.explorationId ? `<div class="stub">${RESUME_CONTEXT_STUB}</div>` : ""}
+    <div class="panel">
+      <h3>Module: production-map</h3>
+      <p>Production map opens in the main map tool.</p>
+      ${resolvePlaceName(navContext.placeId) ? `<p class="meta">Context place: <strong>${resolvePlaceName(navContext.placeId)}</strong></p>` : ""}
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="primary" data-action="open-map-record">Open production map</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="drawer-placeholder">
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h3 style="margin:0">Genie ${uiState.drawerOpen ? "(expanded)" : "(collapsed)"}</h3>
+          <button type="button" data-action="toggle-drawer">${uiState.drawerOpen ? "Collapse" : "Expand drawer"}</button>
+        </div>
+        ${uiState.drawerOpen
+          ? `<div id="genieDrawerMount" aria-label="Genie variable builder"></div>`
+          : `<p class="meta">Genie chip · ${r.displayName} · expand to configure variables</p>`}
+      </div>
+      <div class="panel">
+        <h3>Module: map-actions</h3>
+        <button type="button" data-nav="chart">Full chart (Screen 4)</button>
+        <button type="button" data-nav="compare">Compare places (Screen 5)</button>
+        <button type="button" data-nav="export">Export viewport (Screen 6)</button>
+        <button type="button" disabled>Save exploration (auto-save stub)</button>
+        <button type="button" data-nav="chart-record">Back to Chart Record page</button>
+      </div>
+    </div>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: multi-chart selector under one record, transit as active condition, silent chart switch.</p>
+  `;
+}
+
+// Resolve a place's lat/lon from the loaded store (Supabase bridge uses lat/lon;
+// local fallback store may use latitude/longitude). Returns null if unresolved.
+function resolvePlaceLatLon(placeId) {
+  if (!placeId || !storeRaw || !Array.isArray(storeRaw.places)) return null;
+  const p = storeRaw.places.find((pl) => pl.id === placeId);
+  if (!p) return null;
+  const lat = Number(p.lat != null ? p.lat : p.latitude);
+  const lon = Number(p.lon != null ? p.lon : p.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return { lat, lon };
+}
+
+function screenChart() {
+  const chartRecordId = navContext.chartRecordId;
+  const placeId = navContext.placeId;
+  if (!chartRecordId || !placeId) {
+    return `
+    <div class="breadcrumb">View Chart</div>
+    <h2>Screen 4 — View Chart</h2>
+    <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
+    <div class="warn-box"><strong>Cannot show relocated chart.</strong><br>
+      This screen needs both a Chart Record and a place. Open it from a Chart Record favorite (View chart).</div>
+    <div class="row"><button type="button" data-nav="map">Back to map</button></div>
+    `;
+  }
+  const r = getChartRecord(chartRecordId);
+  const placeName = resolvePlaceName(placeId) || placeId;
+  const coords = resolvePlaceLatLon(placeId);
+  const factsInner = coords
+    ? `<p class="meta" id="rm-screen4-status">Loading relocated chart…</p>`
+    : `<div class="warn-box"><strong>Cannot resolve this place's coordinates.</strong><br>
+        Place id: <code>${escapeHtml(placeId)}</code></div>`;
+  return `
+    <div class="breadcrumb">${escapeHtml(r.displayName)} · ${escapeHtml(placeName)}</div>
+    <h2>Screen 4 — View Chart</h2>
+    <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
+    ${timeUncertaintyWarning(r)}
+    <div class="panel">
+      <h3>Module: relocated-chart-table</h3>
+      <div id="rm-screen4-facts"
+           data-chart-record="${escapeHtml(chartRecordId)}"
+           data-place-id="${escapeHtml(placeId)}"
+           data-place-name="${escapeHtml(placeName)}"
+           data-record-name="${escapeHtml(r.displayName)}"
+           ${coords ? `data-lat="${coords.lat}" data-lon="${coords.lon}"` : ""}>
+        ${factsInner}
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Module: notes · favorite</h3>
+      <textarea rows="2" placeholder="Optional inline note (placeholder — not saved)"></textarea>
+      <button type="button" disabled>Favorite this place</button>
+    </div>
+    <div class="row">
+      <button type="button" data-nav="map">Back to map</button>
+      <button type="button" data-nav="compare">Add to comparison</button>
+      <button type="button" data-nav="export">Export chart</button>
+    </div>
+  `;
+}
+
+// Render the real relocated-chart facts into Screen 4's container.
+function renderRelocatedChartHtml(recordName, placeName, chart) {
+  const angles = `
+    <table class="simple">
+      <tr><th>Fact</th><th>Value</th></tr>
+      <tr><td>Chart Record</td><td>${escapeHtml(recordName)}</td></tr>
+      <tr><td>Place</td><td>${escapeHtml(placeName)}</td></tr>
+      <tr><td>ASC</td><td>${escapeHtml(chart.asc || "—")}</td></tr>
+      <tr><td>MC</td><td>${escapeHtml(chart.mc || "—")}</td></tr>
+      <tr><td>DSC</td><td>${escapeHtml(chart.dc || chart.desc || "—")}</td></tr>
+      <tr><td>IC</td><td>${escapeHtml(chart.ic || "—")}</td></tr>
+    </table>`;
+  const ph = chart.planet_houses || {};
+  const rows = Object.keys(ph).map((name) => {
+    const info = ph[name] || {};
+    const house = info.house == null ? "—" : info.house;
+    return `<tr><td>${escapeHtml(name)}</td><td>${house}</td><td>${escapeHtml(info.longitude_formatted || "—")}</td></tr>`;
+  }).join("");
+  const planets = `
+    <h4 style="margin:12px 0 4px">Planet houses</h4>
+    <table class="simple">
+      <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
+      ${rows}
+    </table>`;
+  return angles + planets;
+}
+
+let _screen4Token = 0;
+// Hydrate Screen 4 with real relocated-chart facts (existing endpoints only).
+async function hydrateRelocatedChart(root) {
+  if (navContext.route !== "chart") return;
+  const container = (root || document).querySelector("#rm-screen4-facts");
+  if (!container) return;
+  const lat = container.getAttribute("data-lat");
+  const lon = container.getAttribute("data-lon");
+  if (lat === null || lon === null) return; // coordinates unresolved — blocked state already shown
+  const chartRecordId = container.getAttribute("data-chart-record");
+  const placeId = container.getAttribute("data-place-id");
+  const recordName = container.getAttribute("data-record-name") || chartRecordId;
+  const placeName = container.getAttribute("data-place-name") || placeId;
+  const token = ++_screen4Token;
+  const setStatus = (msg) => {
+    const el = document.getElementById("rm-screen4-status");
+    if (el) el.textContent = msg;
+  };
+  const stillCurrent = () =>
+    token === _screen4Token &&
+    navContext.route === "chart" &&
+    navContext.chartRecordId === chartRecordId &&
+    navContext.placeId === placeId &&
+    document.body.contains(container);
+  try {
+    setStatus("Resolving birth data…");
+    const birthResp = await fetch(`/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`);
+    let birthBody = {};
+    try { birthBody = await birthResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!birthResp.ok) {
+      const detail = (birthBody && birthBody.detail) || {};
+      container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
+        ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
+      return;
+    }
+    setStatus("Calculating relocated chart…");
+    const q = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lon),
+      birth_year: String(birthBody.birth_year),
+      birth_month: String(birthBody.birth_month),
+      birth_day: String(birthBody.birth_day),
+      birth_hour_utc: String(birthBody.birth_hour_utc),
+    });
+    const chartResp = await fetch(`/relocated-chart?${q.toString()}`);
+    let chart = {};
+    try { chart = await chartResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!chartResp.ok) {
+      container.innerHTML = `<div class="warn-box"><strong>Could not calculate relocated chart.</strong><br>
+        HTTP ${chartResp.status}</div>`;
+      return;
+    }
+    container.innerHTML = renderRelocatedChartHtml(recordName, placeName, chart);
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<div class="warn-box"><strong>Relocated chart request failed.</strong><br>
+      ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
+  }
+}
+
+// Render Screen 5's comparison columns (facts only) into the hydration container.
+function renderComparisonTableHtml(cols) {
+  const headers = cols.map((c) =>
+    `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open relocated chart (Screen 4)">${escapeHtml(c.name)}</button></th>`
+  ).join("");
+  const angleRow = (label, key) =>
+    `<tr><td>${label}</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && c.chart[key]) || "—")}</td>`).join("")}</tr>`;
+  const dscRow =
+    `<tr><td>DSC</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && (c.chart.dc || c.chart.desc)) || "—")}</td>`).join("")}</tr>`;
+  const planetNames = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  const planetRows = planetNames.map((pn) =>
+    `<tr><td>${pn} house</td>${cols.map((c) => {
+      if (c.error) return "<td>—</td>";
+      const ph = (c.chart && c.chart.planet_houses) || {};
+      const info = ph[pn] || {};
+      return `<td>${info.house == null ? "—" : info.house}</td>`;
+    }).join("")}</tr>`
+  ).join("");
+  const failed = cols.filter((c) => c.error);
+  const errNote = failed.length
+    ? `<p class="meta">Could not resolve: ${failed.map((c) => escapeHtml(c.name) + " (" + escapeHtml(c.error) + ")").join(", ")}</p>`
+    : "";
+  return `
+    <p class="meta">Click a place to open its relocated chart (Screen 4).</p>
+    <table class="simple">
+      <tr><th>Fact</th>${headers}</tr>
+      ${angleRow("ASC", "asc")}
+      ${angleRow("MC", "mc")}
+      ${dscRow}
+      ${angleRow("IC", "ic")}
+      ${planetRows}
+    </table>
+    ${errNote}`;
+}
+
+let _screen5Token = 0;
+// Hydrate Screen 5 with real relocated facts per selected place (existing endpoints only).
+async function hydrateComparisonColumns(root) {
+  if (navContext.route !== "compare") return;
+  const container = (root || document).querySelector("#rm-screen5-columns");
+  if (!container) return;
+  const chartRecordId = container.getAttribute("data-chart-record");
+  const placeIds = (container.getAttribute("data-place-ids") || "").split(",").filter(Boolean);
+  if (!chartRecordId || placeIds.length === 0) return;
+  const token = ++_screen5Token;
+  const setStatus = (m) => { const e = document.getElementById("rm-screen5-status"); if (e) e.textContent = m; };
+  const stillCurrent = () =>
+    token === _screen5Token && navContext.route === "compare" && document.body.contains(container);
+  try {
+    setStatus("Resolving birth data…");
+    const birthResp = await fetch(`/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`);
+    let birth = {};
+    try { birth = await birthResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!birthResp.ok) {
+      const detail = (birth && birth.detail) || {};
+      container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
+        ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
+      return;
+    }
+    setStatus("Calculating relocated charts…");
+    const cols = await Promise.all(placeIds.map(async (pid) => {
+      const name = resolvePlaceName(pid) || pid;
+      const coords = resolvePlaceLatLon(pid);
+      if (!coords) return { placeId: pid, name, error: "no coordinates" };
+      const q = new URLSearchParams({
+        lat: String(coords.lat), lon: String(coords.lon),
+        birth_year: String(birth.birth_year), birth_month: String(birth.birth_month),
+        birth_day: String(birth.birth_day), birth_hour_utc: String(birth.birth_hour_utc),
+      });
+      const r = await fetch(`/relocated-chart?${q.toString()}`);
+      let chart = {};
+      try { chart = await r.json(); } catch (e) { /* ignore */ }
+      if (!r.ok) return { placeId: pid, name, error: "HTTP " + r.status };
+      return { placeId: pid, name, chart };
+    }));
+    if (!stillCurrent()) return;
+    container.innerHTML = renderComparisonTableHtml(cols);
+    container.querySelectorAll("[data-cmp-open]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        navigate("chart", { chartRecordId, placeId: btn.getAttribute("data-cmp-open") });
+      });
+    });
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<div class="warn-box"><strong>Comparison request failed.</strong><br>
+      ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
+  }
+}
+
+function screenCompare() {
+  const origin = getChartRecord(navContext.chartRecordId);
+  const favs = origin.favorites || [];
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  const selectedIds = cs ? cs.placeIds.slice(0, 5) : [];
+
+  const pickerRows = favs.map((f) => {
+    const checked = selectedIds.includes(f.placeId) ? " checked" : "";
+    return `<label class="block" style="min-width:160px"><input type="checkbox" class="rm-cmp-pick" value="${escapeHtml(f.placeId)}" data-place-name="${escapeHtml(f.placeName)}"${checked}> ${escapeHtml(f.placeName)}</label>`;
+  }).join("");
+
+  const pickerPanel = favs.length < 2
+    ? `<div class="panel"><h3>Module: choose places</h3>
+        <div class="warn-box"><strong>Need at least 2 saved places.</strong><br>
+        Add favorite places to <strong>${escapeHtml(origin.displayName)}</strong> (from the map) to build a comparison.</div></div>`
+    : `<div class="panel"><h3>Module: choose places (2–5)</h3>
+        <p class="meta">Select 2–5 saved places under this Chart Record, then build the comparison.</p>
+        <div class="row" style="flex-wrap:wrap">${pickerRows}</div>
+        <div class="row" style="margin-top:8px;align-items:center">
+          <button type="button" data-action="compare-build">Build comparison</button>
+          <span class="meta" id="rm-cmp-build-msg"></span>
+        </div></div>`;
+
+  const columnsPanel = cs
+    ? `<div class="panel"><h3>Module: comparison-columns (places · facts only)</h3>
+        <div id="rm-screen5-columns"
+             data-chart-record="${escapeHtml(origin.chartRecordId)}"
+             data-place-ids="${escapeHtml(selectedIds.join(','))}">
+          <p class="meta" id="rm-screen5-status">Loading relocated facts…</p>
+        </div></div>`
+    : "";
+
+  return `
+    <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>
+    <h2>Screen 5 — Comparison</h2>
+    <p class="purpose">2–5 places under ONE Chart Record · facts only · not multi-chart comparison.</p>
+    <p class="meta">comparisonSetId: <code>${navContext.comparisonSetId || "—"}</code>${cs ? ` · ${selectedIds.length} places` : ""}</p>
+    <div class="panel">
+      <h3>Module: originating-chart-record</h3>
+      <p><strong>${escapeHtml(origin.displayName)}</strong> <span class="meta">${origin.recordType}</span></p>
+      <p class="meta"><code>${origin.chartRecordId}</code> · ${origin.confidenceTier}</p>
+      ${timeUncertaintyWarning(origin)}
+    </div>
+    ${pickerPanel}
+    ${columnsPanel}
+    <div class="panel">
+      <h3>Module: comparison-notepad</h3>
+      <textarea rows="3" placeholder="Session notes (placeholder — not saved)"></textarea>
+    </div>
+    <div class="future-only">Future: AI assist (disabled) · multi–Chart Record comparison (not Web 2.0)</div>
+    <div class="row">
+      <button type="button" data-action="compare-back-map">Back to map (preserve originating record)</button>
+      <button type="button" data-nav="chart-record" data-chart-record="${origin.chartRecordId}">Back to Chart Record page</button>
+      <button type="button" data-nav="export">Export comparison</button>
+    </div>
+    ${stateDebugBlock()}
+    <p class="must-not">Must not appear: client-vs-client columns, ranked scores, multiple active Chart Records.</p>
+  `;
+}
+
+function screenExport() {
+  const r = activeRecord();
+  const link = `https://example.com${buildLocationHash({
+    route: "map",
+    chartRecordId: navContext.chartRecordId,
+    placeId: navContext.placeId,
+    explorationId: navContext.explorationId,
+    comparisonSetId: null,
+    returnTo: null,
+  })}`;
+  return `
+    <h2>Screen 6 — Export / Share</h2>
+    <p class="purpose">Scoped output · chartRecordId required in deep links.</p>
+    <div class="panel">
+      <h3>Module: export-investigation-link</h3>
+      <input type="text" readonly value="${link}" />
+    </div>
+    <div class="panel">
+      <h3>Module: export-viewport-png</h3>
+      <button type="button" disabled>Export map PNG (illustrative · placeholder)</button>
+    </div>
+    <div class="future-only">Future: AI session summary (disabled)</div>
+    <button type="button" data-nav="chart-record">Back to Chart Record page</button>
+  `;
+}
+
+function screenSettings() {
+  const vm = requireViewModel();
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const us = raw.user_settings || {};
+  const curHouse = us.house_system || "placidus";
+  const HOUSE_OPTIONS = [
+    { value: "placidus",   label: "Placidus" },
+    { value: "whole_sign", label: "Whole Sign" },
+    { value: "equal",      label: "Equal" },
+    { value: "koch",       label: "Koch" },
+  ];
+  return `
+    <h2>S5 — Settings</h2>
+    <p class="purpose">Layer 2 defaults · not a journey destination.</p>
+    <div class="panel">
+      <h3>Module: account-defaults</h3>
+      <label class="block">Default Chart Record (Dashboard → Map)
+        <select id="rm-settings-default-cr">
+          ${vm.chartRecords.map((r) =>
+            `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+          ).join("")}
+        </select>
+      </label>
+      <label class="block">House system
+        <select id="rm-settings-house">
+          ${HOUSE_OPTIONS.map((o) =>
+            `<option value="${o.value}"${o.value === curHouse ? " selected" : ""}>${o.label}</option>`
+          ).join("")}
+        </select>
+      </label>
+    </div>
+    <div class="panel">
+      <h3>Module: history (per Chart Record)</h3>
+      <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
+      <button type="button" disabled>Clear all history — separate control (placeholder)</button>
+    </div>
+    <div class="panel">
+      <h3>Module: profiles</h3>
+      <p class="meta">Manage your profiles — open, set locations, add new.</p>
+      <button type="button" data-nav="profiles">Manage Profiles →</button>
+    </div>
+    <div class="panel">
+      <h3>Module: location</h3>
+      <div class="loc-row">
+        <div class="loc-row-text">
+          <strong>Current location</strong>
+          <span class="meta">Set manually per profile via Location Search. Each profile carries its own current location for relocation comparisons.</span>
+        </div>
+        <button type="button" data-nav="profiles">Manage Profiles →</button>
+      </div>
+      <p class="meta" style="margin-top:8px;">Open Profile Management to set current location per profile.</p>
+      <div class="loc-future">
+        <div class="loc-future-head">Experimental · not yet available</div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>Road Trip Mode</strong><span class="meta">Continuous route-based location.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>GPS / device location</strong><span class="meta">Use device location instead of manual search.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>Notifications</strong><span class="meta">Location-aware alerts.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+        <div class="loc-row loc-future-row">
+          <div class="loc-row-text"><strong>Offline / Airplane mode</strong><span class="meta">Use saved location data without a connection.</span></div>
+          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button type="button" class="primary" data-action="save-settings">Save Settings</button>
+      <button type="button" data-nav="dashboard">Back to dashboard</button>
+    </div>
+    <p id="rm-settings-msg" style="font-size:0.85rem;min-height:1.4em;"></p>
+  `;
+}
+
+
+function screenProfileList() {
+  const vm = requireViewModel();
+  const cards = vm.chartRecords.map((r) => {
+    const isDefault = r.chartRecordId === vm.defaultChartRecordId;
+    const favCount  = r.favorites ? r.favorites.length : 0;
+    const cmpCount  = vm.comparisonSets
+      ? vm.comparisonSets.filter((cs) => cs.clientId === r.chartRecordId).length
+      : 0;
+    const defaultMark = isDefault
+      ? `<span class="pm-card-default" title="Default profile">★</span>`
+      : `<span class="pm-card-default" style="visibility:hidden" aria-hidden="true">★</span>`;
+    const countsHtml = [
+      favCount > 0 || cmpCount > 0 ? `
+        <div class="pm-counts">
+          <span class="pm-count-item">♥ ${favCount} favorite${favCount !== 1 ? "s" : ""}</span>
+          <span class="pm-count-item">⊞ ${cmpCount} comparison${cmpCount !== 1 ? "s" : ""}</span>
+        </div>` : `<div class="pm-counts" style="color:#94a3b8">No favorites or comparisons yet.</div>`,
+    ].join("");
+    return `
+      <div class="panel pm-card">
+        <div class="pm-card-header">
+          <span class="pm-card-name">${escapeHtml(r.displayName)}</span>
+          ${defaultMark}
+          <span class="pm-card-type">${escapeHtml(r.recordType)}</span>
+        </div>
+        <div class="pm-meta">
+          Born&nbsp;${escapeHtml(r.birthDate || "—")} &middot; ${escapeHtml(r.birthCity || "—")}
+        </div>
+        <div class="pm-meta">
+          Current&nbsp;${escapeHtml(r.currentCity || "Not set")} &middot; ${escapeHtml(r.confidenceTier || "—")}
+        </div>
+        ${countsHtml}
+        <div class="pm-actions">
+          <button type="button" class="primary" data-action="pm-open-profile" data-chart-record="${r.chartRecordId}">Open</button>
+          <button type="button" data-action="pm-set-location" data-chart-record="${r.chartRecordId}">Set Current Location</button>
+        </div>
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="breadcrumb">Settings → Profiles</div>
+    <h2>Profile Management</h2>
+    <p class="purpose">One Chart Record per person. Star = dashboard default (set in Account drawer).</p>
+    <div class="pm-grid">
+      ${cards}
+    </div>
+    <div class="row" style="margin-top:16px;">
+      <button type="button" class="primary" data-action="pm-add-profile">+ Add Profile</button>
+      <button type="button" data-nav="settings">Back to Settings</button>
+    </div>
+    <p class="must-not">Must not appear: edit form, archive, delete, notes count, saved searches count.</p>
+  `;
+}
+
+function screenBirthData() {
+  const r = activeRecord();
+  return `
+    <h2>S6 — Birth Data (support route)</h2>
+    <p class="purpose">One birth profile per Chart Record · uncertainty as metadata — not multiple charts.</p>
+    <div class="panel">
+      <h3>Module: birth-data · ${r.displayName}</h3>
+      <p class="warn-box">Birth data editing is not enabled here yet.</p>
+      <p class="block"><strong>Date:</strong> ${escapeHtml(r.birthDate)}</p>
+      <p class="block"><strong>Time (exact):</strong> ${r.hasTimeUncertainty ? "—" : escapeHtml(r.birthTime || "—")}</p>
+      <p class="block"><strong>Bounded range (metadata — one Chart Record):</strong> ${r.hasTimeUncertainty ? escapeHtml(r.birthTimeDisplay.replace("Time uncertain: ", "")) : "—"}</p>
+      <p class="block"><strong>Birth city:</strong> ${escapeHtml(r.birthCity)}</p>
+      <p class="block"><strong>Confidence tier:</strong> ${escapeHtml(r.confidenceTier)}</p>
+      <button type="button" data-nav="chart-record">Back to Chart Record page</button>
+    </div>
+  `;
+}
+
+function screenHelp() {
+  return `
+    <h2>Help &amp; Learn</h2>
+    <p class="purpose">Static reference · no tutorial engine · Web 2.0 only.</p>
+    <div class="panel">
+      <h3>Start Here</h3>
+      <p>This instrument maps astrological chart structure onto geography. Select a birth profile, open the map, and right-click any city to see your relocated chart for that location.</p>
+      <p>Your birth data stays fixed. The map shows how your chart angles and house cusps shift as you move around the planet.</p>
+    </div>
+    <div class="panel">
+      <h3>How to Use the Map</h3>
+      <ul class="plain">
+        <li><strong>Right-click</strong> anywhere on the map to open a relocated chart popup.</li>
+        <li>Use the <strong>city search bar</strong> to jump to a specific location.</li>
+        <li>Use <strong>Find Regions</strong> to highlight areas matching astrological conditions.</li>
+        <li>Use <strong>Genie</strong> (drawer) to define and layer conditions visually.</li>
+        <li>Switch profiles from the Chart Record page or Account drawer.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Beginner Path</h3>
+      <ul class="plain">
+        <li>Create your first profile with birth date, time, and city.</li>
+        <li>Open the map and right-click a few cities you are curious about.</li>
+        <li>Notice which planets land near the Ascendant or Midheaven in different places.</li>
+        <li>Save cities you want to revisit as favorites.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Professional Path</h3>
+      <ul class="plain">
+        <li>Add multiple client profiles — each gets its own chart record and map.</li>
+        <li>Use Find Regions with specific planetary conditions to narrow geographic candidates.</li>
+        <li>Use comparison sets to evaluate multiple cities side by side.</li>
+        <li>Export chart records for client reports.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Feedback</h3>
+      <p>Found a bug or have a suggestion? <a href="mailto:feedback@relocationapp.com">feedback@relocationapp.com</a></p>
+    </div>
+    <button type="button" data-nav="dashboard">Back to dashboard</button>
+  `;
+}
+
+function screenFuture() {
+  return `
+    <div class="stub">Quarantined architecture only — not scheduled.</div>
+    <h2>Future Rooms (quarantined)</h2>
+    <ul class="plain">
+      <li>Transit placement / search <span class="meta">post-v1 · not Web 2.0</span></li>
+      <li>Birth-time uncertainty gradient (internal calculations, one user-facing chart) <span class="meta">post-v1</span></li>
+      <li>AI guidance · Layer 4 optimization · Layer 5 courses <span class="meta">not built</span></li>
+      <li>Multi–Chart Record comparison columns <span class="meta">future professional edge case</span></li>
+    </ul>
+    <button type="button" data-nav="dashboard">Back to dashboard</button>
+  `;
+}
+
+const SCREEN_RENDERERS = {
+  dashboard: screenDashboard,
+  "chart-record": screenChartRecord,
+  map: screenMap,
+  chart: screenChart,
+  compare: screenCompare,
+  export: screenExport,
+  settings: screenSettings,
+  "birth-data": screenBirthData,
+  future: screenFuture,
+  help: screenHelp,
+  profiles: screenProfileList,
+};
+
+function renderLoadPending() {
+  renderNav();
+  $("#screenMeta").textContent = "Loading…";
+  $("#main").innerHTML = `
+    <section class="screen active">
+      <div class="notice-box"><strong>Loading Chart Record library…</strong> Read-only from ${STORE_JSON_URL}</div>
+    </section>`;
+}
+
+function renderLoadError(message) {
+  renderNav();
+  $("#screenMeta").textContent = "Store load error";
+  $("#main").innerHTML = `
+    <section class="screen active">
+      <div class="warn-box">
+        <strong>Store load failed (read-only shell)</strong><br>
+        ${escapeHtml(message)}<br><br>
+        Expected GET <code>${STORE_JSON_URL}</code> (Store v3 scaffold).<br>
+        No silent demo fallback — fix the route or scaffold file.
+      </div>
+    </section>`;
+}
+
+function render() {
+  if (storeLoadError) {
+    renderLoadError(storeLoadError);
+    return;
+  }
+  if (!viewModel) {
+    renderLoadPending();
+    return;
+  }
+  syncNavContextFromLocation();
+  renderNav();
+  const meta = ALL_ROUTES.find((r) => r.id === navContext.route);
+  $("#screenMeta").textContent = meta ? meta.screen : navContext.route;
+  const fn = SCREEN_RENDERERS[navContext.route];
+  $("#main").innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
+  bindScreenActions($("#main"));
+  if (uiState.popupOpen) openPopup();
+}
+
+function switchChartRecord(newId, noticePrefix) {
+  if (newId === navContext.chartRecordId) return;
+  _savePersistedChartRecord(newId);
+  const prev = getChartRecord(navContext.chartRecordId).displayName;
+  const next = getChartRecord(newId).displayName;
+  navigate(navContext.route, {
+    chartRecordId: newId,
+    explorationId: null,
+  });
+  uiState.switchNotice = `${noticePrefix || "Explicit Chart Record switch"}: ${prev} → ${next}. Exploration draft cleared for prior record (placeholder).`;
+}
+
+function mountGenieDrawer(root) {
+  if (navContext.route !== "map" || !uiState.drawerOpen) return;
+  const el = root.querySelector("#genieDrawerMount");
+  if (!el || !window.RelocationGenieVariableBuilder) return;
+  const r = activeRecord();
+  window.__rmAppShellGenie = window.RelocationGenieVariableBuilder.mount(el, {
+    chartRecordId: navContext.chartRecordId || r.chartRecordId,
+    chartRecordName: r.displayName,
+    onSearchMap(payload) {
+      const { url } = prepareGenieRenderHandoff(navContext, payload);
+      window.location.assign(url);
+    },
+    onCollapse() {
+      uiState.drawerOpen = false;
+      render();
+    },
+  });
+}
+
+function bindScreenActions(root) {
+  root.querySelectorAll("[data-nav]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const route = btn.getAttribute("data-nav");
+      const chartRecordId = btn.getAttribute("data-chart-record");
+      const placeId = btn.getAttribute("data-place-id");
+      const place = btn.getAttribute("data-place");
+      /** @type {Partial<NavContext>} */
+      const patch = {};
+      if (chartRecordId) patch.chartRecordId = chartRecordId;
+      if (placeId) patch.placeId = placeId;
+      else if (place) patch.placeId = resolvePlaceIdFromDisplayName(place);
+      if (route === "compare") {
+        navigate(/** @type {Route} */ (route), patch, { pushReturn: true });
+      } else if (route) {
+        navigate(/** @type {Route} */ (route), patch);
+      }
+    });
+  });
+
+  root.querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.getAttribute("data-action");
+      if (action === "open-map-default") {
+        const vm = requireViewModel();
+        openMap({
+          chartRecordId: vm.defaultChartRecordId,
+          explorationId: null,
+          placeName: null,
+          source: "dashboard → map (defaultChartRecordId)",
+          notice: `Opened map for account default: ${getChartRecord(vm.defaultChartRecordId).displayName}`,
+        });
+      }
+      if (action === "open-map-record") {
+        openMap({
+          chartRecordId: navContext.chartRecordId,
+          explorationId: null,
+          placeId: null,
+          source: "chart-record → map",
+        });
+      }
+      if (action === "open-map-favorite") {
+        const placeId = btn.getAttribute("data-place-id");
+        const placeName = btn.getAttribute("data-place");
+        openMap({
+          chartRecordId: navContext.chartRecordId,
+          explorationId: null,
+          placeId: placeId || resolvePlaceIdFromDisplayName(placeName),
+          source: "favorite → map",
+          notice: `Hydrated ${activeRecord().displayName} + place: ${placeName || placeId}`,
+        });
+      }
+      if (action === "resume-exploration") {
+        const cr = btn.getAttribute("data-chart-record");
+        const exp = btn.getAttribute("data-exploration");
+        const rec = getChartRecord(cr);
+        const exploration = rec.explorations.find((e) => e.id === exp);
+        openMap({
+          chartRecordId: cr,
+          explorationId: exp,
+          placeId: exploration && exploration.placeIds[0] ? exploration.placeIds[0] : null,
+          source: "saved exploration → map",
+          notice: exploration ? `Resumed exploration: ${exploration.name}` : "Resumed exploration",
+        });
+      }
+      if (action === "rename-exploration") {
+        const exp = btn.getAttribute("data-exploration");
+        if (!exp) return;
+        const current = btn.getAttribute("data-current-title") || "";
+        const next = window.prompt("Rename investigation", current);
+        if (next === null) return;
+        const trimmed = next.trim();
+        if (!trimmed) { window.alert("Title cannot be blank."); return; }
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            const { error } = await client
+              .from("saved_searches")
+              .update({ title: trimmed })
+              .eq("id", exp);
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Rename failed: " + (err.message || String(err)));
+          }
+        })();
+      }
+      if (action === "archive-exploration") {
+        const exp = btn.getAttribute("data-exploration");
+        if (!exp) return;
+        if (!window.confirm("Archive this investigation? It will be removed from the list.")) return;
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            const { error } = await client
+              .from("saved_searches")
+              .update({ archived_at: new Date().toISOString() })
+              .eq("id", exp);
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
+      }
+      if (action === "archive-favorite") {
+        const favId = btn.getAttribute("data-favorite-id");
+        if (!favId) return;
+        const placeLabel = btn.getAttribute("data-place") || "this place";
+        if (!window.confirm(`Archive ${placeLabel}? It will be removed from this profile's favorites.`)) return;
+        const profileId = btn.getAttribute("data-chart-record");
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            let query = client
+              .from("favorite_places")
+              .update({ archived_at: new Date().toISOString() })
+              .eq("id", favId);
+            if (profileId) query = query.eq("profile_id", profileId);
+            if (accountId) query = query.eq("account_id", accountId);
+            const { error } = await query;
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
+      }
+      if (action === "compare-build") {
+        const msg = document.getElementById("rm-cmp-build-msg");
+        const picks = Array.from(document.querySelectorAll(".rm-cmp-pick:checked"));
+        if (picks.length < 2 || picks.length > 5) {
+          if (msg) msg.textContent = "Choose between 2 and 5 places.";
+          return;
+        }
+        const chartRecordId = navContext.chartRecordId;
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        if (!chartRecordId || !accountId) {
+          if (msg) msg.textContent = "Missing chart record or account.";
+          return;
+        }
+        const placeIds = picks.map((el) => el.value);
+        if (msg) msg.textContent = "Saving…";
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
+            const ins = await client.from("comparison_sets")
+              .insert({ profile_id: chartRecordId, account_id: accountId, title })
+              .select("id").single();
+            if (ins.error) throw ins.error;
+            const setId = ins.data.id;
+            const rows = placeIds.map((pid, i) => ({
+              comparison_set_id: setId, place_id: pid, account_id: accountId, sort_order: i + 1,
+            }));
+            const insP = await client.from("comparison_set_places").insert(rows);
+            if (insP.error) throw insP.error;
+            location.hash = buildLocationHash({
+              route: "compare", chartRecordId, comparisonSetId: setId,
+              placeId: null, explorationId: null, returnTo: null,
+            });
+            window.location.reload();
+          } catch (err) {
+            if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+          }
+        })();
+      }
+      if (action === "compare-back-map") {
+        const rt = navContext.returnTo;
+        if (rt) {
+          navigate(rt.route, {
+            chartRecordId: rt.chartRecordId,
+            placeId: rt.placeId,
+            explorationId: rt.explorationId,
+            comparisonSetId: rt.comparisonSetId,
+            returnTo: null,
+          });
+          uiState.mapEntrySource = "comparison → map (returnTo contract)";
+          uiState.switchNotice = `Returned via returnTo · Chart Record: ${getChartRecord(rt.chartRecordId || navContext.chartRecordId).displayName}`;
+        } else {
+          openMap({
+            chartRecordId: navContext.chartRecordId,
+            clearReturn: true,
+            source: "comparison → map (originating record preserved)",
+            notice: `Returned to map · Chart Record: ${activeRecord().displayName}`,
+          });
+        }
+      }
+      if (action === "inspect") openPopup();
+      if (action === "toggle-drawer") { uiState.drawerOpen = !uiState.drawerOpen; render(); }
+      if (action === "close-popup") closePopup();
+      if (action === "add-chart-record") {
+        if (typeof window.__showFirstProfileIntake === "function") {
+          window.__showFirstProfileIntake();
+        }
+      }
+      if (action === "pm-open-profile") {
+        const crId = btn.getAttribute("data-chart-record");
+        if (crId) navigate("chart-record", { chartRecordId: crId });
+      }
+      if (action === "pm-set-location") {
+        const crId = btn.getAttribute("data-chart-record");
+        if (crId && typeof window.__showCurrentLocationEditor === "function") {
+          window.__showCurrentLocationEditor(crId);
+        }
+      }
+      if (action === "pm-add-profile") {
+        if (typeof window.__showFirstProfileIntake === "function") {
+          window.__showFirstProfileIntake();
+        }
+      }
+      if (action === "set-current-location") {
+        if (typeof window.__showCurrentLocationEditor === "function") {
+          window.__showCurrentLocationEditor(navContext.chartRecordId);
+        }
+      }
+      if (action === "open-account-drawer") {
+        if (typeof window.__showAccountDrawer === "function") {
+          window.__showAccountDrawer();
+        }
+      }
+      if (action === "save-chart-note") {
+        const noteEl = document.getElementById("rm-chart-note");
+        const noteMsg = document.getElementById("rm-chart-note-msg");
+        const crId = navContext.chartRecordId;
+        if (!noteEl || !crId) {
+          if (noteMsg) noteMsg.textContent = "No active Chart Record.";
+          return;
+        }
+        try {
+          localStorage.setItem(chartNoteKey(crId), noteEl.value);
+          if (noteMsg) noteMsg.textContent = "Saved.";
+        } catch (e) {
+          if (noteMsg) noteMsg.textContent = "Could not save (storage unavailable).";
+        }
+      }
+      if (action === "save-settings") {
+        const msgEl = document.getElementById("rm-settings-msg");
+        const defCrEl = document.getElementById("rm-settings-default-cr");
+        const houseEl = document.getElementById("rm-settings-house");
+        if (!defCrEl || !houseEl) return;
+        if (msgEl) msgEl.textContent = "Saving…";
+        saveAccountSettingsPatch({
+          default_chart_record_id: defCrEl.value,
+          house_system: houseEl.value,
+        }).then(() => {
+          if (msgEl) msgEl.textContent = "✓ Saved.";
+          setTimeout(() => { window.location.reload(); }, 800);
+        }).catch((err) => {
+          if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
+        });
+      }
+    });
+  });
+
+  root.querySelectorAll("[data-action=chart-record-select]").forEach((sel) => {
+    sel.addEventListener("change", (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLSelectElement)) return;
+      switchChartRecord(target.value, "Explicit map Chart Record selector");
+      uiState.mapEntrySource = "map chart selector (explicit)";
+      render();
+    });
+  });
+
+  mountGenieDrawer(root);
+  hydrateRelocatedChart(root);
+  hydrateComparisonColumns(root);
+  hydrateChartRecordComparisonSets(root);
+}
+
+document.getElementById("popupModal").addEventListener("click", (e) => {
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  if (t.id === "popupModal") { closePopup(); return; }
+  if (t.getAttribute("data-action") === "close-popup") closePopup();
+  const nav = t.getAttribute("data-nav");
+  if (nav) { closePopup(); navigate(/** @type {Route} */ (nav)); }
+});
+
+window.addEventListener("hashchange", render);
+document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
+
+async function attachEngineSummaries(vm) {
+  const resp = await fetch(CHART_RECORDS_API_URL, { cache: "no-store" });
+  if (!resp.ok) {
+    throw new Error(`GET ${CHART_RECORDS_API_URL} failed: HTTP ${resp.status}`);
+  }
+  const payload = await resp.json();
+  const byId = Object.fromEntries(
+    (payload.chartRecords || []).map((row) => [row.chartRecordId, row.engineBirth])
+  );
+  for (const record of vm.chartRecords) {
+    record.engineBirth = byId[record.chartRecordId] || null;
+  }
+}
+
+async function loadViewModelFromStore() {
+  let payload = null;
+
+  // Use Supabase live store if available (supabase_store_bridge.js loaded)
+  if (typeof window.SupabaseStoreReady !== "undefined") {
+    try {
+      payload = await window.SupabaseStoreReady;
+      console.log("[app_shell] Using Supabase store bridge.");
+    } catch (err) {
+      // Authenticated user with no profiles/birth records — show intake overlay,
+      // do NOT fall back to mock data (that would mislead the user).
+      if (err.message && err.message.indexOf("Intake overlay required") !== -1) {
+        throw new Error("INTAKE_REQUIRED");
+      }
+      console.warn(
+        "[app_shell] Supabase bridge unavailable, falling back to local store:",
+        err.message
+      );
+      payload = null;
+    }
+  }
+
+  // Fallback: local product store (always available, no auth required)
+  if (!payload) {
+    const resp = await fetch(STORE_JSON_URL, { cache: "no-store" });
+    if (!resp.ok) {
+      throw new Error(`GET ${STORE_JSON_URL} failed: HTTP ${resp.status}`);
+    }
+    payload = await resp.json();
+  }
+
+  storeRaw = payload;
+  viewModel = adaptStoreToView(payload);
+
+  // Override defaultChartRecordId with last user selection if valid
+  const _savedChart = _loadPersistedChartRecord();
+  if (_savedChart && viewModel.chartRecords.some(function(r) { return r.chartRecordId === _savedChart; })) {
+    viewModel.defaultChartRecordId = _savedChart;
+  }
+
+  await attachEngineSummaries(viewModel);
+  storeLoadError = null;
+  syncNavContextFromLocation();
+}
+
+async function bootstrap() {
+  renderLoadPending();
+  try {
+    await loadViewModelFromStore();
+    render();
+    maybeShowGuidedOnboarding();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // Intake overlay: first_profile_intake.js handles the display.
+    // Stay in the pending/loading state — do not render error or mock store.
+    if (msg === "INTAKE_REQUIRED") {
+      if (typeof window.__showFirstProfileIntake === "function") {
+        window.__showFirstProfileIntake();
+      }
+      return;
+    }
+    storeLoadError = msg;
+    viewModel = null;
+    storeRaw = null;
+    renderLoadError(storeLoadError);
+  }
+}
+
+var GUIDED_ONBOARDING_KEY = "rm_guided_onboarding_dismissed";
+
+function dismissGuidedOnboarding() {
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  try { localStorage.setItem(GUIDED_ONBOARDING_KEY, "1"); } catch (e) { /* storage unavailable */ }
+}
+
+function maybeShowGuidedOnboarding() {
+  var dismissed = false;
+  try { dismissed = localStorage.getItem(GUIDED_ONBOARDING_KEY) === "1"; } catch (e) { dismissed = false; }
+  if (dismissed) return;
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (!modal) return;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  var startBtn = modal.querySelector("[data-action=guided-onboarding-start]");
+  var skipBtn = modal.querySelector("[data-action=guided-onboarding-skip]");
+  if (startBtn) startBtn.addEventListener("click", function () {
+    dismissGuidedOnboarding();
+    navigate("help");
+  });
+  if (skipBtn) skipBtn.addEventListener("click", dismissGuidedOnboarding);
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) dismissGuidedOnboarding();
+  });
+}
+
+/**
+ * Merges patch into the account-level user_settings row (profile_id IS NULL).
+ * Creates the row (INSERT) if none exists yet; otherwise UPDATE.
+ * Keys in settings_json not present in patch are preserved.
+ *
+ * @param {Object} patch  Key/value pairs to merge into settings_json.
+ * @returns {Promise<void>}  Resolves on success; rejects with Error on failure.
+ */
+async function saveAccountSettingsPatch(patch) {
+  const client = await window.SupabaseReady;
+  const user = window.CurrentUser;
+  if (!client || !user || !user.accountId) {
+    throw new Error("Session unavailable. Reload and try again.");
+  }
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const merged = Object.assign({}, raw.user_settings || {}, patch);
+  const { data: rows, error: selErr } = await client
+    .from("user_settings")
+    .select("id")
+    .eq("account_id", user.accountId)
+    .is("profile_id", null)
+    .limit(1);
+  if (selErr) throw selErr;
+  let writeErr;
+  if (rows && rows.length > 0) {
+    const { error: upErr } = await client
+      .from("user_settings")
+      .update({ settings_json: merged })
+      .eq("id", rows[0].id);
+    writeErr = upErr;
+  } else {
+    const { error: insErr } = await client
+      .from("user_settings")
+      .insert({
+        account_id:      user.accountId,
+        account_user_id: user.userId,
+        profile_id:      null,
+        settings_json:   merged,
+      });
+    writeErr = insErr;
+  }
+  if (writeErr) throw writeErr;
+}
+
+window.__rmAppShell = {
+  navigate,
+  openMap,
+  switchChartRecord,
+  state,
+  get navContext() { return navContext; },
+  get uiState() { return uiState; },
+  ROUTE_CONTEXT_CONTRACT,
+  CONTEXT_TRANSPORT_STRATEGY,
+  MAP_HANDOFF_CONTRACT,
+  GENIE_RENDER_STORAGE_PREFIX,
+  generateGenieRenderRef,
+  storeGenieRenderPayload,
+  prepareGenieRenderHandoff,
+  buildMapHandoffUrl,
+  parseLocation,
+  buildLocationHash,
+  normalizeNavContext,
+  snapshotNavContext,
+  viewModel: () => viewModel,
+  storeRaw: () => storeRaw,
+  saveAccountSettingsPatch,
+  savePersistedChartRecord: _savePersistedChartRecord,
+  storeLoadError: () => storeLoadError,
+  loadViewModelFromStore,
+  adaptStoreToView,
+  STORE_JSON_URL,
+  CHART_RECORDS_API_URL,
+  RESUME_CONTEXT_STUB,
+  NAV_ROUTES,
+  ALL_ROUTES,
+  getChartRecord,
+  activeRecord,
+  openPopup,
+  closePopup,
+};
+
+bootstrap();
+</script>
+</body>
+</html>
