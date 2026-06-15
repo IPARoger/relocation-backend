@@ -191,19 +191,11 @@
   <div class="modal" role="dialog" aria-labelledby="popupTitle">
     <h3 id="popupTitle">Screen 3 — Location Popup</h3>
     <p class="purpose">Point truth · evaluation mood · <span id="popupPlaceLabel"></span></p>
-    <div class="stub">Placeholder facts at selected location (ASC/MC, houses, aspects to angles).</div>
     <div id="popupTierWarning"></div>
     <div class="module">
-      <h4>Module: popup-facts</h4>
-      <ul class="plain">
-        <li>ASC in Gemini <span class="meta">placeholder</span></li>
-        <li>MC in Aquarius <span class="meta">placeholder</span></li>
-        <li>Sun in 10th house <span class="meta">placeholder</span></li>
-      </ul>
+      <p>Production map opens in the main map tool. Relocated chart facts are shown there and on the View Chart screen.</p>
     </div>
-    <div class="future-only">Future: AI explain (disabled) · voice note (disabled)</div>
     <div class="row">
-      <button type="button" class="primary" data-nav="chart">Open full chart (Screen 4)</button>
       <button type="button" data-action="close-popup">Close</button>
     </div>
     <p class="must-not">Must not appear: dignity scoring, oracle copy, social share primary.</p>
@@ -1059,6 +1051,15 @@ function renderNav() {
           comparisonSetId: null,
           returnTo: null,
         });
+      } else if (r.id === "map") {
+        // Primary "Map" nav opens the real production map (map_CURRENT.html),
+        // not the in-shell placeholder. Use active record when available,
+        // otherwise the account default.
+        openMap({
+          chartRecordId: navContext.chartRecordId || (viewModel && viewModel.defaultChartRecordId) || null,
+          explorationId: null,
+          source: "primary nav → production map",
+        });
       } else {
         navigate(/** @type {Route} */ (r.id));
       }
@@ -1307,18 +1308,12 @@ function screenMap() {
     ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
     ${timeUncertaintyWarning(r)}
     ${navContext.explorationId ? `<div class="stub">${RESUME_CONTEXT_STUB}</div>` : ""}
-    <div class="stub">Map viewport placeholder · entry: ${uiState.mapEntrySource || "direct nav"}.
-      <!-- Context-only v1 handoff (target=_blank). Genie payload requires prepareGenieRenderHandoff + same-tab. -->
-      <a href="${buildMapHandoffUrl()}" target="_blank" rel="noopener">Open production map (context handoff v1)</a>
-    </div>
-    <div class="map-placeholder">
-      <div>
-        <strong>Map module (placeholder)</strong><br>
-        ${resolvePlaceName(navContext.placeId) ? `Centered on: <strong>${resolvePlaceName(navContext.placeId)}</strong><br>` : ""}
-        Pan · zoom · overlap regions · inspect point
-        <div class="row" style="justify-content:center;margin-top:12px">
-          <button type="button" class="primary" data-action="inspect">Inspect point → Screen 3 popup</button>
-        </div>
+    <div class="panel">
+      <h3>Module: production-map</h3>
+      <p>Production map opens in the main map tool.</p>
+      ${resolvePlaceName(navContext.placeId) ? `<p class="meta">Context place: <strong>${resolvePlaceName(navContext.placeId)}</strong></p>` : ""}
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="primary" data-action="open-map-record">Open production map</button>
       </div>
     </div>
     <div class="grid-2">
