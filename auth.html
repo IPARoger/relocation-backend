@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign in — Relocation</title>
+<script src="/supabase_client.js"></script>
+<style>
+  :root {
+    --fg:      #111827;
+    --muted:   #6b7280;
+    --line:    #e5e7eb;
+    --bg:      #f3f4f6;
+    --panel:   #ffffff;
+    --accent:  #1d4ed8;
+    --accent-h:#1e40af;
+    --err-bg:  #fef2f2;
+    --err-bdr: #fca5a5;
+    --err-fg:  #991b1b;
+    --ok-bg:   #ecfdf5;
+    --ok-bdr:  #6ee7b7;
+    --ok-fg:   #065f46;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--fg);
+    font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  .page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 8px 24px rgba(0,0,0,.06);
+    padding: 36px 32px 32px;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  /* ── Wordmark ── */
+  .wordmark {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    text-align: center;
+  }
+  .card-sub {
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 0 24px;
+  }
+
+  /* ── Form ── */
+  .field { margin-bottom: 14px; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+    margin-bottom: 5px;
+  }
+  .input-wrap { position: relative; }
+  input[type=email],
+  input[type=password],
+  input[type=text] {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--fg);
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: var(--accent); }
+  input.has-toggle { padding-right: 42px; }
+
+  /* show/hide toggle */
+  .pw-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+  }
+  .pw-toggle:hover { color: var(--fg); }
+
+  /* ── Primary button ── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background .15s, opacity .15s;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-h); }
+  .btn-primary:disabled { opacity: .6; cursor: default; }
+
+  /* ── Secondary / text links ── */
+  .actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 13px;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .link-btn:hover { color: var(--accent-h); }
+
+  /* ── Alerts ── */
+  .alert {
+    border-radius: 7px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .alert.visible { display: block; }
+  .alert-err  { background: var(--err-bg); border: 1px solid var(--err-bdr); color: var(--err-fg); }
+  .alert-ok   { background: var(--ok-bg);  border: 1px solid var(--ok-bdr);  color: var(--ok-fg); }
+
+  /* ── Confirm / holding screen ── */
+  .confirm-icon { font-size: 36px; text-align: center; margin-bottom: 8px; }
+  .confirm-email {
+    font-weight: 600;
+    word-break: break-all;
+    text-align: center;
+    margin: 8px 0 16px;
+  }
+  .confirm-note {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .resend-row { text-align: center; font-size: 13px; color: var(--muted); }
+  .resend-row .link-btn { margin-left: 4px; }
+  #resend-timer { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── View switching ── */
+  [data-view] { display: none; }
+  [data-view].active { display: block; }
+
+  /* ── Init state ── */
+  .page.loading .card { opacity: 0; }
+
+  @media (max-width: 420px) {
+    .card { padding: 28px 20px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="page loading" id="page">
+  <div class="card">
+    <div class="wordmark">Relocation</div>
+
+    <!-- ── SIGNUP VIEW ── -->
+    <div data-view="signup" id="view-signup">
+      <h1 class="card-title">Create your account</h1>
+      <p class="card-sub">Your personal relocation map starts here.</p>
+
+      <div class="alert alert-err" id="signup-err" role="alert"></div>
+
+      <form id="signup-form" novalidate>
+        <div class="field">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" autocomplete="email" required placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="signup-password">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="signup-password" class="has-toggle"
+              autocomplete="new-password" required minlength="8"
+              placeholder="At least 8 characters" />
+            <button type="button" class="pw-toggle" data-target="signup-password"
+              aria-label="Show password">
+              <span class="eye-icon">&#128065;</span>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="signup-btn">Create account</button>
+      </form>
+
+      <div class="actions-row">
+        <span style="color:var(--muted)">Already have an account?</span>
+        <button class="link-btn" id="goto-login">Sign in</button>
+      </div>
+    </div>
+
+    <!-- ── LOGIN VIEW ── -->
+    <div data-view="login" id="view-login">
+      <h1 class="card-title">Welcome back</h1>
+      <p class="card-sub">Sign in to your account.</p>
+
+      <div class="alert alert-err" id="login-err" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" autocomplete="email" required placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="login-password" class="has-toggle"
+              autocomplete="current-password" required placeholder="Your password" />
+            <button type="button" class="pw-toggle" data-target="login-password"
+              aria-label="Show password">
+              <span class="eye-icon">&#128065;</span>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="login-btn">Sign in</button>
+      </form>
+
+      <div class="actions-row">
+        <button class="link-btn" id="forgot-btn">Forgot password?</button>
+        <button class="link-btn" id="goto-signup">Create account</button>
+      </div>
+      <div class="alert alert-ok" id="reset-ok" style="margin-top:12px">
+        Password reset email sent. Check your inbox.
+      </div>
+    </div>
+
+    <!-- ── CONFIRM VIEW (email confirmation holding screen) ── -->
+    <div data-view="confirm" id="view-confirm">
+      <div class="confirm-icon">&#9993;</div>
+      <h1 class="card-title">Check your email</h1>
+      <p id="confirm-email-display" class="confirm-email"></p>
+      <p class="confirm-note">
+        We sent a confirmation link. Click it to activate your account.<br />
+        The link expires after 24 hours.
+      </p>
+      <div class="resend-row">
+        Didn't get it?
+        <button class="link-btn" id="resend-btn" disabled>Resend</button>
+        <div id="resend-timer"></div>
+      </div>
+      <div class="alert alert-err" id="confirm-err" style="margin-top:12px" role="alert"></div>
+      <div class="actions-row" style="justify-content:center;margin-top:20px">
+        <button class="link-btn" id="back-to-signup">Use a different email</button>
+      </div>
+    </div>
+
+  </div><!-- .card -->
+</div><!-- .page -->
+
+<script>
+(function () {
+  "use strict";
+
+  var MAP_URL = "/map_CURRENT.html";
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  var page          = document.getElementById("page");
+  var views         = document.querySelectorAll("[data-view]");
+
+  var signupForm    = document.getElementById("signup-form");
+  var signupEmail   = document.getElementById("signup-email");
+  var signupPw      = document.getElementById("signup-password");
+  var signupBtn     = document.getElementById("signup-btn");
+  var signupErr     = document.getElementById("signup-err");
+
+  var loginForm     = document.getElementById("login-form");
+  var loginEmail    = document.getElementById("login-email");
+  var loginPw       = document.getElementById("login-password");
+  var loginBtn      = document.getElementById("login-btn");
+  var loginErr      = document.getElementById("login-err");
+  var resetOk       = document.getElementById("reset-ok");
+
+  var confirmEmail  = document.getElementById("confirm-email-display");
+  var resendBtn     = document.getElementById("resend-btn");
+  var resendTimer   = document.getElementById("resend-timer");
+  var confirmErr    = document.getElementById("confirm-err");
+
+  var gotoLogin     = document.getElementById("goto-login");
+  var gotoSignup    = document.getElementById("goto-signup");
+  var forgotBtn     = document.getElementById("forgot-btn");
+  var backToSignup  = document.getElementById("back-to-signup");
+
+  // ── View management ───────────────────────────────────────────────────────
+  function showView(name) {
+    views.forEach(function (v) {
+      v.classList.toggle("active", v.getAttribute("data-view") === name);
+    });
+  }
+
+  function clearAlert(el) {
+    el.textContent = "";
+    el.classList.remove("visible");
+  }
+
+  function showAlert(el, msg) {
+    el.textContent = msg;
+    el.classList.add("visible");
+  }
+
+  // ── Error message mapping ─────────────────────────────────────────────────
+  function friendlyError(err) {
+    if (!err) return "Something went wrong. Please try again.";
+    var msg = (err.message || err.msg || String(err)).toLowerCase();
+    if (msg.includes("user already registered") || msg.includes("already been registered") || msg.includes("email address is already")) {
+      return "An account with this email exists. Sign in instead.";
+    }
+    if (msg.includes("password should be at least") || msg.includes("weak password") || msg.includes("should contain")) {
+      return "Password must be at least 8 characters.";
+    }
+    if (msg.includes("invalid login credentials") || msg.includes("invalid credentials") || msg.includes("email not confirmed")) {
+      return "Incorrect email or password.";
+    }
+    if (msg.includes("rate limit") || msg.includes("too many") || msg.includes("over_email_send_rate_limit") || msg.includes("for security purposes")) {
+      return "Too many attempts. Try again in a few minutes.";
+    }
+    if (msg.includes("network") || msg.includes("fetch") || msg.includes("failed to fetch")) {
+      return "Check your connection and try again.";
+    }
+    return err.message || "Something went wrong. Please try again.";
+  }
+
+  // ── Show/hide password toggle ─────────────────────────────────────────────
+  document.querySelectorAll(".pw-toggle").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var target = document.getElementById(btn.getAttribute("data-target"));
+      if (!target) return;
+      var isPassword = target.type === "password";
+      target.type = isPassword ? "text" : "password";
+      btn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+      btn.querySelector(".eye-icon").textContent = isPassword ? "\uD83D\uDEAB" : "\uD83D\uDC41";
+    });
+  });
+
+  // ── Mode toggles ──────────────────────────────────────────────────────────
+  gotoLogin.addEventListener("click", function () {
+    clearAlert(signupErr);
+    showView("login");
+  });
+
+  gotoSignup.addEventListener("click", function () {
+    clearAlert(loginErr);
+    clearAlert(resetOk);
+    showView("signup");
+  });
+
+  backToSignup.addEventListener("click", function () {
+    clearAlert(confirmErr);
+    showView("signup");
+  });
+
+  // ── Resend confirmation timer ─────────────────────────────────────────────
+  var resendEmail = "";
+  var resendCountdown = null;
+
+  function startResendTimer(email) {
+    resendEmail = email;
+    resendBtn.disabled = true;
+    var seconds = 60;
+    resendTimer.textContent = "Available in " + seconds + "s";
+    clearInterval(resendCountdown);
+    resendCountdown = setInterval(function () {
+      seconds--;
+      if (seconds <= 0) {
+        clearInterval(resendCountdown);
+        resendBtn.disabled = false;
+        resendTimer.textContent = "";
+      } else {
+        resendTimer.textContent = "Available in " + seconds + "s";
+      }
+    }, 1000);
+  }
+
+  resendBtn.addEventListener("click", function () {
+    if (!resendEmail) return;
+    resendBtn.disabled = true;
+    window.SupabaseReady.then(function (client) {
+      return client.auth.resend({ type: "signup", email: resendEmail });
+    }).then(function (result) {
+      if (result.error) {
+        showAlert(confirmErr, friendlyError(result.error));
+      } else {
+        clearAlert(confirmErr);
+        startResendTimer(resendEmail);
+      }
+    }).catch(function (err) {
+      showAlert(confirmErr, "Check your connection and try again.");
+    });
+  });
+
+  // ── Forgot password ───────────────────────────────────────────────────────
+  forgotBtn.addEventListener("click", function () {
+    clearAlert(resetOk);
+    var email = loginEmail.value.trim();
+    if (!email) {
+      showAlert(loginErr, "Enter your email address above, then click Forgot password.");
+      return;
+    }
+    clearAlert(loginErr);
+    forgotBtn.disabled = true;
+    window.SupabaseReady.then(function (client) {
+      return client.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + MAP_URL,
+      });
+    }).then(function (result) {
+      forgotBtn.disabled = false;
+      if (result.error) {
+        showAlert(loginErr, friendlyError(result.error));
+      } else {
+        showAlert(resetOk, "Password reset email sent. Check your inbox.");
+      }
+    }).catch(function () {
+      forgotBtn.disabled = false;
+      showAlert(loginErr, "Check your connection and try again.");
+    });
+  });
+
+  // ── Signup ────────────────────────────────────────────────────────────────
+  signupForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    clearAlert(signupErr);
+
+    var email = signupEmail.value.trim();
+    var pw    = signupPw.value;
+
+    if (!email) { showAlert(signupErr, "Email is required."); return; }
+    if (pw.length < 8) { showAlert(signupErr, "Password must be at least 8 characters."); return; }
+
+    signupBtn.disabled = true;
+    signupBtn.textContent = "Creating account\u2026";
+
+    window.SupabaseReady.then(function (client) {
+      return client.auth.signUp({
+        email: email,
+        password: pw,
+        options: { emailRedirectTo: window.location.origin + MAP_URL },
+      });
+    }).then(function (result) {
+      signupBtn.disabled = false;
+      signupBtn.textContent = "Create account";
+
+      if (result.error) {
+        showAlert(signupErr, friendlyError(result.error));
+        return;
+      }
+
+      // Session present immediately (e.g. email confirmation disabled on staging):
+      if (result.data && result.data.session) {
+        window.location.href = MAP_URL;
+        return;
+      }
+
+      // No immediate session — email confirmation required:
+      confirmEmail.textContent = email;
+      clearAlert(confirmErr);
+      startResendTimer(email);
+      showView("confirm");
+
+    }).catch(function (err) {
+      signupBtn.disabled = false;
+      signupBtn.textContent = "Create account";
+      showAlert(signupErr, "Check your connection and try again.");
+    });
+  });
+
+  // ── Login ─────────────────────────────────────────────────────────────────
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    clearAlert(loginErr);
+    clearAlert(resetOk);
+
+    var email = loginEmail.value.trim();
+    var pw    = loginPw.value;
+
+    if (!email) { showAlert(loginErr, "Email is required."); return; }
+    if (!pw)    { showAlert(loginErr, "Password is required."); return; }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in\u2026";
+
+    window.SupabaseReady.then(function (client) {
+      return client.auth.signInWithPassword({ email: email, password: pw });
+    }).then(function (result) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Sign in";
+
+      if (result.error) {
+        showAlert(loginErr, friendlyError(result.error));
+        return;
+      }
+      window.location.href = MAP_URL;
+
+    }).catch(function () {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Sign in";
+      showAlert(loginErr, "Check your connection and try again.");
+    });
+  });
+
+  // ── Init: check existing session, then show page ──────────────────────────
+  window.SupabaseReady.then(function (client) {
+    return client.auth.getSession();
+  }).then(function (result) {
+    if (result.data && result.data.session) {
+      // Already authenticated — go straight to the map.
+      window.location.href = MAP_URL;
+      return;
+    }
+    // No session — show signup view.
+    showView("signup");
+    page.classList.remove("loading");
+  }).catch(function (err) {
+    // Config or CDN load failed — show page anyway so the user sees something.
+    console.error("[auth] init error:", err);
+    showView("signup");
+    page.classList.remove("loading");
+    showAlert(signupErr, "Could not connect to the server. Is it running?");
+  });
+
+})();
+</script>
+</body>
+</html>
