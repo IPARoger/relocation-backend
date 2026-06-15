@@ -676,6 +676,7 @@ function adaptStoreToView(store) {
 
   return {
     defaultChartRecordId,
+    accountDefaultChartRecordId: defaultChartRecordId,
     chartRecords,
     comparisonSets,
     placeNameById: Object.fromEntries(
@@ -862,7 +863,7 @@ function normalizeNavContext(partial) {
   };
 
   if (contract.chartRecordId === "required" && !out.chartRecordId && viewModel) {
-    out.chartRecordId = viewModel.defaultChartRecordId;
+    out.chartRecordId = viewModel.selectedChartRecordId || viewModel.defaultChartRecordId;
   }
   if (contract.comparisonSetId === "required" && !out.comparisonSetId && viewModel && out.chartRecordId) {
     const cs = viewModel.comparisonSets.find((c) => c.clientId === out.chartRecordId);
@@ -1056,7 +1057,7 @@ function renderNav() {
         // not the in-shell placeholder. Use active record when available,
         // otherwise the account default.
         openMap({
-          chartRecordId: navContext.chartRecordId || (viewModel && viewModel.defaultChartRecordId) || null,
+          chartRecordId: navContext.chartRecordId || (viewModel && viewModel.selectedChartRecordId) || null,
           explorationId: null,
           source: "primary nav → production map",
         });
@@ -2394,11 +2395,14 @@ async function loadViewModelFromStore() {
   storeRaw = payload;
   viewModel = adaptStoreToView(payload);
 
-  // Override defaultChartRecordId with last user selection if valid
+  // Account default stays the user_settings default and is NEVER overwritten here.
+  // The last-selected profile is layered as a SEPARATE field so it cannot blur the
+  // account default (see results/35_application_shell_architecture_spec.md).
+  viewModel.accountDefaultChartRecordId = viewModel.defaultChartRecordId;
   const _savedChart = _loadPersistedChartRecord();
-  if (_savedChart && viewModel.chartRecords.some(function(r) { return r.chartRecordId === _savedChart; })) {
-    viewModel.defaultChartRecordId = _savedChart;
-  }
+  const _savedValid = _savedChart && viewModel.chartRecords.some(function(r) { return r.chartRecordId === _savedChart; });
+  viewModel.lastSelectedChartRecordId = _savedValid ? _savedChart : null;
+  viewModel.selectedChartRecordId = viewModel.lastSelectedChartRecordId || viewModel.defaultChartRecordId;
 
   await attachEngineSummaries(viewModel);
   storeLoadError = null;
