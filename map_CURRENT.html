@@ -1897,10 +1897,37 @@ async function applySupabaseSavedInvestigationReplay() {
 
 window.__rmApplySupabaseSavedInvestigationReplay = applySupabaseSavedInvestigationReplay;
 
+let savedInvestigationAutoSearchConsumed = false;
+
+function waitForMapReady() {
+    const mapRef = window.__rmMap;
+    if (!mapRef || typeof mapRef.whenReady !== "function") {
+        return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+        mapRef.whenReady(() => resolve());
+    });
+}
+
+async function autoRunSavedInvestigationSearchOnce() {
+    if (savedInvestigationAutoSearchConsumed) return;
+    savedInvestigationAutoSearchConsumed = true;
+    await waitForMapReady();
+    const chartRecordId = lastAppShellHandoff && lastAppShellHandoff.chartRecordId;
+    if (chartRecordId) {
+        setSelectValueIfPresent("chartProfile", chartRecordId);
+    }
+    window.__rmSavedInvestigationAutoSearchRan = true;
+    await findRegions();
+}
+
 async function scheduleSupabaseSavedInvestigationReplay() {
     if (!lastAppShellHandoff || !lastAppShellHandoff.explorationId) return false;
     await chartProfilesReady;
-    return applySupabaseSavedInvestigationReplay();
+    const reopened = await applySupabaseSavedInvestigationReplay();
+    if (!reopened) return false;
+    await autoRunSavedInvestigationSearchOnce();
+    return true;
 }
 
 
