@@ -2176,18 +2176,9 @@ function bindScreenActions(root) {
           return;
         }
         if (newName === currentName.trim()) return;
-        const accountId = window.CurrentUser && window.CurrentUser.accountId;
         (async () => {
           try {
-            const client = await window.SupabaseReady;
-            if (!client) throw new Error("Supabase unavailable.");
-            let query = client
-              .from("profiles")
-              .update({ display_name: newName })
-              .eq("id", profileId);
-            if (accountId) query = query.eq("account_id", accountId);
-            const { error } = await query;
-            if (error) throw error;
+            await renameProfile(profileId, newName);
             window.location.reload();
           } catch (err) {
             window.alert("Rename failed: " + (err.message || String(err)));
@@ -2527,6 +2518,21 @@ async function setAccountDefaultChartRecord(chartRecordId) {
     viewModel.defaultChartRecordId = prevDefault;
     throw err;
   }
+}
+
+// Shell-owned profile write: rename a profile's display name with account scoping.
+// Validation, confirmation copy, reload, and error surfacing stay with the caller.
+async function renameProfile(profileId, displayName) {
+  const client = await window.SupabaseReady;
+  if (!client) throw new Error("Supabase unavailable.");
+  const accountId = window.CurrentUser && window.CurrentUser.accountId;
+  let query = client
+    .from("profiles")
+    .update({ display_name: displayName })
+    .eq("id", profileId);
+  if (accountId) query = query.eq("account_id", accountId);
+  const { error } = await query;
+  if (error) throw error;
 }
 
 window.__rmAppShell = {
