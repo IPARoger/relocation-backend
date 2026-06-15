@@ -37,6 +37,19 @@
   var INTAKE_OVERLAY_ID = "rm-first-profile-intake";
   var overlayShown = false;
 
+  // Launch context (Phase 1 plumbing). Captured when the overlay is shown so
+  // later phases can branch first-run vs. future Add Profile behavior. Default
+  // mode "first" preserves existing first-run onboarding behavior exactly.
+  var DEFAULT_LAUNCH_CONTEXT = { mode: "first", onCreated: null };
+  var launchContext = DEFAULT_LAUNCH_CONTEXT;
+
+  function normalizeLaunchOptions(options) {
+    var opts = options || {};
+    var mode = opts.mode === "add" ? "add" : "first";
+    var onCreated = typeof opts.onCreated === "function" ? opts.onCreated : null;
+    return { mode: mode, onCreated: onCreated };
+  }
+
   // ── Styles ─────────────────────────────────────────────────────────────────
 
   var CSS = [
@@ -310,6 +323,18 @@
       }
 
       // ── Success ─────────────────────────────────────────────────────────
+      // Future Add Profile (mode "add"): hand the new profile back to the shell
+      // and do NOT redirect. Requires a valid onCreated callback; otherwise we
+      // fall back to the original first-run redirect for safety.
+      if (launchContext.mode === "add" && typeof launchContext.onCreated === "function") {
+        console.log("[intake] Profile and birth record created (add mode). Handing off to shell.");
+        var onCreatedCb = launchContext.onCreated;
+        removeOverlay();
+        onCreatedCb(profileId);
+        return;
+      }
+
+      // First-run onboarding (default mode "first"): continue into the map flow.
       console.log("[intake] Profile and birth record created. Redirecting to map...");
       var handoffCreatedAt = new Date().toISOString();
       window.location.href =
@@ -416,10 +441,22 @@
     if (submitBtn) submitBtn.addEventListener("click", submitIntake);
   }
 
+  // ── Remove overlay ──────────────────────────────────────────────────────────
+
+  // Removes the overlay from the DOM and resets state so a later launch (e.g.
+  // first-run) starts clean. Used by the add-mode success handoff.
+  function removeOverlay() {
+    var existing = document.getElementById(INTAKE_OVERLAY_ID);
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    overlayShown = false;
+    launchContext = DEFAULT_LAUNCH_CONTEXT;
+  }
+
   // ── Show overlay ────────────────────────────────────────────────────────────
 
-  function showOverlay() {
+  function showOverlay(options) {
     if (overlayShown) return;
+    launchContext = normalizeLaunchOptions(options);
     overlayShown = true;
 
     injectStyles();
@@ -436,7 +473,11 @@
 
   // ── Activation ──────────────────────────────────────────────────────────────
 
-  /** Called by app_shell.html when INTAKE_REQUIRED is detected. */
+  /**
+   * Called by app_shell.html when INTAKE_REQUIRED is detected (no args =>
+   * first-run onboarding), and by shell Add Profile entry points.
+   * @param {{mode?: "first"|"add", onCreated?: Function}} [options]
+   */
   window.__showFirstProfileIntake = showOverlay;
 
   /**
