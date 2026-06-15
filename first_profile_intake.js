@@ -330,8 +330,8 @@
 
     overlay.innerHTML = [
       '<div class="card">',
-      '  <h2>Set up your first chart</h2>',
-      '  <p class="subtitle">Enter your birth details to begin exploring your relocation astrology.</p>',
+      '  <h2>Create profile and chart record</h2>',
+      '  <p class="subtitle">Enter birth details to create a profile and its chart record. Current location is set separately, later.</p>',
 
       '  <div class="field">',
       '    <label for="rm-intake-name">Display name</label>',
@@ -368,6 +368,7 @@
       '      <div class="place-results" id="rm-intake-place-results" style="display:none;"></div>',
       '    </div>',
       '    <div class="searching" id="rm-intake-searching" style="display:none;">Searching…</div>',
+      '    <p class="meta" style="font-size:11px;color:#8888aa;margin:4px 0 0;">Select a birth city from the available list.</p>',
       '  </div>',
 
       '  <button type="button" class="submit-btn" id="rm-intake-submit">',

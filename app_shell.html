@@ -230,7 +230,7 @@
 const STORE_JSON_URL = "/local-product-store.json";
 const CHART_RECORDS_API_URL = "/chart-records";
 const STORE_SCHEMA_VERSION = 3;
-const RESUME_CONTEXT_STUB = "Resume passes context only; saved conditions not replayed on map (v1).";
+const RESUME_CONTEXT_STUB = "Reopens on the map \u2014 saved conditions and the map view are restored when available, then the search runs once. Not a frozen snapshot.";
 
 /** @type {object | null} */
 let storeRaw = null;
@@ -261,7 +261,7 @@ function _savePersistedChartRecord(id) {
 const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
   { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
-  { id: "map", label: "2 Map", screen: "Screen 2 — Map Discovery" },
+  { id: "map", label: "2 Map", screen: "Screen 2 — Map Launcher" },
   { id: "chart", label: "4 Chart", screen: "Screen 4 — View Chart" },
   { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
   { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
@@ -1164,7 +1164,7 @@ function screenChartRecord() {
     </div>
     <div class="row">
       <button type="button" class="primary" data-action="open-map-record">Open Map (this Chart Record)</button>
-      <button type="button" data-nav="export">Export entry (Screen 6)</button>
+      <button type="button" data-nav="export">Export / share status</button>
       <button type="button" data-nav="settings">Settings</button>
     </div>
     <div class="grid-2">
@@ -1299,12 +1299,10 @@ async function hydrateChartRecordComparisonSets(root) {
 
 function screenMap() {
   const r = activeRecord();
-  const exp = activeExploration();
-  const conditions = exp ? exp.conditions : ["planet-in-house: Sun in 10th (draft)", "angle-in-sign: ASC in Gemini (draft)"];
   return `
     <div class="breadcrumb">${r.displayName} · Map discovery</div>
-    <h2>Screen 2 — Map Discovery</h2>
-    <p class="purpose">Primary instrument · activeChartRecordId required.</p>
+    <h2>Screen 2 — Map Launcher</h2>
+    <p class="purpose">Use the production map for exploration. This shell page preserves context and handoff controls.</p>
     ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
     ${timeUncertaintyWarning(r)}
     ${navContext.explorationId ? `<div class="stub">${RESUME_CONTEXT_STUB}</div>` : ""}
@@ -1330,7 +1328,7 @@ function screenMap() {
         <h3>Module: map-actions</h3>
         <button type="button" data-nav="chart">Full chart (Screen 4)</button>
         <button type="button" data-nav="compare">Compare places (Screen 5)</button>
-        <button type="button" data-nav="export">Export viewport (Screen 6)</button>
+        <button type="button" data-nav="export">Export / share status</button>
         <button type="button" disabled>Save exploration (auto-save stub)</button>
         <button type="button" data-nav="chart-record">Back to Chart Record page</button>
       </div>
@@ -1362,7 +1360,7 @@ function screenChart() {
     <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
     <div class="warn-box"><strong>Cannot show relocated chart.</strong><br>
       This screen needs both a Chart Record and a place. Open it from a Chart Record favorite (View chart).</div>
-    <div class="row"><button type="button" data-nav="map">Back to map</button></div>
+    <div class="row"><button type="button" data-nav="map">Back to shell map</button></div>
     `;
   }
   const r = getChartRecord(chartRecordId);
@@ -1391,12 +1389,12 @@ function screenChart() {
     <div class="panel">
       <h3>Module: notes · favorite</h3>
       <textarea rows="2" placeholder="Optional inline note (placeholder — not saved)"></textarea>
-      <button type="button" disabled>Favorite this place</button>
+      <button type="button" disabled>Favorite this place (not available yet)</button>
     </div>
     <div class="row">
-      <button type="button" data-nav="map">Back to map</button>
-      <button type="button" data-nav="compare">Add to comparison</button>
-      <button type="button" data-nav="export">Export chart</button>
+      <button type="button" data-nav="map">Back to shell map</button>
+      <button type="button" data-nav="compare">Open comparison workspace</button>
+      <button type="button" data-nav="export">Export / share status</button>
     </div>
   `;
 }
@@ -1633,7 +1631,7 @@ function screenCompare() {
     <div class="row">
       <button type="button" data-action="compare-back-map">Back to map (preserve originating record)</button>
       <button type="button" data-nav="chart-record" data-chart-record="${origin.chartRecordId}">Back to Chart Record page</button>
-      <button type="button" data-nav="export">Export comparison</button>
+      <button type="button" data-nav="export">Export / share status</button>
     </div>
     ${stateDebugBlock()}
     <p class="must-not">Must not appear: client-vs-client columns, ranked scores, multiple active Chart Records.</p>
@@ -1641,42 +1639,28 @@ function screenCompare() {
 }
 
 function screenExport() {
-  const r = activeRecord();
-  const link = `https://example.com${buildLocationHash({
-    route: "map",
-    chartRecordId: navContext.chartRecordId,
-    placeId: navContext.placeId,
-    explorationId: navContext.explorationId,
-    comparisonSetId: null,
-    returnTo: null,
-  })}`;
   return `
-    <h2>Screen 6 — Export / Share</h2>
-    <p class="purpose">Scoped output · chartRecordId required in deep links.</p>
+    <h2>Screen 6 — Export / Share (not wired yet)</h2>
+    <p class="purpose">Export and share are not built yet. Nothing here generates a file, image, or shareable link.</p>
     <div class="panel">
       <h3>Module: export-investigation-link</h3>
-      <input type="text" readonly value="${link}" />
+      <input type="text" readonly disabled value="Share links are not available yet" />
+      <span class="meta">Shareable export links are planned but not wired yet.</span>
     </div>
     <div class="panel">
       <h3>Module: export-viewport-png</h3>
-      <button type="button" disabled>Export map PNG (illustrative · placeholder)</button>
+      <button type="button" disabled>Export map PNG (not available yet)</button>
     </div>
-    <div class="future-only">Future: AI session summary (disabled)</div>
+    <div class="future-only">Future: export, share links, and AI session summary (all disabled)</div>
     <button type="button" data-nav="chart-record">Back to Chart Record page</button>
   `;
 }
 
 function screenSettings() {
   const vm = requireViewModel();
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const us = raw.user_settings || {};
-  const curHouse = us.house_system || "placidus";
-  const HOUSE_OPTIONS = [
-    { value: "placidus",   label: "Placidus" },
-    { value: "whole_sign", label: "Whole Sign" },
-    { value: "equal",      label: "Equal" },
-    { value: "koch",       label: "Koch" },
-  ];
+  // House system is display-only for now: the calculation engine uses Placidus
+  // for all charts, so the Settings control below is shown disabled and honest.
+  // Previously saved house_system values are preserved (see save-settings).
   return `
     <h2>S5 — Settings</h2>
     <p class="purpose">Layer 2 defaults · not a journey destination.</p>
@@ -1690,11 +1674,13 @@ function screenSettings() {
         </select>
       </label>
       <label class="block">House system
-        <select id="rm-settings-house">
-          ${HOUSE_OPTIONS.map((o) =>
-            `<option value="${o.value}"${o.value === curHouse ? " selected" : ""}>${o.label}</option>`
-          ).join("")}
+        <select id="rm-settings-house" disabled aria-disabled="true" title="Placidus only for now">
+          <option value="placidus" selected>Placidus (active)</option>
+          <option value="whole_sign" disabled>Whole Sign — coming soon</option>
+          <option value="equal" disabled>Equal — coming soon</option>
+          <option value="koch" disabled>Koch — coming soon</option>
         </select>
+        <span class="meta">Placidus only for now. Other house systems are planned but not yet active.</span>
       </label>
     </div>
     <div class="panel">
@@ -1781,6 +1767,8 @@ function screenProfileList() {
         <div class="pm-actions">
           <button type="button" class="primary" data-action="pm-open-profile" data-chart-record="${r.chartRecordId}">Open</button>
           <button type="button" data-action="pm-set-location" data-chart-record="${r.chartRecordId}">Set Current Location</button>
+          <button type="button" data-action="pm-rename-profile" data-chart-record="${r.chartRecordId}" data-current-name="${escapeHtml(r.displayName)}">Rename</button>
+          <button type="button" data-action="pm-archive-profile" data-chart-record="${r.chartRecordId}" data-current-name="${escapeHtml(r.displayName)}">Archive</button>
         </div>
       </div>`;
   }).join("");
@@ -1796,7 +1784,7 @@ function screenProfileList() {
       <button type="button" class="primary" data-action="pm-add-profile">+ Add Profile</button>
       <button type="button" data-nav="settings">Back to Settings</button>
     </div>
-    <p class="must-not">Must not appear: edit form, archive, delete, notes count, saved searches count.</p>
+    <p class="must-not">Must not appear: delete, notes count, saved searches count.</p>
   `;
 }
 
@@ -1852,7 +1840,7 @@ function screenHelp() {
         <li>Add multiple client profiles — each gets its own chart record and map.</li>
         <li>Use Find Regions with specific planetary conditions to narrow geographic candidates.</li>
         <li>Use comparison sets to evaluate multiple cities side by side.</li>
-        <li>Export chart records for client reports.</li>
+        <li>Export client reports (planned, not yet available).</li>
       </ul>
     </div>
     <div class="panel">
@@ -2175,6 +2163,112 @@ function bindScreenActions(root) {
           window.__showCurrentLocationEditor(crId);
         }
       }
+      if (action === "pm-rename-profile") {
+        const profileId = btn.getAttribute("data-chart-record");
+        if (!profileId) return;
+        const currentName = btn.getAttribute("data-current-name") || "";
+        const input = window.prompt("Rename profile", currentName);
+        if (input === null) return;
+        const newName = input.trim();
+        if (!newName) {
+          window.alert("Name cannot be blank.");
+          return;
+        }
+        if (newName === currentName.trim()) return;
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            let query = client
+              .from("profiles")
+              .update({ display_name: newName })
+              .eq("id", profileId);
+            if (accountId) query = query.eq("account_id", accountId);
+            const { error } = await query;
+            if (error) throw error;
+            window.location.reload();
+          } catch (err) {
+            window.alert("Rename failed: " + (err.message || String(err)));
+          }
+        })();
+      }
+      if (action === "pm-archive-profile") {
+        const profileId = btn.getAttribute("data-chart-record");
+        if (!profileId) return;
+        const currentName = btn.getAttribute("data-current-name") || "this profile";
+        const accountId = window.CurrentUser && window.CurrentUser.accountId;
+        (async () => {
+          try {
+            const client = await window.SupabaseReady;
+            if (!client) throw new Error("Supabase unavailable.");
+            let q = client
+              .from("profiles")
+              .select("id, display_name")
+              .is("archived_at", null)
+              .order("created_at", { ascending: true });
+            if (accountId) q = q.eq("account_id", accountId);
+            const { data: activeProfiles, error: loadErr } = await q;
+            if (loadErr) throw loadErr;
+            const active = activeProfiles || [];
+            if (active.length <= 1) {
+              window.alert("You cannot archive your only profile. Add another profile first.");
+              return;
+            }
+            if (!active.some((p) => p.id === profileId)) {
+              window.alert("That profile is no longer active.");
+              return;
+            }
+            const currentDefault = (viewModel && viewModel.defaultChartRecordId) || null;
+            const remaining = active.filter((p) => p.id !== profileId);
+            const replacementId =
+              (currentDefault && currentDefault !== profileId
+                && remaining.some((p) => p.id === currentDefault))
+                ? currentDefault
+                : remaining[0].id;
+            const replacement = remaining.find((p) => p.id === replacementId);
+            const replacementName = (replacement && replacement.display_name) || "another profile";
+            const wasDefault = !!(currentDefault && currentDefault === profileId);
+            let msg = `Archive "${currentName}"? It will be hidden from your profiles. `
+              + "Its favorites, saved searches, and comparisons are kept but hidden. "
+              + "Archived profiles are hidden, not deleted.";
+            if (wasDefault) {
+              msg += `\n\nThis is your default profile. Archiving it will switch your default to "${replacementName}".`;
+            }
+            if (!window.confirm(msg)) return;
+            const nowIso = new Date().toISOString();
+            let upd = client
+              .from("profiles")
+              .update({ archived_at: nowIso, updated_at: nowIso })
+              .eq("id", profileId)
+              .is("archived_at", null);
+            if (accountId) upd = upd.eq("account_id", accountId);
+            let { error: archiveErr } = await upd;
+            if (archiveErr && /updated_at/i.test(archiveErr.message || "")) {
+              let upd2 = client
+                .from("profiles")
+                .update({ archived_at: nowIso })
+                .eq("id", profileId)
+                .is("archived_at", null);
+              if (accountId) upd2 = upd2.eq("account_id", accountId);
+              ({ error: archiveErr } = await upd2);
+            }
+            if (archiveErr) throw archiveErr;
+            if (wasDefault) {
+              await saveAccountSettingsPatch({ default_chart_record_id: replacementId });
+            }
+            if (_loadPersistedChartRecord() === profileId) {
+              _savePersistedChartRecord(replacementId);
+            }
+            if (wasDefault || navContext.chartRecordId === profileId) {
+              window.location.hash = "#/profiles";
+            }
+            window.location.reload();
+          } catch (err) {
+            window.alert("Archive failed: " + (err.message || String(err)));
+          }
+        })();
+      }
       if (action === "pm-add-profile") {
         if (typeof window.__showFirstProfileIntake === "function") {
           window.__showFirstProfileIntake();
@@ -2208,12 +2302,12 @@ function bindScreenActions(root) {
       if (action === "save-settings") {
         const msgEl = document.getElementById("rm-settings-msg");
         const defCrEl = document.getElementById("rm-settings-default-cr");
-        const houseEl = document.getElementById("rm-settings-house");
-        if (!defCrEl || !houseEl) return;
+        if (!defCrEl) return;
         if (msgEl) msgEl.textContent = "Saving…";
+        // house_system intentionally omitted: engine uses Placidus only, and the
+        // control is display-only. Merge-based save preserves any stored value.
         saveAccountSettingsPatch({
           default_chart_record_id: defCrEl.value,
-          house_system: houseEl.value,
         }).then(() => {
           if (msgEl) msgEl.textContent = "✓ Saved.";
           setTimeout(() => { window.location.reload(); }, 800);
