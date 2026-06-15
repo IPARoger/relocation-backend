@@ -114,9 +114,9 @@
     var defaultId = null;
     var activeRecord = null;
     try {
-      var vm = window.__rmAppShell && window.__rmAppShell.viewModel();
-      var records = (vm && vm.chartRecords) || [];
-      defaultId   = (vm && vm.defaultChartRecordId) || null;
+      var shell = window.__rmAppShell;
+      var records = (shell && typeof shell.getProfiles === "function") ? shell.getProfiles() : [];
+      defaultId   = (shell && typeof shell.getAccountDefaultChartRecordId === "function") ? shell.getAccountDefaultChartRecordId() : null;
       activeRecord = records.find(function (r) { return r.chartRecordId === activeId; }) || records[0] || null;
       if (records.length) {
         profilesHtml = records.map(function (r) {
@@ -251,27 +251,23 @@
         var newDefaultId = btn.getAttribute("data-chart-record");
         if (!newDefaultId) return;
 
-        var vm = window.__rmAppShell && window.__rmAppShell.viewModel();
-        if (vm && vm.defaultChartRecordId === newDefaultId) return;
-
-        var prevDefaultId = vm ? vm.defaultChartRecordId : null;
-        if (vm) vm.defaultChartRecordId = newDefaultId;
-        refreshProfilesSection(drawer, newDefaultId);
-
-        var msgEl = document.getElementById("ad-default-msg");
-        if (msgEl) { msgEl.textContent = "Saving\u2026"; msgEl.className = ""; }
-
         var shell = window.__rmAppShell;
-        if (!shell || typeof shell.saveAccountSettingsPatch !== "function") {
+        var msgEl = document.getElementById("ad-default-msg");
+        if (!shell || typeof shell.setAccountDefaultChartRecord !== "function") {
           if (msgEl) { msgEl.textContent = "Error: helper not available."; msgEl.className = "is-error"; }
           return;
         }
 
-        shell.saveAccountSettingsPatch({ default_chart_record_id: newDefaultId })
+        var prevDefaultId = typeof shell.getAccountDefaultChartRecordId === "function"
+          ? shell.getAccountDefaultChartRecordId() : null;
+        if (prevDefaultId === newDefaultId) return;
+
+        // Optimistic star repaint only; the shell owns the canonical default value.
+        refreshProfilesSection(drawer, newDefaultId);
+        if (msgEl) { msgEl.textContent = "Saving\u2026"; msgEl.className = ""; }
+
+        shell.setAccountDefaultChartRecord(newDefaultId)
           .then(function () {
-            if (typeof shell.savePersistedChartRecord === "function") {
-              shell.savePersistedChartRecord(newDefaultId);
-            }
             if (msgEl) {
               msgEl.textContent = "\u2713 Default updated.";
               msgEl.className = "";
@@ -279,7 +275,6 @@
             }
           })
           .catch(function (err) {
-            if (vm) vm.defaultChartRecordId = prevDefaultId;
             refreshProfilesSection(drawer, prevDefaultId);
             if (msgEl) {
               msgEl.textContent = "Error: " + (err && err.message ? err.message : String(err));

@@ -2507,6 +2507,28 @@ async function saveAccountSettingsPatch(patch) {
   if (writeErr) throw writeErr;
 }
 
+// Single owner of the in-memory account default. Updates the canonical view
+// model fields, persists to user_settings, mirrors the localStorage selection,
+// and reverts the optimistic in-memory change if the write fails. Callers
+// (e.g. account_drawer.js) must use this instead of mutating viewModel directly.
+async function setAccountDefaultChartRecord(chartRecordId) {
+  if (!viewModel) throw new Error("View model not loaded.");
+  if (!chartRecordId) throw new Error("chartRecordId is required.");
+  const exists = viewModel.chartRecords.some(function (r) { return r.chartRecordId === chartRecordId; });
+  if (!exists) throw new Error("Unknown chart record: " + chartRecordId);
+  const prevDefault = viewModel.accountDefaultChartRecordId;
+  viewModel.accountDefaultChartRecordId = chartRecordId;
+  viewModel.defaultChartRecordId = chartRecordId;
+  try {
+    await saveAccountSettingsPatch({ default_chart_record_id: chartRecordId });
+    _savePersistedChartRecord(chartRecordId);
+  } catch (err) {
+    viewModel.accountDefaultChartRecordId = prevDefault;
+    viewModel.defaultChartRecordId = prevDefault;
+    throw err;
+  }
+}
+
 window.__rmAppShell = {
   navigate,
   openMap,
@@ -2528,6 +2550,10 @@ window.__rmAppShell = {
   snapshotNavContext,
   viewModel: () => viewModel,
   storeRaw: () => storeRaw,
+  getProfiles: () => (viewModel ? viewModel.chartRecords : []),
+  getSelectedChartRecordId: () => (viewModel ? viewModel.selectedChartRecordId : null),
+  getAccountDefaultChartRecordId: () => (viewModel ? viewModel.accountDefaultChartRecordId : null),
+  setAccountDefaultChartRecord,
   saveAccountSettingsPatch,
   savePersistedChartRecord: _savePersistedChartRecord,
   storeLoadError: () => storeLoadError,
