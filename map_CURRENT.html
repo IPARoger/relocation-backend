@@ -742,6 +742,15 @@ html.map-panel-show-legend #panelLegend { display: block; }
             </select>
         </div>
 
+        <div class="panel-section" id="savedPlacesSection">
+            <div class="panel-section-title">Saved places</div>
+            <label for="savedPlaces">Recenter a saved favorite (this profile)</label>
+            <select id="savedPlaces">
+                <option value="">Loading…</option>
+            </select>
+            <div id="savedPlacesEmpty" class="city-search-feedback" hidden aria-live="polite"></div>
+        </div>
+
         <div class="panel-section">
             <div class="panel-section-title">Location</div>
             <label for="citySearch">City (placeholder list — exact name, Enter)</label>
@@ -6120,6 +6129,117 @@ scheduleGenieRenderHandoff().catch((err) => {
         error: err instanceof Error ? err.message : String(err),
     };
 });
+
+// ---- MAP-SAVED-PLACES-1: profile-scoped Saved Places recall (map_CURRENT.html only) ----
+const SAVED_PLACE_ZOOM = 6;
+
+async function loadSavedPlacesForActiveProfile() {
+    const select = document.getElementById("savedPlaces");
+    const empty = document.getElementById("savedPlacesEmpty");
+    if (!select) return;
+    const showEmpty = (msg) => {
+        select.innerHTML = '<option value="">\u2014</option>';
+        if (empty) { empty.hidden = false; empty.textContent = msg; }
+    };
+    const profileId = getActiveFavoriteProfileId();
+    if (!profileId) { showEmpty("Select a profile to see its saved places."); return; }
+    const sbClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null) || window._supabaseClient;
+    if (!sbClient) { showEmpty("Saved places unavailable right now."); return; }
+    const accountId = window.CurrentUser && window.CurrentUser.accountId;
+    try {
+        let favQuery = sbClient
+            .from("favorite_places")
+            .select("id, place_id, label")
+            .eq("profile_id", profileId)
+            .is("archived_at", null);
+        if (accountId) favQuery = favQuery.eq("account_id", accountId);
+        const { data: favs, error: favErr } = await favQuery;
+        if (favErr) throw favErr;
+        const rows = Array.isArray(favs) ? favs.filter((f) => f.place_id) : [];
+        if (rows.length === 0) {
+            select.innerHTML = '<option value="">\u2014</option>';
+            if (empty) { empty.hidden = false; empty.textContent = "No saved places yet. Right-click the map and Favorite a location."; }
+            return;
+        }
+        const placeIds = rows.map((r) => r.place_id);
+        const { data: places, error: plErr } = await sbClient
+            .from("places")
+            .select("id, display_name, latitude, longitude")
+            .in("id", placeIds);
+        if (plErr) throw plErr;
+        const byId = {};
+        (places || []).forEach((pl) => { byId[pl.id] = pl; });
+        const opts = rows.map((r) => {
+            const pl = byId[r.place_id];
+            if (!pl) return null;
+            const name = r.label || pl.display_name || "Saved place";
+            return { placeId: r.place_id, name, lat: pl.latitude, lon: pl.longitude };
+        }).filter(Boolean);
+        if (opts.length === 0) { showEmpty("Saved places could not be resolved."); return; }
+        if (empty) empty.hidden = true;
+        const esc = (v) => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+        select.innerHTML = '<option value="">Select a saved place\u2026</option>' +
+            opts.map((o) => `<option value="${esc(o.placeId)}" data-lat="${esc(o.lat)}" data-lon="${esc(o.lon)}" data-name="${esc(o.name)}">${esc(o.name)}</option>`).join("");
+    } catch (err) {
+        console.error("[saved-places]", err);
+        showEmpty("Could not load saved places.");
+    }
+}
+
+// Recenter (fixed zoom) and open the existing relocated-chart popup. Does not
+// touch Genie variables, overlays, or search state.
+async function openSavedPlace(name, lat, lon) {
+    const la = Number(lat), lo = Number(lon);
+    if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
+    map.setView([la, lo], SAVED_PLACE_ZOOM, { animate: true });
+    await openDatasetCityPopup({ name: name || "Saved place", lat: la, lng: lo });
+}
+
+(function wireSavedPlaces() {
+    const select = document.getElementById("savedPlaces");
+    if (select) {
+        select.addEventListener("change", function () {
+            const opt = this.selectedOptions[0];
+            if (!opt || !opt.value) return;
+            openSavedPlace(opt.dataset.name, opt.dataset.lat, opt.dataset.lon);
+        });
+    }
+    const profileSelect = document.getElementById("chartProfile");
+    if (profileSelect) {
+        profileSelect.addEventListener("change", function () {
+            loadSavedPlacesForActiveProfile();
+        });
+    }
+})();
+
+// Chart Record -> "Open on map" carries placeId; center on it once ready.
+// Skip when resuming a saved investigation so replay viewport is untouched.
+async function centerOnHandoffPlaceId() {
+    const pid = lastAppShellHandoff && lastAppShellHandoff.placeId;
+    if (!pid) return;
+    if (lastAppShellHandoff && lastAppShellHandoff.explorationId) return;
+    const sbClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null) || window._supabaseClient;
+    if (!sbClient) return;
+    try {
+        const { data: places } = await sbClient
+            .from("places")
+            .select("id, display_name, latitude, longitude")
+            .eq("id", pid)
+            .limit(1);
+        const pl = Array.isArray(places) && places[0];
+        if (!pl) return;
+        await openSavedPlace(pl.display_name, pl.latitude, pl.longitude);
+    } catch (err) {
+        console.error("[saved-places-handoff]", err);
+    }
+}
+
+async function scheduleSavedPlacesInit() {
+    await chartProfilesReady;
+    await loadSavedPlacesForActiveProfile();
+    await centerOnHandoffPlaceId();
+}
+scheduleSavedPlacesInit().catch((err) => console.error("[saved-places-init]", err));
 
 setRenderStatus("Ready.");
 </script>
