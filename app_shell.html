@@ -2761,8 +2761,19 @@ function bindScreenActions(root) {
           if (noteMsg) noteMsg.textContent = "No active Chart Record.";
           return;
         }
+        const noteText = noteEl.value;
         if (noteMsg) noteMsg.textContent = "Saving…";
-        saveChartRecordNote(crId, noteEl.value).then(() => {
+        saveChartRecordNote(crId, noteText).then(() => {
+          // Mirror the saved text into in-memory state so the account-backed note
+          // is not stale until reload. Textarea already holds noteText; no nav.
+          if (viewModel && Array.isArray(viewModel.chartRecords)) {
+            const rec = viewModel.chartRecords.find((r) => r.chartRecordId === crId);
+            if (rec) rec.note = noteText;
+          }
+          if (storeRaw && Array.isArray(storeRaw.clients)) {
+            const c = storeRaw.clients.find((x) => x.id === crId);
+            if (c) c.notes = noteText;
+          }
           if (noteMsg) noteMsg.textContent = "Saved.";
         }).catch((err) => {
           if (noteMsg) {
