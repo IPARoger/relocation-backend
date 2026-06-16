@@ -2488,7 +2488,12 @@ function bindScreenActions(root) {
       }
       if (action === "pm-open-profile") {
         const crId = btn.getAttribute("data-chart-record");
-        if (crId) navigate("chart-record", { chartRecordId: crId });
+        if (!crId) return;
+        // Reuse the Account Drawer's selection semantics (updates selected +
+        // last-selected and the shared persistence path) instead of duplicating
+        // selection logic, then land on the Chart Record page for that profile.
+        selectProfile(crId);
+        navigate("chart-record", { chartRecordId: crId });
       }
       if (action === "pm-set-default") {
         // Reuses the same account-default write path as the Account Drawer
