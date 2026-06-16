@@ -2596,14 +2596,33 @@ function bindScreenActions(root) {
             if (archiveErr) throw archiveErr;
             if (wasDefault) {
               await saveAccountSettingsPatch({ default_chart_record_id: replacementId });
+              // Mirror the new default in memory (DB already updated above).
+              if (viewModel) {
+                viewModel.accountDefaultChartRecordId = replacementId;
+                viewModel.defaultChartRecordId = replacementId;
+              }
             }
             if (_loadPersistedChartRecord() === profileId) {
               _savePersistedChartRecord(replacementId);
             }
-            if (wasDefault || navContext.chartRecordId === profileId) {
-              window.location.hash = "#/profiles";
+            // Repoint in-memory selection/active away from the archived profile,
+            // preserving the existing safeguard of falling back to the replacement.
+            if (viewModel) {
+              if (viewModel.lastSelectedChartRecordId === profileId) viewModel.lastSelectedChartRecordId = replacementId;
+              if (viewModel.selectedChartRecordId === profileId) viewModel.selectedChartRecordId = replacementId;
             }
-            window.location.reload();
+            if (navContext.chartRecordId === profileId) navContext.chartRecordId = replacementId;
+            // Drop the archived profile from in-memory lists so Profile Management
+            // and the Account Drawer (which reads chartRecords) update without reload.
+            if (viewModel && Array.isArray(viewModel.chartRecords)) {
+              viewModel.chartRecords = viewModel.chartRecords.filter((r) => r.chartRecordId !== profileId);
+            }
+            if (storeRaw && Array.isArray(storeRaw.clients)) {
+              storeRaw.clients = storeRaw.clients.filter((c) => c.id !== profileId);
+            }
+            // Re-render in place; archive is only reachable from Profile Management,
+            // so we stay on that screen (no navigation/reload needed).
+            render();
           } catch (err) {
             window.alert("Archive failed: " + (err.message || String(err)));
           }
