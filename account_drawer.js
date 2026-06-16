@@ -139,8 +139,16 @@
             + ' aria-label="' + (isDefault ? "Default profile" : "Set " + r.displayName + " as default") + '"'
             + ' aria-pressed="' + (isDefault ? "true" : "false") + '"'
             + '>' + (isDefault ? "\u2605" : "\u2606") + '</button>';
+          var nameInner = dot + r.displayName + city;
+          var nameEl = isActive
+            ? '<span>' + nameInner + '</span>'
+            : '<button type="button" class="ad-profile-switch"'
+              + ' style="background:none;border:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-align:left;"'
+              + ' data-action="ad-select-profile"'
+              + ' data-chart-record="' + r.chartRecordId + '"'
+              + ' title="Switch to ' + r.displayName + '">' + nameInner + '</button>';
           return '<div class="ad-profile-row">'
-            + '<span>' + dot + r.displayName + city + '</span>'
+            + nameEl
             + '<div class="ad-row-actions">' + starBtn + locBtn + '</div>'
             + '</div>';
         }).join("");
@@ -284,6 +292,16 @@
         return;
       }
 
+      if (action === "ad-select-profile") {
+        var switchId = btn.getAttribute("data-chart-record");
+        if (!switchId) return;
+        var shellApiSel = window.__rmAppShell;
+        if (shellApiSel && typeof shellApiSel.selectProfile === "function") {
+          shellApiSel.selectProfile(switchId);
+        }
+        close();
+        return;
+      }
       if (action === "ad-add-profile") {
         close();
         if (typeof window.__showFirstProfileIntake === "function") {

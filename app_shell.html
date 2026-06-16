@@ -2003,6 +2003,27 @@ function handleProfileCreated(newProfileId, opts) {
   window.location.reload();
 }
 
+// Drawer-facing quick profile switch. Updates selected/last-selected and
+// re-scopes the current profile-scoped route IN PLACE (no reload). Never
+// changes the account default. Reuses the same selection/hash logic as
+// handleProfileCreated (persist + _isProfileScopedRoute + navigate).
+function selectProfile(chartRecordId) {
+  if (!chartRecordId || !viewModel) return false;
+  const exists = viewModel.chartRecords.some((r) => r.chartRecordId === chartRecordId);
+  if (!exists) return false;
+  if (chartRecordId === navContext.chartRecordId) return true;
+  _savePersistedChartRecord(chartRecordId);
+  viewModel.selectedChartRecordId = chartRecordId;
+  viewModel.lastSelectedChartRecordId = chartRecordId;
+  if (_isProfileScopedRoute(navContext.route)) {
+    navigate(navContext.route, { chartRecordId: chartRecordId, explorationId: null });
+  } else {
+    navContext.chartRecordId = chartRecordId;
+    render();
+  }
+  return true;
+}
+
 function mountGenieDrawer(root) {
   if (navContext.route !== "map" || !uiState.drawerOpen) return;
   const el = root.querySelector("#genieDrawerMount");
@@ -2655,6 +2676,7 @@ window.__rmAppShell = {
   saveAccountSettingsPatch,
   savePersistedChartRecord: _savePersistedChartRecord,
   handleProfileCreated,
+  selectProfile,
   storeLoadError: () => storeLoadError,
   loadViewModelFromStore,
   adaptStoreToView,
