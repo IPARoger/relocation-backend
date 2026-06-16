@@ -1696,6 +1696,21 @@ async function saveCurrentInvestigation() {
         };
     }
 
+    // Settings snapshot — capture effective Layer 2 settings (Settings Phase 1).
+    // Reads the bridge-resolved settings when present; falls back to {} so save
+    // behavior is never blocked if the helper/store is unavailable.
+    let settings_snapshot_json = {};
+    try {
+        if (window.RMSettings && typeof window.RMSettings.buildSettingsSnapshot === "function") {
+            const _storedSettings = (window.SupabaseStore && window.SupabaseStore.user_settings) || null;
+            const _eff = window.RMSettings.getEffectiveSettings(_storedSettings, null);
+            settings_snapshot_json = window.RMSettings.buildSettingsSnapshot(_eff);
+        }
+    } catch (_snapErr) {
+        console.warn("[saved-investigation] settings snapshot fallback {}:", _snapErr);
+        settings_snapshot_json = {};
+    }
+
     if (btn) btn.disabled = true;
     setStatus("Saving…", false);
 
@@ -1709,7 +1724,7 @@ async function saveCurrentInvestigation() {
                 search_type:           "map",
                 conditions_json,
                 viewport_json,
-                settings_snapshot_json: {},
+                settings_snapshot_json,
             });
         if (_saveErr) throw _saveErr;
         setStatus(`Saved: ${title}`, false);

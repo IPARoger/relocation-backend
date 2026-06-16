@@ -45,6 +45,77 @@
     return pgTime.slice(0, 5);
   }
 
+  // ── Effective settings + snapshot infrastructure (Settings Phase 1) ─────
+  //
+  // Single canonical resolver for Layer 2 settings and the canonical snapshot
+  // shape used by saved investigations / comparisons. This is settings LOADING
+  // infrastructure only: it does not switch house systems, zodiac modes, or
+  // ontology packs, and it does not touch calculations. It only resolves and
+  // shapes values that already exist.
+
+  // Hardcoded Layer 2 defaults. The seam for future ontology-pack defaults sits
+  // BETWEEN these hardcoded defaults and stored user settings (see precedence in
+  // getEffectiveSettings). Do not add renderer/debug/UI/cache keys here.
+  var RM_SETTINGS_DEFAULTS = {
+    settings_version:      1,
+    house_system:          "placidus",
+    zodiac_mode:           "tropical",
+    orb_defaults:          { conjunction: 8, square: 6, opposition: 8, trine: 8, sextile: 4 },
+    visible_minor_aspects: false,
+    helper_layers:         {},
+    ontology_pack_id:      null,
+  };
+
+  var RM_SETTINGS_SNAPSHOT_VERSION = 1;
+
+  // Resolve effective Layer 2 settings.
+  // Precedence: stored user settings → ontology-pack defaults → hardcoded defaults.
+  // `ontologyDefaults` is accepted now to reserve the future layering seam;
+  // callers may pass null until ontology packs exist.
+  function getEffectiveSettings(storedUserSettings, ontologyDefaults) {
+    var stored = (storedUserSettings && typeof storedUserSettings === "object") ? storedUserSettings : {};
+    var onto   = (ontologyDefaults && typeof ontologyDefaults === "object") ? ontologyDefaults : {};
+    function pick(key) {
+      return stored[key] || onto[key] || RM_SETTINGS_DEFAULTS[key];
+    }
+    return {
+      settings_version:      pick("settings_version"),
+      house_system:          pick("house_system"),
+      zodiac_mode:           pick("zodiac_mode"),
+      orb_defaults:          pick("orb_defaults"),
+      visible_minor_aspects: pick("visible_minor_aspects"),
+      helper_layers:         pick("helper_layers"),
+      ontology_pack_id:      pick("ontology_pack_id"),
+    };
+  }
+
+  // Canonical Layer 2 settings snapshot for saved investigations / comparisons.
+  // Truth- and interpretation-relevant settings only. Renderer, debug, UI, and
+  // cache state are excluded by construction (they are simply never copied in).
+  function buildSettingsSnapshot(effective) {
+    var eff = (effective && typeof effective === "object")
+      ? effective
+      : getEffectiveSettings(null, null);
+    return {
+      snapshot_version:      RM_SETTINGS_SNAPSHOT_VERSION,
+      settings_version:      eff.settings_version      || RM_SETTINGS_DEFAULTS.settings_version,
+      house_system:          eff.house_system          || RM_SETTINGS_DEFAULTS.house_system,
+      zodiac_mode:           eff.zodiac_mode           || RM_SETTINGS_DEFAULTS.zodiac_mode,
+      orb_defaults:          eff.orb_defaults          || RM_SETTINGS_DEFAULTS.orb_defaults,
+      visible_minor_aspects: eff.visible_minor_aspects || RM_SETTINGS_DEFAULTS.visible_minor_aspects,
+      ontology_pack_id:      eff.ontology_pack_id != null ? eff.ontology_pack_id : RM_SETTINGS_DEFAULTS.ontology_pack_id,
+    };
+  }
+
+  // Synchronous export — available as soon as this script loads, independent of
+  // the async store build below.
+  window.RMSettings = {
+    DEFAULTS:             RM_SETTINGS_DEFAULTS,
+    SNAPSHOT_VERSION:     RM_SETTINGS_SNAPSHOT_VERSION,
+    getEffectiveSettings: getEffectiveSettings,
+    buildSettingsSnapshot: buildSettingsSnapshot,
+  };
+
   // ── Main builder ──────────────────────────────────────────────────────────
 
   async function buildSupabaseStore() {
@@ -270,16 +341,17 @@
       storeClients.some(function (c) { return c.id === savedDefault; });
     var defaultChartRecordId = defaultIsValid ? savedDefault : storeClients[0].id;
 
+    // Resolve Layer 2 settings through the canonical helper (ontology seam = null
+    // for now). default_chart_record_id is resolved/validated separately above.
+    var effectiveSettings = getEffectiveSettings(rawSettings, null);
     var storeUserSettings = {
-      settings_version:        (rawSettings && rawSettings.settings_version) || 1,
-      house_system:            (rawSettings && rawSettings.house_system)     || "placidus",
-      zodiac_mode:             (rawSettings && rawSettings.zodiac_mode)      || "tropical",
-      orb_defaults:            (rawSettings && rawSettings.orb_defaults)     || {
-        conjunction: 8, square: 6, opposition: 8, trine: 8, sextile: 4,
-      },
-      visible_minor_aspects:   (rawSettings && rawSettings.visible_minor_aspects) || false,
-      helper_layers:           (rawSettings && rawSettings.helper_layers)    || {},
-      ontology_pack_id:        (rawSettings && rawSettings.ontology_pack_id) || null,
+      settings_version:        effectiveSettings.settings_version,
+      house_system:            effectiveSettings.house_system,
+      zodiac_mode:             effectiveSettings.zodiac_mode,
+      orb_defaults:            effectiveSettings.orb_defaults,
+      visible_minor_aspects:   effectiveSettings.visible_minor_aspects,
+      helper_layers:           effectiveSettings.helper_layers,
+      ontology_pack_id:        effectiveSettings.ontology_pack_id,
       default_chart_record_id: defaultChartRecordId,
       updated_at:              null,
     };
