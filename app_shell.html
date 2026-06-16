@@ -2548,11 +2548,25 @@ function bindScreenActions(root) {
           try {
             const client = await window.SupabaseReady;
             if (!client) throw new Error("Supabase unavailable.");
-            const { error } = await client
-              .from("saved_searches")
-              .update({ title: trimmed })
-              .eq("id", exp);
-            if (error) throw error;
+            const profileId = storeRaw && Array.isArray(storeRaw.saved_investigations)
+              ? ((storeRaw.saved_investigations.find((s) => s.id === exp) || {}).client_id || null)
+              : null;
+            const sessionResult = await client.auth.getSession();
+            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+            const token = session && session.access_token;
+            if (!token) throw new Error("Session unavailable. Reload and try again.");
+            const resp = await fetch("/saved-investigations/rename", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ saved_search_id: exp, title: trimmed, profile_id: profileId }),
+            });
+            if (!resp.ok) {
+              let detail;
+              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+              const msg = (detail && (detail.message || detail.error)) ||
+                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+              throw new Error(msg);
+            }
             // Update in-memory state so the saved-investigation lists refresh
             // without a reload. Resume and snapshot summary are unaffected.
             let rawConditions = null;
@@ -2581,11 +2595,25 @@ function bindScreenActions(root) {
           try {
             const client = await window.SupabaseReady;
             if (!client) throw new Error("Supabase unavailable.");
-            const { error } = await client
-              .from("saved_searches")
-              .update({ archived_at: new Date().toISOString() })
-              .eq("id", exp);
-            if (error) throw error;
+            const profileId = storeRaw && Array.isArray(storeRaw.saved_investigations)
+              ? ((storeRaw.saved_investigations.find((s) => s.id === exp) || {}).client_id || null)
+              : null;
+            const sessionResult = await client.auth.getSession();
+            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+            const token = session && session.access_token;
+            if (!token) throw new Error("Session unavailable. Reload and try again.");
+            const resp = await fetch("/saved-investigations/archive", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ saved_search_id: exp, profile_id: profileId }),
+            });
+            if (!resp.ok) {
+              let detail;
+              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+              const msg = (detail && (detail.message || detail.error)) ||
+                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+              throw new Error(msg);
+            }
             // Remove the archived investigation from in-memory lists so the
             // dashboard and Chart Record saved lists update without a reload.
             if (storeRaw && Array.isArray(storeRaw.saved_investigations)) {

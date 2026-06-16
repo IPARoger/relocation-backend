@@ -3593,3 +3593,109 @@ def api_create_profile_with_birth(request: Request, body: ProfileCreateWithBirth
         if err.profile_id:
             detail["profile_id"] = err.profile_id
         raise HTTPException(status_code=status, detail=detail) from err
+
+
+class SavedInvestigationCreate(BaseModel):
+    profile_id: str
+    title: str
+    search_type: str = "map"
+    conditions_json: dict | None = None
+    viewport_json: dict | None = None
+    settings_snapshot_json: dict | None = None
+
+
+class SavedInvestigationRename(BaseModel):
+    saved_search_id: str
+    title: str
+    profile_id: str | None = None
+
+
+class SavedInvestigationArchive(BaseModel):
+    saved_search_id: str
+    profile_id: str | None = None
+
+
+@app.post("/saved-investigations/create")
+def api_create_saved_investigation(request: Request, body: SavedInvestigationCreate):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_saved_investigations_repository import (
+        SavedInvestigationsError,
+        create_saved_investigation,
+    )
+
+    try:
+        return create_saved_investigation(
+            jwt_token,
+            profile_id=body.profile_id,
+            title=body.title,
+            conditions_json=body.conditions_json,
+            viewport_json=body.viewport_json,
+            settings_snapshot_json=body.settings_snapshot_json,
+            search_type=body.search_type,
+        )
+    except SavedInvestigationsError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason == "profile_not_found":
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/saved-investigations/rename")
+def api_rename_saved_investigation(request: Request, body: SavedInvestigationRename):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_saved_investigations_repository import (
+        SavedInvestigationsError,
+        rename_saved_investigation,
+    )
+
+    try:
+        return rename_saved_investigation(
+            jwt_token,
+            saved_search_id=body.saved_search_id,
+            title=body.title,
+            profile_id=body.profile_id,
+        )
+    except SavedInvestigationsError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason in ("saved_search_not_found",):
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/saved-investigations/archive")
+def api_archive_saved_investigation(request: Request, body: SavedInvestigationArchive):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_saved_investigations_repository import (
+        SavedInvestigationsError,
+        archive_saved_investigation,
+    )
+
+    try:
+        return archive_saved_investigation(
+            jwt_token,
+            saved_search_id=body.saved_search_id,
+            profile_id=body.profile_id,
+        )
+    except SavedInvestigationsError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason in ("saved_search_not_found",):
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err

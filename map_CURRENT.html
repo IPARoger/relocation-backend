@@ -1638,7 +1638,7 @@ window.__rmSaveCurrentViewToLibrary = saveCurrentViewToLibrary;
 
 // Phase 2.8 — Save current map investigation to Supabase saved_searches.
 // Requires: window.SupabaseClient, window.CurrentUser, getActiveFavoriteProfileId().
-// Direct Supabase write — same auth pattern as Favorites.
+// Backend owns the write (POST /saved-investigations/create); supply JWT.
 async function saveCurrentInvestigation() {
     const statusEl = document.getElementById("saveInvestigationStatus");
     const btn      = document.getElementById("saveInvestigationBtn");
@@ -1720,20 +1720,32 @@ async function saveCurrentInvestigation() {
     const _noteText = _noteEl ? String(_noteEl.value || "").trim() : "";
 
     try {
-        const { data: _savedRow, error: _saveErr } = await sbClient
-            .from("saved_searches")
-            .insert({
-                account_id:            accountId,
-                profile_id:            profileId,
+        const { data: _sess } = await sbClient.auth.getSession();
+        const _token = _sess && _sess.session && _sess.session.access_token;
+        if (!_token) throw new Error("Session unavailable. Reload and try again.");
+        const _createResp = await fetch("/saved-investigations/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + _token,
+            },
+            body: JSON.stringify({
+                profile_id: profileId,
                 title,
-                search_type:           "map",
+                search_type: "map",
                 conditions_json,
                 viewport_json,
                 settings_snapshot_json,
-            })
-            .select("id, profile_id")
-            .single();
-        if (_saveErr) throw _saveErr;
+            }),
+        });
+        if (!_createResp.ok) {
+            let _detail = null;
+            try { _detail = (await _createResp.json()).detail; } catch (_e) { /* non-JSON */ }
+            const _msg = (_detail && (_detail.message || _detail.error)) ||
+                ("HTTP " + _createResp.status);
+            throw new Error(_msg);
+        }
+        const _savedRow = await _createResp.json();
         setStatus(`Saved: ${title}`, false);
 
         // Optional note is a secondary write; the investigation is already saved.
