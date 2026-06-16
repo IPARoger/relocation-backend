@@ -2367,7 +2367,21 @@ function bindScreenActions(root) {
               .update({ title: trimmed })
               .eq("id", exp);
             if (error) throw error;
-            window.location.reload();
+            // Update in-memory state so the saved-investigation lists refresh
+            // without a reload. Resume and snapshot summary are unaffected.
+            let rawConditions = null;
+            if (storeRaw && Array.isArray(storeRaw.saved_investigations)) {
+              const row = storeRaw.saved_investigations.find((s) => s.id === exp);
+              if (row) { row.name = trimmed; row.title = trimmed; rawConditions = row.conditions; }
+            }
+            if (viewModel && Array.isArray(viewModel.chartRecords)) {
+              viewModel.chartRecords.forEach((rec) => {
+                if (!Array.isArray(rec.explorations)) return;
+                const e = rec.explorations.find((x) => x.id === exp);
+                if (e) e.name = investigationDisplayTitle(trimmed, rawConditions);
+              });
+            }
+            render();
           } catch (err) {
             window.alert("Rename failed: " + (err.message || String(err)));
           }
@@ -2386,7 +2400,19 @@ function bindScreenActions(root) {
               .update({ archived_at: new Date().toISOString() })
               .eq("id", exp);
             if (error) throw error;
-            window.location.reload();
+            // Remove the archived investigation from in-memory lists so the
+            // dashboard and Chart Record saved lists update without a reload.
+            if (storeRaw && Array.isArray(storeRaw.saved_investigations)) {
+              storeRaw.saved_investigations = storeRaw.saved_investigations.filter((s) => s.id !== exp);
+            }
+            if (viewModel && Array.isArray(viewModel.chartRecords)) {
+              viewModel.chartRecords.forEach((rec) => {
+                if (Array.isArray(rec.explorations)) {
+                  rec.explorations = rec.explorations.filter((x) => x.id !== exp);
+                }
+              });
+            }
+            render();
           } catch (err) {
             window.alert("Archive failed: " + (err.message || String(err)));
           }
