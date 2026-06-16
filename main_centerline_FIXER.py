@@ -3758,3 +3758,49 @@ def api_archive_profile_owned(request: Request, body: ProfileArchiveOwned):
             status_code=status,
             detail={"error": err.reason, "message": str(err)},
         ) from err
+
+
+class PlaceResolveOrCreate(BaseModel):
+    display_name: str
+    latitude: float | None = None
+    longitude: float | None = None
+    country: str | None = None
+    admin: str | None = None
+    origin: str | None = None
+    geonames_id: str | None = None
+    coord_tolerance: float | None = 0.02
+
+
+@app.post("/places/resolve-or-create")
+def api_resolve_or_create_place(request: Request, body: PlaceResolveOrCreate):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_places_repository import (
+        PlacesError,
+        resolve_or_create_place,
+    )
+
+    try:
+        return resolve_or_create_place(
+            jwt_token,
+            display_name=body.display_name,
+            latitude=body.latitude,
+            longitude=body.longitude,
+            country=body.country,
+            admin=body.admin,
+            origin=body.origin,
+            geonames_id=body.geonames_id,
+            coord_tolerance=body.coord_tolerance
+            if body.coord_tolerance is not None
+            else 0.02,
+        )
+    except PlacesError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason == "place_unresolved":
+            status = 422
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err

@@ -2276,9 +2276,8 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
 }
 
 // ---- Phase 2.6A: map city / custom location -> favorite_place ------------
-// Smallest vertical slice. Existing endpoints only:
-//   GET /places/search, POST /places, POST /favorite-places,
-//   GET /favorite-places/{profile_id}. Active profile = Phase 2.5 handoff.
+// Resolve/create: POST /places/resolve-or-create (JWT). Save: POST /favorites/save.
+// Read-only favorite-state check: GET /places/search + Supabase SELECT.
 // No comparison, no new entities, no schema changes.
 function escapeAttr(value) {
     return String(value == null ? "" : value)

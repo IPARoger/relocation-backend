@@ -2,11 +2,10 @@
  * RMPlaceResolution — shared city/place -> place_id resolution utility.
  *
  * Single seam reused by Map (and, later, Profile Add City / Comparison) so we
- * do not maintain separate resolvers. Uses existing endpoints only:
- *   GET  /places/search?q=<displayName>
- *   POST /places
+ * do not maintain separate resolvers. Writes are backend-owned:
+ *   POST /places/resolve-or-create  (JWT required)
  *
- * No schema/repository/API changes. Browser global, classic script.
+ * Browser global, classic script.
  */
 (function () {
   "use strict";
@@ -21,11 +20,7 @@
     if (typeof window !== "undefined" && window.LIBRARY_API_BASE) {
       return window.LIBRARY_API_BASE;
     }
-    return "http://127.0.0.1:8000";
-  }
-
-  function norm(value) {
-    return String(value == null ? "" : value).trim().toLowerCase();
+    return "";
   }
 
   function hasCoordinates(selection) {
@@ -33,13 +28,31 @@
       Number.isFinite(Number(selection.longitude));
   }
 
+  async function resolveAccessToken(options) {
+    var sbClient = (options && options.supabaseClient)
+      || (typeof window !== "undefined" && (window.SupabaseClient || window._supabaseClient))
+      || null;
+    if (!sbClient || typeof sbClient.auth !== "object") {
+      throw new Error("place_resolution: session unavailable");
+    }
+    var sessionResult = await sbClient.auth.getSession();
+    var session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+    var token = session && session.access_token;
+    if (!token) {
+      throw new Error("place_resolution: session unavailable");
+    }
+    return token;
+  }
+
   /**
-   * Resolve an existing place (by name, plus coordinate proximity when
-   * coordinates are present) or create one when coordinates exist.
+   * Resolve an existing place (by GeoNames id, name, and coordinate proximity)
+   * or create one when coordinates exist. Backend owns the write path.
    *
    * @param {{displayName:string, latitude?:number, longitude?:number,
-   *          country?:string, admin?:string, origin?:string}} selection
-   * @param {{apiBase?:string, coordTolerance?:number}} [options]
+   *          country?:string, admin?:string, origin?:string,
+   *          geonamesId?:string|null}} selection
+   * @param {{apiBase?:string, coordTolerance?:number, supabaseClient?:object,
+   *          accessToken?:string}} [options]
    * @returns {Promise<object>} place row (has .id)
    */
   async function resolvePlaceFromCitySelection(selection, options) {
@@ -55,85 +68,40 @@
       throw new Error("place_resolution: displayName required");
     }
 
-    var coords = hasCoordinates(selection);
-    var lat = Number(selection.latitude);
-    var lon = Number(selection.longitude);
-
-    // Prefer deterministic identity via GeoNames id when present. This avoids
-    // creating duplicate places when display_name formats differ (e.g. map
-    // passes the short city name while the canonical row is
-    // "City, Region, Country"). Reads the shared places table directly
-    // (RLS: authenticated select). Falls back to name + coordinate matching,
-    // then to create — existing behavior is preserved when no id/client.
-    var geonamesId = selection.geonamesId != null
-      ? String(selection.geonamesId).trim()
-      : "";
-    var sbClient = (options && options.supabaseClient)
-      || (typeof window !== "undefined" && (window.SupabaseClient || window._supabaseClient))
-      || null;
-    if (geonamesId && sbClient && typeof sbClient.from === "function") {
-      try {
-        var gidResult = await sbClient
-          .from("places")
-          .select("*")
-          .eq("geonames_id", geonamesId)
-          .limit(1);
-        if (!gidResult.error &&
-            Array.isArray(gidResult.data) &&
-            gidResult.data.length &&
-            gidResult.data[0].id) {
-          return gidResult.data[0];
-        }
-      } catch (e) { /* non-fatal — fall through to name/coordinate matching */ }
-    }
-
-    var matches = [];
-    try {
-      var resp = await fetch(base + "/places/search?q=" + encodeURIComponent(displayName));
-      if (resp.ok) matches = await resp.json();
-    } catch (e) {
-      matches = [];
-    }
-    if (!Array.isArray(matches)) matches = [];
-
-    var existing;
-    if (coords) {
-      existing = matches.find(function (p) {
-        return norm(p.display_name) === norm(displayName) &&
-          Math.abs(Number(p.latitude) - lat) <= tolerance &&
-          Math.abs(Number(p.longitude) - lon) <= tolerance;
-      });
-    } else {
-      existing = matches.find(function (p) {
-        return norm(p.display_name) === norm(displayName);
-      });
-    }
-    if (existing) return existing;
-
-    if (!coords) {
-      throw new Error(
-        "place_resolution: no coordinates and no exact match for \"" + displayName + "\""
-      );
+    var token = options.accessToken;
+    if (!token) {
+      token = await resolveAccessToken(options);
     }
 
     var body = {
-      display_name: displayName,
-      latitude: lat,
-      longitude: lon,
-      provider: selection.origin || "manual"
+      display_name: String(displayName).trim(),
+      origin: selection.origin || "manual",
+      coord_tolerance: tolerance,
     };
-    if (selection.country) body.country_name = selection.country;
-    if (selection.admin) body.admin1 = selection.admin;
-
-    var createResp = await fetch(base + "/places", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    if (!createResp.ok) {
-      throw new Error("place_resolution: place_create_failed_" + createResp.status);
+    if (hasCoordinates(selection)) {
+      body.latitude = Number(selection.latitude);
+      body.longitude = Number(selection.longitude);
     }
-    return createResp.json();
+    if (selection.country) body.country = selection.country;
+    if (selection.admin) body.admin = selection.admin;
+    if (selection.geonamesId != null && String(selection.geonamesId).trim()) {
+      body.geonames_id = String(selection.geonamesId).trim();
+    }
+
+    var path = "/places/resolve-or-create";
+    var url = base ? (base.replace(/\/$/, "") + path) : path;
+    var resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      throw new Error("place_resolution: place_resolve_failed_" + resp.status);
+    }
+    return resp.json();
   }
 
   window.RMPlaceResolution = {
