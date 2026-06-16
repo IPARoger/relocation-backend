@@ -1352,7 +1352,22 @@ async function hydrateChartRecordComparisonSets(root) {
             if (accountId) upd = upd.eq("account_id", accountId);
             const { error: archErr } = await upd;
             if (archErr) throw archErr;
-            hydrateChartRecordComparisonSets(document);
+            // Drop the archived set from in-memory collections so derived
+            // comparison counts/lists (Profile Management, dashboard, compare
+            // screen) stay consistent without a reload.
+            if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+              storeRaw.comparison_sets = storeRaw.comparison_sets.filter((x) => x.id !== setId);
+            }
+            if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+              viewModel.comparisonSets = viewModel.comparisonSets.filter((x) => x.id !== setId);
+            }
+            // Edge case: if the archived set is the one currently open on the
+            // compare screen, leave to a safe landing so no broken page renders.
+            if (navContext.route === "compare" && navContext.comparisonSetId === setId) {
+              navigate("compare", { chartRecordId, comparisonSetId: null, placeId: null, explorationId: null });
+            } else {
+              hydrateChartRecordComparisonSets(document);
+            }
           } catch (err) {
             window.alert("Archive failed: " + (err.message || String(err)));
           }
