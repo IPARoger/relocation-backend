@@ -2437,7 +2437,19 @@ function bindScreenActions(root) {
             if (accountId) query = query.eq("account_id", accountId);
             const { error } = await query;
             if (error) throw error;
-            window.location.reload();
+            // Remove the archived favorite from in-memory lists so the Chart
+            // Record favorites module and profile counts update without a reload.
+            if (storeRaw && Array.isArray(storeRaw.favorite_cities)) {
+              storeRaw.favorite_cities = storeRaw.favorite_cities.filter((f) => f.id !== favId);
+            }
+            if (viewModel && Array.isArray(viewModel.chartRecords)) {
+              viewModel.chartRecords.forEach((rec) => {
+                if (!Array.isArray(rec.favorites)) return;
+                if (profileId && rec.chartRecordId !== profileId) return;
+                rec.favorites = rec.favorites.filter((f) => f.id !== favId);
+              });
+            }
+            render();
           } catch (err) {
             window.alert("Archive failed: " + (err.message || String(err)));
           }
