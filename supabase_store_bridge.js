@@ -63,6 +63,8 @@
     orb_defaults:          { conjunction: 8, square: 8, opposition: 8, trine: 8, sextile: 6 },
     visible_minor_aspects: false,
     out_of_sign_aspects:   false,
+    visible_planets:       ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"],
+    visible_bodies:        ["chiron"],
     helper_layers:         {},
     ontology_pack_id:      null,
   };
@@ -86,6 +88,8 @@
       orb_defaults:          pick("orb_defaults"),
       visible_minor_aspects: pick("visible_minor_aspects"),
       out_of_sign_aspects:   pick("out_of_sign_aspects"),
+      visible_planets:       pick("visible_planets"),
+      visible_bodies:        pick("visible_bodies"),
       helper_layers:         pick("helper_layers"),
       ontology_pack_id:      pick("ontology_pack_id"),
     };
@@ -106,6 +110,8 @@
       orb_defaults:          eff.orb_defaults          || RM_SETTINGS_DEFAULTS.orb_defaults,
       visible_minor_aspects: eff.visible_minor_aspects || RM_SETTINGS_DEFAULTS.visible_minor_aspects,
       out_of_sign_aspects:   eff.out_of_sign_aspects   || RM_SETTINGS_DEFAULTS.out_of_sign_aspects,
+      visible_planets:       eff.visible_planets       || RM_SETTINGS_DEFAULTS.visible_planets,
+      visible_bodies:        eff.visible_bodies        || RM_SETTINGS_DEFAULTS.visible_bodies,
       ontology_pack_id:      eff.ontology_pack_id != null ? eff.ontology_pack_id : RM_SETTINGS_DEFAULTS.ontology_pack_id,
     };
   }
@@ -354,6 +360,8 @@
       orb_defaults:            effectiveSettings.orb_defaults,
       visible_minor_aspects:   effectiveSettings.visible_minor_aspects,
       out_of_sign_aspects:     effectiveSettings.out_of_sign_aspects,
+      visible_planets:         effectiveSettings.visible_planets,
+      visible_bodies:          effectiveSettings.visible_bodies,
       helper_layers:           effectiveSettings.helper_layers,
       ontology_pack_id:        effectiveSettings.ontology_pack_id,
       default_chart_record_id: defaultChartRecordId,
