@@ -206,3 +206,51 @@ Consistent with the doctrine above, this does **not** change how favorites are
 stored (`favorite_places`) or how system rows (Natal / Current Location) are
 surfaced; it only records how saved locations are searched and reopened. No
 code or schema change is authorized by this entry.
+
+---
+
+## Addendum — Birth Location and Favorites search boundaries (2026-06-16)
+
+**Type:** Doctrine addendum (documentation only — no implementation authorized)
+**Related:** `CITY_SEARCH_AND_GEOCODING_STRATEGY.md` §10 (Location Search doctrine)
+
+This patch clarifies how Birth Location search, Favorites search, and All
+Locations search differ in scope.
+
+1. **Birth location search uses geographic locations only.** It searches the
+   geographic location database; it must **not** search the user's favorites.
+
+2. **Birth location may support direct latitude/longitude entry as a quiet
+   fallback:**
+   - the user enters a valid lat/lon,
+   - the app offers to use those coordinates,
+   - the user can assign a display name afterward,
+   - this is useful for remote births, disputed names, missing places, and
+     historical/geocoder gaps,
+   - it must **not** be over-advertised as the normal path (it is a fallback,
+     not the primary entry method).
+
+3. **Favorites search is strict.** Search Favorites:
+   - returns only locations the user has saved,
+   - includes saved cities and saved arbitrary coordinates,
+   - does **not** include global alternatives,
+   - does **not** include ambiguous geographic matches,
+   - does **not** include spelling variants unless those are part of a saved
+     favorite's own name/label.
+
+4. **Search All Locations is where ambiguity belongs:**
+   - disambiguation,
+   - aliases,
+   - alternate spellings,
+   - historical names,
+   - abbreviations,
+   - multiple geographic matches.
+
+5. **Restated distinction:**
+   - **Favorites** = personal saved workspace.
+   - **All Locations** = geographic search / disambiguation system.
+   - **Birth Location** = factual geographic origin picker, with optional
+     lat/lon fallback.
+
+This addendum records doctrine only. No code, schema, or UI change is authorized
+by this entry.
