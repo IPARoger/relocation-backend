@@ -286,6 +286,49 @@ def set_chart_record_note(jwt_token: str, profile_id: str, body: str,
     )
 
 
+def _require_owned_saved_search(client, account_id, saved_search_id):
+    """Return owning profile_id for the saved search, or raise.
+
+    Restricts to active (non-archived) rows so notes cannot attach to a
+    soft-deleted investigation.
+    """
+    try:
+        result = (
+            client.table("saved_searches")
+            .select("id, profile_id")
+            .eq("id", saved_search_id)
+            .eq("account_id", account_id)
+            .is_("archived_at", "null")
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise NotesError("saved search not found", "saved_search_not_found") from exc
+        raise
+    if not result.data:
+        raise NotesError("saved search not found", "saved_search_not_found")
+    return result.data[0]["profile_id"]
+
+
+def set_saved_investigation_note(jwt_token: str, saved_search_id: str, body: str,
+                                 section_key: str = "main") -> dict:
+    """Save the saved-investigation note (backend-owned, account-safe)."""
+    client = get_supabase_for_user(jwt_token)
+    account_id = _resolve_account_id(client, jwt_token)
+    owning_profile_id = _require_owned_saved_search(client, account_id, saved_search_id)
+    return _upsert_note(
+        client,
+        account_id=account_id,
+        profile_id=owning_profile_id,
+        target_type="saved_investigation",
+        target_id=saved_search_id,
+        section_key=section_key or "main",
+        body=body,
+    )
+
+
 def set_comparison_set_note(jwt_token: str, comparison_set_id: str, body: str,
                             section_key: str = "main") -> dict:
     """Save the comparison-set note (backend-owned, account-safe)."""

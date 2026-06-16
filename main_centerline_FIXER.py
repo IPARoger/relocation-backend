@@ -3379,3 +3379,33 @@ def api_set_comparison_set_note(request: Request, body: ComparisonSetNoteSet):
             detail={"error": err.reason, "message": str(err)},
         ) from err
 
+
+
+class SavedInvestigationNoteSet(BaseModel):
+    saved_search_id: str
+    body: str = ""
+    section_key: str = "main"
+
+
+@app.post("/notes/saved-investigation")
+def api_set_saved_investigation_note(request: Request, body: SavedInvestigationNoteSet):
+    jwt_token = _jwt_from_request(request)
+    from repositories.notes_repository import NotesError, set_saved_investigation_note
+
+    try:
+        return set_saved_investigation_note(
+            jwt_token,
+            saved_search_id=body.saved_search_id,
+            body=body.body,
+            section_key=body.section_key,
+        )
+    except NotesError as err:
+        status = 404 if err.reason in (
+            "profile_not_found",
+            "comparison_set_not_found",
+            "saved_search_not_found",
+        ) else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err

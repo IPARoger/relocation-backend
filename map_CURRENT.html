@@ -937,6 +937,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
         <button id="findBtn" type="button">Find regions</button>
         <div id="renderStatus">Ready.</div>
+        <textarea id="saveInvestigationNote" rows="2" placeholder="Optional note for this investigation" style="width:100%;box-sizing:border-box;"></textarea>
         <button id="saveInvestigationBtn" type="button">Save Investigation</button>
         <div id="saveInvestigationStatus" aria-live="polite"></div>
         <div id="reopenInvestigationStatus" aria-live="polite"></div>
@@ -1714,8 +1715,12 @@ async function saveCurrentInvestigation() {
     if (btn) btn.disabled = true;
     setStatus("Saving…", false);
 
+    // Optional note text captured before the write; blank means skip the note call.
+    const _noteEl = document.getElementById("saveInvestigationNote");
+    const _noteText = _noteEl ? String(_noteEl.value || "").trim() : "";
+
     try {
-        const { error: _saveErr } = await sbClient
+        const { data: _savedRow, error: _saveErr } = await sbClient
             .from("saved_searches")
             .insert({
                 account_id:            accountId,
@@ -1725,9 +1730,43 @@ async function saveCurrentInvestigation() {
                 conditions_json,
                 viewport_json,
                 settings_snapshot_json,
-            });
+            })
+            .select("id, profile_id")
+            .single();
         if (_saveErr) throw _saveErr;
         setStatus(`Saved: ${title}`, false);
+
+        // Optional note is a secondary write; the investigation is already saved.
+        // Failures here must not undo the save — show an honest secondary warning.
+        const _savedId = _savedRow && _savedRow.id;
+        if (_noteText && _savedId) {
+            try {
+                const { data: _sess } = await sbClient.auth.getSession();
+                const _token = _sess && _sess.session && _sess.session.access_token;
+                if (!_token) throw new Error("no session token");
+                const _resp = await fetch("/notes/saved-investigation", {
+                    method:  "POST",
+                    headers: {
+                        "Content-Type":  "application/json",
+                        "Authorization": "Bearer " + _token,
+                    },
+                    body: JSON.stringify({
+                        saved_search_id: _savedId,
+                        body:            _noteText,
+                        section_key:     "main",
+                    }),
+                });
+                if (!_resp.ok) {
+                    let _detail = "";
+                    try { _detail = JSON.stringify(await _resp.json()); } catch (_e) {}
+                    throw new Error("HTTP " + _resp.status + (_detail ? " " + _detail : ""));
+                }
+                if (_noteEl) _noteEl.value = "";
+                setStatus(`Saved: ${title} (note attached)`, false);
+            } catch (_noteErr) {
+                setStatus(`Saved: ${title} — note not saved: ` + (_noteErr.message || String(_noteErr)), true);
+            }
+        }
     } catch (err) {
         setStatus("Save failed: " + (err.message || String(err)), true);
     } finally {
