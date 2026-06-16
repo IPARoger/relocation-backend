@@ -635,6 +635,7 @@ function adaptStoreToView(store) {
           placeIds,
           places: placeIds.map((id) => placesById[id]?.display_name || id),
           saved: formatSavedLabel(inv.updated_at),
+          settingsSnapshot: inv.settings_snapshot,
         };
       });
 
@@ -933,6 +934,22 @@ function resumeContextStubHtml() {
   return `<span class="meta">${RESUME_CONTEXT_STUB}</span>`;
 }
 
+// Compact, display-only summary of the settings snapshot captured when a saved
+// investigation was created. Reads ONLY the stored snapshot — no effective-
+// settings fallback and no invented defaults. A missing snapshot or a missing
+// individual field is shown honestly. Does not apply, restore, or write settings.
+function explorationSnapshotSummaryHtml(snapshot) {
+  const snap = (snapshot && typeof snapshot === "object") ? snapshot : null;
+  if (!snap || Object.keys(snap).length === 0) {
+    return `<span class="meta">Settings snapshot unavailable</span>`;
+  }
+  const txt = (v) => (v == null ? "\u2014" : escapeHtml(capitalize(String(v))));
+  const cnt = (v) => (Array.isArray(v) ? v.length : "\u2014");
+  const onOff = (v) => (v == null ? "\u2014" : (v ? "On" : "Off"));
+  const ver = (snap.snapshot_version != null) ? escapeHtml(String(snap.snapshot_version)) : "\u2014";
+  return `<span class="meta">Snapshot \u00b7 House ${txt(snap.house_system)} \u00b7 Zodiac ${txt(snap.zodiac_mode)} \u00b7 Major ${cnt(snap.visible_major_aspects)} \u00b7 Minor ${cnt(snap.visible_minor_aspects_list)} \u00b7 Planets ${cnt(snap.visible_planets)} \u00b7 Bodies ${cnt(snap.visible_bodies)} \u00b7 Out-of-sign ${onOff(snap.out_of_sign_aspects)} \u00b7 v${ver}</span>`;
+}
+
 function timeUncertaintyWarning(r) {
   if (!r.hasTimeUncertainty) return "";
   return `<div class="warn-box"><strong>Birth time uncertainty.</strong> ${r.birthTimeDisplay}. `
@@ -1108,6 +1125,7 @@ function screenDashboard() {
           <li>
             <strong>${e.name}</strong>
             <span class="meta">${e.recordName} · ${e.saved}</span>
+            <br>${explorationSnapshotSummaryHtml(e.settingsSnapshot)}
             <br>${resumeContextStubHtml()}
             <button type="button" data-action="resume-exploration"
               data-chart-record="${e.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
@@ -1190,6 +1208,7 @@ function screenChartRecord() {
           <li>
             <strong>${e.name}</strong>
             <span class="meta">${e.saved} · ${e.conditions.join("; ")}</span>
+            <br>${explorationSnapshotSummaryHtml(e.settingsSnapshot)}
             <br>${resumeContextStubHtml()}
             <button type="button" data-action="resume-exploration"
               data-chart-record="${r.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
