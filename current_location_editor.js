@@ -5,11 +5,11 @@
  *
  * Requires: window.SupabaseReady, window.CurrentUser
  *
- * Write sequence (RLS-compliant, no service role):
- *   A. UPDATE current_location_history SET is_current=false
- *          WHERE profile_id=? AND account_id=? AND is_current=true
- *   B. INSERT current_location_history
- *          { profile_id, account_id, place_id, is_current:true, source:'manual' }
+ * Write path (backend-owned, RLS-enforced, no direct table writes):
+ *   POST /current-location/set  { profile_id, place_id, source:'manual' }
+ *   with Authorization: Bearer <supabase access_token>.
+ *   The backend retires prior current rows and inserts the new current row,
+ *   returning the place payload used to refresh the shell.
  *
  * After save: notify the shell (optional onSaved callback or the
  * window.__rmAppShell.applyCurrentLocationUpdate hook) for an in-place refresh.
@@ -177,47 +177,57 @@
     }
 
     var profileId = state.profileId;
-    var accountId = currentUser.accountId;
     var placeId   = state.selectedPlace.id;
 
     try {
       var client = await window.SupabaseReady;
 
-      // A. Retire existing is_current rows for this profile (non-fatal if none exist)
-      var retireResult = await client
-        .from("current_location_history")
-        .update({ is_current: false })
-        .eq("profile_id", profileId)
-        .eq("account_id", accountId)
-        .eq("is_current", true);
-
-      if (retireResult.error) {
-        console.warn("[cl-editor] retire rows warning (non-fatal):", retireResult.error.message);
+      // The backend owns the write (retire prior current rows + insert the new
+      // current row) behind POST /current-location/set. Supply the caller JWT so
+      // RLS + account ownership are enforced server-side.
+      var sessionResult = await client.auth.getSession();
+      var session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+      var token   = session && session.access_token;
+      if (!token) {
+        return showError("Session expired. Please reload and sign in again.");
       }
 
-      // B. Insert new current row
-      var insertResult = await client
-        .from("current_location_history")
-        .insert({
-          profile_id:  profileId,
-          account_id:  accountId,
-          place_id:    placeId,
-          is_current:  true,
-          source:      "manual",
-          selected_at: new Date().toISOString(),
-        });
+      var resp = await fetch("/current-location/set", {
+        method:  "POST",
+        headers: {
+          "Content-Type":  "application/json",
+          "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify({
+          profile_id: profileId,
+          place_id:   placeId,
+          source:     "manual",
+        }),
+      });
 
-      if (insertResult.error) {
-        return showError("Could not save location: " + insertResult.error.message);
+      var payload = null;
+      try { payload = await resp.json(); } catch (parseErr) { payload = null; }
+
+      if (!resp.ok) {
+        var detail = payload && payload.detail;
+        var msg =
+          (detail && (detail.message || detail.error)) ||
+          (typeof detail === "string" ? detail : null) ||
+          ("HTTP " + resp.status);
+        return showError("Could not save location: " + msg);
       }
 
-      // Close the overlay, then ask the shell to update in place. The DB write
-      // above is the source of truth; the shell hook only refreshes UI state.
+      // Close the overlay, then ask the shell to update in place. The backend
+      // write is the source of truth; the shell hook only refreshes UI state.
       removeOverlay();
+      var backendPlace =
+        payload && payload.current_location ? payload.current_location.place : null;
       var savedPlace = {
-        id:           placeId,
-        display_name: state.selectedPlace.display_name,
-        timezone_id:  state.selectedPlace.timezone_id || null,
+        id:           (backendPlace && backendPlace.id) || placeId,
+        display_name: (backendPlace && backendPlace.display_name) || state.selectedPlace.display_name,
+        latitude:     backendPlace ? backendPlace.latitude : null,
+        longitude:    backendPlace ? backendPlace.longitude : null,
+        timezone_id:  (backendPlace && backendPlace.timezone_id) || state.selectedPlace.timezone_id || null,
         admin1:       state.selectedPlace.admin1 || null,
         country_code: state.selectedPlace.country_code || null,
       };
