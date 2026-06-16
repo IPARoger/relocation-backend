@@ -2363,6 +2363,8 @@ async function favoriteMapSelectionFromButton(btn) {
             try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
             btn.textContent = "Favorited \u2713";
             setStatus("Already in favorites.", false);
+            // Refresh the saved-places dropdown in place (non-fatal; self-handles errors).
+            try { await loadSavedPlacesForActiveProfile(); } catch (e) { /* non-fatal */ }
             return;
         }
 
@@ -2380,6 +2382,9 @@ async function favoriteMapSelectionFromButton(btn) {
         try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
         btn.textContent = "Favorited \u2713";
         setStatus("Saved to favorites.", false);
+        // Refresh the saved-places dropdown in place so the new favorite appears
+        // immediately (no reload, no profile switch). Non-fatal; self-handles errors.
+        try { await loadSavedPlacesForActiveProfile(); } catch (e) { /* non-fatal */ }
     } catch (err) {
         console.error("[favorite]", err);
         btn.disabled = false;
