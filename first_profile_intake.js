@@ -329,8 +329,10 @@
       if (launchContext.mode === "add" && typeof launchContext.onCreated === "function") {
         console.log("[intake] Profile and birth record created (add mode). Handing off to shell.");
         var onCreatedCb = launchContext.onCreated;
+        var switchEl = document.getElementById("rm-intake-switch");
+        var switchToNew = switchEl ? !!switchEl.checked : true;
         removeOverlay();
-        onCreatedCb(profileId);
+        onCreatedCb(profileId, { switchToNew: switchToNew });
         return;
       }
 
@@ -396,6 +398,11 @@
       '    <p class="meta" style="font-size:11px;color:#8888aa;margin:4px 0 0;">Select a birth city from the available list.</p>',
       '  </div>',
 
+      (launchContext.mode === "add"
+        ? '  <label class="field" style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">'
+          + '<input type="checkbox" id="rm-intake-switch" checked style="width:auto;margin:0;" />'
+          + 'Switch to new profile</label>'
+        : ''),
       '  <button type="button" class="submit-btn" id="rm-intake-submit">',
       '    Create my chart',
       '  </button>',

@@ -287,7 +287,10 @@
       if (action === "ad-add-profile") {
         close();
         if (typeof window.__showFirstProfileIntake === "function") {
-          window.__showFirstProfileIntake();
+          var shellApi = window.__rmAppShell;
+          var onCreated = shellApi && typeof shellApi.handleProfileCreated === "function"
+            ? shellApi.handleProfileCreated : null;
+          window.__showFirstProfileIntake({ mode: "add", onCreated: onCreated });
         }
       }
       if (action === "ad-set-location") {

@@ -1934,6 +1934,36 @@ function switchChartRecord(newId, noticePrefix) {
   uiState.switchNotice = `${noticePrefix || "Explicit Chart Record switch"}: ${prev} → ${next}. Exploration draft cleared for prior record (placeholder).`;
 }
 
+// A route is "profile-scoped" when its context contract requires a chartRecordId
+// (the screen is bound to one specific profile). Used to decide whether a
+// profile switch must also re-scope the current hash.
+function _isProfileScopedRoute(route) {
+  const c = ROUTE_CONTEXT_CONTRACT[route];
+  return !!(c && c.chartRecordId === "required");
+}
+
+// Shell-owned post-create workflow for future Add Profile (mode "add").
+// Never writes the account default. Only updates selected/last-selected when
+// switchToNew is set. Uses a controlled reload as the interim refresh so the
+// store re-fetches and profile lists/drawer include the new profile.
+function handleProfileCreated(newProfileId, opts) {
+  const switchToNew = !!(opts && opts.switchToNew);
+  if (switchToNew && newProfileId) {
+    _savePersistedChartRecord(newProfileId);
+    if (_isProfileScopedRoute(navContext.route)) {
+      const hash = buildLocationHash(normalizeNavContext({
+        ...navContext,
+        chartRecordId: newProfileId,
+        placeId: null,
+        explorationId: null,
+        comparisonSetId: null,
+      }));
+      if (location.hash !== hash) location.hash = hash;
+    }
+  }
+  window.location.reload();
+}
+
 function mountGenieDrawer(root) {
   if (navContext.route !== "map" || !uiState.drawerOpen) return;
   const el = root.querySelector("#genieDrawerMount");
@@ -2151,7 +2181,7 @@ function bindScreenActions(root) {
       if (action === "close-popup") closePopup();
       if (action === "add-chart-record") {
         if (typeof window.__showFirstProfileIntake === "function") {
-          window.__showFirstProfileIntake();
+          window.__showFirstProfileIntake({ mode: "add", onCreated: handleProfileCreated });
         }
       }
       if (action === "pm-open-profile") {
@@ -2246,7 +2276,7 @@ function bindScreenActions(root) {
       }
       if (action === "pm-add-profile") {
         if (typeof window.__showFirstProfileIntake === "function") {
-          window.__showFirstProfileIntake();
+          window.__showFirstProfileIntake({ mode: "add", onCreated: handleProfileCreated });
         }
       }
       if (action === "set-current-location") {
@@ -2585,6 +2615,7 @@ window.__rmAppShell = {
   setAccountDefaultChartRecord,
   saveAccountSettingsPatch,
   savePersistedChartRecord: _savePersistedChartRecord,
+  handleProfileCreated,
   storeLoadError: () => storeLoadError,
   loadViewModelFromStore,
   adaptStoreToView,
