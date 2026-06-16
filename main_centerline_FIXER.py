@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
@@ -3220,3 +3220,31 @@ def api_profile_library(profile_id: str):
         "notes": list_notes(profile_id),
         "share_links": list_share_links(profile_id),
     }
+
+# ---------------------------------------------------------------------------
+# Account store aggregate (read-only, JWT-scoped; mirrors supabase_store_bridge.js)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/account-store")
+def api_account_store(request: Request):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or malformed Authorization header",
+        )
+    jwt_token = auth_header[len("Bearer ") :]
+    from repositories.account_store_repository import (
+        AccountStoreBuildError,
+        build_account_store,
+    )
+
+    try:
+        return build_account_store(jwt_token)
+    except AccountStoreBuildError as err:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
