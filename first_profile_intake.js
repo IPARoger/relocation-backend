@@ -276,51 +276,56 @@
       var accountId = currentUser.accountId;
       var userId    = currentUser.userId;
 
-      // ── Step 1: INSERT profile ──────────────────────────────────────────
-      var profileInsert = await client.from("profiles").insert({
-        account_id:      accountId,
-        account_user_id: userId,   // NOT NULL in current schema; legacy — will be dropped
-        display_name:    displayName,
-        profile_type:    "human",
-      }).select("id").single();
+      // Backend owns the write (POST /profiles/create-with-birth); supply JWT.
+      var sessionResult = await client.auth.getSession();
+      var session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+      var token = session && session.access_token;
+      if (!token) return showError("Session error. Please reload the page and try again.");
 
-      if (profileInsert.error) {
-        return showError("Could not create profile: " + profileInsert.error.message);
-      }
-      var profileId = profileInsert.data.id;
+      var createResp = await fetch("/profiles/create-with-birth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify({
+          display_name: displayName,
+          birth_date: birthDate,
+          birth_time_mode: state.birthTimeMode,
+          birth_time_start: state.birthTimeMode === "exact" ? birthTime + ":00" : null,
+          birth_place_id: state.selectedPlace.id,
+          timezone_id: state.selectedPlace.timezone_id || null,
+          profile_type: "human",
+        }),
+      });
 
-      // ── Step 2: INSERT birth_record ─────────────────────────────────────
-      var birthRecordInsert = await client.from("birth_records").insert({
-        account_id:       accountId,
-        profile_id:       profileId,
-        birth_date:       birthDate,
-        birth_time_mode:  state.birthTimeMode,
-        birth_time_start: state.birthTimeMode === "exact" ? birthTime + ":00" : null,
-        birth_place_id:   state.selectedPlace.id,
-        timezone_id:      state.selectedPlace.timezone_id || null,
-      }).select("id").single();
-
-      if (birthRecordInsert.error) {
-        // Compensating delete — best-effort; not a transaction
-        console.warn("[intake] birth_record insert failed. Attempting compensating profile delete.");
-        var compensation = await client.from("profiles").delete().eq("id", profileId);
-        if (compensation.error) {
+      if (!createResp.ok) {
+        var errDetail = null;
+        try { errDetail = (await createResp.json()).detail; } catch (e) { /* non-JSON */ }
+        var errReason = errDetail && errDetail.error;
+        var errMsg = (errDetail && errDetail.message) || ("HTTP " + createResp.status);
+        if (errReason === "rollback_failed" && errDetail && errDetail.profile_id) {
           console.error(
             "[intake] Compensating profile delete FAILED. Orphan profile left:",
-            profileId, compensation.error.message
+            errDetail.profile_id, errMsg
           );
           return showError(
             "Birth record creation failed AND profile cleanup failed. " +
-            "Orphan profile ID: " + profileId + ". " +
-            "Contact support or delete the profile manually. Error: " +
-            birthRecordInsert.error.message
+            "Orphan profile ID: " + errDetail.profile_id + ". " +
+            "Contact support or delete the profile manually. Error: " + errMsg
           );
         }
-        return showError(
-          "Birth record creation failed (profile was cleaned up). " +
-          "Please try again. Error: " + birthRecordInsert.error.message
-        );
+        if (errReason === "birth_record_failed") {
+          return showError(
+            "Birth record creation failed (profile was cleaned up). " +
+            "Please try again. Error: " + errMsg
+          );
+        }
+        return showError("Could not create profile: " + errMsg);
       }
+
+      var created = await createResp.json();
+      var profileId = created.profile_id;
 
       // ── Success ─────────────────────────────────────────────────────────
       // Future Add Profile (mode "add"): hand the new profile back to the shell

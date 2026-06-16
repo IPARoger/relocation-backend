@@ -3551,3 +3551,45 @@ def api_archive_comparison_set_owned(request: Request, body: ComparisonSetArchiv
             status_code=status,
             detail={"error": err.reason, "message": str(err)},
         ) from err
+
+
+class ProfileCreateWithBirth(BaseModel):
+    display_name: str
+    birth_date: str
+    birth_time_mode: str
+    birth_place_id: str
+    birth_time_start: str | None = None
+    timezone_id: str | None = None
+    profile_type: str = "human"
+
+
+@app.post("/profiles/create-with-birth")
+def api_create_profile_with_birth(request: Request, body: ProfileCreateWithBirth):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_profiles_repository import (
+        ProfileCreateError,
+        create_profile_with_birth,
+    )
+
+    try:
+        return create_profile_with_birth(
+            jwt_token,
+            display_name=body.display_name,
+            birth_date=body.birth_date,
+            birth_time_mode=body.birth_time_mode,
+            birth_place_id=body.birth_place_id,
+            birth_time_start=body.birth_time_start,
+            timezone_id=body.timezone_id,
+            profile_type=body.profile_type,
+        )
+    except ProfileCreateError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason == "place_not_found":
+            status = 404
+        else:
+            status = 422
+        detail = {"error": err.reason, "message": str(err)}
+        if err.profile_id:
+            detail["profile_id"] = err.profile_id
+        raise HTTPException(status_code=status, detail=detail) from err
