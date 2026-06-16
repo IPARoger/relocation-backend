@@ -3228,6 +3228,8 @@ async function saveAccountSettingsPatch(patch) {
 // the caller can give honest feedback. Scope: Chart Record notes only.
 async function saveChartRecordNote(chartRecordId, body) {
   const text = String(body == null ? "" : body);
+  // Mirror to device storage FIRST so the local fallback always reflects the
+  // latest text even when the backend save fails.
   try { localStorage.setItem(chartNoteKey(chartRecordId), text); } catch (e) { /* device storage unavailable */ }
   const client = await window.SupabaseReady;
   const user = window.CurrentUser;
@@ -3236,32 +3238,26 @@ async function saveChartRecordNote(chartRecordId, body) {
     err.deviceOnly = true;
     throw err;
   }
-  const { data: rows, error: selErr } = await client
-    .from("notes")
-    .select("id")
-    .eq("account_id", user.accountId)
-    .eq("profile_id", chartRecordId)
-    .eq("target_type", "chart_record")
-    .is("archived_at", null)
-    .order("updated_at", { ascending: false })
-    .limit(1);
-  if (selErr) throw selErr;
-  if (rows && rows.length > 0) {
-    const { error: upErr } = await client
-      .from("notes")
-      .update({ body: text, updated_at: new Date().toISOString() })
-      .eq("id", rows[0].id);
-    if (upErr) throw upErr;
-  } else {
-    const { error: insErr } = await client
-      .from("notes")
-      .insert({
-        account_id:  user.accountId,
-        profile_id:  chartRecordId,
-        target_type: "chart_record",
-        body:        text,
-      });
-    if (insErr) throw insErr;
+  // Backend owns the write (POST /notes/chart-record); supply the caller JWT.
+  const sessionResult = await client.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  const token = session && session.access_token;
+  if (!token) {
+    const err = new Error("Session unavailable; saved on this device only.");
+    err.deviceOnly = true;
+    throw err;
+  }
+  const resp = await fetch("/notes/chart-record", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ profile_id: chartRecordId, body: text }),
+  });
+  if (!resp.ok) {
+    let detail = null;
+    try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error("Could not save note: " + msg);
   }
 }
 
@@ -3272,6 +3268,9 @@ async function saveChartRecordNote(chartRecordId, body) {
 // so the caller can give honest feedback. No localStorage fallback (comparison
 // notes are account-only).
 async function saveComparisonSetNote(comparisonSetId, profileId, body) {
+  // profileId is retained for caller compatibility; the backend resolves the
+  // owning profile from the comparison set. Comparison notes are account-only
+  // (no device fallback).
   const text = String(body == null ? "" : body);
   const client = await window.SupabaseReady;
   const user = window.CurrentUser;
@@ -3280,33 +3279,26 @@ async function saveComparisonSetNote(comparisonSetId, profileId, body) {
     err.deviceOnly = true;
     throw err;
   }
-  const { data: rows, error: selErr } = await client
-    .from("notes")
-    .select("id")
-    .eq("account_id", user.accountId)
-    .eq("target_type", "comparison_set")
-    .eq("target_id", comparisonSetId)
-    .is("archived_at", null)
-    .order("updated_at", { ascending: false })
-    .limit(1);
-  if (selErr) throw selErr;
-  if (rows && rows.length > 0) {
-    const { error: upErr } = await client
-      .from("notes")
-      .update({ body: text, updated_at: new Date().toISOString() })
-      .eq("id", rows[0].id);
-    if (upErr) throw upErr;
-  } else {
-    const { error: insErr } = await client
-      .from("notes")
-      .insert({
-        account_id:  user.accountId,
-        profile_id:  profileId,
-        target_type: "comparison_set",
-        target_id:   comparisonSetId,
-        body:        text,
-      });
-    if (insErr) throw insErr;
+  // Backend owns the write (POST /notes/comparison-set); supply the caller JWT.
+  const sessionResult = await client.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  const token = session && session.access_token;
+  if (!token) {
+    const err = new Error("Session unavailable; comparison note not saved.");
+    err.deviceOnly = true;
+    throw err;
+  }
+  const resp = await fetch("/notes/comparison-set", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ comparison_set_id: comparisonSetId, body: text }),
+  });
+  if (!resp.ok) {
+    let detail = null;
+    try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error("Could not save comparison note: " + msg);
   }
 }
 

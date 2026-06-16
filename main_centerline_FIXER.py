@@ -3312,3 +3312,70 @@ def api_set_current_location(request: Request, body: CurrentLocationSet):
             detail={"error": err.reason, "message": str(err)},
         ) from err
 
+# ---------------------------------------------------------------------------
+# Notes ownership (JWT-scoped POST save for chart-record and comparison-set
+# notes). Backend owns the write; target_type is fixed per endpoint.
+# ---------------------------------------------------------------------------
+
+
+class ChartRecordNoteSet(BaseModel):
+    profile_id: str
+    body: str = ""
+    section_key: str = "main"
+
+
+class ComparisonSetNoteSet(BaseModel):
+    comparison_set_id: str
+    body: str = ""
+    section_key: str = "main"
+
+
+def _jwt_from_request(request: Request) -> str:
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or malformed Authorization header",
+        )
+    return auth_header[len("Bearer ") :]
+
+
+@app.post("/notes/chart-record")
+def api_set_chart_record_note(request: Request, body: ChartRecordNoteSet):
+    jwt_token = _jwt_from_request(request)
+    from repositories.notes_repository import NotesError, set_chart_record_note
+
+    try:
+        return set_chart_record_note(
+            jwt_token,
+            profile_id=body.profile_id,
+            body=body.body,
+            section_key=body.section_key,
+        )
+    except NotesError as err:
+        status = 404 if err.reason in ("profile_not_found", "comparison_set_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/notes/comparison-set")
+def api_set_comparison_set_note(request: Request, body: ComparisonSetNoteSet):
+    jwt_token = _jwt_from_request(request)
+    from repositories.notes_repository import NotesError, set_comparison_set_note
+
+    try:
+        return set_comparison_set_note(
+            jwt_token,
+            comparison_set_id=body.comparison_set_id,
+            body=body.body,
+            section_key=body.section_key,
+        )
+    except NotesError as err:
+        status = 404 if err.reason in ("profile_not_found", "comparison_set_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
