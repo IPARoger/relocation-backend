@@ -2531,7 +2531,20 @@ function bindScreenActions(root) {
         (async () => {
           try {
             await renameProfile(profileId, newName);
-            window.location.reload();
+            // Update in-memory state so labels refresh without a reload. We do NOT
+            // touch selected/default/last-selected \u2014 only the display name changes.
+            if (viewModel && Array.isArray(viewModel.chartRecords)) {
+              const rec = viewModel.chartRecords.find((r) => r.chartRecordId === profileId);
+              if (rec) rec.displayName = newName;
+            }
+            if (storeRaw && Array.isArray(storeRaw.clients)) {
+              const c = storeRaw.clients.find((x) => x.id === profileId);
+              if (c) c.display_name = newName;
+            }
+            // Re-render the current screen in place (covers Profile Management cards
+            // and any visible labels derived from chartRecords). The Account Drawer
+            // rebuilds from chartRecords on next open, so it reflects the new name too.
+            render();
           } catch (err) {
             window.alert("Rename failed: " + (err.message || String(err)));
           }
