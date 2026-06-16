@@ -3248,3 +3248,67 @@ def api_account_store(request: Request):
             detail={"error": err.reason, "message": str(err)},
         ) from err
 
+# ---------------------------------------------------------------------------
+# Current Location ownership (read-only GET + JWT-scoped POST set).
+# Mirrors the legacy browser write path in current_location_editor.js.
+# ---------------------------------------------------------------------------
+
+
+class CurrentLocationSet(BaseModel):
+    profile_id: str
+    place_id: str
+    source: str = "manual"
+
+
+@app.get("/current-location/current")
+def api_get_current_location(request: Request, profile_id: str):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or malformed Authorization header",
+        )
+    jwt_token = auth_header[len("Bearer ") :]
+    from repositories.current_location_repository import (
+        CurrentLocationError,
+        get_current_location,
+    )
+
+    try:
+        return get_current_location(jwt_token, profile_id)
+    except CurrentLocationError as err:
+        status = 404 if err.reason in ("profile_not_found", "place_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/current-location/set")
+def api_set_current_location(request: Request, body: CurrentLocationSet):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or malformed Authorization header",
+        )
+    jwt_token = auth_header[len("Bearer ") :]
+    from repositories.current_location_repository import (
+        CurrentLocationError,
+        set_current_location,
+    )
+
+    try:
+        return set_current_location(
+            jwt_token,
+            profile_id=body.profile_id,
+            place_id=body.place_id,
+            source=body.source,
+        )
+    except CurrentLocationError as err:
+        status = 404 if err.reason in ("profile_not_found", "place_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
