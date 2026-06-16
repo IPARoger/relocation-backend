@@ -2485,11 +2485,34 @@ function bindScreenActions(root) {
             }));
             const insP = await client.from("comparison_set_places").insert(rows);
             if (insP.error) throw insP.error;
-            location.hash = buildLocationHash({
-              route: "compare", chartRecordId, comparisonSetId: setId,
+            // Add the new comparison set to in-memory state (storeRaw +
+            // viewModel) so the comparison page renders it without a reload.
+            if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+              storeRaw.comparison_sets.push({
+                id: setId,
+                client_id: chartRecordId,
+                place_ids: placeIds.slice(),
+                saved_investigation_id: null,
+                notes: "",
+                schema_version: 1,
+                updated_at: null,
+              });
+            }
+            if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+              const nameById = viewModel.placeNameById || {};
+              viewModel.comparisonSets.push({
+                id: setId,
+                clientId: chartRecordId,
+                placeIds: placeIds.slice(),
+                placeNames: placeIds.map((pid) => nameById[pid]).filter(Boolean),
+                notes: "",
+              });
+            }
+            // Navigate directly to the new comparison set (no reload, no detour).
+            navigate("compare", {
+              chartRecordId, comparisonSetId: setId,
               placeId: null, explorationId: null, returnTo: null,
             });
-            window.location.reload();
           } catch (err) {
             if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
           }
