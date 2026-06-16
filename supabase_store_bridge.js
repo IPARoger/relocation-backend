@@ -65,6 +65,10 @@
     out_of_sign_aspects:   false,
     visible_planets:       ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"],
     visible_bodies:        ["chiron"],
+    visible_major_aspects: ["conjunction", "opposition", "square", "trine", "sextile"],
+    visible_minor_aspects_list: [],
+    major_aspect_orbs:     { conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6 },
+    minor_aspect_orbs:     { quincunx: 3, semisextile: 2, semisquare: 2, sesquiquadrate: 2, quintile: 2, biquintile: 2 },
     helper_layers:         {},
     ontology_pack_id:      null,
   };
@@ -81,15 +85,27 @@
     function pick(key) {
       return stored[key] || onto[key] || RM_SETTINGS_DEFAULTS[key];
     }
+    // Major aspect orbs: major_aspect_orbs is canonical; orb_defaults is the
+    // legacy key. Prefer stored major_aspect_orbs, fall back to stored
+    // orb_defaults, then ontology, then hardcoded defaults. orb_defaults is
+    // returned as a mirror of the resolved canonical value (never diverges).
+    var effectiveMajorOrbs =
+      stored.major_aspect_orbs || stored.orb_defaults ||
+      onto.major_aspect_orbs   || onto.orb_defaults   ||
+      RM_SETTINGS_DEFAULTS.major_aspect_orbs;
     return {
       settings_version:      pick("settings_version"),
       house_system:          pick("house_system"),
       zodiac_mode:           pick("zodiac_mode"),
-      orb_defaults:          pick("orb_defaults"),
+      orb_defaults:          effectiveMajorOrbs,
       visible_minor_aspects: pick("visible_minor_aspects"),
       out_of_sign_aspects:   pick("out_of_sign_aspects"),
       visible_planets:       pick("visible_planets"),
       visible_bodies:        pick("visible_bodies"),
+      visible_major_aspects: pick("visible_major_aspects"),
+      visible_minor_aspects_list: pick("visible_minor_aspects_list"),
+      major_aspect_orbs:     effectiveMajorOrbs,
+      minor_aspect_orbs:     pick("minor_aspect_orbs"),
       helper_layers:         pick("helper_layers"),
       ontology_pack_id:      pick("ontology_pack_id"),
     };
@@ -107,11 +123,15 @@
       settings_version:      eff.settings_version      || RM_SETTINGS_DEFAULTS.settings_version,
       house_system:          eff.house_system          || RM_SETTINGS_DEFAULTS.house_system,
       zodiac_mode:           eff.zodiac_mode           || RM_SETTINGS_DEFAULTS.zodiac_mode,
-      orb_defaults:          eff.orb_defaults          || RM_SETTINGS_DEFAULTS.orb_defaults,
+      orb_defaults:          eff.major_aspect_orbs     || eff.orb_defaults || RM_SETTINGS_DEFAULTS.major_aspect_orbs,  // legacy mirror of major_aspect_orbs
       visible_minor_aspects: eff.visible_minor_aspects || RM_SETTINGS_DEFAULTS.visible_minor_aspects,
       out_of_sign_aspects:   eff.out_of_sign_aspects   || RM_SETTINGS_DEFAULTS.out_of_sign_aspects,
       visible_planets:       eff.visible_planets       || RM_SETTINGS_DEFAULTS.visible_planets,
       visible_bodies:        eff.visible_bodies        || RM_SETTINGS_DEFAULTS.visible_bodies,
+      visible_major_aspects: eff.visible_major_aspects || RM_SETTINGS_DEFAULTS.visible_major_aspects,
+      visible_minor_aspects_list: eff.visible_minor_aspects_list || RM_SETTINGS_DEFAULTS.visible_minor_aspects_list,
+      major_aspect_orbs:     eff.major_aspect_orbs     || RM_SETTINGS_DEFAULTS.major_aspect_orbs,
+      minor_aspect_orbs:     eff.minor_aspect_orbs     || RM_SETTINGS_DEFAULTS.minor_aspect_orbs,
       ontology_pack_id:      eff.ontology_pack_id != null ? eff.ontology_pack_id : RM_SETTINGS_DEFAULTS.ontology_pack_id,
     };
   }
@@ -357,11 +377,15 @@
       settings_version:        effectiveSettings.settings_version,
       house_system:            effectiveSettings.house_system,
       zodiac_mode:             effectiveSettings.zodiac_mode,
-      orb_defaults:            effectiveSettings.orb_defaults,
+      orb_defaults:            effectiveSettings.major_aspect_orbs,  // legacy mirror of major_aspect_orbs
       visible_minor_aspects:   effectiveSettings.visible_minor_aspects,
       out_of_sign_aspects:     effectiveSettings.out_of_sign_aspects,
       visible_planets:         effectiveSettings.visible_planets,
       visible_bodies:          effectiveSettings.visible_bodies,
+      visible_major_aspects:   effectiveSettings.visible_major_aspects,
+      visible_minor_aspects_list: effectiveSettings.visible_minor_aspects_list,
+      major_aspect_orbs:       effectiveSettings.major_aspect_orbs,
+      minor_aspect_orbs:       effectiveSettings.minor_aspect_orbs,
       helper_layers:           effectiveSettings.helper_layers,
       ontology_pack_id:        effectiveSettings.ontology_pack_id,
       default_chart_record_id: defaultChartRecordId,
