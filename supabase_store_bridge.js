@@ -349,6 +349,30 @@
       console.warn("[supabase_store_bridge] notes query non-fatal:", e);
     }
 
+    // 11b. notes — comparison-set notes (target_type='comparison_set'); newest
+    // non-archived row per comparison set (keyed by target_id). Non-fatal.
+    var comparisonSetNoteByTargetId = {};
+    try {
+      var cmpNotesResult = await client
+        .from("notes")
+        .select("target_id, body, updated_at, target_type, archived_at")
+        .eq("account_id", accountId)
+        .eq("target_type", "comparison_set")
+        .is("archived_at", null)
+        .order("updated_at", { ascending: false });
+      if (!cmpNotesResult.error) {
+        (cmpNotesResult.data || []).forEach(function (row) {
+          if (row.target_id && !(row.target_id in comparisonSetNoteByTargetId)) {
+            comparisonSetNoteByTargetId[row.target_id] = row.body || "";
+          }
+        });
+      } else {
+        console.warn("[supabase_store_bridge] comparison_set notes query non-fatal:", cmpNotesResult.error.message);
+      }
+    } catch (e) {
+      console.warn("[supabase_store_bridge] comparison_set notes query non-fatal:", e);
+    }
+
     // ── Assemble conforming store shape ───────────────────────────────────
 
     var storePlaces = Object.values(placesById).map(function (p) {
@@ -456,7 +480,7 @@
         client_id:             cs.profile_id,
         place_ids:             cspBySetId[cs.id] || [],
         saved_investigation_id: null,
-        notes:                 "",
+        notes:                 comparisonSetNoteByTargetId[cs.id] || "",
         schema_version:        1,
         updated_at:            null,
       };

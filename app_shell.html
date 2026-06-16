@@ -1693,7 +1693,14 @@ function screenCompare() {
     ${columnsPanel}
     <div class="panel">
       <h3>Module: comparison-notepad</h3>
-      <textarea rows="3" placeholder="Session notes (placeholder — not saved)"></textarea>
+      ${cs
+        ? `<textarea id="rm-cmp-note" rows="3" style="width:100%;box-sizing:border-box;" placeholder="Notes for this comparison set">${escapeHtml(cs.notes || "")}</textarea>
+           <div class="row" style="margin-top:8px;align-items:center;">
+             <button type="button" data-action="save-comparison-note">Save note</button>
+             <span class="meta" id="rm-cmp-note-msg"></span>
+           </div>`
+        : `<textarea rows="3" placeholder="Build or select a comparison to add notes." disabled></textarea>
+           <p class="meta">Notes attach to a built comparison set.</p>`}
     </div>
     <div class="future-only">Future: AI assist (disabled) · multi–Chart Record comparison (not Web 2.0)</div>
     <div class="row">
@@ -2765,6 +2772,36 @@ function bindScreenActions(root) {
           }
         });
       }
+      if (action === "save-comparison-note") {
+        const csId = navContext.comparisonSetId;
+        const cs = getComparisonSet(csId);
+        const noteEl = document.getElementById("rm-cmp-note");
+        const noteMsg = document.getElementById("rm-cmp-note-msg");
+        if (!noteEl || !cs) {
+          if (noteMsg) noteMsg.textContent = "No active comparison set.";
+          return;
+        }
+        const text = noteEl.value;
+        if (noteMsg) noteMsg.textContent = "Saving\u2026";
+        saveComparisonSetNote(csId, cs.clientId, text).then(() => {
+          cs.notes = text;
+          if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+            const vmCs = viewModel.comparisonSets.find((c) => c.id === csId);
+            if (vmCs) vmCs.notes = text;
+          }
+          if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+            const rawCs = storeRaw.comparison_sets.find((c) => c.id === csId);
+            if (rawCs) rawCs.notes = text;
+          }
+          if (noteMsg) noteMsg.textContent = "Saved.";
+        }).catch((err) => {
+          if (noteMsg) {
+            noteMsg.textContent = (err && err.deviceOnly)
+              ? "Not saved \u2014 sign-in unavailable."
+              : "Save failed \u2014 please try again.";
+          }
+        });
+      }
       if (action === "save-settings") {
         const msgEl = document.getElementById("rm-settings-msg");
         const defCrEl = document.getElementById("rm-settings-default-cr");
@@ -3065,6 +3102,51 @@ async function saveChartRecordNote(chartRecordId, body) {
         account_id:  user.accountId,
         profile_id:  chartRecordId,
         target_type: "chart_record",
+        body:        text,
+      });
+    if (insErr) throw insErr;
+  }
+}
+
+// Account-backed persistence for a comparison-set notepad. Scoped by
+// (account_id, target_type='comparison_set', target_id=comparisonSetId); newest
+// non-archived row wins. profileId (the owning Chart Record) satisfies the
+// notes.profile_id column. Throws Error with .deviceOnly when no session exists
+// so the caller can give honest feedback. No localStorage fallback (comparison
+// notes are account-only).
+async function saveComparisonSetNote(comparisonSetId, profileId, body) {
+  const text = String(body == null ? "" : body);
+  const client = await window.SupabaseReady;
+  const user = window.CurrentUser;
+  if (!client || !user || !user.accountId) {
+    const err = new Error("Session unavailable; comparison note not saved.");
+    err.deviceOnly = true;
+    throw err;
+  }
+  const { data: rows, error: selErr } = await client
+    .from("notes")
+    .select("id")
+    .eq("account_id", user.accountId)
+    .eq("target_type", "comparison_set")
+    .eq("target_id", comparisonSetId)
+    .is("archived_at", null)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+  if (selErr) throw selErr;
+  if (rows && rows.length > 0) {
+    const { error: upErr } = await client
+      .from("notes")
+      .update({ body: text, updated_at: new Date().toISOString() })
+      .eq("id", rows[0].id);
+    if (upErr) throw upErr;
+  } else {
+    const { error: insErr } = await client
+      .from("notes")
+      .insert({
+        account_id:  user.accountId,
+        profile_id:  profileId,
+        target_type: "comparison_set",
+        target_id:   comparisonSetId,
         body:        text,
       });
     if (insErr) throw insErr;
