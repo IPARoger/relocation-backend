@@ -2602,14 +2602,23 @@ function bindScreenActions(root) {
           try {
             const client = await window.SupabaseReady;
             if (!client) throw new Error("Supabase unavailable.");
-            let query = client
-              .from("favorite_places")
-              .update({ archived_at: new Date().toISOString() })
-              .eq("id", favId);
-            if (profileId) query = query.eq("profile_id", profileId);
-            if (accountId) query = query.eq("account_id", accountId);
-            const { error } = await query;
-            if (error) throw error;
+            // Backend owns the write (POST /favorites/archive); supply the caller JWT.
+            const sessionResult = await client.auth.getSession();
+            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+            const token = session && session.access_token;
+            if (!token) throw new Error("Session unavailable. Reload and try again.");
+            const resp = await fetch("/favorites/archive", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ favorite_id: favId, profile_id: profileId || null }),
+            });
+            if (!resp.ok) {
+              let detail;
+              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+              const msg = (detail && (detail.message || detail.error)) ||
+                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+              throw new Error(msg);
+            }
             // Remove the archived favorite from in-memory lists so the Chart
             // Record favorites module and profile counts update without a reload.
             if (storeRaw && Array.isArray(storeRaw.favorite_cities)) {

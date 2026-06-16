@@ -2377,50 +2377,40 @@ async function favoriteMapSelectionFromButton(btn) {
         const place = await resolvePlaceFromMapSelection(selection);
         if (!place || !place.id) throw new Error("place_unresolved");
 
-        // Idempotent feedback: skip duplicate (profile_id, place_id) rows — Supabase direct.
-        const accountId = window.CurrentUser && window.CurrentUser.accountId;
-        if (!accountId) throw new Error("no_account_id");
-
+        // Backend owns the write (POST /favorites/save): idempotent save that
+        // returns the active favorite, reactivates an archived one, or inserts.
         const sbClient = window.SupabaseClient || window._supabaseClient;
         if (!sbClient) throw new Error("supabase_client_unavailable");
+        const { data: _sess } = await sbClient.auth.getSession();
+        const _token = _sess && _sess.session && _sess.session.access_token;
+        if (!_token) throw new Error("no_session_token");
 
-        let already = false;
-        try {
-            const { data: existingFavs } = await sbClient
-                .from("favorite_places")
-                .select("id")
-                .eq("account_id", accountId)
-                .eq("profile_id", profileId)
-                .eq("place_id", place.id)
-                .is("archived_at", null)
-                .limit(1);
-            already = Array.isArray(existingFavs) && existingFavs.length > 0;
-        } catch (e) { /* non-fatal — proceed to insert; DB unique constraint is safety net */ }
-
-        if (already) {
-            // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
-            try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
-            btn.textContent = "Favorited \u2713";
-            setStatus("Already in favorites.", false);
-            // Refresh the saved-places dropdown in place (non-fatal; self-handles errors).
-            try { await loadSavedPlacesForActiveProfile(); } catch (e) { /* non-fatal */ }
-            return;
-        }
-
-        const { error: insertError } = await sbClient
-            .from("favorite_places")
-            .insert({
-                account_id: accountId,
+        const resp = await fetch("/favorites/save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + _token,
+            },
+            body: JSON.stringify({
                 profile_id: profileId,
                 place_id: place.id,
                 label: selection.displayName,
                 rank: null,
-            });
-        if (insertError) throw new Error("favorite_failed: " + insertError.message);
+            }),
+        });
+        if (!resp.ok) {
+            let _detail = "";
+            try { _detail = JSON.stringify(await resp.json()); } catch (e) {}
+            throw new Error("favorite_failed: HTTP " + resp.status + (_detail ? " " + _detail : ""));
+        }
+        const saved = await resp.json();
+
         // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
         try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
         btn.textContent = "Favorited \u2713";
-        setStatus("Saved to favorites.", false);
+        // Honest feedback: already-active favorite vs. a new/reactivated save.
+        const _wasActive = saved && saved.status === "exists";
+        setStatus(_wasActive ? "Already in favorites." : "Saved to favorites.", false);
         // Refresh the saved-places dropdown in place so the new favorite appears
         // immediately (no reload, no profile switch). Non-fatal; self-handles errors.
         try { await loadSavedPlacesForActiveProfile(); } catch (e) { /* non-fatal */ }

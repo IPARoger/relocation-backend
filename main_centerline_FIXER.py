@@ -3431,3 +3431,63 @@ def api_merge_account_settings(request: Request, body: AccountSettingsPatch):
             status_code=status,
             detail={"error": err.reason, "message": str(err)},
         ) from err
+
+
+class FavoriteSave(BaseModel):
+    profile_id: str
+    place_id: str
+    label: str | None = None
+    rank: int | None = None
+    starred: bool | None = True
+
+
+class FavoriteArchive(BaseModel):
+    favorite_id: str
+    profile_id: str | None = None
+
+
+@app.post("/favorites/save")
+def api_save_favorite(request: Request, body: FavoriteSave):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_favorites_repository import (
+        FavoritesError,
+        save_favorite,
+    )
+
+    try:
+        return save_favorite(
+            jwt_token,
+            profile_id=body.profile_id,
+            place_id=body.place_id,
+            label=body.label,
+            rank=body.rank,
+            starred=body.starred,
+        )
+    except FavoritesError as err:
+        status = 404 if err.reason in ("profile_not_found", "place_not_found", "favorite_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/favorites/archive")
+def api_archive_favorite_owned(request: Request, body: FavoriteArchive):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_favorites_repository import (
+        FavoritesError,
+        archive_favorite,
+    )
+
+    try:
+        return archive_favorite(
+            jwt_token,
+            favorite_id=body.favorite_id,
+            profile_id=body.profile_id,
+        )
+    except FavoritesError as err:
+        status = 404 if err.reason in ("profile_not_found", "place_not_found", "favorite_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
