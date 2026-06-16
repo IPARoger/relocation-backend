@@ -133,3 +133,174 @@ def create_profile_with_birth(
         "birth_place_id": birth_place_id,
         "status": "created",
     }
+
+
+def _utc_now_iso() -> str:
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _require_owned_active_profile(client, account_id, profile_id):
+    try:
+        result = (
+            client.table("profiles")
+            .select("id, display_name, archived_at")
+            .eq("id", profile_id)
+            .eq("account_id", account_id)
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise ProfileCreateError("profile not found", "profile_not_found") from exc
+        raise
+    if not result.data:
+        raise ProfileCreateError("profile not found", "profile_not_found")
+    if result.data[0].get("archived_at") is not None:
+        raise ProfileCreateError("profile not found", "profile_not_found")
+    return result.data[0]
+
+
+def _list_active_profiles(client, account_id):
+    return (
+        client.table("profiles")
+        .select("id, display_name")
+        .eq("account_id", account_id)
+        .is_("archived_at", "null")
+        .order("created_at", desc=False)
+        .execute()
+    ).data or []
+
+
+def _get_account_default_profile_id(client, account_id):
+    result = (
+        client.table("user_settings")
+        .select("settings_json")
+        .eq("account_id", account_id)
+        .is_("profile_id", "null")
+        .limit(1)
+        .execute()
+    )
+    if not result.data:
+        return None
+    return (result.data[0].get("settings_json") or {}).get("default_chart_record_id")
+
+
+def _compute_replacement_profile_id(active, profile_id, current_default):
+    remaining = [p for p in active if p.get("id") != profile_id]
+    if not remaining:
+        return None, None
+    replacement_id = current_default
+    if not (
+        replacement_id
+        and replacement_id != profile_id
+        and any(p.get("id") == replacement_id for p in remaining)
+    ):
+        replacement_id = remaining[0]["id"]
+    replacement = next((p for p in remaining if p.get("id") == replacement_id), None)
+    return replacement_id, replacement
+
+
+def rename_profile(jwt_token: str, profile_id: str, display_name: str) -> dict:
+    """Rename an active owned profile."""
+    client = get_supabase_for_user(jwt_token)
+    account_id, _account_user_id = _resolve_account_ctx(client, jwt_token)
+    _require_owned_active_profile(client, account_id, profile_id)
+
+    name = (display_name or "").strip()
+    if not name:
+        raise ProfileCreateError("display_name is required", "invalid_display_name")
+
+    now = _utc_now_iso()
+    result = (
+        client.table("profiles")
+        .update({"display_name": name, "updated_at": now})
+        .eq("id", profile_id)
+        .eq("account_id", account_id)
+        .is_("archived_at", "null")
+        .execute()
+    )
+    if getattr(result, "error", None) or not result.data:
+        raise ProfileCreateError(
+            f"could not rename profile: {getattr(result, 'error', 'no data')}",
+            "rename_failed",
+        )
+    row = result.data[0]
+    return {
+        "profile_id": row.get("id") or profile_id,
+        "display_name": row.get("display_name") or name,
+        "status": "renamed",
+    }
+
+
+def archive_profile(jwt_token: str, profile_id: str) -> dict:
+    """Archive an owned active profile with replacement metadata."""
+    client = get_supabase_for_user(jwt_token)
+    account_id, _account_user_id = _resolve_account_ctx(client, jwt_token)
+
+    try:
+        existing = (
+            client.table("profiles")
+            .select("id, display_name, archived_at")
+            .eq("id", profile_id)
+            .eq("account_id", account_id)
+            .limit(1)
+            .execute()
+        ).data or []
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise ProfileCreateError("profile not found", "profile_not_found") from exc
+        raise
+    if not existing:
+        raise ProfileCreateError("profile not found", "profile_not_found")
+    row = existing[0]
+    if row.get("archived_at") is not None:
+        return {
+            "profile_id": row["id"],
+            "archived_at": row.get("archived_at"),
+            "status": "already_archived",
+            "was_default": False,
+            "replacement_profile_id": None,
+            "replacement_display_name": None,
+        }
+
+    active = _list_active_profiles(client, account_id)
+    if len(active) <= 1:
+        raise ProfileCreateError(
+            "cannot archive the only remaining profile", "only_profile_remaining",
+        )
+    if not any(p.get("id") == profile_id for p in active):
+        raise ProfileCreateError("profile not found", "profile_not_found")
+
+    current_default = _get_account_default_profile_id(client, account_id)
+    replacement_id, replacement = _compute_replacement_profile_id(
+        active, profile_id, current_default,
+    )
+    replacement_name = (replacement or {}).get("display_name") or "another profile"
+    was_default = bool(current_default and current_default == profile_id)
+
+    now = _utc_now_iso()
+    result = (
+        client.table("profiles")
+        .update({"archived_at": now, "updated_at": now})
+        .eq("id", profile_id)
+        .eq("account_id", account_id)
+        .is_("archived_at", "null")
+        .execute()
+    )
+    if getattr(result, "error", None) or not result.data:
+        raise ProfileCreateError(
+            f"could not archive profile: {getattr(result, 'error', 'no data')}",
+            "archive_failed",
+        )
+    out = result.data[0]
+    return {
+        "profile_id": out.get("id") or profile_id,
+        "archived_at": out.get("archived_at") or now,
+        "status": "archived",
+        "was_default": was_default,
+        "replacement_profile_id": replacement_id,
+        "replacement_display_name": replacement_name,
+    }

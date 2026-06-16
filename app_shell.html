@@ -2874,42 +2874,48 @@ function bindScreenActions(root) {
               msg += `\n\nThis is your default profile. Archiving it will switch your default to "${replacementName}".`;
             }
             if (!window.confirm(msg)) return;
-            const nowIso = new Date().toISOString();
-            let upd = client
-              .from("profiles")
-              .update({ archived_at: nowIso, updated_at: nowIso })
-              .eq("id", profileId)
-              .is("archived_at", null);
-            if (accountId) upd = upd.eq("account_id", accountId);
-            let { error: archiveErr } = await upd;
-            if (archiveErr && /updated_at/i.test(archiveErr.message || "")) {
-              let upd2 = client
-                .from("profiles")
-                .update({ archived_at: nowIso })
-                .eq("id", profileId)
-                .is("archived_at", null);
-              if (accountId) upd2 = upd2.eq("account_id", accountId);
-              ({ error: archiveErr } = await upd2);
+            const sessionResult = await client.auth.getSession();
+            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+            const token = session && session.access_token;
+            if (!token) throw new Error("Session unavailable. Reload and try again.");
+            const archiveResp = await fetch("/profiles/archive", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ profile_id: profileId }),
+            });
+            if (!archiveResp.ok) {
+              let detail;
+              try { detail = (await archiveResp.json()).detail; } catch (e) { /* non-JSON */ }
+              const errReason = detail && detail.error;
+              const errMsg = (detail && (detail.message || detail.error)) ||
+                (typeof detail === "string" ? detail : null) || ("HTTP " + archiveResp.status);
+              if (archiveResp.status === 422 && errReason === "only_profile_remaining") {
+                window.alert("You cannot archive your only profile. Add another profile first.");
+                return;
+              }
+              throw new Error(errMsg);
             }
-            if (archiveErr) throw archiveErr;
-            if (wasDefault) {
-              await saveAccountSettingsPatch({ default_chart_record_id: replacementId });
+            const archived = await archiveResp.json();
+            const archivedReplacementId = archived.replacement_profile_id || replacementId;
+            const archivedWasDefault = !!archived.was_default;
+            if (archivedWasDefault) {
+              await saveAccountSettingsPatch({ default_chart_record_id: archivedReplacementId });
               // Mirror the new default in memory (DB already updated above).
               if (viewModel) {
-                viewModel.accountDefaultChartRecordId = replacementId;
-                viewModel.defaultChartRecordId = replacementId;
+                viewModel.accountDefaultChartRecordId = archivedReplacementId;
+                viewModel.defaultChartRecordId = archivedReplacementId;
               }
             }
             if (_loadPersistedChartRecord() === profileId) {
-              _savePersistedChartRecord(replacementId);
+              _savePersistedChartRecord(archivedReplacementId);
             }
             // Repoint in-memory selection/active away from the archived profile,
             // preserving the existing safeguard of falling back to the replacement.
             if (viewModel) {
-              if (viewModel.lastSelectedChartRecordId === profileId) viewModel.lastSelectedChartRecordId = replacementId;
-              if (viewModel.selectedChartRecordId === profileId) viewModel.selectedChartRecordId = replacementId;
+              if (viewModel.lastSelectedChartRecordId === profileId) viewModel.lastSelectedChartRecordId = archivedReplacementId;
+              if (viewModel.selectedChartRecordId === profileId) viewModel.selectedChartRecordId = archivedReplacementId;
             }
-            if (navContext.chartRecordId === profileId) navContext.chartRecordId = replacementId;
+            if (navContext.chartRecordId === profileId) navContext.chartRecordId = archivedReplacementId;
             // Drop the archived profile from in-memory lists so Profile Management
             // and the Account Drawer (which reads chartRecords) update without reload.
             if (viewModel && Array.isArray(viewModel.chartRecords)) {
@@ -3383,14 +3389,22 @@ async function setAccountDefaultChartRecord(chartRecordId) {
 async function renameProfile(profileId, displayName) {
   const client = await window.SupabaseReady;
   if (!client) throw new Error("Supabase unavailable.");
-  const accountId = window.CurrentUser && window.CurrentUser.accountId;
-  let query = client
-    .from("profiles")
-    .update({ display_name: displayName })
-    .eq("id", profileId);
-  if (accountId) query = query.eq("account_id", accountId);
-  const { error } = await query;
-  if (error) throw error;
+  const sessionResult = await client.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  const token = session && session.access_token;
+  if (!token) throw new Error("Session unavailable. Reload and try again.");
+  const resp = await fetch("/profiles/rename", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ profile_id: profileId, display_name: displayName }),
+  });
+  if (!resp.ok) {
+    let detail;
+    try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error(msg);
+  }
 }
 
 async function planProfileArchive(profileId) {

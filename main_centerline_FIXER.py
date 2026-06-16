@@ -3699,3 +3699,62 @@ def api_archive_saved_investigation(request: Request, body: SavedInvestigationAr
             status_code=status,
             detail={"error": err.reason, "message": str(err)},
         ) from err
+
+
+class ProfileRenameOwned(BaseModel):
+    profile_id: str
+    display_name: str
+
+
+class ProfileArchiveOwned(BaseModel):
+    profile_id: str
+
+
+@app.post("/profiles/rename")
+def api_rename_profile_owned(request: Request, body: ProfileRenameOwned):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_profiles_repository import (
+        ProfileCreateError,
+        rename_profile,
+    )
+
+    try:
+        return rename_profile(
+            jwt_token,
+            profile_id=body.profile_id,
+            display_name=body.display_name,
+        )
+    except ProfileCreateError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason == "profile_not_found":
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/profiles/archive")
+def api_archive_profile_owned(request: Request, body: ProfileArchiveOwned):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_profiles_repository import (
+        ProfileCreateError,
+        archive_profile,
+    )
+
+    try:
+        return archive_profile(jwt_token, profile_id=body.profile_id)
+    except ProfileCreateError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason == "profile_not_found":
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
