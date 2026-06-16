@@ -1348,10 +1348,23 @@ async function hydrateChartRecordComparisonSets(root) {
           try {
             const c = await window.SupabaseReady;
             if (!c) throw new Error("Supabase unavailable.");
-            let upd = c.from("comparison_sets").update({ archived_at: new Date().toISOString() }).eq("id", setId);
-            if (accountId) upd = upd.eq("account_id", accountId);
-            const { error: archErr } = await upd;
-            if (archErr) throw archErr;
+            // Backend owns the write (POST /comparison-sets/archive); supply the caller JWT.
+            const sessionResult = await c.auth.getSession();
+            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+            const token = session && session.access_token;
+            if (!token) throw new Error("Session unavailable. Reload and try again.");
+            const resp = await fetch("/comparison-sets/archive", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ comparison_set_id: setId, profile_id: chartRecordId || null }),
+            });
+            if (!resp.ok) {
+              let detail;
+              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+              const msg = (detail && (detail.message || detail.error)) ||
+                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+              throw new Error(msg);
+            }
             // Drop the archived set from in-memory collections so derived
             // comparison counts/lists (Profile Management, dashboard, compare
             // screen) stay consistent without a reload.
@@ -2657,16 +2670,25 @@ function bindScreenActions(root) {
             const client = await window.SupabaseReady;
             if (!client) throw new Error("Supabase unavailable.");
             const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
-            const ins = await client.from("comparison_sets")
-              .insert({ profile_id: chartRecordId, account_id: accountId, title })
-              .select("id").single();
-            if (ins.error) throw ins.error;
-            const setId = ins.data.id;
-            const rows = placeIds.map((pid, i) => ({
-              comparison_set_id: setId, place_id: pid, account_id: accountId, sort_order: i + 1,
-            }));
-            const insP = await client.from("comparison_set_places").insert(rows);
-            if (insP.error) throw insP.error;
+            // Backend owns the write (POST /comparison-sets/create); supply the caller JWT.
+            const sessionResult = await client.auth.getSession();
+            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+            const token = session && session.access_token;
+            if (!token) throw new Error("Session unavailable. Reload and try again.");
+            const resp = await fetch("/comparison-sets/create", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+              body: JSON.stringify({ profile_id: chartRecordId, place_ids: placeIds, title }),
+            });
+            if (!resp.ok) {
+              let detail;
+              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+              const msg = (detail && (detail.message || detail.error)) ||
+                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+              throw new Error(msg);
+            }
+            const created = await resp.json();
+            const setId = created.id;
             // Add the new comparison set to in-memory state (storeRaw +
             // viewModel) so the comparison page renders it without a reload.
             if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {

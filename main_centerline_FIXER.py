@@ -3491,3 +3491,63 @@ def api_archive_favorite_owned(request: Request, body: FavoriteArchive):
             status_code=status,
             detail={"error": err.reason, "message": str(err)},
         ) from err
+
+
+class ComparisonSetCreateOwned(BaseModel):
+    profile_id: str
+    place_ids: list[str]
+    title: str | None = None
+
+
+class ComparisonSetArchiveOwned(BaseModel):
+    comparison_set_id: str
+    profile_id: str | None = None
+
+
+@app.post("/comparison-sets/create")
+def api_create_comparison_set_owned(request: Request, body: ComparisonSetCreateOwned):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_comparison_sets_repository import (
+        ComparisonSetsError,
+        create_comparison_set,
+    )
+
+    try:
+        return create_comparison_set(
+            jwt_token,
+            profile_id=body.profile_id,
+            place_ids=body.place_ids,
+            title=body.title,
+        )
+    except ComparisonSetsError as err:
+        status = 404 if err.reason in (
+            "profile_not_found", "place_not_found", "comparison_set_not_found",
+        ) else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/comparison-sets/archive")
+def api_archive_comparison_set_owned(request: Request, body: ComparisonSetArchiveOwned):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_comparison_sets_repository import (
+        ComparisonSetsError,
+        archive_comparison_set,
+    )
+
+    try:
+        return archive_comparison_set(
+            jwt_token,
+            comparison_set_id=body.comparison_set_id,
+            profile_id=body.profile_id,
+        )
+    except ComparisonSetsError as err:
+        status = 404 if err.reason in (
+            "profile_not_found", "place_not_found", "comparison_set_not_found",
+        ) else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
