@@ -11,7 +11,9 @@
  *   B. INSERT current_location_history
  *          { profile_id, account_id, place_id, is_current:true, source:'manual' }
  *
- * After save: location.reload()
+ * After save: notify the shell (optional onSaved callback or the
+ * window.__rmAppShell.applyCurrentLocationUpdate hook) for an in-place refresh.
+ * Falls back to location.reload() only when no shell hook handles the update.
  */
 (function () {
   "use strict";
@@ -75,6 +77,7 @@
     placeQuery:   "",
     searching:    false,
     submitting:   false,
+    onSaved:      null,
   };
 
   var searchTimer = null;
@@ -208,8 +211,38 @@
         return showError("Could not save location: " + insertResult.error.message);
       }
 
-      console.log("[cl-editor] Location saved. Reloading...");
-      window.location.reload();
+      // Close the overlay, then ask the shell to update in place. The DB write
+      // above is the source of truth; the shell hook only refreshes UI state.
+      removeOverlay();
+      var savedPlace = {
+        id:           placeId,
+        display_name: state.selectedPlace.display_name,
+        timezone_id:  state.selectedPlace.timezone_id || null,
+        admin1:       state.selectedPlace.admin1 || null,
+        country_code: state.selectedPlace.country_code || null,
+      };
+      var handled = false;
+      if (typeof state.onSaved === "function") {
+        try {
+          handled = state.onSaved(profileId, savedPlace) === true;
+        } catch (cbErr) {
+          console.warn("[cl-editor] onSaved callback failed (non-fatal):", cbErr && cbErr.message);
+        }
+      }
+      if (!handled && window.__rmAppShell &&
+          typeof window.__rmAppShell.applyCurrentLocationUpdate === "function") {
+        try {
+          handled = window.__rmAppShell.applyCurrentLocationUpdate(profileId, savedPlace) === true;
+        } catch (hookErr) {
+          console.warn("[cl-editor] shell update hook failed (non-fatal):", hookErr && hookErr.message);
+        }
+      }
+      if (!handled) {
+        console.log("[cl-editor] Location saved. No shell hook; reloading...");
+        window.location.reload();
+      } else {
+        console.log("[cl-editor] Location saved. Shell updated in place.");
+      }
 
     } catch (err) {
       showError("Unexpected error: " + (err.message || String(err)));
@@ -277,7 +310,7 @@
     });
   }
 
-  window.__showCurrentLocationEditor = function (profileId) {
+  window.__showCurrentLocationEditor = function (profileId, options) {
     if (!profileId) { console.warn("[cl-editor] No profileId provided."); return; }
 
     state.profileId     = profileId;
@@ -286,6 +319,7 @@
     state.placeQuery    = "";
     state.searching     = false;
     state.submitting    = false;
+    state.onSaved       = (options && typeof options.onSaved === "function") ? options.onSaved : null;
 
     removeOverlay();
     injectStyles();

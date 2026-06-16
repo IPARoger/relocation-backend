@@ -912,6 +912,43 @@ function activeRecord() {
   return getChartRecord(navContext.chartRecordId);
 }
 
+// Shell-owned post-save hook for the Current Location editor
+// (current_location_editor.js). Updates in-memory state so the current-location
+// label refreshes without a full page reload. Returns true when handled so the
+// editor can skip its reload fallback. The DB write stays in the editor.
+function applyCurrentLocationUpdate(profileId, place) {
+  if (!profileId || !place || !place.id) return false;
+  // Ensure the selected place is present in the raw place list so name/label
+  // lookups (here and elsewhere) resolve immediately.
+  if (storeRaw && Array.isArray(storeRaw.places)) {
+    if (!storeRaw.places.some((p) => p.id === place.id)) {
+      storeRaw.places.push({
+        id: place.id,
+        display_name: place.display_name,
+        lat: place.lat != null ? place.lat : (place.latitude != null ? parseFloat(place.latitude) : null),
+        lon: place.lon != null ? place.lon : (place.longitude != null ? parseFloat(place.longitude) : null),
+        schema_version: 1,
+      });
+    }
+  }
+  // Point the profile's current location at the new place.
+  if (storeRaw && Array.isArray(storeRaw.clients)) {
+    const c = storeRaw.clients.find((x) => x.id === profileId);
+    if (c) c.current_location_place_id = place.id;
+  }
+  // Update derived view state (label + name lookup) so screens reflect the
+  // change on the next in-place render.
+  if (viewModel) {
+    if (viewModel.placeNameById) viewModel.placeNameById[place.id] = place.display_name;
+    if (Array.isArray(viewModel.chartRecords)) {
+      const rec = viewModel.chartRecords.find((r) => r.chartRecordId === profileId);
+      if (rec) rec.currentCity = place.display_name;
+    }
+  }
+  render();
+  return true;
+}
+
 function activeExploration() {
   if (!navContext.explorationId) return null;
   const rec = activeRecord();
@@ -3150,6 +3187,7 @@ window.__rmAppShell = {
   ALL_ROUTES,
   getChartRecord,
   activeRecord,
+  applyCurrentLocationUpdate,
   openPopup,
   closePopup,
 };
