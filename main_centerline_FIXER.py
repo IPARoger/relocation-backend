@@ -3409,3 +3409,25 @@ def api_set_saved_investigation_note(request: Request, body: SavedInvestigationN
             status_code=status,
             detail={"error": err.reason, "message": str(err)},
         ) from err
+
+
+class AccountSettingsPatch(BaseModel):
+    settings_patch: dict
+
+
+@app.patch("/settings/account")
+def api_merge_account_settings(request: Request, body: AccountSettingsPatch):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_settings_repository import (
+        SettingsError,
+        merge_account_settings,
+    )
+
+    try:
+        return merge_account_settings(jwt_token, body.settings_patch)
+    except SettingsError as err:
+        status = 404 if err.reason == "profile_not_found" else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err

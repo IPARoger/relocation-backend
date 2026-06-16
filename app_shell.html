@@ -3191,34 +3191,29 @@ async function saveAccountSettingsPatch(patch) {
   if (!client || !user || !user.accountId) {
     throw new Error("Session unavailable. Reload and try again.");
   }
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const merged = Object.assign({}, raw.user_settings || {}, patch);
-  const { data: rows, error: selErr } = await client
-    .from("user_settings")
-    .select("id")
-    .eq("account_id", user.accountId)
-    .is("profile_id", null)
-    .limit(1);
-  if (selErr) throw selErr;
-  let writeErr;
-  if (rows && rows.length > 0) {
-    const { error: upErr } = await client
-      .from("user_settings")
-      .update({ settings_json: merged })
-      .eq("id", rows[0].id);
-    writeErr = upErr;
-  } else {
-    const { error: insErr } = await client
-      .from("user_settings")
-      .insert({
-        account_id:      user.accountId,
-        account_user_id: user.userId,
-        profile_id:      null,
-        settings_json:   merged,
-      });
-    writeErr = insErr;
+  // Backend owns the write (PATCH /settings/account); it performs the same
+  // shallow merge into the account-level user_settings row (profile_id IS NULL).
+  const sessionResult = await client.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  const token = session && session.access_token;
+  if (!token) {
+    throw new Error("Session unavailable. Reload and try again.");
   }
-  if (writeErr) throw writeErr;
+  const resp = await fetch("/settings/account", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify({ settings_patch: patch }),
+  });
+  if (!resp.ok) {
+    let detail;
+    try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error(msg);
+  }
 }
 
 // Persist a Chart Record note to the account-backed notes table
