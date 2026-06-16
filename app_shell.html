@@ -2893,8 +2893,25 @@ function bindScreenActions(root) {
           if (Object.keys(a2aPatch).length === a2aIds.length) settingsPatch.aspect_to_angle_orbs = a2aPatch;
         }
         saveAccountSettingsPatch(settingsPatch).then(() => {
-          if (msgEl) msgEl.textContent = "✓ Saved.";
-          setTimeout(() => { window.location.reload(); }, 800);
+          // Mirror the saved patch into in-memory state so the shell reflects the
+          // new configuration without a full page reload. settings_json is the
+          // same flat shape as storeRaw.user_settings, so a shallow merge matches
+          // what was just written to the DB.
+          if (storeRaw) {
+            storeRaw.user_settings = Object.assign({}, storeRaw.user_settings || {}, settingsPatch);
+          }
+          // Keep the account-default chart record fields aligned with the saved
+          // value so the default selector and dashboard default behavior stay
+          // correct after the in-place re-render.
+          if (viewModel && settingsPatch.default_chart_record_id) {
+            viewModel.accountDefaultChartRecordId = settingsPatch.default_chart_record_id;
+            viewModel.defaultChartRecordId = settingsPatch.default_chart_record_id;
+          }
+          // Re-render the current screen in place (no reload, no navigation).
+          // render() replaces #main, so re-acquire the message element after.
+          render();
+          const savedMsg = document.getElementById("rm-settings-msg");
+          if (savedMsg) savedMsg.textContent = "\u2713 Saved.";
         }).catch((err) => {
           if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
         });
