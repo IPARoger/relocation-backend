@@ -1905,6 +1905,7 @@ async function applySupabaseSavedInvestigationReplay() {
         }
 
         const conditions_json = row.conditions_json || {};
+        lastSavedInvestigationConditions = row.conditions_json || null;
         const view = { conditions: [conditions_json] };
         applySavedInvestigationConditions(view);
 
@@ -1927,6 +1928,9 @@ async function applySupabaseSavedInvestigationReplay() {
 window.__rmApplySupabaseSavedInvestigationReplay = applySupabaseSavedInvestigationReplay;
 
 let savedInvestigationAutoSearchConsumed = false;
+// Saved-investigation replay: the persisted conditions_json captured at reopen,
+// used as the search source of truth (see autoRunSavedInvestigationSearchOnce).
+let lastSavedInvestigationConditions = null;
 
 function waitForMapReady() {
     const mapRef = window.__rmMap;
@@ -1947,6 +1951,25 @@ async function autoRunSavedInvestigationSearchOnce() {
         setSelectValueIfPresent("chartProfile", chartRecordId);
     }
     window.__rmSavedInvestigationAutoSearchRan = true;
+    // Replay fidelity: run the search from the saved conditions_json (source of
+    // truth) so saved condition data is not silently reduced to whatever the
+    // rehydrated DOM controls can express. DOM controls are still rehydrated
+    // (applySavedInvestigationConditions) for visible parity. Fall back to the
+    // DOM-derived plan if saved conditions are unavailable or birth cannot be
+    // resolved from them. Manual Search (findRegions) is unchanged.
+    if (lastSavedInvestigationConditions) {
+        try {
+            const savedPlan = await buildPlanFromSavedConditions(lastSavedInvestigationConditions);
+            if (savedPlan && savedPlan.birth) {
+                window.__rmSavedInvestigationReplaySource = "saved_conditions_json";
+                await executeSearchPlan(savedPlan, { source: "saved_investigation_json" });
+                return;
+            }
+        } catch (err) {
+            console.warn("[saved-investigation-replay] saved-plan build failed; falling back to DOM:", err);
+        }
+    }
+    window.__rmSavedInvestigationReplaySource = "legacy_dom";
     await findRegions();
 }
 
@@ -5766,6 +5789,35 @@ async function buildPlanFromLegacyDom() {
         house_conditions: conditions,
         angle_sign_conditions,
         aspectOverlay: getSelectedAspectOverlay(),
+        degradation: [],
+    };
+}
+
+// Saved-investigation replay: build a search plan directly from a persisted
+// conditions_json record (saved_searches) rather than re-deriving it from the
+// rehydrated DOM controls. Preserves saved condition data the DOM controls
+// cannot express. Mirrors the plan shape produced by buildPlanFromLegacyDom so
+// the existing executeSearchPlan path is unchanged. Does NOT introduce new
+// condition types, change what can be saved, or apply settings snapshots.
+async function buildPlanFromSavedConditions(conditionsJson) {
+    const c = (conditionsJson && typeof conditionsJson === "object") ? conditionsJson : {};
+    const birth = await getBirthParamsFromProfile();
+    const house_conditions = (Array.isArray(c.house_conditions) ? c.house_conditions : [])
+        .map((cond) => ({ planet: cond && cond.planet, house: Number(cond && cond.house) }))
+        .filter((cond) => !!cond.planet && Number.isFinite(cond.house));
+    const angle_sign_conditions = (Array.isArray(c.angle_sign_conditions) ? c.angle_sign_conditions : [])
+        .map((cond) => ({ angle: cond && cond.angle, sign: cond && cond.sign }))
+        .filter((cond) => !!cond.angle && !!cond.sign);
+    const ao = c.aspect_overlay;
+    const aspectOverlay = (ao && ao.planet && ao.aspect && ao.angle)
+        ? { planet: ao.planet, aspect: ao.aspect, angle: ao.angle }
+        : null;
+    return {
+        source: "saved_investigation_json",
+        birth,
+        house_conditions,
+        angle_sign_conditions,
+        aspectOverlay,
         degradation: [],
     };
 }
