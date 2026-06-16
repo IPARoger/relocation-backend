@@ -69,6 +69,8 @@
     visible_minor_aspects_list: [],
     major_aspect_orbs:     { conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6 },
     minor_aspect_orbs:     { quincunx: 3, semisextile: 2, semisquare: 2, sesquiquadrate: 2, quintile: 2, biquintile: 2 },
+    house_proximity_orb_degrees: 2,
+    subsequent_house_policy:     "display_only",
     helper_layers:         {},
     ontology_pack_id:      null,
   };
@@ -106,6 +108,11 @@
       visible_minor_aspects_list: pick("visible_minor_aspects_list"),
       major_aspect_orbs:     effectiveMajorOrbs,
       minor_aspect_orbs:     pick("minor_aspect_orbs"),
+      house_proximity_orb_degrees:
+        (stored.house_proximity_orb_degrees != null) ? stored.house_proximity_orb_degrees
+        : (onto.house_proximity_orb_degrees != null) ? onto.house_proximity_orb_degrees
+        : RM_SETTINGS_DEFAULTS.house_proximity_orb_degrees,
+      subsequent_house_policy: pick("subsequent_house_policy"),
       helper_layers:         pick("helper_layers"),
       ontology_pack_id:      pick("ontology_pack_id"),
     };
@@ -132,6 +139,8 @@
       visible_minor_aspects_list: eff.visible_minor_aspects_list || RM_SETTINGS_DEFAULTS.visible_minor_aspects_list,
       major_aspect_orbs:     eff.major_aspect_orbs     || RM_SETTINGS_DEFAULTS.major_aspect_orbs,
       minor_aspect_orbs:     eff.minor_aspect_orbs     || RM_SETTINGS_DEFAULTS.minor_aspect_orbs,
+      house_proximity_orb_degrees: (eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : RM_SETTINGS_DEFAULTS.house_proximity_orb_degrees,
+      subsequent_house_policy: eff.subsequent_house_policy || RM_SETTINGS_DEFAULTS.subsequent_house_policy,
       ontology_pack_id:      eff.ontology_pack_id != null ? eff.ontology_pack_id : RM_SETTINGS_DEFAULTS.ontology_pack_id,
     };
   }
@@ -386,6 +395,8 @@
       visible_minor_aspects_list: effectiveSettings.visible_minor_aspects_list,
       major_aspect_orbs:       effectiveSettings.major_aspect_orbs,
       minor_aspect_orbs:       effectiveSettings.minor_aspect_orbs,
+      house_proximity_orb_degrees: effectiveSettings.house_proximity_orb_degrees,
+      subsequent_house_policy: effectiveSettings.subsequent_house_policy,
       helper_layers:           effectiveSettings.helper_layers,
       ontology_pack_id:        effectiveSettings.ontology_pack_id,
       default_chart_record_id: defaultChartRecordId,

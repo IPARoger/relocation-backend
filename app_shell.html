@@ -1694,6 +1694,8 @@ function effectiveConfigPanelHtml() {
         <tr><td>Visible Bodies</td><td>${Array.isArray(eff.visible_bodies) ? eff.visible_bodies.length : "\u2014"}</td></tr>
         <tr><td>Visible Major Aspects</td><td>${Array.isArray(eff.visible_major_aspects) ? eff.visible_major_aspects.length : "\u2014"}</td></tr>
         <tr><td>Visible Minor Aspects</td><td>${Array.isArray(eff.visible_minor_aspects_list) ? eff.visible_minor_aspects_list.length : "\u2014"}</td></tr>
+        <tr><td>House Proximity Orb</td><td>${(eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees + "\u00b0" : "\u2014"}</td></tr>
+        <tr><td>Subsequent-house Policy</td><td>${escapeHtml(houseProximityPolicyLabel(eff.subsequent_house_policy))}</td></tr>
         <tr><td>Ontology Pack</td><td>${eff.ontology_pack_id ? escapeHtml(String(eff.ontology_pack_id)) : "Default"}</td></tr>
         <tr><td>Settings Snapshot Version</td><td>${escapeHtml(String(snapVer))}</td></tr>
       </table>
@@ -1814,6 +1816,49 @@ function aspectRegistryHtml() {
     </div>`;
 }
 
+// Human-readable label for subsequent_house_policy values.
+function houseProximityPolicyLabel(policy) {
+  switch (policy) {
+    case "display_only": return "Display-only transitional cue";
+    case "disabled":     return "Disabled";
+    case "interpretive": return "Interpretive note only";
+    default:             return policy ? String(policy) : "Display-only transitional cue";
+  }
+}
+
+// House proximity / transitional house interpretation (Settings Phase 6).
+// Editable but contained: persisted to user_settings.settings_json via
+// saveAccountSettingsPatch. Does NOT change house membership (Layer 1 truth)
+// and is not wired into the house engine/renderer yet. Prefilled from the
+// effective settings so reloads reflect saves; ontology packs may override.
+function houseProximityHtml() {
+  const RM = window.RMSettings;
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const eff = (RM && typeof RM.getEffectiveSettings === "function")
+    ? RM.getEffectiveSettings(raw.user_settings || null, null)
+    : null;
+  const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
+  const policy = (eff && eff.subsequent_house_policy) ? eff.subsequent_house_policy : "display_only";
+  const opt = (val, label) =>
+    `<option value="${val}"${policy === val ? " selected" : ""}>${label}</option>`;
+  return `
+    <div class="panel">
+      <h3>Module: house-proximity</h3>
+      <p class="meta"><strong>Advanced / professional.</strong> House proximity settings do not change house membership. They only affect transitional display/interpretive cues.</p>
+      <label class="block">House proximity orb (degrees)
+        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
+      </label>
+      <label class="block">Subsequent-house policy
+        <select id="rm-settings-subsequent-house-policy">
+          ${opt("display_only", "Display-only transitional cue")}
+          ${opt("disabled", "Disabled")}
+          ${opt("interpretive", "Interpretive note only")}
+        </select>
+      </label>
+      <p class="meta">Default: 2\u00b0 near the end of a house.</p>
+    </div>`;
+}
+
 function screenSettings() {
   const vm = requireViewModel();
   // House system is display-only for now: the calculation engine uses Placidus
@@ -1845,6 +1890,7 @@ function screenSettings() {
     ${advancedSettingsHtml()}
     ${planetsBodiesHtml()}
     ${aspectRegistryHtml()}
+    ${houseProximityHtml()}
     <div class="panel">
       <h3>Module: history (per Chart Record)</h3>
       <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
@@ -2537,6 +2583,10 @@ function bindScreenActions(root) {
           const no = collectAspOrbs("min", minorAspIds);
           if (Object.keys(no).length === minorAspIds.length) settingsPatch.minor_aspect_orbs = no;
         }
+        const hpOrbEl = document.getElementById("rm-settings-house-proximity-orb");
+        if (hpOrbEl) { const n = parseFloat(hpOrbEl.value); if (!isNaN(n)) settingsPatch.house_proximity_orb_degrees = n; }
+        const hpPolicyEl = document.getElementById("rm-settings-subsequent-house-policy");
+        if (hpPolicyEl) settingsPatch.subsequent_house_policy = hpPolicyEl.value;
         saveAccountSettingsPatch(settingsPatch).then(() => {
           if (msgEl) msgEl.textContent = "✓ Saved.";
           setTimeout(() => { window.location.reload(); }, 800);
