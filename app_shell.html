@@ -656,6 +656,7 @@ function adaptStoreToView(store) {
       currentCity,
       confidenceTier: formatConfidenceTier(birthProfile.confidence_tier, birthProfile),
       hasTimeUncertainty: hasBirthTimeUncertainty(birthProfile),
+      note: client.notes || "",
       favorites,
       explorations,
     };
@@ -1151,6 +1152,16 @@ function loadChartNote(chartRecordId) {
   catch (e) { return ""; }
 }
 
+// Chart Record note initial value: prefer the account-backed note resolved by
+// the store bridge (clients[].notes -> r.note); fall back to the device-local
+// note only when no account note exists yet (legacy/offline). This keeps notes
+// scoped per profile and lets reloads show the saved account note.
+function chartRecordInitialNote(r) {
+  const acct = (r && typeof r.note === "string") ? r.note : "";
+  if (acct && acct.trim() !== "") return acct;
+  return loadChartNote(r ? r.chartRecordId : null);
+}
+
 function escapeHtml(value) {
   return String(value == null ? "" : value)
     .replace(/&/g, "&amp;")
@@ -1175,7 +1186,7 @@ function screenChartRecord() {
     </div>
     <div class="panel">
       <h3>Module: chart-record-notes</h3>
-      <textarea id="rm-chart-note" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Notes for this Chart Record (saved on this device)">${escapeHtml(loadChartNote(r.chartRecordId))}</textarea>
+      <textarea id="rm-chart-note" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Notes for this Chart Record">${escapeHtml(chartRecordInitialNote(r))}</textarea>
       <div class="row" style="margin-top:8px;align-items:center;">
         <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
         <span id="rm-chart-note-msg" class="meta" style="min-height:1.2em;"></span>
@@ -2583,12 +2594,16 @@ function bindScreenActions(root) {
           if (noteMsg) noteMsg.textContent = "No active Chart Record.";
           return;
         }
-        try {
-          localStorage.setItem(chartNoteKey(crId), noteEl.value);
+        if (noteMsg) noteMsg.textContent = "Saving…";
+        saveChartRecordNote(crId, noteEl.value).then(() => {
           if (noteMsg) noteMsg.textContent = "Saved.";
-        } catch (e) {
-          if (noteMsg) noteMsg.textContent = "Could not save (storage unavailable).";
-        }
+        }).catch((err) => {
+          if (noteMsg) {
+            noteMsg.textContent = (err && err.deviceOnly)
+              ? "Saved on this device only (sign-in unavailable)."
+              : "Saved on this device only (account save failed).";
+          }
+        });
       }
       if (action === "save-settings") {
         const msgEl = document.getElementById("rm-settings-msg");
@@ -2850,6 +2865,50 @@ async function saveAccountSettingsPatch(patch) {
     writeErr = insErr;
   }
   if (writeErr) throw writeErr;
+}
+
+// Persist a Chart Record note to the account-backed notes table
+// (target_type 'chart_record', one row per profile). localStorage is mirrored
+// FIRST so the device fallback always reflects the latest text even when the
+// Supabase write fails. Throws Error with .deviceOnly when no session exists so
+// the caller can give honest feedback. Scope: Chart Record notes only.
+async function saveChartRecordNote(chartRecordId, body) {
+  const text = String(body == null ? "" : body);
+  try { localStorage.setItem(chartNoteKey(chartRecordId), text); } catch (e) { /* device storage unavailable */ }
+  const client = await window.SupabaseReady;
+  const user = window.CurrentUser;
+  if (!client || !user || !user.accountId) {
+    const err = new Error("Session unavailable; saved on this device only.");
+    err.deviceOnly = true;
+    throw err;
+  }
+  const { data: rows, error: selErr } = await client
+    .from("notes")
+    .select("id")
+    .eq("account_id", user.accountId)
+    .eq("profile_id", chartRecordId)
+    .eq("target_type", "chart_record")
+    .is("archived_at", null)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+  if (selErr) throw selErr;
+  if (rows && rows.length > 0) {
+    const { error: upErr } = await client
+      .from("notes")
+      .update({ body: text, updated_at: new Date().toISOString() })
+      .eq("id", rows[0].id);
+    if (upErr) throw upErr;
+  } else {
+    const { error: insErr } = await client
+      .from("notes")
+      .insert({
+        account_id:  user.accountId,
+        profile_id:  chartRecordId,
+        target_type: "chart_record",
+        body:        text,
+      });
+    if (insErr) throw insErr;
+  }
 }
 
 // Single owner of the in-memory account default. Updates the canonical view

@@ -324,6 +324,31 @@
       rawSettings = ((acctRow || settingsResult.data[0]).settings_json) || {};
     }
 
+    // 11. notes — chart-record-level notes (target_type='chart_record'); newest
+    // non-archived row per profile. Non-fatal: notes are convenience data and
+    // must never block store assembly. localStorage remains the device fallback.
+    var chartRecordNoteByProfileId = {};
+    try {
+      var notesResult = await client
+        .from("notes")
+        .select("profile_id, body, updated_at, target_type, archived_at")
+        .eq("account_id", accountId)
+        .eq("target_type", "chart_record")
+        .is("archived_at", null)
+        .order("updated_at", { ascending: false });
+      if (!notesResult.error) {
+        (notesResult.data || []).forEach(function (row) {
+          if (row.profile_id && !(row.profile_id in chartRecordNoteByProfileId)) {
+            chartRecordNoteByProfileId[row.profile_id] = row.body || "";
+          }
+        });
+      } else {
+        console.warn("[supabase_store_bridge] notes query non-fatal:", notesResult.error.message);
+      }
+    } catch (e) {
+      console.warn("[supabase_store_bridge] notes query non-fatal:", e);
+    }
+
     // ── Assemble conforming store shape ───────────────────────────────────
 
     var storePlaces = Object.values(placesById).map(function (p) {
@@ -363,7 +388,7 @@
         birth_profile_id:          birthByProfileId[profile.id].id,
         record_type:               toRecordType(profile.profile_type),
         current_location_place_id: currentLocationByProfileId[profile.id] || null,
-        notes:                     "",
+        notes:                     chartRecordNoteByProfileId[profile.id] || "",
         tags:                      [],
         schema_version:            1,
         updated_at:                null,
