@@ -1657,6 +1657,44 @@ function screenExport() {
   `;
 }
 
+// Read-only Effective Astrology Configuration panel. Sources ALL values from the
+// Phase 1 Effective Settings helper (window.RMSettings) so the Settings UI never
+// duplicates defaults. Display only: no editable controls, no writes, no snapshot
+// or calculation changes.
+function effectiveConfigPanelHtml() {
+  const RM = window.RMSettings;
+  if (!RM || typeof RM.getEffectiveSettings !== "function") {
+    return `
+    <div class="panel">
+      <h3>Module: current-astrology-configuration</h3>
+      <p class="meta">Effective settings helper unavailable.</p>
+    </div>`;
+  }
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const eff = RM.getEffectiveSettings(raw.user_settings || null, null);
+  const orb = eff.orb_defaults || {};
+  const orbCell = (v) => (v == null ? "\u2014" : `${v}\u00b0`);
+  const snapVer = (RM.SNAPSHOT_VERSION != null) ? RM.SNAPSHOT_VERSION : "\u2014";
+  return `
+    <div class="panel">
+      <h3>Module: current-astrology-configuration</h3>
+      <p class="meta">Read-only. The effective runtime configuration currently in use. Editable controls are not available yet.</p>
+      <table class="simple">
+        <tr><th>Current Astrology Configuration</th><th></th></tr>
+        <tr><td>Zodiac Mode</td><td>${escapeHtml(capitalize(eff.zodiac_mode))}</td></tr>
+        <tr><td>House System</td><td>${escapeHtml(capitalize(eff.house_system))}</td></tr>
+        <tr><td>Conjunction orb</td><td>${orbCell(orb.conjunction)}</td></tr>
+        <tr><td>Opposition orb</td><td>${orbCell(orb.opposition)}</td></tr>
+        <tr><td>Square orb</td><td>${orbCell(orb.square)}</td></tr>
+        <tr><td>Trine orb</td><td>${orbCell(orb.trine)}</td></tr>
+        <tr><td>Sextile orb</td><td>${orbCell(orb.sextile)}</td></tr>
+        <tr><td>Minor Aspects</td><td>${eff.visible_minor_aspects ? "Enabled" : "Disabled"}</td></tr>
+        <tr><td>Ontology Pack</td><td>${eff.ontology_pack_id ? escapeHtml(String(eff.ontology_pack_id)) : "Default"}</td></tr>
+        <tr><td>Settings Snapshot Version</td><td>${escapeHtml(String(snapVer))}</td></tr>
+      </table>
+    </div>`;
+}
+
 function screenSettings() {
   const vm = requireViewModel();
   // House system is display-only for now: the calculation engine uses Placidus
@@ -1684,6 +1722,7 @@ function screenSettings() {
         <span class="meta">Placidus only for now. Other house systems are planned but not yet active.</span>
       </label>
     </div>
+    ${effectiveConfigPanelHtml()}
     <div class="panel">
       <h3>Module: history (per Chart Record)</h3>
       <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
