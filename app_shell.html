@@ -2027,6 +2027,9 @@ function screenProfileList() {
           <span class="pm-count-item">⊞ ${cmpCount} comparison${cmpCount !== 1 ? "s" : ""}</span>
         </div>` : `<div class="pm-counts" style="color:#94a3b8">No favorites or comparisons yet.</div>`,
     ].join("");
+    const defaultControl = isDefault
+      ? `<span class="pm-default-tag meta" title="Account default profile">\u2605 Default profile</span>`
+      : `<button type="button" data-action="pm-set-default" data-chart-record="${r.chartRecordId}">Set Default</button>`;
     return `
       <div class="panel pm-card">
         <div class="pm-card-header">
@@ -2042,6 +2045,7 @@ function screenProfileList() {
         </div>
         ${countsHtml}
         <div class="pm-actions">
+          ${defaultControl}
           <button type="button" class="primary" data-action="pm-open-profile" data-chart-record="${r.chartRecordId}">Open</button>
           <button type="button" data-action="pm-set-location" data-chart-record="${r.chartRecordId}">Set Current Location</button>
           <button type="button" data-action="pm-rename-profile" data-chart-record="${r.chartRecordId}" data-current-name="${escapeHtml(r.displayName)}">Rename</button>
@@ -2053,7 +2057,7 @@ function screenProfileList() {
   return `
     <div class="breadcrumb">Settings → Profiles</div>
     <h2>Profile Management</h2>
-    <p class="purpose">One Chart Record per person. Star = dashboard default (set in Account drawer).</p>
+    <p class="purpose">One Chart Record per person. The star marks your dashboard default \u2014 use Set Default to change it.</p>
     <div class="pm-grid">
       ${cards}
     </div>
@@ -2061,6 +2065,7 @@ function screenProfileList() {
       <button type="button" class="primary" data-action="pm-add-profile">+ Add Profile</button>
       <button type="button" data-nav="settings">Back to Settings</button>
     </div>
+    <p id="pm-default-msg" class="meta" aria-live="polite" style="min-height:1.2em;"></p>
     <p class="must-not">Must not appear: delete, notes count, saved searches count.</p>
   `;
 }
@@ -2484,6 +2489,26 @@ function bindScreenActions(root) {
       if (action === "pm-open-profile") {
         const crId = btn.getAttribute("data-chart-record");
         if (crId) navigate("chart-record", { chartRecordId: crId });
+      }
+      if (action === "pm-set-default") {
+        // Reuses the same account-default write path as the Account Drawer
+        // (setAccountDefaultChartRecord): updates user_settings.default_chart_record_id,
+        // never touches active/selected/last-selected, and does not navigate or reload.
+        // We re-render Profile Management in place so the default marker updates.
+        const crId = btn.getAttribute("data-chart-record");
+        if (!crId) return;
+        if (viewModel && crId === viewModel.accountDefaultChartRecordId) return;
+        const msgEl = document.getElementById("pm-default-msg");
+        if (msgEl) msgEl.textContent = "Saving\u2026";
+        setAccountDefaultChartRecord(crId).then(() => {
+          if (navContext.route === "profiles") render();
+          const m = document.getElementById("pm-default-msg");
+          if (m) m.textContent = "Default profile updated.";
+        }).catch((err) => {
+          if (navContext.route === "profiles") render();
+          const m = document.getElementById("pm-default-msg");
+          if (m) m.textContent = "Could not set default: " + (err && err.message ? err.message : String(err));
+        });
       }
       if (action === "pm-set-location") {
         const crId = btn.getAttribute("data-chart-record");
