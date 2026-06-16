@@ -172,3 +172,37 @@ task. Nothing here is authorized now.)
 
 - Awaiting explicit operator direction before any Saved Places / pinned-location
   implementation work.
+
+---
+
+## Addendum — Favorites in Location Search (2026-06-16)
+
+**Type:** Doctrine addendum (documentation only — no implementation authorized)
+**Related:** `CITY_SEARCH_AND_GEOCODING_STRATEGY.md` §10 (Location Search doctrine)
+
+This addendum clarifies how favorites/saved locations participate in the map's
+**Location Search** model (note the canonical term is "Location Search," not
+"City Search").
+
+1. The map should eventually present **two stacked search bars**: **Search
+   Favorites** and **Search All Locations**.
+2. **Search Favorites** covers, for the active chart/profile: favorited cities,
+   favorited named locations, arbitrary map-click / wilderness / custom
+   coordinate favorites, and saved locations attached to that profile.
+3. **Favorites are not only custom/random places.** Favorites also include
+   **normal cities the user intentionally saved.** Being present in the global
+   location database does not exclude a place from Favorites.
+4. **Product reason:** Search Favorites is the only reliable way for users to
+   reopen arbitrary saved map locations that **do not exist in a standard
+   location database** (map-click points, wilderness coordinates). All-locations
+   search cannot surface these.
+5. Clicking a search bar opens a **dropdown / autocomplete panel**; Location
+   Search must not default to a full-screen system.
+6. This favorites surface is intended to share the **one Location Search
+   architecture** used by map search, birth location, current location,
+   comparison/favorite selection, and future pickers.
+
+Consistent with the doctrine above, this does **not** change how favorites are
+stored (`favorite_places`) or how system rows (Natal / Current Location) are
+surfaced; it only records how saved locations are searched and reopened. No
+code or schema change is authorized by this entry.
