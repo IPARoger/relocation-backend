@@ -60,8 +60,9 @@
     settings_version:      1,
     house_system:          "placidus",
     zodiac_mode:           "tropical",
-    orb_defaults:          { conjunction: 8, square: 6, opposition: 8, trine: 8, sextile: 4 },
+    orb_defaults:          { conjunction: 8, square: 8, opposition: 8, trine: 8, sextile: 6 },
     visible_minor_aspects: false,
+    out_of_sign_aspects:   false,
     helper_layers:         {},
     ontology_pack_id:      null,
   };
@@ -84,6 +85,7 @@
       zodiac_mode:           pick("zodiac_mode"),
       orb_defaults:          pick("orb_defaults"),
       visible_minor_aspects: pick("visible_minor_aspects"),
+      out_of_sign_aspects:   pick("out_of_sign_aspects"),
       helper_layers:         pick("helper_layers"),
       ontology_pack_id:      pick("ontology_pack_id"),
     };
@@ -103,6 +105,7 @@
       zodiac_mode:           eff.zodiac_mode           || RM_SETTINGS_DEFAULTS.zodiac_mode,
       orb_defaults:          eff.orb_defaults          || RM_SETTINGS_DEFAULTS.orb_defaults,
       visible_minor_aspects: eff.visible_minor_aspects || RM_SETTINGS_DEFAULTS.visible_minor_aspects,
+      out_of_sign_aspects:   eff.out_of_sign_aspects   || RM_SETTINGS_DEFAULTS.out_of_sign_aspects,
       ontology_pack_id:      eff.ontology_pack_id != null ? eff.ontology_pack_id : RM_SETTINGS_DEFAULTS.ontology_pack_id,
     };
   }
@@ -350,6 +353,7 @@
       zodiac_mode:             effectiveSettings.zodiac_mode,
       orb_defaults:            effectiveSettings.orb_defaults,
       visible_minor_aspects:   effectiveSettings.visible_minor_aspects,
+      out_of_sign_aspects:     effectiveSettings.out_of_sign_aspects,
       helper_layers:           effectiveSettings.helper_layers,
       ontology_pack_id:        effectiveSettings.ontology_pack_id,
       default_chart_record_id: defaultChartRecordId,

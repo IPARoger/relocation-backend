@@ -1689,9 +1689,52 @@ function effectiveConfigPanelHtml() {
         <tr><td>Trine orb</td><td>${orbCell(orb.trine)}</td></tr>
         <tr><td>Sextile orb</td><td>${orbCell(orb.sextile)}</td></tr>
         <tr><td>Minor Aspects</td><td>${eff.visible_minor_aspects ? "Enabled" : "Disabled"}</td></tr>
+        <tr><td>Out-of-sign Aspects</td><td>${eff.out_of_sign_aspects ? "Enabled" : "Disabled"}</td></tr>
         <tr><td>Ontology Pack</td><td>${eff.ontology_pack_id ? escapeHtml(String(eff.ontology_pack_id)) : "Default"}</td></tr>
         <tr><td>Settings Snapshot Version</td><td>${escapeHtml(String(snapVer))}</td></tr>
       </table>
+    </div>`;
+}
+
+// Advanced / professional astrology settings (Settings Phase 3).
+// Editable but contained: persisted to user_settings.settings_json via
+// saveAccountSettingsPatch. NOT yet wired into the calculation engine.
+// Controls are prefilled from the effective settings so reloads reflect saves.
+function advancedSettingsHtml() {
+  const RM = window.RMSettings;
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const eff = (RM && typeof RM.getEffectiveSettings === "function")
+    ? RM.getEffectiveSettings(raw.user_settings || null, null)
+    : null;
+  const orb = (eff && eff.orb_defaults) || {};
+  const num = (v, d) => (v == null ? d : v);
+  const minor = eff ? !!eff.visible_minor_aspects : false;
+  const oos = eff ? !!eff.out_of_sign_aspects : false;
+  const orbInput = (id, label, fallback) =>
+    `<label class="block">${label} orb (degrees)
+        <input type="number" id="rm-settings-orb-${id}" min="0" max="15" step="0.5" value="${num(orb[id], fallback)}" />
+      </label>`;
+  return `
+    <div class="panel">
+      <h3>Module: advanced-astrology-settings</h3>
+      <p class="meta"><strong>Advanced / professional.</strong> These controls change interpretation defaults. They are not yet wired into the calculation engine.</p>
+      <label class="block" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rm-settings-minor-aspects"${minor ? " checked" : ""} style="width:auto;margin:0;" />
+        Show minor aspects
+      </label>
+      <p class="meta">Minor aspects are advanced and off by default.</p>
+      <label class="block" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} style="width:auto;margin:0;" />
+        Allow out-of-sign aspects
+      </label>
+      <p class="meta">Out-of-sign aspects are off by default.</p>
+      <h4 style="margin:12px 0 4px;">Aspect orb defaults</h4>
+      <p class="meta">Orb changes affect future searches and saved snapshots.</p>
+      ${orbInput("conjunction", "Conjunction", 8)}
+      ${orbInput("opposition", "Opposition", 8)}
+      ${orbInput("square", "Square", 8)}
+      ${orbInput("trine", "Trine", 8)}
+      ${orbInput("sextile", "Sextile", 6)}
     </div>`;
 }
 
@@ -1723,6 +1766,7 @@ function screenSettings() {
       </label>
     </div>
     ${effectiveConfigPanelHtml()}
+    ${advancedSettingsHtml()}
     <div class="panel">
       <h3>Module: history (per Chart Record)</h3>
       <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
@@ -2371,9 +2415,19 @@ function bindScreenActions(root) {
         if (msgEl) msgEl.textContent = "Saving…";
         // house_system intentionally omitted: engine uses Placidus only, and the
         // control is display-only. Merge-based save preserves any stored value.
-        saveAccountSettingsPatch({
-          default_chart_record_id: defCrEl.value,
-        }).then(() => {
+        const settingsPatch = { default_chart_record_id: defCrEl.value };
+        const minorEl = document.getElementById("rm-settings-minor-aspects");
+        const oosEl = document.getElementById("rm-settings-oos-aspects");
+        if (minorEl) settingsPatch.visible_minor_aspects = !!minorEl.checked;
+        if (oosEl) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
+        const orbKeys = ["conjunction", "opposition", "square", "trine", "sextile"];
+        const orbPatch = {};
+        orbKeys.forEach((k) => {
+          const el = document.getElementById("rm-settings-orb-" + k);
+          if (el) { const n = parseFloat(el.value); if (!isNaN(n)) orbPatch[k] = n; }
+        });
+        if (Object.keys(orbPatch).length === orbKeys.length) settingsPatch.orb_defaults = orbPatch;
+        saveAccountSettingsPatch(settingsPatch).then(() => {
           if (msgEl) msgEl.textContent = "✓ Saved.";
           setTimeout(() => { window.location.reload(); }, 800);
         }).catch((err) => {
