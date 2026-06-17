@@ -1,0 +1,201 @@
+{
+  "sandbox": "validation/sandboxes/phase3_01_rain_reveal_sandbox.html",
+  "url": "http://127.0.0.1:59812/validation/sandboxes/phase3_01_rain_reveal_sandbox.html",
+  "capture_speed_multiplier": 4,
+  "api_keys": [
+    "getCurrentPhase",
+    "getInitialScoutCount",
+    "getLiveProbeCount",
+    "getMaxProbeCount",
+    "getProbeCount",
+    "getSpawnedProbeCount",
+    "getState",
+    "hasComputationalDiscovery",
+    "hasEdgeLogic",
+    "hasEventDrivenSpawning",
+    "hasLayer2Symbolism",
+    "hasLayer3Interpretation",
+    "hasLayer4Optimization",
+    "hasMotion",
+    "hasPolygonLogic",
+    "hasSampleClassification",
+    "mode",
+    "restart",
+    "sampleClassCount",
+    "setGuides",
+    "setSpeed"
+  ],
+  "console_errors": [],
+  "trace": [
+    {
+      "live": 480,
+      "initial": 480,
+      "spawned": 0,
+      "max": 480,
+      "phase": "latent",
+      "confidenceSelected": 0,
+      "confidenceGhost": 0,
+      "statusText": "latent probes initializing",
+      "elapsed_ms": 0
+    },
+    {
+      "live": 480,
+      "initial": 480,
+      "spawned": 0,
+      "max": 480,
+      "phase": "scouting",
+      "confidenceSelected": 0,
+      "confidenceGhost": 0,
+      "statusText": "scouts searching hidden regions (480 live)",
+      "elapsed_ms": 300
+    },
+    {
+      "live": 526,
+      "initial": 480,
+      "spawned": 46,
+      "max": 526,
+      "phase": "reproducing",
+      "confidenceSelected": 0.02857142857142857,
+      "confidenceGhost": 0.16363636363636364,
+      "statusText": "local reproduction near boundary candidates (526 live, 46 spawned)",
+      "elapsed_ms": 700
+    },
+    {
+      "live": 816,
+      "initial": 480,
+      "spawned": 336,
+      "max": 816,
+      "phase": "ghost-fading",
+      "confidenceSelected": 0.3607142857142857,
+      "confidenceGhost": 1.4,
+      "statusText": "ghost candidate samples fading (816 live)",
+      "elapsed_ms": 1200
+    },
+    {
+      "live": 1040,
+      "initial": 480,
+      "spawned": 560,
+      "max": 1040,
+      "phase": "ghost-fading",
+      "confidenceSelected": 1,
+      "confidenceGhost": 1.4,
+      "statusText": "ghost candidate samples fading (1040 live)",
+      "elapsed_ms": 2000
+    },
+    {
+      "live": 802,
+      "initial": 480,
+      "spawned": 568,
+      "max": 1048,
+      "phase": "ghost-fading",
+      "confidenceSelected": 1,
+      "confidenceGhost": 1.4,
+      "statusText": "ghost candidate samples fading (802 live)",
+      "elapsed_ms": 3500
+    },
+    {
+      "live": 682,
+      "initial": 480,
+      "spawned": 569,
+      "max": 1049,
+      "phase": "filling",
+      "confidenceSelected": 1,
+      "confidenceGhost": 1.4,
+      "statusText": "interior fill from confirmed boundary (682 live)",
+      "elapsed_ms": 5500
+    },
+    {
+      "live": 684,
+      "initial": 480,
+      "spawned": 570,
+      "max": 1048,
+      "phase": "filling",
+      "confidenceSelected": 1,
+      "confidenceGhost": 1.4,
+      "statusText": "interior fill from confirmed boundary (684 live)",
+      "elapsed_ms": 8000
+    },
+    {
+      "live": 665,
+      "initial": 480,
+      "spawned": 550,
+      "max": 1028,
+      "phase": "filling",
+      "confidenceSelected": 1,
+      "confidenceGhost": 1.4,
+      "statusText": "interior fill from confirmed boundary (665 live)",
+      "elapsed_ms": 11000
+    }
+  ],
+  "growth_observed": true,
+  "event_spawning_works": true,
+  "phases_seen": [
+    "filling",
+    "ghost-fading",
+    "latent",
+    "reproducing",
+    "scouting"
+  ],
+  "frames": [
+    {
+      "file": "validation/screenshots/phase3_11_event_driven_reproduction/01_t0_initial.png",
+      "name": "01_t0_initial",
+      "elapsed_ms": 0,
+      "guides": false,
+      "live": 480,
+      "spawned": 0,
+      "phase": "latent",
+      "status": "interior fill from confirmed boundary (665 live)"
+    },
+    {
+      "file": "validation/screenshots/phase3_11_event_driven_reproduction/02_scout_phase.png",
+      "name": "02_scout_phase",
+      "elapsed_ms": 700,
+      "guides": false,
+      "live": 526,
+      "spawned": 46,
+      "phase": "reproducing",
+      "status": "local reproduction near boundary candidates (526 live, 46 spawned)"
+    },
+    {
+      "file": "validation/screenshots/phase3_11_event_driven_reproduction/03_reproduction_phase.png",
+      "name": "03_reproduction_phase",
+      "elapsed_ms": 2200,
+      "guides": false,
+      "live": 1025,
+      "spawned": 545,
+      "phase": "ghost-fading",
+      "status": "ghost candidate samples fading (1025 live)"
+    },
+    {
+      "file": "validation/screenshots/phase3_11_event_driven_reproduction/04_ghost_fade_phase.png",
+      "name": "04_ghost_fade_phase",
+      "elapsed_ms": 5500,
+      "guides": false,
+      "live": 668,
+      "spawned": 554,
+      "phase": "filling",
+      "status": "interior fill from confirmed boundary (668 live)"
+    },
+    {
+      "file": "validation/screenshots/phase3_11_event_driven_reproduction/05_late_state.png",
+      "name": "05_late_state",
+      "elapsed_ms": 10000,
+      "guides": false,
+      "live": 664,
+      "spawned": 550,
+      "phase": "filling",
+      "status": "interior fill from confirmed boundary (664 live)"
+    },
+    {
+      "file": "validation/screenshots/phase3_11_event_driven_reproduction/06_late_state_guides.png",
+      "name": "06_late_state_guides",
+      "elapsed_ms": 10000,
+      "guides": true,
+      "live": 654,
+      "spawned": 540,
+      "phase": "filling",
+      "status": "interior fill from confirmed boundary (654 live)"
+    }
+  ]
+}

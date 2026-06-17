@@ -1,0 +1,156 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_39c_unified_pressure_topology_asc.png",
+    "html": "validation/visual_targets/phase2_39c_unified_pressure_topology.html",
+    "mc_png": "validation/visual_targets/phase2_39c_unified_pressure_topology_mc.png",
+    "narrative": "validation/narratives/phase2_39c_unified_pressure_topology.md",
+    "report": "validation/reports/phase2_39c_unified_pressure_topology.json"
+  },
+  "diagnostics": {
+    "asc:carrier_only": {
+      "bands": 0,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 260,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "asc:compressed_premium": {
+      "bands": 220,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 260,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "asc:structural_candidate": {
+      "bands": 220,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 260,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "asc:unified_subtle": {
+      "bands": 220,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 260,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "mc:carrier_only": {
+      "bands": 0,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 303,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "mc:compressed_premium": {
+      "bands": 220,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 303,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "mc:structural_candidate": {
+      "bands": 220,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 303,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    },
+    "mc:unified_subtle": {
+      "bands": 220,
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterImageData": false,
+      "stations": 303,
+      "visibleContours": false,
+      "visibleLaminations": false,
+      "whiteCarrierStroke": false
+    }
+  },
+  "domain_model": "Each side uses paired boundary correspondence and normalized centerline-to-boundary width u=0..1. No degree subdivisions, half-degree rings, fake shells, mask changes, or cap changes.",
+  "generated_at_utc": "2026-05-25T21:20:13.064924+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f HTML DATA payload; centerline/leftBoundary/rightBoundary/polygon copied unchanged",
+  "goal": "Hide the rendering scaffolding so pressure architecture is felt rather than diagrammatically revealed.",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "map_CURRENT_changed": false,
+    "mask_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "staged": false,
+    "virga": false
+  },
+  "modes": [
+    "carrier_only",
+    "unified_subtle",
+    "compressed_premium",
+    "structural_candidate"
+  ],
+  "phase": "2.39c",
+  "rendering_method": "High-density boundary-parametric surface cells drawn on canvas paths. No visible contour strokes, no lamination strokes, no blur filter, no ImageData raster pressure sampling, no white carrier stroke. Carrier is drawn last from the same station geometry.",
+  "revision": "unified_pressure_topology_hidden_mechanism_v1",
+  "scope": "validation-only visual refinement",
+  "visual_assessment": {
+    "asc_improved_vs_239b": true,
+    "carrier_continuous_and_saturated": true,
+    "first_run_issue": "The construction mechanism is successfully hidden, but the field is now very subtle and may under-communicate pressure unless near-ridge compression is strengthened.",
+    "field_unification_improved": true,
+    "mc_improved_vs_239b": true,
+    "not_final_success_reason": "This pass solves visible scaffolding more than it solves premium pressure legibility. It should be treated as a diagnostic tradeoff, not a final visual answer.",
+    "ready_for_visual_qa": "yes, specifically to judge whether hidden mechanism plus subtle pressure is preferable to the more structural but visible Phase 2.39b candidates",
+    "risks": [
+      "High-density surface cells can still read as transparent pressure wash if contrast is too low.",
+      "The premium target may require a very subtle scalar texture or shader-style transfer later, but not visible contours."
+    ],
+    "smallest_next_correction": "Tune one candidate, structural_candidate, by increasing near-ridge compression slightly while lowering outer tail opacity; keep mechanism hidden and do not reintroduce contour or lamination marks.",
+    "topographic_pressure_vs_blur": "mixed: mechanism is hidden and near-ridge compression is clearer, but the unified surface reintroduces some risk of soft-wash perception because marks are intentionally merged.",
+    "visible_contours_or_laminations": false,
+    "visible_mechanism_reduced": true,
+    "white_centerline_artifacts_remaining": false
+  }
+}

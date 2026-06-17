@@ -1,0 +1,41 @@
+{
+  "artifact": "validation/visual_targets/phase2_52_map_overlap_sandbox.png",
+  "cases": {
+    "band_crossing_already_overlapped_polygon": "needs future design refinement; clutter is both mechanical and aesthetic when three truth languages stack",
+    "band_crossing_polygon": "acceptable with pane-order tuning; band ridge survives over polygon fill",
+    "dynamic_asymmetry_over_map": "acceptable with caveat; narrowing side needs pixel-collapse checks at map zooms",
+    "fixed_asymmetry_over_map": "acceptable for beta sandbox; right-side compression remains legible",
+    "planet_sign_house_polygon_overlap": "acceptable mechanically; aesthetic child-color design still needed",
+    "polygon_overlap_on_polygon_overlap": "needs refinement; stacking becomes mechanically inspectable but visually busy",
+    "single_band_over_map": "acceptable for beta sandbox; labels survive except directly under ridge, coastline remains readable",
+    "two_bands_crossing": "needs refinement; crossing is mechanically readable but likely needs mute/solo or automatic quieting"
+  },
+  "future_ui_needs": {
+    "multi_aspect_angle_selection": "yes eventually; not for this sandbox. Needs mute/solo and possibly layer grouping before production."
+  },
+  "generated_at_utc": "2026-05-26T14:32:12.420900+00:00",
+  "geometry_source": "forced sandbox geometry and static map-like geography for mechanical/readability validation",
+  "goal": "move stabilized transported-material beta renderer onto map-like validation surfaces without production integration",
+  "governance": {
+    "committed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "staged": false,
+    "validation_only": true
+  },
+  "map_CURRENT_changed": false,
+  "phase": "2.52",
+  "production_integration": false,
+  "production_multi_aspect_selection": false,
+  "qa": {
+    "centerline_survival": "transport ridge survives crossings without separate centerline stroke",
+    "coastline_interaction": "coastlines remain readable in most panels; dense polygon stacking reduces geographic clarity",
+    "label_readability": "generally acceptable in single/fixed/dynamic cases; labels suffer in dense overlap panels and under exact ridges",
+    "mechanical_vs_aesthetic": "single/fixed/dynamic are mostly mechanical pass; dense overlap problems are partly mechanical clutter and partly aesthetic color/pane design",
+    "mute_solo_need": "yes for two-band crossings and already-overlapped polygon regions",
+    "opacity_stacking": "polygon-on-polygon and band-over-overlap panels become visually busy; child-color or opacity governance needed",
+    "pane_layer_ordering": "suggested order: basemap/coast, polygons, transported bands, QA/city labels; dense cases need explicit pane policy"
+  },
+  "revision": "map_overlap_sandbox_v1",
+  "ui_controls_added": false
+}

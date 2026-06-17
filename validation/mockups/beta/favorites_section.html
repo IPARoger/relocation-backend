@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Favorites — rotating themes</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Avenir Next",-apple-system,sans-serif;background:var(--paper);color:var(--ink);transition:background .2s}
+
+.theme-a{--paper:#ffffff;--card:#ffffff;--ink:#23252b;--soft:#7b8089;--line:#e7e4df;--accent:#e8694f;--accent2:#2fa39c;--warm:#f0a93a;--head:"Avenir Next","Helvetica Neue",sans-serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#cf7a36;--current:#2fa39c}
+.theme-b{--paper:#fffaf2;--card:#fffefb;--ink:#33302b;--soft:#867a6c;--line:#eee2cf;--accent:#df8a3c;--accent2:#a85d77;--warm:#e0a93c;--head:"Optima","Gill Sans","Avenir Next",sans-serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#c98a2e;--current:#a85d77}
+.theme-d{--paper:#f7f4ee;--card:#fffdf9;--ink:#2c2a26;--soft:#8a8275;--line:#e7e0d2;--accent:#3f7d74;--accent2:#b07d3c;--warm:#c79a4e;--head:"Hoefler Text","Iowan Old Style",Palatino,Georgia,serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#b07d3c;--current:#3f7d74}
+.theme-e{--paper:#f6f7f9;--card:#ffffff;--ink:#26242b;--soft:#80808c;--line:#e6e6ec;--accent:#b5495b;--accent2:#2f8f86;--warm:#d99a4e;--head:"Baskerville","Hoefler Text",Georgia,serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#b5495b;--current:#2f8f86}
+.theme-f{--paper:#ffffff;--card:#ffffff;--ink:#1d1d1f;--soft:#86868b;--line:#e8e8ea;--accent:#1f6f6b;--accent2:#b08a3c;--warm:#c79a4e;--head:"Didot","Bodoni 72","Hoefler Text",serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#b08a3c;--current:#1f6f6b}
+.theme-g{--paper:#faf9f5;--card:#ffffff;--ink:#2a2925;--soft:#857f73;--line:#e9e5db;--accent:#c2603f;--accent2:#4a7a6e;--warm:#cf9a4e;--head:"Charter","Georgia",serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#c2603f;--current:#4a7a6e}
+.theme-h{--paper:#ffffff;--card:#ffffff;--ink:#262329;--soft:#857f88;--line:#e8e5ea;--accent:#8a5a86;--accent2:#3f8a86;--warm:#cf9a4e;--head:"Cochin","Hoefler Text",Georgia,serif;--body:"Avenir Next","Helvetica Neue",sans-serif;--natal:#8a5a86;--current:#3f8a86}
+
+.theme-switch{position:fixed;top:10px;right:14px;z-index:300;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 7px;box-shadow:0 8px 22px -12px rgba(0,0,0,.3)}
+.theme-switch button{border:none;background:none;color:var(--soft);cursor:pointer;font-size:15px;line-height:1;padding:3px 7px;border-radius:999px}
+.theme-switch button:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.theme-switch .tname{font-family:var(--body);font-size:11.5px;font-weight:600;color:var(--ink);min-width:128px;text-align:center}
+.theme-switch .auto{font-size:10.5px;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 9px;cursor:pointer}
+.theme-switch .auto.on{color:#fff;background:var(--accent);border-color:var(--accent)}
+
+.lnav{height:50px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 28px;background:var(--card)}
+.llogo{font-family:var(--head);font-weight:700;font-size:15px;color:var(--ink)}
+.llinks{margin-left:auto;font-size:13px;color:var(--soft)}
+.llinks b{color:var(--ink)}
+.lctx{padding:22px 28px 16px}
+.lname{font-family:var(--head);font-size:22px;font-weight:700;color:var(--ink)}
+.lsub{font-size:12px;color:var(--soft);margin-top:4px}
+
+.grid3{display:grid;grid-template-columns:1.12fr 0.94fr 0.94fr;gap:30px;padding:6px 28px 60px;align-items:start;max-width:1360px}
+
+.sec-head{display:flex;align-items:center;margin-bottom:9px}
+.sec-title{font-family:var(--head);font-size:18px;font-weight:700;color:var(--ink)}
+.sec-tools{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.tools-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px;position:relative}
+.list-search{position:relative}
+.list-search input{width:100%;font-family:var(--body);font-size:12px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 10px 7px 28px;outline:none}
+.list-search input::placeholder{color:var(--soft)}
+.list-search input:focus{border-color:var(--accent)}
+.list-search .si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--soft);line-height:0}
+.list-search .si svg{width:13px;height:13px}
+
+/* genie cascade (type first, dependent fields below) */
+.genie-row{display:flex;gap:6px}
+.genie-row select{flex:1 1 0;min-width:0;font-family:var(--body);font-size:12px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 8px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.g-fields{display:flex;gap:6px}
+.g-fields:empty{display:none}
+
+.genie-pop{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:55;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 14px 32px -14px rgba(0,0,0,.4);padding:9px;display:none}
+.genie-pop.show{display:block}
+.genie-pop .g-fields{display:flex;gap:6px;margin-bottom:8px}
+.genie-pop .g-fields:empty{display:none}
+.g-search{width:100%;font-family:var(--body);font-size:12px;font-weight:700;color:#fff;background:var(--accent);border:none;border-radius:8px;padding:8px;cursor:pointer}
+/* sort button (icon only) + popup */
+.sortwrap{position:relative;flex:0 0 auto}
+.sortbtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:32px;color:var(--soft);background:var(--card);border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.sortbtn:hover{color:var(--ink)}
+.sortbtn svg{width:16px;height:16px}
+.sortmenu{position:absolute;top:calc(100% + 6px);right:0;z-index:60;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 14px 32px -14px rgba(0,0,0,.4);padding:5px;display:none}
+.sortmenu.show{display:block}
+.sortmenu .smhead{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);padding:5px 9px 4px}
+.sortmenu button{display:flex;align-items:center;width:100%;gap:8px;font-family:var(--body);font-size:12.5px;color:var(--ink);background:none;border:none;text-align:left;padding:8px 9px;border-radius:7px;cursor:pointer}
+.sortmenu button:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.sortmenu button .ck{width:13px;color:var(--accent);opacity:0}
+.sortmenu button.on .ck{opacity:1}
+.sortmenu button.on{font-weight:700}
+
+.compare-bar{padding:6px 2px}
+.compare-btn{font-family:var(--body);font-size:12.5px;font-weight:700;color:#fff;background:var(--accent);border:none;border-radius:9px;padding:8px 18px;cursor:pointer;transition:.12s;box-shadow:0 6px 16px -8px color-mix(in srgb,var(--accent) 80%,transparent)}
+.compare-btn[disabled]{background:transparent;color:var(--soft);border:1px dashed var(--line);box-shadow:none;cursor:default}
+
+.fav-list,.mini-list{border-top:1px solid var(--line)}
+.fav-row{display:grid;grid-template-columns:22px minmax(0,auto) 1fr auto;align-items:center;column-gap:12px;padding:12px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;transition:background .12s}
+.fav-row:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.chk{width:16px;height:16px;border:1.5px solid var(--line);border-radius:5px;background:var(--card);display:inline-flex;align-items:center;justify-content:center;transition:.12s}
+.fav-row.sel .chk{background:var(--accent);border-color:var(--accent);color:#fff}
+.chk svg{width:10px;height:10px;opacity:0}.fav-row.sel .chk svg{opacity:1}
+.fav-loc{display:flex;align-items:baseline;gap:8px;min-width:0;font-family:var(--head)}
+.fav-loc .locname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.fav-loc .city{font-weight:700;font-size:15.5px;color:var(--ink)}
+.fav-loc .country{font-weight:400;font-size:15.5px;color:var(--ink)}
+.mk{flex:0 0 auto;font-family:var(--body);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:2.5px 8px;border-radius:999px;white-space:nowrap}
+.mk.natal{color:#fff;background:var(--natal)}
+.mk.current{color:#fff;background:var(--current)}
+.row-acts{display:flex;align-items:center;gap:14px}
+.row-acts .meta{display:flex;align-items:center;gap:8px}
+.chev-cell{justify-self:center;display:flex}
+.meta{display:flex;align-items:center;gap:8px;justify-self:end}
+.chev{border:none;background:none;cursor:pointer;padding:2px;color:var(--soft);line-height:0;display:inline-flex;transition:opacity .15s,color .14s,transform .14s;opacity:1}
+.chev svg{width:18px;height:18px}
+/* desktop: reveal chevron + empty star/note on rollover; touch keeps them visible */
+@media (hover:hover){
+  .chev,.star:not(.on),.note-dot:not(.has){opacity:0}
+  .fav-row:hover .chev,.mini-row:hover .chev{opacity:1;color:var(--accent);transform:translateX(2px)}
+  .fav-row:hover .star,.fav-row:hover .note-dot,.mini-row:hover .star,.mini-row:hover .note-dot{opacity:1}
+}
+.star{font-size:15px;color:var(--line);cursor:pointer;transition:.12s;line-height:1}
+.star.on{color:var(--warm)}
+.fav-row:hover .star,.mini-row:hover .star{color:var(--soft)}
+.fav-row:hover .star.on,.mini-row:hover .star.on{color:var(--warm)}
+.icon-btn{border:none;background:none;cursor:pointer;color:var(--soft);padding:3px;border-radius:6px;display:inline-flex;transition:.12s;line-height:0}
+.icon-btn:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.icon-btn svg{width:15px;height:15px}
+.note-dot.has{color:var(--ink)}
+
+.mini-row{display:grid;grid-template-columns:minmax(0,auto) 1fr auto;align-items:center;column-gap:8px;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;transition:background .12s}
+.mini-row:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.mini-main{min-width:0}
+.mini-title{font-family:var(--head);font-size:13.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-sub{font-size:11px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.list-foot{display:flex;align-items:center;gap:9px;padding:9px 2px 0;font-size:11px;color:var(--soft)}
+.list-foot .pg{border:1px solid var(--line);background:var(--card);color:var(--soft);width:24px;height:24px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.list-foot .pg[disabled]{opacity:.4;cursor:default}
+</style>
+</head>
+<body class="theme-a">
+
+<div class="theme-switch">
+  <button id="prev" title="Previous theme">&lsaquo;</button>
+  <span class="tname" id="tname">Treatment A</span>
+  <button id="next" title="Next theme">&rsaquo;</button>
+  <span class="auto" id="auto" title="Auto-rotate every 6s">Auto</span>
+</div>
+
+<nav class="lnav"><span class="llogo">Relocation</span><span class="llinks">Map &nbsp;&middot;&nbsp; <b>Profile</b> &nbsp;&middot;&nbsp; Compare &nbsp;&middot;&nbsp; Settings</span></nav>
+<div class="lctx"><div class="lname">David Goodman</div><div class="lsub">&hellip; Planet in House &middot; Aspect in Sign &middot; Angle-to-Angle tables sit above &hellip;</div></div>
+
+<div class="grid3">
+  <section>
+    <div class="sec-head"><div class="sec-title">Favorites</div></div>
+    <div class="sec-tools" id="ft-fav"></div>
+    <div class="compare-bar"><button class="compare-btn cbtn" disabled>Compare</button></div>
+    <div class="fav-list" id="favlist"></div>
+    <div class="list-foot"><button class="pg" disabled>&lsaquo;</button><span>1&ndash;8 of 8</span><button class="pg" disabled>&rsaquo;</button></div>
+  </section>
+  <section>
+    <div class="sec-head"><div class="sec-title">Saved Comparisons</div></div>
+    <div class="sec-tools" id="ft-cmp"></div>
+    <div class="mini-list" id="cmplist"></div>
+    <div class="list-foot"><button class="pg" disabled>&lsaquo;</button><span>1&ndash;3 of 3</span><button class="pg" disabled>&rsaquo;</button></div>
+  </section>
+  <section>
+    <div class="sec-head"><div class="sec-title">Saved Searches</div></div>
+    <div class="sec-tools" id="ft-srch"></div>
+    <div class="mini-list" id="srchlist"></div>
+    <div class="list-foot"><button class="pg" disabled>&lsaquo;</button><span>1&ndash;3 of 3</span><button class="pg" disabled>&rsaquo;</button></div>
+  </section>
+</div>
+
+<script>
+const SI = '<span class="si"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg></span>';
+const SORTICON='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v12M6 16l-2.5-2.5M6 16l2.5-2.5M14 16V4M14 4l-2.5 2.5M14 4l2.5 2.5"/></svg>';
+const CK='<svg class="ck" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7l3 3 7-7"/></svg>';
+const CHK = '<span class="chk"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+const NOTEBTN = (has)=>'<button class="icon-btn note-dot'+(has?' has':'')+'" title="Note"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h12v10l-3 4H4z"/><path d="M9 8h6M9 11h4"/></svg></button>';
+const CHEV = '<button class="chev" title="Open"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M7 4l6 6-6 6"/></svg></button>';
+const STAR = (on)=>'<span class="star'+(on?' on':'')+'" title="Priority (optional)">&#9733;</span>';
+const searchBox=(ph)=>'<div class="list-search">'+SI+'<input placeholder="'+ph+'"></div>';
+const opts=(arr)=>arr.map(o=>`<option>${o}</option>`).join('');
+
+function sortControl(extra){
+  return `<div class="sortwrap">
+    <button class="sortbtn" title="Sort">${SORTICON}</button>
+    <div class="sortmenu">
+      <div class="smhead">Sort by</div>
+      <button class="on" data-v="Recent">${CK}Recent</button>
+      <button data-v="A\u2013Z">${CK}Alphabetical (A\u2013Z)</button>
+      <button data-v="Starred">${CK}Starred first</button>
+      ${extra?`<button data-v="Distance">${CK}Distance from Current Location</button>`:''}
+    </div>
+  </div>`;
+}
+/* genie cascade: type select + dependent fields rendered below */
+const PLANETS=["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron","North Node","Part of Fortune"];
+const HOUSES=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+const ANGLES=["ASC","DSC","MC","IC"];
+const SIGNS=["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+const ASPECTS=["Conjunction","Opposition","Square","Trine","Sextile","Quintile"];
+function genieFields(type){
+  if(type==='pih') return `<select><option>Planet\u2026</option>${opts(PLANETS)}</select><select><option>House\u2026</option>${opts(HOUSES)}</select>`;
+  if(type==='ais') return `<select><option>Angle\u2026</option>${opts(ANGLES)}</select><select><option>Sign\u2026</option>${opts(SIGNS)}</select>`;
+  if(type==='a2a') return `<select><option>Body\u2026</option>${opts(PLANETS)}</select><select><option>Aspect\u2026</option>${opts(ASPECTS)}</select><select><option>Angle\u2026</option>${opts(ANGLES)}</select>`;
+  return '';
+}
+function genieControl(){
+  return `<div class="tools-main">
+    <div class="genie-row">
+      <select class="g-type"><option value="">Filter by variable\u2026</option><option value="pih">Planet \u00b7 House</option><option value="ais">Angle \u00b7 Sign</option><option value="a2a">Aspect \u00b7 Angle</option></select>
+    </div>
+    <div class="genie-pop"><div class="g-fields"></div><button class="g-search">Search</button></div>
+  </div>`;
+}
+
+const cities=[
+  {city:"Lisbon",country:"Portugal",mk:"natal",star:true,note:1},
+  {city:"Austin",country:"Texas, USA",mk:"current",star:false,note:0},
+  {city:"Kyoto",country:"Japan",mk:"",star:true,note:1},
+  {city:"Bali",country:"Indonesia",mk:"",star:false,note:0},
+  {city:"Barcelona",country:"Spain",mk:"",star:false,note:1},
+  {city:"Mexico City",country:"Mexico",mk:"",star:false,note:0},
+  {city:"Cape Town",country:"South Africa",mk:"",star:true,note:0},
+  {city:"Reykjav\u00edk",country:"Iceland",mk:"",star:false,note:0},
+];
+const comparisons=[
+  {t:"Professional \u00b7 Europe / N. Africa",s:"Lisbon \u00b7 Barcelona \u00b7 Marrakesh",star:true,note:1},
+  {t:"Lisbon \u00b7 New York \u00b7 Austin",s:"Updated 3 days ago \u00b7 3 cities",star:false,note:0},
+  {t:"Pacific options",s:"Kyoto \u00b7 Bali \u00b7 Honolulu",star:false,note:1},
+];
+const searches=[
+  {t:"Sun in 1st \u00b7 Venus in 2nd",s:"No Saturn in 1st",star:true,note:1},
+  {t:"Strong MC \u00b7 Water ASC",s:"Jupiter angular",star:false,note:0},
+  {t:"Saved 12 May",s:"Mars not in 7th \u00b7 benefic angles",star:false,note:0},
+];
+
+const favRow=(c)=>`<div class="fav-row">${CHK}
+  <div class="fav-loc"><span class="locname"><span class="city">${c.city}</span><span class="country">, ${c.country}</span></span>${c.mk?`<span class="mk ${c.mk}">${c.mk}</span>`:''}</div>
+  <span class="chev-cell">${CHEV}</span><span class="meta">${STAR(c.star)}${NOTEBTN(c.note)}</span></div>`;
+const miniRow=(m)=>`<div class="mini-row"><div class="mini-main"><div class="mini-title">${m.t}</div><div class="mini-sub">${m.s}</div></div><span class="chev-cell">${CHEV}</span><span class="meta">${STAR(m.star)}${NOTEBTN(m.note)}</span></div>`;
+
+document.getElementById('ft-fav').innerHTML=`<div class="tools-main">${searchBox('Add a location\u2026')}</div>`+sortControl(true);
+document.getElementById('ft-cmp').innerHTML=`<div class="tools-main">${searchBox('Search by location\u2026')}</div>`+sortControl(false);
+document.getElementById('ft-srch').innerHTML=genieControl()+sortControl(false);
+document.getElementById('favlist').innerHTML=cities.map(favRow).join('');
+document.getElementById('cmplist').innerHTML=comparisons.map(miniRow).join('');
+document.getElementById('srchlist').innerHTML=searches.map(miniRow).join('');
+
+/* genie cascade behavior */
+const gtype=document.querySelector('.g-type');
+const gpop=document.querySelector('.genie-pop');
+if(gtype){gtype.addEventListener('change',()=>{
+  document.querySelector('.g-fields').innerHTML=genieFields(gtype.value);
+  if(gtype.value) gpop.classList.add('show'); else gpop.classList.remove('show');
+});}
+const gsearch=document.querySelector('.g-search');
+if(gsearch) gsearch.addEventListener('click',()=>gpop.classList.remove('show'));
+
+/* selection + compare */
+const list=document.getElementById('favlist');
+const cbtns=document.querySelectorAll('.cbtn');
+list.querySelectorAll('.fav-row').forEach(row=>row.addEventListener('click',e=>{
+  if(e.target.closest('.chev')||e.target.closest('.note-dot')||e.target.closest('.star'))return;
+  const n=list.querySelectorAll('.fav-row.sel').length;
+  if(!row.classList.contains('sel')&&n>=5)return;
+  row.classList.toggle('sel');
+  const sel=list.querySelectorAll('.fav-row.sel').length;
+  cbtns.forEach(b=>{b.disabled=sel<2;b.textContent=sel>=2?`Compare (${sel})`:'Compare';});
+}));
+document.querySelectorAll('.star').forEach(s=>s.addEventListener('click',e=>{e.stopPropagation();s.classList.toggle('on');}));
+
+/* sort popups */
+document.querySelectorAll('.sortwrap').forEach(w=>{
+  const btn=w.querySelector('.sortbtn'), menu=w.querySelector('.sortmenu');
+  btn.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.sortmenu').forEach(m=>{if(m!==menu)m.classList.remove('show');});menu.classList.toggle('show');});
+  menu.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{menu.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');menu.classList.remove('show');}));
+});
+document.addEventListener('click',e=>{document.querySelectorAll('.sortmenu').forEach(m=>m.classList.remove('show'));if(!e.target.closest('.tools-main'))document.querySelectorAll('.genie-pop').forEach(p=>p.classList.remove('show'));});
+
+/* theme rotation */
+const THEMES=[{k:'theme-a',name:'A \u00b7 Bright & Airy'},{k:'theme-b',name:'B \u00b7 Warm Sunrise'},{k:'theme-d',name:'D \u00b7 Refined'},{k:'theme-e',name:'E \u00b7 Editorial'},{k:'theme-f',name:'F \u00b7 Fashion'},{k:'theme-g',name:'G \u00b7 Charter'},{k:'theme-h',name:'H \u00b7 Cochin'}];
+let idx=Math.floor(Math.random()*THEMES.length);
+function apply(){document.body.className=THEMES[idx].k;document.getElementById('tname').textContent='Treatment '+THEMES[idx].name;}
+document.getElementById('prev').onclick=()=>{idx=(idx-1+THEMES.length)%THEMES.length;apply();};
+document.getElementById('next').onclick=()=>{idx=(idx+1)%THEMES.length;apply();};
+let timer=null;const autoBtn=document.getElementById('auto');
+autoBtn.onclick=()=>{if(timer){clearInterval(timer);timer=null;autoBtn.classList.remove('on');}else{autoBtn.classList.add('on');timer=setInterval(()=>{idx=(idx+1)%THEMES.length;apply();},6000);}};
+apply();
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2040" viewBox="0 0 1440 2040">
+  <defs>
+    <style>
+      .serif { font-family: Georgia, "Times New Roman", serif; }
+      .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .nav { font-size: 14px; letter-spacing: 0.03em; }
+      .meta { font-size: 13px; letter-spacing: 0.10em; text-transform: uppercase; }
+      .small { font-size: 13px; }
+      .body { font-size: 16px; }
+      .title { font-size: 52px; }
+      .section { font-size: 28px; }
+      .chart-title { font-size: 34px; }
+    </style>
+
+    <radialGradient id="ground" cx="50%" cy="12%" r="90%">
+      <stop offset="0%" stop-color="#fbfaf5"/>
+      <stop offset="58%" stop-color="#f3f0e8"/>
+      <stop offset="100%" stop-color="#e9e4d8"/>
+    </radialGradient>
+
+    <filter id="chartLift" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="9" stdDeviation="18" flood-color="#1b1812" flood-opacity="0.055"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="2040" fill="url(#ground)"/>
+
+  <!-- Quiet global navigation: line-based, not boxed -->
+  <line x1="72" y1="96" x2="1368" y2="96" stroke="#d4cbbb" stroke-width="1"/>
+  <text x="88" y="62" class="sans nav" fill="#1d1a15">Profile</text>
+  <text x="166" y="62" class="sans nav" fill="#766c5c">Map</text>
+  <text x="228" y="62" class="sans nav" fill="#766c5c">Compare</text>
+  <text x="322" y="62" class="sans nav" fill="#766c5c">City Intelligence</text>
+  <text x="474" y="62" class="sans nav" fill="#766c5c">Store</text>
+  <text x="536" y="62" class="sans nav" fill="#766c5c">Help</text>
+  <text x="598" y="62" class="sans nav" fill="#766c5c">Settings</text>
+  <text x="1210" y="62" class="sans small" fill="#8d8374">Dave Goodman</text>
+
+  <!-- Chart subject header: open editorial block -->
+  <text x="96" y="154" class="sans meta" fill="#9a876d">Chart Subject</text>
+  <text x="96" y="220" class="serif title" fill="#191611">Anna Rivera</text>
+  <text x="98" y="264" class="sans body" fill="#5f564a">Born March 14, 1989 / 6:42 AM / San Juan, Puerto Rico</text>
+  <text x="98" y="300" class="sans small" fill="#948878">UTC / coordinates / Tropical / Placidus</text>
+
+  <line x1="752" y1="142" x2="752" y2="306" stroke="#d8cfbe" stroke-width="1"/>
+  <text x="792" y="154" class="sans meta" fill="#9a876d">Current Location</text>
+  <text x="792" y="212" class="serif" font-size="40" fill="#211d17">Austin, Texas</text>
+  <text x="794" y="252" class="sans body" fill="#5d5549">Current lived chart context</text>
+  <text x="1130" y="154" class="sans small" fill="#766c5c">Edit</text>
+  <text x="1178" y="154" class="sans small" fill="#766c5c">Add</text>
+  <text x="1223" y="154" class="sans small" fill="#766c5c">Change</text>
+  <line x1="96" y1="344" x2="1344" y2="344" stroke="#d4cbbb" stroke-width="1"/>
+
+  <!-- Anchor chart pair: primary artifact field, no card containers -->
+  <text x="96" y="410" class="sans meta" fill="#9a876d">Anchor Chart</text>
+  <text x="96" y="456" class="serif chart-title" fill="#181511">Natal Chart</text>
+  <text x="98" y="488" class="sans small" fill="#6d6354">Birth moment at birth place</text>
+
+  <text x="744" y="410" class="sans meta" fill="#9a876d">Anchor Chart</text>
+  <text x="744" y="456" class="serif chart-title" fill="#181511">Current Location Chart</text>
+  <text x="746" y="488" class="sans small" fill="#6d6354">Same birth moment cast for Austin, Texas</text>
+
+  <line x1="720" y1="392" x2="720" y2="1008" stroke="#d9d0c0" stroke-width="1"/>
+
+  <!-- Natal chart artifact -->
+  <g filter="url(#chartLift)">
+    <circle cx="394" cy="715" r="222" fill="#fcfbf6" stroke="#3d372e" stroke-width="1.8"/>
+    <circle cx="394" cy="715" r="184" fill="none" stroke="#9f927d" stroke-width="1"/>
+    <circle cx="394" cy="715" r="146" fill="none" stroke="#c2b7a5" stroke-width="1"/>
+    <circle cx="394" cy="715" r="106" fill="none" stroke="#d4cbbb" stroke-width="1"/>
+    <circle cx="394" cy="715" r="62" fill="none" stroke="#e2dacd" stroke-width="1"/>
+    <line x1="172" y1="715" x2="616" y2="715" stroke="#a29581" stroke-width="1"/>
+    <line x1="394" y1="493" x2="394" y2="937" stroke="#a29581" stroke-width="1"/>
+    <line x1="237" y1="558" x2="551" y2="872" stroke="#cec4b3" stroke-width="1"/>
+    <line x1="551" y1="558" x2="237" y2="872" stroke="#cec4b3" stroke-width="1"/>
+    <line x1="202" y1="604" x2="586" y2="826" stroke="#ded6ca" stroke-width="0.8"/>
+    <line x1="586" y1="604" x2="202" y2="826" stroke="#ded6ca" stroke-width="0.8"/>
+    <path d="M216 650 C302 578, 390 950, 566 670" fill="none" stroke="#625747" stroke-width="1.15"/>
+    <path d="M280 924 C330 590, 492 612, 536 898" fill="none" stroke="#8e8069" stroke-width="1"/>
+    <path d="M244 772 C328 698, 468 682, 552 758" fill="none" stroke="#b7aa94" stroke-width="0.9"/>
+  </g>
+
+  <!-- Current location chart artifact -->
+  <g filter="url(#chartLift)">
+    <circle cx="1046" cy="715" r="222" fill="#fcfbf6" stroke="#3d372e" stroke-width="1.8"/>
+    <circle cx="1046" cy="715" r="184" fill="none" stroke="#9f927d" stroke-width="1"/>
+    <circle cx="1046" cy="715" r="146" fill="none" stroke="#c2b7a5" stroke-width="1"/>
+    <circle cx="1046" cy="715" r="106" fill="none" stroke="#d4cbbb" stroke-width="1"/>
+    <circle cx="1046" cy="715" r="62" fill="none" stroke="#e2dacd" stroke-width="1"/>
+    <line x1="824" y1="715" x2="1268" y2="715" stroke="#a29581" stroke-width="1"/>
+    <line x1="1046" y1="493" x2="1046" y2="937" stroke="#a29581" stroke-width="1"/>
+    <line x1="889" y1="558" x2="1203" y2="872" stroke="#cec4b3" stroke-width="1"/>
+    <line x1="1203" y1="558" x2="889" y2="872" stroke="#cec4b3" stroke-width="1"/>
+    <line x1="854" y1="604" x2="1238" y2="826" stroke="#ded6ca" stroke-width="0.8"/>
+    <line x1="1238" y1="604" x2="854" y2="826" stroke="#ded6ca" stroke-width="0.8"/>
+    <path d="M860 660 C974 558, 1058 948, 1240 638" fill="none" stroke="#625747" stroke-width="1.15"/>
+    <path d="M930 928 C968 618, 1152 592, 1194 894" fill="none" stroke="#8e8069" stroke-width="1"/>
+    <path d="M902 772 C988 680, 1124 678, 1202 752" fill="none" stroke="#b7aa94" stroke-width="0.9"/>
+  </g>
+
+  <!-- Chart previews as captioned reference lines, not boxes -->
+  <line x1="96" y1="1016" x2="644" y2="1016" stroke="#d4cbbb" stroke-width="1"/>
+  <text x="96" y="1050" class="sans meta" fill="#897862">Preview</text>
+  <text x="190" y="1050" class="sans body" fill="#423a31">Houses / angles / aspect-to-angle facts</text>
+
+  <line x1="744" y1="1016" x2="1292" y2="1016" stroke="#d4cbbb" stroke-width="1"/>
+  <text x="744" y="1050" class="sans meta" fill="#897862">Preview</text>
+  <text x="838" y="1050" class="sans body" fill="#423a31">Relocated houses / angles / aspect-to-angle facts</text>
+
+  <!-- Chart fact tables: reference sheet rather than module cards -->
+  <line x1="96" y1="1128" x2="1344" y2="1128" stroke="#cfc5b4" stroke-width="1.2"/>
+  <text x="96" y="1192" class="serif section" fill="#1b1813">Chart Fact Tables</text>
+  <text x="420" y="1192" class="sans body" fill="#70675a">Factual structure for the natal and current-location chart contexts.</text>
+
+  <line x1="96" y1="1238" x2="1344" y2="1238" stroke="#d7cebf" stroke-width="1"/>
+  <line x1="510" y1="1238" x2="510" y2="1398" stroke="#ddd5c8" stroke-width="1"/>
+  <line x1="928" y1="1238" x2="928" y2="1398" stroke="#ddd5c8" stroke-width="1"/>
+
+  <text x="96" y="1280" class="sans meta" fill="#7e6f5c">Planet-in-House</text>
+  <text x="96" y="1320" class="sans body" fill="#302b24">Sun / House 9</text>
+  <text x="96" y="1354" class="sans body" fill="#302b24">Moon / House 4</text>
+  <text x="96" y="1388" class="sans small" fill="#80776a">More rows available</text>
+
+  <text x="552" y="1280" class="sans meta" fill="#7e6f5c">Aspect-to-Angle</text>
+  <text x="552" y="1320" class="sans body" fill="#302b24">Venus / trine MC</text>
+  <text x="552" y="1354" class="sans body" fill="#302b24">Mars / square ASC</text>
+  <text x="552" y="1388" class="sans small" fill="#80776a">Orb and exactness shown in table</text>
+
+  <text x="970" y="1280" class="sans meta" fill="#7e6f5c">Angle-in-Sign</text>
+  <text x="970" y="1320" class="sans body" fill="#302b24">ASC / Libra</text>
+  <text x="970" y="1354" class="sans body" fill="#302b24">MC / Cancer</text>
+  <text x="970" y="1388" class="sans small" fill="#80776a">Natal and current context separated</text>
+  <line x1="96" y1="1428" x2="1344" y2="1428" stroke="#cfc5b4" stroke-width="1.2"/>
+
+  <!-- Saved work archive/catalog -->
+  <text x="96" y="1510" class="serif section" fill="#1b1813">Favorites</text>
+  <text x="96" y="1544" class="sans body" fill="#685f52">Saved places for this chart/person.</text>
+  <text x="734" y="1510" class="sans small" fill="#6f6558">Compare</text>
+
+  <line x1="96" y1="1578" x2="790" y2="1578" stroke="#d2c8b8" stroke-width="1"/>
+  <text x="96" y="1620" class="sans meta" fill="#8a7860">Natal Place</text>
+  <text x="282" y="1620" class="sans body" fill="#312b23">San Juan, Puerto Rico</text>
+  <line x1="96" y1="1648" x2="790" y2="1648" stroke="#ded7cb" stroke-width="1"/>
+  <text x="96" y="1690" class="sans meta" fill="#8a7860">Current Location</text>
+  <text x="282" y="1690" class="sans body" fill="#312b23">Austin, Texas</text>
+  <line x1="96" y1="1718" x2="790" y2="1718" stroke="#ded7cb" stroke-width="1"/>
+  <text x="96" y="1760" class="sans meta" fill="#8a7860">Candidate Place</text>
+  <text x="282" y="1760" class="sans body" fill="#312b23">Lisbon, Portugal</text>
+  <line x1="96" y1="1788" x2="790" y2="1788" stroke="#d2c8b8" stroke-width="1"/>
+
+  <line x1="856" y1="1480" x2="856" y2="1802" stroke="#d9d0c0" stroke-width="1"/>
+
+  <text x="904" y="1510" class="serif section" fill="#1b1813">Saved Searches</text>
+  <text x="904" y="1544" class="sans body" fill="#685f52">Saved inquiries, not places.</text>
+  <line x1="904" y1="1578" x2="1344" y2="1578" stroke="#d2c8b8" stroke-width="1"/>
+  <text x="904" y="1620" class="sans body" fill="#312b23">Jupiter 10th + Venus MC</text>
+  <text x="904" y="1644" class="sans small" fill="#80776a">conditions / settings / viewport</text>
+  <line x1="904" y1="1674" x2="1344" y2="1674" stroke="#ded7cb" stroke-width="1"/>
+  <text x="904" y="1716" class="sans body" fill="#312b23">Avoid Mars 12th inquiry</text>
+  <text x="904" y="1740" class="sans small" fill="#80776a">conditions / settings / viewport</text>
+  <line x1="904" y1="1770" x2="1344" y2="1770" stroke="#d2c8b8" stroke-width="1"/>
+
+  <!-- Notes: intentional but subordinate -->
+  <line x1="96" y1="1860" x2="1344" y2="1860" stroke="#cfc5b4" stroke-width="1.2"/>
+  <text x="96" y="1924" class="serif section" fill="#1b1813">Notes</text>
+  <text x="238" y="1924" class="sans body" fill="#6b6256">Human study notes, observations, and consultation context.</text>
+  <text x="1232" y="1924" class="sans small" fill="#766c5c">Add Note</text>
+  <line x1="96" y1="1962" x2="1344" y2="1962" stroke="#d8cfbe" stroke-width="1"/>
+</svg>

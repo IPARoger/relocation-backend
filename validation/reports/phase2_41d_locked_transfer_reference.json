@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "narrative": "validation/narratives/phase2_41d_locked_transfer_reference.md",
+    "png": "validation/visual_targets/phase2_41d_locked_transfer_reference.png",
+    "report": "validation/reports/phase2_41d_locked_transfer_reference.json"
+  },
+  "generated_at_utc": "2026-05-26T07:44:09.620041+00:00",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "geometry_changed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "staged": false,
+    "virga": false
+  },
+  "locked_behavior": {
+    "body_extended_or_delayed": false,
+    "midpoint_distribution_changed": false,
+    "new_curves_added": false,
+    "smoothing_only": true,
+    "speed_bump_added": false,
+    "timing_changed": false
+  },
+  "phase": "2.41d",
+  "qa_requirements": {
+    "match_approved_reference": "intended by sampled source profile",
+    "mids_preserved": true,
+    "no_flat_translucent_plateau_added": true,
+    "no_late_collapse": true,
+    "translucency_timing_preserved": true,
+    "visible_banding_reduced": "via high precision profile interpolation and final downsample"
+  },
+  "rendering_method": "Sample horizontal RGB profile from approved reference, bicubic upsample to 4096 samples, light smoothing to reduce screenshot quantization, then render narrow/medium/wide proportional bars from the same profile. No curve redesign.",
+  "revision": "locked_approved_transfer_reference_v1",
+  "scope": "approved transfer lock; no new transfer philosophy",
+  "source_of_truth": "Uploaded cropped earlier approved #8 Alpha-Only Control reference image",
+  "source_sampling": {
+    "detected_rect": {
+      "sample_y0": 80,
+      "sample_y1": 196,
+      "x0": 23,
+      "x1": 691,
+      "y0": 28,
+      "y1": 239
+    },
+    "profile_samples": 4096,
+    "source_path": "/Users/davegoodman/.cursor/projects/Users-davegoodman-Desktop-relocation-backend/assets/Screenshot_2026-05-26_at_12.58.23_PM-768b0b7f-feb2-49a9-8bdb-2b9c567f2fc4.png"
+  }
+}

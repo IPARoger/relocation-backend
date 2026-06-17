@@ -1,0 +1,99 @@
+{
+  "all_pass": true,
+  "cases": {
+    "A": {
+      "interpretation": "Only the left/9th boundary moves inward toward the fixed spine.",
+      "left_9th_widths": [
+        10,
+        6,
+        3,
+        2.5
+      ],
+      "right_10th_widths": [
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    "B": {
+      "interpretation": "Only the right/10th boundary moves inward toward the fixed spine.",
+      "left_9th_widths": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "right_10th_widths": [
+        10,
+        6,
+        3,
+        2.5
+      ]
+    }
+  },
+  "checks": {
+    "boundary_mask_only_both_cases": true,
+    "case_a_labels_exact_widths": true,
+    "case_a_left_only_shrinks_from_spine": true,
+    "case_a_present": true,
+    "case_b_labels_exact_widths": true,
+    "case_b_present": true,
+    "case_b_right_only_shrinks_from_spine": true,
+    "fixed_spine_visible_both_cases": true,
+    "measurement_callouts_visible_both_cases": true,
+    "measurement_ticks_visible_both_cases": true,
+    "no_disallowed_elements": true,
+    "prior_rejection_documented": true,
+    "schematic_truth_status_explicit": true
+  },
+  "description": "Corrected fixed-spine independent side-width aspect-band continuity proof",
+  "generated_at_utc": "2026-05-25T14:24:53.177850+00:00",
+  "html": "validation/visual_targets/phase2_36b_aspect_band_continuity.html",
+  "notes": [
+    "The dashed centerline is the fixed exactness spine and measurement anchor.",
+    "Measurement ticks/callouts show perpendicular distances from the spine to each boundary at four positions.",
+    "The whole corridor does not shrink symmetrically; only the intended boundary moves inward in each case.",
+    "Boundary/mask only: no gradient, blur, aura color, rain, virga, particles, animation, production code, or truth claim.",
+    "Existing Phase 2.36 boundary-mask artifacts remain untouched."
+  ],
+  "phase": "2.36b",
+  "previous_2_36b_status": "not approved; rejected because it still read as general ribbon/range morphing rather than independent side-width measurement from a fixed centerline",
+  "probe": {
+    "bodyText": "Phase 2.36b Fixed-Spine Side-Width Continuity Proof\n\nBoundary/mask-only schematic proof. The dashed centerline is the fixed exactness spine. Left and right boundaries are measured independently as perpendicular distances from that spine. This is schematic proportional geometry only, not truth-derived geographic extent.\n\nCase A: left/9th side shrinks from fixed spine\n\nOnly the left boundary moves inward. The right/10th side remains wide while the centerline stays fixed.\n\nSCHEMATIC ONLY\nfixed dashed spine\nleft 10 -> 6 -> 3 -> 2.5\nright stays 10\nnot truth-derived\nfixed exactness spine\nleft 10 / right 10\nstart\nleft 6 / right 10\nmiddle\nleft 3 / right 10\nlater\nleft 2.5 / right 10\nend\nOnly left/9th boundary moves inward toward the fixed spine.\nCase A measured from centerline\nNo gradient, blur, aura color, rain, virga, particles, or animation.\nCase B: right/10th side shrinks from fixed spine\n\nOnly the right boundary moves inward. The left/9th side remains wide while the centerline stays fixed.\n\nSCHEMATIC ONLY\nfixed dashed spine\nleft stays 10\nright 10 -> 6 -> 3 -> 2.5\nnot truth-derived\nfixed exactness spine\nleft 10 / right 10\nstart\nleft 10 / right 6\nmiddle\nleft 10 / right 3\nlater\nleft 10 / right 2.5\nend\nOnly right/10th boundary moves inward toward the fixed spine.\nCase B measured from centerline\nNo gradient, blur, aura color, rain, virga, particles, or animation.",
+    "cases": [
+      {
+        "disallowedElements": 0,
+        "edgeCount": 2,
+        "fillCount": 1,
+        "id": "caseA",
+        "labelCount": 4,
+        "leftWidths": "10,6,3,2.5",
+        "measureCount": 8,
+        "measureThinCount": 4,
+        "rightWidths": "10,10,10,10",
+        "spineCount": 1,
+        "text": "Case A: left/9th side shrinks from fixed spine\n\nOnly the left boundary moves inward. The right/10th side remains wide while the centerline stays fixed.\n\nSCHEMATIC ONLY\nfixed dashed spine\nleft 10 -> 6 -> 3 -> 2.5\nright stays 10\nnot truth-derived\nfixed exactness spine\nleft 10 / right 10\nstart\nleft 6 / right 10\nmiddle\nleft 3 / right 10\nlater\nleft 2.5 / right 10\nend\nOnly left/9th boundary moves inward toward the fixed spine.\nCase A measured from centerline\nNo gradient, blur, aura color, rain, virga, particles, or animation."
+      },
+      {
+        "disallowedElements": 0,
+        "edgeCount": 2,
+        "fillCount": 1,
+        "id": "caseB",
+        "labelCount": 4,
+        "leftWidths": "10,10,10,10",
+        "measureCount": 8,
+        "measureThinCount": 4,
+        "rightWidths": "10,6,3,2.5",
+        "spineCount": 1,
+        "text": "Case B: right/10th side shrinks from fixed spine\n\nOnly the right boundary moves inward. The left/9th side remains wide while the centerline stays fixed.\n\nSCHEMATIC ONLY\nfixed dashed spine\nleft stays 10\nright 10 -> 6 -> 3 -> 2.5\nnot truth-derived\nfixed exactness spine\nleft 10 / right 10\nstart\nleft 10 / right 6\nmiddle\nleft 10 / right 3\nlater\nleft 10 / right 2.5\nend\nOnly right/10th boundary moves inward toward the fixed spine.\nCase B measured from centerline\nNo gradient, blur, aura color, rain, virga, particles, or animation."
+      }
+    ]
+  },
+  "purpose": "Prove independent left/right boundary distances measured perpendicularly from a fixed exactness spine.",
+  "screenshots": {
+    "caseA": "validation/visual_targets/phase2_36b_aspect_band_continuity_caseA.png",
+    "caseB": "validation/visual_targets/phase2_36b_aspect_band_continuity_caseB.png"
+  },
+  "truth_status": "schematic proportional geometry only; not truth-derived geographic extent; not production truth rendering"
+}

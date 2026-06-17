@@ -1,0 +1,733 @@
+{
+  "schema": "polygon_reveal_topology_v1@1",
+  "sandbox_url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html",
+  "profile_id": "baseline_validated",
+  "seed": 42,
+  "output_dir": "validation/screenshots/polygon_reveal_topology",
+  "case_count": 12,
+  "pass_count": 12,
+  "fail_count": 0,
+  "page_errors": [],
+  "captures": [
+    {
+      "case_id": "final_sun_1st_dense",
+      "description": "Sun in 1st house, dense pacing, all 6 phases, Americas viewport. Constant 1.1px probes; topology emerges from probe density only.",
+      "image": "final_sun_1st_dense.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 7654,
+      "final_match_count": 4623,
+      "final_non_match_count": 3020,
+      "final_capped_count": 11,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1804,
+          "matches": 710,
+          "non_matches": 1085,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2854,
+          "matches": 1349,
+          "non_matches": 1496,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 5254,
+          "matches": 3333,
+          "non_matches": 1910,
+          "capped": 11
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 7654,
+          "matches": 4623,
+          "non_matches": 3020,
+          "capped": 11
+        }
+      ]
+    },
+    {
+      "case_id": "final_moon_4th_dense",
+      "description": "Moon in 4th house, dense pacing, all 6 phases, Americas viewport. Reference for a second target's topology under the same chart.",
+      "image": "final_moon_4th_dense.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=moon&house=4&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "moon",
+        "house": "4"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 7396,
+      "final_match_count": 4406,
+      "final_non_match_count": 2982,
+      "final_capped_count": 8,
+      "target_planet": "moon",
+      "target_house": 4,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 59,
+          "non_matches": 361,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 163,
+          "non_matches": 957,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1772,
+          "matches": 710,
+          "non_matches": 1060,
+          "capped": 2
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2596,
+          "matches": 1158,
+          "non_matches": 1436,
+          "capped": 2
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 4996,
+          "matches": 3155,
+          "non_matches": 1833,
+          "capped": 8
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 7396,
+          "matches": 4406,
+          "non_matches": 2982,
+          "capped": 8
+        }
+      ]
+    },
+    {
+      "case_id": "final_mars_2nd_dense",
+      "description": "Mars in 2nd house, dense pacing, all 6 phases, Americas viewport. Third target for visual topology comparison.",
+      "image": "final_mars_2nd_dense.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=mars&house=2&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "mars",
+        "house": "2"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 7457,
+      "final_match_count": 4396,
+      "final_non_match_count": 3059,
+      "final_capped_count": 2,
+      "target_planet": "mars",
+      "target_house": 2,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 57,
+          "non_matches": 363,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 157,
+          "non_matches": 963,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1748,
+          "matches": 675,
+          "non_matches": 1071,
+          "capped": 2
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2657,
+          "matches": 1190,
+          "non_matches": 1465,
+          "capped": 2
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 5057,
+          "matches": 3182,
+          "non_matches": 1873,
+          "capped": 2
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 7457,
+          "matches": 4396,
+          "non_matches": 3059,
+          "capped": 2
+        }
+      ]
+    },
+    {
+      "case_id": "phase_00_initial_sparse",
+      "description": "Sun in 1st, dense pacing, captured immediately after phase_00_initial_sparse (phase index 0).",
+      "image": "phase_00_initial_sparse.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&stopAtPhase=0&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "stopAtPhase": "0"
+      },
+      "classify_endpoint_calls": 1,
+      "final_probe_count": 420,
+      "final_match_count": 63,
+      "final_non_match_count": 357,
+      "final_capped_count": 0,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        }
+      ]
+    },
+    {
+      "case_id": "phase_01_broad_cluster",
+      "description": "Sun in 1st, dense pacing, captured immediately after phase_01_broad_cluster (phase index 1).",
+      "image": "phase_01_broad_cluster.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&stopAtPhase=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "stopAtPhase": "1"
+      },
+      "classify_endpoint_calls": 2,
+      "final_probe_count": 1120,
+      "final_match_count": 171,
+      "final_non_match_count": 949,
+      "final_capped_count": 0,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        }
+      ]
+    },
+    {
+      "case_id": "phase_02_regional_focus",
+      "description": "Sun in 1st, dense pacing, captured immediately after phase_02_regional_focus (phase index 2).",
+      "image": "phase_02_regional_focus.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&stopAtPhase=2&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "stopAtPhase": "2"
+      },
+      "classify_endpoint_calls": 3,
+      "final_probe_count": 1804,
+      "final_match_count": 710,
+      "final_non_match_count": 1085,
+      "final_capped_count": 9,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1804,
+          "matches": 710,
+          "non_matches": 1085,
+          "capped": 9
+        }
+      ]
+    },
+    {
+      "case_id": "phase_03_boundary_hunt",
+      "description": "Sun in 1st, dense pacing, captured immediately after phase_03_boundary_hunt (phase index 3).",
+      "image": "phase_03_boundary_hunt.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&stopAtPhase=3&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "stopAtPhase": "3"
+      },
+      "classify_endpoint_calls": 4,
+      "final_probe_count": 2854,
+      "final_match_count": 1349,
+      "final_non_match_count": 1496,
+      "final_capped_count": 9,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1804,
+          "matches": 710,
+          "non_matches": 1085,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2854,
+          "matches": 1349,
+          "non_matches": 1496,
+          "capped": 9
+        }
+      ]
+    },
+    {
+      "case_id": "phase_04_dense_fill",
+      "description": "Sun in 1st, dense pacing, captured immediately after phase_04_dense_fill (phase index 4).",
+      "image": "phase_04_dense_fill.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&stopAtPhase=4&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "stopAtPhase": "4"
+      },
+      "classify_endpoint_calls": 5,
+      "final_probe_count": 5254,
+      "final_match_count": 3333,
+      "final_non_match_count": 1910,
+      "final_capped_count": 11,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1804,
+          "matches": 710,
+          "non_matches": 1085,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2854,
+          "matches": 1349,
+          "non_matches": 1496,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 5254,
+          "matches": 3333,
+          "non_matches": 1910,
+          "capped": 11
+        }
+      ]
+    },
+    {
+      "case_id": "phase_05_final_topology",
+      "description": "Sun in 1st, dense pacing, captured immediately after phase_05_final_topology (phase index 5).",
+      "image": "phase_05_final_topology.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&stopAtPhase=5&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "stopAtPhase": "5"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 7654,
+      "final_match_count": 4623,
+      "final_non_match_count": 3020,
+      "final_capped_count": 11,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1804,
+          "matches": 710,
+          "non_matches": 1085,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2854,
+          "matches": 1349,
+          "non_matches": 1496,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 5254,
+          "matches": 3333,
+          "non_matches": 1910,
+          "capped": 11
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 7654,
+          "matches": 4623,
+          "non_matches": 3020,
+          "capped": 11
+        }
+      ]
+    },
+    {
+      "case_id": "density_sparse_micro",
+      "description": "Same topology, sparse micro density: bloom pacing \u00d7 0.6 density mult, constant 1.0px probes. Target: see whether sparse occupancy can communicate the polygon at all.",
+      "image": "density_sparse_micro.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=bloom&viewport=americas&planet=sun&house=1&probeRadius=1.0&densityMult=0.6&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "bloom",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "probeRadius": "1.0",
+        "densityMult": "0.6"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 1968,
+      "final_match_count": 1113,
+      "final_non_match_count": 833,
+      "final_capped_count": 22,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 108,
+          "matches": 18,
+          "non_matches": 90,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 300,
+          "matches": 48,
+          "non_matches": 252,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 444,
+          "matches": 132,
+          "non_matches": 299,
+          "capped": 13
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 828,
+          "matches": 362,
+          "non_matches": 450,
+          "capped": 16
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 1368,
+          "matches": 766,
+          "non_matches": 580,
+          "capped": 22
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 1968,
+          "matches": 1113,
+          "non_matches": 833,
+          "capped": 22
+        }
+      ]
+    },
+    {
+      "case_id": "density_medium_micro",
+      "description": "Same topology, medium micro density: dense pacing \u00d7 1.0 density mult, constant 1.0px probes. Target: 'reads as geography' threshold.",
+      "image": "density_medium_micro.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=dense&viewport=americas&planet=sun&house=1&probeRadius=1.0&densityMult=1.0&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "dense",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "probeRadius": "1.0",
+        "densityMult": "1.0"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 7654,
+      "final_match_count": 4623,
+      "final_non_match_count": 3020,
+      "final_capped_count": 11,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 420,
+          "matches": 63,
+          "non_matches": 357,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 1120,
+          "matches": 171,
+          "non_matches": 949,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 1804,
+          "matches": 710,
+          "non_matches": 1085,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 2854,
+          "matches": 1349,
+          "non_matches": 1496,
+          "capped": 9
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 5254,
+          "matches": 3333,
+          "non_matches": 1910,
+          "capped": 11
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 7654,
+          "matches": 4623,
+          "non_matches": 3020,
+          "capped": 11
+        }
+      ]
+    },
+    {
+      "case_id": "density_extreme_micro",
+      "description": "Same topology, extreme micro density: micro pacing \u00d7 1.5 density mult, constant 0.85px probes. Stresses the SVG renderer; expect noticeable load time. Target: 'pixel-indistinguishable' threshold.",
+      "image": "density_extreme_micro.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=micro&viewport=americas&planet=sun&house=1&probeRadius=0.85&densityMult=1.5&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "micro",
+        "viewport": "americas",
+        "planet": "sun",
+        "house": "1",
+        "probeRadius": "0.85",
+        "densityMult": "1.5"
+      },
+      "classify_endpoint_calls": 6,
+      "final_probe_count": 19183,
+      "final_match_count": 12186,
+      "final_non_match_count": 6967,
+      "final_capped_count": 30,
+      "target_planet": "sun",
+      "target_house": 1,
+      "phases": [
+        {
+          "phase_id": "phase_00_initial_sparse",
+          "phase_idx": 0,
+          "probe_count": 780,
+          "matches": 119,
+          "non_matches": 661,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_01_broad_cluster",
+          "phase_idx": 1,
+          "probe_count": 2430,
+          "matches": 369,
+          "non_matches": 2061,
+          "capped": 0
+        },
+        {
+          "phase_id": "phase_02_regional_focus",
+          "phase_idx": 2,
+          "probe_count": 4644,
+          "matches": 2314,
+          "non_matches": 2308,
+          "capped": 22
+        },
+        {
+          "phase_id": "phase_03_boundary_hunt",
+          "phase_idx": 3,
+          "probe_count": 7183,
+          "matches": 3732,
+          "non_matches": 3429,
+          "capped": 22
+        },
+        {
+          "phase_id": "phase_04_dense_fill",
+          "phase_idx": 4,
+          "probe_count": 13183,
+          "matches": 8912,
+          "non_matches": 4241,
+          "capped": 30
+        },
+        {
+          "phase_id": "phase_05_final_topology",
+          "phase_idx": 5,
+          "probe_count": 19183,
+          "matches": 12186,
+          "non_matches": 6967,
+          "capped": 30
+        }
+      ]
+    }
+  ]
+}

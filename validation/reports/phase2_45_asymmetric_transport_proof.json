@@ -1,0 +1,227 @@
+{
+  "artifact": "validation/visual_targets/phase2_45_asymmetric_transport_proof.png",
+  "case_results": {
+    "case_a_fixed_asymmetric": {
+      "asymmetry_support": "pass - independent side-local u retained",
+      "curved_rendered": true,
+      "left_width_units": 10,
+      "right_width_units": 3,
+      "straight_rendered": true
+    },
+    "case_b_dynamic_asymmetric": {
+      "curved_rendered": true,
+      "dynamic_width_without_transport_change": "pass - station-local right width retained",
+      "left_width_units": "constant 10",
+      "right_width_units": "10 -> 3 along s",
+      "straight_rendered": true
+    }
+  },
+  "changed_only": [
+    "1D material profile remap delaying final pale/near-white territory",
+    "expanded restrained blue residency in outer mids",
+    "preserved narrow ridge hierarchy and fast compression near ridge",
+    "retained Phase 2.46A linear RGB/dense float sampling"
+  ],
+  "forbidden_operations": {
+    "blur": false,
+    "geometry_changes": false,
+    "glow": false,
+    "haze": false,
+    "new_effects": false,
+    "post_processing": false,
+    "softened_edges": false,
+    "transport_redesign": false,
+    "visible_textures": false
+  },
+  "forced_symmetry_used": false,
+  "frozen_invariants": [
+    "local (s,u) texture-coordinate transport",
+    "independent side normalization",
+    "asymmetry handling",
+    "orthogonal cross-section logic",
+    "strip width logic",
+    "curved/straight geometry cases",
+    "sample-cut QA logic",
+    "RGB-only rendering model"
+  ],
+  "generated_at_utc": "2026-05-26T12:28:31.498884+00:00",
+  "global_width_used": false,
+  "goal": "1D material texture remapping only to rebalance outer mids and reduce premature whitening",
+  "governance": {
+    "committed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "staged": false,
+    "validation_only": true
+  },
+  "material_read": "denser and more materially present than 2.46A while remaining restrained; still validation material, not final visual-language approval",
+  "normalization_formula": {
+    "left_u": "distance_from_centerline_to_left / local_left_width",
+    "right_u": "distance_from_centerline_to_right / local_right_width"
+  },
+  "phase": "2.46B",
+  "qa_inspection": {
+    "asymmetry_correctness": "Case A fixed and Case B dynamic still pass with independent side-local normalization",
+    "broken_material_continuity": "no broken cross-section continuity observed",
+    "lingering_haze": "not intentionally increased; outer mids are more blue/material rather than pale fog",
+    "premature_whitening": "reduced by delaying the final pale source range to the outermost side region",
+    "ridge_width": "preserved narrow ridge hierarchy; no deliberate ridge widening introduced"
+  },
+  "revision": "mid_body_rebalancing_texture_only_v1",
+  "sampled_stops_from_rebalanced_profile": [
+    {
+      "cross_strip_u": 0,
+      "rgb": [
+        209,
+        214,
+        223
+      ]
+    },
+    {
+      "cross_strip_u": 0.08,
+      "rgb": [
+        208,
+        213,
+        222
+      ]
+    },
+    {
+      "cross_strip_u": 0.18,
+      "rgb": [
+        207,
+        213,
+        222
+      ]
+    },
+    {
+      "cross_strip_u": 0.32,
+      "rgb": [
+        185,
+        195,
+        217
+      ]
+    },
+    {
+      "cross_strip_u": 0.44,
+      "rgb": [
+        109,
+        129,
+        188
+      ]
+    },
+    {
+      "cross_strip_u": 0.48,
+      "rgb": [
+        10,
+        16,
+        77
+      ]
+    },
+    {
+      "cross_strip_u": 0.5,
+      "rgb": [
+        8,
+        14,
+        71
+      ]
+    },
+    {
+      "cross_strip_u": 0.52,
+      "rgb": [
+        10,
+        16,
+        77
+      ]
+    },
+    {
+      "cross_strip_u": 0.56,
+      "rgb": [
+        109,
+        129,
+        188
+      ]
+    },
+    {
+      "cross_strip_u": 0.72,
+      "rgb": [
+        201,
+        208,
+        221
+      ]
+    },
+    {
+      "cross_strip_u": 0.88,
+      "rgb": [
+        207,
+        213,
+        222
+      ]
+    },
+    {
+      "cross_strip_u": 1.0,
+      "rgb": [
+        209,
+        214,
+        223
+      ]
+    }
+  ],
+  "side_normalization": "independent per side per station",
+  "side_width_averaging_used": false,
+  "stats": {
+    "case_a_curved": {
+      "left_pixels": 1115067,
+      "left_u_minmax": [
+        4.370273529730184e-07,
+        0.9999990463256836
+      ],
+      "pixels_inside": 1451021,
+      "right_pixels": 335954,
+      "right_u_minmax": [
+        1.968519654838019e-06,
+        0.9999986290931702
+      ]
+    },
+    "case_a_straight": {
+      "left_pixels": 1119360,
+      "left_u_minmax": [
+        0.0011363636003807187,
+        0.9988636374473572
+      ],
+      "pixels_inside": 1455168,
+      "right_pixels": 335808,
+      "right_u_minmax": [
+        0.0037878789007663727,
+        0.9962121248245239
+      ]
+    },
+    "case_b_curved": {
+      "left_pixels": 1128048,
+      "left_u_minmax": [
+        9.756873851074488e-07,
+        0.9999997019767761
+      ],
+      "pixels_inside": 1857133,
+      "right_pixels": 729085,
+      "right_u_minmax": [
+        2.095606305374531e-06,
+        0.9999979734420776
+      ]
+    },
+    "case_b_straight": {
+      "left_pixels": 1119360,
+      "left_u_minmax": [
+        0.0011363636003807187,
+        0.9988636374473572
+      ],
+      "pixels_inside": 1846944,
+      "right_pixels": 727584,
+      "right_u_minmax": [
+        0.0011363636003807187,
+        0.999996542930603
+      ]
+    }
+  },
+  "texture_source": "validation/visual_targets/phase2_44_tightened_material_texture_control.png",
+  "updates_existing_outputs_from": "2.45/2.46A"
+}

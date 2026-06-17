@@ -1,0 +1,135 @@
+{
+  "acceptance_criteria": {
+    "centerline_core_narrow_not_broad": true,
+    "centerline_darkest_most_opaque_selected_color": true,
+    "exactness_crest_not_fat_cloudy_speedbump": true,
+    "labels_readable_outside_tight_core": true,
+    "no_frayed_or_noisy_edge": true,
+    "no_pixel_or_probe_field_artifacts": true,
+    "no_rain_virga_dots_particles_animation": true,
+    "no_visible_stripe_artifacts": true,
+    "no_white_centerline": true,
+    "no_white_edge": true,
+    "opacity_concentrated_tightly_at_centerline": true,
+    "outer_band_translucent_to_near_transparent": true,
+    "outer_boundary_continuous_uniform_extremely_faint": true,
+    "rapid_falloff_after_immediate_core": true,
+    "same_diagonal_band_path": true,
+    "same_map_like_background": true,
+    "smooth_continuous_gradient": true
+  },
+  "all_pass": true,
+  "description": "Static aspect-to-angle band visual target mockups",
+  "generated_at_utc": "2026-05-25T12:13:34.807294+00:00",
+  "html": "validation/visual_targets/phase2_36_aspect_band_targets.html",
+  "notes": [
+    "Static target artifacts only.",
+    "No production code, renderer implementation, map_CURRENT.html integration, animation, rain, virga, dots, or discovery particles.",
+    "Visual acceptance still requires human review of PNGs before implementation."
+  ],
+  "phase": "2.36",
+  "selected_color": "gold/yellow",
+  "variants": [
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "centerline_deep_selected_color": true,
+        "no_particle_rendering": true,
+        "no_white_centerline": true,
+        "no_white_edge_declared": true,
+        "smooth_continuous_gradient": true,
+        "static_only_declared": true,
+        "static_target_exists": true,
+        "stripe_free_declared": true
+      },
+      "id": "10deg",
+      "label": "\u00b110\u00b0 per side",
+      "probe": {
+        "badgeText": "STATIC TARGET ONLY",
+        "bandBackground": "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(218, 165, 32, 0.02) 2%, rgba(218, 165, 32, 0.055) 14%, rgba(218, 165, 32, 0.12) 28%, rgba(218, 165, 32, 0.28) calc(50% - 7.5px), rgba(218, 165, 32, 0.62) calc(50% - 3.15px), rgba(218, 165, 32, 0.86) 50%, rgba(218, 165, 32, 0.62) calc(50% + 3.15px), rgba(218, 165, 32, 0.28) calc(50% + 7.5px), rgba(218, 165, 32, 0.12) 72%, rgba(218, 165, 32, 0.055) 86%, rgba(218, 165, 32, 0.02) 98%, rgba(0, 0, 0, 0) 100%)",
+        "bandWidth": "220px",
+        "centerlineBackground": "rgba(121, 73, 0, 0.72)",
+        "footerText": "Selected color: gold\nContinuous gradient, stripe-free, no white.",
+        "renderedParticleElements": 0,
+        "targetExists": true
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_10deg.png"
+    },
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "centerline_deep_selected_color": true,
+        "no_particle_rendering": true,
+        "no_white_centerline": true,
+        "no_white_edge_declared": true,
+        "smooth_continuous_gradient": true,
+        "static_only_declared": true,
+        "static_target_exists": true,
+        "stripe_free_declared": true
+      },
+      "id": "8deg",
+      "label": "\u00b18\u00b0 per side",
+      "probe": {
+        "badgeText": "STATIC TARGET ONLY",
+        "bandBackground": "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(218, 165, 32, 0.02) 2%, rgba(218, 165, 32, 0.055) 14%, rgba(218, 165, 32, 0.12) 28%, rgba(218, 165, 32, 0.28) calc(50% - 6px), rgba(218, 165, 32, 0.62) calc(50% - 2.52px), rgba(218, 165, 32, 0.86) 50%, rgba(218, 165, 32, 0.62) calc(50% + 2.52px), rgba(218, 165, 32, 0.28) calc(50% + 6px), rgba(218, 165, 32, 0.12) 72%, rgba(218, 165, 32, 0.055) 86%, rgba(218, 165, 32, 0.02) 98%, rgba(0, 0, 0, 0) 100%)",
+        "bandWidth": "176px",
+        "centerlineBackground": "rgba(121, 73, 0, 0.72)",
+        "footerText": "Selected color: gold\nContinuous gradient, stripe-free, no white.",
+        "renderedParticleElements": 0,
+        "targetExists": true
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_8deg.png"
+    },
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "centerline_deep_selected_color": true,
+        "no_particle_rendering": true,
+        "no_white_centerline": true,
+        "no_white_edge_declared": true,
+        "smooth_continuous_gradient": true,
+        "static_only_declared": true,
+        "static_target_exists": true,
+        "stripe_free_declared": true
+      },
+      "id": "6deg",
+      "label": "\u00b16\u00b0 per side",
+      "probe": {
+        "badgeText": "STATIC TARGET ONLY",
+        "bandBackground": "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(218, 165, 32, 0.02) 2%, rgba(218, 165, 32, 0.055) 14%, rgba(218, 165, 32, 0.12) 28%, rgba(218, 165, 32, 0.28) calc(50% - 4.5px), rgba(218, 165, 32, 0.62) calc(50% - 1.89px), rgba(218, 165, 32, 0.86) 50%, rgba(218, 165, 32, 0.62) calc(50% + 1.89px), rgba(218, 165, 32, 0.28) calc(50% + 4.5px), rgba(218, 165, 32, 0.12) 72%, rgba(218, 165, 32, 0.055) 86%, rgba(218, 165, 32, 0.02) 98%, rgba(0, 0, 0, 0) 100%)",
+        "bandWidth": "132px",
+        "centerlineBackground": "rgba(121, 73, 0, 0.72)",
+        "footerText": "Selected color: gold\nContinuous gradient, stripe-free, no white.",
+        "renderedParticleElements": 0,
+        "targetExists": true
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_6deg.png"
+    },
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "centerline_deep_selected_color": true,
+        "no_particle_rendering": true,
+        "no_white_centerline": true,
+        "no_white_edge_declared": true,
+        "smooth_continuous_gradient": true,
+        "static_only_declared": true,
+        "static_target_exists": true,
+        "stripe_free_declared": true
+      },
+      "id": "3deg",
+      "label": "\u00b13\u00b0 per side",
+      "probe": {
+        "badgeText": "STATIC TARGET ONLY",
+        "bandBackground": "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(218, 165, 32, 0.02) 2%, rgba(218, 165, 32, 0.055) 14%, rgba(218, 165, 32, 0.12) 28%, rgba(218, 165, 32, 0.28) calc(50% - 2.8px), rgba(218, 165, 32, 0.62) calc(50% - 1.176px), rgba(218, 165, 32, 0.86) 50%, rgba(218, 165, 32, 0.62) calc(50% + 1.176px), rgba(218, 165, 32, 0.28) calc(50% + 2.8px), rgba(218, 165, 32, 0.12) 72%, rgba(218, 165, 32, 0.055) 86%, rgba(218, 165, 32, 0.02) 98%, rgba(0, 0, 0, 0) 100%)",
+        "bandWidth": "66px",
+        "centerlineBackground": "rgba(121, 73, 0, 0.72)",
+        "footerText": "Selected color: gold\nContinuous gradient, stripe-free, no white.",
+        "renderedParticleElements": 0,
+        "targetExists": true
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_3deg.png"
+    }
+  ],
+  "visual_approach": "Standalone HTML/CSS design sheet with map-like background, readable city labels, one diagonal exactness path, gold continuous gradients, narrow dark centerline, and proportional widths for \u00b110\u00b0, \u00b18\u00b0, \u00b16\u00b0, and \u00b13\u00b0 targets."
+}

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chart Wheel — Holistic v09</title>
+
+<!--
+  ============================================================
+  prototype_chart_wheel_holistic_v09.html
+  ============================================================
+  FIXES (from your v08 notes + the 3 screenshots):
+  - RE-INSERTED the tiny inner circle (I cut the wrong one).
+    House lines now extend ALL the way to it. The glow lives here.
+  - Aspect ring kept (lines terminate on it, never touch planets).
+  - So 4 rings: outer · zodiac-inner · aspect · tiny-inner.
+  - Degree/minute: now real GREY (degree) + LIGHTER GREY (minute),
+    de-emphasized, with a paper "halo" so they sit cleanly OVER any
+    line instead of fighting it (fixes the messy overlap).
+  - House numbers pulled inward (near the tiny circle) and made a
+    touch more prominent — houses matter most for relocation.
+  - Alternating house shading bumped so it actually reads.
+  - Glyphs enlarged a little (less squinting).
+
+  GLOW / LIFE (the part you're after):
+  - Glow is CONFINED near the tiny inner circle ("from within"),
+    not spread across the wheel. Because it's confined, it can be
+    a bit more intense without becoming nebula.
+  - Recaptured a QUIET outer aura (gentler than v6) that bleeds a
+    little into the paper.
+  - Paper is greyer / less sepia now; cream is kept only in the
+    band LAYER. Base paper carries a ~5% tint for "quiet pulsation."
+  - Gold read as most neutral (blue=home/red=away felt like an
+    opinion that could nudge user decisions — parked).
+
+  OPEN / PARKED:
+  - Final glow hue + strength; whether natal vs relocated differ.
+  - Carrying the same "inner glow" idea into tables.
+  - Map overlays will be REAL colors with child colors on 2-4
+    overlaps — our grey+single-tint language should sit politely
+    underneath that so the map can shout and the chart can whisper.
+  ============================================================
+-->
+
+<style>
+  :root { --ink:#2b2926; --g1:#6f6a60; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#e6e6e3; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1120px; margin:0 auto; padding:24px 24px 80px; }
+  h1 { font-size:18px; margin:0 0 2px; }
+  .sub { font-size:13px; color:var(--g1); margin:0 0 8px; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--g1); margin:8px 0 12px; }
+
+  .stage { border-radius:12px; padding:46px; margin-bottom:24px; display:flex; gap:40px;
+    align-items:center; flex-wrap:wrap; justify-content:center; }
+  .stage .caption { font-size:12.5px; color:var(--g1); line-height:1.55; max-width:280px; }
+  .stage .caption b { color:var(--ink); }
+  .cap-site { font-size:11px; color:var(--g1); margin-top:6px; }
+
+  .disc { display:inline-block; border-radius:50%; overflow:hidden;
+    box-shadow: 0 2px 8px rgba(43,41,38,.15), inset 0 0 0 1px rgba(43,41,38,.05); }
+  .disc.aura-gold { box-shadow: 0 0 30px 2px rgba(184,154,85,.18), 0 2px 8px rgba(43,41,38,.15), inset 0 0 0 1px rgba(43,41,38,.05); }
+  .disc.aura-teal { box-shadow: 0 0 30px 2px rgba(70,134,140,.16), 0 2px 8px rgba(43,41,38,.15), inset 0 0 0 1px rgba(43,41,38,.05); }
+  .disc.lg { width:440px; max-width:100%; }
+  .disc.md { width:330px; }
+  .disc.sm { width:235px; }
+  .disc svg { display:block; width:100%; height:auto; }
+
+  .row { display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; justify-content:center; }
+  .cell { text-align:center; }
+  .cell .nm { font-size:12px; font-weight:600; margin-top:9px; }
+  .cell .dsc { font-size:11px; color:var(--g1); }
+  .pairlab { font-size:12px; font-weight:600; text-align:center; margin-top:10px; }
+  .pairlab .tag { font-weight:400; color:var(--g1); }
+
+  .house-num { fill:#3f3b34; font-weight:600; font-family:-apple-system,Helvetica,Arial,sans-serif; }
+  .axis-lbl { font-weight:700; fill:var(--ink); letter-spacing:.04em; }
+  .axis-deg { fill:#6f6a60; font-family:-apple-system,Helvetica,Arial,sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chart wheel — holistic (v09)</h1>
+  <p class="sub">Tiny inner circle back, glow confined "from within", greyer paper, degrees de-emphasized & halo'd. Still exploratory.</p>
+
+  <h2>A · The refined chart (confined inner glow + quiet outer aura)</h2>
+  <div class="stage" style="background:#e3e3e0">
+    <div class="disc lg aura-gold" id="mainA"></div>
+    <div class="caption">
+      <p><b>Glow rises from the tiny inner circle</b> and fades before the aspect ring — life without nebula.</p>
+      <p><b>House lines</b> run all the way to that tiny circle; <b>house numbers</b> sit just outside it, slightly bolder.</p>
+      <p><b>Degree°</b> grey, <b>minute</b> lighter grey, both with a paper halo so they read cleanly over the lines.</p>
+      <p class="cap-site">Greyer base · cream kept only in the sign band · ~5% gold in the paper</p>
+    </div>
+  </div>
+
+  <h2>B · Home vs Guest (leaning gold-neutral, not blue/red)</h2>
+  <div class="stage" style="background:#ebeae6; gap:48px">
+    <div class="cell"><div class="disc md aura-gold" id="home"></div>
+      <div class="pairlab">Natal <span class="tag">· home · warm gold</span></div></div>
+    <div class="cell"><div class="disc md" id="guest"></div>
+      <div class="pairlab">Current Location <span class="tag">· guest · cool, fainter</span></div></div>
+  </div>
+  <p class="sub" style="text-align:center">Difference is intensity/temperature, not a loud hue — we don't want color nudging the user's decision.</p>
+
+  <h2>C · Glow exploration — all confined to the center</h2>
+  <div class="stage" style="background:#eaeae8">
+    <div class="row" id="glowRow"></div>
+  </div>
+
+  <h2>D · Paper "pulsation" on a roomy page (general color vs chart color)</h2>
+  <div class="stage" style="background:#e9e9e7; min-height:320px">
+    <div class="cell"><div class="disc md" id="pap1"></div><div class="nm" style="font-size:12px;font-weight:600;margin-top:9px">Neutral grey</div><div class="dsc" style="font-size:11px;color:#6f6a60">0% tint</div></div>
+  </div>
+  <div class="stage" style="background:#eae9e5; min-height:320px">
+    <div class="cell"><div class="disc md" id="pap2"></div><div class="nm" style="font-size:12px;font-weight:600;margin-top:9px">Grey + 5% gold</div><div class="dsc" style="font-size:11px;color:#6f6a60">quiet pulsation</div></div>
+  </div>
+</div>
+
+<script>
+  var GREY={ink:'#2b2926', cusp:'#8a857a', divider:'#9b968b', tick5:'#c4bfb2', innerSoft:'#9a9485'};
+
+  var planets=[
+    {t:'Su',a:200,d:22,m:14},{t:'Mo',a:95,d:7,m:51},{t:'Me',a:213,d:15,m:3},{t:'Ve',a:165,d:2,m:40},
+    {t:'Ma',a:300,d:4,m:22},{t:'Ju',a:40,d:11,m:18},{t:'Sa',a:340,d:5,m:9},{t:'Ur',a:128,d:14,m:47},
+    {t:'Ne',a:74,d:24,m:31},{t:'Pl',a:255,d:9,m:55},{t:'Ch',a:18,d:29,m:6}
+  ];
+  function byT(t){ return planets.find(function(p){return p.t===t;}); }
+  var aspectsFull=[
+    ['Su','Mo','soft'],['Su','Ma','hard'],['Su','Ju','soft'],['Su','Sa','hard'],['Su','Ne','minor'],
+    ['Mo','Ve','soft'],['Mo','Ur','soft'],['Mo','Pl','hard'],
+    ['Me','Ve','soft'],['Me','Ma','hard'],['Me','Ne','minor'],['Me','Ju','soft'],
+    ['Ve','Sa','soft'],['Ve','Ma','hard'],['Ma','Pl','hard'],['Ma','Ju','soft'],
+    ['Ju','Sa','hard'],['Sa','Ur','minor'],['Ur','Ne','soft'],['Ne','Pl','soft'],['Su','Ch','minor']
+  ];
+  var cusps=[180,146,118,84,56,24,0,326,298,264,236,204];
+  var angleInfo={0:{l:'ASC',deg:'02° Leo'},9:{l:'MC',deg:'19° Ari'},6:{l:'DSC',deg:'02° Aqu'},3:{l:'IC',deg:'19° Lib'}};
+
+  function glyph(t){
+    switch(t){
+      case 'Su': return '<circle cx="0" cy="0" r="3.4"/><circle cx="0" cy="0" r="0.8" fill="currentColor"/>';
+      case 'Mo': return '<path d="M1.7,-3.7 A3.8,3.8 0 1 0 1.7,3.7 A2.6,3.8 0 1 1 1.7,-3.7 Z" fill="currentColor" stroke="none"/>';
+      case 'Me': return '<circle cx="0" cy="0" r="2"/><path d="M-2,-3.8 A2,2 0 0 0 2,-3.8"/><line x1="0" y1="2" x2="0" y2="4.7"/><line x1="-1.5" y1="3.4" x2="1.5" y2="3.4"/>';
+      case 'Ve': return '<circle cx="0" cy="-1.1" r="2.1"/><line x1="0" y1="1" x2="0" y2="4.7"/><line x1="-1.6" y1="2.9" x2="1.6" y2="2.9"/>';
+      case 'Ma': return '<circle cx="-1.1" cy="1.3" r="2.3"/><line x1="0.7" y1="-0.6" x2="3.9" y2="-3.8"/><line x1="3.9" y1="-3.8" x2="2.0" y2="-3.8"/><line x1="3.9" y1="-3.8" x2="3.9" y2="-1.9"/>';
+      case 'Ju': return '<path d="M-3.2,-2.4 C-3.2,-4.5 0.2,-4.5 0.2,-1 L0.2,4.5"/><line x1="-1.5" y1="1.5" x2="3.4" y2="1.5"/>';
+      case 'Sa': return '<path d="M-2.8,-3 C-1,-4.3 1.7,-3.6 1.7,-0.8 C1.7,2.4 0,4.5 -2.4,4.5"/><line x1="-3.6" y1="-1.3" x2="0.2" y2="-1.3"/>';
+      case 'Ur': return '<line x1="0" y1="-4.1" x2="0" y2="2.4"/><line x1="-2.8" y1="-1.5" x2="2.8" y2="-1.5"/><line x1="-2.8" y1="-3.2" x2="-2.8" y2="0"/><line x1="2.8" y1="-3.2" x2="2.8" y2="0"/><circle cx="0" cy="3.6" r="1.1"/>';
+      case 'Ne': return '<line x1="0" y1="-2.4" x2="0" y2="4.5"/><path d="M-3.2,-3.2 L-3.2,0.4 M3.2,-3.2 L3.2,0.4 M-3.2,0.2 Q0,3.2 3.2,0.2"/><line x1="-1.7" y1="2.6" x2="1.7" y2="2.6"/>';
+      case 'Pl': return '<circle cx="0" cy="-1.5" r="1.4"/><path d="M-2,4.5 L-2,-2.8 L0.1,-2.8"/>';
+      case 'Ch': return '<circle cx="0" cy="3.2" r="1.7"/><line x1="0" y1="1.5" x2="0" y2="-4.3"/><line x1="0" y1="-2.1" x2="2.6" y2="-4.5"/><line x1="0" y1="-2.1" x2="2.6" y2="0"/>';
+    }
+    return '';
+  }
+  function signGlyph(i){
+    switch(i){
+      case 0:  return '<path d="M-3,2.5 C-3,-3 -0.6,-3 0,0 C0.6,-3 3,-3 3,2.5"/>';
+      case 1:  return '<circle cx="0" cy="1.4" r="2.4"/><path d="M-3.4,-3.2 A3 3 0 0 0 3.4,-3.2"/>';
+      case 2:  return '<line x1="-2.6" y1="-3" x2="2.6" y2="-3"/><line x1="-2.6" y1="3" x2="2.6" y2="3"/><line x1="-1.4" y1="-3" x2="-1.4" y2="3"/><line x1="1.4" y1="-3" x2="1.4" y2="3"/>';
+      case 3:  return '<circle cx="-1.4" cy="-1.2" r="1.3"/><circle cx="1.4" cy="1.2" r="1.3"/><path d="M-2.7,-1.2 A3 3 0 0 1 1.4,-2.6"/><path d="M2.7,1.2 A3 3 0 0 1 -1.4,2.6"/>';
+      case 4:  return '<circle cx="-1.2" cy="1.4" r="1.8"/><path d="M0.4,2 C0.4,-2 -1,-3.5 1.4,-3.5 C3,-3.5 3,-1.4 2.2,-0.6"/>';
+      case 5:  return '<path d="M-3.4,-2.5 L-3.4,2.5 M-3.4,-2.5 C-2,-3.4 -1,-2.6 -1,-1 L-1,2.5 M-1,-1 C-1,-3 0.6,-3.4 1.2,-1 L1.2,2.5 M1.2,1 C1.2,3.2 3,3 3.2,1.4"/>';
+      case 6:  return '<path d="M-3.4,2.4 L3.4,2.4 M-2.6,0 A2.6 2.6 0 0 1 2.6,0 L-2.6,0"/>';
+      case 7:  return '<path d="M-3.4,-2.5 L-3.4,2.5 M-3.4,-2.5 C-2,-3.4 -1,-2.6 -1,-1 L-1,2.5 M-1,-1 C-1,-3 0.6,-3.4 1.2,-1 L1.2,3.4"/><path d="M1.2,1 L3.4,3.4 M3.4,1.2 L3.4,3.4 L1.6,3.4"/>';
+      case 8:  return '<line x1="-3" y1="3" x2="3" y2="-3"/><line x1="3" y1="-3" x2="0.6" y2="-3"/><line x1="3" y1="-3" x2="3" y2="-0.6"/><line x1="-1.6" y1="0.4" x2="0.6" y2="2.6"/>';
+      case 9:  return '<path d="M-3,-3 C-2,-3.4 -1,-2.6 -1,-1 L-1,3 M-1,-1 C-1,-3 1,-3 1.4,-0.6 C2,2 -0.2,3.4 -1.6,2"/>';
+      case 10: return '<path d="M-3.4,-1.4 L-1.8,-2.6 L-0.2,-1.4 L1.4,-2.6 L3,-1.4 M-3.4,1.4 L-1.8,0.2 L-0.2,1.4 L1.4,0.2 L3,1.4"/>';
+      case 11: return '<path d="M-2.6,-3 C-4,-1 -4,1 -2.6,3 M2.6,-3 C4,-1 4,1 2.6,3 M-3.2,0 L3.2,0"/>';
+    }
+    return '';
+  }
+
+  var uid=0;
+  // opts: {base, band, freq, op, glow:{color,alpha,reach}, halo}
+  function buildWheel(S, pal, opts){
+    opts=opts||{}; uid++;
+    var c=S/2, k=S/480, id=uid;
+    var Rclip=0.5*S, Rlabel=0.44*S, Rout=0.41*S, Rzod=0.345*S, Rsg=0.378*S,
+        Rplanet=0.308*S, Rdeg=0.333*S, Raring=0.27*S, Rcore=0.072*S, Rnum=0.135*S;
+    function pt(a,r){var rad=a*Math.PI/180;return [c+r*Math.cos(rad), c-r*Math.sin(rad)];}
+    function ln(a,r1,r2,col,w,round){var p1=pt(a,r1),p2=pt(a,r2);
+      return '<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'"'+(round?' stroke-linecap="round"':'')+'/>';}
+    function cir(r,col,w){return '<circle cx="'+c+'" cy="'+c+'" r="'+r.toFixed(2)+'" fill="none" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'"/>';}
+    function wedgeEven(a1,a2,rO,rI,fill){
+      var pts=[],a; for(a=a1;a<=a2;a+=2){var p=pt(a,rO);pts.push(p[0].toFixed(1)+','+p[1].toFixed(1));}
+      for(a=a2;a>=a1;a-=2){var q=pt(a,rI);pts.push(q[0].toFixed(1)+','+q[1].toFixed(1));}
+      return '<polygon points="'+pts.join(' ')+'" fill="'+fill+'" stroke="none"/>';}
+    function wedgeCusp(a1,a2,rO,rI,fill){
+      var aa2=(a2<a1)?a2:a2-360,pts=[],a;
+      for(a=a1;a>=aa2;a-=2){var p=pt(a,rO);pts.push(p[0].toFixed(1)+','+p[1].toFixed(1));}
+      for(a=aa2;a<=a1;a+=2){var q=pt(a,rI);pts.push(q[0].toFixed(1)+','+q[1].toFixed(1));}
+      return '<polygon points="'+pts.join(' ')+'" fill="'+fill+'" stroke="none"/>';}
+
+    var base=opts.base||'#eae9e6', band=opts.band||null, halo=opts.halo||base;
+    var gl=opts.glow||{color:'#b89a55',alpha:0.16,reach:0.20};
+    var freq=opts.freq||0.85, op=opts.op||0.05;
+    var bandMid=(Rzod+Rout)/2, bandW=(Rout-Rzod);
+
+    var s='<svg width="'+S+'" height="'+S+'" viewBox="0 0 '+S+' '+S+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">';
+    s+='<defs><clipPath id="clip'+id+'"><circle cx="'+c+'" cy="'+c+'" r="'+Rclip.toFixed(1)+'"/></clipPath>'+
+       '<filter id="paper'+id+'"><feTurbulence type="fractalNoise" baseFrequency="'+freq+'" numOctaves="2" stitchTiles="stitch" result="n"/>'+
+       '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.30  0 0 0 0 0.29  0 0 0 0 0.26  0 0 0 0.7 0"/></filter>'+
+       '<radialGradient id="glow'+id+'" cx="50%" cy="50%" r="50%">'+
+         '<stop offset="0%" stop-color="'+gl.color+'" stop-opacity="'+gl.alpha+'"/>'+
+         '<stop offset="55%" stop-color="'+gl.color+'" stop-opacity="'+(gl.alpha*0.35).toFixed(3)+'"/>'+
+         '<stop offset="100%" stop-color="'+gl.color+'" stop-opacity="0"/></radialGradient></defs>';
+    s+='<g clip-path="url(#clip'+id+')">';
+
+    // layered paper: neutral base + grain; cream confined to the band ring
+    s+='<rect x="0" y="0" width="'+S+'" height="'+S+'" fill="'+base+'"/>';
+    if(band){ s+='<circle cx="'+c+'" cy="'+c+'" r="'+bandMid.toFixed(1)+'" fill="none" stroke="'+band+'" stroke-width="'+bandW.toFixed(1)+'"/>'; }
+    s+='<rect x="0" y="0" width="'+S+'" height="'+S+'" filter="url(#paper'+id+')" opacity="'+op+'"/>';
+
+    // confined inner glow (from the tiny circle)
+    s+='<circle cx="'+c+'" cy="'+c+'" r="'+(gl.reach*S).toFixed(1)+'" fill="url(#glow'+id+')"/>';
+
+    // alternating shades — signs (band) and houses (cut at aspect ring)
+    for(var sg=0;sg<12;sg++){ if(sg%2===0){ s+=wedgeEven(sg*30,(sg+1)*30,Rout,Rzod,'rgba(43,41,38,0.024)'); } }
+    for(var h=0;h<12;h++){ if(h%2===0){ s+=wedgeCusp(cusps[h],cusps[(h+1)%12],Rzod,Raring,'rgba(43,41,38,0.042)'); } }
+
+    // rings
+    s+=cir(Rout, GREY.ink, 2.8);
+    s+=cir(Rzod, GREY.ink, 1.0);
+    s+=cir(Raring, '#9a9487', 1.0);
+    s+=cir(Rcore, GREY.innerSoft, 1.2);
+
+    // sign dividers + 5° ticks
+    for(var sd=0;sd<360;sd+=30){ s+=ln(sd, Rzod, Rout, GREY.divider, 1.1); }
+    for(var t5=0;t5<360;t5+=5){ if(t5%30!==0){ s+=ln(t5, Rzod, Rzod+0.018*S, GREY.tick5, 0.9); } }
+
+    // sign glyphs (a touch larger)
+    for(var sgi=0;sgi<12;sgi++){
+      var sa=sgi*30+15, gp=pt(sa,Rsg), gsc=0.0046*S;
+      s+='<g transform="translate('+gp[0].toFixed(1)+','+gp[1].toFixed(1)+') scale('+gsc.toFixed(2)+')" stroke="'+GREY.cusp+'" stroke-width="0.7" fill="none" stroke-linecap="round" stroke-linejoin="round">'+signGlyph(sgi)+'</g>';
+    }
+
+    // house cusps to the tiny inner circle
+    cusps.forEach(function(cu,i){ if(i===0||i===3||i===6||i===9) return; s+=ln(cu, Rzod, Rcore, GREY.cusp, 1.0); });
+    // house numbers near the tiny circle, slightly bolder
+    for(var i=0;i<12;i++){
+      var a1=cusps[i], a2=cusps[(i+1)%12];
+      var mid=a1 + (((a2-a1+540)%360)-180)/2;
+      var p=pt(mid, Rnum);
+      s+='<text class="house-num" font-size="'+(9*k).toFixed(1)+'" x="'+p[0].toFixed(1)+'" y="'+(p[1]+3*k).toFixed(1)+'" text-anchor="middle">'+(i+1)+'</text>';
+    }
+
+    // aspect lines terminate on the aspect ring
+    aspectsFull.forEach(function(pr){
+      var A=byT(pr[0]), B=byT(pr[1]); if(!A||!B) return;
+      var p1=pt(A.a,Raring), p2=pt(B.a,Raring), col=pal[pr[2]];
+      var w=(pr[2]==='minor'?1.0:1.6);
+      var dash=pr[2]==='minor'?' stroke-dasharray="'+(3*k)+' '+(3*k)+'"':'';
+      s+='<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'" stroke-linecap="round"'+dash+'/>';
+    });
+    planets.forEach(function(p){ s+=ln(p.a, Raring, Raring+0.014*S, '#8f897c', 0.9); });
+
+    // planets + degree tick on band + de-emphasized degree/minute with paper halo
+    planets.forEach(function(p){
+      s+=ln(p.a, Rzod, Rzod+0.018*S, GREY.ink, 1.1);
+      var g=pt(p.a,Rplanet), sc=0.0052*S;
+      s+='<g transform="translate('+g[0].toFixed(1)+','+g[1].toFixed(1)+') scale('+sc.toFixed(2)+')" stroke="'+GREY.ink+'" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:'+GREY.ink+'">'+glyph(p.t)+'</g>';
+      var dp=pt(p.a-6, Rdeg);
+      s+='<text font-size="'+(8*k).toFixed(1)+'" x="'+dp[0].toFixed(1)+'" y="'+(dp[1]+3*k).toFixed(1)+'" text-anchor="middle" paint-order="stroke" stroke="'+halo+'" stroke-width="'+(2.4*k).toFixed(1)+'" stroke-linejoin="round" fill="#6f6a60" font-weight="500">'+p.d+'\u00B0<tspan font-size="'+(5.5*k).toFixed(1)+'" dy="'+(-3.2*k).toFixed(1)+'" fill="#a39d92">'+(p.m<10?'0'+p.m:p.m)+'</tspan></text>';
+    });
+
+    // angles
+    Object.keys(angleInfo).forEach(function(key){
+      var i=+key, info=angleInfo[i], cu=cusps[i];
+      s+=ln(cu, Rzod, Rcore, GREY.ink, 2.2);
+      s+=ln(cu, Rout-1, Rout+0.012*S, GREY.ink, 2.2);
+      var lp=pt(cu, Rlabel);
+      var cosv=Math.cos(cu*Math.PI/180), sinv=Math.sin(cu*Math.PI/180);
+      var anchor=(Math.abs(cosv)<0.3)?'middle':(cosv>0?'start':'end');
+      var baseY=lp[1]+((sinv>0.3)?-4*k:(sinv<-0.3?10*k:3*k));
+      s+='<text class="axis-lbl" font-size="'+(9.5*k).toFixed(1)+'" x="'+lp[0].toFixed(1)+'" y="'+baseY.toFixed(1)+'" text-anchor="'+anchor+'">'+info.l+'</text>';
+      s+='<text class="axis-deg" font-size="'+(7*k).toFixed(1)+'" x="'+lp[0].toFixed(1)+'" y="'+(baseY+9*k).toFixed(1)+'" text-anchor="'+anchor+'">'+info.deg+'</text>';
+    });
+
+    s+='</g></svg>';
+    return s;
+  }
+
+  var WARM={hard:'#a8392c', soft:'#3d6b86', minor:'#9a7a3a'};
+  function cell(svg,nm,dsc,cls){ return '<div class="cell"><div class="disc sm '+(cls||'')+'">'+svg+'</div><div class="nm">'+nm+'</div><div class="dsc">'+(dsc||'')+'</div></div>'; }
+
+  // A
+  document.getElementById('mainA').innerHTML =
+    buildWheel(1320, WARM, {base:'#eae8e3', band:'#f1ece0', glow:{color:'#b89a55',alpha:0.18,reach:0.20}});
+
+  // B home/guest
+  document.getElementById('home').innerHTML =
+    buildWheel(990, WARM, {base:'#eae7e0', band:'#f1ece0', glow:{color:'#b89a55',alpha:0.19,reach:0.20}});
+  document.getElementById('guest').innerHTML =
+    buildWheel(990, WARM, {base:'#e9eaea', band:'#eef0ef', glow:{color:'#5f8a90',alpha:0.11,reach:0.18}});
+
+  // C glow exploration (confined)
+  document.getElementById('glowRow').innerHTML =
+    cell(buildWheel(700, WARM, {base:'#eae9e6', band:'#f0ece1', glow:{color:'#b89a55',alpha:0.20,reach:0.19}}),'Gold','from within','aura-gold')+
+    cell(buildWheel(700, WARM, {base:'#e9eaea', band:'#eef0ef', glow:{color:'#3f8088',alpha:0.20,reach:0.19}}),'Teal','from within','aura-teal')+
+    cell(buildWheel(700, WARM, {base:'#eae8e3', band:'#f0ece1', glow:{color:'#c08a55',alpha:0.16,reach:0.30}}),'Gold, wider reach','quiet outer-ish','aura-gold')+
+    cell(buildWheel(700, WARM, {base:'#ebe9e6', band:'#f0ece1', glow:{color:'#b05545',alpha:0.16,reach:0.19}}),'Terracotta','warmer test','');
+
+  // D paper pulsation
+  document.getElementById('pap1').innerHTML =
+    buildWheel(990, WARM, {base:'#eaeae8', band:'#eef0ef', glow:{color:'#9aa0a0',alpha:0.06,reach:0.18}});
+  document.getElementById('pap2').innerHTML =
+    buildWheel(990, WARM, {base:'#ebe9e3', band:'#f1ece0', glow:{color:'#b89a55',alpha:0.10,reach:0.18}});
+</script>
+</body>
+</html>

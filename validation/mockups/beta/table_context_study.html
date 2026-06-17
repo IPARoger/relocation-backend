@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#6 Table System — revised (tight + harmonic)</title>
+<style>
+:root{
+  --paper:#fff;--ink:#1d241f;--soft:#5b6560;--faint:#9aa49b;
+  --line:#e9efe9;--line-mid:#dbe5db;--bd:#e2eae3;
+  --natal:#e8b400;--current:#3b7fd3;--reloc:#42a85e;--compare:#cf6a3a;
+  --pih:#3b7fd3;--ais:#42a85e;--a2a:#7b5cd0;--notes:#e8b400;--intel:#2fa39c;
+  --display:"Charter",Georgia,serif;--body:"Avenir Next","Segoe UI",-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f6f8f6;color:var(--ink);font-family:var(--body);font-size:13px;line-height:1.32}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 28px 80px}
+h1{font-size:19px;margin:0 0 4px}.sub{color:var(--soft);margin:0 0 6px;max-width:900px}
+.label{margin:30px 0 12px;border-bottom:1px solid var(--line-mid);padding-bottom:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:800}.label b{color:var(--ink);font-size:13px;letter-spacing:0;text-transform:none;margin-left:8px}
+.surface{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px 20px}
+.tables{display:grid;grid-template-columns:1fr 1fr 1.2fr 0.8fr;gap:14px;align-items:start}
+.tcard{border:1px solid var(--bd);border-radius:11px;padding:11px 12px;min-width:0;background:radial-gradient(130% 130% at 50% 42%, color-mix(in srgb,var(--glow) 5%,#fff), #fff 76%)}
+.thead{font-family:var(--display);font-weight:700;font-size:14px;text-align:center;margin-bottom:9px}
+.rows .r{display:grid;align-items:center;border-bottom:1px solid var(--line);color:var(--ink);padding:6px 0}
+.rows .r:last-child{border-bottom:none}.rows .v{color:var(--soft);font-variant-numeric:tabular-nums}.rows .empty{color:var(--faint)}
+/* tight harmonic PiH: label flush-left(4px) · value centered in close column · small balance col (5:3:2 ~ fibonacci) */
+.pih .r{grid-template-columns:5fr 3fr 2fr}.pih .lab{padding-left:4px}.pih .v{text-align:center}
+/* AiS: label left, value centered, columns close (phi 1.618:1 inner) */
+.ais .r{grid-template-columns:auto 1fr}.ais .lab{padding-left:4px}.ais .v{text-align:center}
+/* A2A: planet hugs left, 4 angle cols follow closely */
+.a2a .r{grid-template-columns:auto repeat(4,30px);gap:3px;justify-content:start}.a2a .lab{padding-left:4px;padding-right:10px}.a2a .v{text-align:center}.a2a .angle{font-size:9.5px;color:var(--faint);letter-spacing:.04em;text-transform:uppercase;text-align:center}
+.notes .r{grid-template-columns:1fr}.notes .r span{color:var(--soft)}
+.legend{margin-top:12px;color:var(--faint);font-size:11px}
+/* comparison tight */
+.cmp .r{grid-template-columns:auto repeat(4,44px);gap:6px;justify-content:start;padding:6px 0}
+.cmp .lab{padding-left:4px;padding-right:12px}.cmp .v{text-align:center}.cmp .angle{font-size:9.5px;color:var(--faint);text-transform:uppercase;text-align:center}
+/* double-border options (thin+thick, subtle) */
+.db-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-top:4px}
+.dbcard{border-radius:11px;padding:11px 12px;background:#fff}
+.dbtag{font-size:11px;color:var(--soft);margin-bottom:8px}.dbtag b{color:var(--ink)}
+/* D1 classic double: thin inner + thin outer with gap, muted */
+.d1{border:1px solid color-mix(in srgb,var(--compare) 30%,#fff);box-shadow:0 0 0 2px #fff,0 0 0 3px color-mix(in srgb,var(--compare) 16%,#fff)}
+/* D2 thin + thick: 1px inner, 3px pale outer band */
+.d2{border:1px solid color-mix(in srgb,var(--compare) 26%,#fff);box-shadow:0 0 0 3px color-mix(in srgb,var(--compare) 9%,#fff)}
+/* D3 single accent edge (left) thicker, rest thin */
+.d3{border:1px solid var(--bd);border-left:3px solid color-mix(in srgb,var(--compare) 38%,#fff)}
+.dbcard .thead{font-size:13px}.dbcard .r{grid-template-columns:1fr auto;padding:5px 2px;border-bottom:1px solid var(--line)}.dbcard .r:last-child{border-bottom:none}.dbcard .v{color:var(--soft)}
+</style></head><body>
+<div class="wrap">
+  <h1>#6 Table System — revised: tight + harmonic, em-dash, subtle double rule</h1>
+  <p class="sub">Corrections: stars removed (read as sextiles); spacing tightened everywhere; label flush-left (4px) with the value column pulled close using 5:3:2 / φ proportions so left and value associate easily; comparison columns tightened; double border reworked as a subtle thin+thick rule, not twin-red. Understated to avoid eye fatigue — but not drained.</p>
+
+  <div class="label">Revised <b>Profile tables — tight association</b></div>
+  <section class="surface">
+    <div class="tables">
+      <div class="tcard" style="--glow:var(--pih)"><div class="thead">Planet in House</div><div class="rows pih"><div class="r"><span class="lab">Sun</span><span class="v">5th</span><span></span></div><div class="r"><span class="lab">Moon</span><span class="v">11th</span><span></span></div><div class="r"><span class="lab">Mercury</span><span class="v">4th</span><span></span></div><div class="r"><span class="lab">Venus</span><span class="v">2nd</span><span></span></div><div class="r"><span class="lab">Mars</span><span class="v">9th</span><span></span></div></div></div>
+      <div class="tcard" style="--glow:var(--ais)"><div class="thead">Angle in Sign</div><div class="rows ais"><div class="r"><span class="lab">ASC</span><span class="v">18° Virgo</span></div><div class="r"><span class="lab">MC</span><span class="v">15° Gemini</span></div><div class="r"><span class="lab">DSC</span><span class="v">18° Pisces</span></div><div class="r"><span class="lab">IC</span><span class="v">15° Sagittarius</span></div></div></div>
+      <div class="tcard" style="--glow:var(--a2a)"><div class="thead">Aspect to Angle</div><div class="rows a2a"><div class="r"><span class="lab"></span><span class="angle">ASC</span><span class="angle">DSC</span><span class="angle">MC</span><span class="angle">IC</span></div><div class="r"><span class="lab">Sun</span><span class="v">△</span><span class="v empty">—</span><span class="v">☌</span><span class="v empty">—</span></div><div class="r"><span class="lab">Moon</span><span class="v empty">—</span><span class="v">□</span><span class="v empty">—</span><span class="v">✶</span></div><div class="r"><span class="lab">Venus</span><span class="v">☌</span><span class="v empty">—</span><span class="v">△</span><span class="v empty">—</span></div></div></div>
+      <div class="tcard" style="--glow:var(--notes)"><div class="thead">Notes</div><div class="rows notes"><div class="r"><span>One-line note preview…</span></div><div class="r"><span>Opens in notebook.</span></div></div></div>
+    </div>
+    <div class="legend">Label flush-left + value centered in a close column; rows tightened to ~6px; em-dash for empty A2A cells.</div>
+  </section>
+
+  <div class="label">Revised <b>Comparison matrix — tightened columns</b></div>
+  <section class="surface">
+    <div class="tcard" style="--glow:var(--compare);max-width:560px"><div class="thead">Comparison</div><div class="rows cmp"><div class="r"><span class="lab"></span><span class="angle">Lisbon</span><span class="angle">Austin</span><span class="angle">Kyoto</span><span class="angle">Bali</span></div><div class="r"><span class="lab">Sun</span><span class="v">5th</span><span class="v">10th</span><span class="v">1st</span><span class="v">9th</span></div><div class="r"><span class="lab">Moon</span><span class="v">11th</span><span class="v">2nd</span><span class="v">4th</span><span class="v">6th</span></div><div class="r"><span class="lab">Venus</span><span class="v">2nd</span><span class="v">8th</span><span class="v">3rd</span><span class="v">12th</span></div></div></div>
+    <div class="legend">Columns pulled in close so the eye associates each city with its values without large gaps.</div>
+  </section>
+
+  <div class="label">Double border <b>subtle thin+thick options (no twin-neon)</b></div>
+  <div class="db-row">
+    <div><div class="dbtag"><b>D1 · classic double</b> — thin inner + thin outer, white gap</div><div class="dbcard d1"><div class="thead">Comparison</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div><div class="dbtag"><b>D2 · thin + thick band</b> — 1px line, pale 3px outer</div><div class="dbcard d2"><div class="thead">Comparison</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div><div class="dbtag"><b>D3 · left accent edge</b> — thicker colored left, thin rest</div><div class="dbcard d3"><div class="thead">Comparison</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+  </div>
+</div>
+</body></html>

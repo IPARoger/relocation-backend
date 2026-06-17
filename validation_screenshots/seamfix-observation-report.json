@@ -1,0 +1,141 @@
+{
+  "screenshots": [
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-baseline_validated-full-render.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge_high_north-full-render.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge_southern-full-render.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge-southern-seam-polygon-0-zoom.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge-southern-seam-polygon-1-zoom.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge-southern-popup-on-suspicious-polygon.png"
+  ],
+  "profiles": [
+    {
+      "id": "baseline_validated",
+      "name": "Baseline Validated Chart",
+      "screenshot": "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-baseline_validated-full-render.png",
+      "features": 2,
+      "polygons": 1,
+      "suspiciousPolygons": 0,
+      "dom": {
+        "pathCount": 63,
+        "blackOutlinePathCount": 0
+      }
+    },
+    {
+      "id": "edge_high_north",
+      "name": "Edge Case — High Northern Birth",
+      "screenshot": "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge_high_north-full-render.png",
+      "features": 2,
+      "polygons": 1,
+      "suspiciousPolygons": 0,
+      "dom": {
+        "pathCount": 63,
+        "blackOutlinePathCount": 0
+      }
+    },
+    {
+      "id": "edge_southern",
+      "name": "Edge Case — Southern Hemisphere Birth",
+      "screenshot": "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/seamfix-edge_southern-full-render.png",
+      "features": 4,
+      "polygons": 3,
+      "suspiciousPolygons": 2,
+      "dom": {
+        "pathCount": 65,
+        "blackOutlinePathCount": 2
+      }
+    }
+  ],
+  "consoleMessages": [
+    "Cities loaded: 232317",
+    "Cities loaded: 232317",
+    "START RENDER 1",
+    "COMPLETE RENDER 1",
+    "START RENDER 2",
+    "COMPLETE RENDER 2",
+    "START RENDER 3",
+    "COMPLETE RENDER 3",
+    "RELOCATED DATA Object",
+    "Planet houses: Object",
+    "Planet houses entries: Array(11)"
+  ],
+  "networkFailures": [
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED",
+    "net::ERR_ABORTED"
+  ],
+  "southernSuspiciousCenters": [
+    {
+      "idx": 0,
+      "lat": -27.656381620809032,
+      "lon": 154.43963032191374,
+      "props": {
+        "condition_index": 0,
+        "overlap_count": 1,
+        "touches_seam": true,
+        "max_lon_jump": 57.402244454141666,
+        "large_lon_jump": false
+      },
+      "coordCount": 19,
+      "first": [
+        122.59775554585833,
+        -60
+      ],
+      "last": [
+        122.59775554585833,
+        -60
+      ]
+    },
+    {
+      "idx": 1,
+      "lat": 54.415133650787354,
+      "lon": -156.42085392632117,
+      "props": {
+        "condition_index": 0,
+        "overlap_count": 1,
+        "touches_seam": true,
+        "max_lon_jump": 28.5,
+        "large_lon_jump": false
+      },
+      "coordCount": 23,
+      "first": [
+        -180,
+        23.147971743068275
+      ],
+      "last": [
+        -180,
+        23.147971743068275
+      ]
+    }
+  ],
+  "popup": {
+    "text": "Custom Location\nLat: -27.6835   Lon: 154.4238\nASC\n28° Sagittarius 59'\nMC\n14° Virgo 31'\nPlanet\nHouse\nSun\n1\nMoon\n5\nMercury\n12\nVenus\n12\nMars\n1\nJupiter\n11\nSaturn\n3\nUranus\n1\nNeptune\n1\nPluto\n12\nChiron\n9\nOpen Chart\n★ Favorite\n×",
+    "width": 252,
+    "height": 410.5
+  }
+}

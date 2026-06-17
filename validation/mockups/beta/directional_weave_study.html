@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Directional Weave Study</title><style>
+  :root{
+    --warm:#fdf8ee; --warm-bg:#f4ece0; --neutral:#ededeb; --neutral-bg:#e2e2df;
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9a8f7f;
+    --ink-n:#2b2b28; --soft-n:#5d5d57;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);
+    background:linear-gradient(90deg,var(--warm-bg) 0 50%,var(--neutral-bg) 50% 100%);padding:34px 38px 80px}
+  h1{font-family:var(--serif);font-size:24px;font-weight:700;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 6px;max-width:860px;line-height:1.55;background:rgba(253,248,238,.7);display:inline-block;padding:3px 7px;border-radius:6px}
+  .axis{display:grid;grid-template-columns:1fr 1fr;max-width:1180px;margin:18px 0 4px}
+  .axis div{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px;max-width:1180px}
+  .study{border-radius:13px;padding:14px 4px 8px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .study.warm{background:var(--warm)} .study.neutral{background:var(--neutral);color:var(--ink-n)}
+  .study h3{font-family:var(--sans);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 8px 1px}
+  .study .desc{font-size:11px;color:var(--ink-faint);margin:0 8px 9px}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  td{font-size:14.5px;padding:0 16px;height:32px}
+  .warm td{color:var(--ink)} .warm td.lbl{color:var(--ink-soft)}
+  .neutral td{color:var(--ink-n)} .neutral td.lbl{color:var(--soft-n)}
+  td.val{text-align:center}
+
+  /* === DIRECTION-ONLY: equal ink, opposite orientation === */
+  /* A diagonal hatch, both directions, 2.2% — moderate */
+  .dirA tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 3px,rgba(51,41,31,.03) 3px 4px)}
+  .dirA tr:nth-child(even) td{background-image:repeating-linear-gradient(-45deg,transparent 0 3px,rgba(51,41,31,.03) 3px 4px)}
+  /* B subtle: same idea, 1.6% ink, wider gaps */
+  .dirB tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(51,41,31,.02) 5px 6px)}
+  .dirB tr:nth-child(even) td{background-image:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(51,41,31,.02) 5px 6px)}
+  /* C very subtle: 1.2% ink, fine */
+  .dirC tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(51,41,31,.014) 4px 5px)}
+  .dirC tr:nth-child(even) td{background-image:repeating-linear-gradient(-45deg,transparent 0 4px,rgba(51,41,31,.014) 4px 5px)}
+  /* D crosshatch vs single: both rows hatched, even rows get the second direction added (slightly denser weave look, but tiny) */
+  .dirD tr td{background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(51,41,31,.018) 4px 5px)}
+  .dirD tr:nth-child(even) td{background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(51,41,31,.018) 4px 5px),repeating-linear-gradient(-45deg,transparent 0 4px,rgba(51,41,31,.018) 4px 5px)}
+  /* E orientation only via angle steepness: odd = 30deg, even = 150deg, equal ink */
+  .dirE tr:nth-child(odd) td{background-image:repeating-linear-gradient(30deg,transparent 0 4px,rgba(51,41,31,.02) 4px 5px)}
+  .dirE tr:nth-child(even) td{background-image:repeating-linear-gradient(150deg,transparent 0 4px,rgba(51,41,31,.02) 4px 5px)}
+  /* F vertical vs horizontal threads, equal ink */
+  .dirF tr:nth-child(odd) td{background-image:repeating-linear-gradient(90deg,transparent 0 4px,rgba(51,41,31,.02) 4px 5px)}
+  .dirF tr:nth-child(even) td{background-image:repeating-linear-gradient(0deg,transparent 0 4px,rgba(51,41,31,.02) 4px 5px)}
+</style></head><body><h1>Directional Weave Study &mdash; equal ink, opposite orientation</h1><p class='sub'>The key move: odd and even rows carry the <b>same amount of ink</b> &mdash; they differ only in the <b>direction</b> of the hatching. Because neither row is lighter, darker, raised or recessed, there is no &ldquo;more/less&rdquo; or &ldquo;good/bad&rdquo; signal &mdash; just a textural shimmer the eye can still follow. Shown on warm (left) and cool-neutral (right) cards to prove it is hue-independent.</p><div class='axis'><div>On warm card</div><div>On neutral card</div></div><div class='grid'><div class="study warm"><h3>Chevron 45&deg; · 3%</h3><div class="desc">odd / even hatch opposite diagonals</div><table class="dirA"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Chevron 45&deg; · 3%</h3><div class="desc">odd / even hatch opposite diagonals</div><table class="dirA"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Chevron 45&deg; · 2% wide</h3><div class="desc">same, lighter + wider gaps</div><table class="dirB"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Chevron 45&deg; · 2% wide</h3><div class="desc">same, lighter + wider gaps</div><table class="dirB"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Chevron 45&deg; · 1.4%</h3><div class="desc">near-threshold, barely there</div><table class="dirC"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Chevron 45&deg; · 1.4%</h3><div class="desc">near-threshold, barely there</div><table class="dirC"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Single vs cross weave</h3><div class="desc">both hatched; even adds 2nd thread</div><table class="dirD"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Single vs cross weave</h3><div class="desc">both hatched; even adds 2nd thread</div><table class="dirD"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Lean 30&deg; / 150&deg;</h3><div class="desc">equal ink, mirrored steep angle</div><table class="dirE"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Lean 30&deg; / 150&deg;</h3><div class="desc">equal ink, mirrored steep angle</div><table class="dirE"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Warp vs weft</h3><div class="desc">vertical threads / horizontal threads</div><table class="dirF"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Warp vs weft</h3><div class="desc">vertical threads / horizontal threads</div><table class="dirF"><tbody class="rows"></tbody></table></div></div><script>var ROWS=[['Sun','10th'],['Moon','4th'],['Mercury','9th'],['Venus','11th'],['Mars','1st'],['Jupiter','7th'],['Saturn','5th'],['Uranus','8th'],['Neptune','6th'],['Pluto','5th']];var rh=ROWS.map(function(r){return '<tr><td class="lbl">'+r[0]+'</td><td class="val">'+r[1]+'</td></tr>';}).join('');Array.prototype.forEach.call(document.querySelectorAll('tbody.rows'),function(b){b.innerHTML=rh;});</script></body></html>

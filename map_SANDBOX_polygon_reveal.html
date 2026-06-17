@@ -1,0 +1,1016 @@
+<!doctype html>
+<!--
+  ARCHAEOLOGY / SUPERSEDED SANDBOX.
+
+  Historical polygon/probe reveal experiment retained for validation history.
+  Do not use for Phase-C production migration. Canonical visible rendering is
+  the adaptive screen-space truth substrate documented in
+  docs/PHASE_C_RENDERING_ARCHITECTURE.md.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Polygon Reveal — Sandbox</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    background: #050507; color: #e4e4e7; }
+  #app { display: flex; height: 100%; }
+  #map { flex: 1; min-width: 0; height: 100%; position: relative; background: #030305; }
+  /* dim the basemap heavily — the field is the point */
+  .leaflet-tile-pane { filter: brightness(0.4) saturate(0.35) contrast(0.95); }
+  #panel {
+    width: 340px; flex-shrink: 0; height: 100%; overflow-y: auto;
+    background: #0a0a0c; border-left: 1px solid #1f1f23;
+    padding: 16px 18px; box-sizing: border-box;
+    font-size: 12.5px; line-height: 1.5;
+  }
+  #panel h1 { font-size: 14px; font-weight: 600; margin: 0; color: #fafafa; }
+  .badge { display: inline-block; font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: #fcd34d; background: #422006;
+    padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+  .doctrine { color: #71717a; font-size: 11px; margin: 4px 0 14px 0; }
+  section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #18181b; }
+  section:last-child { border-bottom: none; }
+  section .head { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #71717a; margin-bottom: 6px; }
+  label.opt { display: block; padding: 3px 0; color: #d4d4d8; cursor: pointer; }
+  label.opt input { margin-right: 7px; vertical-align: middle; }
+  label.opt small { display: block; padding-left: 22px; color: #71717a; font-size: 11px; }
+  select, button {
+    width: 100%; box-sizing: border-box; padding: 7px 10px;
+    border: 1px solid #3f3f46; border-radius: 4px;
+    background: #18181b; color: #fafafa; font-size: 12px;
+  }
+  button { cursor: pointer; background: #1d4ed8; border-color: #2563eb; font-weight: 500; }
+  button:hover { background: #2563eb; }
+  button.secondary { background: #18181b; border-color: #3f3f46; }
+  button.secondary:hover { background: #27272a; }
+  button:disabled { background: #18181b; color: #52525b; border-color: #18181b; cursor: not-allowed; }
+  .btnRow { display: flex; gap: 8px; }
+  .btnRow button { flex: 1; }
+  .targetRow { display: flex; gap: 8px; }
+  .targetRow select { flex: 1; }
+  #metrics {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+    background: #030305; border: 1px solid #18181b; border-radius: 4px;
+    padding: 8px 10px; color: #d4d4d8;
+  }
+  #metrics .row { display: flex; justify-content: space-between; padding: 1.5px 0; }
+  #metrics .key { color: #71717a; }
+  #metrics .val { color: #e4e4e7; }
+  #phaseBar { display: flex; gap: 3px; margin: 8px 0 4px 0; }
+  #phaseBar .dot { flex: 1; height: 3px; background: #18181b; border-radius: 2px;
+    transition: background 250ms ease-out; }
+  #phaseBar .dot.active { background: #3b82f6; }
+  #phaseBar .dot.done { background: #fcd34d; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 10.5px; color: #a1a1aa; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .legend .sw { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .leaflet-control-attribution { background: rgba(8,8,10,0.7); color: #52525b; border: none; }
+  .leaflet-control-attribution a { color: #71717a; }
+
+  /* ---- probe rendering (SVG, CSS-driven warming) ---------------------- */
+  /* IMPORTANT (truth-target reset): every probe has a CONSTANT radius. No
+     state — ghost, match, non-match, capped — changes a probe's size. The
+     edge of a polygon emerges from MANY tiny truthful occupancies, never
+     from "bigger circles where truth is denser". Only color (fill/stroke
+     opacity) is transitioned. */
+  .probe { transition: fill 700ms ease-out, fill-opacity 600ms ease-out,
+                       stroke-opacity 500ms ease-out; }
+  /* unclassified ghost: pale star-like dot — the "exploratory" character */
+  .probe-ghost {
+    fill: #f3f4f6; fill-opacity: 0.80;
+    stroke: none;
+  }
+  /* classified, NOT in target house: stays visible as a cool point of
+     "we sampled here, the answer wasn't this". Faint enough that hundreds
+     of them read as scattered exploration, not as a competing signal. */
+  .probe-non-match {
+    fill: #94a3b8; fill-opacity: 0.32;
+    stroke: none;
+  }
+  /* classified, IN target house: warm gold. No stroke — we want pure
+     pointillism. The "fill" comes from probe count, never from stroke. */
+  .probe-match {
+    fill: #fcd34d; fill-opacity: 0.95;
+    stroke: none;
+  }
+  /* above the lat-cap — no truth available; render as a darker point so the
+     polar belt reads as "we deliberately did not sample" rather than empty */
+  .probe-capped {
+    fill: #475569; fill-opacity: 0.36;
+    stroke: none;
+  }
+  /* failed classification (engine error at point) — visually distinct */
+  .probe-error {
+    fill: #ef4444; fill-opacity: 0.70;
+    stroke: none;
+  }
+  /* probes spawned during a refinement pass — slightly warmer while ghost
+     so the human eye can see WHERE refinement chose to densify */
+  .probe-ghost.from-boundary {
+    fill: #fde68a; fill-opacity: 0.70;
+  }
+  .probe-ghost.from-interior {
+    fill: #fef3c7; fill-opacity: 0.65;
+  }
+
+  /* phase banner over the map */
+  #phaseBanner {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; pointer-events: none;
+    background: rgba(8,8,10,0.78); border: 1px solid #18181b;
+    border-radius: 6px; color: #e4e4e7; font-size: 11.5px;
+    padding: 6px 12px; backdrop-filter: blur(4px);
+    opacity: 0; transition: opacity 250ms ease-out;
+  }
+  #phaseBanner.on { opacity: 1; }
+  #phaseBanner .label { color: #fcd34d; font-weight: 600; letter-spacing: 0.03em; }
+  #phaseBanner .target { color: #a1a1aa; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map">
+    <div id="phaseBanner">
+      <span class="label" id="phaseBannerLabel">phase</span>
+      <span class="target" id="phaseBannerTarget">—</span>
+      <span style="color:#52525b">·</span>
+      <span id="phaseBannerCount">—</span>
+    </div>
+  </div>
+  <div id="panel">
+    <div>
+      <h1>Polygon Reveal<span class="badge">sandbox</span></h1>
+      <div class="doctrine">
+        The world is already defined. The engine is discovering which points
+        belong to <b>Sun in 1st house</b>. Dots are real classifications, never
+        invented. Pacing is intentional; truth is exact.
+      </div>
+    </div>
+
+    <section>
+      <div class="head">Chart profile</div>
+      <select id="profile"></select>
+    </section>
+
+    <section>
+      <div class="head">Target placement</div>
+      <div class="targetRow">
+        <select id="planet"></select>
+        <select id="house"></select>
+      </div>
+      <div class="doctrine" style="margin-top:6px;">
+        Switching target after a discovery pass re-colors cached probes
+        instantly — no new engine calls (the cache holds all 11 planet
+        houses per point).
+      </div>
+    </section>
+
+    <section>
+      <div class="head">Pacing variant</div>
+      <label class="opt"><input type="radio" name="pacing" value="calm" />Calm scatter
+        <small>80 jittered initial probes, 5 refinement phases ~700 ms apart.</small></label>
+      <label class="opt"><input type="radio" name="pacing" value="bloom" />Cosmic bloom
+        <small>180 initial probes, 5 phases ~320 ms apart. Medium tempo.</small></label>
+      <label class="opt"><input type="radio" name="pacing" value="eager" />Eager reveal
+        <small>320 initial probes, 5 phases ~120 ms apart. Fast.</small></label>
+      <label class="opt"><input type="radio" name="pacing" value="dense" checked />Dense (truth target)
+        <small>420 initial probes, 5 phases. Targets ~5000 total tiny dots.</small></label>
+      <label class="opt"><input type="radio" name="pacing" value="micro" />Micro (extreme density)
+        <small>520 initial probes, 5 phases. Targets ~10000 tiny dots.</small></label>
+      <label class="opt"><input type="radio" name="pacing" value="instant" />Instant
+        <small>Single 800-probe call, no staging. Sterile reference.</small></label>
+    </section>
+
+    <section>
+      <div class="head">Run</div>
+      <div class="btnRow">
+        <button id="runBtn">Discover</button>
+        <button id="cancelBtn" class="secondary" disabled>Cancel</button>
+      </div>
+      <div class="btnRow" style="margin-top:6px;">
+        <button id="resetBtn" class="secondary">Clear probes</button>
+      </div>
+      <div id="phaseBar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:#fcd34d"></span>match</span>
+        <span><span class="sw" style="background:#475569"></span>non-match</span>
+        <span><span class="sw" style="background:#f3f4f6"></span>unclassified</span>
+        <span><span class="sw" style="background:#1f2937"></span>above cap</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="head">Engine state</div>
+      <div id="metrics">— pick a target and press <b>Discover</b> —</div>
+    </section>
+
+    <section>
+      <div class="head">Viewport</div>
+      <div class="btnRow">
+        <button class="secondary" id="fitWorldBtn">World</button>
+        <button class="secondary" id="fitAmericasBtn">Americas</button>
+        <button class="secondary" id="fitEurasiaBtn">Eurasia</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------------------- constants ----------------------
+  const API = "http://127.0.0.1:8000";
+  const PLANETS = ["sun","moon","mercury","venus","mars","jupiter",
+                   "saturn","uranus","neptune","pluto","chiron"];
+  const HOUSES = [1,2,3,4,5,6,7,8,9,10,11,12];
+  const LAT_CAP = 65.0;            // matches engine PRODUCT_LAT_CAP
+  // ALL probe radii are the same. Refinement = MORE probes, never bigger
+  // probes. Tunable via ?probeRadius=N for the density experiments.
+  const DEFAULT_PROBE_RADIUS = 1.1;
+  const APPEAR_STAGGER_MS = 4;     // per-probe ghost reveal stagger
+  const CLASSIFY_REVEAL_MS = 6;    // per-probe classification stagger
+
+  // ---------------------- pacing variants ----------------------
+  // Pacing variants drive a 6-phase progression. Each phase has an explicit
+  // "kind" so the script can do different things per phase, while pacing
+  // controls counts and tempo. The phases are intentionally named so the
+  // capture harness can export them as phase_NN files.
+  //
+  // Phase kinds:
+  //   "scatter"          jittered-grid initial probes across the viewport
+  //   "broad"            second jittered-grid pass, denser, organic
+  //   "regional"         interior densification near existing match probes
+  //   "boundary"         midpoint refinement between match/non-match pairs
+  //   "dense_fill"       tighter interior densification + tighter boundary mix
+  //   "topology"         final pass: very tight boundary sharpening
+  //
+  // boundaryRadiusFactor / interiorRadiusFactor are expressed in units of the
+  // typical inter-probe spacing for that pacing's *initial* count, so the
+  // sweep scales with viewport regardless of zoom level.
+  const PHASE_LABELS = {
+    scatter:    "phase_00_initial_sparse",
+    broad:      "phase_01_broad_cluster",
+    regional:   "phase_02_regional_focus",
+    boundary:   "phase_03_boundary_hunt",
+    dense_fill: "phase_04_dense_fill",
+    topology:   "phase_05_final_topology",
+  };
+
+  const PACING = {
+    calm: {
+      label: "Calm scatter",
+      initialCount: 80,
+      pauseMs: 600,
+      ghostDwellMs: 300,
+      phases: [
+        // First (jittered grid) scatter is already done as "scatter"; the
+        // remaining phases are listed in order. maxNew is a per-phase ceiling.
+        { kind: "broad",      addCount: 200, jitterCellFactor: 1.0, pauseAfterMs: 700 },
+        { kind: "regional",   neighborsPerMatch: 2, interiorRadiusFactor: 1.4, maxNew: 360, pauseAfterMs: 700 },
+        { kind: "boundary",   radiusFactor: 1.1, jitterFrac: 0.35, maxNew: 480, pauseAfterMs: 700 },
+        { kind: "dense_fill", neighborsPerMatch: 2, interiorRadiusFactor: 0.7, maxNew: 640, pauseAfterMs: 600 },
+        { kind: "topology",   radiusFactor: 0.5, jitterFrac: 0.22, maxNew: 700, pauseAfterMs: 0 },
+      ],
+    },
+    bloom: {
+      label: "Cosmic bloom",
+      initialCount: 180,
+      pauseMs: 280,
+      ghostDwellMs: 160,
+      phases: [
+        { kind: "broad",      addCount: 320, jitterCellFactor: 1.0, pauseAfterMs: 320 },
+        { kind: "regional",   neighborsPerMatch: 3, interiorRadiusFactor: 1.3, maxNew: 480, pauseAfterMs: 320 },
+        { kind: "boundary",   radiusFactor: 1.0, jitterFrac: 0.35, maxNew: 640, pauseAfterMs: 320 },
+        { kind: "dense_fill", neighborsPerMatch: 3, interiorRadiusFactor: 0.65, maxNew: 900, pauseAfterMs: 280 },
+        { kind: "topology",   radiusFactor: 0.45, jitterFrac: 0.20, maxNew: 1000, pauseAfterMs: 0 },
+      ],
+    },
+    eager: {
+      label: "Eager reveal",
+      initialCount: 320,
+      pauseMs: 100,
+      ghostDwellMs: 60,
+      phases: [
+        { kind: "broad",      addCount: 500, jitterCellFactor: 1.0, pauseAfterMs: 120 },
+        { kind: "regional",   neighborsPerMatch: 3, interiorRadiusFactor: 1.2, maxNew: 700, pauseAfterMs: 120 },
+        { kind: "boundary",   radiusFactor: 0.95, jitterFrac: 0.30, maxNew: 900, pauseAfterMs: 120 },
+        { kind: "dense_fill", neighborsPerMatch: 4, interiorRadiusFactor: 0.55, maxNew: 1300, pauseAfterMs: 120 },
+        { kind: "topology",   radiusFactor: 0.40, jitterFrac: 0.18, maxNew: 1300, pauseAfterMs: 0 },
+      ],
+    },
+    // Truth-target pacing: many tiny probes, no slow pacing. Aim is the
+    // densest defensible occupancy with constant micro-radius dots.
+    dense: {
+      label: "Dense (truth target)",
+      initialCount: 420,
+      pauseMs: 70,
+      ghostDwellMs: 35,
+      phases: [
+        { kind: "broad",      addCount: 700,  jitterCellFactor: 1.0, pauseAfterMs: 80 },
+        { kind: "regional",   neighborsPerMatch: 4, interiorRadiusFactor: 1.1, maxNew: 1200, pauseAfterMs: 80 },
+        { kind: "boundary",   radiusFactor: 0.85, jitterFrac: 0.30, maxNew: 1500, pauseAfterMs: 80 },
+        { kind: "dense_fill", neighborsPerMatch: 5, interiorRadiusFactor: 0.50, maxNew: 2400, pauseAfterMs: 80 },
+        { kind: "topology",   radiusFactor: 0.32, jitterFrac: 0.14, maxNew: 2400, pauseAfterMs: 0 },
+      ],
+    },
+    // Micro pacing: pushes the upper end of what the in-browser SVG renderer
+    // can sustain. Use the capture harness to grab stills, not for interactive
+    // exploration.
+    micro: {
+      label: "Micro (extreme density)",
+      initialCount: 520,
+      pauseMs: 40,
+      ghostDwellMs: 20,
+      phases: [
+        { kind: "broad",      addCount: 1100, jitterCellFactor: 1.0, pauseAfterMs: 50 },
+        { kind: "regional",   neighborsPerMatch: 6, interiorRadiusFactor: 1.0, maxNew: 2200, pauseAfterMs: 50 },
+        { kind: "boundary",   radiusFactor: 0.80, jitterFrac: 0.26, maxNew: 2800, pauseAfterMs: 50 },
+        { kind: "dense_fill", neighborsPerMatch: 8, interiorRadiusFactor: 0.42, maxNew: 4000, pauseAfterMs: 50 },
+        { kind: "topology",   radiusFactor: 0.28, jitterFrac: 0.12, maxNew: 4000, pauseAfterMs: 0 },
+      ],
+    },
+    instant: {
+      label: "Instant (baseline)",
+      initialCount: 800,
+      pauseMs: 0,
+      ghostDwellMs: 0,
+      phases: [],
+    },
+  };
+
+  function viewportSpacing(initialCount) {
+    const b = map.getBounds();
+    const dlat = b.getNorth() - b.getSouth();
+    const dlon = b.getEast()  - b.getWest();
+    const area = Math.max(1, dlat) * Math.max(1, dlon);
+    return Math.sqrt(area / Math.max(1, initialCount));
+  }
+
+  // ---------------------- url-param capture hooks ----------------------
+  const qs = new URLSearchParams(location.search);
+  const URL_PACING   = qs.get("pacing");
+  const URL_PLANET   = qs.get("planet") || "sun";
+  const URL_HOUSE    = parseInt(qs.get("house") || "1", 10);
+  const URL_PROFILE  = qs.get("profile");
+  const URL_SEED     = qs.get("seed") ? parseInt(qs.get("seed"), 10) : 0xC0DECAFE;
+  const URL_PROBECAP = qs.get("probeCap") ? parseInt(qs.get("probeCap"), 10) : null;
+  const URL_VIEWPORT = qs.get("viewport") || "world";
+  const URL_AUTO     = qs.get("auto") === "1";
+  const URL_LATCAP   = qs.get("latCap") !== "0";
+  // Halt after phase N (0 = after initial scatter, 1 = after broad, ...).
+  // Used by the capture harness to snapshot intermediate states without
+  // changing rendering logic.
+  const URL_STOPAT   = qs.get("stopAtPhase") !== null
+                         ? parseInt(qs.get("stopAtPhase"), 10) : null;
+  // After completion, swap to a different target without re-fetching, to
+  // demonstrate the all-planets cache. Format: "moon:4".
+  const URL_SWAPTO   = qs.get("swapTo") || null;
+  // Override the probe radius (px) — density-experiment knob. Default = 1.1.
+  const URL_PROBE_RADIUS = qs.get("probeRadius") !== null
+                         ? parseFloat(qs.get("probeRadius")) : DEFAULT_PROBE_RADIUS;
+  // Multiply every phase's probe count by this factor (density experiments).
+  const URL_DENSITY_MULT = qs.get("densityMult") !== null
+                         ? parseFloat(qs.get("densityMult")) : 1.0;
+  window.__sandboxStatus = "loading";
+  window.__sandboxSnapshots = [];
+  window.__sandboxLastError = null;
+
+  // ---------------------- seeded PRNG (mulberry32) ----------------------
+  function makeRng(seed) {
+    let s = seed >>> 0;
+    return function() {
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  let rng = makeRng(URL_SEED);
+
+  // ---------------------- map ----------------------
+  const map = L.map("map", {
+    zoomSnap: 0.25, zoomDelta: 0.5,
+    preferCanvas: false,      // SVG renderer — CSS transitions per probe
+    worldCopyJump: false,
+    minZoom: 2, maxZoom: 8,
+  }).setView([15, -30], 2);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 11, minZoom: 2, attribution: "© OpenStreetMap",
+  }).addTo(map);
+  const svgRenderer = L.svg({ padding: 0.2 });
+  svgRenderer.addTo(map);
+
+  // ---------------------- state ----------------------
+  /** @type {Map<string,{lat:number,lon:number,classified:boolean,houses:object|null,outside_lat_cap:boolean,error_reason?:string,marker:L.CircleMarker,bornAtMs:number,fromBoundary:boolean}>} */
+  const probes = new Map();
+  const probesLayer = L.layerGroup().addTo(map);
+  let runToken = 0;
+  let target = { planet: URL_PLANET, house: URL_HOUSE };
+  let currentPacing = URL_PACING || "calm";
+
+  function probeKey(lat, lon) {
+    return `${lat.toFixed(4)}:${lon.toFixed(4)}`;
+  }
+
+  // ---------------------- target dropdowns ----------------------
+  function fillTargetSelectors() {
+    const ps = document.getElementById("planet");
+    const hs = document.getElementById("house");
+    ps.innerHTML = "";
+    hs.innerHTML = "";
+    for (const p of PLANETS) {
+      const o = document.createElement("option");
+      o.value = p; o.textContent = p[0].toUpperCase() + p.slice(1);
+      ps.appendChild(o);
+    }
+    for (const h of HOUSES) {
+      const o = document.createElement("option");
+      o.value = String(h); o.textContent = `${h}${ordinalSuffix(h)} house`;
+      hs.appendChild(o);
+    }
+    ps.value = target.planet;
+    hs.value = String(target.house);
+    ps.addEventListener("change", () => {
+      target.planet = ps.value;
+      reclassifyAllVisibleFromCache();
+    });
+    hs.addEventListener("change", () => {
+      target.house = parseInt(hs.value, 10);
+      reclassifyAllVisibleFromCache();
+    });
+  }
+  function ordinalSuffix(n) {
+    const s = ["th","st","nd","rd"], v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  }
+
+  // ---------------------- pacing radios ----------------------
+  document.querySelectorAll('input[name="pacing"]').forEach(el => {
+    el.addEventListener("change", () => { currentPacing = el.value; });
+  });
+
+  // ---------------------- profiles ----------------------
+  async function loadProfiles() {
+    try {
+      const r = await fetch(`${API}/chart-profiles`);
+      const profiles = await r.json();
+      const sel = document.getElementById("profile");
+      sel.innerHTML = "";
+      profiles.forEach(p => {
+        const o = document.createElement("option");
+        o.value = p.id; o.textContent = p.name;
+        o.dataset.profile = JSON.stringify(p);
+        sel.appendChild(o);
+      });
+      if (sel.options.length) sel.selectedIndex = 0;
+      if (URL_PROFILE) {
+        const idx = Array.from(sel.options).findIndex(o => o.value === URL_PROFILE);
+        if (idx >= 0) sel.selectedIndex = idx;
+      }
+    } catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#f87171">profiles: ${err.message}</div>`;
+      window.__sandboxStatus = "error";
+      window.__sandboxLastError = "profiles: " + err.message;
+      return false;
+    }
+    return true;
+  }
+
+  // ---------------------- initial state from URL ----------------------
+  async function initialize() {
+    fillTargetSelectors();
+    const ok = await loadProfiles();
+    if (!ok) return;
+    if (URL_PACING) {
+      const radio = document.querySelector(`input[name="pacing"][value="${URL_PACING}"]`);
+      if (radio) { radio.checked = true; currentPacing = URL_PACING; }
+    }
+    if (URL_VIEWPORT === "americas") fitAmericas();
+    else if (URL_VIEWPORT === "eurasia") fitEurasia();
+    else fitWorld();
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    window.__sandboxStatus = "ready";
+    if (URL_AUTO) setTimeout(runDiscover, 250);
+  }
+
+  // ---------------------- viewport buttons ----------------------
+  function fitWorld()    { map.fitBounds([[-65, -180], [65, 180]]); }
+  function fitAmericas() { map.fitBounds([[-55, -130], [60, -35]]); }
+  function fitEurasia()  { map.fitBounds([[-10,  -10], [55, 145]]); }
+  document.getElementById("fitWorldBtn").addEventListener("click", fitWorld);
+  document.getElementById("fitAmericasBtn").addEventListener("click", fitAmericas);
+  document.getElementById("fitEurasiaBtn").addEventListener("click", fitEurasia);
+
+  // ---------------------- probe spawn + classify ----------------------
+  function spawnProbe(lat, lon, { source = "scatter" } = {}) {
+    const key = probeKey(lat, lon);
+    if (probes.has(key)) return null;
+    const ghostExtra =
+      source === "boundary" ? " from-boundary"
+      : source === "interior" ? " from-interior"
+      : "";
+    const marker = L.circleMarker([lat, lon], {
+      renderer: svgRenderer,
+      radius: URL_PROBE_RADIUS,          // constant for the lifetime of the probe
+      className: "probe probe-ghost" + ghostExtra,
+      interactive: false,
+      fillOpacity: 1,
+      // CSS controls fill/opacity; Leaflet's inline opacity bypasses CSS,
+      // so we keep its alpha at 1 and let the class fill-opacity rule own it.
+    });
+    marker.addTo(probesLayer);
+    const probe = {
+      lat, lon, classified: false, houses: null,
+      outside_lat_cap: false, error_reason: undefined,
+      marker, bornAtMs: performance.now(), source,
+    };
+    probes.set(key, probe);
+    return probe;
+  }
+
+  function setProbeClass(probe, cls) {
+    const el = probe.marker.getElement();
+    if (!el) return;
+    el.setAttribute("class", "probe " + cls);
+  }
+  // INTENTIONALLY no setProbeRadius(): refinement = more probes, never bigger
+  // probes. Every probe stays at URL_PROBE_RADIUS for its whole lifetime.
+
+  function classifyOne(probe, classifyResult) {
+    probe.classified = true;
+    probe.houses = classifyResult.houses || null;
+    probe.outside_lat_cap = !!classifyResult.outside_lat_cap;
+    probe.error_reason = classifyResult.error_reason;
+    if (probe.outside_lat_cap) {
+      setProbeClass(probe, "probe-capped");
+      return "capped";
+    }
+    if (!probe.houses) {
+      setProbeClass(probe, "probe-error");
+      return "error";
+    }
+    const matched = probe.houses[target.planet] === target.house;
+    setProbeClass(probe, matched ? "probe-match" : "probe-non-match");
+    return matched ? "match" : "non-match";
+  }
+
+  // Re-color every classified probe against a (possibly new) target.
+  function reclassifyAllVisibleFromCache() {
+    let m = 0, nm = 0, c = 0;
+    for (const probe of probes.values()) {
+      if (!probe.classified) continue;
+      const r = classifyOne(probe, {
+        houses: probe.houses,
+        outside_lat_cap: probe.outside_lat_cap,
+        error_reason: probe.error_reason,
+      });
+      if (r === "match") m++;
+      else if (r === "non-match") nm++;
+      else if (r === "capped") c++;
+    }
+    updateMetricsSummary({ phase: "target-switched", phaseLabel: "target swap", matches: m, non_matches: nm, capped: c });
+  }
+
+  // ---------------------- coordinate utilities ----------------------
+  function clampLat(lat) { return Math.max(-89.9, Math.min(89.9, lat)); }
+  function wrapLon(lon)  {
+    let x = lon;
+    while (x > 180)  x -= 360;
+    while (x < -180) x += 360;
+    return x;
+  }
+
+  // Jittered-grid sampler: stratified into ~n cells, each cell holds one
+  // probe placed uniformly within it. Then shuffled. This gives an organic
+  // "blue-noise-ish" distribution with much less clumping than pure uniform
+  // random — no visible grid because the jitter spans the full cell, but
+  // average spacing is preserved. Implementation is intentionally simple
+  // (no Poisson-disk rejection sampling) per doctrine.
+  function jitteredGridPoints(n, bounds) {
+    const south = bounds.getSouth(), north = bounds.getNorth();
+    const west  = bounds.getWest(),  east  = bounds.getEast();
+    const dlat = north - south, dlon = east - west;
+    const aspect = Math.max(0.01, dlon / Math.max(0.01, dlat));
+    const cols = Math.max(1, Math.ceil(Math.sqrt(n * aspect)));
+    const rows = Math.max(1, Math.ceil(n / cols));
+    const cellH = dlat / rows, cellW = dlon / cols;
+    const out = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const lat = south + (r + rng()) * cellH;
+        const lon = west  + (c + rng()) * cellW;
+        const cl = clampLat(lat);
+        const wl = wrapLon(lon);
+        if (probes.has(probeKey(cl, wl))) continue;
+        out.push({ lat: cl, lon: wl });
+      }
+    }
+    // shuffle so spawn order is not row-major
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out.slice(0, n);
+  }
+
+  function findBoundaryPairs(radiusDeg) {
+    // O(n²) sweep — sandbox-acceptable for n up to ~3k; we deduplicate
+    // candidates after the fact rather than during.
+    const classified = [...probes.values()].filter(p => p.classified && p.houses);
+    const matches    = classified.filter(p => p.houses[target.planet] === target.house);
+    const nonMatches = classified.filter(p => p.houses[target.planet] !== target.house);
+    const r2 = radiusDeg * radiusDeg;
+    const pairs = [];
+    for (const m of matches) {
+      for (const n of nonMatches) {
+        const dlat = m.lat - n.lat;
+        const dlon = m.lon - n.lon;
+        if (dlat * dlat + dlon * dlon <= r2) pairs.push({ m, n });
+      }
+    }
+    return pairs;
+  }
+
+  function jittered(lat, lon, deltaDeg) {
+    if (deltaDeg <= 0) return { lat, lon };
+    const dlat = (rng() - 0.5) * 2 * deltaDeg;
+    const dlon = (rng() - 0.5) * 2 * deltaDeg;
+    return { lat: clampLat(lat + dlat), lon: wrapLon(lon + dlon) };
+  }
+
+  // Interior-densification candidate generator: for each existing match
+  // probe, propose `neighborsPerMatch` jittered probes within radiusDeg of
+  // the match. Returns deduplicated against existing probes.
+  function interiorCandidates(radiusDeg, neighborsPerMatch, capN) {
+    const matches = [...probes.values()].filter(
+      p => p.classified && p.houses && p.houses[target.planet] === target.house
+    );
+    const seen = new Set();
+    const out = [];
+    // randomize match order so we don't bias toward one region of the cluster
+    const idx = matches.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    for (const i of idx) {
+      const m = matches[i];
+      for (let k = 0; k < neighborsPerMatch; k++) {
+        const j = jittered(m.lat, m.lon, radiusDeg);
+        const key = probeKey(j.lat, j.lon);
+        if (seen.has(key) || probes.has(key)) continue;
+        seen.add(key);
+        out.push(j);
+        if (out.length >= capN) return out;
+      }
+    }
+    return out;
+  }
+
+  // ---------------------- engine call ----------------------
+  async function classifyBatch(birth, points) {
+    if (points.length === 0) return [];
+    const r = await fetch(`${API}/classify-points`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...birth,
+        points,
+        apply_lat_cap: URL_LATCAP,
+      }),
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`classify-points ${r.status}: ${t.slice(0, 200)}`);
+    }
+    const data = await r.json();
+    return data.points;
+  }
+
+  // ---------------------- discovery sequence ----------------------
+  function getBirthFromProfile() {
+    const sel = document.getElementById("profile");
+    if (!sel.value) throw new Error("no chart profile loaded");
+    const p = JSON.parse(sel.selectedOptions[0].dataset.profile);
+    const [y, mo, d] = p.date.split("-").map(Number);
+    const [h, mi] = (p.time || "12:00").split(":").map(Number);
+    return {
+      birth_year: y, birth_month: mo, birth_day: d, birth_hour_utc: h + mi/60,
+    };
+  }
+
+  async function runDiscover() {
+    const token = ++runToken;
+    clearProbes();
+    rng = makeRng(URL_SEED);                  // deterministic when seeded
+    window.__sandboxStatus = "running";
+    window.__sandboxSnapshots = [];
+    setControlsBusy(true);
+    resetPhaseBar();
+    let birth;
+    try { birth = getBirthFromProfile(); }
+    catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#f87171">${err.message}</div>`;
+      window.__sandboxStatus = "error";
+      window.__sandboxLastError = err.message;
+      setControlsBusy(false);
+      return;
+    }
+    const variant = PACING[currentPacing];
+    const bounds = map.getBounds();
+    const densityMult = URL_DENSITY_MULT;
+    const initialCount = Math.max(1, Math.round(variant.initialCount * densityMult));
+    const spacing = viewportSpacing(initialCount);
+    const totalPhases = 1 + variant.phases.length;
+    let phaseIdx = 0;
+
+    const applyProbeCap = (arr) => {
+      if (!URL_PROBECAP) return arr;
+      const room = URL_PROBECAP - probes.size;
+      if (room <= 0) return [];
+      return arr.slice(0, room);
+    };
+
+    try {
+      // ===== phase_00_initial_sparse: jittered-grid scatter =====
+      showPhase(variant, PHASE_LABELS.scatter, phaseIdx, totalPhases);
+      const scatterCandidates = applyProbeCap(
+        jitteredGridPoints(initialCount, bounds)
+      );
+      const scatterProbes = scatterCandidates
+        .map(p => spawnProbe(p.lat, p.lon, { source: "scatter" }))
+        .filter(Boolean);
+      await classifyAndFadeIn(birth, scatterProbes, variant);
+      snapshot(PHASE_LABELS.scatter, variant, phaseIdx);
+      markPhaseDone(phaseIdx);
+      phaseIdx++;
+      if (URL_STOPAT !== null && URL_STOPAT === 0) {
+        window.__sandboxStatus = "complete";
+        setControlsBusy(false);
+        return;
+      }
+
+      // ===== subsequent phases (broad / regional / boundary / dense_fill / topology) =====
+      for (let p = 0; p < variant.phases.length; p++) {
+        if (token !== runToken) return;
+        const phase = variant.phases[p];
+        const phaseLabel = PHASE_LABELS[phase.kind] || `phase_${p + 1}`;
+        await sleep(variant.pauseMs);
+        if (token !== runToken) return;
+        showPhase(variant, phaseLabel, phaseIdx, totalPhases);
+
+        const maxNew = Math.max(0, Math.round((phase.maxNew || phase.addCount || 0) * densityMult));
+        let candidates = [];
+        if (phase.kind === "broad") {
+          const addCount = Math.max(0, Math.round(phase.addCount * densityMult));
+          candidates = jitteredGridPoints(addCount, bounds);
+        } else if (phase.kind === "regional" || phase.kind === "dense_fill") {
+          const radius = spacing * phase.interiorRadiusFactor;
+          candidates = interiorCandidates(radius, phase.neighborsPerMatch, maxNew);
+        } else if (phase.kind === "boundary" || phase.kind === "topology") {
+          const radius = spacing * phase.radiusFactor;
+          const pairs = findBoundaryPairs(radius);
+          const seen = new Set();
+          for (const { m, n } of pairs) {
+            const midLat = (m.lat + n.lat) / 2;
+            const midLon = (m.lon + n.lon) / 2;
+            const j = jittered(midLat, midLon, radius * phase.jitterFrac);
+            const key = probeKey(j.lat, j.lon);
+            if (seen.has(key) || probes.has(key)) continue;
+            seen.add(key);
+            candidates.push(j);
+            if (candidates.length >= maxNew) break;
+          }
+        }
+
+        candidates = applyProbeCap(candidates);
+        const sourceTag = (phase.kind === "regional" || phase.kind === "dense_fill")
+          ? "interior"
+          : (phase.kind === "boundary" || phase.kind === "topology")
+            ? "boundary"
+            : "scatter";
+        const newProbes = candidates
+          .map(c => spawnProbe(c.lat, c.lon, { source: sourceTag }))
+          .filter(Boolean);
+        await classifyAndFadeIn(birth, newProbes, variant);
+        snapshot(phaseLabel, variant, phaseIdx);
+        markPhaseDone(phaseIdx);
+        phaseIdx++;
+
+        if (phase.pauseAfterMs && phase.pauseAfterMs > 0) {
+          await sleep(phase.pauseAfterMs);
+        }
+        if (URL_STOPAT !== null && phaseIdx > URL_STOPAT) {
+          window.__sandboxStatus = "complete";
+          setControlsBusy(false);
+          return;
+        }
+      }
+
+      // ----- Optional cache demo: target swap, no engine call -----
+      if (URL_SWAPTO) {
+        const [planetSwap, houseSwap] = URL_SWAPTO.split(":");
+        if (planetSwap && houseSwap) {
+          target.planet = planetSwap;
+          target.house = parseInt(houseSwap, 10);
+          document.getElementById("planet").value = target.planet;
+          document.getElementById("house").value = String(target.house);
+          await sleep(80);
+          reclassifyAllVisibleFromCache();
+          snapshot("swap_target", variant, phaseIdx);
+        }
+      }
+
+      window.__sandboxStatus = "complete";
+    } catch (err) {
+      console.error(err);
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#f87171">error: ${err.message}</div>`;
+      window.__sandboxStatus = "error";
+      window.__sandboxLastError = err.message;
+    } finally {
+      if (token === runToken) setControlsBusy(false);
+      setTimeout(() => {
+        if (token === runToken) document.getElementById("phaseBanner").classList.remove("on");
+      }, 1500);
+    }
+  }
+
+  async function classifyAndFadeIn(birth, newProbes, variant) {
+    if (newProbes.length === 0) return;
+    // brief dwell so eye registers the ghost cloud before classification
+    if (variant.ghostDwellMs > 0) await sleep(variant.ghostDwellMs);
+    const pointsPayload = newProbes.map(p => ({ lat: p.lat, lon: p.lon }));
+    const t0 = performance.now();
+    const results = await classifyBatch(birth, pointsPayload);
+    const dt = performance.now() - t0;
+    // map by key so order is robust to engine response shape
+    const byKey = new Map(results.map(r => [probeKey(r.lat, r.lon), r]));
+    let matches = 0, nonMatches = 0, capped = 0, errs = 0;
+    // stagger the per-probe class switch so the warming reads as discovery,
+    // not a single flash. uses real per-probe state, no fake animation.
+    for (let i = 0; i < newProbes.length; i++) {
+      const probe = newProbes[i];
+      const result = byKey.get(probeKey(probe.lat, probe.lon));
+      if (!result) continue;
+      const delay = i * CLASSIFY_REVEAL_MS;
+      setTimeout(() => {
+        const verdict = classifyOne(probe, result);
+        if (verdict === "match") matches++;
+        else if (verdict === "non-match") nonMatches++;
+        else if (verdict === "capped") capped++;
+        else if (verdict === "error") errs++;
+        updateMetricsSummary({
+          phase: variant.label,
+          phaseLabel: "fade-in",
+          matches: totalMatches(),
+          non_matches: totalNonMatches(),
+          capped: totalCapped(),
+          last_batch_ms: dt,
+        });
+      }, delay);
+    }
+    // wait for the fade-in stagger to complete before next phase
+    await sleep(newProbes.length * CLASSIFY_REVEAL_MS + 80);
+  }
+
+  function clearProbes() {
+    probesLayer.clearLayers();
+    probes.clear();
+  }
+
+  // ---------------------- counts ----------------------
+  function totalMatches()    { let n=0; for (const p of probes.values()) if (p.classified && p.houses && p.houses[target.planet] === target.house) n++; return n; }
+  function totalNonMatches() { let n=0; for (const p of probes.values()) if (p.classified && p.houses && p.houses[target.planet] !== target.house) n++; return n; }
+  function totalCapped()     { let n=0; for (const p of probes.values()) if (p.outside_lat_cap) n++; return n; }
+  function totalErrors()     { let n=0; for (const p of probes.values()) if (p.classified && !p.houses && !p.outside_lat_cap) n++; return n; }
+
+  // ---------------------- snapshots ----------------------
+  function snapshot(phaseId, variant, phaseIdx) {
+    const probesList = [];
+    for (const p of probes.values()) {
+      probesList.push({
+        lat: p.lat, lon: p.lon,
+        classified: p.classified,
+        outside_lat_cap: p.outside_lat_cap,
+        houses: p.houses,
+        from_boundary: p.fromBoundary,
+      });
+    }
+    window.__sandboxSnapshots.push({
+      phase_id: phaseId,
+      phase_idx: phaseIdx,
+      pacing: currentPacing,
+      pacing_label: variant.label,
+      planet: target.planet,
+      house: target.house,
+      probe_count: probes.size,
+      matches: totalMatches(),
+      non_matches: totalNonMatches(),
+      capped: totalCapped(),
+      errors: totalErrors(),
+      classify_endpoint_calls: window.__classifyCallCount || 0,
+      probes: probesList,
+    });
+  }
+
+  // ---------------------- UI: metrics, phase bar, banner ----------------------
+  function setControlsBusy(busy) {
+    document.getElementById("runBtn").disabled = busy;
+    document.getElementById("cancelBtn").disabled = !busy;
+  }
+  function showPhase(variant, label, idx, total) {
+    document.getElementById("phaseBannerLabel").textContent = label;
+    document.getElementById("phaseBannerTarget").textContent =
+      `${target.planet} in ${target.house}${ordinalSuffix(target.house)}`;
+    document.getElementById("phaseBannerCount").textContent =
+      `${probes.size} probes (${totalMatches()} match)`;
+    document.getElementById("phaseBanner").classList.add("on");
+    setPhaseBarActive(idx, total);
+  }
+  function resetPhaseBar() {
+    document.querySelectorAll("#phaseBar .dot").forEach(d => d.className = "dot");
+  }
+  function setPhaseBarActive(idx, total) {
+    const dots = document.querySelectorAll("#phaseBar .dot");
+    dots.forEach((d, i) => {
+      d.className = "dot";
+      if (i < total) {
+        if (i < idx) d.classList.add("done");
+        else if (i === idx) d.classList.add("active");
+      }
+    });
+  }
+  function markPhaseDone(idx) {
+    const dots = document.querySelectorAll("#phaseBar .dot");
+    if (dots[idx]) { dots[idx].classList.remove("active"); dots[idx].classList.add("done"); }
+  }
+  function updateMetricsSummary(summary) {
+    const row = (k, v) =>
+      `<div class="row"><span class="key">${k}</span><span class="val">${v}</span></div>`;
+    const m = totalMatches();
+    const nm = totalNonMatches();
+    const c = totalCapped();
+    const e = totalErrors();
+    const total = probes.size;
+    document.getElementById("metrics").innerHTML = [
+      row("phase", summary.phase || "—"),
+      row("target", `${target.planet} in ${target.house}${ordinalSuffix(target.house)}`),
+      row("probes", total.toLocaleString()),
+      row("matches", `${m.toLocaleString()} (${total ? (100*m/total).toFixed(1) : 0}%)`),
+      row("non-matches", nm.toLocaleString()),
+      row("above cap", c.toLocaleString()),
+      e > 0 ? row("errors", e.toLocaleString()) : "",
+      summary.last_batch_ms ? row("last batch", `${summary.last_batch_ms.toFixed(0)} ms`) : "",
+      row("classify calls", (window.__classifyCallCount || 0).toLocaleString()),
+    ].filter(Boolean).join("");
+    document.getElementById("phaseBannerCount").textContent =
+      `${total} probes (${m} match)`;
+  }
+
+  // intercept fetch to count classify-points calls (used in metrics + manifest)
+  window.__classifyCallCount = 0;
+  const origFetch = window.fetch.bind(window);
+  window.fetch = function(input, init) {
+    const url = typeof input === "string" ? input : input.url;
+    if (url && url.includes("/classify-points")) window.__classifyCallCount++;
+    return origFetch(input, init);
+  };
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ---------------------- buttons ----------------------
+  document.getElementById("runBtn").addEventListener("click", runDiscover);
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    runToken++;
+    setControlsBusy(false);
+    document.getElementById("phaseBanner").classList.remove("on");
+  });
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    runToken++;
+    clearProbes();
+    resetPhaseBar();
+    document.getElementById("metrics").textContent =
+      "— pick a target and press Discover —";
+    document.getElementById("phaseBanner").classList.remove("on");
+    window.__sandboxSnapshots = [];
+    window.__classifyCallCount = 0;
+  });
+
+  initialize();
+})();
+</script>
+</body>
+</html>

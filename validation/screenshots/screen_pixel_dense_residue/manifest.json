@@ -1,0 +1,1803 @@
+{
+  "viewport_px": {
+    "width": 720,
+    "height": 450
+  },
+  "phase_sizes": [
+    16,
+    8,
+    4,
+    2,
+    1
+  ],
+  "policy": {
+    "name": "edge2_thin2_highlat2_probes",
+    "edge_margin_tiles": 2,
+    "edge_halo_extra": 2,
+    "high_lat_deg": 65.0,
+    "high_lat_viewport_deg": 55.0,
+    "high_lat_halo_extra": 2,
+    "lat_cap_halo_extra": 0,
+    "edge_no_early_accept_above_px": 0,
+    "thin_line_orb": 0.5,
+    "thin_line_halo_extra": 2,
+    "thin_line_extra_probes": true
+  },
+  "structural_safeguards": {
+    "lat_cap_boundary_force_refine": true,
+    "lat_cap_boundary_margin_deg": 4.0,
+    "product_lat_cap_deg": 65.0
+  },
+  "endpoint_condition_cap": 6,
+  "cases": [
+    {
+      "case_id": "dense_5_world",
+      "group": "dense_multi",
+      "label": "5 conditions, world",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "E"
+        }
+      ],
+      "n_conditions": 5,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.4045,
+        "wall_seconds": 3.1357598304748535
+      },
+      "adaptive": {
+        "classified_samples": 148481,
+        "server_seconds": 1.0836,
+        "reduction_pct": 54.17253086419753,
+        "final_diff": {
+          "changed_pixels": 294,
+          "changed_pct": 0.09074074074074075,
+          "overlay_union_pixels": 105008,
+          "overlay_xor_pixels": 294,
+          "overlay_xor_pct_of_union": 0.2799786682919397,
+          "diff_bbox": {
+            "left": 0,
+            "top": 46,
+            "right": 431,
+            "bottom": 449
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1907,
+            "wall_seconds": 0.378371000289917,
+            "accepted_tiles": 303,
+            "refine_tiles_next": 3160,
+            "diff": {
+              "changed_pixels": 30507,
+              "changed_pct": 9.415740740740741,
+              "overlay_union_pixels": 104996,
+              "overlay_xor_pixels": 30422,
+              "overlay_xor_pct_of_union": 28.974437121414148,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 3160,
+            "new_samples": 33987,
+            "cumulative_samples": 61392,
+            "server_seconds": 0.2358,
+            "wall_seconds": 0.45996713638305664,
+            "accepted_tiles": 1343,
+            "refine_tiles_next": 9118,
+            "diff": {
+              "changed_pixels": 16468,
+              "changed_pct": 5.082716049382716,
+              "overlay_union_pixels": 105008,
+              "overlay_xor_pixels": 16334,
+              "overlay_xor_pct_of_union": 15.555005332927015,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 9118,
+            "new_samples": 45806,
+            "cumulative_samples": 107198,
+            "server_seconds": 0.3595,
+            "wall_seconds": 0.6402778625488281,
+            "accepted_tiles": 4909,
+            "refine_tiles_next": 23424,
+            "diff": {
+              "changed_pixels": 8084,
+              "changed_pct": 2.495061728395062,
+              "overlay_union_pixels": 105008,
+              "overlay_xor_pixels": 7950,
+              "overlay_xor_pct_of_union": 7.57085174462898,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 23424,
+            "new_samples": 41205,
+            "cumulative_samples": 148403,
+            "server_seconds": 0.2969,
+            "wall_seconds": 0.6882319450378418,
+            "accepted_tiles": 14199,
+            "refine_tiles_next": 55160,
+            "diff": {
+              "changed_pixels": 3264,
+              "changed_pct": 1.0074074074074073,
+              "overlay_union_pixels": 105008,
+              "overlay_xor_pixels": 3150,
+              "overlay_xor_pct_of_union": 2.9997714459850675,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 55160,
+            "new_samples": 78,
+            "cumulative_samples": 148481,
+            "server_seconds": 0.0007,
+            "wall_seconds": 0.28463172912597656,
+            "accepted_tiles": 37062,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 294,
+              "changed_pct": 0.09074074074074075,
+              "overlay_union_pixels": 105008,
+              "overlay_xor_pixels": 294,
+              "overlay_xor_pct_of_union": 0.2799786682919397,
+              "diff_bbox": {
+                "left": 0,
+                "top": 46,
+                "right": 431,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_world/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable with visible edge residue",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_5_world.png"
+    },
+    {
+      "case_id": "dense_5_americas",
+      "group": "dense_multi",
+      "label": "5 conditions, Americas",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "E"
+        }
+      ],
+      "n_conditions": 5,
+      "view_request": {
+        "fitBounds": "-55,-160,70,-30"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 16.29905101458183,
+          "lng": -94.921875
+        },
+        "bounds": {
+          "north": 68.65655498475738,
+          "south": -52.908902047770255,
+          "east": 31.640625000000004,
+          "west": -221.48437500000003
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.1685,
+        "wall_seconds": 2.908957004547119
+      },
+      "adaptive": {
+        "classified_samples": 186853,
+        "server_seconds": 1.3257999999999999,
+        "reduction_pct": 42.32932098765432,
+        "final_diff": {
+          "changed_pixels": 435,
+          "changed_pct": 0.13425925925925924,
+          "overlay_union_pixels": 112769,
+          "overlay_xor_pixels": 435,
+          "overlay_xor_pct_of_union": 0.3857443091629792,
+          "diff_bbox": {
+            "left": 176,
+            "top": 16,
+            "right": 687,
+            "bottom": 449
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1864,
+            "wall_seconds": 0.36704468727111816,
+            "accepted_tiles": 320,
+            "refine_tiles_next": 4644,
+            "diff": {
+              "changed_pixels": 35353,
+              "changed_pct": 10.91141975308642,
+              "overlay_union_pixels": 112739,
+              "overlay_xor_pixels": 35256,
+              "overlay_xor_pct_of_union": 31.27223055020889,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 4644,
+            "new_samples": 49945,
+            "cumulative_samples": 77350,
+            "server_seconds": 0.3445,
+            "wall_seconds": 0.6201591491699219,
+            "accepted_tiles": 1445,
+            "refine_tiles_next": 11678,
+            "diff": {
+              "changed_pixels": 18802,
+              "changed_pct": 5.803086419753086,
+              "overlay_union_pixels": 112769,
+              "overlay_xor_pixels": 18628,
+              "overlay_xor_pct_of_union": 16.51872411744362,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 11678,
+            "new_samples": 58390,
+            "cumulative_samples": 135740,
+            "server_seconds": 0.4425,
+            "wall_seconds": 0.7895193099975586,
+            "accepted_tiles": 5088,
+            "refine_tiles_next": 29020,
+            "diff": {
+              "changed_pixels": 10362,
+              "changed_pct": 3.1981481481481477,
+              "overlay_union_pixels": 112769,
+              "overlay_xor_pixels": 10188,
+              "overlay_xor_pct_of_union": 9.034397751155016,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 29020,
+            "new_samples": 51050,
+            "cumulative_samples": 186790,
+            "server_seconds": 0.3519,
+            "wall_seconds": 0.7620391845703125,
+            "accepted_tiles": 15374,
+            "refine_tiles_next": 65384,
+            "diff": {
+              "changed_pixels": 4022,
+              "changed_pct": 1.241358024691358,
+              "overlay_union_pixels": 112769,
+              "overlay_xor_pixels": 3876,
+              "overlay_xor_pct_of_union": 3.4371148099211664,
+              "diff_bbox": {
+                "left": 114,
+                "top": 16,
+                "right": 718,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 65384,
+            "new_samples": 63,
+            "cumulative_samples": 186853,
+            "server_seconds": 0.0005,
+            "wall_seconds": 0.2996211051940918,
+            "accepted_tiles": 40870,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 435,
+              "changed_pct": 0.13425925925925924,
+              "overlay_union_pixels": 112769,
+              "overlay_xor_pixels": 435,
+              "overlay_xor_pct_of_union": 0.3857443091629792,
+              "diff_bbox": {
+                "left": 176,
+                "top": 16,
+                "right": 687,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_americas/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable with visible edge residue",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_5_americas.png"
+    },
+    {
+      "case_id": "dense_5_pacific_seam",
+      "group": "dense_multi",
+      "label": "5 conditions, Pacific seam",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "E"
+        }
+      ],
+      "n_conditions": 5,
+      "view_request": {
+        "fitBounds": "-50,160,5,200"
+      },
+      "leaflet_view": {
+        "zoom": 3.25,
+        "center": {
+          "lat": -25.558370774557574,
+          "lng": 180
+        },
+        "bounds": {
+          "north": 6.746555065058136,
+          "south": -51.17206796952312,
+          "east": 233.13963526771863,
+          "west": 126.71368271217032
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.138,
+        "wall_seconds": 3.015326976776123
+      },
+      "adaptive": {
+        "classified_samples": 95122,
+        "server_seconds": 0.6381000000000001,
+        "reduction_pct": 70.64135802469136,
+        "final_diff": {
+          "changed_pixels": 29,
+          "changed_pct": 0.008950617283950617,
+          "overlay_union_pixels": 39793,
+          "overlay_xor_pixels": 29,
+          "overlay_xor_pct_of_union": 0.07287713919533587,
+          "diff_bbox": {
+            "left": 544,
+            "top": 144,
+            "right": 674,
+            "bottom": 417
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1838,
+            "wall_seconds": 0.3571357727050781,
+            "accepted_tiles": 121,
+            "refine_tiles_next": 2306,
+            "diff": {
+              "changed_pixels": 11131,
+              "changed_pct": 3.435493827160494,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 11086,
+              "overlay_xor_pct_of_union": 27.859171211017014,
+              "diff_bbox": {
+                "left": 346,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 2306,
+            "new_samples": 24804,
+            "cumulative_samples": 52209,
+            "server_seconds": 0.1665,
+            "wall_seconds": 0.3432121276855469,
+            "accepted_tiles": 479,
+            "refine_tiles_next": 4820,
+            "diff": {
+              "changed_pixels": 7540,
+              "changed_pct": 2.3271604938271606,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 7486,
+              "overlay_xor_pct_of_union": 18.81235393159601,
+              "diff_bbox": {
+                "left": 346,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 4820,
+            "new_samples": 24100,
+            "cumulative_samples": 76309,
+            "server_seconds": 0.1614,
+            "wall_seconds": 0.35480499267578125,
+            "accepted_tiles": 1503,
+            "refine_tiles_next": 10710,
+            "diff": {
+              "changed_pixels": 3676,
+              "changed_pct": 1.134567901234568,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 3622,
+              "overlay_xor_pct_of_union": 9.102103385017465,
+              "diff_bbox": {
+                "left": 346,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 10710,
+            "new_samples": 18813,
+            "cumulative_samples": 95122,
+            "server_seconds": 0.1264,
+            "wall_seconds": 0.33065032958984375,
+            "accepted_tiles": 4574,
+            "refine_tiles_next": 20836,
+            "diff": {
+              "changed_pixels": 1304,
+              "changed_pct": 0.4024691358024691,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 1262,
+              "overlay_xor_pct_of_union": 3.1714120573970295,
+              "diff_bbox": {
+                "left": 352,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 20836,
+            "new_samples": 0,
+            "cumulative_samples": 95122,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.15659308433532715,
+            "accepted_tiles": 13132,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 29,
+              "changed_pct": 0.008950617283950617,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 29,
+              "overlay_xor_pct_of_union": 0.07287713919533587,
+              "diff_bbox": {
+                "left": 544,
+                "top": 144,
+                "right": 674,
+                "bottom": 417
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_5_pacific_seam/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable / effectively identical",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_5_pacific_seam.png"
+    },
+    {
+      "case_id": "dense_6_world",
+      "group": "dense_multi",
+      "label": "6 conditions, world",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "E"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "F"
+        }
+      ],
+      "n_conditions": 6,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.2469,
+        "wall_seconds": 3.0083558559417725
+      },
+      "adaptive": {
+        "classified_samples": 157517,
+        "server_seconds": 1.1701000000000001,
+        "reduction_pct": 51.38364197530865,
+        "final_diff": {
+          "changed_pixels": 211,
+          "changed_pct": 0.06512345679012346,
+          "overlay_union_pixels": 117166,
+          "overlay_xor_pixels": 211,
+          "overlay_xor_pct_of_union": 0.18008637317993276,
+          "diff_bbox": {
+            "left": 87,
+            "top": 16,
+            "right": 431,
+            "bottom": 402
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1939,
+            "wall_seconds": 0.3761301040649414,
+            "accepted_tiles": 311,
+            "refine_tiles_next": 3190,
+            "diff": {
+              "changed_pixels": 40959,
+              "changed_pct": 12.641666666666667,
+              "overlay_union_pixels": 117058,
+              "overlay_xor_pixels": 40861,
+              "overlay_xor_pct_of_union": 34.90662748381144,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 3190,
+            "new_samples": 34310,
+            "cumulative_samples": 61715,
+            "server_seconds": 0.2421,
+            "wall_seconds": 0.45139193534851074,
+            "accepted_tiles": 1509,
+            "refine_tiles_next": 9940,
+            "diff": {
+              "changed_pixels": 18734,
+              "changed_pct": 5.782098765432099,
+              "overlay_union_pixels": 117166,
+              "overlay_xor_pixels": 18341,
+              "overlay_xor_pct_of_union": 15.653858627929603,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 9940,
+            "new_samples": 50452,
+            "cumulative_samples": 112167,
+            "server_seconds": 0.4102,
+            "wall_seconds": 0.752086877822876,
+            "accepted_tiles": 5851,
+            "refine_tiles_next": 25602,
+            "diff": {
+              "changed_pixels": 9446,
+              "changed_pct": 2.915432098765432,
+              "overlay_union_pixels": 117166,
+              "overlay_xor_pixels": 9053,
+              "overlay_xor_pct_of_union": 7.726644248331427,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 25602,
+            "new_samples": 45196,
+            "cumulative_samples": 157363,
+            "server_seconds": 0.3228,
+            "wall_seconds": 0.7091701030731201,
+            "accepted_tiles": 17197,
+            "refine_tiles_next": 62420,
+            "diff": {
+              "changed_pixels": 4070,
+              "changed_pct": 1.2561728395061729,
+              "overlay_union_pixels": 117166,
+              "overlay_xor_pixels": 3705,
+              "overlay_xor_pct_of_union": 3.1621801546523733,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 453,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 62420,
+            "new_samples": 154,
+            "cumulative_samples": 157517,
+            "server_seconds": 0.0011,
+            "wall_seconds": 0.2987959384918213,
+            "accepted_tiles": 45727,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 211,
+              "changed_pct": 0.06512345679012346,
+              "overlay_union_pixels": 117166,
+              "overlay_xor_pixels": 211,
+              "overlay_xor_pct_of_union": 0.18008637317993276,
+              "diff_bbox": {
+                "left": 87,
+                "top": 16,
+                "right": 431,
+                "bottom": 402
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_world/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable / effectively identical",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_6_world.png"
+    },
+    {
+      "case_id": "dense_6_americas",
+      "group": "dense_multi",
+      "label": "6 conditions, Americas",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "E"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "F"
+        }
+      ],
+      "n_conditions": 6,
+      "view_request": {
+        "fitBounds": "-55,-160,70,-30"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 16.29905101458183,
+          "lng": -94.921875
+        },
+        "bounds": {
+          "north": 68.65655498475738,
+          "south": -52.908902047770255,
+          "east": 31.640625000000004,
+          "west": -221.48437500000003
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.505,
+        "wall_seconds": 3.2941172122955322
+      },
+      "adaptive": {
+        "classified_samples": 194265,
+        "server_seconds": 1.4429,
+        "reduction_pct": 40.041666666666664,
+        "final_diff": {
+          "changed_pixels": 416,
+          "changed_pct": 0.12839506172839507,
+          "overlay_union_pixels": 124519,
+          "overlay_xor_pixels": 416,
+          "overlay_xor_pct_of_union": 0.33408556123965016,
+          "diff_bbox": {
+            "left": 176,
+            "top": 16,
+            "right": 687,
+            "bottom": 449
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1995,
+            "wall_seconds": 0.42435312271118164,
+            "accepted_tiles": 329,
+            "refine_tiles_next": 4678,
+            "diff": {
+              "changed_pixels": 45255,
+              "changed_pct": 13.967592592592592,
+              "overlay_union_pixels": 124491,
+              "overlay_xor_pixels": 45135,
+              "overlay_xor_pct_of_union": 36.25563293732077,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 4678,
+            "new_samples": 50311,
+            "cumulative_samples": 77716,
+            "server_seconds": 0.3544,
+            "wall_seconds": 0.631335973739624,
+            "accepted_tiles": 1545,
+            "refine_tiles_next": 12248,
+            "diff": {
+              "changed_pixels": 24410,
+              "changed_pct": 7.533950617283951,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 24199,
+              "overlay_xor_pct_of_union": 19.433981962592053,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 12248,
+            "new_samples": 61240,
+            "cumulative_samples": 138956,
+            "server_seconds": 0.4325,
+            "wall_seconds": 0.8363950252532959,
+            "accepted_tiles": 5658,
+            "refine_tiles_next": 31416,
+            "diff": {
+              "changed_pixels": 13530,
+              "changed_pct": 4.175925925925926,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 13319,
+              "overlay_xor_pct_of_union": 10.696359591708896,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 31416,
+            "new_samples": 55246,
+            "cumulative_samples": 194202,
+            "server_seconds": 0.456,
+            "wall_seconds": 0.961550235748291,
+            "accepted_tiles": 18539,
+            "refine_tiles_next": 68592,
+            "diff": {
+              "changed_pixels": 4962,
+              "changed_pct": 1.5314814814814814,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 4795,
+              "overlay_xor_pct_of_union": 3.8508179474618336,
+              "diff_bbox": {
+                "left": 114,
+                "top": 16,
+                "right": 718,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 68592,
+            "new_samples": 63,
+            "cumulative_samples": 194265,
+            "server_seconds": 0.0005,
+            "wall_seconds": 0.30519986152648926,
+            "accepted_tiles": 47491,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 416,
+              "changed_pct": 0.12839506172839507,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 416,
+              "overlay_xor_pct_of_union": 0.33408556123965016,
+              "diff_bbox": {
+                "left": 176,
+                "top": 16,
+                "right": 687,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_americas/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable with visible edge residue",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_6_americas.png"
+    },
+    {
+      "case_id": "dense_6_pacific_seam",
+      "group": "dense_multi",
+      "label": "6 conditions, Pacific seam",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "E"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "F"
+        }
+      ],
+      "n_conditions": 6,
+      "view_request": {
+        "fitBounds": "-50,160,5,200"
+      },
+      "leaflet_view": {
+        "zoom": 3.25,
+        "center": {
+          "lat": -25.558370774557574,
+          "lng": 180
+        },
+        "bounds": {
+          "north": 6.746555065058136,
+          "south": -51.17206796952312,
+          "east": 233.13963526771863,
+          "west": 126.71368271217032
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.2524,
+        "wall_seconds": 3.066025972366333
+      },
+      "adaptive": {
+        "classified_samples": 95122,
+        "server_seconds": 0.6890000000000001,
+        "reduction_pct": 70.64135802469136,
+        "final_diff": {
+          "changed_pixels": 29,
+          "changed_pct": 0.008950617283950617,
+          "overlay_union_pixels": 39793,
+          "overlay_xor_pixels": 29,
+          "overlay_xor_pct_of_union": 0.07287713919533587,
+          "diff_bbox": {
+            "left": 544,
+            "top": 144,
+            "right": 674,
+            "bottom": 417
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1905,
+            "wall_seconds": 0.36514711380004883,
+            "accepted_tiles": 121,
+            "refine_tiles_next": 2306,
+            "diff": {
+              "changed_pixels": 11131,
+              "changed_pct": 3.435493827160494,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 11086,
+              "overlay_xor_pct_of_union": 27.859171211017014,
+              "diff_bbox": {
+                "left": 346,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 2306,
+            "new_samples": 24804,
+            "cumulative_samples": 52209,
+            "server_seconds": 0.1754,
+            "wall_seconds": 0.3585820198059082,
+            "accepted_tiles": 479,
+            "refine_tiles_next": 4820,
+            "diff": {
+              "changed_pixels": 7540,
+              "changed_pct": 2.3271604938271606,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 7486,
+              "overlay_xor_pct_of_union": 18.81235393159601,
+              "diff_bbox": {
+                "left": 346,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 4820,
+            "new_samples": 24100,
+            "cumulative_samples": 76309,
+            "server_seconds": 0.1904,
+            "wall_seconds": 0.659714937210083,
+            "accepted_tiles": 1503,
+            "refine_tiles_next": 10710,
+            "diff": {
+              "changed_pixels": 3676,
+              "changed_pct": 1.134567901234568,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 3622,
+              "overlay_xor_pct_of_union": 9.102103385017465,
+              "diff_bbox": {
+                "left": 346,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 10710,
+            "new_samples": 18813,
+            "cumulative_samples": 95122,
+            "server_seconds": 0.1327,
+            "wall_seconds": 0.34377217292785645,
+            "accepted_tiles": 4574,
+            "refine_tiles_next": 20836,
+            "diff": {
+              "changed_pixels": 1304,
+              "changed_pct": 0.4024691358024691,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 1262,
+              "overlay_xor_pct_of_union": 3.1714120573970295,
+              "diff_bbox": {
+                "left": 352,
+                "top": 0,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 20836,
+            "new_samples": 0,
+            "cumulative_samples": 95122,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.17235612869262695,
+            "accepted_tiles": 13132,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 29,
+              "changed_pct": 0.008950617283950617,
+              "overlay_union_pixels": 39793,
+              "overlay_xor_pixels": 29,
+              "overlay_xor_pct_of_union": 0.07287713919533587,
+              "diff_bbox": {
+                "left": 544,
+                "top": 144,
+                "right": 674,
+                "bottom": 417
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_pacific_seam/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable / effectively identical",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_6_pacific_seam.png"
+    },
+    {
+      "case_id": "dense_6_polar_north",
+      "group": "dense_multi",
+      "label": "6 conditions, polar north",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "E"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "F"
+        }
+      ],
+      "n_conditions": 6,
+      "view_request": {
+        "fitBounds": "55,-60,82,40"
+      },
+      "leaflet_view": {
+        "zoom": 2.75,
+        "center": {
+          "lat": 73.10827585452964,
+          "lng": -9.999999999999964
+        },
+        "bounds": {
+          "north": 82.53191776983762,
+          "south": 52.747081995218956,
+          "east": 65.20428736491654,
+          "west": -85.30473812761537
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.4028,
+        "wall_seconds": 2.2272539138793945
+      },
+      "adaptive": {
+        "classified_samples": 84986,
+        "server_seconds": 0.5726,
+        "reduction_pct": 73.76975308641975,
+        "final_diff": {
+          "changed_pixels": 36,
+          "changed_pct": 0.011111111111111112,
+          "overlay_union_pixels": 30678,
+          "overlay_xor_pixels": 36,
+          "overlay_xor_pct_of_union": 0.11734793663211421,
+          "diff_bbox": {
+            "left": 127,
+            "top": 343,
+            "right": 335,
+            "bottom": 449
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.122,
+            "wall_seconds": 0.3114502429962158,
+            "accepted_tiles": 77,
+            "refine_tiles_next": 1588,
+            "diff": {
+              "changed_pixels": 13051,
+              "changed_pct": 4.028086419753087,
+              "overlay_union_pixels": 30656,
+              "overlay_xor_pixels": 12974,
+              "overlay_xor_pct_of_union": 42.32124217118998,
+              "diff_bbox": {
+                "left": 0,
+                "top": 317,
+                "right": 348,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1588,
+            "new_samples": 17085,
+            "cumulative_samples": 44490,
+            "server_seconds": 0.106,
+            "wall_seconds": 0.2676548957824707,
+            "accepted_tiles": 386,
+            "refine_tiles_next": 4070,
+            "diff": {
+              "changed_pixels": 7038,
+              "changed_pct": 2.172222222222222,
+              "overlay_union_pixels": 30678,
+              "overlay_xor_pixels": 6906,
+              "overlay_xor_pct_of_union": 22.511245843927245,
+              "diff_bbox": {
+                "left": 0,
+                "top": 317,
+                "right": 348,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 4070,
+            "new_samples": 20350,
+            "cumulative_samples": 64840,
+            "server_seconds": 0.1472,
+            "wall_seconds": 0.33167505264282227,
+            "accepted_tiles": 1650,
+            "refine_tiles_next": 11458,
+            "diff": {
+              "changed_pixels": 4086,
+              "changed_pct": 1.261111111111111,
+              "overlay_union_pixels": 30678,
+              "overlay_xor_pixels": 3954,
+              "overlay_xor_pct_of_union": 12.888715040093878,
+              "diff_bbox": {
+                "left": 0,
+                "top": 317,
+                "right": 348,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 11458,
+            "new_samples": 20146,
+            "cumulative_samples": 84986,
+            "server_seconds": 0.1974,
+            "wall_seconds": 0.454679012298584,
+            "accepted_tiles": 6731,
+            "refine_tiles_next": 28800,
+            "diff": {
+              "changed_pixels": 1582,
+              "changed_pct": 0.48827160493827165,
+              "overlay_union_pixels": 30678,
+              "overlay_xor_pixels": 1462,
+              "overlay_xor_pct_of_union": 4.765630093226416,
+              "diff_bbox": {
+                "left": 0,
+                "top": 317,
+                "right": 348,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 28800,
+            "new_samples": 0,
+            "cumulative_samples": 84986,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.1747112274169922,
+            "accepted_tiles": 20014,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 36,
+              "changed_pct": 0.011111111111111112,
+              "overlay_union_pixels": 30678,
+              "overlay_xor_pixels": 36,
+              "overlay_xor_pct_of_union": 0.11734793663211421,
+              "diff_bbox": {
+                "left": 127,
+                "top": 343,
+                "right": 335,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_polar_north/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable / effectively identical",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_6_polar_north.png"
+    },
+    {
+      "case_id": "dense_6_thin_world",
+      "group": "dense_multi_thin",
+      "label": "6 conditions including 0.25\u00b0 thin line, world",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "jupiter",
+          "house": 10,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "E"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.25,
+          "id": "F"
+        }
+      ],
+      "n_conditions": 6,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.2985,
+        "wall_seconds": 3.0986690521240234
+      },
+      "adaptive": {
+        "classified_samples": 167673,
+        "server_seconds": 1.4171000000000002,
+        "reduction_pct": 48.24907407407407,
+        "final_diff": {
+          "changed_pixels": 228,
+          "changed_pct": 0.07037037037037036,
+          "overlay_union_pixels": 121503,
+          "overlay_xor_pixels": 228,
+          "overlay_xor_pct_of_union": 0.18764968766203305,
+          "diff_bbox": {
+            "left": 87,
+            "top": 16,
+            "right": 481,
+            "bottom": 402
+          }
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.3335,
+            "wall_seconds": 0.5329217910766602,
+            "accepted_tiles": 335,
+            "refine_tiles_next": 3786,
+            "diff": {
+              "changed_pixels": 38731,
+              "changed_pct": 11.954012345679011,
+              "overlay_union_pixels": 121400,
+              "overlay_xor_pixels": 38633,
+              "overlay_xor_pct_of_union": 31.82289950576606,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 562,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 3786,
+            "new_samples": 40716,
+            "cumulative_samples": 68121,
+            "server_seconds": 0.303,
+            "wall_seconds": 0.5641779899597168,
+            "accepted_tiles": 1576,
+            "refine_tiles_next": 10482,
+            "diff": {
+              "changed_pixels": 18543,
+              "changed_pct": 5.723148148148148,
+              "overlay_union_pixels": 121503,
+              "overlay_xor_pixels": 18151,
+              "overlay_xor_pct_of_union": 14.93872579277878,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 562,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 10482,
+            "new_samples": 53486,
+            "cumulative_samples": 121607,
+            "server_seconds": 0.384,
+            "wall_seconds": 0.7042689323425293,
+            "accepted_tiles": 5866,
+            "refine_tiles_next": 26012,
+            "diff": {
+              "changed_pixels": 9855,
+              "changed_pct": 3.041666666666667,
+              "overlay_union_pixels": 121503,
+              "overlay_xor_pixels": 9463,
+              "overlay_xor_pct_of_union": 7.788285062920257,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 562,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 26012,
+            "new_samples": 45912,
+            "cumulative_samples": 167519,
+            "server_seconds": 0.3952,
+            "wall_seconds": 0.8255069255828857,
+            "accepted_tiles": 17319,
+            "refine_tiles_next": 61480,
+            "diff": {
+              "changed_pixels": 4267,
+              "changed_pct": 1.3169753086419753,
+              "overlay_union_pixels": 121503,
+              "overlay_xor_pixels": 3903,
+              "overlay_xor_pct_of_union": 3.2122663637934865,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 562,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 61480,
+            "new_samples": 154,
+            "cumulative_samples": 167673,
+            "server_seconds": 0.0014,
+            "wall_seconds": 0.30486297607421875,
+            "accepted_tiles": 44791,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 228,
+              "changed_pct": 0.07037037037037036,
+              "overlay_union_pixels": 121503,
+              "overlay_xor_pixels": 228,
+              "overlay_xor_pct_of_union": 0.18764968766203305,
+              "diff_bbox": {
+                "left": 87,
+                "top": 16,
+                "right": 481,
+                "bottom": 402
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_dense_residue/dense_6_thin_world/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "verdict": "acceptable / effectively identical",
+      "human_review_sheet": "validation/screenshots/screen_pixel_dense_residue/human_review_dense_6_thin_world.png"
+    }
+  ],
+  "wall_seconds_total": 73.82138323783875,
+  "worst_xor": 0.3857443091629792,
+  "worst_samples": 194265
+}

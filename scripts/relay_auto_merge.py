@@ -11,8 +11,8 @@ import time
 import urllib.error
 import urllib.request
 
-TIMEOUT = int(os.environ.get("RELAY_AUTO_MERGE_TIMEOUT", "5400"))  # 90 min
-POLL = int(os.environ.get("RELAY_AUTO_MERGE_POLL", "90"))
+TIMEOUT = int(os.environ.get("RELAY_AUTO_MERGE_TIMEOUT", "600"))  # 90 min
+POLL = int(os.environ.get("RELAY_AUTO_MERGE_POLL", "30"))
 
 
 def disabled() -> bool:
@@ -86,6 +86,7 @@ def squash_merge(token: str, repo: str, number: int) -> tuple[bool, str]:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=int, default=None)
+    parser.add_argument("--once", action="store_true", help="Single poll attempt (for cron)")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv[1:])
 
@@ -99,7 +100,7 @@ def main(argv: list[str]) -> int:
         sys.stderr.write("Need GITHUB_TOKEN and GITHUB_REPOSITORY\n")
         return 3
 
-    deadline = time.time() + TIMEOUT
+    deadline = time.time() + (POLL if args.once else TIMEOUT)
     seen: int | None = None
 
     while time.time() < deadline:

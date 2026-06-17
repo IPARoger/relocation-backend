@@ -1,0 +1,576 @@
+{
+  "description": "Angle-in-sign API validation for ASC/MC sign regions and popup truth samples.",
+  "results": [
+    {
+      "profile": "baseline_validated",
+      "condition": {
+        "angle": "ASC",
+        "sign": "aries"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.492,
+      "feature_count": 67,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "ASC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.45976366700051585,
+            "merge_validate_seconds": 0.014931708996300586,
+            "signs_returned": [
+              "aries"
+            ]
+          }
+        },
+        "total_seconds": 0.47485183300159406,
+        "feature_count": 67
+      },
+      "sample_checks": [
+        {
+          "lat": -64.625,
+          "lon": -7.125,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -63.875,
+          "lon": -7.5,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -63.125,
+          "lon": -7.875,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -62.375,
+          "lon": -8.625,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -61.25,
+          "lon": -9.0,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "baseline_validated",
+      "condition": {
+        "angle": "ASC",
+        "sign": "taurus"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.489,
+      "feature_count": 129,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "ASC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.46513162500195904,
+            "merge_validate_seconds": 0.016307541001879144,
+            "signs_returned": [
+              "taurus"
+            ]
+          }
+        },
+        "total_seconds": 0.4823314169989317,
+        "feature_count": 129
+      },
+      "sample_checks": [
+        {
+          "lat": -64.625,
+          "lon": 46.875,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -63.875,
+          "lon": 45.375,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -63.125,
+          "lon": 44.25,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -62.375,
+          "lon": 42.375,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -61.625,
+          "lon": 41.25,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "baseline_validated",
+      "condition": {
+        "angle": "MC",
+        "sign": "gemini"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.477,
+      "feature_count": 1,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "MC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.4593392919996404,
+            "merge_validate_seconds": 0.01656958300009137,
+            "signs_returned": [
+              "gemini"
+            ]
+          }
+        },
+        "total_seconds": 0.47593183299613884,
+        "feature_count": 1
+      },
+      "sample_checks": [
+        {
+          "lat": -0.125,
+          "lon": 130.125,
+          "chart_status": 200,
+          "expected": "gemini",
+          "actual": "gemini",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "edge_high_north",
+      "condition": {
+        "angle": "ASC",
+        "sign": "aries"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.48,
+      "feature_count": 67,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "ASC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.45979916700161994,
+            "merge_validate_seconds": 0.01509233300021151,
+            "signs_returned": [
+              "aries"
+            ]
+          }
+        },
+        "total_seconds": 0.4750363749990356,
+        "feature_count": 67
+      },
+      "sample_checks": [
+        {
+          "lat": -64.625,
+          "lon": -20.625,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -63.875,
+          "lon": -21.375,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -63.125,
+          "lon": -21.75,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -62.375,
+          "lon": -22.125,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -61.625,
+          "lon": -22.5,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "edge_high_north",
+      "condition": {
+        "angle": "ASC",
+        "sign": "taurus"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.482,
+      "feature_count": 122,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "ASC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.45841245900373906,
+            "merge_validate_seconds": 0.016043916999478824,
+            "signs_returned": [
+              "taurus"
+            ]
+          }
+        },
+        "total_seconds": 0.47464383399346843,
+        "feature_count": 122
+      },
+      "sample_checks": [
+        {
+          "lat": -64.625,
+          "lon": 33.375,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -63.875,
+          "lon": 31.5,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -63.125,
+          "lon": 30.375,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -62.375,
+          "lon": 28.875,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -61.625,
+          "lon": 27.75,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "edge_high_north",
+      "condition": {
+        "angle": "MC",
+        "sign": "gemini"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.484,
+      "feature_count": 1,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "MC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.4657042079998064,
+            "merge_validate_seconds": 0.01681958400149597,
+            "signs_returned": [
+              "gemini"
+            ]
+          }
+        },
+        "total_seconds": 0.4825482079977519,
+        "feature_count": 1
+      },
+      "sample_checks": [
+        {
+          "lat": -0.125,
+          "lon": 116.625,
+          "chart_status": 200,
+          "expected": "gemini",
+          "actual": "gemini",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "edge_southern",
+      "condition": {
+        "angle": "ASC",
+        "sign": "aries"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.475,
+      "feature_count": 68,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "ASC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.4548218749987427,
+            "merge_validate_seconds": 0.015074249997269362,
+            "signs_returned": [
+              "aries"
+            ]
+          }
+        },
+        "total_seconds": 0.47008924999681767,
+        "feature_count": 68
+      },
+      "sample_checks": [
+        {
+          "lat": -64.625,
+          "lon": -74.625,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -63.875,
+          "lon": -75.0,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -63.125,
+          "lon": -75.375,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -62.375,
+          "lon": -75.75,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        },
+        {
+          "lat": -61.625,
+          "lon": -76.125,
+          "chart_status": 200,
+          "expected": "aries",
+          "actual": "aries",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "edge_southern",
+      "condition": {
+        "angle": "ASC",
+        "sign": "taurus"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.478,
+      "feature_count": 124,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "ASC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.45474204100173665,
+            "merge_validate_seconds": 0.015888833004282787,
+            "signs_returned": [
+              "taurus"
+            ]
+          }
+        },
+        "total_seconds": 0.47082208399660885,
+        "feature_count": 124
+      },
+      "sample_checks": [
+        {
+          "lat": -64.625,
+          "lon": -20.25,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -63.875,
+          "lon": -21.75,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -63.125,
+          "lon": -23.25,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -62.375,
+          "lon": -24.75,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        },
+        {
+          "lat": -61.625,
+          "lon": -25.875,
+          "chart_status": 200,
+          "expected": "taurus",
+          "actual": "taurus",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    },
+    {
+      "profile": "edge_southern",
+      "condition": {
+        "angle": "MC",
+        "sign": "gemini"
+      },
+      "status": 200,
+      "elapsed_seconds": 0.475,
+      "feature_count": 1,
+      "validation_contradictions": 0,
+      "metadata": {
+        "generation_mode": "truth_grid",
+        "resolution": 0.75,
+        "latitude_cap": [
+          -65.0,
+          65.0
+        ],
+        "angles": {
+          "MC": {
+            "sample_count": 83040,
+            "classify_seconds": 0.45618191600078717,
+            "merge_validate_seconds": 0.017181041002913844,
+            "signs_returned": [
+              "gemini"
+            ]
+          }
+        },
+        "total_seconds": 0.4733845000009751,
+        "feature_count": 1
+      },
+      "sample_checks": [
+        {
+          "lat": -0.125,
+          "lon": 62.625,
+          "chart_status": 200,
+          "expected": "gemini",
+          "actual": "gemini",
+          "matches": true
+        }
+      ],
+      "all_sample_checks_match": true
+    }
+  ],
+  "all_passed": true
+}

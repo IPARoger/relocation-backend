@@ -1,0 +1,54 @@
+<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Material Texture Study</title><style>
+  :root{
+    --warm:#fdf8ee; --warm-bg:#f4ece0;
+    --neutral:#ededeb; --neutral-bg:#e2e2df;
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9a8f7f;
+    --ink-n:#2b2b28; --soft-n:#5d5d57;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);
+    background:linear-gradient(90deg,var(--warm-bg) 0 50%,var(--neutral-bg) 50% 100%);
+    padding:34px 38px 80px}
+  h1{font-family:var(--serif);font-size:24px;font-weight:700;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 6px;max-width:820px;line-height:1.55;background:rgba(253,248,238,.7);display:inline-block;padding:2px 6px;border-radius:6px}
+  .axis{display:grid;grid-template-columns:1fr 1fr;max-width:1180px;margin:18px 0 4px}
+  .axis div{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px;max-width:1180px}
+  .study{border-radius:13px;padding:14px 4px 8px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .study.warm{background:var(--warm)} .study.neutral{background:var(--neutral);color:var(--ink-n)}
+  .study h3{font-family:var(--sans);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 8px 1px}
+  .study .desc{font-size:11px;color:var(--ink-faint);margin:0 8px 9px}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  td{font-size:14.5px;padding:0 16px;height:32px}
+  .warm td{color:var(--ink)} .warm td.lbl{color:var(--ink-soft)}
+  .neutral td{color:var(--ink-n)} .neutral td.lbl{color:var(--soft-n)}
+  td.val{text-align:center}
+
+  /* === material treatments (luminance / relief only, NO hue) === */
+  /* 1 LINEN: fine neutral crosshatch weave */
+  .linen tr:nth-child(even) td{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.55) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.025) 3px 4px),
+      repeating-linear-gradient(90deg, transparent 0 3px, rgba(0,0,0,.022) 3px 4px);}
+  /* 2 COTTON: coarser woven threads, light+dark */
+  .cotton tr:nth-child(even) td{
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.5) 0 1px, transparent 1px 3px, rgba(0,0,0,.028) 6px 7px, transparent 7px 9px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.4) 0 1px, transparent 1px 3px, rgba(0,0,0,.024) 6px 7px, transparent 7px 9px);}
+  /* 3 PAPER GRAIN: fractal-noise tooth */
+  .grain tr:nth-child(even) td{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  /* 4 LETTERPRESS: row pressed IN (luminance relief) */
+  .press tr:nth-child(even) td{
+    box-shadow: inset 0 2px 2px -2px rgba(0,0,0,.16), inset 0 -1px 0 rgba(255,255,255,.6);
+    background-color:rgba(0,0,0,.012);}
+  /* 5 EMBOSS: row raised OUT */
+  .emboss tr:nth-child(even) td{
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -2px 2px -2px rgba(0,0,0,.12);}
+  /* 6 TWILL: neutral diagonal weave (grayscale version of current) */
+  .twill tr:nth-child(even) td{
+    background-image:
+      repeating-linear-gradient(-30deg, rgba(255,255,255,.4) 0 1px, transparent 1px 3px, rgba(0,0,0,.022) 3px 4px, transparent 4px 6px);}
+</style></head><body><h1>Material Texture Study &mdash; relief, not color</h1><p class='sub'>Every band below is built from <b>luminance and surface only</b> (light/dark, raised/recessed). No hue is added, so the rows separate without implying &ldquo;good/bad.&rdquo; Left half = warm beige card &middot; right half = cool-neutral card &mdash; proving each texture survives a future color change unchanged.</p><div class='axis'><div>On warm card</div><div>On neutral card</div></div><div class='grid'><div class="study warm"><h3>Linen weave</h3><div class="desc">fine crosshatch · light+dark threads</div><table class="linen"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Linen weave</h3><div class="desc">fine crosshatch · light+dark threads</div><table class="linen"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Cotton canvas</h3><div class="desc">coarser woven threads, relief</div><table class="cotton"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Cotton canvas</h3><div class="desc">coarser woven threads, relief</div><table class="cotton"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Paper grain</h3><div class="desc">fractal-noise tooth (no hue)</div><table class="grain"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Paper grain</h3><div class="desc">fractal-noise tooth (no hue)</div><table class="grain"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Letterpress</h3><div class="desc">alt rows pressed in · luminance only</div><table class="press"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Letterpress</h3><div class="desc">alt rows pressed in · luminance only</div><table class="press"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Soft emboss</h3><div class="desc">alt rows raised out · luminance only</div><table class="emboss"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Soft emboss</h3><div class="desc">alt rows raised out · luminance only</div><table class="emboss"><tbody class="rows"></tbody></table></div><div class="study warm"><h3>Twill (neutral)</h3><div class="desc">diagonal weave, grayscale</div><table class="twill"><tbody class="rows"></tbody></table></div><div class="study neutral"><h3>Twill (neutral)</h3><div class="desc">diagonal weave, grayscale</div><table class="twill"><tbody class="rows"></tbody></table></div></div><script>var ROWS=[['Sun','10th'],['Moon','4th'],['Mercury','9th'],['Venus','11th'],['Mars','1st'],['Jupiter','7th'],['Saturn','5th'],['Uranus','8th'],['Neptune','6th'],['Pluto','5th']];var html=ROWS.map(function(r){return '<tr><td class="lbl">'+r[0]+'</td><td class="val">'+r[1]+'</td></tr>';}).join('');Array.prototype.forEach.call(document.querySelectorAll('tbody.rows'),function(b){b.innerHTML=html;});</script></body></html>

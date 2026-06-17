@@ -1,0 +1,1 @@
+../../docs/architecture/DATA_OWNERSHIP_AND_SYSTEMS_OF_RECORD.md

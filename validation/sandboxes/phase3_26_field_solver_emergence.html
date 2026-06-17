@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3.26 Field Solver Emergence</title>
+  <style>
+    :root { color-scheme: dark; --page: #070b13; --panel: #0d1422; --line: rgba(148, 163, 184, 0.18); --ink: #d7dee8; --muted: #8d9aaa; --accent: #d8a11d; }
+    html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); font: 13px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { padding: 24px; }
+    main { max-width: 1180px; margin: 0 auto; }
+    header { margin-bottom: 14px; }
+    h1 { margin: 0 0 6px; font-size: 19px; font-weight: 650; }
+    p { margin: 0; color: var(--muted); }
+    .shell { border: 1px solid var(--line); border-radius: 18px; background: rgba(15, 23, 42, 0.44); padding: 14px; }
+    canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 14px; background: #07101d; }
+    .controls { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 10px; align-items: center; margin-top: 12px; }
+    button, label { border: 1px solid var(--line); border-radius: 10px; background: #101827; color: var(--ink); padding: 8px 10px; font: inherit; }
+    button { cursor: pointer; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    label { display: inline-flex; gap: 7px; align-items: center; color: var(--muted); }
+    .readout { min-width: 92px; color: var(--muted); font: 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; }
+    .error { display: none; margin-top: 12px; color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(127, 29, 29, 0.22); border-radius: 10px; padding: 10px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Phase 3.26 — Field Solver Emergence</h1>
+      <p>Sandbox-only solver prototype. The real Sun-in-1 polygon is used as a truth oracle; visible probes start broad and discover frontier cells through accumulated confidence.</p>
+    </header>
+    <section class="shell">
+      <canvas id="stage" width="1120" height="680" aria-label="Field solver discovering one real polygon"></canvas>
+      <div class="controls">
+        <button id="play">Pause</button>
+        <input id="scrub" type="range" min="0" max="1" step="0.001" value="0" aria-label="Scrub animation progress" />
+        <button id="snapshot">Snapshot</button>
+        <label><input id="debugToggle" type="checkbox" checked /> debug</label>
+        <div id="readout" class="readout">t=0.000</div>
+      </div>
+      <div id="error" class="error" role="alert"></div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const API_BASE = "http://127.0.0.1:8000";
+    const REQUEST_BODY = {
+      birth_year: 1976,
+      birth_month: 1,
+      birth_day: 13,
+      birth_hour_utc: 12.78333,
+      house_conditions: [{ planet: "sun", house: 1 }],
+      angle_sign_conditions: [],
+      generation_mode: "contour",
+      resolution: 1.5,
+    };
+    const W = 1120;
+    const H = 680;
+    const COLS = 112;
+    const ROWS = 68;
+    const CELL_W = W / COLS;
+    const CELL_H = H / ROWS;
+    const DURATION_MS = 11000;
+    const MAX_STEPS = 190;
+    const MAX_PROBES = 3600;
+    const COLORS = {
+      bg: "#07101d",
+      grid: "rgba(148, 163, 184, 0.07)",
+      silver: "#cbd5e1",
+      silverDim: "#8f9bad",
+      yellow: "#e3b321",
+      yellowDim: "#987418",
+      blue: "#55bed1",
+      blueDim: "#2f7f98",
+      final: "#d8a11d",
+      text: "rgba(215, 222, 232, 0.74)",
+    };
+    const PHASES = [
+      { t: 0.00, name: "uncertainty" },
+      { t: 0.18, name: "sampling" },
+      { t: 0.34, name: "frontier emergence" },
+      { t: 0.55, name: "peak froth" },
+      { t: 0.70, name: "compression" },
+      { t: 0.88, name: "cooling / virga" },
+      { t: 1.00, name: "final silence" },
+    ];
+
+    const canvas = document.getElementById("stage");
+    const ctx = canvas.getContext("2d");
+    const playButton = document.getElementById("play");
+    const scrub = document.getElementById("scrub");
+    const snapshot = document.getElementById("snapshot");
+    const debugToggle = document.getElementById("debugToggle");
+    const readout = document.getElementById("readout");
+    const errorEl = document.getElementById("error");
+
+    let running = true;
+    let startedAt = performance.now();
+    let pausedT = 0;
+    let model = null;
+
+    function showError(text) {
+      errorEl.textContent = text;
+      errorEl.style.display = "block";
+    }
+
+    async function fetchRealPolygon() {
+      const res = await fetch(`${API_BASE}/search-regions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(REQUEST_BODY),
+      });
+      if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+      const geojson = await res.json();
+      const polygons = (Array.isArray(geojson.features) ? geojson.features : []).filter(
+        feature =>
+          feature?.geometry?.type === "Polygon" &&
+          feature?.properties?.planet === "sun" &&
+          feature?.properties?.house === 1
+      );
+      if (polygons.length !== 1) throw new Error(`Expected one Sun-in-1 polygon, got ${polygons.length}`);
+      return polygons[0];
+    }
+
+    function hash01(a, b, c = 0) {
+      const n = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453;
+      return n - Math.floor(n);
+    }
+
+    function smoothstep(x) {
+      const t = Math.max(0, Math.min(1, x));
+      return t * t * (3 - 2 * t);
+    }
+
+    function stateAt(progress) {
+      return {
+        progress,
+        final: smoothstep((progress - 0.93) / 0.07),
+      };
+    }
+
+    function pointInRing(point, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i].x;
+        const yi = ring[i].y;
+        const xj = ring[j].x;
+        const yj = ring[j].y;
+        if (yi > point.y !== yj > point.y) {
+          const ix = ((xj - xi) * (point.y - yi)) / (yj - yi + 1e-15) + xi;
+          if (point.x < ix) inside = !inside;
+        }
+      }
+      return inside;
+    }
+
+    function polygonCentroid(points) {
+      const sum = points.reduce((acc, point) => {
+        acc.x += point.x;
+        acc.y += point.y;
+        return acc;
+      }, { x: 0, y: 0 });
+      return { x: sum.x / points.length, y: sum.y / points.length };
+    }
+
+    function buildProjection(ring) {
+      const xs = ring.map(coord => coord[0]);
+      const ys = ring.map(coord => coord[1]);
+      const minLon = Math.min(...xs);
+      const maxLon = Math.max(...xs);
+      const minLat = Math.min(...ys);
+      const maxLat = Math.max(...ys);
+      const pad = 72;
+      const scale = Math.min((W - pad * 2) / (maxLon - minLon), (H - pad * 2) / (maxLat - minLat));
+      const projected = ring.map(coord => ({
+        x: pad + (coord[0] - minLon) * scale,
+        y: H - pad - (coord[1] - minLat) * scale,
+      }));
+      return { projected, centroid: polygonCentroid(projected) };
+    }
+
+    function cellIndex(col, row) {
+      return row * COLS + col;
+    }
+
+    function pointToCell(x, y) {
+      return {
+        col: Math.max(0, Math.min(COLS - 1, Math.floor(x / CELL_W))),
+        row: Math.max(0, Math.min(ROWS - 1, Math.floor(y / CELL_H))),
+      };
+    }
+
+    function cellCenter(col, row) {
+      return { x: (col + 0.5) * CELL_W, y: (row + 0.5) * CELL_H };
+    }
+
+    function makeGrid() {
+      const n = COLS * ROWS;
+      return {
+        insideVotes: new Float32Array(n),
+        outsideVotes: new Float32Array(n),
+        activity: new Float32Array(n),
+        frontier: new Float32Array(n),
+        confidence: new Float32Array(n),
+      };
+    }
+
+    function buildInitialProbes() {
+      const probes = [];
+      for (let row = 3; row < ROWS - 3; row += 2) {
+        for (let col = 3; col < COLS - 3; col += 2) {
+          const seed = hash01(col, row, 17);
+          if (seed > 0.72) continue;
+          const center = cellCenter(col, row);
+          probes.push({
+            x: center.x + (hash01(col, row, 18) - 0.5) * CELL_W,
+            y: center.y + (hash01(row, col, 19) - 0.5) * CELL_H,
+            vx: (hash01(col, row, 20) - 0.5) * 0.8,
+            vy: (hash01(row, col, 21) - 0.5) * 0.8,
+            seed,
+            born: 0,
+            energy: 1,
+            lastTruth: 0,
+          });
+        }
+      }
+      return probes;
+    }
+
+    function phaseName(t) {
+      let name = PHASES[0].name;
+      for (const phase of PHASES) if (t >= phase.t) name = phase.name;
+      return name;
+    }
+
+    function sampleTruth(point, ring) {
+      return pointInRing(point, ring) ? 1 : -1;
+    }
+
+    function updateFrontier(grid) {
+      let frontierCellCount = 0;
+      let resolvedInsideCellCount = 0;
+      let resolvedOutsideCellCount = 0;
+      let confidenceSum = 0;
+      let confidenceCells = 0;
+      let maxFrontierScore = 0;
+      for (let row = 1; row < ROWS - 1; row += 1) {
+        for (let col = 1; col < COLS - 1; col += 1) {
+          const idx = cellIndex(col, row);
+          const inside = grid.insideVotes[idx];
+          const outside = grid.outsideVotes[idx];
+          const total = inside + outside;
+          const signed = total > 0 ? (inside - outside) / total : 0;
+          const confidence = total > 0 ? Math.abs(signed) : 0;
+          grid.confidence[idx] = confidence;
+          if (total > 2) {
+            confidenceSum += confidence;
+            confidenceCells += 1;
+            if (confidence > 0.72 && signed > 0.25) resolvedInsideCellCount += 1;
+            if (confidence > 0.72 && signed < -0.25) resolvedOutsideCellCount += 1;
+          }
+          let disagreement = 0;
+          let activeNeighbors = 0;
+          for (let dy = -1; dy <= 1; dy += 1) {
+            for (let dx = -1; dx <= 1; dx += 1) {
+              if (dx === 0 && dy === 0) continue;
+              const nidx = cellIndex(col + dx, row + dy);
+              const ni = grid.insideVotes[nidx];
+              const no = grid.outsideVotes[nidx];
+              const nt = ni + no;
+              if (nt <= 1 || total <= 1) continue;
+              const nsigned = (ni - no) / nt;
+              if (signed * nsigned < -0.05) disagreement += Math.abs(signed - nsigned);
+              activeNeighbors += 1;
+            }
+          }
+          const activityPressure = Math.min(1, grid.activity[idx] / 8);
+          const frontier = activeNeighbors > 0 ? Math.min(1, disagreement / activeNeighbors) * activityPressure : 0;
+          grid.frontier[idx] = frontier;
+          if (frontier > 0.12) frontierCellCount += 1;
+          if (frontier > maxFrontierScore) maxFrontierScore = frontier;
+        }
+      }
+      return {
+        frontierCellCount,
+        resolvedInsideCellCount,
+        resolvedOutsideCellCount,
+        averageConfidence: confidenceCells ? confidenceSum / confidenceCells : 0,
+        maxFrontierScore,
+      };
+    }
+
+    function bestFrontierNear(grid, probe, radius) {
+      const cell = pointToCell(probe.x, probe.y);
+      let best = null;
+      for (let row = Math.max(1, cell.row - radius); row <= Math.min(ROWS - 2, cell.row + radius); row += 1) {
+        for (let col = Math.max(1, cell.col - radius); col <= Math.min(COLS - 2, cell.col + radius); col += 1) {
+          const idx = cellIndex(col, row);
+          const score = grid.frontier[idx] + (1 - grid.confidence[idx]) * 0.10 + grid.activity[idx] * 0.004;
+          if (!best || score > best.score) best = { col, row, score };
+        }
+      }
+      return best && best.score > 0.11 ? best : null;
+    }
+
+    function spawnNearFrontier(grid, probes, step, progress) {
+      if (progress < 0.28 || progress > 0.76 || probes.length >= MAX_PROBES) return;
+      const rate = progress < 0.55 ? 0.25 : 0.42;
+      for (let row = 2; row < ROWS - 2; row += 2) {
+        for (let col = 2; col < COLS - 2; col += 2) {
+          const idx = cellIndex(col, row);
+          if (grid.frontier[idx] < 0.18) continue;
+          if (hash01(col, row, step) > rate * grid.frontier[idx]) continue;
+          const center = cellCenter(col, row);
+          probes.push({
+            x: center.x + (hash01(col, row, step + 1) - 0.5) * CELL_W * 2,
+            y: center.y + (hash01(row, col, step + 2) - 0.5) * CELL_H * 2,
+            vx: (hash01(col, step, row) - 0.5) * 0.9,
+            vy: (hash01(row, step, col) - 0.5) * 0.9,
+            seed: hash01(col, row, step + 3),
+            born: progress,
+            energy: 0.9,
+            lastTruth: 0,
+          });
+          if (probes.length >= MAX_PROBES) return;
+        }
+      }
+    }
+
+    function simulate(t, ring) {
+      const grid = makeGrid();
+      const probes = buildInitialProbes();
+      const steps = Math.max(1, Math.floor(t * MAX_STEPS));
+      let metrics = updateFrontier(grid);
+      let totalSampleCount = 0;
+      for (let step = 0; step <= steps; step += 1) {
+        const progress = step / MAX_STEPS;
+        const attraction = smoothstep((progress - 0.18) / 0.36);
+        const compression = smoothstep((progress - 0.56) / 0.20);
+        grid.activity.forEach((_, idx) => { grid.activity[idx] *= 0.94; });
+        for (const probe of probes) {
+          if (probe.born > progress) continue;
+          const cell = pointToCell(probe.x, probe.y);
+          const idx = cellIndex(cell.col, cell.row);
+          const truth = sampleTruth(probe, ring);
+          probe.lastTruth = truth;
+          if (truth > 0) grid.insideVotes[idx] += 1;
+          else grid.outsideVotes[idx] += 1;
+          grid.activity[idx] += 1;
+          totalSampleCount += 1;
+
+          const best = bestFrontierNear(grid, probe, compression > 0.45 ? 4 : 8);
+          const wanderX = (hash01(probe.seed, step, 31) - 0.5) * (1.8 - compression);
+          const wanderY = (hash01(probe.seed, step, 32) - 0.5) * (1.8 - compression);
+          if (best) {
+            const center = cellCenter(best.col, best.row);
+            const dx = center.x - probe.x;
+            const dy = center.y - probe.y;
+            const len = Math.hypot(dx, dy) || 1;
+            const pull = (0.22 + best.score * 0.78) * attraction;
+            probe.vx += (dx / len) * pull + wanderX * 0.18;
+            probe.vy += (dy / len) * pull + wanderY * 0.18;
+          } else {
+            probe.vx += wanderX * 0.18;
+            probe.vy += wanderY * 0.18;
+          }
+          probe.vx *= 0.78 - compression * 0.18;
+          probe.vy *= 0.78 - compression * 0.18;
+          probe.x = Math.max(8, Math.min(W - 8, probe.x + probe.vx));
+          probe.y = Math.max(8, Math.min(H - 8, probe.y + probe.vy));
+        }
+        metrics = updateFrontier(grid);
+        spawnNearFrontier(grid, probes, step, progress);
+      }
+      return { grid, probes, metrics, totalSampleCount };
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = COLORS.bg;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = COLORS.grid;
+      ctx.lineWidth = 1;
+      for (let x = 40; x < W; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, 0);
+        ctx.lineTo(x + 0.5, H);
+        ctx.stroke();
+      }
+      for (let y = 40; y < H; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(W, y + 0.5);
+        ctx.stroke();
+      }
+      for (let row = 3; row < ROWS - 3; row += 2) {
+        for (let col = 3; col < COLS - 3; col += 2) {
+          const seed = hash01(col, row, 901);
+          if (seed > 0.38) continue;
+          const center = cellCenter(col, row);
+          drawCell(center.x, center.y, COLORS.silverDim, 0.08 + seed * 0.10, 1);
+        }
+      }
+    }
+
+    function drawCell(x, y, color, alpha, size = 2) {
+      const sx = Math.round(x / 2) * 2 + 0.5;
+      const sy = Math.round(y / 2) * 2 + 0.5;
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      ctx.fillStyle = color;
+      ctx.fillRect(sx - size / 2, sy - size / 2, size, size);
+      ctx.globalAlpha = 1;
+    }
+
+    function drawGridField(state, sim) {
+      const cooling = smoothstep((state.progress - 0.76) / 0.16);
+      const finalizing = smoothstep((state.progress - 0.92) / 0.08);
+      for (let row = 0; row < ROWS; row += 1) {
+        for (let col = 0; col < COLS; col += 1) {
+          const idx = cellIndex(col, row);
+          const inside = sim.grid.insideVotes[idx];
+          const outside = sim.grid.outsideVotes[idx];
+          const total = inside + outside;
+          const activity = sim.grid.activity[idx];
+          if (total <= 1 && activity < 0.5) continue;
+          const signed = total ? (inside - outside) / total : 0;
+          const confidence = Math.abs(signed);
+          const frontier = sim.grid.frontier[idx];
+          const center = cellCenter(col, row);
+          let color = COLORS.silver;
+          let alpha = Math.min(0.55, activity * 0.035 + total * 0.002);
+          let size = 2;
+          if (frontier > 0.12 && state.progress < 0.76) {
+            alpha = Math.min(0.9, alpha + frontier * 0.60);
+            size = state.progress > 0.55 ? 4 : 3;
+            if (state.progress > 0.42 && confidence > 0.30) color = signed > 0 ? COLORS.yellow : COLORS.blue;
+          } else if (confidence > 0.45 && state.progress > 0.42) {
+            color = signed > 0 ? COLORS.yellow : COLORS.blue;
+            alpha = Math.min(0.75, alpha + confidence * 0.35);
+          }
+          if (cooling > 0 && signed < -0.2) {
+            const linger = hash01(col, row, 911);
+            const lift = cooling * (12 + linger * 78);
+            const drift = (linger - 0.5) * 28 * cooling;
+            alpha *= Math.max(0, 1 - cooling * (0.35 + linger * 0.55));
+            drawCell(center.x + drift, center.y - lift, COLORS.blueDim, alpha, linger > 0.72 ? 3 : 2);
+          } else if (cooling > 0 && signed > 0.2) {
+            alpha *= 1 - finalizing;
+            drawCell(center.x + (hash01(col, row, 912) - 0.5) * 4, center.y + (hash01(row, col, 913) - 0.5) * 4, color, alpha, confidence > 0.72 ? 4 : 3);
+          } else {
+            drawCell(center.x, center.y, color, alpha, size);
+          }
+        }
+      }
+    }
+
+    function drawProbes(state, sim) {
+      const cooling = smoothstep((state.progress - 0.76) / 0.16);
+      const finalizing = smoothstep((state.progress - 0.92) / 0.08);
+      sim.probes.forEach(probe => {
+        if (probe.born > state.progress) return;
+        const cell = pointToCell(probe.x, probe.y);
+        const idx = cellIndex(cell.col, cell.row);
+        const confidence = sim.grid.confidence[idx];
+        const frontier = sim.grid.frontier[idx];
+        let color = COLORS.silver;
+        if (state.progress > 0.44 && confidence > 0.45) color = probe.lastTruth > 0 ? COLORS.yellow : COLORS.blue;
+        let alpha = 0.18 + frontier * 0.46 + confidence * 0.18;
+        let size = frontier > 0.28 ? 3 : 2;
+        if (cooling > 0 && probe.lastTruth < 0) {
+          const lift = cooling * (16 + probe.seed * 82);
+          const drift = (probe.seed - 0.5) * 34 * cooling;
+          color = COLORS.blueDim;
+          alpha *= Math.max(0, 1 - cooling * (0.42 + probe.seed * 0.44));
+          drawCell(probe.x + drift, probe.y - lift, color, alpha, probe.seed > 0.74 ? 3 : 2);
+          return;
+        }
+        alpha *= 1 - finalizing;
+        if (alpha <= 0.02) return;
+        drawCell(probe.x, probe.y, color, alpha, size);
+      });
+    }
+
+    function drawInteriorSettlement(state, sim) {
+      const cooling = smoothstep((state.progress - 0.74) / 0.18);
+      if (cooling <= 0) return;
+      const finalizing = smoothstep((state.progress - 0.92) / 0.08);
+      for (let row = 1; row < ROWS - 1; row += 1) {
+        for (let col = 1; col < COLS - 1; col += 1) {
+          const idx = cellIndex(col, row);
+          const inside = sim.grid.insideVotes[idx];
+          const outside = sim.grid.outsideVotes[idx];
+          const total = inside + outside;
+          if (total < 6 || inside <= outside) continue;
+          const signed = (inside - outside) / total;
+          const confidence = Math.abs(signed);
+          if (confidence < 0.74) continue;
+          const islandWake = smoothstep((cooling - hash01(col, row, 923) * 0.30) / 0.70);
+          if (islandWake <= 0) continue;
+          const center = cellCenter(col, row);
+          drawCell(center.x, center.y, COLORS.yellow, (0.16 + confidence * 0.42) * islandWake * (1 - finalizing), cooling > 0.72 ? 5 : 4);
+        }
+      }
+    }
+
+    function drawFinal(finalAlpha, sim) {
+      if (finalAlpha <= 0) return;
+      for (let row = 1; row < ROWS - 1; row += 1) {
+        for (let col = 1; col < COLS - 1; col += 1) {
+          const idx = cellIndex(col, row);
+          const inside = sim.grid.insideVotes[idx];
+          const outside = sim.grid.outsideVotes[idx];
+          const total = inside + outside;
+          if (total < 8 || inside <= outside) continue;
+          const confidence = Math.abs((inside - outside) / total);
+          if (confidence < 0.74) continue;
+          const center = cellCenter(col, row);
+          ctx.globalAlpha = finalAlpha * (0.50 + confidence * 0.36);
+          ctx.fillStyle = COLORS.final;
+          ctx.fillRect(center.x - CELL_W * 0.50, center.y - CELL_H * 0.50, CELL_W + 0.4, CELL_H + 0.4);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function render(progress) {
+      if (!model) return;
+      const state = stateAt(progress);
+      const sim = simulate(progress, model.ring);
+      drawBackground();
+      if (state.final < 1) {
+        drawGridField(state, sim);
+        drawProbes(state, sim);
+        drawInteriorSettlement(state, sim);
+      }
+      drawFinal(state.final, sim);
+      if (debugToggle.checked) {
+        ctx.fillStyle = COLORS.text;
+        ctx.font = "13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+        ctx.fillText(`t=${progress.toFixed(3)}  ${phaseName(progress)}`, 18, 24);
+        ctx.fillText(`probes=${sim.probes.length} samples=${sim.totalSampleCount} frontier=${sim.metrics.frontierCellCount} confidence=${sim.metrics.averageConfidence.toFixed(2)}`, 18, 44);
+      }
+      scrub.value = String(progress);
+      readout.textContent = `t=${progress.toFixed(3)}`;
+      window.__phase326State = {
+        ok: true,
+        currentPhase: phaseName(progress),
+        elapsed: progress * DURATION_MS,
+        t: progress,
+        activeProbeCount: sim.probes.length,
+        totalSampleCount: sim.totalSampleCount,
+        frontierCellCount: sim.metrics.frontierCellCount,
+        resolvedInsideCellCount: sim.metrics.resolvedInsideCellCount,
+        resolvedOutsideCellCount: sim.metrics.resolvedOutsideCellCount,
+        averageConfidence: sim.metrics.averageConfidence,
+        maxFrontierScore: sim.metrics.maxFrontierScore,
+        hasDirectBoundaryTargets: false,
+        usesTruthOracleOnly: true,
+        source: "POST /search-regions generation_mode=contour",
+        request: REQUEST_BODY,
+        properties: model.properties,
+      };
+    }
+
+    function tick(now) {
+      if (running) {
+        const progress = Math.min(1, (now - startedAt) / DURATION_MS);
+        render(progress);
+        if (progress >= 1) {
+          running = false;
+          pausedT = 1;
+          playButton.textContent = "Play";
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    playButton.addEventListener("click", () => {
+      running = !running;
+      playButton.textContent = running ? "Pause" : "Play";
+      if (running) startedAt = performance.now() - pausedT * DURATION_MS;
+      else pausedT = Number(scrub.value);
+    });
+
+    scrub.addEventListener("input", () => {
+      pausedT = Number(scrub.value);
+      running = false;
+      playButton.textContent = "Play";
+      render(pausedT);
+    });
+
+    snapshot.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.download = `phase3_26_field_solver_${Number(scrub.value).toFixed(3)}.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    });
+
+    async function main() {
+      const feature = await fetchRealPolygon();
+      const projection = buildProjection(feature.geometry.coordinates[0]);
+      model = {
+        ring: projection.projected,
+        centroid: projection.centroid,
+        properties: feature.properties,
+      };
+      render(0);
+      requestAnimationFrame(tick);
+    }
+
+    main().catch(err => {
+      console.error(err);
+      window.__phase326State = { ok: false, error: err.message };
+      showError(err.message);
+    });
+  </script>
+</body>
+</html>

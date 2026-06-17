@@ -1,0 +1,119 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Dropdown — checkmark, no Genie search</title>
+<style>
+:root{
+  --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9b9080;
+  --line:#ddd0b8; --line-soft:#ece2cf;
+  --paper:#f4ecdc; --card:#fdf8ee;
+  --accent:#5b6b63; --gold:#b89a55; --teal:#5f8a90;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+  background:radial-gradient(58% 50% at 12% -4%, rgba(214,176,108,.16), transparent 60%),
+    radial-gradient(50% 44% at 98% 4%, rgba(150,178,150,.10), transparent 60%),
+    var(--paper); background-attachment:fixed; min-height:100vh;}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 30px 100px}
+h1{font-family:var(--serif);font-weight:700;font-size:25px;margin:0 0 3px}
+.sub{color:var(--ink-soft);margin:0 0 24px;max-width:820px;font-size:13.5px}
+h2{font-family:var(--serif);font-size:18px;margin:30px 0 2px}
+.h2sub{color:var(--ink-soft);font-size:12.5px;margin:0 0 16px}
+.triple{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;align-items:start}
+.col-tag{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:800;margin-bottom:7px}
+.tlabel{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);font-weight:800;display:block;margin-bottom:2px}
+.trigger{display:inline-flex;align-items:center;gap:8px;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;padding:2px 0;margin-bottom:12px}
+.trigger.sm{font-size:15px}
+.trigger .car{font-size:11px;color:var(--ink-faint)}
+
+.dd{width:272px;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  box-shadow:0 1px 2px rgba(51,41,31,.05), 0 18px 40px -20px rgba(51,41,31,.45);padding:7px;}
+.dd.narrow{width:210px}
+.srch{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line-soft);
+  border-radius:9px;padding:8px 10px;margin-bottom:5px}
+.srch svg{width:15px;height:15px;color:var(--ink-faint);flex:0 0 auto}
+.srch input{flex:1;border:none;background:none;outline:none;font:inherit;font-size:13px;color:var(--ink)}
+.row{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;text-decoration:none;color:var(--ink)}
+.row:hover{background:var(--line-soft)}
+.row.on{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.ck{width:14px;flex:0 0 14px;color:var(--accent);opacity:0;font-size:13px}
+.row.on .ck{opacity:1}
+.rtext{flex:1 1 auto;min-width:0}
+.rname{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rsub{font-size:11.5px;color:var(--ink-faint)}
+.badge{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;padding:3px 7px;border-radius:999px;flex:0 0 auto}
+.badge.cur{color:var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent)}
+.badge.nat{color:var(--gold);background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.star{flex:0 0 auto;font-size:13px;color:var(--gold);width:14px;text-align:center}
+.star.off{color:var(--line)}
+.msep{height:1px;background:var(--line-soft);margin:5px 8px}
+.mfoot{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;cursor:pointer;color:var(--accent);font-size:13.5px;font-weight:600}
+.mfoot:hover{background:var(--line-soft)}
+
+/* compact rows for Genie long lists (no search) */
+.dd.compact .row{padding:6px 10px;gap:9px}
+.dd.compact .rname{font-size:13px}
+
+.note{margin-top:38px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 20px;font-size:12.8px;color:var(--ink-soft);line-height:1.65}
+.note b{color:var(--ink)}
+</style></head>
+<body>
+<div class="wrap">
+<h1>Custom dropdown — locked: checkmark, no Genie search</h1>
+<p class="sub">Checkmark indicator everywhere (matches city compare lists). Location search stays. Genie has <b>no search</b> — long lists shrink the row formatting instead, so every body is equally visible and nothing is harder to find. Long city names abbreviate rather than widen the menu.</p>
+
+<h2>Location selector</h2>
+<p class="h2sub">Search at top, badges (Current / Natal), gold star when saved, + Add a location. Long names abbreviate (Austin) to keep the menu narrow.</p>
+<div class="triple">
+  <div>
+    <div class="col-tag">Location · checkmark</div>
+    <span class="tlabel">Relocate to</span>
+    <button class="trigger">Kyoto, Japan <span class="car">&#9662;</span></button>
+    <div class="dd">
+      <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Search a location…"></div>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Portland, OR &middot; USA</div><div class="rsub">45.5&deg;N &middot; 122.7&deg;W</div></span><span class="badge nat">Natal</span><span class="star">&#9733;</span></a>
+      <a class="row on"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Kyoto, Japan</div><div class="rsub">35.0&deg;N &middot; 135.8&deg;E</div></span><span class="badge cur">Current</span><span class="star">&#9733;</span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Austin, TX &middot; USA</div><div class="rsub">30.3&deg;N &middot; 97.7&deg;W</div></span><span class="star">&#9733;</span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Lisbon, Portugal</div><div class="rsub">38.7&deg;N &middot; 9.1&deg;W</div></span><span class="star">&#9733;</span></a>
+      <div class="msep"></div>
+      <div class="mfoot">+ Add a location</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="col-tag">Genie · tier 1 (no search)</div>
+    <span class="tlabel">Genie · filter</span>
+    <button class="trigger sm">Planet &middot; House <span class="car">&#9662;</span></button>
+    <div class="dd narrow">
+      <a class="row on"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Planet &middot; House</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Angle &middot; Sign</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Aspect &middot; Angle</div></span></a>
+    </div>
+  </div>
+
+  <div>
+    <div class="col-tag">Genie · tier 2 planet (compact, all visible)</div>
+    <span class="tlabel">Planet</span>
+    <button class="trigger sm">Venus <span class="car">&#9662;</span></button>
+    <div class="dd narrow compact">
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Sun</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Moon</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Mercury</div></span></a>
+      <a class="row on"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Venus</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Mars</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Jupiter</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Saturn</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Uranus</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Neptune</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Pluto</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">Chiron</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">North Node</div></span></a>
+      <a class="row"><span class="ck">&#10003;</span><span class="rtext"><div class="rname">South Node</div></span></a>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+<b>Checkmark</b> active indicator, decided (consistent with the favorites/compare checkboxes). <b>Genie:</b> no search field — the full body list stays compact enough that all 13 are visible at once, so no planet is privileged or buried. <b>City names:</b> abbreviate region/country ("Portland, OR · USA", "Austin, TX · USA") to hold the menu width; the full disambiguated name appears in the dedicated <b>city search</b> feature (pending build, with timezone history).
+</div>
+</div></body></html>

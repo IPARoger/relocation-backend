@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Gold / Silver by Planet Gender</title><style>
+  :root{
+    --warm:#fdf8ee; --warm-bg:#f4ece0; --neutral:#ededeb; --neutral-bg:#e2e2df;
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9a8f7f;
+    --gold:#b8924e; --gold-deep:#8a6a2f; --silver:#7d8590; --silver-deep:#5d646e;
+    --line-soft:rgba(51,41,31,.08);
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--warm-bg);padding:34px 38px 80px}
+  h1{font-family:var(--serif);font-size:24px;font-weight:700;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 4px;max-width:880px;line-height:1.55}
+  .key{font-size:12.5px;color:var(--ink-faint);margin:0 0 24px}
+  .key b.g{color:var(--gold-deep)} .key b.s{color:var(--silver-deep)}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(230px,1fr));gap:24px;max-width:1180px}
+  .study{background:var(--warm);border-radius:13px;padding:14px 0 10px;box-shadow:0 1px 2px rgba(51,41,31,.05)}
+  .study h3{font-family:var(--sans);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 16px 1px}
+  .study .desc{font-size:11px;color:var(--ink-faint);margin:0 16px 8px}
+  table{width:100%;border-collapse:collapse}
+  td{font-size:15px;height:34px;padding:0 16px}
+  td.lbl{color:var(--ink-soft);text-align:left}
+  td.val{text-align:right;width:42%}
+  tbody tr td{border-bottom:1px solid var(--line-soft)}
+  tbody tr:last-child td{border-bottom:none}
+
+  /* 1 FILL faint */
+  .fillA tr.m td{background:rgba(184,146,78,.07)} .fillA tr.f td{background:rgba(125,133,144,.09)}
+  /* 2 FILL stronger */
+  .fillB tr.m td{background:rgba(184,146,78,.13)} .fillB tr.f td{background:rgba(125,133,144,.15)}
+  /* 3 LEFT EDGE bar */
+  .edge tr.m td.lbl{box-shadow:inset 3px 0 0 var(--gold)} .edge tr.f td.lbl{box-shadow:inset 3px 0 0 var(--silver)}
+  .edge tr.n td.lbl{box-shadow:inset 3px 0 0 rgba(154,143,127,.5)}
+  /* 4 NAME tint (text only) */
+  .nameT tr.m td.lbl{color:var(--gold-deep);font-weight:600} .nameT tr.f td.lbl{color:var(--silver-deep);font-weight:600}
+  /* 5 GLYPH dot marker before name */
+  .dot td.lbl{position:relative;padding-left:30px}
+  .dot td.lbl::before{content:'';position:absolute;left:14px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:transparent}
+  .dot tr.m td.lbl::before{background:var(--gold)} .dot tr.f td.lbl::before{background:var(--silver)}
+  .dot tr.n td.lbl::before{background:rgba(154,143,127,.45)}
+  /* 6 FILL + edge combined, medium */
+  .combo tr.m td{background:rgba(184,146,78,.08)} .combo tr.f td{background:rgba(125,133,144,.10)}
+  .combo tr.m td.lbl{box-shadow:inset 3px 0 0 var(--gold)} .combo tr.f td.lbl{box-shadow:inset 3px 0 0 var(--silver)}
+  .combo tr.n td.lbl{box-shadow:inset 3px 0 0 rgba(154,143,127,.4)}
+</style></head><body><h1>Gold / Silver by Planet Gender &mdash; deliberate, meaningful color</h1><p class='sub'>Unlike the row-tracking studies, this color <b>encodes real astrological information</b>: each planet is tinted by its classical gender. The &ldquo;bias&rdquo; is intentional and teaches something true, rather than leaking an accidental mood. The gender scheme is governed by the switchable Layer&nbsp;2 ontology.</p><p class='key'><b class='g'>Gold = masculine / diurnal</b> (Sun, Mars, Jupiter, Saturn, Uranus, Pluto) &nbsp;&middot;&nbsp; <b class='s'>Silver = feminine / nocturnal</b> (Moon, Venus, Neptune) &nbsp;&middot;&nbsp; neutral (Mercury, Chiron). Six application styles, faint &rarr; explicit.</p><div class='grid'><div class="study"><h3>1 &middot; Row fill (faint)</h3><div class="desc">gold = masculine, silver = feminine</div><table class="fillA"><tbody class="rows"></tbody></table></div><div class="study"><h3>2 &middot; Row fill (stronger)</h3><div class="desc">same, more saturated</div><table class="fillB"><tbody class="rows"></tbody></table></div><div class="study"><h3>3 &middot; Left edge bar</h3><div class="desc">color only on the planet edge</div><table class="edge"><tbody class="rows"></tbody></table></div><div class="study"><h3>4 &middot; Name tint</h3><div class="desc">planet name colored, no fill</div><table class="nameT"><tbody class="rows"></tbody></table></div><div class="study"><h3>5 &middot; Glyph dot</h3><div class="desc">small color dot before name</div><table class="dot"><tbody class="rows"></tbody></table></div><div class="study"><h3>6 &middot; Fill + edge</h3><div class="desc">faint fill plus edge accent</div><table class="combo"><tbody class="rows"></tbody></table></div></div><script>var P=[["Sun", "10th", "M"], ["Moon", "4th", "F"], ["Mercury", "9th", "N"], ["Venus", "11th", "F"], ["Mars", "1st", "M"], ["Jupiter", "7th", "M"], ["Saturn", "5th", "M"], ["Uranus", "8th", "M"], ["Neptune", "6th", "F"], ["Pluto", "5th", "M"], ["Chiron", "12th", "N"]];var rh=P.map(function(p){var cls=p[2]==='M'?'m':p[2]==='F'?'f':'n';return '<tr class="'+cls+'"><td class="lbl">'+p[0]+'</td><td class="val">'+p[1]+'</td></tr>';}).join('');Array.prototype.forEach.call(document.querySelectorAll('tbody.rows'),function(b){b.innerHTML=rh;});</script></body></html>

@@ -1,0 +1,268 @@
+{
+  "schema": "brute_force_multi_condition_proof@1",
+  "sandbox_url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html",
+  "profile_id": "baseline_validated",
+  "grid_deg": "0.25",
+  "output_dir": "validation/screenshots/brute_force_multi",
+  "case_count": 5,
+  "pass_count": 5,
+  "fail_count": 0,
+  "page_errors": [],
+  "captures": [
+    {
+      "case_id": "01_one_condition_sun_1st",
+      "description": "Baseline \u2014 single condition A = Sun in 1st, Americas, 0.25\u00b0.",
+      "image": "01_one_condition_sun_1st.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=sun%3A1&viewport=americas&profile=baseline_validated&gridDeg=0.25&auto=1",
+      "params": {
+        "A": "sun:1",
+        "viewport": "americas"
+      },
+      "timings": {
+        "client_total_seconds": 2.9690999999996275,
+        "server_compute_seconds": 2.7433,
+        "paint_ms": 21.399999998509884,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 62766,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 150400,
+        "conditions": [
+          {
+            "id": "A",
+            "planet": "sun",
+            "house": 1,
+            "count": 62766
+          }
+        ],
+        "overlap_counts": {
+          "any": 62766,
+          "A_only": 62766
+        },
+        "per_mask_counts": {
+          "1": 62766
+        }
+      }
+    },
+    {
+      "case_id": "02_two_conditions_sun_1st_moon_4th",
+      "description": "Two conditions \u2014 A = Sun in 1st, B = Moon in 4th. Per the chart there should be a real intersection (rendered as the yellow+blue\u2192green blend).",
+      "image": "02_two_conditions_sun_1st_moon_4th.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=sun%3A1&B=moon%3A4&viewport=americas&profile=baseline_validated&gridDeg=0.25&auto=1",
+      "params": {
+        "A": "sun:1",
+        "B": "moon:4",
+        "viewport": "americas"
+      },
+      "timings": {
+        "client_total_seconds": 3.410699999999255,
+        "server_compute_seconds": 3.0121,
+        "paint_ms": 62.59999999962747,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 118395,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 136978,
+        "conditions": [
+          {
+            "id": "A",
+            "planet": "sun",
+            "house": 1,
+            "count": 62766
+          },
+          {
+            "id": "B",
+            "planet": "moon",
+            "house": 4,
+            "count": 59695
+          }
+        ],
+        "overlap_counts": {
+          "any": 118395,
+          "A_only": 58700,
+          "B_only": 55629,
+          "A_and_B": 4066
+        },
+        "per_mask_counts": {
+          "1": 58700,
+          "2": 55629,
+          "3": 4066
+        }
+      }
+    },
+    {
+      "case_id": "03_three_conditions_sun_1st_moon_4th_mars_2nd",
+      "description": "Three conditions \u2014 A = Sun in 1st, B = Moon in 4th, C = Mars in 2nd. Tests that the renderer handles all seven mask states.",
+      "image": "03_three_conditions_sun_1st_moon_4th_mars_2nd.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=sun%3A1&B=moon%3A4&C=mars%3A2&viewport=americas&profile=baseline_validated&gridDeg=0.25&auto=1",
+      "params": {
+        "A": "sun:1",
+        "B": "moon:4",
+        "C": "mars:2",
+        "viewport": "americas"
+      },
+      "timings": {
+        "client_total_seconds": 3.692699999999255,
+        "server_compute_seconds": 3.1302,
+        "paint_ms": 70.80000000074506,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 174779,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 131809,
+        "conditions": [
+          {
+            "id": "A",
+            "planet": "sun",
+            "house": 1,
+            "count": 62766
+          },
+          {
+            "id": "B",
+            "planet": "moon",
+            "house": 4,
+            "count": 59695
+          },
+          {
+            "id": "C",
+            "planet": "mars",
+            "house": 2,
+            "count": 56473
+          }
+        ],
+        "overlap_counts": {
+          "any": 174779,
+          "A_only": 58611,
+          "B_only": 55629,
+          "C_only": 56384,
+          "A_and_B": 4066,
+          "A_and_C": 89,
+          "B_and_C": 0,
+          "A_and_B_and_C": 0
+        },
+        "per_mask_counts": {
+          "1": 58611,
+          "2": 55629,
+          "3": 4066,
+          "4": 56384,
+          "5": 89
+        }
+      }
+    },
+    {
+      "case_id": "04_overlap_closeup_sun_1st_moon_4th",
+      "description": "Same A + B as case 02, zoomed onto the A\u2229B region (eastern US) so the green overlap polygon is clearly legible against the basemap.",
+      "image": "04_overlap_closeup_sun_1st_moon_4th.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=sun%3A1&B=moon%3A4&profile=baseline_validated&gridDeg=0.25&auto=1",
+      "params": {
+        "A": "sun:1",
+        "B": "moon:4"
+      },
+      "timings": {
+        "client_total_seconds": 0.188,
+        "server_compute_seconds": 0.1343,
+        "paint_ms": 4.100000001490116,
+        "total_cells": 17535,
+        "classified": 17430,
+        "matches": 17014,
+        "capped": 0,
+        "errors": 0,
+        "grid_deg": 0.25,
+        "points_per_second_server": 129767,
+        "conditions": [
+          {
+            "id": "A",
+            "planet": "sun",
+            "house": 1,
+            "count": 8857
+          },
+          {
+            "id": "B",
+            "planet": "moon",
+            "house": 4,
+            "count": 8983
+          }
+        ],
+        "overlap_counts": {
+          "any": 17014,
+          "A_only": 8031,
+          "B_only": 8157,
+          "A_and_B": 826
+        },
+        "per_mask_counts": {
+          "1": 8031,
+          "2": 8157,
+          "3": 826
+        }
+      }
+    },
+    {
+      "case_id": "05_three_conditions_world_0.5deg",
+      "description": "Same three conditions but at world viewport with 0.5\u00b0 grid (cheap, shows the global topology of overlap).",
+      "image": "05_three_conditions_world_0.5deg.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=sun%3A1&B=moon%3A4&C=mars%3A2&viewport=world&gridDeg=0.5&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "sun:1",
+        "B": "moon:4",
+        "C": "mars:2",
+        "viewport": "world",
+        "gridDeg": "0.5"
+      },
+      "timings": {
+        "client_total_seconds": 1.7027000000011177,
+        "server_compute_seconds": 1.5118,
+        "paint_ms": 18.59999999962747,
+        "total_cells": 238651,
+        "classified": 191786,
+        "matches": 46758,
+        "capped": 0,
+        "errors": 46865,
+        "grid_deg": 0.5,
+        "points_per_second_server": 126862,
+        "conditions": [
+          {
+            "id": "A",
+            "planet": "sun",
+            "house": 1,
+            "count": 15973
+          },
+          {
+            "id": "B",
+            "planet": "moon",
+            "house": 4,
+            "count": 15887
+          },
+          {
+            "id": "C",
+            "planet": "mars",
+            "house": 2,
+            "count": 15939
+          }
+        ],
+        "overlap_counts": {
+          "any": 46758,
+          "A_only": 14932,
+          "B_only": 14871,
+          "C_only": 15914,
+          "A_and_B": 1016,
+          "A_and_C": 25,
+          "B_and_C": 0,
+          "A_and_B_and_C": 0
+        },
+        "per_mask_counts": {
+          "1": 14932,
+          "2": 14871,
+          "3": 1016,
+          "4": 15914,
+          "5": 25
+        }
+      }
+    }
+  ]
+}

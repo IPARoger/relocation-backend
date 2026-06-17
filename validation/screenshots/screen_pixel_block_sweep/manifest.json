@@ -1,0 +1,1123 @@
+{
+  "viewport": {
+    "width": 1480,
+    "height": 900
+  },
+  "fit_bounds": {
+    "south": -65.0,
+    "west": 150.0,
+    "north": 65.0,
+    "east": 180.0
+  },
+  "brute_grid_deg": 0.5,
+  "block_sizes": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "profile": "baseline_validated",
+  "cases": [
+    {
+      "id": "01_sun_in_1st",
+      "label": "Sun in 1st House",
+      "slot": "pih:sun:1",
+      "brute_ref": {
+        "screenshot": "validation/screenshots/screen_pixel_block_sweep/01_sun_in_1st_brute_ref.png",
+        "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&gridDeg=0.5&A=pih:sun:1",
+        "wall_seconds": 0.47016072273254395,
+        "timings": {
+          "client_total_seconds": 0.442,
+          "server_compute_seconds": 0.4389,
+          "paint_ms": 0,
+          "total_cells": 72345,
+          "classified": 70490,
+          "matches": 0,
+          "capped": 0,
+          "errors": 1855,
+          "grid_deg": 0.5,
+          "points_per_second_server": 160609,
+          "conditions": [
+            {
+              "id": "A",
+              "type": "planet_in_house",
+              "planet": "sun",
+              "house": 1,
+              "count": 0
+            }
+          ],
+          "overlap_counts": {
+            "any": 0,
+            "A_only": 0
+          },
+          "per_mask_counts": {}
+        }
+      },
+      "spt": {
+        "1": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/01_sun_in_1st_spt_block_1.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=1&A=pih:sun:1",
+          "wall_seconds": 11.270662069320679,
+          "timings": {
+            "block_px": 1,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 1480,
+            "screen_rows": 900,
+            "point_count": 1332000,
+            "classified_count": 1275760,
+            "match_count": 123488,
+            "error_count": 56240,
+            "proj_ms": 275,
+            "server_compute_seconds": 8.5679,
+            "client_total_seconds": 10.93520000000298,
+            "paint_ms": 46.599999997764826,
+            "points_per_second_server": 149150.60960960962,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "planet_in_house",
+                "count": 123488
+              }
+            ],
+            "overlap_counts": {
+              "any": 123488,
+              "A_only": 123488
+            },
+            "per_mask_counts": {
+              "1": 123488
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "2": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/01_sun_in_1st_spt_block_2.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=2&A=pih:sun:1",
+          "wall_seconds": 2.9936771392822266,
+          "timings": {
+            "block_px": 2,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 740,
+            "screen_rows": 450,
+            "point_count": 333000,
+            "classified_count": 319680,
+            "match_count": 30935,
+            "error_count": 13320,
+            "proj_ms": 112.10000000149012,
+            "server_compute_seconds": 2.2457,
+            "client_total_seconds": 2.855199999999255,
+            "paint_ms": 12.300000000745058,
+            "points_per_second_server": 142350,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "planet_in_house",
+                "planet": "sun",
+                "house": 1,
+                "count": 30935
+              }
+            ],
+            "overlap_counts": {
+              "any": 30935,
+              "A_only": 30935
+            },
+            "per_mask_counts": {
+              "1": 30935
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "4": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/01_sun_in_1st_spt_block_4.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=4&A=pih:sun:1",
+          "wall_seconds": 0.7509760856628418,
+          "timings": {
+            "block_px": 4,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 370,
+            "screen_rows": 225,
+            "point_count": 83250,
+            "classified_count": 79550,
+            "match_count": 7708,
+            "error_count": 3700,
+            "proj_ms": 34.100000001490116,
+            "server_compute_seconds": 0.5775,
+            "client_total_seconds": 0.7051000000014901,
+            "paint_ms": 2.899999998509884,
+            "points_per_second_server": 137738,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "planet_in_house",
+                "planet": "sun",
+                "house": 1,
+                "count": 7708
+              }
+            ],
+            "overlap_counts": {
+              "any": 7708,
+              "A_only": 7708
+            },
+            "per_mask_counts": {
+              "1": 7708
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "8": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/01_sun_in_1st_spt_block_8.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=8&A=pih:sun:1",
+          "wall_seconds": 0.17784690856933594,
+          "timings": {
+            "block_px": 8,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 185,
+            "screen_rows": 113,
+            "point_count": 20905,
+            "classified_count": 19980,
+            "match_count": 1932,
+            "error_count": 925,
+            "proj_ms": 6.200000002980232,
+            "server_compute_seconds": 0.1376,
+            "client_total_seconds": 0.1651000000014901,
+            "paint_ms": 0.6999999992549419,
+            "points_per_second_server": 145243,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "planet_in_house",
+                "planet": "sun",
+                "house": 1,
+                "count": 1932
+              }
+            ],
+            "overlap_counts": {
+              "any": 1932,
+              "A_only": 1932
+            },
+            "per_mask_counts": {
+              "1": 1932
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        }
+      }
+    },
+    {
+      "id": "02_saturn_conj_mc_orb_1",
+      "label": "Saturn \u260c MC, orb 1\u00b0",
+      "slot": "a2a:saturn:mc:conjunction:1.0",
+      "brute_ref": {
+        "screenshot": "validation/screenshots/screen_pixel_block_sweep/02_saturn_conj_mc_orb_1_brute_ref.png",
+        "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&gridDeg=0.5&A=a2a:saturn:mc:conjunction:1.0",
+        "wall_seconds": 0.495560884475708,
+        "timings": {
+          "client_total_seconds": 0.48319999999925495,
+          "server_compute_seconds": 0.4755,
+          "paint_ms": 0.6000000014901161,
+          "total_cells": 72345,
+          "classified": 70490,
+          "matches": 1330,
+          "capped": 0,
+          "errors": 1855,
+          "grid_deg": 0.5,
+          "points_per_second_server": 148255,
+          "conditions": [
+            {
+              "id": "A",
+              "type": "aspect_to_angle",
+              "planet": "saturn",
+              "angle": "mc",
+              "aspect": "conjunction",
+              "orb": 1,
+              "count": 1330
+            }
+          ],
+          "overlap_counts": {
+            "any": 1330,
+            "A_only": 1330
+          },
+          "per_mask_counts": {
+            "1": 1330
+          }
+        }
+      },
+      "spt": {
+        "1": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/02_saturn_conj_mc_orb_1_spt_block_1.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=1&A=a2a:saturn:mc:conjunction:1.0",
+          "wall_seconds": 11.38011121749878,
+          "timings": {
+            "block_px": 1,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 1480,
+            "screen_rows": 900,
+            "point_count": 1332000,
+            "classified_count": 1275760,
+            "match_count": 8620,
+            "error_count": 56240,
+            "proj_ms": 269.5,
+            "server_compute_seconds": 8.7555,
+            "client_total_seconds": 11.072800000000745,
+            "paint_ms": 18.5,
+            "points_per_second_server": 147202.04804804805,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "count": 8620
+              }
+            ],
+            "overlap_counts": {
+              "any": 8620,
+              "A_only": 8620
+            },
+            "per_mask_counts": {
+              "1": 8620
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "2": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/02_saturn_conj_mc_orb_1_spt_block_2.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=2&A=a2a:saturn:mc:conjunction:1.0",
+          "wall_seconds": 2.7997567653656006,
+          "timings": {
+            "block_px": 2,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 740,
+            "screen_rows": 450,
+            "point_count": 333000,
+            "classified_count": 319680,
+            "match_count": 2160,
+            "error_count": 13320,
+            "proj_ms": 119,
+            "server_compute_seconds": 2.1032,
+            "client_total_seconds": 2.66970000000298,
+            "paint_ms": 2.5,
+            "points_per_second_server": 151995,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "mc",
+                "aspect": "conjunction",
+                "orb": 1,
+                "count": 2160
+              }
+            ],
+            "overlap_counts": {
+              "any": 2160,
+              "A_only": 2160
+            },
+            "per_mask_counts": {
+              "1": 2160
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "4": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/02_saturn_conj_mc_orb_1_spt_block_4.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=4&A=a2a:saturn:mc:conjunction:1.0",
+          "wall_seconds": 0.6954917907714844,
+          "timings": {
+            "block_px": 4,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 370,
+            "screen_rows": 225,
+            "point_count": 83250,
+            "classified_count": 79550,
+            "match_count": 430,
+            "error_count": 3700,
+            "proj_ms": 24.199999999254942,
+            "server_compute_seconds": 0.5237,
+            "client_total_seconds": 0.6645,
+            "paint_ms": 1.0999999977648258,
+            "points_per_second_server": 151911,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "mc",
+                "aspect": "conjunction",
+                "orb": 1,
+                "count": 430
+              }
+            ],
+            "overlap_counts": {
+              "any": 430,
+              "A_only": 430
+            },
+            "per_mask_counts": {
+              "1": 430
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "8": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/02_saturn_conj_mc_orb_1_spt_block_8.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=8&A=a2a:saturn:mc:conjunction:1.0",
+          "wall_seconds": 0.20015406608581543,
+          "timings": {
+            "block_px": 8,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 185,
+            "screen_rows": 113,
+            "point_count": 20905,
+            "classified_count": 19980,
+            "match_count": 108,
+            "error_count": 925,
+            "proj_ms": 12,
+            "server_compute_seconds": 0.1434,
+            "client_total_seconds": 0.18240000000223516,
+            "paint_ms": 0.3999999985098839,
+            "points_per_second_server": 139306,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "mc",
+                "aspect": "conjunction",
+                "orb": 1,
+                "count": 108
+              }
+            ],
+            "overlap_counts": {
+              "any": 108,
+              "A_only": 108
+            },
+            "per_mask_counts": {
+              "1": 108
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        }
+      }
+    },
+    {
+      "id": "03_saturn_conj_asc_orb_1",
+      "label": "Saturn \u260c ASC, orb 1\u00b0",
+      "slot": "a2a:saturn:asc:conjunction:1.0",
+      "brute_ref": {
+        "screenshot": "validation/screenshots/screen_pixel_block_sweep/03_saturn_conj_asc_orb_1_brute_ref.png",
+        "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&gridDeg=0.5&A=a2a:saturn:asc:conjunction:1.0",
+        "wall_seconds": 0.4840238094329834,
+        "timings": {
+          "client_total_seconds": 0.47369999999925494,
+          "server_compute_seconds": 0.467,
+          "paint_ms": 0.3999999985098839,
+          "total_cells": 72345,
+          "classified": 70490,
+          "matches": 1019,
+          "capped": 0,
+          "errors": 1855,
+          "grid_deg": 0.5,
+          "points_per_second_server": 150937,
+          "conditions": [
+            {
+              "id": "A",
+              "type": "aspect_to_angle",
+              "planet": "saturn",
+              "angle": "asc",
+              "aspect": "conjunction",
+              "orb": 1,
+              "count": 1019
+            }
+          ],
+          "overlap_counts": {
+            "any": 1019,
+            "A_only": 1019
+          },
+          "per_mask_counts": {
+            "1": 1019
+          }
+        }
+      },
+      "spt": {
+        "1": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/03_saturn_conj_asc_orb_1_spt_block_1.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=1&A=a2a:saturn:asc:conjunction:1.0",
+          "wall_seconds": 10.778132915496826,
+          "timings": {
+            "block_px": 1,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 1480,
+            "screen_rows": 900,
+            "point_count": 1332000,
+            "classified_count": 1275760,
+            "match_count": 8594,
+            "error_count": 56240,
+            "proj_ms": 242.80000000074506,
+            "server_compute_seconds": 8.4892,
+            "client_total_seconds": 10.512199999999256,
+            "paint_ms": 12.400000002235174,
+            "points_per_second_server": 151387.25525525527,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "count": 8594
+              }
+            ],
+            "overlap_counts": {
+              "any": 8594,
+              "A_only": 8594
+            },
+            "per_mask_counts": {
+              "1": 8594
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "2": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/03_saturn_conj_asc_orb_1_spt_block_2.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=2&A=a2a:saturn:asc:conjunction:1.0",
+          "wall_seconds": 2.8643078804016113,
+          "timings": {
+            "block_px": 2,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 740,
+            "screen_rows": 450,
+            "point_count": 333000,
+            "classified_count": 319680,
+            "match_count": 2152,
+            "error_count": 13320,
+            "proj_ms": 80,
+            "server_compute_seconds": 2.1593,
+            "client_total_seconds": 2.775099999997765,
+            "paint_ms": 3,
+            "points_per_second_server": 148045,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "asc",
+                "aspect": "conjunction",
+                "orb": 1,
+                "count": 2152
+              }
+            ],
+            "overlap_counts": {
+              "any": 2152,
+              "A_only": 2152
+            },
+            "per_mask_counts": {
+              "1": 2152
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "4": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/03_saturn_conj_asc_orb_1_spt_block_4.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=4&A=a2a:saturn:asc:conjunction:1.0",
+          "wall_seconds": 0.7379028797149658,
+          "timings": {
+            "block_px": 4,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 370,
+            "screen_rows": 225,
+            "point_count": 83250,
+            "classified_count": 79550,
+            "match_count": 533,
+            "error_count": 3700,
+            "proj_ms": 43,
+            "server_compute_seconds": 0.5575,
+            "client_total_seconds": 0.6863999999985099,
+            "paint_ms": 1.2000000029802322,
+            "points_per_second_server": 142693,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "asc",
+                "aspect": "conjunction",
+                "orb": 1,
+                "count": 533
+              }
+            ],
+            "overlap_counts": {
+              "any": 533,
+              "A_only": 533
+            },
+            "per_mask_counts": {
+              "1": 533
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "8": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/03_saturn_conj_asc_orb_1_spt_block_8.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=8&A=a2a:saturn:asc:conjunction:1.0",
+          "wall_seconds": 0.21577811241149902,
+          "timings": {
+            "block_px": 8,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 185,
+            "screen_rows": 113,
+            "point_count": 20905,
+            "classified_count": 19980,
+            "match_count": 137,
+            "error_count": 925,
+            "proj_ms": 9,
+            "server_compute_seconds": 0.1708,
+            "client_total_seconds": 0.20140000000223518,
+            "paint_ms": 0.29999999701976776,
+            "points_per_second_server": 116975,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "asc",
+                "aspect": "conjunction",
+                "orb": 1,
+                "count": 137
+              }
+            ],
+            "overlap_counts": {
+              "any": 137,
+              "A_only": 137
+            },
+            "per_mask_counts": {
+              "1": 137
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        }
+      }
+    },
+    {
+      "id": "04_saturn_conj_mc_orb_6",
+      "label": "Saturn \u260c MC, orb 6\u00b0",
+      "slot": "a2a:saturn:mc:conjunction:6.0",
+      "brute_ref": {
+        "screenshot": "validation/screenshots/screen_pixel_block_sweep/04_saturn_conj_mc_orb_6_brute_ref.png",
+        "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&gridDeg=0.5&A=a2a:saturn:mc:conjunction:6.0",
+        "wall_seconds": 0.5265369415283203,
+        "timings": {
+          "client_total_seconds": 0.516699999999255,
+          "server_compute_seconds": 0.5016,
+          "paint_ms": 1.5,
+          "total_cells": 72345,
+          "classified": 70490,
+          "matches": 4256,
+          "capped": 0,
+          "errors": 1855,
+          "grid_deg": 0.5,
+          "points_per_second_server": 140522,
+          "conditions": [
+            {
+              "id": "A",
+              "type": "aspect_to_angle",
+              "planet": "saturn",
+              "angle": "mc",
+              "aspect": "conjunction",
+              "orb": 6,
+              "count": 4256
+            }
+          ],
+          "overlap_counts": {
+            "any": 4256,
+            "A_only": 4256
+          },
+          "per_mask_counts": {
+            "1": 4256
+          }
+        }
+      },
+      "spt": {
+        "1": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/04_saturn_conj_mc_orb_6_spt_block_1.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=1&A=a2a:saturn:mc:conjunction:6.0",
+          "wall_seconds": 11.092811107635498,
+          "timings": {
+            "block_px": 1,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 1480,
+            "screen_rows": 900,
+            "point_count": 1332000,
+            "classified_count": 1275760,
+            "match_count": 51720,
+            "error_count": 56240,
+            "proj_ms": 268,
+            "server_compute_seconds": 8.6218,
+            "client_total_seconds": 10.789199999999255,
+            "paint_ms": 26.800000000745058,
+            "points_per_second_server": 149150.63063063062,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "count": 51720
+              }
+            ],
+            "overlap_counts": {
+              "any": 51720,
+              "A_only": 51720
+            },
+            "per_mask_counts": {
+              "1": 51720
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "2": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/04_saturn_conj_mc_orb_6_spt_block_2.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=2&A=a2a:saturn:mc:conjunction:6.0",
+          "wall_seconds": 2.983909845352173,
+          "timings": {
+            "block_px": 2,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 740,
+            "screen_rows": 450,
+            "point_count": 333000,
+            "classified_count": 319680,
+            "match_count": 12960,
+            "error_count": 13320,
+            "proj_ms": 104.80000000074506,
+            "server_compute_seconds": 2.2669,
+            "client_total_seconds": 2.86510000000149,
+            "paint_ms": 4.599999997764826,
+            "points_per_second_server": 141020,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "mc",
+                "aspect": "conjunction",
+                "orb": 6,
+                "count": 12960
+              }
+            ],
+            "overlap_counts": {
+              "any": 12960,
+              "A_only": 12960
+            },
+            "per_mask_counts": {
+              "1": 12960
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "4": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/04_saturn_conj_mc_orb_6_spt_block_4.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=4&A=a2a:saturn:mc:conjunction:6.0",
+          "wall_seconds": 0.7520127296447754,
+          "timings": {
+            "block_px": 4,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 370,
+            "screen_rows": 225,
+            "point_count": 83250,
+            "classified_count": 79550,
+            "match_count": 3225,
+            "error_count": 3700,
+            "proj_ms": 36.900000002235174,
+            "server_compute_seconds": 0.5664,
+            "client_total_seconds": 0.7070999999977648,
+            "paint_ms": 1.6000000014901161,
+            "points_per_second_server": 140453,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "mc",
+                "aspect": "conjunction",
+                "orb": 6,
+                "count": 3225
+              }
+            ],
+            "overlap_counts": {
+              "any": 3225,
+              "A_only": 3225
+            },
+            "per_mask_counts": {
+              "1": 3225
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "8": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/04_saturn_conj_mc_orb_6_spt_block_8.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=8&A=a2a:saturn:mc:conjunction:6.0",
+          "wall_seconds": 0.181427001953125,
+          "timings": {
+            "block_px": 8,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 185,
+            "screen_rows": 113,
+            "point_count": 20905,
+            "classified_count": 19980,
+            "match_count": 756,
+            "error_count": 925,
+            "proj_ms": 6.100000001490116,
+            "server_compute_seconds": 0.1397,
+            "client_total_seconds": 0.16990000000223518,
+            "paint_ms": 0.5,
+            "points_per_second_server": 143048,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "mc",
+                "aspect": "conjunction",
+                "orb": 6,
+                "count": 756
+              }
+            ],
+            "overlap_counts": {
+              "any": 756,
+              "A_only": 756
+            },
+            "per_mask_counts": {
+              "1": 756
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        }
+      }
+    },
+    {
+      "id": "05_saturn_conj_asc_orb_6",
+      "label": "Saturn \u260c ASC, orb 6\u00b0",
+      "slot": "a2a:saturn:asc:conjunction:6.0",
+      "brute_ref": {
+        "screenshot": "validation/screenshots/screen_pixel_block_sweep/05_saturn_conj_asc_orb_6_brute_ref.png",
+        "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&gridDeg=0.5&A=a2a:saturn:asc:conjunction:6.0",
+        "wall_seconds": 0.491077184677124,
+        "timings": {
+          "client_total_seconds": 0.4778000000007451,
+          "server_compute_seconds": 0.4576,
+          "paint_ms": 1.699999999254942,
+          "total_cells": 72345,
+          "classified": 70490,
+          "matches": 6152,
+          "capped": 0,
+          "errors": 1855,
+          "grid_deg": 0.5,
+          "points_per_second_server": 154055,
+          "conditions": [
+            {
+              "id": "A",
+              "type": "aspect_to_angle",
+              "planet": "saturn",
+              "angle": "asc",
+              "aspect": "conjunction",
+              "orb": 6,
+              "count": 6152
+            }
+          ],
+          "overlap_counts": {
+            "any": 6152,
+            "A_only": 6152
+          },
+          "per_mask_counts": {
+            "1": 6152
+          }
+        }
+      },
+      "spt": {
+        "1": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/05_saturn_conj_asc_orb_6_spt_block_1.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=1&A=a2a:saturn:asc:conjunction:6.0",
+          "wall_seconds": 11.477118968963623,
+          "timings": {
+            "block_px": 1,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 1480,
+            "screen_rows": 900,
+            "point_count": 1332000,
+            "classified_count": 1275760,
+            "match_count": 51501,
+            "error_count": 56240,
+            "proj_ms": 263.5,
+            "server_compute_seconds": 9.0541,
+            "client_total_seconds": 11.177300000000745,
+            "paint_ms": 26.599999997764826,
+            "points_per_second_server": 143661.60960960962,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "count": 51501
+              }
+            ],
+            "overlap_counts": {
+              "any": 51501,
+              "A_only": 51501
+            },
+            "per_mask_counts": {
+              "1": 51501
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "2": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/05_saturn_conj_asc_orb_6_spt_block_2.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=2&A=a2a:saturn:asc:conjunction:6.0",
+          "wall_seconds": 2.805824041366577,
+          "timings": {
+            "block_px": 2,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 740,
+            "screen_rows": 450,
+            "point_count": 333000,
+            "classified_count": 319680,
+            "match_count": 12921,
+            "error_count": 13320,
+            "proj_ms": 112.89999999850988,
+            "server_compute_seconds": 2.1386,
+            "client_total_seconds": 2.679199999999255,
+            "paint_ms": 4.300000000745058,
+            "points_per_second_server": 149483,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "asc",
+                "aspect": "conjunction",
+                "orb": 6,
+                "count": 12921
+              }
+            ],
+            "overlap_counts": {
+              "any": 12921,
+              "A_only": 12921
+            },
+            "per_mask_counts": {
+              "1": 12921
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "4": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/05_saturn_conj_asc_orb_6_spt_block_4.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=4&A=a2a:saturn:asc:conjunction:6.0",
+          "wall_seconds": 0.7401790618896484,
+          "timings": {
+            "block_px": 4,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 370,
+            "screen_rows": 225,
+            "point_count": 83250,
+            "classified_count": 79550,
+            "match_count": 3209,
+            "error_count": 3700,
+            "proj_ms": 42.19999999925494,
+            "server_compute_seconds": 0.5489,
+            "client_total_seconds": 0.6815,
+            "paint_ms": 2.599999997764826,
+            "points_per_second_server": 144929,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "asc",
+                "aspect": "conjunction",
+                "orb": 6,
+                "count": 3209
+              }
+            ],
+            "overlap_counts": {
+              "any": 3209,
+              "A_only": 3209
+            },
+            "per_mask_counts": {
+              "1": 3209
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        },
+        "8": {
+          "screenshot": "validation/screenshots/screen_pixel_block_sweep/05_saturn_conj_asc_orb_6_spt_block_8.png",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_screen_pixel_truth.html?profile=baseline_validated&fitBounds=-65.0,150.0,65.0,180.0&block=8&A=a2a:saturn:asc:conjunction:6.0",
+          "wall_seconds": 0.19991803169250488,
+          "timings": {
+            "block_px": 8,
+            "screen_width": 1480,
+            "screen_height": 900,
+            "screen_cols": 185,
+            "screen_rows": 113,
+            "point_count": 20905,
+            "classified_count": 19980,
+            "match_count": 807,
+            "error_count": 925,
+            "proj_ms": 11.300000000745058,
+            "server_compute_seconds": 0.1467,
+            "client_total_seconds": 0.18259999999776483,
+            "paint_ms": 0.6000000014901161,
+            "points_per_second_server": 136168,
+            "conditions": [
+              {
+                "id": "A",
+                "type": "aspect_to_angle",
+                "planet": "saturn",
+                "angle": "asc",
+                "aspect": "conjunction",
+                "orb": 6,
+                "count": 807
+              }
+            ],
+            "overlap_counts": {
+              "any": 807,
+              "A_only": 807
+            },
+            "per_mask_counts": {
+              "1": 807
+            },
+            "bounds": {
+              "north": 68.08878248493977,
+              "south": -68.07662115725006,
+              "east": 319.60634850993233,
+              "west": 10.226684997505606
+            },
+            "zoom": 2.75
+          }
+        }
+      }
+    }
+  ],
+  "wall_seconds_total": 102.24151706695557
+}

@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Distinct Texture Study</title><style>
+  :root{
+    --warm:#fdf8ee; --warm-bg:#f4ece0; --neutral:#ededeb; --neutral-bg:#e2e2df;
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9a8f7f; --line-soft:rgba(51,41,31,.08);
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--warm-bg);padding:30px 36px 80px}
+  h1{font-family:var(--serif);font-size:23px;font-weight:700;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 18px;max-width:880px;line-height:1.55}
+  .controls{margin:0 0 22px;font-size:13px;color:var(--ink-soft)}
+  .controls label{margin-right:18px;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(230px,1fr));gap:22px;max-width:1200px}
+  .study{background:var(--warm);border-radius:13px;padding:13px 0 8px;box-shadow:0 1px 2px rgba(51,41,31,.05)}
+  .study h3{font-family:var(--sans);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin:0 16px 1px}
+  .study .desc{font-size:10.5px;color:var(--ink-faint);margin:0 16px 8px;min-height:26px}
+  table{width:100%;border-collapse:collapse}
+  td{font-size:14.5px;height:32px;padding:0 16px}
+  td.lbl{color:var(--ink-soft);text-align:left}
+  td.val{text-align:right;width:40%;color:var(--ink)}
+  tbody tr td{border-bottom:1px solid var(--line-soft)}
+  tbody tr:last-child td{border-bottom:none}
+  body.lines tbody tr td{border-bottom:1px solid var(--line-soft)}
+  body.nolines tbody tr td{border-bottom:none}
+
+  /* ===== EQUAL-rgba(51,41,31,.05) DISTINCT TEXTURES (odd vs even) ===== */
+  /* rgba(51,41,31,.05) ~5%. The two rows carry the SAME amount of ink; only the PATTERN differs. */
+
+  /* 1 Direction: fine / vs \  (subtle) */
+  .dir td{background-repeat:repeat}
+  .dir tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px)}
+  .dir tr:nth-child(even) td{background-image:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px)}
+
+  /* 2 Phase offset: SAME direction, shifted half a step */
+  .off tr:nth-child(odd) td{background-image:repeating-linear-gradient(0deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px);background-position:0 0}
+  .off tr:nth-child(even) td{background-image:repeating-linear-gradient(0deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px);background-position:0 3px}
+
+  /* 3 Orientation: vertical threads vs horizontal threads */
+  . orient{}
+  .vh tr:nth-child(odd) td{background-image:repeating-linear-gradient(90deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px)}
+  .vh tr:nth-child(even) td{background-image:repeating-linear-gradient(0deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px)}
+
+  /* 4 Lines vs dots (equal-ish ink) */
+  .ld tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px)}
+  .ld tr:nth-child(even) td{background-image:radial-gradient(rgba(51,41,31,.05) 0.6px,transparent 0.7px);background-size:6px 6px}
+
+  /* 5 Dots: fine grid vs offset grid */
+  .dots tr:nth-child(odd) td{background-image:radial-gradient(rgba(51,41,31,.05) 0.7px,transparent 0.8px);background-size:7px 7px;background-position:0 0}
+  .dots tr:nth-child(even) td{background-image:radial-gradient(rgba(51,41,31,.05) 0.7px,transparent 0.8px);background-size:7px 7px;background-position:3.5px 3.5px}
+
+  /* 6 Plain rows, only every-other has the faintest single-direction hatch (texture vs none) */
+  .one tr:nth-child(even) td{background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(51,41,31,.045) 5px 6px)}
+
+  /* 7 Left-edge texture signature only (like the mockup): hatch lives on the label cell, content follows */
+  .edge td.lbl{background-clip:padding-box}
+  .edge tr:nth-child(odd) td.lbl{background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(51,41,31,.05) 4px 5px);background-size:34px 100%;background-repeat:no-repeat}
+  .edge tr:nth-child(even) td.lbl{background-image:repeating-linear-gradient(-45deg,transparent 0 4px,rgba(51,41,31,.05) 4px 5px);background-size:34px 100%;background-repeat:no-repeat}
+  .edge td.lbl{padding-left:44px}
+
+  /* 8 Direction, even finer + lighter (near-threshold) */
+  .fine tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(51,41,31,.035) 6px 6.7px)}
+  .fine tr:nth-child(even) td{background-image:repeating-linear-gradient(-45deg,transparent 0 6px,rgba(51,41,31,.035) 6px 6.7px)}
+
+  /* 9 Crosshatch density-matched: single diagonal vs widely-spaced cross (same ink) */
+  .xh tr:nth-child(odd) td{background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(51,41,31,.05) 5px 6px)}
+  .xh tr:nth-child(even) td{background-image:repeating-linear-gradient(45deg,transparent 0 9px,rgba(51,41,31,.05) 9px 10px),repeating-linear-gradient(-45deg,transparent 0 9px,rgba(51,41,31,.05) 9px 10px)}
+</style></head><body class='lines'><h1>Distinct Texture Study &mdash; equal ink, different pattern</h1><p class='sub'>Per your mockup: odd and even rows carry the <b>same amount of grey</b> and differ only in <b>pattern</b> &mdash; direction, phase, orientation, or motif. The goal is that the user doesn't consciously see the texture, only senses that adjacent rows are <i>different</i>. Lines are faint (~5% ink) and need not meet or align. Toggle the row rules to judge texture alone.</p><div class='controls'><label><input type='radio' name='ln' checked onclick="document.body.className='lines'"> with hairline dividers</label><label><input type='radio' name='ln' onclick="document.body.className='nolines'"> texture only (no lines)</label></div><div class='grid'><div class="study"><h3>1 &middot; Direction / vs \</h3><div class="desc">fine diagonals, opposite lean, equal ink</div><table class="dir"><tbody class="rows"></tbody></table></div><div class="study"><h3>2 &middot; Phase offset</h3><div class="desc">same lines, shifted half a step</div><table class="off"><tbody class="rows"></tbody></table></div><div class="study"><h3>3 &middot; Warp vs weft</h3><div class="desc">vertical threads / horizontal threads</div><table class="vh"><tbody class="rows"></tbody></table></div><div class="study"><h3>4 &middot; Lines vs dots</h3><div class="desc">diagonal hatch / dot field</div><table class="ld"><tbody class="rows"></tbody></table></div><div class="study"><h3>5 &middot; Dots, offset grid</h3><div class="desc">same dots, staggered position</div><table class="dots"><tbody class="rows"></tbody></table></div><div class="study"><h3>6 &middot; Texture vs none</h3><div class="desc">only even rows get the faintest hatch</div><table class="one"><tbody class="rows"></tbody></table></div><div class="study"><h3>7 &middot; Left signature only</h3><div class="desc">hatch on label edge (like your mockup)</div><table class="edge"><tbody class="rows"></tbody></table></div><div class="study"><h3>8 &middot; Near-threshold</h3><div class="desc">direction, even finer + lighter</div><table class="fine"><tbody class="rows"></tbody></table></div><div class="study"><h3>9 &middot; Single vs sparse cross</h3><div class="desc">same ink, weave looks different</div><table class="xh"><tbody class="rows"></tbody></table></div></div><script>var P=[['Sun','10th'],['Moon','4th'],['Mercury','9th'],['Venus','11th'],['Mars','1st'],['Jupiter','7th'],['Saturn','5th'],['Uranus','8th'],['Neptune','6th'],['Pluto','5th'],['Chiron','12th']];var rh=P.map(function(p){return '<tr><td class="lbl">'+p[0]+'</td><td class="val">'+p[1]+'</td></tr>';}).join('');Array.prototype.forEach.call(document.querySelectorAll('tbody.rows'),function(b){b.innerHTML=rh;});</script></body></html>

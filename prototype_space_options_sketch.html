@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Space Options — Wireframe Sketches</title>
+<!--
+  prototype_space_options_sketch.html
+  Cheap wireframe sketches of the 5 space-optimization options.
+  Not styled, not real data — just boxes to show the IDEA of each layout.
+  Throwaway visual aid for picking a direction.
+-->
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f4f3ee; color:#33312d;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .page { max-width:1080px; margin:0 auto; padding:24px; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .sub { font-size:13px; color:#8a877f; margin:0 0 20px; }
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
+
+  .opt { background:#fffefb; border:1px solid #ddd8cd; border-radius:8px; padding:14px; }
+  .opt .tag { font-size:11px; font-weight:700; color:#5b6b63; letter-spacing:.06em; text-transform:uppercase; }
+  .opt h2 { font-size:14px; margin:4px 0 10px; }
+  .opt p.note { font-size:12px; color:#8a877f; margin:10px 0 0; line-height:1.4; }
+
+  /* wireframe primitives */
+  .wf { background:#faf9f4; border:1px dashed #cfc9bc; border-radius:5px; }
+  .lbl { font-size:10px; color:#9a968c; text-transform:uppercase; letter-spacing:.04em;
+    padding:3px 6px; display:block; }
+  .row { display:flex; gap:8px; }
+  .col { display:flex; flex-direction:column; gap:8px; }
+  .wheel { border-radius:50%; border:1px dashed #cfc9bc; background:#faf9f4;
+    display:flex; align-items:center; justify-content:center; font-size:10px; color:#9a968c; }
+  .box { display:flex; align-items:center; justify-content:center; min-height:26px;
+    font-size:10px; color:#9a968c; text-align:center; }
+  .stack { gap:6px; }
+  .pill { font-size:9px; border:1px solid #cfc9bc; border-radius:10px; padding:1px 7px; color:#9a968c; background:#faf9f4; }
+  .seg { display:flex; gap:4px; }
+  .seg .pill.on { background:#5b6b63; color:#fff; border-color:#5b6b63; }
+  .small { min-height:18px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Space-optimization options — rough sketches</h1>
+  <p class="sub">Throwaway wireframes. Boxes show layout intent only, not real content or styling.</p>
+
+  <div class="grid">
+
+    <!-- OPTION 1 -->
+    <div class="opt">
+      <span class="tag">Option 1</span>
+      <h2>Fixed-width aspect tables (equalize Natal / Relocated)</h2>
+      <div class="row">
+        <div class="col" style="flex:1">
+          <span class="lbl">Natal — Aspect 2×2 (locked widths)</span>
+          <div class="grid2">
+            <div class="wf box small">ASC</div><div class="wf box small">DSC</div>
+            <div class="wf box small">MC</div><div class="wf box small">IC</div>
+          </div>
+        </div>
+        <div class="col" style="flex:1">
+          <span class="lbl">Relocated — same widths</span>
+          <div class="grid2">
+            <div class="wf box small">ASC</div><div class="wf box small">DSC</div>
+            <div class="wf box small">MC</div><div class="wf box small">IC</div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Columns forced to identical proportions in both charts. Fixes the “relocated columns too long” problem. Smallest change.</p>
+    </div>
+
+    <!-- OPTION 2 -->
+    <div class="opt">
+      <span class="tag">Option 2</span>
+      <h2>Shrink wheel to a side rail</h2>
+      <div class="row">
+        <div class="col" style="flex:0 0 90px">
+          <div class="wheel" style="width:80px;height:80px">wheel</div>
+          <div class="wf box small">plate</div>
+        </div>
+        <div class="col" style="flex:1">
+          <span class="lbl">Reclaimed width → tables</span>
+          <div class="wf box" style="min-height:40px">Planet in House</div>
+          <div class="wf box" style="min-height:30px">Angle in Sign</div>
+          <div class="wf box" style="min-height:40px">Aspect grid</div>
+        </div>
+      </div>
+      <p class="note">Wheel stays present but small. Tables claim the freed space and become the working surface.</p>
+    </div>
+
+    <!-- OPTION 3 -->
+    <div class="opt">
+      <span class="tag">Option 3</span>
+      <h2>Merge angles into wheel plate, drop Angle-in-Sign card</h2>
+      <div class="row">
+        <div class="col" style="flex:0 0 130px">
+          <div class="wheel" style="width:120px;height:120px">wheel</div>
+          <div class="row" style="flex-wrap:wrap; gap:4px">
+            <span class="pill">ASC 11° Tau</span><span class="pill">MC 26° Cap</span>
+            <span class="pill">DSC 11° Sco</span><span class="pill">IC 26° Can</span>
+          </div>
+        </div>
+        <div class="col" style="flex:1">
+          <span class="lbl">Right column freed</span>
+          <div class="wf box" style="min-height:90px">Planet in House (wider)</div>
+        </div>
+      </div>
+      <p class="note">The 4-row Angle table stops reserving a whole column; angles ride under the wheel as a strip.</p>
+    </div>
+
+    <!-- OPTION 4 -->
+    <div class="opt">
+      <span class="tag">Option 4</span>
+      <h2>Two-up Planet-in-House (one table, two value columns)</h2>
+      <span class="lbl">Planet · Natal House · Relocated House</span>
+      <div class="col stack">
+        <div class="row"><div class="wf box" style="flex:2">☉ Sun</div><div class="wf box" style="flex:1">10th</div><div class="wf box" style="flex:1">7th</div></div>
+        <div class="row"><div class="wf box" style="flex:2">☽ Moon</div><div class="wf box" style="flex:1">4th</div><div class="wf box" style="flex:1">1st</div></div>
+        <div class="row"><div class="wf box" style="flex:2">☿ Mercury</div><div class="wf box" style="flex:1">9th</div><div class="wf box" style="flex:1">6th</div></div>
+        <div class="row"><div class="wf box" style="flex:2">…</div><div class="wf box" style="flex:1">…</div><div class="wf box" style="flex:1">…</div></div>
+      </div>
+      <p class="note">Halves vertical space and makes natal-vs-relocated differences directly comparable per planet.</p>
+    </div>
+
+    <!-- OPTION 5 -->
+    <div class="opt" style="grid-column:1 / -1">
+      <span class="tag">Option 5</span>
+      <h2>Tabbed / segmented aspect region</h2>
+      <div class="seg" style="margin-bottom:10px">
+        <span class="pill on">ASC</span><span class="pill">MC</span><span class="pill">DSC</span><span class="pill">IC</span>
+      </div>
+      <div class="wf box" style="min-height:70px">Selected angle’s aspect table (one or two shown at a time)</div>
+      <p class="note">Keeps all four angles available but only renders the active one(s). Reclaims the big vertical block the full 2×2 grid uses. Default could show ASC + MC.</p>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+../../docs/architecture/ARCHITECTURE_AND_BACKEND_CANON.md

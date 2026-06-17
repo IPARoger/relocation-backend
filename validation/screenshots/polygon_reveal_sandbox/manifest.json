@@ -1,0 +1,541 @@
+{
+  "schema": "polygon_reveal_sandbox_visual_qa@1",
+  "sandbox_url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html",
+  "profile_id": "baseline_validated",
+  "seed": 42,
+  "output_dir": "validation/screenshots/polygon_reveal_sandbox",
+  "case_count": 10,
+  "pass_count": 10,
+  "fail_count": 0,
+  "page_errors": [],
+  "captures": [
+    {
+      "case_id": "calm_final_world",
+      "description": "Calm scatter pacing, final state at world viewport. 60 initial probes + 4 refinement passes; longest dwell.",
+      "image": "calm_final_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=calm&viewport=world&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "calm",
+        "viewport": "world"
+      },
+      "classify_endpoint_calls": 5,
+      "final_probe_count": 526,
+      "final_match_count": 232,
+      "final_non_match_count": 284,
+      "final_capped_count": 10,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 60,
+          "matches": 2,
+          "non_matches": 48,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 75,
+          "matches": 7,
+          "non_matches": 58,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 119,
+          "matches": 24,
+          "non_matches": 85,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 306,
+          "matches": 125,
+          "non_matches": 171,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_4",
+          "phase_idx": 4,
+          "probe_count": 526,
+          "matches": 232,
+          "non_matches": 284,
+          "capped": 10,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "bloom_final_world",
+      "description": "Cosmic bloom pacing, final state at world viewport. 140 initial probes + 3 refinement passes; medium tempo.",
+      "image": "bloom_final_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=bloom&viewport=world&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "bloom",
+        "viewport": "world"
+      },
+      "classify_endpoint_calls": 4,
+      "final_probe_count": 530,
+      "final_match_count": 199,
+      "final_non_match_count": 308,
+      "final_capped_count": 23,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 140,
+          "matches": 7,
+          "non_matches": 112,
+          "capped": 21,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 175,
+          "matches": 22,
+          "non_matches": 132,
+          "capped": 21,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 270,
+          "matches": 78,
+          "non_matches": 170,
+          "capped": 22,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 530,
+          "matches": 199,
+          "non_matches": 308,
+          "capped": 23,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "eager_final_world",
+      "description": "Eager reveal pacing, final state at world viewport. 280 initial probes + 3 refinement passes; fast tempo.",
+      "image": "eager_final_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=eager&viewport=world&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "eager",
+        "viewport": "world"
+      },
+      "classify_endpoint_calls": 4,
+      "final_probe_count": 836,
+      "final_match_count": 257,
+      "final_non_match_count": 537,
+      "final_capped_count": 42,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 280,
+          "matches": 15,
+          "non_matches": 223,
+          "capped": 42,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 318,
+          "matches": 39,
+          "non_matches": 237,
+          "capped": 42,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 416,
+          "matches": 77,
+          "non_matches": 297,
+          "capped": 42,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 836,
+          "matches": 257,
+          "non_matches": 537,
+          "capped": 42,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "instant_final_world",
+      "description": "Instant baseline: single 600-probe classify call, no staging. The emotionally-sterile reference.",
+      "image": "instant_final_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=instant&viewport=world&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "instant",
+        "viewport": "world"
+      },
+      "classify_endpoint_calls": 1,
+      "final_probe_count": 600,
+      "final_match_count": 32,
+      "final_non_match_count": 469,
+      "final_capped_count": 99,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 600,
+          "matches": 32,
+          "non_matches": 469,
+          "capped": 99,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "bloom_final_americas",
+      "description": "Cosmic bloom at Americas viewport; band-zoom view of the Sun-in-1st polygon center.",
+      "image": "bloom_final_americas.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=bloom&viewport=americas&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "bloom",
+        "viewport": "americas"
+      },
+      "classify_endpoint_calls": 4,
+      "final_probe_count": 682,
+      "final_match_count": 312,
+      "final_non_match_count": 370,
+      "final_capped_count": 0,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 140,
+          "matches": 24,
+          "non_matches": 116,
+          "capped": 0,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 201,
+          "matches": 51,
+          "non_matches": 150,
+          "capped": 0,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 362,
+          "matches": 129,
+          "non_matches": 233,
+          "capped": 0,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 682,
+          "matches": 312,
+          "non_matches": 370,
+          "capped": 0,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "eager_final_eurasia",
+      "description": "Eager reveal at Eurasia viewport. Sun-in-1st should be largely absent here; non-match probes dominate.",
+      "image": "eager_final_eurasia.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=eager&viewport=eurasia&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "eager",
+        "viewport": "eurasia"
+      },
+      "classify_endpoint_calls": 1,
+      "final_probe_count": 280,
+      "final_match_count": 0,
+      "final_non_match_count": 276,
+      "final_capped_count": 4,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 280,
+          "matches": 0,
+          "non_matches": 276,
+          "capped": 4,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 280,
+          "matches": 0,
+          "non_matches": 276,
+          "capped": 4,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 280,
+          "matches": 0,
+          "non_matches": 276,
+          "capped": 4,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 280,
+          "matches": 0,
+          "non_matches": 276,
+          "capped": 4,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "calm_phase0_scatter_world",
+      "description": "Calm pacing halted after initial scatter (60 probes). No boundary refinement yet \u2014 the random probe field.",
+      "image": "calm_phase0_scatter_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=calm&viewport=world&stopAtPhase=0&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "calm",
+        "viewport": "world",
+        "stopAtPhase": "0"
+      },
+      "classify_endpoint_calls": 1,
+      "final_probe_count": 60,
+      "final_match_count": 2,
+      "final_non_match_count": 48,
+      "final_capped_count": 10,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 60,
+          "matches": 2,
+          "non_matches": 48,
+          "capped": 10,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "calm_phase2_refine_world",
+      "description": "Calm pacing halted after refine pass 2/4. Boundary densification visible but polygon edge not yet sharp.",
+      "image": "calm_phase2_refine_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=calm&viewport=world&stopAtPhase=2&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "calm",
+        "viewport": "world",
+        "stopAtPhase": "2"
+      },
+      "classify_endpoint_calls": 3,
+      "final_probe_count": 119,
+      "final_match_count": 24,
+      "final_non_match_count": 85,
+      "final_capped_count": 10,
+      "final_error_count": 0,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 60,
+          "matches": 2,
+          "non_matches": 48,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 75,
+          "matches": 7,
+          "non_matches": 58,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 119,
+          "matches": 24,
+          "non_matches": 85,
+          "capped": 10,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "calm_cache_swap_to_moon4_world",
+      "description": "Calm pacing world reveal completed, then target swapped from Sun-in-1st to Moon-in-4th. New colors come purely from the all-planets cache; classify_calls should not increase.",
+      "image": "calm_cache_swap_to_moon4_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=calm&viewport=world&swapTo=moon%3A4&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "calm",
+        "viewport": "world",
+        "swapTo": "moon:4"
+      },
+      "classify_endpoint_calls": 5,
+      "final_probe_count": 526,
+      "final_match_count": 10,
+      "final_non_match_count": 506,
+      "final_capped_count": 10,
+      "final_error_count": 0,
+      "target_planet_final": "moon",
+      "target_house_final": 4,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 60,
+          "matches": 2,
+          "non_matches": 48,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 75,
+          "matches": 7,
+          "non_matches": 58,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 119,
+          "matches": 24,
+          "non_matches": 85,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 306,
+          "matches": 125,
+          "non_matches": 171,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "refine_4",
+          "phase_idx": 4,
+          "probe_count": 526,
+          "matches": 232,
+          "non_matches": 284,
+          "capped": 10,
+          "errors": 0
+        },
+        {
+          "phase_id": "swap_target",
+          "phase_idx": 5,
+          "probe_count": 526,
+          "matches": 10,
+          "non_matches": 506,
+          "capped": 10,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "case_id": "latcap_off_world",
+      "description": "Eager pacing, world view, latCap=0. Probes above \u00b165\u00b0 are classified rather than declared outside_lat_cap.",
+      "image": "latcap_off_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_polygon_reveal.html?pacing=eager&viewport=world&latCap=0&planet=sun&house=1&profile=baseline_validated&seed=42&auto=1",
+      "params": {
+        "pacing": "eager",
+        "viewport": "world",
+        "latCap": "0"
+      },
+      "classify_endpoint_calls": 4,
+      "final_probe_count": 836,
+      "final_match_count": 257,
+      "final_non_match_count": 538,
+      "final_capped_count": 0,
+      "final_error_count": 41,
+      "target_planet_final": "sun",
+      "target_house_final": 1,
+      "phases": [
+        {
+          "phase_id": "scatter",
+          "phase_idx": 0,
+          "probe_count": 280,
+          "matches": 15,
+          "non_matches": 224,
+          "capped": 0,
+          "errors": 41
+        },
+        {
+          "phase_id": "refine_1",
+          "phase_idx": 1,
+          "probe_count": 318,
+          "matches": 39,
+          "non_matches": 238,
+          "capped": 0,
+          "errors": 41
+        },
+        {
+          "phase_id": "refine_2",
+          "phase_idx": 2,
+          "probe_count": 416,
+          "matches": 77,
+          "non_matches": 298,
+          "capped": 0,
+          "errors": 41
+        },
+        {
+          "phase_id": "refine_3",
+          "phase_idx": 3,
+          "probe_count": 836,
+          "matches": 257,
+          "non_matches": 538,
+          "capped": 0,
+          "errors": 41
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visual Reference Board — Curated</title>
+<style>
+  :root{
+    --bg:#13120e; --panel:#1c1a15; --panel-2:#211f19; --line:#33302a;
+    --ink:#efe9dc; --muted:#9a9384; --steal:#c9d9b8; --reject:#d9b8b8; --accent:#b9a36b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  header{padding:44px 44px 22px;border-bottom:1px solid var(--line);}
+  header h1{margin:0;font-weight:600;font-size:19px;letter-spacing:.2em;text-transform:uppercase;}
+  header p{margin:9px 0 0;color:var(--muted);font-size:12.5px;max-width:720px;line-height:1.6;}
+  .section{padding:36px 44px;}
+  .section h2{margin:0 0 20px;font-size:12px;font-weight:600;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--accent);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;}
+  .card{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    background:var(--panel);transition:transform .18s ease,border-color .18s ease;}
+  .card:hover{transform:translateY(-2px);border-color:var(--accent);}
+  .thumb{position:relative;display:block;width:100%;aspect-ratio:3/2;background:var(--panel-2);overflow:hidden;}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .5s ease;}
+  .thumb img.loaded{opacity:1;}
+  .thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:12px;letter-spacing:.04em;
+    background:repeating-linear-gradient(135deg,#1e1c16,#1e1c16 12px,#221f19 12px,#221f19 24px);}
+  .cap{padding:11px 14px 14px;}
+  .cap h3{margin:0 0 7px;font-size:14px;font-weight:600;}
+  .cap p{margin:3px 0;font-size:12px;line-height:1.45;}
+  .cap .s{color:var(--steal);}
+  .cap .r{color:var(--reject);}
+  .cap .tag{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-right:6px;opacity:.7;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Visual Reference Board — Curated</h1>
+  <p>25 strongest visuals. Each image is pinned to a specific canonical source (not a search guess); click any image to open a full image search. Weak / logo-only / screenshot-only references were removed.</p>
+</header>
+<main id="board"></main>
+<script>
+const DATA = {
+  "MAP":[
+    {t:"Swisstopo / Dufour Map", title:"Dufour Map", q:"Dufour map Switzerland relief", steal:"Precise relief shading and restrained color reading as authoritative editorial cartography.", reject:"Extreme topographic density unsuited to a sparse instrument."}
+  ],
+  "WHEEL":[
+    {t:"Planispheric astrolabe", title:"Astrolabe", q:"planispheric astrolabe brass", steal:"Layered precision rings and the sense of a measuring instrument.", reject:"Museum-relic patina and costume nostalgia."},
+    {t:"Attitude indicator", title:"Attitude indicator", q:"aircraft attitude indicator artificial horizon", steal:"Instant orientation — which way is up in a glance.", reject:"Cockpit skeuomorphism and warning aesthetics."},
+    {t:"Compass rose", title:"Compass rose", q:"nautical compass rose engraving", steal:"Pure directional logic and radial wayfinding.", reject:"Nautical theme and ornamental flourishes."},
+    {t:"Mechanical watch dial", title:"Chronograph", q:"mechanical chronograph watch dial subdials", steal:"Concentric subdials packing dense data with serene legibility.", reject:"Luxury-jewelry ornament and brand flexing."},
+    {t:"Orrery", title:"Orrery", q:"antique brass orrery", steal:"Physical ringed representation of orbital relationships.", reject:"Brass-decor antique-shop styling."},
+    {t:"Antikythera mechanism", title:"Antikythera mechanism", q:"Antikythera mechanism reconstruction", steal:"Geared, layered, calculable cosmic structure.", reject:"Corroded-artifact archaeological framing."},
+    {t:"Armillary sphere", title:"Armillary sphere", q:"armillary sphere brass rings", steal:"Nested rings expressing coordinate systems in space.", reject:"Decorative globe-as-furniture cliché."},
+    {t:"Breitling Navitimer", title:"Breitling Navitimer", q:"Breitling Navitimer slide rule bezel", steal:"A rotating computational ring where alignment yields an answer.", reject:"Busy aviation-instrument crowding."},
+    {t:"Sextant", title:"Sextant", q:"marine sextant brass", steal:"Fine graduated scales and the language of precision sighting.", reject:"Maritime-relic styling."}
+  ],
+  "TABLES":[
+    {t:"Periodic table", title:"Periodic table", q:"periodic table clean design", steal:"A dense field where every cell's position carries meaning.", reject:"Rigid grid forced onto non-grid data."},
+    {t:"Split-flap board", title:"Split-flap display", q:"Solari split flap departure board", steal:"Calm rhythmic rows of status with quiet mechanical authority.", reject:"Transit semantics and flap-animation novelty."}
+  ],
+  "INTERIORS / ATMOSPHERE":[
+    {t:"Trinity College Long Room", title:"Trinity College Library", q:"Trinity College Long Room Dublin", steal:"Warm wood, vaulted calm, and the gravity of accumulated knowledge.", reject:"Tourist-monument grandeur and ornamental excess."},
+    {t:"George Peabody Library", title:"George Peabody Library", q:"George Peabody Library atrium", steal:"Vertical tiers of structure around a quiet central space.", reject:"Cathedral-of-books theatricality."},
+    {t:"Beinecke Rare Book Library", title:"Beinecke Rare Book & Manuscript Library", q:"Beinecke library glowing marble", steal:"Soft glowing translucency and serene modern monumentality.", reject:"Cold, austere brutalist severity."},
+    {t:"Rose Main Reading Room", title:"New York Public Library Main Branch", q:"Rose Main Reading Room NYPL", steal:"Long shared tables under warm lamplight for deep focus.", reject:"Grand civic-institution formality."},
+    {t:"Royal Observatory Greenwich", title:"Royal Observatory, Greenwich", q:"Royal Observatory Greenwich instruments", steal:"Precision instruments displayed as serious, beautiful tools.", reject:"Behind-glass museum-exhibit framing."},
+    {t:"Griffith Observatory", title:"Griffith Observatory", q:"Griffith Observatory interior dusk", steal:"Public-facing cosmic wonder that stays calm and educational.", reject:"Tourist-attraction crowd-flow signage."},
+    {t:"Stockholm Public Library", title:"Stockholm Public Library", q:"Stockholm Public Library rotunda Asplund", steal:"A clean circular wall of structure that orients you instantly.", reject:"Stark monochrome severity."},
+    {t:"Sir John Soane's Museum", title:"Sir John Soane's Museum", q:"Sir John Soane Museum interior", steal:"Dense layered artifacts arranged with intimate, considered light.", reject:"Cluttered cabinet-of-curiosities overload."},
+    {t:"Salk Institute courtyard", title:"Salk Institute for Biological Studies", q:"Salk Institute courtyard Kahn", steal:"Profound negative space and the calm of disciplined emptiness.", reject:"Cold institutional concrete austerity."},
+    {t:"Japanese tea room", title:"Chashitsu", q:"Japanese tea house chashitsu interior", steal:"Wabi-sabi quiet — natural materials, low light, contemplative pacing.", reject:"Literal cultural skeuomorphism and zen cliché."},
+    {t:"Boston Athenæum", title:"Boston Athenæum", q:"Boston Athenaeum reading room", steal:"A private-club hush where reading feels unhurried and respected.", reject:"Elite members-only stuffiness."},
+    {t:"Newberry Library", title:"Newberry Library", q:"Newberry Library reading room Chicago", steal:"A dedicated room where study is the whole point.", reject:"Institutional research-facility coldness."},
+    {t:"Hayden Planetarium", title:"Hayden Planetarium", q:"Hayden Planetarium Rose Center sphere", steal:"Dark, immersive calm that invites contemplating scale.", reject:"Show-time spectacle and entertainment lighting."}
+  ]
+};
+
+const board = document.getElementById('board');
+const gimg = q => "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q);
+
+function card(ref){
+  const c = document.createElement('div'); c.className='card';
+  const a = document.createElement('a'); a.className='thumb';
+  a.href = gimg(ref.q); a.target='_blank'; a.rel='noopener';
+  const ph = document.createElement('div'); ph.className='ph'; ph.textContent='loading…';
+  const img = document.createElement('img'); img.alt=ref.t; img.loading='lazy';
+  img.addEventListener('load',()=>{ if(img.src){img.classList.add('loaded'); ph.style.display='none';}});
+  a.appendChild(ph); a.appendChild(img);
+  const cap = document.createElement('div'); cap.className='cap';
+  cap.innerHTML = '<h3>'+ref.t+'</h3>'+
+    '<p class="s"><span class="tag">Steal</span>'+ref.steal+'</p>'+
+    '<p class="r"><span class="tag">Reject</span>'+ref.reject+'</p>';
+  c.appendChild(a); c.appendChild(cap);
+  pin(ref.title).then(u=>{ if(u){img.src=u;} else {ph.textContent='click to search';} })
+    .catch(()=>{ ph.textContent='click to search'; });
+  return c;
+}
+
+async function pin(title){
+  const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*"+
+    "&redirects=1&titles="+encodeURIComponent(title)+
+    "&prop=pageimages&piprop=thumbnail&pithumbsize=1000";
+  const r = await fetch(url); if(!r.ok) return null;
+  const j = await r.json();
+  const pages = j && j.query && j.query.pages; if(!pages) return null;
+  for(const p of Object.values(pages)){ if(p.thumbnail && p.thumbnail.source) return p.thumbnail.source; }
+  return null;
+}
+
+for(const [section, refs] of Object.entries(DATA)){
+  const sec=document.createElement('section'); sec.className='section';
+  const h2=document.createElement('h2'); h2.textContent=section; sec.appendChild(h2);
+  const grid=document.createElement('div'); grid.className='grid';
+  refs.forEach(r=>grid.appendChild(card(r)));
+  sec.appendChild(grid); board.appendChild(sec);
+}
+</script>
+</body>
+</html>

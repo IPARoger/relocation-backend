@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile Workspace — Prototype v02</title>
+
+<!--
+  ============================================================
+  prototype_profile_workspace_v02.html
+  ============================================================
+  Iteration on v01. Changes applied per instruction:
+  - Birth-data plate moved INSIDE the wheel block (upper-left),
+    no field labels, shown once (natal only).
+  - Second chart is Relocated: Austin, TX USA.
+  - Tables compacted: no row lines, tighter line-height,
+    vertical spacing roughly halved.
+  - Planet in House sits beside Angle in Sign.
+  - Aspect to Angle laid out as a 2x2 grid (ASC|DSC / MC|IC).
+  - Saved Places -> "Favorites" resembling the reference list,
+    with a Compare button that activates at 2-5 selected cities.
+  - Saved Comparisons / Saved Searches have a discreet Notes link.
+  - Removed "Advanced settings / House system · Orbs · Zodiac type".
+
+  Lower section layout in THIS version: stacked.
+  (See v03 for the thirds layout.)
+
+  OPEN / TBD
+  - Final balance of PiH vs AiS heights.
+  - Final aspect-grid sizing in the narrow relocated column.
+  - Final layout of Favorites / Comparisons / Searches.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --ink:#2b2b29; --ink-soft:#5c5a54; --ink-faint:#8a877f;
+    --line:#e2ded5; --line-soft:#eeeae1; --paper:#f7f5ef;
+    --panel:#fffefb; --accent:#5b6b63; --accent-2:#8a6f52; --radius:6px;
+  }
+  * { box-sizing:border-box; }
+  html, body {
+    margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15px; line-height:1.45;
+  }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 24px 60px; }
+
+  /* ---- header + menu ---- */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:16px 0; border-bottom:1px solid var(--line); margin-bottom:26px;
+  }
+  .brand { font-size:15px; font-weight:600; flex:0 0 auto; }
+  .mainmenu { display:flex; gap:4px; flex:1 1 auto; justify-content:center; flex-wrap:wrap; }
+  .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 10px; border-radius:var(--radius); }
+  .mainmenu a:hover { background:var(--line-soft); }
+  .account { position:relative; flex:0 0 auto; }
+  .account-btn { display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-soft);
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:7px 12px; cursor:pointer; }
+  .account-btn .chev { color:var(--ink-faint); font-size:11px; }
+  .account .menu { position:absolute; right:0; top:calc(100% + 6px); min-width:180px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:6px; display:none; z-index:20; }
+  .account.open .menu { display:block; }
+  .account .menu a { display:block; font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:7px 10px; border-radius:var(--radius); }
+  .account .menu a:hover { background:var(--line-soft); }
+
+  button,.btn { font:inherit; font-size:13px; color:var(--ink-soft); background:var(--panel);
+    border:1px solid var(--line); border-radius:var(--radius); padding:7px 12px; cursor:pointer; }
+  button:hover,.btn:hover { border-color:var(--ink-faint); }
+
+  /* ---- two charts 60/40 ---- */
+  .charts { display:grid; grid-template-columns:60fr 40fr; gap:28px; align-items:start; }
+  @media (max-width:960px){ .charts{ grid-template-columns:1fr; } }
+
+  /* ---- wheel block with plate inside ---- */
+  .wheel-block { position:relative; margin-bottom:16px; }
+  .plate { position:absolute; top:0; left:0; font-size:12px; line-height:1.35; color:var(--ink-soft); z-index:2; }
+  .plate .name { font-size:15px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+  .plate .reloc { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-faint); }
+  .plate .big { font-size:15px; font-weight:600; color:var(--ink); margin-bottom:2px; }
+  .wheel {
+    position:relative; width:100%; max-width:300px; aspect-ratio:1/1; margin:0 auto;
+    border-radius:50%; background:var(--panel); border:1px solid var(--line);
+  }
+  .wheel::before,.wheel::after { content:""; position:absolute; border-radius:50%; border:1px solid var(--line-soft); }
+  .wheel::before { inset:14%; } .wheel::after { inset:30%; }
+  .wheel .hub { position:absolute; inset:44%; border-radius:50%; border:1px solid var(--line); background:var(--paper); }
+  .wheel .spokes { position:absolute; inset:0; border-radius:50%;
+    background:linear-gradient(to right,transparent calc(50% - .5px),var(--line-soft) 50%,transparent calc(50% + .5px)),
+               linear-gradient(to bottom,transparent calc(50% - .5px),var(--line-soft) 50%,transparent calc(50% + .5px)); }
+
+  /* ---- compact reference tables ---- */
+  .ref-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; margin-bottom:16px; }
+  .table-card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .table-card h3 { font-size:12px; font-weight:600; margin:0; padding:7px 12px;
+    border-bottom:1px solid var(--line-soft); background:#fbfaf5; }
+  table { width:100%; border-collapse:collapse; }
+  .rt th,.rt td { text-align:left; padding:2px 12px; font-size:12.5px; line-height:1.35; }
+  .rt th { font-weight:500; color:var(--ink-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding-top:5px; padding-bottom:4px; }
+  .rt td .glyph { color:var(--accent-2); margin-right:5px; }
+  .rt td .dim { color:var(--ink-faint); }
+  .rt td.center,.rt th.center { text-align:center; }
+
+  /* ---- aspect 2x2 grid ---- */
+  .aspect-wrap { border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel); }
+  .aspect-wrap > h3 { font-size:12px; font-weight:600; margin:0; padding:7px 12px;
+    border-bottom:1px solid var(--line-soft); background:#fbfaf5; }
+  .aspect-grid { display:grid; grid-template-columns:1fr 1fr; }
+  .aspect-grid .ab { border-top:1px solid var(--line-soft); }
+  .aspect-grid .ab:nth-child(odd) { border-right:1px solid var(--line-soft); }
+  .ab h4 { font-size:11px; font-weight:600; color:var(--ink-soft); margin:0; padding:5px 10px; background:#fbfaf5; }
+  .ab .rt th,.ab .rt td { padding:2px 8px; font-size:12px; }
+
+  /* ---- lower section ---- */
+  .lower { margin-top:34px; padding-top:22px; border-top:1px solid var(--line);
+    display:flex; flex-direction:column; gap:22px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; }
+  .panel h3 { font-size:13px; font-weight:600; margin:0 0 10px; }
+
+  /* favorites */
+  .compare-btn { margin-bottom:6px; opacity:.5; pointer-events:none; }
+  .compare-btn.active { opacity:1; pointer-events:auto; background:var(--accent); color:#fff; border-color:var(--accent); }
+  .fav { list-style:none; margin:0; padding:0; }
+  .fav li { display:grid; grid-template-columns:auto auto minmax(0,1fr) auto; align-items:center;
+    gap:12px; padding:9px 0; border-top:1px solid var(--line-soft); }
+  .fav li:first-child { border-top:none; }
+  .fav input[type=checkbox] { width:15px; height:15px; }
+  .fav .star { color:var(--ink-faint); cursor:pointer; font-size:15px; user-select:none; }
+  .fav .star.on { color:var(--accent-2); }
+  .fav .city { display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .fav .city .name { font-size:13.5px; color:var(--ink); }
+  .fav .city .go { color:var(--ink-faint); font-size:13px; }
+  .fav li .spacer { } /* trailing empty cell keeps chevron near name (midpoint) */
+
+  /* comparisons / searches lists */
+  .list { list-style:none; margin:0; padding:0; }
+  .list li { display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    padding:9px 0; border-top:1px solid var(--line-soft); font-size:13.5px; }
+  .list li:first-child { border-top:none; }
+  .list .meta { font-size:12px; color:var(--ink-faint); }
+  .notes-link { font-size:11.5px; color:var(--ink-faint); text-decoration:none; border-bottom:1px dotted var(--line); margin-left:10px; }
+  .notes-link:hover { color:var(--ink-soft); }
+
+  /* ---- modal ---- */
+  .modal-back { position:fixed; inset:0; background:rgba(40,38,34,.32); display:none; align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .modal-back.open { display:flex; }
+  .modal { background:var(--panel); border:1px solid var(--line); border-radius:8px; max-width:520px; width:100%; max-height:86vh; overflow:auto; padding:20px; }
+  .modal h2 { font-size:16px; margin:0 0 12px; }
+  .modal .close { float:right; }
+  .modal textarea { width:100%; min-height:120px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--paper); padding:10px; font:inherit; font-size:13.5px; resize:vertical; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <nav class="mainmenu">
+      <a href="#">View Map</a><a href="#">Profile</a><a href="#">Comparison</a>
+      <a href="#">Transit Lab</a><a href="#">Store</a><a href="#">Help</a><a href="#">Settings</a>
+    </nav>
+    <div class="account" id="account">
+      <button class="account-btn" id="accountBtn">David Goodman <span class="chev">▾</span></button>
+      <div class="menu"><a href="#">Account</a><a href="#">Billing</a><a href="#">Sign out</a></div>
+    </div>
+  </header>
+
+  <div class="charts">
+    <section id="chart-natal"></section>
+    <section id="chart-reloc"></section>
+  </div>
+
+  <div class="lower" id="lower"></div>
+
+</div>
+
+<!-- generic modal -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+  // ---- account dropdown ----
+  (function(){
+    var acct=document.getElementById('account'), btn=document.getElementById('accountBtn');
+    btn.addEventListener('click',function(e){e.stopPropagation();acct.classList.toggle('open');});
+    document.addEventListener('click',function(){acct.classList.remove('open');});
+  })();
+
+  // ---- planet set ----
+  var BODIES=[
+    {g:"\u2609",n:"Sun"},{g:"\u263D",n:"Moon"},{g:"\u263F",n:"Mercury"},{g:"\u2640",n:"Venus"},
+    {g:"\u2642",n:"Mars"},{g:"\u2643",n:"Jupiter"},{g:"\u2644",n:"Saturn"},{g:"\u2645",n:"Uranus"},
+    {g:"\u2646",n:"Neptune"},{g:"\u2647",n:"Pluto"},{g:"\u26B7",n:"Chiron"}
+  ];
+  function pc(b){ return '<td><span class="glyph">'+b.g+'</span>'+b.n+'</td>'; }
+
+  function plateNatal(p){
+    return '<div class="plate">'+
+      '<div class="name">'+p.name+'</div>'+
+      p.birthDate+' · '+p.birthTime+'<br>'+
+      'UTC '+p.utcTime+' · '+p.offset+'<br>'+
+      p.birthPlace+'<br>'+
+      p.lat+', '+p.lon+'<br>'+
+      p.zodiac+' · '+p.houses+
+      '</div>';
+  }
+  function plateReloc(r){
+    return '<div class="plate">'+
+      '<div class="reloc">Relocated</div>'+
+      '<div class="big">'+r.place+'</div>'+
+      r.lat+', '+r.lon+
+      '</div>';
+  }
+
+  function planetInHouse(rows){
+    var body=BODIES.map(function(b,i){ return '<tr>'+pc(b)+'<td>'+rows[i]+'</td></tr>'; }).join('');
+    return '<div class="table-card"><h3>Planet in House</h3>'+
+      '<table class="rt"><thead><tr><th>Planet</th><th>House</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  }
+  function angleInSign(angles){
+    var body=angles.map(function(a){ return '<tr><td>'+a.angle+'</td><td>'+a.position+'</td></tr>'; }).join('');
+    return '<div class="table-card"><h3>Angle in Sign</h3>'+
+      '<table class="rt"><thead><tr><th>Angle</th><th>Position</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  }
+  function aspectBlock(label,rows){
+    var body=BODIES.map(function(b,i){
+      var r=rows&&rows[i]?rows[i]:{};
+      return '<tr>'+pc(b)+'<td>'+(r.aspect||'*')+'</td>'+
+        '<td><span class="dim">'+(r.orb||'*')+'</span></td>'+
+        '<td class="center">'+(r.as||'*')+'</td></tr>';
+    }).join('');
+    return '<div class="ab"><h4>'+label+'</h4>'+
+      '<table class="rt"><thead><tr><th>Planet</th><th>Aspect</th><th>Orb</th><th class="center">A/S</th></tr></thead>'+
+      '<tbody>'+body+'</tbody></table></div>';
+  }
+  function aspectGrid(a){
+    return '<div class="aspect-wrap"><h3>Aspect to Angle</h3>'+
+      '<div class="aspect-grid">'+
+        aspectBlock('ASC',a.ASC)+aspectBlock('DSC',a.DSC)+
+        aspectBlock('MC',a.MC)+aspectBlock('IC',a.IC)+
+      '</div></div>';
+  }
+
+  function renderChart(elId,data){
+    var plate = data.relocPlate ? plateReloc(data.relocPlate) : plateNatal(data.profile);
+    document.getElementById(elId).innerHTML =
+      '<div class="wheel-block">'+plate+
+        '<div class="wheel"><div class="spokes"></div><div class="hub"></div></div>'+
+      '</div>'+
+      '<div class="ref-row">'+planetInHouse(data.houses)+angleInSign(data.angles)+'</div>'+
+      aspectGrid(data.aspects);
+  }
+
+  // ---- placeholder data ----
+  var natalAngles=[
+    {angle:"Ascendant",position:"11\u00B0 Taurus 04'"},
+    {angle:"Midheaven",position:"26\u00B0 Capricorn 19'"},
+    {angle:"Descendant",position:"11\u00B0 Scorpio 04'"},
+    {angle:"Imum Coeli",position:"26\u00B0 Cancer 19'"}
+  ];
+  var natalAspects={
+    ASC:[{},{aspect:"Square",orb:"3\u00B0 08'",as:"A"},{},{},{aspect:"Conjunct",orb:"0\u00B0 41'",as:"S"},{},{},{},{},{},{}],
+    MC:[{aspect:"Conjunct",orb:"2\u00B0 38'",as:"A"},{},{},{aspect:"Trine",orb:"1\u00B0 12'",as:"S"},{},{},{},{},{},{},{}],
+    DSC:[{},{},{},{},{aspect:"Opposition",orb:"0\u00B0 41'",as:"A"},{},{},{},{},{},{}],
+    IC:[{aspect:"Opposition",orb:"2\u00B0 38'",as:"S"},{},{},{},{},{},{aspect:"Square",orb:"4\u00B0 02'",as:"A"},{},{},{},{}]
+  };
+  renderChart('chart-natal',{
+    profile:{name:"Avery Rhodes",birthDate:"14 March 1989",birthTime:"07:42",utcTime:"07:42",
+      offset:"+00:00",birthPlace:"Lisbon, Portugal",lat:"38.7223\u00B0 N",lon:"9.1393\u00B0 W",
+      zodiac:"Tropical",houses:"Placidus"},
+    houses:["10th","4th","9th","11th","1st","7th","5th","8th","6th","5th","12th"],
+    angles:natalAngles, aspects:natalAspects
+  });
+
+  var relocAngles=[
+    {angle:"Ascendant",position:"02\u00B0 Leo 18'"},
+    {angle:"Midheaven",position:"19\u00B0 Aries 47'"},
+    {angle:"Descendant",position:"02\u00B0 Aquarius 18'"},
+    {angle:"Imum Coeli",position:"19\u00B0 Libra 47'"}
+  ];
+  var relocAspects={
+    ASC:[{aspect:"Trine",orb:"1\u00B0 55'",as:"A"},{},{},{},{},{},{},{},{},{},{}],
+    MC:[{},{aspect:"Sextile",orb:"2\u00B0 10'",as:"S"},{},{},{},{aspect:"Conjunct",orb:"0\u00B0 33'",as:"A"},{},{},{},{},{}],
+    DSC:[{},{},{aspect:"Square",orb:"3\u00B0 41'",as:"A"},{},{},{},{},{},{},{},{}],
+    IC:[{},{},{},{},{},{},{},{},{aspect:"Trine",orb:"2\u00B0 04'",as:"S"},{},{}]
+  };
+  renderChart('chart-reloc',{
+    relocPlate:{place:"Austin, TX USA",lat:"30.2672\u00B0 N",lon:"97.7431\u00B0 W"},
+    houses:["7th","1st","6th","8th","10th","4th","2nd","5th","3rd","2nd","9th"],
+    angles:relocAngles, aspects:relocAspects
+  });
+
+  // ---- favorites + lists ----
+  var FAVORITES=[
+    {name:"Natal (Birth Chart)", fav:true},
+    {name:"Relocated (Austin, Texas, USA)", fav:true},
+    {name:"Austin, Texas, USA", fav:false},
+    {name:"Lisbon, Portugal", fav:false},
+    {name:"Tokyo, Japan", fav:false}
+  ];
+
+  function favoritesPanel(){
+    var rows=FAVORITES.map(function(c,i){
+      return '<li>'+
+        '<input type="checkbox" class="fav-check" data-i="'+i+'"'+( i<2 ? ' checked':'')+'>'+
+        '<span class="star'+(c.fav?' on':'')+'" data-i="'+i+'">\u2605</span>'+
+        '<span class="city" data-i="'+i+'"><span class="name">'+c.name+'</span><span class="go">›</span></span>'+
+        '<span class="spacer"></span>'+
+      '</li>';
+    }).join('');
+    return '<section class="panel" id="favPanel"><h3>Favorites</h3>'+
+      '<button class="compare-btn" id="compareBtn">Compare (0)</button>'+
+      '<ul class="fav">'+rows+'</ul></section>';
+  }
+
+  var COMPARISONS=[
+    {t:"Lisbon vs. Austin", meta:"2 charts"},
+    {t:"Lyon vs. Wellington vs. Lisbon", meta:"3 charts"}
+  ];
+  var SEARCHES=[
+    {t:"Venus line within 200km of coast", meta:"Europe"},
+    {t:"Strong MC relocations", meta:"Global"}
+  ];
+  function listPanel(title,items,kind){
+    var rows=items.map(function(it,i){
+      return '<li><span>'+it.t+'</span>'+
+        '<span class="meta">'+it.meta+
+        ' <a href="#" class="notes-link" data-kind="'+kind+'" data-i="'+i+'">notes</a></span></li>';
+    }).join('');
+    return '<section class="panel"><h3>'+title+'</h3><ul class="list">'+rows+'</ul></section>';
+  }
+
+  document.getElementById('lower').innerHTML =
+    favoritesPanel()+
+    listPanel('Saved Comparisons',COMPARISONS,'comparison')+
+    listPanel('Saved Searches',SEARCHES,'search');
+
+  // ---- favorites interactions ----
+  (function(){
+    var lower=document.getElementById('lower');
+    var compareBtn=document.getElementById('compareBtn');
+    function refreshCompare(){
+      var n=lower.querySelectorAll('.fav-check:checked').length;
+      compareBtn.textContent='Compare ('+n+')';
+      if(n>=2 && n<=5){ compareBtn.classList.add('active'); }
+      else { compareBtn.classList.remove('active'); }
+    }
+    lower.addEventListener('change',function(e){
+      if(e.target.classList.contains('fav-check')) refreshCompare();
+    });
+    lower.addEventListener('click',function(e){
+      var star=e.target.closest('.star');
+      if(star){ star.classList.toggle('on'); return; }
+      var city=e.target.closest('.city');
+      if(city){ openCityModal(FAVORITES[+city.getAttribute('data-i')]); return; }
+      var nl=e.target.closest('.notes-link');
+      if(nl){ e.preventDefault(); openNotesModal(nl.getAttribute('data-kind'), +nl.getAttribute('data-i')); return; }
+    });
+    refreshCompare();
+  })();
+
+  // ---- modal helpers ----
+  var modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal');
+  function openModal(html){ modal.innerHTML='<button class="close" onclick="closeModal()">Close</button>'+html; modalBack.classList.add('open'); }
+  function closeModal(){ modalBack.classList.remove('open'); }
+  modalBack.addEventListener('click',function(e){ if(e.target===modalBack) closeModal(); });
+
+  // abridged relocation chart for a city (no DSC/IC)
+  function openCityModal(city){
+    var abridged=
+      '<div class="wheel-block" style="position:relative;height:180px;margin-bottom:14px">'+
+        '<div class="wheel" style="max-width:160px"><div class="spokes"></div><div class="hub"></div></div>'+
+      '</div>'+
+      '<div class="ref-row">'+planetInHouse(["7th","1st","6th","8th","10th","4th","2nd","5th","3rd","2nd","9th"])+
+        angleInSign(relocAngles)+'</div>'+
+      '<div class="aspect-wrap"><h3>Aspect to Angle</h3><div class="aspect-grid">'+
+        aspectBlock('ASC',relocAspects.ASC)+aspectBlock('MC',relocAspects.MC)+
+      '</div></div>';
+    openModal('<h2>'+city.name+'</h2>'+abridged);
+  }
+
+  function openNotesModal(kind,i){
+    var src = kind==='comparison'?COMPARISONS:SEARCHES;
+    var title = src[i] ? src[i].t : 'Notes';
+    openModal('<h2>'+title+'</h2><p style="font-size:12.5px;color:#8a877f;margin:0 0 8px">Notes</p>'+
+      '<textarea placeholder="Leave a note about this '+kind+'…"></textarea>');
+  }
+</script>
+</body>
+</html>

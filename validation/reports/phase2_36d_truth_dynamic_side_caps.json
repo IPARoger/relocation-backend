@@ -1,0 +1,2248 @@
+{
+  "adjacent_house_space_width_method": "At each centerline sample point, compute Placidus cusps via swe.houses(jd, lat, lon, b\"P\"). Left/9th side uses ecliptic span cusp9->cusp10. Right/10th side uses span cusp10->cusp11. Spans are forward zodiac distances in degrees.",
+  "all_pass": true,
+  "artifacts": {
+    "caseA_png": "validation/visual_targets/phase2_36d_truth_dynamic_side_caps_caseA.png",
+    "caseB_png": "validation/visual_targets/phase2_36d_truth_dynamic_side_caps_caseB.png",
+    "html": "validation/visual_targets/phase2_36d_truth_dynamic_side_caps.html",
+    "narrative": "validation/narratives/phase2_36d_truth_dynamic_side_caps.md",
+    "report": "validation/reports/phase2_36d_truth_dynamic_side_caps.json"
+  },
+  "caseA_found": true,
+  "caseB_found": true,
+  "cases": {
+    "caseA": {
+      "callouts": [
+        {
+          "house10_width_deg": 32.494,
+          "house9_width_deg": 30.667,
+          "lat": 0.0,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.012,
+          "house9_width_deg": 28.467,
+          "lat": 19.697,
+          "left_9th_side_width_deg": 8.54,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.771,
+          "house9_width_deg": 25.772,
+          "lat": 39.394,
+          "left_9th_side_width_deg": 7.732,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 36.76,
+          "house9_width_deg": 18.716,
+          "lat": 65.0,
+          "left_9th_side_width_deg": 5.615,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        }
+      ],
+      "centerline": [
+        [
+          34.8965,
+          0.0
+        ],
+        [
+          34.8965,
+          1.9697
+        ],
+        [
+          34.8965,
+          3.9394
+        ],
+        [
+          34.8965,
+          5.9091
+        ],
+        [
+          34.8965,
+          7.8788
+        ],
+        [
+          34.8965,
+          9.8485
+        ],
+        [
+          34.8965,
+          11.8182
+        ],
+        [
+          34.8965,
+          13.7879
+        ],
+        [
+          34.8965,
+          15.7576
+        ],
+        [
+          34.8965,
+          17.7273
+        ],
+        [
+          34.8965,
+          19.697
+        ],
+        [
+          34.8965,
+          21.6667
+        ],
+        [
+          34.8965,
+          23.6364
+        ],
+        [
+          34.8965,
+          25.6061
+        ],
+        [
+          34.8965,
+          27.5758
+        ],
+        [
+          34.8965,
+          29.5455
+        ],
+        [
+          34.8965,
+          31.5152
+        ],
+        [
+          34.8965,
+          33.4848
+        ],
+        [
+          34.8965,
+          35.4545
+        ],
+        [
+          34.8965,
+          37.4242
+        ],
+        [
+          34.8965,
+          39.3939
+        ],
+        [
+          34.8965,
+          41.3636
+        ],
+        [
+          34.8965,
+          43.3333
+        ],
+        [
+          34.8965,
+          45.303
+        ],
+        [
+          34.8965,
+          47.2727
+        ],
+        [
+          34.8965,
+          49.2424
+        ],
+        [
+          34.8965,
+          51.2121
+        ],
+        [
+          34.8965,
+          53.1818
+        ],
+        [
+          34.8965,
+          55.1515
+        ],
+        [
+          34.8965,
+          57.1212
+        ],
+        [
+          34.8965,
+          59.0909
+        ],
+        [
+          34.8965,
+          61.0606
+        ],
+        [
+          34.8965,
+          63.0303
+        ],
+        [
+          34.8965,
+          65.0
+        ]
+      ],
+      "config": {
+        "aspect": "square",
+        "lat_end": 65,
+        "lat_start": 0,
+        "narrowing_side": "left_9th",
+        "planet": "moon",
+        "planet_longitude_deg": 67.068044,
+        "root_lon": 34.89649521962565,
+        "target_mc_deg": 337.068044,
+        "title": "Case A: left/9th-side dynamic cap narrows"
+      },
+      "dynamic_capping_observed": true,
+      "id": "caseA",
+      "leftBoundary": [
+        [
+          23.3965,
+          0.0
+        ],
+        [
+          23.3965,
+          1.9697
+        ],
+        [
+          23.3965,
+          3.9394
+        ],
+        [
+          23.3965,
+          5.9091
+        ],
+        [
+          24.6146,
+          7.8788
+        ],
+        [
+          24.6895,
+          9.8485
+        ],
+        [
+          24.7648,
+          11.8182
+        ],
+        [
+          24.8409,
+          13.7879
+        ],
+        [
+          24.9179,
+          15.7576
+        ],
+        [
+          24.996,
+          17.7273
+        ],
+        [
+          25.0753,
+          19.697
+        ],
+        [
+          25.1563,
+          21.6667
+        ],
+        [
+          25.239,
+          23.6364
+        ],
+        [
+          25.3239,
+          25.6061
+        ],
+        [
+          25.4111,
+          27.5758
+        ],
+        [
+          25.501,
+          29.5455
+        ],
+        [
+          25.594,
+          31.5152
+        ],
+        [
+          25.6904,
+          33.4848
+        ],
+        [
+          25.7907,
+          35.4545
+        ],
+        [
+          25.8955,
+          37.4242
+        ],
+        [
+          26.0052,
+          39.3939
+        ],
+        [
+          26.1206,
+          41.3636
+        ],
+        [
+          26.2424,
+          43.3333
+        ],
+        [
+          26.3716,
+          45.303
+        ],
+        [
+          26.509,
+          47.2727
+        ],
+        [
+          26.656,
+          49.2424
+        ],
+        [
+          26.8141,
+          51.2121
+        ],
+        [
+          26.9849,
+          53.1818
+        ],
+        [
+          27.1705,
+          55.1515
+        ],
+        [
+          27.3737,
+          57.1212
+        ],
+        [
+          27.5975,
+          59.0909
+        ],
+        [
+          27.846,
+          61.0606
+        ],
+        [
+          28.1244,
+          63.0303
+        ],
+        [
+          28.4393,
+          65.0
+        ]
+      ],
+      "map_bounds": [
+        [
+          -5.0,
+          12.896495219625649
+        ],
+        [
+          70.0,
+          56.89649521962565
+        ]
+      ],
+      "one_side_only_narrowing_observed": true,
+      "polygon": [
+        [
+          23.3965,
+          0.0
+        ],
+        [
+          23.3965,
+          1.9697
+        ],
+        [
+          23.3965,
+          3.9394
+        ],
+        [
+          23.3965,
+          5.9091
+        ],
+        [
+          24.6146,
+          7.8788
+        ],
+        [
+          24.6895,
+          9.8485
+        ],
+        [
+          24.7648,
+          11.8182
+        ],
+        [
+          24.8409,
+          13.7879
+        ],
+        [
+          24.9179,
+          15.7576
+        ],
+        [
+          24.996,
+          17.7273
+        ],
+        [
+          25.0753,
+          19.697
+        ],
+        [
+          25.1563,
+          21.6667
+        ],
+        [
+          25.239,
+          23.6364
+        ],
+        [
+          25.3239,
+          25.6061
+        ],
+        [
+          25.4111,
+          27.5758
+        ],
+        [
+          25.501,
+          29.5455
+        ],
+        [
+          25.594,
+          31.5152
+        ],
+        [
+          25.6904,
+          33.4848
+        ],
+        [
+          25.7907,
+          35.4545
+        ],
+        [
+          25.8955,
+          37.4242
+        ],
+        [
+          26.0052,
+          39.3939
+        ],
+        [
+          26.1206,
+          41.3636
+        ],
+        [
+          26.2424,
+          43.3333
+        ],
+        [
+          26.3716,
+          45.303
+        ],
+        [
+          26.509,
+          47.2727
+        ],
+        [
+          26.656,
+          49.2424
+        ],
+        [
+          26.8141,
+          51.2121
+        ],
+        [
+          26.9849,
+          53.1818
+        ],
+        [
+          27.1705,
+          55.1515
+        ],
+        [
+          27.3737,
+          57.1212
+        ],
+        [
+          27.5975,
+          59.0909
+        ],
+        [
+          27.846,
+          61.0606
+        ],
+        [
+          28.1244,
+          63.0303
+        ],
+        [
+          28.4393,
+          65.0
+        ],
+        [
+          46.3965,
+          65.0
+        ],
+        [
+          46.3965,
+          63.0303
+        ],
+        [
+          46.3965,
+          61.0606
+        ],
+        [
+          46.3965,
+          59.0909
+        ],
+        [
+          46.3965,
+          57.1212
+        ],
+        [
+          46.3965,
+          55.1515
+        ],
+        [
+          46.3965,
+          53.1818
+        ],
+        [
+          46.3965,
+          51.2121
+        ],
+        [
+          46.3965,
+          49.2424
+        ],
+        [
+          46.3965,
+          47.2727
+        ],
+        [
+          46.3965,
+          45.303
+        ],
+        [
+          46.3965,
+          43.3333
+        ],
+        [
+          46.3965,
+          41.3636
+        ],
+        [
+          46.3965,
+          39.3939
+        ],
+        [
+          46.3965,
+          37.4242
+        ],
+        [
+          46.3965,
+          35.4545
+        ],
+        [
+          46.3965,
+          33.4848
+        ],
+        [
+          46.3965,
+          31.5152
+        ],
+        [
+          46.3965,
+          29.5455
+        ],
+        [
+          46.3965,
+          27.5758
+        ],
+        [
+          46.3965,
+          25.6061
+        ],
+        [
+          46.3965,
+          23.6364
+        ],
+        [
+          46.3965,
+          21.6667
+        ],
+        [
+          46.3965,
+          19.697
+        ],
+        [
+          46.3965,
+          17.7273
+        ],
+        [
+          46.3965,
+          15.7576
+        ],
+        [
+          46.3965,
+          13.7879
+        ],
+        [
+          46.3965,
+          11.8182
+        ],
+        [
+          46.3965,
+          9.8485
+        ],
+        [
+          46.3965,
+          7.8788
+        ],
+        [
+          46.3965,
+          5.9091
+        ],
+        [
+          46.3965,
+          3.9394
+        ],
+        [
+          46.3965,
+          1.9697
+        ],
+        [
+          46.3965,
+          0.0
+        ],
+        [
+          23.3965,
+          0.0
+        ]
+      ],
+      "presentation_note": "Centerline longitude is truth-derived from MC aspect root. Boundary offsets are diagnostic visualization of truth-derived ecliptic side-width caps, not production geodesic offsets.",
+      "rightBoundary": [
+        [
+          46.3965,
+          0.0
+        ],
+        [
+          46.3965,
+          1.9697
+        ],
+        [
+          46.3965,
+          3.9394
+        ],
+        [
+          46.3965,
+          5.9091
+        ],
+        [
+          46.3965,
+          7.8788
+        ],
+        [
+          46.3965,
+          9.8485
+        ],
+        [
+          46.3965,
+          11.8182
+        ],
+        [
+          46.3965,
+          13.7879
+        ],
+        [
+          46.3965,
+          15.7576
+        ],
+        [
+          46.3965,
+          17.7273
+        ],
+        [
+          46.3965,
+          19.697
+        ],
+        [
+          46.3965,
+          21.6667
+        ],
+        [
+          46.3965,
+          23.6364
+        ],
+        [
+          46.3965,
+          25.6061
+        ],
+        [
+          46.3965,
+          27.5758
+        ],
+        [
+          46.3965,
+          29.5455
+        ],
+        [
+          46.3965,
+          31.5152
+        ],
+        [
+          46.3965,
+          33.4848
+        ],
+        [
+          46.3965,
+          35.4545
+        ],
+        [
+          46.3965,
+          37.4242
+        ],
+        [
+          46.3965,
+          39.3939
+        ],
+        [
+          46.3965,
+          41.3636
+        ],
+        [
+          46.3965,
+          43.3333
+        ],
+        [
+          46.3965,
+          45.303
+        ],
+        [
+          46.3965,
+          47.2727
+        ],
+        [
+          46.3965,
+          49.2424
+        ],
+        [
+          46.3965,
+          51.2121
+        ],
+        [
+          46.3965,
+          53.1818
+        ],
+        [
+          46.3965,
+          55.1515
+        ],
+        [
+          46.3965,
+          57.1212
+        ],
+        [
+          46.3965,
+          59.0909
+        ],
+        [
+          46.3965,
+          61.0606
+        ],
+        [
+          46.3965,
+          63.0303
+        ],
+        [
+          46.3965,
+          65.0
+        ]
+      ],
+      "samples": [
+        {
+          "house10_width_deg": 32.494,
+          "house9_width_deg": 30.667,
+          "lat": 0.0,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.542,
+          "house9_width_deg": 30.45,
+          "lat": 1.97,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.59,
+          "house9_width_deg": 30.234,
+          "lat": 3.939,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.638,
+          "house9_width_deg": 30.019,
+          "lat": 5.909,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.688,
+          "house9_width_deg": 29.803,
+          "lat": 7.879,
+          "left_9th_side_width_deg": 8.941,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.738,
+          "house9_width_deg": 29.586,
+          "lat": 9.848,
+          "left_9th_side_width_deg": 8.876,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.79,
+          "house9_width_deg": 29.367,
+          "lat": 11.818,
+          "left_9th_side_width_deg": 8.81,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.843,
+          "house9_width_deg": 29.147,
+          "lat": 13.788,
+          "left_9th_side_width_deg": 8.744,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.898,
+          "house9_width_deg": 28.924,
+          "lat": 15.758,
+          "left_9th_side_width_deg": 8.677,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 32.954,
+          "house9_width_deg": 28.697,
+          "lat": 17.727,
+          "left_9th_side_width_deg": 8.609,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.012,
+          "house9_width_deg": 28.467,
+          "lat": 19.697,
+          "left_9th_side_width_deg": 8.54,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.072,
+          "house9_width_deg": 28.232,
+          "lat": 21.667,
+          "left_9th_side_width_deg": 8.47,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.135,
+          "house9_width_deg": 27.993,
+          "lat": 23.636,
+          "left_9th_side_width_deg": 8.398,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.2,
+          "house9_width_deg": 27.747,
+          "lat": 25.606,
+          "left_9th_side_width_deg": 8.324,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.269,
+          "house9_width_deg": 27.494,
+          "lat": 27.576,
+          "left_9th_side_width_deg": 8.248,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.34,
+          "house9_width_deg": 27.233,
+          "lat": 29.545,
+          "left_9th_side_width_deg": 8.17,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.416,
+          "house9_width_deg": 26.964,
+          "lat": 31.515,
+          "left_9th_side_width_deg": 8.089,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.497,
+          "house9_width_deg": 26.684,
+          "lat": 33.485,
+          "left_9th_side_width_deg": 8.005,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.582,
+          "house9_width_deg": 26.394,
+          "lat": 35.455,
+          "left_9th_side_width_deg": 7.918,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.673,
+          "house9_width_deg": 26.09,
+          "lat": 37.424,
+          "left_9th_side_width_deg": 7.827,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.771,
+          "house9_width_deg": 25.772,
+          "lat": 39.394,
+          "left_9th_side_width_deg": 7.732,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.876,
+          "house9_width_deg": 25.437,
+          "lat": 41.364,
+          "left_9th_side_width_deg": 7.631,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 33.991,
+          "house9_width_deg": 25.084,
+          "lat": 43.333,
+          "left_9th_side_width_deg": 7.525,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 34.115,
+          "house9_width_deg": 24.71,
+          "lat": 45.303,
+          "left_9th_side_width_deg": 7.413,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 34.252,
+          "house9_width_deg": 24.312,
+          "lat": 47.273,
+          "left_9th_side_width_deg": 7.293,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 34.403,
+          "house9_width_deg": 23.885,
+          "lat": 49.242,
+          "left_9th_side_width_deg": 7.166,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 34.572,
+          "house9_width_deg": 23.427,
+          "lat": 51.212,
+          "left_9th_side_width_deg": 7.028,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 34.761,
+          "house9_width_deg": 22.932,
+          "lat": 53.182,
+          "left_9th_side_width_deg": 6.88,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 34.976,
+          "house9_width_deg": 22.394,
+          "lat": 55.152,
+          "left_9th_side_width_deg": 6.718,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 35.223,
+          "house9_width_deg": 21.805,
+          "lat": 57.121,
+          "left_9th_side_width_deg": 6.542,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 35.51,
+          "house9_width_deg": 21.157,
+          "lat": 59.091,
+          "left_9th_side_width_deg": 6.347,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 35.85,
+          "house9_width_deg": 20.436,
+          "lat": 61.061,
+          "left_9th_side_width_deg": 6.131,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 36.258,
+          "house9_width_deg": 19.629,
+          "lat": 63.03,
+          "left_9th_side_width_deg": 5.889,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 36.76,
+          "house9_width_deg": 18.716,
+          "lat": 65.0,
+          "left_9th_side_width_deg": 5.615,
+          "left_cap_applied": true,
+          "lon": 34.8965,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        }
+      ]
+    },
+    "caseB": {
+      "callouts": [
+        {
+          "house10_width_deg": 30.704,
+          "house9_width_deg": 32.503,
+          "lat": 0.0,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 28.516,
+          "house9_width_deg": 33.046,
+          "lat": 19.697,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.555,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 25.837,
+          "house9_width_deg": 33.842,
+          "lat": 39.394,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.751,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 18.84,
+          "house9_width_deg": 36.978,
+          "lat": 65.0,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 5.652,
+          "right_cap_applied": true
+        }
+      ],
+      "centerline": [
+        [
+          -103.1134,
+          0.0
+        ],
+        [
+          -103.1134,
+          1.9697
+        ],
+        [
+          -103.1134,
+          3.9394
+        ],
+        [
+          -103.1134,
+          5.9091
+        ],
+        [
+          -103.1134,
+          7.8788
+        ],
+        [
+          -103.1134,
+          9.8485
+        ],
+        [
+          -103.1134,
+          11.8182
+        ],
+        [
+          -103.1134,
+          13.7879
+        ],
+        [
+          -103.1134,
+          15.7576
+        ],
+        [
+          -103.1134,
+          17.7273
+        ],
+        [
+          -103.1134,
+          19.697
+        ],
+        [
+          -103.1134,
+          21.6667
+        ],
+        [
+          -103.1134,
+          23.6364
+        ],
+        [
+          -103.1134,
+          25.6061
+        ],
+        [
+          -103.1134,
+          27.5758
+        ],
+        [
+          -103.1134,
+          29.5455
+        ],
+        [
+          -103.1134,
+          31.5152
+        ],
+        [
+          -103.1134,
+          33.4848
+        ],
+        [
+          -103.1134,
+          35.4545
+        ],
+        [
+          -103.1134,
+          37.4242
+        ],
+        [
+          -103.1134,
+          39.3939
+        ],
+        [
+          -103.1134,
+          41.3636
+        ],
+        [
+          -103.1134,
+          43.3333
+        ],
+        [
+          -103.1134,
+          45.303
+        ],
+        [
+          -103.1134,
+          47.2727
+        ],
+        [
+          -103.1134,
+          49.2424
+        ],
+        [
+          -103.1134,
+          51.2121
+        ],
+        [
+          -103.1134,
+          53.1818
+        ],
+        [
+          -103.1134,
+          55.1515
+        ],
+        [
+          -103.1134,
+          57.1212
+        ],
+        [
+          -103.1134,
+          59.0909
+        ],
+        [
+          -103.1134,
+          61.0606
+        ],
+        [
+          -103.1134,
+          63.0303
+        ],
+        [
+          -103.1134,
+          65.0
+        ]
+      ],
+      "config": {
+        "aspect": "square",
+        "lat_end": 65,
+        "lat_start": 0,
+        "narrowing_side": "right_10th",
+        "planet": "sun",
+        "planet_longitude_deg": 292.465567,
+        "root_lon": -103.11339056048018,
+        "target_mc_deg": 202.465567,
+        "title": "Case B: right/10th-side dynamic cap narrows"
+      },
+      "dynamic_capping_observed": true,
+      "id": "caseB",
+      "leftBoundary": [
+        [
+          -114.6134,
+          0.0
+        ],
+        [
+          -114.6134,
+          1.9697
+        ],
+        [
+          -114.6134,
+          3.9394
+        ],
+        [
+          -114.6134,
+          5.9091
+        ],
+        [
+          -114.6134,
+          7.8788
+        ],
+        [
+          -114.6134,
+          9.8485
+        ],
+        [
+          -114.6134,
+          11.8182
+        ],
+        [
+          -114.6134,
+          13.7879
+        ],
+        [
+          -114.6134,
+          15.7576
+        ],
+        [
+          -114.6134,
+          17.7273
+        ],
+        [
+          -114.6134,
+          19.697
+        ],
+        [
+          -114.6134,
+          21.6667
+        ],
+        [
+          -114.6134,
+          23.6364
+        ],
+        [
+          -114.6134,
+          25.6061
+        ],
+        [
+          -114.6134,
+          27.5758
+        ],
+        [
+          -114.6134,
+          29.5455
+        ],
+        [
+          -114.6134,
+          31.5152
+        ],
+        [
+          -114.6134,
+          33.4848
+        ],
+        [
+          -114.6134,
+          35.4545
+        ],
+        [
+          -114.6134,
+          37.4242
+        ],
+        [
+          -114.6134,
+          39.3939
+        ],
+        [
+          -114.6134,
+          41.3636
+        ],
+        [
+          -114.6134,
+          43.3333
+        ],
+        [
+          -114.6134,
+          45.303
+        ],
+        [
+          -114.6134,
+          47.2727
+        ],
+        [
+          -114.6134,
+          49.2424
+        ],
+        [
+          -114.6134,
+          51.2121
+        ],
+        [
+          -114.6134,
+          53.1818
+        ],
+        [
+          -114.6134,
+          55.1515
+        ],
+        [
+          -114.6134,
+          57.1212
+        ],
+        [
+          -114.6134,
+          59.0909
+        ],
+        [
+          -114.6134,
+          61.0606
+        ],
+        [
+          -114.6134,
+          63.0303
+        ],
+        [
+          -114.6134,
+          65.0
+        ]
+      ],
+      "map_bounds": [
+        [
+          -5.0,
+          -125.11339056048018
+        ],
+        [
+          70.0,
+          -81.11339056048018
+        ]
+      ],
+      "one_side_only_narrowing_observed": true,
+      "polygon": [
+        [
+          -114.6134,
+          0.0
+        ],
+        [
+          -114.6134,
+          1.9697
+        ],
+        [
+          -114.6134,
+          3.9394
+        ],
+        [
+          -114.6134,
+          5.9091
+        ],
+        [
+          -114.6134,
+          7.8788
+        ],
+        [
+          -114.6134,
+          9.8485
+        ],
+        [
+          -114.6134,
+          11.8182
+        ],
+        [
+          -114.6134,
+          13.7879
+        ],
+        [
+          -114.6134,
+          15.7576
+        ],
+        [
+          -114.6134,
+          17.7273
+        ],
+        [
+          -114.6134,
+          19.697
+        ],
+        [
+          -114.6134,
+          21.6667
+        ],
+        [
+          -114.6134,
+          23.6364
+        ],
+        [
+          -114.6134,
+          25.6061
+        ],
+        [
+          -114.6134,
+          27.5758
+        ],
+        [
+          -114.6134,
+          29.5455
+        ],
+        [
+          -114.6134,
+          31.5152
+        ],
+        [
+          -114.6134,
+          33.4848
+        ],
+        [
+          -114.6134,
+          35.4545
+        ],
+        [
+          -114.6134,
+          37.4242
+        ],
+        [
+          -114.6134,
+          39.3939
+        ],
+        [
+          -114.6134,
+          41.3636
+        ],
+        [
+          -114.6134,
+          43.3333
+        ],
+        [
+          -114.6134,
+          45.303
+        ],
+        [
+          -114.6134,
+          47.2727
+        ],
+        [
+          -114.6134,
+          49.2424
+        ],
+        [
+          -114.6134,
+          51.2121
+        ],
+        [
+          -114.6134,
+          53.1818
+        ],
+        [
+          -114.6134,
+          55.1515
+        ],
+        [
+          -114.6134,
+          57.1212
+        ],
+        [
+          -114.6134,
+          59.0909
+        ],
+        [
+          -114.6134,
+          61.0606
+        ],
+        [
+          -114.6134,
+          63.0303
+        ],
+        [
+          -114.6134,
+          65.0
+        ],
+        [
+          -96.6135,
+          65.0
+        ],
+        [
+          -96.3017,
+          63.0303
+        ],
+        [
+          -96.026,
+          61.0606
+        ],
+        [
+          -95.7797,
+          59.0909
+        ],
+        [
+          -95.5578,
+          57.1212
+        ],
+        [
+          -95.3564,
+          55.1515
+        ],
+        [
+          -95.1722,
+          53.1818
+        ],
+        [
+          -95.0027,
+          51.2121
+        ],
+        [
+          -94.8459,
+          49.2424
+        ],
+        [
+          -94.6999,
+          47.2727
+        ],
+        [
+          -94.5634,
+          45.303
+        ],
+        [
+          -94.4352,
+          43.3333
+        ],
+        [
+          -94.3142,
+          41.3636
+        ],
+        [
+          -94.1996,
+          39.3939
+        ],
+        [
+          -94.0905,
+          37.4242
+        ],
+        [
+          -93.9865,
+          35.4545
+        ],
+        [
+          -93.8867,
+          33.4848
+        ],
+        [
+          -93.7909,
+          31.5152
+        ],
+        [
+          -93.6985,
+          29.5455
+        ],
+        [
+          -93.6092,
+          27.5758
+        ],
+        [
+          -93.5225,
+          25.6061
+        ],
+        [
+          -93.4381,
+          23.6364
+        ],
+        [
+          -93.3558,
+          21.6667
+        ],
+        [
+          -93.2753,
+          19.697
+        ],
+        [
+          -93.1964,
+          17.7273
+        ],
+        [
+          -93.1187,
+          15.7576
+        ],
+        [
+          -93.0422,
+          13.7879
+        ],
+        [
+          -92.9665,
+          11.8182
+        ],
+        [
+          -92.8915,
+          9.8485
+        ],
+        [
+          -92.8171,
+          7.8788
+        ],
+        [
+          -91.6134,
+          5.9091
+        ],
+        [
+          -91.6134,
+          3.9394
+        ],
+        [
+          -91.6134,
+          1.9697
+        ],
+        [
+          -91.6134,
+          0.0
+        ],
+        [
+          -114.6134,
+          0.0
+        ]
+      ],
+      "presentation_note": "Centerline longitude is truth-derived from MC aspect root. Boundary offsets are diagnostic visualization of truth-derived ecliptic side-width caps, not production geodesic offsets.",
+      "rightBoundary": [
+        [
+          -91.6134,
+          0.0
+        ],
+        [
+          -91.6134,
+          1.9697
+        ],
+        [
+          -91.6134,
+          3.9394
+        ],
+        [
+          -91.6134,
+          5.9091
+        ],
+        [
+          -92.8171,
+          7.8788
+        ],
+        [
+          -92.8915,
+          9.8485
+        ],
+        [
+          -92.9665,
+          11.8182
+        ],
+        [
+          -93.0422,
+          13.7879
+        ],
+        [
+          -93.1187,
+          15.7576
+        ],
+        [
+          -93.1964,
+          17.7273
+        ],
+        [
+          -93.2753,
+          19.697
+        ],
+        [
+          -93.3558,
+          21.6667
+        ],
+        [
+          -93.4381,
+          23.6364
+        ],
+        [
+          -93.5225,
+          25.6061
+        ],
+        [
+          -93.6092,
+          27.5758
+        ],
+        [
+          -93.6985,
+          29.5455
+        ],
+        [
+          -93.7909,
+          31.5152
+        ],
+        [
+          -93.8867,
+          33.4848
+        ],
+        [
+          -93.9865,
+          35.4545
+        ],
+        [
+          -94.0905,
+          37.4242
+        ],
+        [
+          -94.1996,
+          39.3939
+        ],
+        [
+          -94.3142,
+          41.3636
+        ],
+        [
+          -94.4352,
+          43.3333
+        ],
+        [
+          -94.5634,
+          45.303
+        ],
+        [
+          -94.6999,
+          47.2727
+        ],
+        [
+          -94.8459,
+          49.2424
+        ],
+        [
+          -95.0027,
+          51.2121
+        ],
+        [
+          -95.1722,
+          53.1818
+        ],
+        [
+          -95.3564,
+          55.1515
+        ],
+        [
+          -95.5578,
+          57.1212
+        ],
+        [
+          -95.7797,
+          59.0909
+        ],
+        [
+          -96.026,
+          61.0606
+        ],
+        [
+          -96.3017,
+          63.0303
+        ],
+        [
+          -96.6135,
+          65.0
+        ]
+      ],
+      "samples": [
+        {
+          "house10_width_deg": 30.704,
+          "house9_width_deg": 32.503,
+          "lat": 0.0,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 30.489,
+          "house9_width_deg": 32.553,
+          "lat": 1.97,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 30.274,
+          "house9_width_deg": 32.603,
+          "lat": 3.939,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 30.059,
+          "house9_width_deg": 32.654,
+          "lat": 5.909,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 10.0,
+          "right_cap_applied": false
+        },
+        {
+          "house10_width_deg": 29.844,
+          "house9_width_deg": 32.706,
+          "lat": 7.879,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.953,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 29.629,
+          "house9_width_deg": 32.759,
+          "lat": 9.848,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.889,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 29.411,
+          "house9_width_deg": 32.814,
+          "lat": 11.818,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.823,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 29.192,
+          "house9_width_deg": 32.869,
+          "lat": 13.788,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.758,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 28.97,
+          "house9_width_deg": 32.926,
+          "lat": 15.758,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.691,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 28.745,
+          "house9_width_deg": 32.985,
+          "lat": 17.727,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.623,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 28.516,
+          "house9_width_deg": 33.046,
+          "lat": 19.697,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.555,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 28.283,
+          "house9_width_deg": 33.109,
+          "lat": 21.667,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.485,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 28.044,
+          "house9_width_deg": 33.175,
+          "lat": 23.636,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.413,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 27.8,
+          "house9_width_deg": 33.244,
+          "lat": 25.606,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.34,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 27.549,
+          "house9_width_deg": 33.315,
+          "lat": 27.576,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.265,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 27.289,
+          "house9_width_deg": 33.391,
+          "lat": 29.545,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.187,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 27.022,
+          "house9_width_deg": 33.47,
+          "lat": 31.515,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.106,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 26.744,
+          "house9_width_deg": 33.555,
+          "lat": 33.485,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 8.023,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 26.455,
+          "house9_width_deg": 33.644,
+          "lat": 35.455,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.936,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 26.153,
+          "house9_width_deg": 33.74,
+          "lat": 37.424,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.846,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 25.837,
+          "house9_width_deg": 33.842,
+          "lat": 39.394,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.751,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 25.505,
+          "house9_width_deg": 33.953,
+          "lat": 41.364,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.651,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 25.154,
+          "house9_width_deg": 34.073,
+          "lat": 43.333,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.546,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 24.783,
+          "house9_width_deg": 34.203,
+          "lat": 45.303,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.435,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 24.387,
+          "house9_width_deg": 34.347,
+          "lat": 47.273,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.316,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 23.964,
+          "house9_width_deg": 34.506,
+          "lat": 49.242,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.189,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 23.509,
+          "house9_width_deg": 34.682,
+          "lat": 51.212,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 7.053,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 23.018,
+          "house9_width_deg": 34.881,
+          "lat": 53.182,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 6.905,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 22.484,
+          "house9_width_deg": 35.107,
+          "lat": 55.152,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 6.745,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 21.9,
+          "house9_width_deg": 35.365,
+          "lat": 57.121,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 6.57,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 21.257,
+          "house9_width_deg": 35.667,
+          "lat": 59.091,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 6.377,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 20.543,
+          "house9_width_deg": 36.023,
+          "lat": 61.061,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 6.163,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 19.744,
+          "house9_width_deg": 36.451,
+          "lat": 63.03,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 5.923,
+          "right_cap_applied": true
+        },
+        {
+          "house10_width_deg": 18.84,
+          "house9_width_deg": 36.978,
+          "lat": 65.0,
+          "left_9th_side_width_deg": 10.0,
+          "left_cap_applied": false,
+          "lon": -103.1134,
+          "right_10th_side_width_deg": 5.652,
+          "right_cap_applied": true
+        }
+      ]
+    }
+  },
+  "centerline_extraction_method": "For MC aspect cases, centerline is the truth-derived longitude where relocated MC equals the natal planet aspect target. MC is longitude-dependent for this validation, so sampled centerline points share the solved root longitude and vary by latitude.",
+  "critical_failure_constant_asymmetry": false,
+  "description": "Truth-derived dynamic side-cap validation pass",
+  "dynamic_capping_observed": true,
+  "generated_at_utc": "2026-05-25T16:21:49.158208+00:00",
+  "limitations": [
+    "Diagnostic boundary offsets convert truth-derived ecliptic side-width caps into lon/lat visualization offsets around an MC meridian. The cap values are truth-derived; this is not production geodesic rendering.",
+    "This validates dynamic cap computation and legibility, not final renderer integration or gradient/color styling.",
+    "Only MC/house9/house10 adjacent side caps are covered here. ASC-side adjacent-space cap validation remains separate."
+  ],
+  "phase": "2.36d",
+  "production_code_touched": false,
+  "profile": {
+    "date": "1976-01-13",
+    "id": "baseline_validated",
+    "lat": 0,
+    "lon": 0,
+    "name": "Baseline Validated Chart",
+    "notes": "Current validated baseline chart.",
+    "place": "Test",
+    "time": "12:47",
+    "timezone": "UTC"
+  },
+  "rejected_examples_note": "Candidate search found many real MC aspect cases. This artifact selected simple baseline_validated examples with clean one-side-only progression and full-width opposite sides. No schematic or constant-asymmetry cases were accepted.",
+  "requested_orb_width_deg": 10.0,
+  "side_cap_formula": "side_width = min(requested_orb_width, 30% of adjacent house/space width) only when adjacent width < 30 degrees; otherwise requested width",
+  "validation_artifact_only": true
+}

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile Workspace — Prototype v04</title>
+
+<!--
+  ============================================================
+  prototype_profile_workspace_v04.html
+  ============================================================
+  Iteration on v02. Changes applied per instruction:
+  - Planet in House sits NEXT TO Aspect to Angle.
+  - Angle in Sign is folded INTO the Planet in House card.
+  - Aspect to Angle is a CAROUSEL of the 4 angles (ASC/MC/DSC/IC),
+    one shown at a time, with a "View all" popout (side-by-side).
+  - ASC and MC are added as aspectable "bodies" in Aspect to Angle
+    (moot for the self-angle, included anyway as requested) — this
+    makes the A2A table ~the same height as Planet in House.
+  - Aspect tables use fixed column widths so Natal and Relocated
+    are identical (fixes the "relocated columns too long" issue).
+  - Birth Plate hierarchy: Name is a profile dropdown with Edit/Add;
+    Name/Date/Time/City are primary (black); UTC, lat/lon, and
+    Tropical/Placidus are subordinate (grey).
+
+  NOT solved here: real data/geometry, backend, final styling.
+  Lower section: stacked (Favorites / Comparisons / Searches).
+  ============================================================
+-->
+
+<style>
+  :root {
+    --ink:#2b2b29; --ink-soft:#5c5a54; --ink-faint:#8a877f;
+    --line:#e2ded5; --line-soft:#eeeae1; --paper:#f7f5ef;
+    --panel:#fffefb; --accent:#5b6b63; --accent-2:#8a6f52; --radius:6px;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15px; line-height:1.45; }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 24px 60px; }
+
+  /* header */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:16px 0; border-bottom:1px solid var(--line); margin-bottom:24px; }
+  .brand { font-size:15px; font-weight:600; flex:0 0 auto; }
+  .mainmenu { display:flex; gap:4px; flex:1 1 auto; justify-content:center; flex-wrap:wrap; }
+  .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 10px; border-radius:var(--radius); }
+  .mainmenu a:hover { background:var(--line-soft); }
+  .account { position:relative; flex:0 0 auto; }
+  .account-btn { display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-soft);
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:7px 12px; cursor:pointer; }
+  .account-btn .chev { color:var(--ink-faint); font-size:11px; }
+  .account .menu { position:absolute; right:0; top:calc(100% + 6px); min-width:180px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:6px; display:none; z-index:20; }
+  .account.open .menu { display:block; }
+  .account .menu a { display:block; font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:7px 10px; border-radius:var(--radius); }
+  .account .menu a:hover { background:var(--line-soft); }
+
+  button,.btn { font:inherit; font-size:13px; color:var(--ink-soft); background:var(--panel);
+    border:1px solid var(--line); border-radius:var(--radius); padding:6px 10px; cursor:pointer; }
+  button:hover,.btn:hover { border-color:var(--ink-faint); }
+
+  /* two charts 60/40 */
+  .charts { display:grid; grid-template-columns:60fr 40fr; gap:26px; align-items:start; }
+  @media (max-width:1000px){ .charts{ grid-template-columns:1fr; } }
+
+  /* wheel block + plate */
+  .wheel-block { position:relative; margin-bottom:14px; min-height:150px; }
+  .plate { position:absolute; top:0; left:0; z-index:2; font-size:12px; line-height:1.4; }
+  .plate .name-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+  .profile-select { font-size:15px; font-weight:600; color:var(--ink);
+    background:transparent; border:none; padding:0; cursor:pointer; display:flex; align-items:center; gap:6px; }
+  .profile-select .chev { font-size:11px; color:var(--ink-faint); }
+  .mini { font-size:11px; padding:2px 8px; }
+  .plate .primary { color:var(--ink); }
+  .plate .sub { color:var(--ink-faint); }
+  .plate .gap { height:5px; }
+  .plate .reloc { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); }
+  .plate .big { font-size:15px; font-weight:600; color:var(--ink); margin:2px 0; }
+
+  .wheel { position:relative; width:100%; max-width:280px; aspect-ratio:1/1; margin:0 auto;
+    border-radius:50%; background:var(--panel); border:1px solid var(--line); }
+  .wheel::before,.wheel::after { content:""; position:absolute; border-radius:50%; border:1px solid var(--line-soft); }
+  .wheel::before { inset:14%; } .wheel::after { inset:30%; }
+  .wheel .hub { position:absolute; inset:44%; border-radius:50%; border:1px solid var(--line); background:var(--paper); }
+  .wheel .spokes { position:absolute; inset:0; border-radius:50%;
+    background:linear-gradient(to right,transparent calc(50% - .5px),var(--line-soft) 50%,transparent calc(50% + .5px)),
+               linear-gradient(to bottom,transparent calc(50% - .5px),var(--line-soft) 50%,transparent calc(50% + .5px)); }
+
+  /* reference row: PiH | A2A */
+  .ref-row { display:grid; grid-template-columns:1fr 1.1fr; gap:14px; align-items:start; }
+  .table-card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .table-card h3 { font-size:12px; font-weight:600; margin:0; padding:7px 12px;
+    border-bottom:1px solid var(--line-soft); background:#fbfaf5; }
+  .subhead { font-size:11px; font-weight:600; color:var(--ink-soft); padding:5px 12px;
+    background:#fbfaf5; border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+  table { width:100%; border-collapse:collapse; }
+  .rt th,.rt td { text-align:left; padding:2px 12px; font-size:12.5px; line-height:1.35; }
+  .rt th { font-weight:500; color:var(--ink-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding-top:5px; padding-bottom:4px; }
+  .rt td .glyph { color:var(--accent-2); margin-right:5px; display:inline-block; min-width:13px; }
+  .rt td.angle-name { color:var(--ink-soft); font-weight:600; }
+  .rt td .dim { color:var(--ink-faint); }
+  .rt td.center,.rt th.center { text-align:center; }
+
+  /* fixed widths so natal & relocated match exactly */
+  .rt.fixed { table-layout:fixed; }
+  .rt.fixed col.c-planet { width:38%; }
+  .rt.fixed col.c-aspect { width:32%; }
+  .rt.fixed col.c-orb    { width:18%; }
+  .rt.fixed col.c-as     { width:12%; }
+
+  /* A2A carousel header */
+  .a2a-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .a2a-ctrl { display:flex; align-items:center; gap:6px; }
+  .navb { padding:1px 8px; font-size:13px; line-height:1.3; }
+  .ang { font-size:11.5px; min-width:30px; text-align:center; color:var(--accent); }
+  .viewall { font-size:11px; padding:2px 8px; margin-left:4px; }
+
+  /* lower section */
+  .lower { margin-top:32px; padding-top:22px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:22px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; }
+  .panel h3 { font-size:13px; font-weight:600; margin:0 0 10px; }
+  .compare-btn { margin-bottom:6px; opacity:.5; pointer-events:none; }
+  .compare-btn.active { opacity:1; pointer-events:auto; background:var(--accent); color:#fff; border-color:var(--accent); }
+  .fav { list-style:none; margin:0; padding:0; }
+  .fav li { display:grid; grid-template-columns:auto auto minmax(0,1fr) auto; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line-soft); }
+  .fav li:first-child { border-top:none; }
+  .fav input[type=checkbox] { width:15px; height:15px; }
+  .fav .star { color:var(--ink-faint); cursor:pointer; font-size:15px; user-select:none; }
+  .fav .star.on { color:var(--accent-2); }
+  .fav .city { display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .fav .city .name { font-size:13.5px; color:var(--ink); }
+  .fav .city .go { color:var(--ink-faint); font-size:13px; }
+  .list { list-style:none; margin:0; padding:0; }
+  .list li { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid var(--line-soft); font-size:13.5px; }
+  .list li:first-child { border-top:none; }
+  .list .meta { font-size:12px; color:var(--ink-faint); }
+  .notes-link { font-size:11.5px; color:var(--ink-faint); text-decoration:none; border-bottom:1px dotted var(--line); margin-left:10px; }
+  .notes-link:hover { color:var(--ink-soft); }
+
+  /* modal */
+  .modal-back { position:fixed; inset:0; background:rgba(40,38,34,.32); display:none; align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .modal-back.open { display:flex; }
+  .modal { background:var(--panel); border:1px solid var(--line); border-radius:8px; max-width:760px; width:100%; max-height:86vh; overflow:auto; padding:20px; }
+  .modal h2 { font-size:16px; margin:0 0 12px; }
+  .modal .close { float:right; }
+  .modal textarea { width:100%; min-height:120px; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); padding:10px; font:inherit; font-size:13.5px; resize:vertical; }
+  .va-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .va-block h4 { font-size:11px; font-weight:600; color:var(--ink-soft); margin:0 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <nav class="mainmenu">
+      <a href="#">View Map</a><a href="#">Profile</a><a href="#">Comparison</a>
+      <a href="#">Transit Lab</a><a href="#">Store</a><a href="#">Help</a><a href="#">Settings</a>
+    </nav>
+    <div class="account" id="account">
+      <button class="account-btn" id="accountBtn">David Goodman <span class="chev">▾</span></button>
+      <div class="menu"><a href="#">Account</a><a href="#">Billing</a><a href="#">Sign out</a></div>
+    </div>
+  </header>
+
+  <div class="charts">
+    <section id="chart-natal"></section>
+    <section id="chart-reloc"></section>
+  </div>
+
+  <div class="lower" id="lower"></div>
+</div>
+
+<div class="modal-back" id="modalBack"><div class="modal" id="modal"></div></div>
+
+<script>
+  (function(){
+    var acct=document.getElementById('account'), btn=document.getElementById('accountBtn');
+    btn.addEventListener('click',function(e){e.stopPropagation();acct.classList.toggle('open');});
+    document.addEventListener('click',function(){acct.classList.remove('open');});
+  })();
+
+  var BODIES=[
+    {g:"\u2609",n:"Sun"},{g:"\u263D",n:"Moon"},{g:"\u263F",n:"Mercury"},{g:"\u2640",n:"Venus"},
+    {g:"\u2642",n:"Mars"},{g:"\u2643",n:"Jupiter"},{g:"\u2644",n:"Saturn"},{g:"\u2645",n:"Uranus"},
+    {g:"\u2646",n:"Neptune"},{g:"\u2647",n:"Pluto"},{g:"\u26B7",n:"Chiron"}
+  ];
+  // aspectable bodies include the angles ASC + MC
+  var ASPECT_BODIES=BODIES.concat([{g:"",n:"ASC"},{g:"",n:"MC"}]);
+  function pc(b){ return '<td>'+(b.g?'<span class="glyph">'+b.g+'</span>':'<span class="glyph"></span>')+b.n+'</td>'; }
+
+  function plateNatal(p){
+    return '<div class="plate">'+
+      '<div class="name-row">'+
+        '<button class="profile-select">'+p.name+' <span class="chev">▾</span></button>'+
+        '<button class="mini">Edit</button><button class="mini">Add</button>'+
+      '</div>'+
+      '<div class="primary">'+p.birthDate+'</div>'+
+      '<div class="primary">'+p.birthTime+'</div>'+
+      '<div class="primary">'+p.birthPlace+'</div>'+
+      '<div class="gap"></div>'+
+      '<div class="sub">UTC '+p.utcTime+' · '+p.offset+'</div>'+
+      '<div class="sub">'+p.lat+', '+p.lon+'</div>'+
+      '<div class="sub">'+p.zodiac+' · '+p.houses+'</div>'+
+      '</div>';
+  }
+  function plateReloc(r){
+    return '<div class="plate">'+
+      '<div class="reloc">Relocated</div>'+
+      '<div class="big">'+r.place+'</div>'+
+      '<div class="sub">'+r.lat+', '+r.lon+'</div>'+
+      '</div>';
+  }
+
+  // Planet in House card WITH Angle in Sign folded in
+  function pihCard(houses,angles){
+    var planets=BODIES.map(function(b,i){ return '<tr>'+pc(b)+'<td>'+houses[i]+'</td></tr>'; }).join('');
+    var angRows=angles.map(function(a){ return '<tr><td class="angle-name">'+a.angle+'</td><td>'+a.position+'</td></tr>'; }).join('');
+    return '<div class="table-card">'+
+      '<h3>Planet in House</h3>'+
+      '<table class="rt"><thead><tr><th>Planet</th><th>House</th></tr></thead><tbody>'+planets+'</tbody></table>'+
+      '<div class="subhead">Angle in Sign</div>'+
+      '<table class="rt"><tbody>'+angRows+'</tbody></table>'+
+      '</div>';
+  }
+
+  function aspectTable(rows){
+    var body=ASPECT_BODIES.map(function(b,i){
+      var r=rows&&rows[i]?rows[i]:{};
+      return '<tr>'+pc(b)+'<td>'+(r.aspect||'*')+'</td>'+
+        '<td><span class="dim">'+(r.orb||'*')+'</span></td>'+
+        '<td class="center">'+(r.as||'*')+'</td></tr>';
+    }).join('');
+    return '<table class="rt fixed">'+
+      '<colgroup><col class="c-planet"><col class="c-aspect"><col class="c-orb"><col class="c-as"></colgroup>'+
+      '<thead><tr><th>Planet</th><th>Aspect</th><th>Orb</th><th class="center">A/S</th></tr></thead>'+
+      '<tbody>'+body+'</tbody></table>';
+  }
+
+  var CHARTS={};
+  var ORDER=['ASC','MC','DSC','IC'];
+
+  function a2aCard(key){
+    var c=CHARTS[key], ang=ORDER[c.angleIndex];
+    return '<div class="table-card">'+
+      '<h3 class="a2a-head"><span>Aspect to Angle</span>'+
+        '<span class="a2a-ctrl">'+
+          '<button class="navb" data-act="prev" data-key="'+key+'">‹</button>'+
+          '<b class="ang">'+ang+'</b>'+
+          '<button class="navb" data-act="next" data-key="'+key+'">›</button>'+
+          '<button class="viewall" data-act="all" data-key="'+key+'">View all</button>'+
+        '</span>'+
+      '</h3>'+ aspectTable(c.aspects[ang]) +'</div>';
+  }
+  function renderA2A(key){ document.getElementById('a2awrap-'+key).innerHTML=a2aCard(key); }
+
+  function renderChart(elId,key,data){
+    data.angleIndex=0; CHARTS[key]=data;
+    var plate=data.relocPlate?plateReloc(data.relocPlate):plateNatal(data.profile);
+    document.getElementById(elId).innerHTML=
+      '<div class="wheel-block">'+plate+
+        '<div class="wheel"><div class="spokes"></div><div class="hub"></div></div>'+
+      '</div>'+
+      '<div class="ref-row">'+pihCard(data.houses,data.angles)+
+        '<div id="a2awrap-'+key+'"></div></div>';
+    renderA2A(key);
+  }
+
+  // carousel + view-all delegation
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b) return;
+    var key=b.getAttribute('data-key'), act=b.getAttribute('data-act'), c=CHARTS[key];
+    if(act==='prev'){ c.angleIndex=(c.angleIndex+3)%4; renderA2A(key); }
+    else if(act==='next'){ c.angleIndex=(c.angleIndex+1)%4; renderA2A(key); }
+    else if(act==='all'){
+      var blocks=ORDER.map(function(a){ return '<div class="va-block"><h4>'+a+'</h4>'+aspectTable(c.aspects[a])+'</div>'; }).join('');
+      openModal('<h2>Aspect to Angle — all angles</h2><div class="va-grid">'+blocks+'</div>');
+    }
+  });
+
+  // ---- data ----
+  var natalAngles=[
+    {angle:"ASC",position:"11\u00B0 Taurus 04'"},
+    {angle:"MC",position:"26\u00B0 Capricorn 19'"},
+    {angle:"DSC",position:"11\u00B0 Scorpio 04'"},
+    {angle:"IC",position:"26\u00B0 Cancer 19'"}
+  ];
+  var natalAspects={
+    ASC:[{},{aspect:"Square",orb:"3\u00B0 08'",as:"A"},{},{},{aspect:"Conjunct",orb:"0\u00B0 41'",as:"S"},{},{},{},{},{},{},{},{aspect:"Square",orb:"1\u00B0 10'",as:"A"}],
+    MC:[{aspect:"Conjunct",orb:"2\u00B0 38'",as:"A"},{},{},{aspect:"Trine",orb:"1\u00B0 12'",as:"S"},{},{},{},{},{},{},{},{aspect:"Square",orb:"1\u00B0 10'",as:"S"},{}],
+    DSC:[{},{},{},{},{aspect:"Opposition",orb:"0\u00B0 41'",as:"A"},{},{},{},{},{},{}],
+    IC:[{aspect:"Opposition",orb:"2\u00B0 38'",as:"S"},{},{},{},{},{},{aspect:"Square",orb:"4\u00B0 02'",as:"A"},{},{},{},{}]
+  };
+  renderChart('chart-natal','natal',{
+    profile:{name:"Avery Rhodes",birthDate:"14 March 1989",birthTime:"07:42",utcTime:"07:42",
+      offset:"+00:00",birthPlace:"Lisbon, Portugal",lat:"38.7223\u00B0 N",lon:"9.1393\u00B0 W",
+      zodiac:"Tropical",houses:"Placidus"},
+    houses:["10th","4th","9th","11th","1st","7th","5th","8th","6th","5th","12th"],
+    angles:natalAngles, aspects:natalAspects
+  });
+
+  var relocAngles=[
+    {angle:"ASC",position:"02\u00B0 Leo 18'"},
+    {angle:"MC",position:"19\u00B0 Aries 47'"},
+    {angle:"DSC",position:"02\u00B0 Aquarius 18'"},
+    {angle:"IC",position:"19\u00B0 Libra 47'"}
+  ];
+  var relocAspects={
+    ASC:[{aspect:"Trine",orb:"1\u00B0 55'",as:"A"},{},{},{},{},{},{},{},{},{},{},{},{aspect:"Sextile",orb:"2\u00B0 02'",as:"S"}],
+    MC:[{},{aspect:"Sextile",orb:"2\u00B0 10'",as:"S"},{},{},{},{aspect:"Conjunct",orb:"0\u00B0 33'",as:"A"},{},{},{},{},{},{aspect:"Sextile",orb:"2\u00B0 02'",as:"A"},{}],
+    DSC:[{},{},{aspect:"Square",orb:"3\u00B0 41'",as:"A"},{},{},{},{},{},{},{},{}],
+    IC:[{},{},{},{},{},{},{},{},{aspect:"Trine",orb:"2\u00B0 04'",as:"S"},{},{}]
+  };
+  renderChart('chart-reloc','reloc',{
+    relocPlate:{place:"Austin, TX USA",lat:"30.2672\u00B0 N",lon:"97.7431\u00B0 W"},
+    houses:["7th","1st","6th","8th","10th","4th","2nd","5th","3rd","2nd","9th"],
+    angles:relocAngles, aspects:relocAspects
+  });
+
+  // ---- lower section ----
+  var FAVORITES=[
+    {name:"Natal (Birth Chart)",fav:true},
+    {name:"Relocated (Austin, Texas, USA)",fav:true},
+    {name:"Austin, Texas, USA",fav:false},
+    {name:"Lisbon, Portugal",fav:false},
+    {name:"Tokyo, Japan",fav:false}
+  ];
+  function favoritesPanel(){
+    var rows=FAVORITES.map(function(c,i){
+      return '<li>'+
+        '<input type="checkbox" class="fav-check" data-i="'+i+'"'+(i<2?' checked':'')+'>'+
+        '<span class="star'+(c.fav?' on':'')+'" data-i="'+i+'">\u2605</span>'+
+        '<span class="city" data-i="'+i+'"><span class="name">'+c.name+'</span><span class="go">›</span></span>'+
+        '<span></span></li>';
+    }).join('');
+    return '<section class="panel"><h3>Favorites</h3>'+
+      '<button class="compare-btn" id="compareBtn">Compare (0)</button>'+
+      '<ul class="fav">'+rows+'</ul></section>';
+  }
+  var COMPARISONS=[{t:"Lisbon vs. Austin",meta:"2 charts"},{t:"Lyon vs. Wellington vs. Lisbon",meta:"3 charts"}];
+  var SEARCHES=[{t:"Venus line within 200km of coast",meta:"Europe"},{t:"Strong MC relocations",meta:"Global"}];
+  function listPanel(title,items,kind){
+    var rows=items.map(function(it,i){
+      return '<li><span>'+it.t+'</span><span class="meta">'+it.meta+
+        ' <a href="#" class="notes-link" data-kind="'+kind+'" data-i="'+i+'">notes</a></span></li>';
+    }).join('');
+    return '<section class="panel"><h3>'+title+'</h3><ul class="list">'+rows+'</ul></section>';
+  }
+  document.getElementById('lower').innerHTML=
+    favoritesPanel()+listPanel('Saved Comparisons',COMPARISONS,'comparison')+listPanel('Saved Searches',SEARCHES,'search');
+
+  (function(){
+    var lower=document.getElementById('lower'), compareBtn=document.getElementById('compareBtn');
+    function refresh(){ var n=lower.querySelectorAll('.fav-check:checked').length;
+      compareBtn.textContent='Compare ('+n+')';
+      compareBtn.classList.toggle('active', n>=2 && n<=5); }
+    lower.addEventListener('change',function(e){ if(e.target.classList.contains('fav-check')) refresh(); });
+    lower.addEventListener('click',function(e){
+      var star=e.target.closest('.star'); if(star){ star.classList.toggle('on'); return; }
+      var city=e.target.closest('.city'); if(city){ openCityModal(FAVORITES[+city.getAttribute('data-i')]); return; }
+      var nl=e.target.closest('.notes-link'); if(nl){ e.preventDefault(); openNotesModal(nl.getAttribute('data-kind'),+nl.getAttribute('data-i')); }
+    });
+    refresh();
+  })();
+
+  // ---- modal ----
+  var modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal');
+  function openModal(html){ modal.innerHTML='<button class="close" onclick="closeModal()">Close</button>'+html; modalBack.classList.add('open'); }
+  function closeModal(){ modalBack.classList.remove('open'); }
+  modalBack.addEventListener('click',function(e){ if(e.target===modalBack) closeModal(); });
+  window.closeModal=closeModal;
+
+  function openCityModal(city){
+    var abridged=
+      '<div class="ref-row">'+pihCard(["7th","1st","6th","8th","10th","4th","2nd","5th","3rd","2nd","9th"],relocAngles)+
+        '<div class="table-card"><h3>Aspect to Angle</h3>'+
+          '<div class="subhead">ASC</div>'+aspectTable(relocAspects.ASC)+
+          '<div class="subhead">MC</div>'+aspectTable(relocAspects.MC)+
+        '</div>'+
+      '</div>';
+    openModal('<h2>'+city.name+'</h2>'+abridged);
+  }
+  function openNotesModal(kind,i){
+    var src=kind==='comparison'?COMPARISONS:SEARCHES, title=src[i]?src[i].t:'Notes';
+    openModal('<h2>'+title+'</h2><p style="font-size:12.5px;color:#8a877f;margin:0 0 8px">Notes</p>'+
+      '<textarea placeholder="Leave a note about this '+kind+'…"></textarea>');
+  }
+</script>
+</body>
+</html>

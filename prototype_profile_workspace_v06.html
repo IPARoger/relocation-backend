@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile Workspace — Prototype v06 (temp locked)</title>
+
+<!--
+  ============================================================
+  prototype_profile_workspace_v06.html  — TEMP LOCKED LAYOUT
+  ============================================================
+  Bare-bones, intentionally un-styled. Organization first;
+  aesthetic / emotional / motion language comes later.
+
+  Changes applied per instruction:
+  - Natal is the star: it is FIRST and the DEFAULT, one chart at
+    a time to save space.
+  - Chart selector is a pill control (like the reference chips):
+    [ Natal ] [ Current Location ] [ Comparison ]  — Natal default.
+    "Chart" label removed. Comparison = natal + relocated side by side.
+  - Single relocated view shows the FULL profile plate with a
+    "Relocated: Austin, TX USA / lat lon" block underneath
+    (city carousel lives there).
+  - Aspect-to-Angle angles are SELECTABLE chips (ASC/MC/DSC/IC),
+    shown explicitly — no guesswork behind carousel arrows.
+    Default ASC + MC; user can add/remove.
+  - A2A condensed to 2 columns: Planet | Aspect, with the orb
+    inline + lighter, and color encoding applying vs separating
+    (legend shown). ~Half the horizontal space of the 4-col table.
+    (Settings would later let users pick Conjunction / Conj. / glyph.)
+  - Tables: side-by-side only (stacked option removed).
+  - Favorites + Saved Comparisons + Saved Searches now sit
+    side by side (Favorites dominant). Favorites list spacing fixed.
+  - Mobile: columns collapse to a single stack.
+
+  NOT solved here: real data/geometry, backend, the chart-wheel
+  visual language (next focus), final type/color palettes.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --ink:#2b2b29; --ink-soft:#5c5a54; --ink-faint:#8a877f;
+    --line:#e2ded5; --line-soft:#eeeae1; --paper:#f7f5ef;
+    --panel:#fffefb; --accent:#5b6b63; --accent-2:#8a6f52;
+    --app:#3f6f5a;   /* applying orb */
+    --sep:#9a7b53;   /* separating orb */
+    --radius:6px;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15px; line-height:1.45; }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 24px 60px; }
+
+  /* header */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:16px 0; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .brand { font-size:15px; font-weight:600; flex:0 0 auto; }
+  .mainmenu { display:flex; gap:4px; flex:1 1 auto; justify-content:center; flex-wrap:wrap; }
+  .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 10px; border-radius:var(--radius); }
+  .mainmenu a:hover { background:var(--line-soft); }
+  .account { position:relative; flex:0 0 auto; }
+  .account-btn { display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-soft);
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:7px 12px; cursor:pointer; }
+  .account-btn .chev { color:var(--ink-faint); font-size:11px; }
+  .account .menu { position:absolute; right:0; top:calc(100% + 6px); min-width:180px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:6px; display:none; z-index:20; }
+  .account.open .menu { display:block; }
+  .account .menu a { display:block; font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:7px 10px; border-radius:var(--radius); }
+  .account .menu a:hover { background:var(--line-soft); }
+
+  button,.btn { font:inherit; font-size:13px; color:var(--ink-soft); background:var(--panel);
+    border:1px solid var(--line); border-radius:var(--radius); padding:6px 10px; cursor:pointer; }
+  button:hover,.btn:hover { border-color:var(--ink-faint); }
+
+  /* pill chips */
+  .chips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .chip { font-size:11.5px; border:1px solid var(--line); border-radius:14px; padding:3px 12px;
+    background:var(--panel); color:var(--ink-soft); cursor:pointer; }
+  .chip.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .view-pills { margin-bottom:18px; }
+  .view-pills .chip { font-size:13px; padding:6px 18px; }
+
+  /* charts */
+  .charts { display:grid; gap:26px; align-items:start; }
+  .charts.single { grid-template-columns:1fr; max-width:780px; }
+  .charts.sxs { grid-template-columns:1fr 1fr; }
+  @media (max-width:820px){ .charts.sxs{ grid-template-columns:1fr; } }
+
+  /* plate */
+  .wheel-block { position:relative; margin-bottom:14px; }
+  .plate { position:absolute; top:0; left:0; z-index:2; font-size:12px; line-height:1.4; max-width:55%; }
+  .plate .name-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; flex-wrap:wrap; }
+  .profile-select { font-size:15px; font-weight:600; color:var(--ink);
+    background:transparent; border:none; padding:0; cursor:pointer; display:flex; align-items:center; gap:6px; }
+  .profile-select .chev { font-size:11px; color:var(--ink-faint); }
+  .mini { font-size:11px; padding:2px 8px; }
+  .plate .primary { color:var(--ink); }
+  .plate .sub { color:var(--ink-faint); }
+  .plate .gap { height:6px; }
+  .reloc-block { margin-top:8px; padding-top:7px; border-top:1px solid var(--line-soft); }
+  .reloc-block .reloc { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); }
+  .city-carousel { display:flex; align-items:center; gap:6px; margin:1px 0; }
+  .city-carousel .big { font-size:14px; font-weight:600; color:var(--ink); }
+
+  .wheel { position:relative; width:100%; max-width:280px; aspect-ratio:1/1; margin:0 auto;
+    border-radius:50%; background:var(--panel); border:1px solid var(--line); }
+  .wheel::before,.wheel::after { content:""; position:absolute; border-radius:50%; border:1px solid var(--line-soft); }
+  .wheel::before { inset:14%; } .wheel::after { inset:30%; }
+  .wheel .hub { position:absolute; inset:44%; border-radius:50%; border:1px solid var(--line); background:var(--paper); }
+  .wheel .spokes { position:absolute; inset:0; border-radius:50%;
+    background:linear-gradient(to right,transparent calc(50% - .5px),var(--line-soft) 50%,transparent calc(50% + .5px)),
+               linear-gradient(to bottom,transparent calc(50% - .5px),var(--line-soft) 50%,transparent calc(50% + .5px)); }
+
+  /* reference row */
+  .ref-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  .table-card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .table-card h3 { font-size:12px; font-weight:600; margin:0; padding:7px 12px;
+    border-bottom:1px solid var(--line-soft); background:#fbfaf5; }
+  .subhead { font-size:11px; font-weight:600; color:var(--ink-soft); padding:5px 12px;
+    background:#fbfaf5; border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+  table { width:100%; border-collapse:collapse; }
+  .rt th,.rt td { text-align:left; padding:2px 12px; font-size:12.5px; line-height:1.4; }
+  .rt th { font-weight:500; color:var(--ink-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding-top:5px; padding-bottom:4px; }
+  .rt td .glyph { color:var(--accent-2); margin-right:5px; display:inline-block; min-width:13px; }
+  .rt td.angle-name { color:var(--ink-soft); font-weight:600; }
+  .rt td .dim { color:var(--ink-faint); }
+  .rt .asp { color:var(--ink); }
+  .rt .orb { font-size:11px; margin-left:4px; }
+  .rt .orb.app { color:var(--app); }
+  .rt .orb.sep { color:var(--sep); }
+
+  .a2a-chips { padding:8px 12px; border-bottom:1px solid var(--line-soft); display:flex;
+    align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .leg { font-size:10.5px; color:var(--ink-faint); display:flex; align-items:center; gap:8px; }
+  .leg i { display:inline-block; width:9px; height:9px; border-radius:2px; vertical-align:middle; margin-right:3px; }
+  .leg i.app { background:var(--app); } .leg i.sep { background:var(--sep); }
+
+  /* lower section: side by side, Favorites dominant */
+  .lower { margin-top:30px; padding-top:22px; border-top:1px solid var(--line);
+    display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:22px; align-items:start; }
+  @media (max-width:820px){ .lower{ grid-template-columns:1fr; } }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; }
+  .panel h3 { font-size:13px; font-weight:600; margin:0 0 12px; }
+  .compare-btn { margin-bottom:8px; opacity:.5; pointer-events:none; }
+  .compare-btn.active { opacity:1; pointer-events:auto; background:var(--accent); color:#fff; border-color:var(--accent); }
+  .fav { list-style:none; margin:0; padding:0; }
+  .fav li { display:flex; align-items:center; gap:10px; padding:6px 0; border-top:1px solid var(--line-soft); }
+  .fav li:first-child { border-top:none; }
+  .fav input[type=checkbox] { width:15px; height:15px; flex:0 0 auto; }
+  .fav .star { color:var(--ink-faint); cursor:pointer; font-size:15px; user-select:none; flex:0 0 auto; }
+  .fav .star.on { color:var(--accent-2); }
+  .fav .city { flex:1 1 auto; display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+    padding:4px 10px; margin:-4px -10px; border-radius:6px;
+    transition:background .15s ease, box-shadow .15s ease, color .15s ease; }
+  .fav .city .name { font-size:13.5px; color:var(--ink); }
+  .fav .city .go { color:var(--ink-faint); font-size:14px; margin-left:auto; }
+  .fav .city:hover { background:#eef1ec; box-shadow:0 0 0 1px var(--line-soft), 0 1px 3px rgba(91,107,99,.12); }
+  .fav .city:hover .name,.fav .city:hover .go { color:var(--accent); }
+
+  .list { list-style:none; margin:0; padding:0; }
+  .list li { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px solid var(--line-soft); font-size:13px; }
+  .list li:first-child { border-top:none; }
+  .list .meta { font-size:11.5px; color:var(--ink-faint); white-space:nowrap; }
+  .notes-link { font-size:11px; color:var(--ink-faint); text-decoration:none; border-bottom:1px dotted var(--line); margin-left:8px; }
+  .notes-link:hover { color:var(--ink-soft); }
+
+  /* modal */
+  .modal-back { position:fixed; inset:0; background:rgba(40,38,34,.32); display:none; align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .modal-back.open { display:flex; }
+  .modal { background:var(--panel); border:1px solid var(--line); border-radius:8px; max-width:560px; width:100%; max-height:86vh; overflow:auto; padding:20px; }
+  .modal h2 { font-size:16px; margin:0 0 12px; }
+  .modal .close { float:right; }
+  .modal textarea { width:100%; min-height:120px; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); padding:10px; font:inherit; font-size:13.5px; resize:vertical; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <nav class="mainmenu">
+      <a href="#">View Map</a><a href="#">Profile</a><a href="#">Comparison</a>
+      <a href="#">Transit Lab</a><a href="#">Store</a><a href="#">Help</a><a href="#">Settings</a>
+    </nav>
+    <div class="account" id="account">
+      <button class="account-btn" id="accountBtn">David Goodman <span class="chev">▾</span></button>
+      <div class="menu"><a href="#">Account</a><a href="#">Billing</a><a href="#">Sign out</a></div>
+    </div>
+  </header>
+
+  <div class="chips view-pills" id="viewPills">
+    <button class="chip on" data-view="natal">Natal</button>
+    <button class="chip" data-view="current">Current Location</button>
+    <button class="chip" data-view="comparison">Comparison</button>
+  </div>
+
+  <div class="charts single" id="charts"></div>
+
+  <div class="lower" id="lower"></div>
+</div>
+
+<div class="modal-back" id="modalBack"><div class="modal" id="modal"></div></div>
+
+<script>
+  (function(){
+    var acct=document.getElementById('account'), btn=document.getElementById('accountBtn');
+    btn.addEventListener('click',function(e){e.stopPropagation();acct.classList.toggle('open');});
+    document.addEventListener('click',function(){acct.classList.remove('open');});
+  })();
+
+  var BODIES=[
+    {g:"\u2609",n:"Sun"},{g:"\u263D",n:"Moon"},{g:"\u263F",n:"Mercury"},{g:"\u2640",n:"Venus"},
+    {g:"\u2642",n:"Mars"},{g:"\u2643",n:"Jupiter"},{g:"\u2644",n:"Saturn"},{g:"\u2645",n:"Uranus"},
+    {g:"\u2646",n:"Neptune"},{g:"\u2647",n:"Pluto"},{g:"\u26B7",n:"Chiron"}
+  ];
+  var ASPECT_BODIES=BODIES.concat([{g:"",n:"ASC"},{g:"",n:"MC"}]);
+  function pc(b){ return '<td>'+(b.g?'<span class="glyph">'+b.g+'</span>':'<span class="glyph"></span>')+b.n+'</td>'; }
+
+  var NATAL_PROFILE={name:"Avery Rhodes",birthDate:"14 March 1989",birthTime:"07:42",utcTime:"07:42",
+    offset:"+00:00",birthPlace:"Lisbon, Portugal",lat:"38.7223\u00B0 N",lon:"9.1393\u00B0 W",
+    zodiac:"Tropical",houses:"Placidus"};
+
+  function plateFull(p,reloc){
+    var r='';
+    if(reloc){
+      r='<div class="reloc-block"><div class="reloc">Relocated</div>'+
+        '<div class="city-carousel">'+
+          '<button class="navb mini" data-act="cityprev">‹</button>'+
+          '<span class="big">'+reloc.place+'</span>'+
+          '<button class="navb mini" data-act="citynext">›</button>'+
+        '</div>'+
+        '<div class="sub">'+reloc.lat+', '+reloc.lon+'</div>'+
+        '<div class="sub">'+(reloc.idx+1)+' of '+reloc.total+'</div></div>';
+    }
+    return '<div class="plate">'+
+      '<div class="name-row">'+
+        '<button class="profile-select">'+p.name+' <span class="chev">▾</span></button>'+
+        '<button class="mini">Edit</button><button class="mini">Add</button>'+
+      '</div>'+
+      '<div class="primary">'+p.birthDate+'</div>'+
+      '<div class="primary">'+p.birthTime+'</div>'+
+      '<div class="primary">'+p.birthPlace+'</div>'+
+      '<div class="gap"></div>'+
+      '<div class="sub">UTC '+p.utcTime+' · '+p.offset+'</div>'+
+      '<div class="sub">'+p.lat+', '+p.lon+'</div>'+
+      '<div class="sub">'+p.zodiac+' · '+p.houses+'</div>'+ r +
+      '</div>';
+  }
+  function plateRelocShort(c,idx,total){
+    return '<div class="plate">'+
+      '<div class="reloc-block" style="margin-top:0;border-top:none;padding-top:0">'+
+        '<div class="reloc">Relocated</div>'+
+        '<div class="city-carousel">'+
+          '<button class="navb mini" data-act="cityprev">‹</button>'+
+          '<span class="big">'+c.place+'</span>'+
+          '<button class="navb mini" data-act="citynext">›</button>'+
+        '</div>'+
+        '<div class="sub">'+c.lat+', '+c.lon+'</div>'+
+        '<div class="sub">'+(idx+1)+' of '+total+'</div>'+
+      '</div></div>';
+  }
+
+  function pihCard(houses,angles){
+    var planets=BODIES.map(function(b,i){ return '<tr>'+pc(b)+'<td>'+houses[i]+'</td></tr>'; }).join('');
+    var angRows=angles.map(function(a){ return '<tr><td class="angle-name">'+a.angle+'</td><td>'+a.position+'</td></tr>'; }).join('');
+    return '<div class="table-card">'+
+      '<h3>Planet in House</h3>'+
+      '<table class="rt"><thead><tr><th>Planet</th><th>House</th></tr></thead><tbody>'+planets+'</tbody></table>'+
+      '<div class="subhead">Angle in Sign</div>'+
+      '<table class="rt"><tbody>'+angRows+'</tbody></table>'+
+      '</div>';
+  }
+
+  // condensed 2-col aspect table: Planet | Aspect(+inline orb, A/S color)
+  function aspectTableCondensed(rows){
+    var body=ASPECT_BODIES.map(function(b,i){
+      var r=rows&&rows[i]?rows[i]:{};
+      var cell;
+      if(r.aspect){ cell='<span class="asp">'+r.aspect+'</span>'+
+        '<span class="orb '+(r.as==='A'?'app':'sep')+'">'+r.orb+'</span>'; }
+      else { cell='<span class="dim">·</span>'; }
+      return '<tr>'+pc(b)+'<td>'+cell+'</td></tr>';
+    }).join('');
+    return '<table class="rt"><tbody>'+body+'</tbody></table>';
+  }
+
+  var ORDER=['ASC','MC','DSC','IC'];
+  var selectedAngles={ASC:true,MC:true,DSC:false,IC:false};
+  var CHARTS={}, renderedKeys=[];
+
+  function a2aCard(key){
+    var chips=ORDER.map(function(a){
+      return '<button class="chip'+(selectedAngles[a]?' on':'')+'" data-act="angle" data-angle="'+a+'">'+a+'</button>';
+    }).join('');
+    var blocks=ORDER.filter(function(a){return selectedAngles[a];}).map(function(a){
+      return '<div class="subhead">'+a+'</div>'+aspectTableCondensed(CHARTS[key].aspects[a]);
+    }).join('');
+    if(!blocks) blocks='<div style="padding:12px;font-size:12px;color:#8a877f">Select an angle above.</div>';
+    return '<div class="table-card">'+
+      '<h3>Aspect to Angle</h3>'+
+      '<div class="a2a-chips"><div class="chips">'+chips+'</div>'+
+        '<span class="leg"><span><i class="app"></i>applying</span><span><i class="sep"></i>separating</span></span>'+
+      '</div>'+ blocks +'</div>';
+  }
+  function renderA2A(key){ var el=document.getElementById('a2awrap-'+key); if(el) el.innerHTML=a2aCard(key); }
+
+  function renderChart(elId,key,plateHtml,data){
+    CHARTS[key]=data; renderedKeys.push(key);
+    document.getElementById(elId).innerHTML=
+      '<div class="wheel-block">'+plateHtml+
+        '<div class="wheel"><div class="spokes"></div><div class="hub"></div></div>'+
+      '</div>'+
+      '<div class="ref-row">'+pihCard(data.houses,data.angles)+
+        '<div id="a2awrap-'+key+'"></div></div>';
+    renderA2A(key);
+  }
+
+  // ---- data ----
+  var natalAspects={
+    ASC:[{},{aspect:"Square",orb:"3\u00B0 08'",as:"A"},{},{},{aspect:"Conjunct",orb:"0\u00B0 41'",as:"S"},{},{},{},{},{},{},{},{aspect:"Square",orb:"1\u00B0 10'",as:"A"}],
+    MC:[{aspect:"Conjunct",orb:"2\u00B0 38'",as:"A"},{},{},{aspect:"Trine",orb:"1\u00B0 12'",as:"S"},{},{},{},{},{},{},{},{aspect:"Square",orb:"1\u00B0 10'",as:"S"},{}],
+    DSC:[{},{},{},{},{aspect:"Opposition",orb:"0\u00B0 41'",as:"A"},{},{},{},{},{},{}],
+    IC:[{aspect:"Opposition",orb:"2\u00B0 38'",as:"S"},{},{},{},{},{},{aspect:"Square",orb:"4\u00B0 02'",as:"A"},{},{},{},{}]
+  };
+  var NATAL={houses:["10th","4th","9th","11th","1st","7th","5th","8th","6th","5th","12th"],
+    angles:[{angle:"ASC",position:"11\u00B0 Taurus 04'"},{angle:"MC",position:"26\u00B0 Capricorn 19'"},
+            {angle:"DSC",position:"11\u00B0 Scorpio 04'"},{angle:"IC",position:"26\u00B0 Cancer 19'"}],
+    aspects:natalAspects};
+
+  var CITY_DATA=[
+    { place:"Austin, TX USA", lat:"30.2672\u00B0 N", lon:"97.7431\u00B0 W",
+      houses:["7th","1st","6th","8th","10th","4th","2nd","5th","3rd","2nd","9th"],
+      angles:[{angle:"ASC",position:"02\u00B0 Leo 18'"},{angle:"MC",position:"19\u00B0 Aries 47'"},
+              {angle:"DSC",position:"02\u00B0 Aquarius 18'"},{angle:"IC",position:"19\u00B0 Libra 47'"}],
+      aspects:{
+        ASC:[{aspect:"Trine",orb:"1\u00B0 55'",as:"A"},{},{},{},{},{},{},{},{},{},{},{},{aspect:"Sextile",orb:"2\u00B0 02'",as:"S"}],
+        MC:[{},{aspect:"Sextile",orb:"2\u00B0 10'",as:"S"},{},{},{},{aspect:"Conjunct",orb:"0\u00B0 33'",as:"A"},{},{},{},{},{},{aspect:"Sextile",orb:"2\u00B0 02'",as:"A"},{}],
+        DSC:[{},{},{aspect:"Square",orb:"3\u00B0 41'",as:"A"},{},{},{},{},{},{},{},{}],
+        IC:[{},{},{},{},{},{},{},{},{aspect:"Trine",orb:"2\u00B0 04'",as:"S"},{},{}]
+      } },
+    { place:"Lisbon, Portugal", lat:"38.7223\u00B0 N", lon:"9.1393\u00B0 W",
+      houses:NATAL.houses, angles:NATAL.angles, aspects:natalAspects },
+    { place:"Tokyo, Japan", lat:"35.6762\u00B0 N", lon:"139.6503\u00B0 E",
+      houses:["5th","11th","4th","6th","8th","2nd","12th","3rd","1st","12th","7th"],
+      angles:[{angle:"ASC",position:"28\u00B0 Sagittarius 12'"},{angle:"MC",position:"14\u00B0 Scorpio 39'"},
+              {angle:"DSC",position:"28\u00B0 Gemini 12'"},{angle:"IC",position:"14\u00B0 Taurus 39'"}],
+      aspects:{
+        ASC:[{},{},{aspect:"Conjunct",orb:"1\u00B0 22'",as:"A"},{},{},{},{},{},{},{},{},{},{aspect:"Trine",orb:"3\u00B0 05'",as:"S"}],
+        MC:[{aspect:"Square",orb:"2\u00B0 18'",as:"A"},{},{},{},{},{},{aspect:"Sextile",orb:"1\u00B0 44'",as:"S"},{},{},{},{}],
+        DSC:[{},{},{},{},{aspect:"Trine",orb:"2\u00B0 51'",as:"A"},{},{},{},{},{},{}],
+        IC:[{},{aspect:"Opposition",orb:"0\u00B0 58'",as:"S"},{},{},{},{},{},{},{},{},{}]
+      } }
+  ];
+  var relocIndex=0, mainView='natal';
+
+  function renderApp(){
+    var charts=document.getElementById('charts'); renderedKeys=[];
+    if(mainView==='natal'){
+      charts.className='charts single';
+      charts.innerHTML='<section id="chart-natal"></section>';
+      renderChart('chart-natal','natal',plateFull(NATAL_PROFILE),NATAL);
+    } else if(mainView==='current'){
+      charts.className='charts single';
+      charts.innerHTML='<section id="chart-reloc"></section>';
+      var c=CITY_DATA[relocIndex];
+      renderChart('chart-reloc','reloc',
+        plateFull(NATAL_PROFILE,{place:c.place,lat:c.lat,lon:c.lon,idx:relocIndex,total:CITY_DATA.length}),
+        {houses:c.houses,angles:c.angles,aspects:c.aspects});
+    } else {
+      charts.className='charts sxs';
+      charts.innerHTML='<section id="chart-natal"></section><section id="chart-reloc"></section>';
+      renderChart('chart-natal','natal',plateFull(NATAL_PROFILE),NATAL);
+      var c2=CITY_DATA[relocIndex];
+      renderChart('chart-reloc','reloc',plateRelocShort(c2,relocIndex,CITY_DATA.length),
+        {houses:c2.houses,angles:c2.angles,aspects:c2.aspects});
+    }
+  }
+  renderApp();
+
+  // view pills
+  document.getElementById('viewPills').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on');
+    mainView=b.dataset.view; renderApp();
+  });
+
+  // delegated: city carousel + angle chips
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b) return;
+    var act=b.getAttribute('data-act');
+    if(act==='cityprev'){ relocIndex=(relocIndex+CITY_DATA.length-1)%CITY_DATA.length; renderApp(); return; }
+    if(act==='citynext'){ relocIndex=(relocIndex+1)%CITY_DATA.length; renderApp(); return; }
+    if(act==='angle'){ var a=b.getAttribute('data-angle'); selectedAngles[a]=!selectedAngles[a];
+      renderedKeys.slice().forEach(function(k){ renderA2A(k); }); return; }
+  });
+
+  // ---- lower section ----
+  var FAVORITES=[
+    {name:"Natal (Birth Chart)",fav:true},
+    {name:"Relocated (Austin, Texas, USA)",fav:true},
+    {name:"Lisbon, Portugal",fav:false},
+    {name:"Tokyo, Japan",fav:false}
+  ];
+  function favoritesPanel(){
+    var rows=FAVORITES.map(function(c,i){
+      return '<li>'+
+        '<input type="checkbox" class="fav-check" data-i="'+i+'"'+(i<2?' checked':'')+'>'+
+        '<span class="star'+(c.fav?' on':'')+'" data-i="'+i+'">\u2605</span>'+
+        '<span class="city" data-i="'+i+'"><span class="name">'+c.name+'</span><span class="go">›</span></span>'+
+        '</li>';
+    }).join('');
+    return '<section class="panel"><h3>Favorites</h3>'+
+      '<button class="compare-btn" id="compareBtn">Compare (0)</button>'+
+      '<ul class="fav">'+rows+'</ul></section>';
+  }
+  var COMPARISONS=[{t:"Lisbon vs. Austin",meta:"2 charts"},{t:"Lyon vs. Wellington vs. Lisbon",meta:"3 charts"}];
+  var SEARCHES=[{t:"Venus line within 200km of coast",meta:"Europe"},{t:"Strong MC relocations",meta:"Global"}];
+  function listPanel(title,items,kind){
+    var rows=items.map(function(it,i){
+      return '<li><span>'+it.t+'</span><span class="meta">'+it.meta+
+        ' <a href="#" class="notes-link" data-kind="'+kind+'" data-i="'+i+'">notes</a></span></li>';
+    }).join('');
+    return '<section class="panel"><h3>'+title+'</h3><ul class="list">'+rows+'</ul></section>';
+  }
+  document.getElementById('lower').innerHTML=
+    favoritesPanel()+listPanel('Saved Comparisons',COMPARISONS,'comparison')+listPanel('Saved Searches',SEARCHES,'search');
+
+  (function(){
+    var lower=document.getElementById('lower'), compareBtn=document.getElementById('compareBtn');
+    function refresh(){ var n=lower.querySelectorAll('.fav-check:checked').length;
+      compareBtn.textContent='Compare ('+n+')'; compareBtn.classList.toggle('active', n>=2 && n<=5); }
+    lower.addEventListener('change',function(e){ if(e.target.classList.contains('fav-check')) refresh(); });
+    lower.addEventListener('click',function(e){
+      var star=e.target.closest('.star'); if(star){ star.classList.toggle('on'); return; }
+      var city=e.target.closest('.city'); if(city){ openCityModal(FAVORITES[+city.getAttribute('data-i')]); return; }
+      var nl=e.target.closest('.notes-link'); if(nl){ e.preventDefault(); openNotesModal(nl.getAttribute('data-kind'),+nl.getAttribute('data-i')); }
+    });
+    refresh();
+  })();
+
+  // ---- modal ----
+  var modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal');
+  function openModal(html){ modal.innerHTML='<button class="close" onclick="closeModal()">Close</button>'+html; modalBack.classList.add('open'); }
+  function closeModal(){ modalBack.classList.remove('open'); }
+  modalBack.addEventListener('click',function(e){ if(e.target===modalBack) closeModal(); });
+  window.closeModal=closeModal;
+
+  function openCityModal(city){
+    var d=CITY_DATA[0];
+    var abridged='<div class="ref-row">'+pihCard(d.houses,d.angles)+
+      '<div class="table-card"><h3>Aspect to Angle</h3>'+
+        '<div class="subhead">ASC</div>'+aspectTableCondensed(d.aspects.ASC)+
+        '<div class="subhead">MC</div>'+aspectTableCondensed(d.aspects.MC)+
+      '</div></div>';
+    openModal('<h2>'+city.name+'</h2>'+abridged);
+  }
+  function openNotesModal(kind,i){
+    var src=kind==='comparison'?COMPARISONS:SEARCHES, title=src[i]?src[i].t:'Notes';
+    openModal('<h2>'+title+'</h2><p style="font-size:12.5px;color:#8a877f;margin:0 0 8px">Notes</p>'+
+      '<textarea placeholder="Leave a note about this '+kind+'…"></textarea>');
+  }
+</script>
+</body>
+</html>

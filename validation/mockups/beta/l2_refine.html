@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L2 refine - glow + quiet badges</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#2f323a;font-family:"Avenir Next",-apple-system,sans-serif;color:#222;padding:24px;
+ --ink:#172019;--soft:#566057;--faint:#98a49b;--line:#eaf0ea;--bd:#e1e9e2;
+ --natal:#e8b400;--current:#3b7fd3;--reloc:#42a85e;--compare:#e65a48;
+ --display:'Charter',Georgia,serif;--body:'Avenir Next',sans-serif}
+.intro{max-width:1180px;margin:0 auto 8px;color:#e7e6e9}.intro h1{font-size:19px;margin:0 0 6px}.intro p{font-size:12.5px;color:#bcbcc4;margin:0;max-width:900px}
+.sec{max-width:1180px;margin:26px auto 12px;color:#e7e6e9;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #4a4d56;padding-bottom:6px}
+.sec span{font-weight:400;text-transform:none;letter-spacing:0;color:#9a9ca8;font-size:11.5px;margin-left:8px}
+.row{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tag{font-family:var(--body);font-size:10.5px;color:#cfd2da;margin:0 0 6px}
+.card{border:1px solid var(--bd);border-radius:12px;padding:12px 13px;background:#fff}
+.card .mh{font-family:var(--display);font-weight:700;font-size:14px;text-align:center;color:var(--ink);margin-bottom:8px}
+.card .r{display:grid;grid-template-columns:1fr auto;padding:7px 5px;font-family:var(--body);font-size:12px;color:var(--ink);border-bottom:1px solid var(--line);margin:0 4px}
+.card .r:last-child{border-bottom:none}.card .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+/* glow styles, --c hue */
+.edge6{box-shadow:inset 0 0 24px -6px color-mix(in srgb,var(--c) 22%,transparent)}
+.edge10{box-shadow:inset 0 0 26px -4px color-mix(in srgb,var(--c) 34%,transparent)}
+.bloom6{background:radial-gradient(80% 70% at 50% 42%, color-mix(in srgb,var(--c) 12%,#fff), #fff 78%)}
+.bloom10{background:radial-gradient(80% 70% at 50% 42%, color-mix(in srgb,var(--c) 18%,#fff), #fff 80%)}
+/* quiet badge treatments */
+.bblock{max-width:1180px;margin:0 auto;background:#fff;border-radius:12px;padding:6px 18px}
+.bbrow{display:flex;align-items:center;gap:16px;padding:13px 0;border-bottom:1px solid #eef0f2}.bbrow:last-child{border-bottom:none}
+.bbname{width:250px;font-family:var(--body);font-size:12px;color:var(--soft)}.bbname b{color:var(--ink)}
+.bset{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+/* Q1 tint fill, title case, no bold blare */
+.q1 .b{font-family:var(--body);font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px}
+.q1 .nat{background:color-mix(in srgb,var(--natal) 18%,#fff);color:#7a5d00}
+.q1 .cur{background:color-mix(in srgb,var(--current) 15%,#fff);color:#255a9c}
+.q1 .rel{background:color-mix(in srgb,var(--reloc) 16%,#fff);color:#2c6e3f}
+.q1 .cmp{background:color-mix(in srgb,var(--compare) 15%,#fff);color:#a83b2c}
+/* Q2 dot + plain label */
+.q2 .b{font-family:var(--body);font-size:12px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.q2 .b i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.q2 .nat i{background:var(--natal)}.q2 .cur i{background:var(--current)}.q2 .rel i{background:var(--reloc)}.q2 .cmp i{background:var(--compare)}
+/* Q3 thin underline accent */
+.q3 .b{font-family:var(--body);font-size:12px;font-weight:600;color:var(--ink);padding-bottom:2px;border-bottom:2px solid}
+.q3 .nat{border-color:var(--natal)}.q3 .cur{border-color:var(--current)}.q3 .rel{border-color:var(--reloc)}.q3 .cmp{border-color:var(--compare)}
+/* Q4 colored text only, light tracked caps */
+.q4 .b{font-family:var(--body);font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.q4 .nat{color:#9a7400}.q4 .cur{color:#2f72d6}.q4 .rel{color:#338a4e}.q4 .cmp{color:#cf4836}
+/* Q5 soft outline, light weight */
+.q5 .b{font-family:var(--body);font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;border:1px solid}
+.q5 .nat{color:#8a6800;border-color:color-mix(in srgb,var(--natal) 55%,#fff)}
+.q5 .cur{color:#2f72d6;border-color:color-mix(in srgb,var(--current) 55%,#fff)}
+.q5 .rel{color:#338a4e;border-color:color-mix(in srgb,var(--reloc) 55%,#fff)}
+.q5 .cmp{color:#cf4836;border-color:color-mix(in srgb,var(--compare) 55%,#fff)}
+</style></head><body>
+<div class="intro"><h1>L2 refine - inner glow vs edge, and quiet badges</h1>
+<p>Working theme = L2 New Pastures (reservations noted). Top: the "wheel-style" inner glow (bloom from center, highlights some rows) next to the inner-edge, two intensities, shown in PiH blue. Bottom: badges reworked to be gentle orientation cues - no blaring caps-bold; they should read once, then recede.</p></div>
+
+<div class="sec">Glow - edge vs wheel-style bloom <span>PiH blue · pick style + intensity</span></div>
+<div class="tag" style="max-width:1180px;margin:0 auto 6px">left two = inner-edge (light gathers at border) · right two = inner bloom (light from center, the "risky"/nuanced one)</div>
+<div class="row">
+  <div><div class="tag">Edge · 6%</div><div class="card edge6" style="--c:#3b7fd3"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+  <div><div class="tag">Edge · 10%</div><div class="card edge10" style="--c:#3b7fd3"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+  <div><div class="tag">Bloom · 6% (wheel-style)</div><div class="card bloom6" style="--c:#3b7fd3"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+  <div><div class="tag">Bloom · 10% (wheel-style)</div><div class="card bloom10" style="--c:#3b7fd3"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+</div>
+
+<div class="sec">Quiet badges <span>gentle orientation, not alerts · title-case, no bold blare</span></div>
+<div class="bblock">
+  <div class="bbrow q1"><div class="bbname"><b>Q1 · Soft tint fill</b> — pale color bg, muted text</div><div class="bset"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+  <div class="bbrow q2"><div class="bbname"><b>Q2 · Dot + label</b> — color only in a small dot</div><div class="bset"><span class="b nat"><i></i>Natal</span><span class="b cur"><i></i>Current</span><span class="b rel"><i></i>Relocated</span><span class="b cmp"><i></i>Comparison</span></div></div>
+  <div class="bbrow q3"><div class="bbname"><b>Q3 · Underline accent</b> — text with a colored rule</div><div class="bset"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+  <div class="bbrow q4"><div class="bbname"><b>Q4 · Colored text, light caps</b> — no container</div><div class="bset"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+  <div class="bbrow q5"><div class="bbname"><b>Q5 · Soft outline</b> — thin pale border, light weight</div><div class="bset"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+</div>
+</body></html>

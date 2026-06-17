@@ -1,0 +1,128 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_39_structural_pressure_topology_asc.png",
+    "html": "validation/visual_targets/phase2_39_structural_pressure_topology.html",
+    "mc_png": "validation/visual_targets/phase2_39_structural_pressure_topology_mc.png",
+    "narrative": "validation/narratives/phase2_39_structural_pressure_topology.md",
+    "report": "validation/reports/phase2_39_structural_pressure_topology.json"
+  },
+  "diagnostics": {
+    "asc:carrier_only": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 152
+    },
+    "asc:compressed_contours": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 152
+    },
+    "asc:hybrid_topology": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 152
+    },
+    "asc:laminar_field": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 152
+    },
+    "asc:pressure_terraces": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 152
+    },
+    "mc:carrier_only": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 177
+    },
+    "mc:compressed_contours": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 177
+    },
+    "mc:hybrid_topology": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 177
+    },
+    "mc:laminar_field": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 177
+    },
+    "mc:pressure_terraces": {
+      "blur": false,
+      "degreeSubdivision": false,
+      "domain": "paired boundary correspondence from locked Phase 2.36f polylines",
+      "rasterField": false,
+      "stations": 177
+    }
+  },
+  "domain_model": "Uses paired boundary correspondence from the locked Phase 2.36f centerline, leftBoundary, and rightBoundary polylines. Each side is normalized from carrier u=0 to boundary u=1. Topology samples are over normalized side-domain, not degrees or half-degree rings.",
+  "generated_at_utc": "2026-05-25T20:59:16.678739+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f HTML DATA payload; centerline/leftBoundary/rightBoundary/polygon copied unchanged",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "staged": false,
+    "virga": false
+  },
+  "modes": [
+    "carrier_only",
+    "compressed_contours",
+    "pressure_terraces",
+    "laminar_field",
+    "hybrid_topology"
+  ],
+  "phase": "2.39",
+  "rendering_method": "SVG vector overlay. No raster ImageData field, no blur, no gaussian feather, no canvas composited wash. Semi-transparent vector strokes/polygons are used only as structural topology marks.",
+  "revision": "structural_pressure_topology_study_v1",
+  "scope": "validation-only visual language study",
+  "visual_assessment": {
+    "airbrush_fog_reduced": true,
+    "asc_read": "ASC benefits from paired boundary correspondence and vector topology; carrier reads more stable than the alpha-wash studies.",
+    "carrier_sovereignty_improved": true,
+    "dynamic_side_widths_visible": true,
+    "mc_read": "Compressed contour and hybrid modes read most topographic; terrace mode is useful but can become too graphic.",
+    "ready_for_visual_qa": true,
+    "recommended_next_pass": "Tune structural density and carrier/field contrast. Explore fewer, more intentional contour samples before any production discussion.",
+    "risks": [
+      "May overcorrect into diagrammatic contour-map language.",
+      "Visible structural marks may compete with map labels at smaller scales.",
+      "Terraces must not be mistaken for degree bands; report labels them visual topology samples only."
+    ],
+    "structural_organization_improved": true
+  },
+  "visual_thesis": "A pressure field may need organized topology: contour compression, terraces, vector strip organization, directional laminations, and density rhythm around an exact carrier ridge rather than a continuous alpha fog.",
+  "why_phase_238_insufficient": "Phase 2.38 replaced per-pixel raster pressure with boundary-parametric quads, but the visual transfer still used transparent blue area accumulation. It remained perceptually close to blur paint: dark carrier, soft wash, fade-out. The failure was structural organization, not banding."
+}

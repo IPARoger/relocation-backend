@@ -1,0 +1,371 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_36f_truth_dynamic_polygon_renderer_asc.png",
+    "html": "validation/visual_targets/phase2_36f_truth_dynamic_polygon_renderer.html",
+    "mc_png": "validation/visual_targets/phase2_36f_truth_dynamic_polygon_renderer_mc.png",
+    "narrative": "validation/narratives/phase2_36f_truth_dynamic_polygon_renderer.md",
+    "report": "validation/reports/phase2_36f_truth_dynamic_polygon_renderer.json"
+  },
+  "cases": {
+    "asc": {
+      "adjacent_houses": "12/1",
+      "condition": "Uranus conjunct ASC near Fairbanks",
+      "feature_collection": {
+        "features": [
+          {
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    -177.0671,
+                    35
+                  ],
+                  [
+                    -174.6648,
+                    40
+                  ],
+                  [
+                    -171.891,
+                    45
+                  ],
+                  [
+                    -168.5871,
+                    50
+                  ],
+                  [
+                    -164.497,
+                    55
+                  ],
+                  [
+                    -159.1699,
+                    60
+                  ],
+                  [
+                    -151.7088,
+                    65
+                  ],
+                  [
+                    -139.6755,
+                    65
+                  ],
+                  [
+                    -145.7753,
+                    60
+                  ],
+                  [
+                    -150.176,
+                    55
+                  ],
+                  [
+                    -153.55,
+                    50
+                  ],
+                  [
+                    -156.26,
+                    45
+                  ],
+                  [
+                    -158.5184,
+                    40
+                  ],
+                  [
+                    -160.4582,
+                    35
+                  ],
+                  [
+                    -177.0671,
+                    35
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            },
+            "properties": {
+              "condition_index": 0,
+              "dynamic_width_polygon": true,
+              "kind": "asc",
+              "phase": "2.36f"
+            },
+            "type": "Feature"
+          }
+        ],
+        "type": "FeatureCollection"
+      },
+      "samples": [
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 23.809,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 28.917,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 7.143,
+          "effective_right_width_deg": 8.675,
+          "lat": 35,
+          "lon": -169.5672
+        },
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 22.491,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 28.768,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 6.747,
+          "effective_right_width_deg": 8.63,
+          "lat": 40,
+          "lon": -167.5802
+        },
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 21.051,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 28.571,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 6.315,
+          "effective_right_width_deg": 8.571,
+          "lat": 45,
+          "lon": -165.2599
+        },
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 19.442,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 28.295,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 5.833,
+          "effective_right_width_deg": 8.489,
+          "lat": 50,
+          "lon": -162.4629
+        },
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 17.592,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 27.872,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 5.278,
+          "effective_right_width_deg": 8.361,
+          "lat": 55,
+          "lon": -158.9555
+        },
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 15.388,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 27.135,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 4.616,
+          "effective_right_width_deg": 8.14,
+          "lat": 60,
+          "lon": -154.3226
+        },
+        {
+          "adjacent_left_house": "12",
+          "adjacent_left_span_deg": 12.63,
+          "adjacent_right_house": "1",
+          "adjacent_right_span_deg": 25.571,
+          "angle_deg": 216.7717,
+          "effective_left_width_deg": 3.789,
+          "effective_right_width_deg": 7.671,
+          "lat": 65,
+          "lon": -147.7304
+        }
+      ]
+    },
+    "mc": {
+      "adjacent_houses": "9/10",
+      "condition": "Moon square MC",
+      "feature_collection": {
+        "features": [
+          {
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    24.3965,
+                    0
+                  ],
+                  [
+                    25.5823,
+                    10
+                  ],
+                  [
+                    25.9406,
+                    20
+                  ],
+                  [
+                    26.3373,
+                    30
+                  ],
+                  [
+                    26.8102,
+                    40
+                  ],
+                  [
+                    27.4268,
+                    50
+                  ],
+                  [
+                    28.3338,
+                    60
+                  ],
+                  [
+                    29.0008,
+                    65
+                  ],
+                  [
+                    45.3965,
+                    65
+                  ],
+                  [
+                    45.3965,
+                    60
+                  ],
+                  [
+                    45.3965,
+                    50
+                  ],
+                  [
+                    45.3965,
+                    40
+                  ],
+                  [
+                    45.3965,
+                    30
+                  ],
+                  [
+                    45.3965,
+                    20
+                  ],
+                  [
+                    45.3965,
+                    10
+                  ],
+                  [
+                    45.3965,
+                    0
+                  ],
+                  [
+                    24.3965,
+                    0
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            },
+            "properties": {
+              "condition_index": 0,
+              "dynamic_width_polygon": true,
+              "kind": "mc",
+              "phase": "2.36f"
+            },
+            "type": "Feature"
+          }
+        ],
+        "type": "FeatureCollection"
+      },
+      "samples": [
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 30.667,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 32.494,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 10,
+          "effective_right_width_deg": 10,
+          "lat": 0,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 29.569,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 32.742,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 8.871,
+          "effective_right_width_deg": 10,
+          "lat": 10,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 28.431,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 33.021,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 8.529,
+          "effective_right_width_deg": 10,
+          "lat": 20,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 27.172,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 33.358,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 8.152,
+          "effective_right_width_deg": 10,
+          "lat": 30,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 25.671,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 33.802,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 7.701,
+          "effective_right_width_deg": 10,
+          "lat": 40,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 23.713,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 34.466,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 7.114,
+          "effective_right_width_deg": 10,
+          "lat": 50,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 20.834,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 35.66,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 6.25,
+          "effective_right_width_deg": 10,
+          "lat": 60,
+          "lon": 34.8965
+        },
+        {
+          "adjacent_left_house": "9",
+          "adjacent_left_span_deg": 18.716,
+          "adjacent_right_house": "10",
+          "adjacent_right_span_deg": 36.76,
+          "angle_deg": 337.068,
+          "effective_left_width_deg": 5.615,
+          "effective_right_width_deg": 10,
+          "lat": 65,
+          "lon": 34.8965
+        }
+      ]
+    }
+  },
+  "constant_asymmetry": false,
+  "description": "Truth-derived dynamic side-cap polygon renderer validation",
+  "dynamic_widths_observed": true,
+  "generated_at_utc": "2026-05-25T18:02:03.657270+00:00",
+  "geometry_source": "Sampled real centerline branches; side widths computed from Swiss Ephemeris Placidus adjacent house spans using min(10, 0.30 * adjacent_span when adjacent_span < 30 else 10).",
+  "limitations": [
+    "Local boundary offsets are validation geometry, not final geodesic production rendering.",
+    "No gradient, aura color, rain, virga, animation, cache, scheduler, or production integration."
+  ],
+  "phase": "2.36f",
+  "production_code_touched": false,
+  "render_pipeline": "Generated GeoJSON FeatureCollection polygons rendered via Leaflet L.geoJSON with smoothFactor 0, mirroring the actual overlay polygon substrate pattern without touching production.",
+  "validation_artifact_only": true
+}

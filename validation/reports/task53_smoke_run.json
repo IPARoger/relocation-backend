@@ -1,0 +1,512 @@
+{"started":"2026-06-17T16:06:36Z","pre_health":"{"status":"ok"}","scripts":[
+{"name":"smoke_account_store_read.py","result":"PASS","exit_code":0,"duration_s":2,"tail":"PASS: health_200 — status=200
+PASS: account_store_410 — {\"error\": \"Gone\", \"reason\": \"legacy read path retired\"}
+PASS: account_store_auth_410 — {\"error\": \"Gone\", \"reason\": \"legacy read path retired\"}
+PASS: smoke_account_store_read
+"}
+,
+{"name":"smoke_app_shell_context_transport.py","result":"FAIL","exit_code":1,"duration_s":16,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.
+"}
+,
+{"name":"smoke_app_shell_map_handoff.py","result":"FAIL","exit_code":1,"duration_s":16,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.
+"}
+,
+{"name":"smoke_app_shell_store_read.py","result":"PASS","exit_code":0,"duration_s":3,"tail":"PASS: store_json_410_quarantine — {\"error\": \"Gone\", \"reason\": \"legacy read path retired\"}
+PASS: chart_records_api_200 — status=200
+PASS: chart_records_three — count=3
+PASS: map_current_200 — status=200
+PASS: no_writes_exercised — GET only
+PASS: shell_loads_store_view_model — skipped — Supabase smoke credentials not configured
+PASS: rm_app_shell_zero_disables — shell=404 store=410
+PASS: smoke_app_shell_store_read
+"}
+,
+{"name":"smoke_chart_record_birth_bridge.py","result":"FAIL","exit_code":1,"duration_s":16,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.
+"}
+,
+{"name":"smoke_chart_record_library_read.py","result":"FAIL","exit_code":1,"duration_s":16,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.
+"}
+,
+{"name":"smoke_comparison_sets.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_current_location_backend.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/scripts/smoke_current_location_backend.py\", line 278, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/scripts/smoke_current_location_backend.py\", line 140, in main
+    os.environ[\"SUPABASE_URL\"], os.environ[\"SUPABASE_SERVICE_ROLE_KEY\"]
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File \"<frozen os>\", line 679, in __getitem__
+KeyError: 'SUPABASE_URL'
+"}
+,
+{"name":"smoke_current_location_frontend.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_favorites.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_genie_handoff_transport_v2.py","result":"FAIL","exit_code":1,"duration_s":16,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.
+"}
+,
+{"name":"smoke_genie_map_engine.py","result":"FAIL","exit_code":1,"duration_s":32,"tail":"    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.select_option: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator(\"#chartProfile\")
+
+"}
+,
+{"name":"smoke_genie_product_integration_slice1.py","result":"FAIL","exit_code":1,"duration_s":15,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 15000ms exceeded.
+"}
+,
+{"name":"smoke_genie_sandbox.py","result":"PASS","exit_code":0,"duration_s":2,"tail":"PASS: layer_controls — {\"layerControls\": {\"mutedVariableIds\": [\"var-1\"], \"soloVariableId\": \"var-1\", \"excludeVariableIds\": [\"var-1\"]}, \"polarity\": \"exclude\"}
+PASS: registry_toggle_bodies — north_node enabled
+PASS: transit_off_by_default — True
+PASS: legacy_degradation_four_houses — {\"house_conditions\": 3, \"unmapped\": [\"var-4\"], \"warnings\": 1}
+PASS: legacy_degradation_two_aspects — {\"aspect_overlay\": \"var-1\", \"unmapped\": [\"var-2\"]}
+PASS: max_twelve_variables — 12
+PASS: no_search_backend — none
+PASS: smoke_genie_sandbox
+"}
+,
+{"name":"smoke_legacy_writes_deprecated.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"PASS: PATCH /note/00000000-0000-4000-8000-000000000001 — replacement='/notes/chart-record'
+PASS: POST /note/00000000-0000-4000-8000-000000000001/archive — replacement='/notes/chart-record'
+PASS: POST /user-settings — replacement='/settings/account'
+PASS: PATCH /user-settings/00000000-0000-4000-8000-000000000001 — replacement='/settings/account'
+PASS: POST /share-links — replacement=None
+PASS: POST /share-link/00000000-0000-4000-8000-000000000001/revoke — replacement=None
+Summary: 25/25 deprecated routes return 410
+PASS: smoke_legacy_writes_deprecated
+"}
+,
+{"name":"smoke_library_handoff.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY for browser smokes
+"}
+,
+{"name":"smoke_library_scaffold.py","result":"PASS","exit_code":0,"duration_s":5,"tail":"            \"experimental_mode_enabled\": true
+          }
+        }
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_local_product_store.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"PASS: smoke_local_product_store
+  round-trip: client + investigation + favorite + comparison + history
+  settings_snapshot: persisted
+  default_chart_record_id: persisted
+  one birth_profile per client: enforced
+  forbidden keys: rejected
+  committed scaffold: 3 Chart Records + shell ID parity
+"}
+,
+{"name":"smoke_map_current.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY for browser smokes
+"}
+,
+{"name":"smoke_map_current_aura_debug.py","result":"FAIL","exit_code":1,"duration_s":3,"tail":"    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.Error: Page.wait_for_function: TypeError: Cannot read properties of null (reading 'disabled')
+    at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:4:24)
+    at predicate (eval at evaluate (:302:30), <anonymous>:13:29)
+    at next (eval at evaluate (:302:30), <anonymous>:29:33)
+    at eval (eval at evaluate (:302:30), <anonymous>:42:13)
+    at UtilityScript.evaluate (<anonymous>:304:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+"}
+,
+{"name":"smoke_map_saved_investigation_note.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_notes_backend.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/scripts/smoke_notes_backend.py\", line 267, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/scripts/smoke_notes_backend.py\", line 121, in main
+    os.environ[\"SUPABASE_URL\"], os.environ[\"SUPABASE_SERVICE_ROLE_KEY\"]
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File \"<frozen os>\", line 679, in __getitem__
+KeyError: 'SUPABASE_URL'
+"}
+,
+{"name":"smoke_notes_frontend.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_phase2_10_observer_contract.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"hydration_visibility\": true,
+        \"read_only_no_control\": true,
+        \"no_renderer_map_persistence_coupling\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_11_execution_policy_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"pollution_stripped\": true,
+        \"priority_hints_opaque_no_astrology\": true,
+        \"no_runtime_coupling\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_12_runtime_bridge_dev.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"no_dom_map_writes\": true,
+        \"renderer_substrate_legacy\": true,
+        \"pollution_stripped\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_13_execution_runtime_dev.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"no_dom_map_writes\": true,
+        \"single_request_reversible\": true,
+        \"pollution_stripped\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_14_fetch_bridge_dev.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"renderer_substrate_legacy\": true,
+        \"single_request_reversible\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_15_renderer_hydration_sandbox.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"only_sandbox_dom_mutates\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_16_multi_overlay_sandbox.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"raw_payload_rejected\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_17_viewport_hydration_sandbox.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"raw_payload_rejected\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_18_progressive_refinement_sandbox.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"raw_payload_rejected\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_19_adaptive_density_sandbox.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"density_truth_semantics_honest\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_20_ambiguity_domain_sandbox.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"ambiguity_truth_semantics_honest\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_21_implication_field_sandbox.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"adjacent_candidate_truth_semantics_honest\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_22_emergence_field_sandbox.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"aggregate_candidate_truth_semantics_honest\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_23_cross_domain_continuity_sandbox.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"        \"cross_candidate_group_truth_semantics_honest\": true,
+        \"no_fetch_occurs\": true,
+        \"raw_payload_not_exposed\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_24_production_readiness_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"no_fetch_worker_dom_map_renderer_persistence_or_backend_coupling\": true,
+        \"no_raw_payload_echoed_from_accepted_profile\": true,
+        \"contract_is_classification_only\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_25_production_shadow_adapter_dev.py","result":"PASS","exit_code":0,"duration_s":1,"tail":"    \"output_metadata_only_and_sanitized\": true,
+    \"raw_payload_exposure_fails\": true,
+    \"recommendation_logic_fails\": true,
+    \"renderer_ownership_mutation_fails\": true,
+    \"stale_hydration_fails\": true,
+    \"symbolic_scoring_fails\": true
+  }
+}
+"}
+,
+{"name":"smoke_phase2_26_real_map_shadow_adapter.py","result":"FAIL","exit_code":1,"duration_s":33,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_27_real_map_shadow_self_check.py","result":"FAIL","exit_code":1,"duration_s":33,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_28_in_page_readiness_evaluation.py","result":"FAIL","exit_code":1,"duration_s":32,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_29_visible_readiness_indicator.py","result":"FAIL","exit_code":1,"duration_s":33,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_30_dev_overlay_container.py","result":"FAIL","exit_code":1,"duration_s":32,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_31_renderer_adjacent_metadata.py","result":"FAIL","exit_code":1,"duration_s":32,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_32_dev_renderer_integration.py","result":"FAIL","exit_code":1,"duration_s":32,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_33_isolated_debug_test_layer.py","result":"FAIL","exit_code":1,"duration_s":33,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+"}
+,
+{"name":"smoke_phase2_4_cache_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"          \"lat_cap\": true
+        },
+        \"base_key\": \"rm:v1:7f53ebfa\"
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_5_scheduler_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"            \"deprioritized\": true
+          }
+        ]
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_6_cache_store_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"works_with_sampling_cache_contract_output\": true,
+        \"accepts_scheduler_descriptor_cache_key\": true,
+        \"inspect_sanitized\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_7_orchestration_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"hydration_strips_runtime_pollution\": true,
+        \"observer_progress_read_only_and_non_controlling\": true,
+        \"no_fetch_worker_dom_map_renderer_persistence_fields\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_8_mock_runtime_harness.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"runtime_pollution_stripped\": true,
+        \"no_renderer_output_hydration\": true,
+        \"no_fetch_worker_renderer_map_persistence_fields\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_9_execution_bridge_contract.py","result":"PASS","exit_code":0,"duration_s":0,"tail":"        \"observer_metadata_sanitized_read_only\": true,
+        \"runtime_pollution_stripped\": true,
+        \"no_runtime_map_persistence_coupling\": true
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_phase2_cache.py","result":"PASS","exit_code":0,"duration_s":2,"tail":"      \"detail\": {
+        \"background_completed\": 0,
+        \"cache_keys\": 1
+      }
+    }
+  ],
+  \"all_pass\": true
+}
+"}
+,
+{"name":"smoke_place_resolution.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_profile_create.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_profile_rename_archive.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_saved_investigations.py","result":"FAIL","exit_code":1,"duration_s":1,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_settings_account.py","result":"FAIL","exit_code":1,"duration_s":0,"tail":"FAIL: Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+"}
+,
+{"name":"smoke_substrate_adapter.py","result":"FAIL","exit_code":1,"duration_s":61,"tail":"  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 910, in wait_for_function
+    await self._channel.send(\"waitForFunction\", self._timeout, params)
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File \"/Users/davegoodman/Desktop/relocation-backend/venv/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 559, in wrap_api_call
+    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+"}
+],"summary":{"pass":29,"fail":31,"total":60,"finished":"2026-06-17T16:14:32Z"}}

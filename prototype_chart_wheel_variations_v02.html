@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chart Wheel — Variations v02 (gravitas + color tests)</title>
+
+<!--
+  ============================================================
+  prototype_chart_wheel_variations_v02.html
+  ============================================================
+  Responds to feedback on the v01 skeleton:
+  - "Flimsy / lacks gravitas / wobbly / looks all-black":
+      * heavier, more confident weight hierarchy
+      * substantial OUTER BAND (double ring) for presence
+      * rounded line caps + geometricPrecision to kill wobble
+      * stronger value separation so greyscale actually reads
+  - "Show the saturation variations": three aspect palettes
+      (Muted / Balanced / Clear) side by side.
+  - "Show other colors": an alternate, more classic/legible family.
+  - "Show applying vs separating on the wheel": one demo
+      (solid = applying, lighter = separating). Leaning table-only;
+      this is just to judge. Tables will NOT label app/sep.
+  - Guiding taste: early-2000s Apple — usable, style without a
+      loud opinion; but since any color is already an opinion,
+      we stop trying to make hues hide in the grey (no-guessing,
+      McDonald's clarity, without rainbow barf).
+  ============================================================
+-->
+
+<style>
+  :root { --paper:#f3f0e8; --ink:#2c2a27; --g1:#5f5b53; --line:#e2ded5; --panel:#fbf9f3; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; padding:26px 24px 60px; }
+  h1 { font-size:18px; margin:0 0 2px; }
+  .sub { font-size:13px; color:var(--g1); margin:0 0 26px; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--g1); margin:30px 0 12px; }
+
+  .disc { display:inline-block; border-radius:50%;
+    background:radial-gradient(circle at 50% 42%, #f8f5ed 0%, #f1eee5 60%, #e7e3d7 100%);
+    box-shadow: inset 0 1px 4px rgba(44,42,39,.08), 0 1px 3px rgba(44,42,39,.06); }
+  .disc svg { display:block; }
+  .glyph-tok { font-weight:600; fill:var(--ink); font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif; }
+  .house-num { fill:#9c988f; font-family:inherit; }
+  .axis-lbl { font-weight:700; fill:var(--ink); letter-spacing:.04em; }
+
+  .big { display:flex; gap:26px; align-items:flex-start; flex-wrap:wrap; }
+  .caption { font-size:12.5px; color:var(--g1); line-height:1.5; max-width:300px; }
+  .caption b { color:var(--ink); }
+
+  .row { display:flex; gap:22px; flex-wrap:wrap; }
+  .cell { text-align:center; }
+  .cell .nm { font-size:12px; font-weight:600; margin-top:8px; }
+  .cell .hex { font-size:10.5px; color:var(--g1); font-variant-numeric:tabular-nums; line-height:1.5; }
+  .pick { display:inline-block; font-size:10px; color:#3f6f5a; border:1px solid #cde0d4; background:#eef5ef; border-radius:10px; padding:1px 8px; margin-top:5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chart wheel — gravitas pass &amp; color variations</h1>
+  <p class="sub">Heavier hierarchy to fix the flimsiness, plus saturation tests so we can pick a clear-but-tasteful point.</p>
+
+  <h2>1 · Gravitas pass (balanced palette)</h2>
+  <div class="big">
+    <div class="disc" id="main"></div>
+    <div class="caption">
+      <p><b>What changed vs v01:</b> outer <b>double-ring band</b> for weight; the outer ring is now ~2.6px ink. Sign boundaries, house spokes, and ticks are pushed further apart in value so the <b>greyscale hierarchy is visible</b>, not uniformly faint.</p>
+      <p>Lines use <b>rounded caps + geometricPrecision</b> and higher minimum weights, which removes the per-pixel "wobble." ASC/MC axes are the heaviest non-color elements — the orientation anchors.</p>
+      <p>Color is still spent <b>only</b> on aspect lines.</p>
+    </div>
+  </div>
+
+  <h2>2 · Aspect saturation — pick a point on the spectrum</h2>
+  <div class="row" id="satRow"></div>
+
+  <h2>3 · Other color families to consider</h2>
+  <div class="row" id="altRow"></div>
+
+  <h2>4 · Applying vs separating, shown on the wheel (demo only)</h2>
+  <div class="big">
+    <div class="cell"><div class="disc" id="appsep"></div><div class="nm">solid = applying · lighter = separating</div></div>
+    <div class="caption">
+      <p>This is only to let you see it. My read matches yours: most people aren't thinking about app/sep, and on a glare-y screen the lighter lines risk a "huh?" moment.</p>
+      <p><b>Recommendation:</b> keep app/sep <b>out of the wheel and unlabeled in the tables</b>. Pros infer it; the curious can check Help. Entry-level users are never burdened.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var GREY={ink:'#2c2a27',g1:'#5f5b53',g2:'#8f8b82',g3:'#bdb8ac',hair:'#dcd7cb'};
+
+  // planets (placeholder screen-angles) + 2-letter glyph tokens
+  var planets=[
+    {t:'Su',a:200},{t:'Mo',a:95},{t:'Me',a:213},{t:'Ve',a:165},
+    {t:'Ma',a:300},{t:'Ju',a:40},{t:'Sa',a:340},{t:'Ur',a:128},
+    {t:'Ne',a:74},{t:'Pl',a:255},{t:'Ch',a:18}
+  ];
+  function byT(t){ return planets.find(function(p){return p.t===t;}); }
+  var aspects=[
+    ['Su','Mo','hard','A'],['Su','Ju','soft','S'],['Ve','Sa','soft','A'],
+    ['Ma','Pl','hard','S'],['Me','Ne','minor','A'],['Mo','Ur','soft','A'],['Su','Sa','hard','S']
+  ];
+  var cusps=[180,153,123,90,57,27,0,333,303,270,237,207];
+
+  // pal: {hard,soft,minor}; opts: {dense,glyphs,appsep}
+  function buildWheel(S, pal, opts){
+    opts=opts||{};
+    var c=S/2, k=S/460;
+    var Rout=0.46*S, Rband=0.435*S, Rsign=0.372*S, Rhin=0.145*S,
+        Rpl=0.262*S, Rhub=0.125*S, Rnum=0.175*S;
+    function pt(a,r){var rad=a*Math.PI/180;return [c+r*Math.cos(rad), c-r*Math.sin(rad)];}
+    function ln(a,r1,r2,col,w){var p1=pt(a,r1),p2=pt(a,r2);
+      return '<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'" stroke-linecap="round"/>';}
+    function seg(p1,p2,col,w,extra){return '<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'" stroke-linecap="round"'+(extra||'')+'/>';}
+    function cir(r,col,w){return '<circle cx="'+c+'" cy="'+c+'" r="'+r.toFixed(2)+'" fill="none" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'"/>';}
+
+    var s='<svg width="'+S+'" height="'+S+'" viewBox="0 0 '+S+' '+S+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">';
+
+    // gravitas: outer band (two rings)
+    s+=cir(Rout, GREY.ink, 2.6);
+    s+=cir(Rband, GREY.ink, 1.0);
+    s+=cir(Rsign, GREY.g1, 1.0);
+    s+=cir(Rhin, GREY.g2, 1.0);
+    s+=cir(Rhub, GREY.hair, 1.0);
+
+    // ticks
+    var step = opts.dense?5:30;
+    for(var d=0; d<360; d+=step){
+      if(d%30===0){ s+=ln(d, Rband, Rsign, GREY.g1, 1.2); }
+      else { s+=ln(d, Rout, Rout-8, GREY.g3, 1.0); }
+    }
+
+    // house spokes; ASC + MC heaviest
+    cusps.forEach(function(cu,i){
+      var axis=(i===0||i===9);
+      s+=ln(cu, Rsign, Rhin, axis?GREY.ink:GREY.g2, axis?2.2:1.0);
+    });
+
+    if(opts.dense){
+      for(var i=0;i<12;i++){
+        var a1=cusps[i], a2=cusps[(i+1)%12];
+        var mid=a1 + (((a2-a1+540)%360)-180)/2;
+        var p=pt(mid, Rnum);
+        s+='<text class="house-num" font-size="'+(9*k).toFixed(1)+'" x="'+p[0].toFixed(1)+'" y="'+(p[1]+3*k).toFixed(1)+'" text-anchor="middle">'+(i+1)+'</text>';
+      }
+    }
+
+    // aspect lines (color)
+    aspects.forEach(function(pr){
+      var A=byT(pr[0]), B=byT(pr[1]); if(!A||!B) return;
+      var p1=pt(A.a,Rhub), p2=pt(B.a,Rhub), col=pal[pr[2]];
+      var w = pr[2]==='minor'?1.0:1.7;
+      var extra = pr[2]==='minor'?' stroke-dasharray="'+(3*k)+' '+(3*k)+'"':'';
+      if(opts.appsep && pr[3]==='S'){ extra+=' stroke-opacity="0.45"'; }
+      s+=seg(p1,p2,col,w,extra);
+    });
+
+    // planet ticks + glyph placeholders
+    planets.forEach(function(p){
+      var t1=pt(p.a,Rsign), t2=pt(p.a,Rsign-8*k/k);
+      s+=ln(p.a, Rsign, Rsign-9, GREY.g1, 1.1);
+      if(opts.glyphs){
+        var g=pt(p.a,Rpl);
+        s+='<text class="glyph-tok" font-size="'+(12*k).toFixed(1)+'" x="'+g[0].toFixed(1)+'" y="'+(g[1]+4*k).toFixed(1)+'" text-anchor="middle">'+p.t+'</text>';
+      }
+    });
+
+    if(opts.dense){
+      var off=2*k;
+      s+='<text class="axis-lbl" font-size="'+(10*k).toFixed(1)+'" x="'+(0.03*S)+'" y="'+(c+3*k)+'" text-anchor="start">ASC</text>';
+      s+='<text class="axis-lbl" font-size="'+(10*k).toFixed(1)+'" x="'+c+'" y="'+(0.035*S)+'" text-anchor="middle">MC</text>';
+      s+='<text class="axis-lbl" font-size="'+(10*k).toFixed(1)+'" x="'+(0.97*S)+'" y="'+(c+3*k)+'" text-anchor="end">DSC</text>';
+      s+='<text class="axis-lbl" font-size="'+(10*k).toFixed(1)+'" x="'+c+'" y="'+(0.985*S)+'" text-anchor="middle">IC</text>';
+    }
+
+    s+='</svg>';
+    return s;
+  }
+
+  var PAL={
+    muted:   {hard:'#8f6258', soft:'#5e6e78', minor:'#908163'},
+    balanced:{hard:'#9c5347', soft:'#4f6f80', minor:'#9c7b3e'},
+    clear:   {hard:'#b23a2e', soft:'#2f6f93', minor:'#b5862f'}
+  };
+  var ALT={
+    apple:   {hard:'#c0392b', soft:'#2e6da4', minor:'#c9952d'},
+    inkpair: {hard:'#a8392c', soft:'#3d6b86', minor:'#9a7a3a'}
+  };
+
+  // main big wheel
+  document.getElementById('main').innerHTML = buildWheel(460, PAL.balanced, {dense:true, glyphs:true});
+
+  // saturation row
+  function cell(svg,name,pal,pick){
+    return '<div class="cell"><div class="disc">'+svg+'</div>'+
+      '<div class="nm">'+name+(pick?' <span class="pick">my lean</span>':'')+'</div>'+
+      '<div class="hex">'+pal.hard+' · '+pal.soft+' · '+pal.minor+'</div></div>';
+  }
+  document.getElementById('satRow').innerHTML =
+    cell(buildWheel(210,PAL.muted,{dense:false,glyphs:false}),'Muted (grey-leaning)',PAL.muted,false)+
+    cell(buildWheel(210,PAL.balanced,{dense:false,glyphs:false}),'Balanced',PAL.balanced,false)+
+    cell(buildWheel(210,PAL.clear,{dense:false,glyphs:false}),'Clear (no-guessing)',PAL.clear,true);
+
+  document.getElementById('altRow').innerHTML =
+    cell(buildWheel(210,ALT.apple,{dense:false,glyphs:false}),'Apple-clean classic',ALT.apple,false)+
+    cell(buildWheel(210,ALT.inkpair,{dense:false,glyphs:false}),'Warm ink-pair',ALT.inkpair,false);
+
+  // applying/separating demo
+  document.getElementById('appsep').innerHTML = buildWheel(260, PAL.clear, {dense:false, glyphs:true, appsep:true});
+</script>
+</body>
+</html>

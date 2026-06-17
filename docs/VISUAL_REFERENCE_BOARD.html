@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visual Reference Board</title>
+<style>
+  :root{
+    --bg:#14130f;
+    --panel:#1d1b16;
+    --panel-2:#23211b;
+    --line:#33302a;
+    --ink:#ece7da;
+    --muted:#9a9384;
+    --steal:#c9d9b8;
+    --reject:#d9b8b8;
+    --accent:#b9a36b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  header{padding:48px 40px 24px;border-bottom:1px solid var(--line);}
+  header h1{margin:0;font-weight:600;font-size:20px;letter-spacing:.18em;text-transform:uppercase;}
+  header p{margin:10px 0 0;color:var(--muted);font-size:13px;max-width:760px;line-height:1.6;}
+  .section{padding:40px;}
+  .section h2{margin:0 0 22px;font-size:13px;font-weight:600;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--accent);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;display:flex;flex-direction:column;transition:transform .18s ease,border-color .18s ease;}
+  .card:hover{transform:translateY(-2px);border-color:var(--accent);}
+  .thumb{position:relative;display:block;width:100%;aspect-ratio:4/3;background:var(--panel-2);
+    overflow:hidden;}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;
+    transition:opacity .4s ease;}
+  .thumb img.loaded{opacity:1;}
+  .thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:8px;color:var(--muted);font-size:12px;letter-spacing:.05em;
+    background:repeating-linear-gradient(135deg,#1f1d17,#1f1d17 12px,#221f19 12px,#221f19 24px);}
+  .thumb .ph span{opacity:.7;}
+  .meta{padding:12px 14px 16px;}
+  .meta h3{margin:0 0 8px;font-size:14px;font-weight:600;letter-spacing:.01em;}
+  .meta p{margin:4px 0;font-size:12.5px;line-height:1.5;}
+  .meta .s{color:var(--steal);}
+  .meta .r{color:var(--reject);}
+  .meta .tag{font-weight:700;letter-spacing:.06em;font-size:10px;text-transform:uppercase;
+    margin-right:6px;opacity:.75;}
+  footer{padding:48px 40px;border-top:1px solid var(--line);}
+  footer h2{font-size:13px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:32px;margin-bottom:8px;}
+  .summary h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  .summary ol{margin:0;padding-left:20px;}
+  .summary li{font-size:13px;line-height:1.7;color:var(--ink);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Visual Reference Board</h1>
+  <p>56 real references. Thumbnails load live from Wikimedia; click any image to open a full image search. Image dominant, caption subordinate.</p>
+</header>
+
+<main id="board"></main>
+
+<footer>
+  <h2>Summary</h2>
+  <div class="summary">
+    <div>
+      <h3>Top 10 Strongest</h3>
+      <ol>
+        <li>Apple Maps</li>
+        <li>National Geographic Atlas</li>
+        <li>Mechanical watch dial</li>
+        <li>Swiss Railway timetable</li>
+        <li>Beinecke Rare Book Library</li>
+        <li>Aesop store interior</li>
+        <li>Planispheric astrolabe</li>
+        <li>Royal Observatory Greenwich</li>
+        <li>Wikipedia Infobox</li>
+        <li>Salk Institute courtyard</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Top 5 Likely Traps</h3>
+      <ol>
+        <li>earth.nullschool.net</li>
+        <li>Bloomberg Terminal</li>
+        <li>Michelin Guide</li>
+        <li>Google Earth</li>
+        <li>Japanese tea room</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Top 5 Surprising</h3>
+      <ol>
+        <li>Solari split-flap board</li>
+        <li>Breitling Navitimer slide rule</li>
+        <li>Marey train schedule graphic</li>
+        <li>Sir John Soane's Museum</li>
+        <li>NASA Black Marble</li>
+      </ol>
+    </div>
+  </div>
+</footer>
+
+<script>
+const DATA = {
+  "MAP":[
+    {t:"Apple Maps", q:"Apple Maps", steal:"Suppressed calm base map where labels fade in and out by zoom.", reject:"Turn-by-turn navigation urgency and consumer routing gloss."},
+    {t:"Windy.com", q:"Windy weather service", steal:"Multiple atmospheric fields layered legibly under one opacity discipline.", reject:"Storm urgency and emergency color spikes."},
+    {t:"National Geographic Atlas", q:"National Geographic Atlas of the World", steal:"Editorial cartography with disciplined, hierarchical labels.", reject:"Nostalgic print-imitation and decorative borders."},
+    {t:"FlightRadar24", q:"Flightradar24", steal:"Thousands of objects staying legible with hover-to-inspect.", reject:"Icon overload and cockpit busyness."},
+    {t:"OpenRailwayMap", q:"OpenRailwayMap", steal:"Line discipline and infrastructure hierarchy on a quiet base.", reject:"Raw OSM clutter and unfiltered density."},
+    {t:"earth.nullschool.net", q:"earth nullschool wind map", steal:"A single continuous, mesmerizing flow field over a dark globe.", reject:"Hypnotic spectacle that overrides factual inspection."},
+    {t:"Google Earth", q:"Google Earth", steal:"Continuous fly-to camera that teaches the path between places.", reject:"Cinematic swoop and awe-as-spectacle."},
+    {t:"Swisstopo", q:"Federal Office of Topography swisstopo map", steal:"Precise relief shading and restrained, authoritative color.", reject:"Extreme topographic density unsuited to a sparse instrument."},
+    {t:"Ordnance Survey", q:"Ordnance Survey map", steal:"Trust through consistent, legible symbol systems.", reject:"Hiking-map clutter and symbol overload."},
+    {t:"NASA Black Marble", q:"Earth at night NASA city lights", steal:"Human geography as gentle points of light on a dark Earth.", reject:"Satellite-photo realism that competes with abstract overlays."},
+    {t:"Mapbox Light / Stamen", q:"Mapbox light minimal map style", steal:"An almost-invisible monochrome base that lets overlays own the color.", reject:"Blank sterility when nothing is layered on top."},
+    {t:"Times Comprehensive Atlas", q:"The Times Atlas of the World", steal:"Premium, weighty cartographic authority and label craft.", reject:"Reference-book density that overwhelms a screen."},
+    {t:"MarineTraffic", q:"MarineTraffic ship map", steal:"Calm tracking of slow objects across a quiet sea base.", reject:"Dense vessel-icon swarm near ports."},
+    {t:"Ventusky", q:"Ventusky weather map", steal:"Smooth gradient fields that still read as quantitative.", reject:"Weather-app saturation and animated drama."}
+  ],
+  "WHEEL":[
+    {t:"Astro.com (Astrodienst)", q:"Astrodienst", steal:"Clear wheel hierarchy and house segmentation.", reject:"Dated 1990s web styling."},
+    {t:"Solar Fire", q:"Solar Fire astrology software", steal:"Professional density and complete technical readouts.", reject:"Heavy desktop-software chrome."},
+    {t:"Astro Gold", q:"Astrology software chart wheel", steal:"Touch-friendly spacing and modern legibility.", reject:"Decorative app-store astrology gloss."},
+    {t:"Time Nomad", q:"Astrology chart wheel app", steal:"Modern spacing and clean glyph rendering.", reject:"Mystical app-store atmosphere."},
+    {t:"Astro-Seek", q:"Astrology natal chart wheel", steal:"Readability and approachable layout.", reject:"Web-page ad clutter."},
+    {t:"Planispheric astrolabe", q:"Astrolabe", steal:"Layered precision rings and the sense of a measuring instrument.", reject:"Museum-relic patina and costume nostalgia."},
+    {t:"Attitude indicator", q:"Attitude indicator aircraft", steal:"Instant orientation — you know which way is up in a glance.", reject:"Cockpit skeuomorphism and warning aesthetics."},
+    {t:"Compass rose", q:"Compass rose", steal:"Pure directional logic and radial wayfinding.", reject:"Nautical theme and ornamental flourishes."},
+    {t:"Mechanical watch dial", q:"Mechanical watch dial chronograph", steal:"Concentric subdials packing dense data with serene legibility.", reject:"Luxury-jewelry ornament and brand flexing."},
+    {t:"Orrery", q:"Orrery", steal:"Physical ringed representation of orbital relationships.", reject:"Brass-decor antique-shop styling."},
+    {t:"Antikythera mechanism", q:"Antikythera mechanism", steal:"Geared, layered, calculable cosmic structure.", reject:"Corroded-artifact archaeological framing."},
+    {t:"Armillary sphere", q:"Armillary sphere", steal:"Nested rings expressing coordinate systems in space.", reject:"Decorative globe-as-furniture cliché."},
+    {t:"Breitling Navitimer", q:"Breitling Navitimer", steal:"A rotating computational ring where alignment yields an answer.", reject:"Busy aviation-instrument crowding."},
+    {t:"Sextant", q:"Sextant", steal:"Fine graduated scales and the language of precision sighting.", reject:"Maritime-relic styling."}
+  ],
+  "TABLES":[
+    {t:"Bloomberg Terminal", q:"Bloomberg Terminal screen", steal:"Extreme scanning speed and professional data density.", reject:"Amber-on-black aggression and information anxiety."},
+    {t:"Swiss Railway timetable", q:"Swiss Federal Railways timetable", steal:"Precision, sequence, and trust in a calm grid.", reject:"Transit-specific symbolism."},
+    {t:"Apple Compare", q:"iPhone comparison specifications", steal:"Clean feature grouping in parallel columns.", reject:"Marketing polish and persuasion framing."},
+    {t:"Oxford English Dictionary", q:"Oxford English Dictionary", steal:"Progressive disclosure from headword to deep detail.", reject:"Academic stiffness and dense gray walls."},
+    {t:"Wikipedia Infobox", q:"Wikipedia infobox", steal:"Strict label/value discipline in a compact card.", reject:"Visual austerity and crowdsourced inconsistency."},
+    {t:"Periodic table", q:"Periodic table", steal:"A dense field where every cell's position carries meaning.", reject:"Rigid grid forced onto non-grid data."},
+    {t:"Sibley field guide", q:"Field guide bird illustration plate", steal:"Label-plus-illustration pairing for fast visual identification.", reject:"Textbook density and illustrative busyness."},
+    {t:"Nautical Almanac", q:"Nautical almanac table", steal:"Authoritative columns of precise astronomical figures.", reject:"Intimidating, unrelenting numeric austerity."},
+    {t:"Baseball Reference box score", q:"Baseball box score", steal:"High-density stat comparison enthusiasts scan effortlessly.", reject:"Sports-stats clutter and dated web styling."},
+    {t:"NYT election tables", q:"Election results map United States", steal:"High-density comparison that stays clear under pressure.", reject:"Breaking-news framing and live-update urgency."},
+    {t:"Solari split-flap board", q:"Split-flap display departure board", steal:"Calm rhythmic rows of status with quiet mechanical authority.", reject:"Transit semantics and flap-animation novelty."},
+    {t:"Marey train schedule", q:"Marey train schedule graphic", steal:"Time and sequence encoded as readable structure, not just numbers.", reject:"Single-purpose specialist diagram complexity."},
+    {t:"Michelin Guide", q:"Michelin Guide", steal:"Restrained symbol vocabulary conveying judgment without shouting.", reject:"Rating-engine winner framing we must never adopt."}
+  ],
+  "INTERIORS / ATMOSPHERE":[
+    {t:"Trinity College Long Room", q:"Trinity College Library Long Room Dublin", steal:"Warm wood, vaulted calm, and the gravity of accumulated knowledge.", reject:"Tourist-monument grandeur and ornamental excess."},
+    {t:"George Peabody Library", q:"George Peabody Library", steal:"Vertical tiers of structure around a quiet central space.", reject:"Cathedral-of-books theatricality."},
+    {t:"Beinecke Rare Book Library", q:"Beinecke Rare Book and Manuscript Library", steal:"Soft glowing translucency and serene modern monumentality.", reject:"Cold, austere brutalist severity."},
+    {t:"Rose Main Reading Room", q:"New York Public Library Rose Main Reading Room", steal:"Long shared tables under warm lamplight for deep focus.", reject:"Grand civic-institution formality."},
+    {t:"Royal Observatory Greenwich", q:"Royal Observatory Greenwich", steal:"Precision instruments displayed as serious, beautiful tools.", reject:"Behind-glass museum-exhibit framing."},
+    {t:"Griffith Observatory", q:"Griffith Observatory", steal:"Public-facing cosmic wonder that stays calm and educational.", reject:"Tourist-attraction crowd-flow signage."},
+    {t:"Stockholm Public Library", q:"Stockholm Public Library Asplund", steal:"A clean circular wall of structure that orients you instantly.", reject:"Stark monochrome severity."},
+    {t:"Sir John Soane's Museum", q:"Sir John Soane's Museum", steal:"Dense layered artifacts arranged with intimate, considered light.", reject:"Cluttered cabinet-of-curiosities overload."},
+    {t:"David Rumsey Map Center", q:"David Rumsey Map Collection", steal:"Maps treated as objects of study on large quiet surfaces.", reject:"Tech-gallery digital-wall spectacle."},
+    {t:"Salk Institute courtyard", q:"Salk Institute", steal:"Profound negative space and the calm of disciplined emptiness.", reject:"Cold institutional concrete austerity."},
+    {t:"Aesop store interior", q:"Aesop company store", steal:"Warm restrained materials and quiet, premium retail calm.", reject:"Boutique merchandising and minimalism cliché."},
+    {t:"Japanese tea room", q:"Japanese tea house chashitsu", steal:"Wabi-sabi quiet — natural materials, low light, contemplative pacing.", reject:"Literal cultural skeuomorphism and zen cliché."},
+    {t:"Boston Athenæum", q:"Boston Athenaeum", steal:"A private-club hush where reading feels unhurried and respected.", reject:"Elite members-only stuffiness."},
+    {t:"Newberry Library", q:"Newberry Library", steal:"A dedicated room where cartographic study is the whole point.", reject:"Institutional research-facility coldness."},
+    {t:"Hayden Planetarium", q:"Hayden Planetarium", steal:"Dark, immersive calm that invites contemplating scale.", reject:"Show-time spectacle and entertainment lighting."}
+  ]
+};
+
+const board = document.getElementById('board');
+
+function gimgSearch(q){
+  return "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q);
+}
+
+function makeCard(ref){
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const a = document.createElement('a');
+  a.className = 'thumb';
+  a.href = gimgSearch(ref.q);
+  a.target = '_blank';
+  a.rel = 'noopener';
+
+  const ph = document.createElement('div');
+  ph.className = 'ph';
+  ph.innerHTML = '<span>loading…</span>';
+  a.appendChild(ph);
+
+  const img = document.createElement('img');
+  img.alt = ref.t;
+  img.loading = 'lazy';
+  img.addEventListener('load', ()=>{ if(img.src){ img.classList.add('loaded'); ph.style.display='none'; }});
+  a.appendChild(img);
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerHTML =
+    '<h3>'+ref.t+'</h3>'+
+    '<p class="s"><span class="tag">Steal</span>'+ref.steal+'</p>'+
+    '<p class="r"><span class="tag">Reject</span>'+ref.reject+'</p>';
+
+  card.appendChild(a);
+  card.appendChild(meta);
+
+  fetchThumb(ref.q).then(url=>{
+    if(url){ img.src = url; }
+    else { ph.innerHTML = '<span>no thumbnail — click to search</span>'; }
+  }).catch(()=>{ ph.innerHTML = '<span>click to search images</span>'; });
+
+  return card;
+}
+
+async function fetchThumb(query){
+  const api = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*"+
+    "&generator=search&gsrlimit=6&gsrsearch="+encodeURIComponent(query)+
+    "&prop=pageimages&piprop=thumbnail&pithumbsize=640";
+  const res = await fetch(api);
+  if(!res.ok) return null;
+  const json = await res.json();
+  const pages = json && json.query && json.query.pages;
+  if(!pages) return null;
+  const list = Object.values(pages).sort((a,b)=>(a.index||99)-(b.index||99));
+  for(const p of list){
+    if(p.thumbnail && p.thumbnail.source) return p.thumbnail.source;
+  }
+  return null;
+}
+
+for(const [section, refs] of Object.entries(DATA)){
+  const sec = document.createElement('section');
+  sec.className = 'section';
+  const h2 = document.createElement('h2');
+  h2.textContent = section;
+  sec.appendChild(h2);
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  refs.forEach(r=> grid.appendChild(makeCard(r)));
+  sec.appendChild(grid);
+  board.appendChild(sec);
+}
+</script>
+</body>
+</html>

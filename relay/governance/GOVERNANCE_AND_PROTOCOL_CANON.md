@@ -1,0 +1,1 @@
+../../docs/constitutional/GOVERNANCE_AND_PROTOCOL_CANON.md

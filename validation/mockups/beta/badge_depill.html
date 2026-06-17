@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badge - de-pilled</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#2f323a;font-family:"Avenir Next",sans-serif;color:#222;padding:24px;
+ --ink:#172019;--soft:#566057;--line:#eaf0ea;--natal:#e8b400;--current:#3b7fd3;--reloc:#42a85e;--compare:#e65a48;--display:'Charter',Georgia,serif}
+.intro{max-width:1080px;margin:0 auto 8px;color:#e7e6e9}.intro h1{font-size:18px;margin:0 0 6px}.intro p{font-size:12.5px;color:#bcbcc4;margin:0;max-width:880px}
+.sec{max-width:1080px;margin:24px auto 12px;color:#e7e6e9;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #4a4d56;padding-bottom:6px}
+.block{max-width:1080px;margin:0 auto;background:#fff;border-radius:12px;padding:6px 18px}
+.row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid #eef0f2}.row:last-child{border-bottom:none}
+.name{width:280px;font-size:12px;color:var(--soft)}.name b{color:var(--ink)}
+.set{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* B1 soft tint rounded-rect (de-pilled Q1) */
+.b1 .b{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.b1 .nat{background:color-mix(in srgb,var(--natal) 16%,#fff);color:#7a5d00}
+.b1 .cur{background:color-mix(in srgb,var(--current) 14%,#fff);color:#255a9c}
+.b1 .rel{background:color-mix(in srgb,var(--reloc) 15%,#fff);color:#2c6e3f}
+.b1 .cmp{background:color-mix(in srgb,var(--compare) 14%,#fff);color:#a83b2c}
+/* B2 tint + thin border, rounded-rect (earlier beige-era feel) */
+.b2 .b{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2.5px 7px;border-radius:4px;border:1px solid}
+.b2 .nat{background:color-mix(in srgb,var(--natal) 10%,#fff);color:#7a5d00;border-color:color-mix(in srgb,var(--natal) 45%,#fff)}
+.b2 .cur{background:color-mix(in srgb,var(--current) 9%,#fff);color:#255a9c;border-color:color-mix(in srgb,var(--current) 45%,#fff)}
+.b2 .rel{background:color-mix(in srgb,var(--reloc) 9%,#fff);color:#2c6e3f;border-color:color-mix(in srgb,var(--reloc) 45%,#fff)}
+.b2 .cmp{background:color-mix(in srgb,var(--compare) 9%,#fff);color:#a83b2c;border-color:color-mix(in srgb,var(--compare) 45%,#fff)}
+/* B3 colored text only, light caps (Q4) */
+.b3 .b{font-size:9.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase}
+.b3 .nat{color:#9a7400}.b3 .cur{color:#2f72d6}.b3 .rel{color:#338a4e}.b3 .cmp{color:#cf4836}
+/* B4 left accent bar + plain caps */
+.b4 .b{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);padding-left:8px;border-left:3px solid}
+.b4 .nat{border-color:var(--natal)}.b4 .cur{border-color:var(--current)}.b4 .rel{border-color:var(--reloc)}.b4 .cmp{border-color:var(--compare)}
+/* context examples */
+.ctxwrap{max-width:1080px;margin:0 auto;background:#fff;border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.ctx h4{margin:0 0 12px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9aa49b;font-weight:700}
+.cityline{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid #eef0f2}
+.cityline:last-child{border-bottom:none}
+.cityname{font-family:var(--display);font-weight:700;font-size:17px;color:var(--ink)}
+/* reuse b1/b3 inside context */
+.ctx .b{display:inline-block}
+.cb1 .b{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.cb1 .nat{background:color-mix(in srgb,var(--natal) 16%,#fff);color:#7a5d00}
+.cb1 .cur{background:color-mix(in srgb,var(--current) 14%,#fff);color:#255a9c}
+.cb3 .b{font-size:9.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase}
+.cb3 .nat{color:#9a7400}.cb3 .cur{color:#2f72d6}
+</style></head><body>
+<div class="intro"><h1>Badge - de-pilled (Q1 / Q4 direction)</h1><p>No capsule. Soft rounded-rectangle tints and no-container text, echoing the earlier subtle beige-era badge but on white. Same gentle-orientation intent: read once, recede.</p></div>
+
+<div class="sec">Options</div>
+<div class="block">
+  <div class="row b1"><div class="name"><b>B1 · Soft tint, rounded-rect (4px)</b> — de-pilled Q1</div><div class="set"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+  <div class="row b2"><div class="name"><b>B2 · Faint tint + thin border</b> — closest to earlier beige-era badge</div><div class="set"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+  <div class="row b3"><div class="name"><b>B3 · Colored text only</b> — Q4, no container</div><div class="set"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+  <div class="row b4"><div class="name"><b>B4 · Left accent bar</b> — plain ink text, color as a tick</div><div class="set"><span class="b nat">Natal</span><span class="b cur">Current</span><span class="b rel">Relocated</span><span class="b cmp">Comparison</span></div></div>
+</div>
+
+<div class="sec">In context · city header</div>
+<div class="ctxwrap">
+  <div class="ctx cb1"><h4>B1 tint over city name</h4>
+    <div class="cityline"><span class="b nat">Natal</span><span class="cityname">Lisbon, Portugal</span></div>
+    <div class="cityline"><span class="b cur">Current</span><span class="cityname">Austin, Texas, USA</span></div>
+  </div>
+  <div class="ctx cb3"><h4>B3 text-only over city name</h4>
+    <div class="cityline"><span class="b nat">Natal</span><span class="cityname">Lisbon, Portugal</span></div>
+    <div class="cityline"><span class="b cur">Current</span><span class="cityname">Austin, Texas, USA</span></div>
+  </div>
+</div>
+</body></html>

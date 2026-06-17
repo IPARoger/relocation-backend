@@ -1,0 +1,146 @@
+{
+  "artifact": "validation/visual_targets/phase2_44_locked_material_strip_transport.png",
+  "downsample_once": true,
+  "forbidden_operations": {
+    "alpha_distance_falloff": false,
+    "bloom": false,
+    "blur": false,
+    "feather": false,
+    "gaussian_smoothing": false,
+    "geometry_redesign": false,
+    "glow": false,
+    "map_integration": false,
+    "post_process_sharpening": false,
+    "post_smooth_transfer": false,
+    "separate_centerline_stroke": false,
+    "spline_distance_opacity": false,
+    "transport_redesign": false
+  },
+  "generated_at_utc": "2026-05-26T11:33:34.759121+00:00",
+  "geometry_changed": false,
+  "governance": {
+    "committed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "staged": false,
+    "validation_only": true
+  },
+  "locked_sample_rows": [
+    294,
+    328
+  ],
+  "locked_source": "validation/visual_targets/phase2_41d_locked_transfer_reference.png",
+  "locked_source_crop": [
+    56,
+    254,
+    691,
+    369
+  ],
+  "per_sample_contract": [
+    "determine local station coordinate s",
+    "determine proportional cross-strip coordinate u",
+    "sample Phase 2.44b compressed locked-source-derived material texture at u",
+    "write RGB value into output"
+  ],
+  "phase": "2.44b",
+  "profile_orientation": "source dark ridge mapped to u=0.5; source pale edge mapped to u=0 and u=1",
+  "qa_invariant": "At any station, an orthogonal slice through the rendered curve must visually match the compressed material profile scaled to local width.",
+  "render_mode": "RGB",
+  "revision": "texture_compression_refinement_transport_frozen",
+  "sampled_stops_from_compressed_profile": [
+    {
+      "cross_strip_u": 0,
+      "rgb": [
+        209,
+        214,
+        223
+      ]
+    },
+    {
+      "cross_strip_u": 0.08,
+      "rgb": [
+        207,
+        213,
+        222
+      ]
+    },
+    {
+      "cross_strip_u": 0.18,
+      "rgb": [
+        204,
+        210,
+        221
+      ]
+    },
+    {
+      "cross_strip_u": 0.32,
+      "rgb": [
+        167,
+        180,
+        212
+      ]
+    },
+    {
+      "cross_strip_u": 0.44,
+      "rgb": [
+        70,
+        89,
+        161
+      ]
+    },
+    {
+      "cross_strip_u": 0.48,
+      "rgb": [
+        11,
+        19,
+        80
+      ]
+    },
+    {
+      "cross_strip_u": 0.5,
+      "rgb": [
+        8,
+        14,
+        71
+      ]
+    },
+    {
+      "cross_strip_u": 0.52,
+      "rgb": [
+        11,
+        19,
+        80
+      ]
+    },
+    {
+      "cross_strip_u": 0.56,
+      "rgb": [
+        70,
+        89,
+        161
+      ]
+    },
+    {
+      "cross_strip_u": 0.72,
+      "rgb": [
+        186,
+        196,
+        218
+      ]
+    },
+    {
+      "cross_strip_u": 1.0,
+      "rgb": [
+        209,
+        214,
+        223
+      ]
+    }
+  ],
+  "strip_topology_changed": false,
+  "supersample": 4,
+  "texture_adjustment": "Texture-only compression: narrower darkest tonal residency, increased immediate adjacent compression, reduced mid-blue lingering, accelerated early release, preserved pale edge timing and coherent material fill. No new colors outside sampled locked profile.",
+  "texture_control": "validation/visual_targets/phase2_44_tightened_material_texture_control.png",
+  "texture_coordinate_transport": true,
+  "transport_architecture_changed": false
+}

@@ -1,0 +1,1 @@
+../../docs/product/WEB2_ONBOARDING_AND_GUIDED_DISCOVERY_V2.md

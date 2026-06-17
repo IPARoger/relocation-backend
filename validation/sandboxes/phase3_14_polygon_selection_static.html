@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 3.14 Static Polygon Selection</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #map { width: 100%; height: 100%; background: #f4f4f5; }
+    .hud {
+      position: fixed;
+      z-index: 1000;
+      top: 12px;
+      left: 12px;
+      max-width: min(680px, calc(100vw - 24px));
+      padding: 10px 12px;
+      border: 1px solid rgba(226, 232, 240, 0.15);
+      border-radius: 12px;
+      background: rgba(7, 17, 28, 0.82);
+      color: rgba(226, 232, 240, 0.94);
+      font: 12px/1.4 Inter, system-ui, sans-serif;
+    }
+    .hud strong { font-size: 13px; }
+    .muted { color: rgba(226, 232, 240, 0.72); }
+    .pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(226, 232, 240, 0.18);
+      background: rgba(15, 23, 42, 0.72);
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="Static map showing one selected real polygon and one edge segment"></div>
+  <section class="hud">
+    <strong>Phase 3.14 — Static Polygon Selection (No Animation)</strong>
+    <div class="muted">
+      Source: <code>validation/geojson/integration/truth_grid-high_northern-sun-house-7.geojson</code><br/>
+      Selected polygon: <code>truth-grid-house-0-sun-7-0</code> (real project-derived truth_grid geometry)<br/>
+      Selected edge segment: first border edge (south edge) between the first two ring vertices.
+    </div>
+    <div class="pill" id="status">Loading selected polygon...</div>
+  </section>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    "use strict";
+
+    const SOURCE_PATH = "../geojson/integration/truth_grid-high_northern-sun-house-7.geojson";
+    const TARGET_CANONICAL_ID = "truth-grid-house-0-sun-7-0";
+
+    const map = L.map("map", {
+      zoomSnap: 0.25,
+      zoomDelta: 0.25,
+      worldCopyJump: false,
+      minZoom: 1,
+      maxZoom: 8,
+    }).setView([-64.625, 152.25], 4.5);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "\u00a9 OSM",
+      noWrap: false,
+    }).addTo(map);
+
+    function setStatus(text) {
+      const el = document.getElementById("status");
+      if (el) el.textContent = text;
+    }
+
+    function toLatLngs(ringCoords) {
+      return ringCoords.map(([lon, lat]) => [lat, lon]);
+    }
+
+    async function renderSelection() {
+      const res = await fetch(SOURCE_PATH, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Failed to load source geojson: ${res.status}`);
+      const geo = await res.json();
+      const feature = (geo.features || []).find((f) =>
+        f &&
+        f.geometry &&
+        f.geometry.type === "Polygon" &&
+        f.properties &&
+        f.properties.canonicalFeatureId === TARGET_CANONICAL_ID
+      );
+      if (!feature) {
+        throw new Error(`Target polygon not found: ${TARGET_CANONICAL_ID}`);
+      }
+
+      const outerRing = feature.geometry.coordinates[0];
+      if (!outerRing || outerRing.length < 4) {
+        throw new Error("Selected polygon ring is invalid");
+      }
+
+      // Exactly ONE selected polygon region.
+      const polygonLayer = L.polygon(toLatLngs(outerRing), {
+        color: "#1d4ed8",
+        weight: 2,
+        opacity: 0.95,
+        fillColor: "#60a5fa",
+        fillOpacity: 0.32,
+      }).addTo(map);
+
+      // Exactly ONE chosen border/edge segment for future discovery work:
+      // edge from ring[0] -> ring[1] (south edge in this grid-cell polygon).
+      const edgeCoords = [outerRing[0], outerRing[1]];
+      const edgeLayer = L.polyline(toLatLngs(edgeCoords), {
+        color: "#ef4444",
+        weight: 5,
+        opacity: 0.95,
+      }).addTo(map);
+
+      polygonLayer.bindTooltip("Selected real polygon: truth-grid-house-0-sun-7-0", {
+        permanent: true,
+        direction: "center",
+        className: "selection-label",
+      });
+      edgeLayer.bindTooltip("Selected first edge segment", {
+        permanent: true,
+        direction: "top",
+      });
+
+      map.fitBounds(polygonLayer.getBounds().pad(1.2));
+      setStatus("Static proof ready: one real polygon + one edge segment.");
+    }
+
+    renderSelection().catch((err) => {
+      console.error(err);
+      setStatus(`Error: ${err.message}`);
+    });
+  </script>
+</body>
+</html>

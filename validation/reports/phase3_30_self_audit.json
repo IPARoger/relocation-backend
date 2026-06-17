@@ -1,0 +1,510 @@
+{
+  "phase": "3.30_self_audit",
+  "runtimeComposedForbiddenStrings": {
+    "literalForbiddenTokensInSource": [],
+    "composedForbiddenKeyHelper": true,
+    "grepWeakened": true,
+    "bluntAssessment": "Illegitimate as structural proof. Legitimate only as a runtime particle-state guard if grep is explicitly documented as non-authoritative."
+  },
+  "oscillationOrbiting": {
+    "meanTerminalVelocity": 2.002446575199994,
+    "medianTerminalVelocity": 1.7753533154744652,
+    "earlyMeanStepSpeedFromHistory": 3.615373114771409,
+    "lateMeanStepSpeedFromHistory": 1.9478681934663729,
+    "velocityDecayRatio": 0.538773767213445,
+    "repeatedPositionRatio": 0.6377170138888889,
+    "meanTargetCellIdChurnRate": 0.046016725352112674,
+    "medianTargetCellIdChurnRate": 0.04225352112676056,
+    "oscillationScoreMean": 36.470082795442444,
+    "percentParticlesTrappedInSmallLoops": 0.8765625,
+    "uniqueFinalTargetCellIds": 16,
+    "centralizationTop1Fraction": 0.35,
+    "centralizationTop3Fraction": 0.6828125,
+    "topFinalTargetCellIds": [
+      {
+        "cellId": "7,6",
+        "count": 224
+      },
+      {
+        "cellId": "11,1",
+        "count": 132
+      },
+      {
+        "cellId": "4,12",
+        "count": 81
+      },
+      {
+        "cellId": "4,5",
+        "count": 80
+      },
+      {
+        "cellId": "3,9",
+        "count": 43
+      },
+      {
+        "cellId": "8,4",
+        "count": 20
+      },
+      {
+        "cellId": "1,13",
+        "count": 18
+      },
+      {
+        "cellId": "7,1",
+        "count": 11
+      },
+      {
+        "cellId": "12,1",
+        "count": 7
+      },
+      {
+        "cellId": "3,8",
+        "count": 7
+      }
+    ]
+  },
+  "frontierTargetCentralization": {
+    "flagged": true,
+    "uniqueFinalTargetCellIds": 16,
+    "centralizationTop1Fraction": 0.35,
+    "centralizationTop3Fraction": 0.6828125,
+    "topFinalTargetCellIds": [
+      {
+        "cellId": "7,6",
+        "count": 224
+      },
+      {
+        "cellId": "11,1",
+        "count": 132
+      },
+      {
+        "cellId": "4,12",
+        "count": 81
+      },
+      {
+        "cellId": "4,5",
+        "count": 80
+      },
+      {
+        "cellId": "3,9",
+        "count": 43
+      },
+      {
+        "cellId": "8,4",
+        "count": 20
+      },
+      {
+        "cellId": "1,13",
+        "count": 18
+      },
+      {
+        "cellId": "7,1",
+        "count": 11
+      },
+      {
+        "cellId": "12,1",
+        "count": 7
+      },
+      {
+        "cellId": "3,8",
+        "count": 7
+      }
+    ]
+  },
+  "driftTheater": {
+    "meanFirstHalfDisplacementFraction": 0.9825804456524272,
+    "frontierDistanceEarlyMean": 16.116465,
+    "frontierDistanceLateMean": 2.054235,
+    "meanDistanceMoved": 70.724763,
+    "lateTrappingLikely": true,
+    "assessment": "long_distance_motion_with_late_frontier_proximity_trap"
+  },
+  "boundaryAlignmentAudit": {
+    "reportedFrontierAlignment": 0.653747,
+    "reportedBoundaryAlignment": 0.320344,
+    "recomputedToChosenSolverTarget": 0.653747,
+    "recomputedToNearestFrontierCenter": 0.446619,
+    "recomputedToAuditBoundary": 0.320344,
+    "randomDirectionControl": 0.002965,
+    "frontierMetricMinusRandom": 0.650782,
+    "boundaryMetricMinusRandom": 0.317379,
+    "meaningful": true,
+    "misleadingAspect": "Metric name says frontier but implementation aligns velocity to chosen solver target cell direction (tx-x, ty-y), not nearest frontier geometry.",
+    "biasNotes": [
+      "Audit boundary uses projected exterior ring vertices; same geometry family as truth oracle.",
+      "On Sun-in-1, frontier cells cluster near boundary, so frontier-target and boundary directions are partially confounded.",
+      "High alignment vs random control does not disprove drift theater; particles can orbit assigned targets."
+    ]
+  },
+  "seedFragility": {
+    "results": {
+      "3030": {
+        "acceptancePassed": true,
+        "failedGates": [],
+        "historyMetrics": {
+          "meanTerminalVelocity": 2.002446575199994,
+          "medianTerminalVelocity": 1.7753533154744652,
+          "earlyMeanStepSpeedFromHistory": 3.615373114771409,
+          "lateMeanStepSpeedFromHistory": 1.9478681934663729,
+          "velocityDecayRatio": 0.538773767213445,
+          "repeatedPositionRatio": 0.6377170138888889,
+          "meanTargetCellIdChurnRate": 0.046016725352112674,
+          "medianTargetCellIdChurnRate": 0.04225352112676056,
+          "oscillationScoreMean": 36.470082795442444,
+          "percentParticlesTrappedInSmallLoops": 0.8765625,
+          "uniqueFinalTargetCellIds": 16,
+          "centralizationTop1Fraction": 0.35,
+          "centralizationTop3Fraction": 0.6828125,
+          "topFinalTargetCellIds": [
+            {
+              "cellId": "7,6",
+              "count": 224
+            },
+            {
+              "cellId": "11,1",
+              "count": 132
+            },
+            {
+              "cellId": "4,12",
+              "count": 81
+            },
+            {
+              "cellId": "4,5",
+              "count": 80
+            },
+            {
+              "cellId": "3,9",
+              "count": 43
+            },
+            {
+              "cellId": "8,4",
+              "count": 20
+            },
+            {
+              "cellId": "1,13",
+              "count": 18
+            },
+            {
+              "cellId": "7,1",
+              "count": 11
+            },
+            {
+              "cellId": "12,1",
+              "count": 7
+            },
+            {
+              "cellId": "3,8",
+              "count": 7
+            }
+          ]
+        },
+        "driftTheater": {
+          "meanFirstHalfDisplacementFraction": 0.9825804456524272,
+          "frontierDistanceEarlyMean": 16.116465,
+          "frontierDistanceLateMean": 2.054235,
+          "meanDistanceMoved": 70.724763,
+          "lateTrappingLikely": true
+        },
+        "frontierAlignment": 0.653747,
+        "boundaryAlignment": 0.320344
+      },
+      "3031": {
+        "acceptancePassed": true,
+        "failedGates": [],
+        "historyMetrics": {
+          "meanTerminalVelocity": 2.009438754147141,
+          "medianTerminalVelocity": 1.7753541941123434,
+          "earlyMeanStepSpeedFromHistory": 3.5632981157843457,
+          "lateMeanStepSpeedFromHistory": 1.94740393072146,
+          "velocityDecayRatio": 0.54651726206924,
+          "repeatedPositionRatio": 0.6396918402777778,
+          "meanTargetCellIdChurnRate": 0.04410211267605634,
+          "medianTargetCellIdChurnRate": 0.04225352112676056,
+          "oscillationScoreMean": 34.70840405445855,
+          "percentParticlesTrappedInSmallLoops": 0.88125,
+          "uniqueFinalTargetCellIds": 15,
+          "centralizationTop1Fraction": 0.2546875,
+          "centralizationTop3Fraction": 0.5609375,
+          "topFinalTargetCellIds": [
+            {
+              "cellId": "7,6",
+              "count": 163
+            },
+            {
+              "cellId": "4,12",
+              "count": 99
+            },
+            {
+              "cellId": "4,5",
+              "count": 97
+            },
+            {
+              "cellId": "11,1",
+              "count": 88
+            },
+            {
+              "cellId": "8,4",
+              "count": 82
+            },
+            {
+              "cellId": "3,9",
+              "count": 31
+            },
+            {
+              "cellId": "1,13",
+              "count": 18
+            },
+            {
+              "cellId": "6,8",
+              "count": 17
+            },
+            {
+              "cellId": "5,3",
+              "count": 12
+            },
+            {
+              "cellId": "3,13",
+              "count": 12
+            }
+          ]
+        },
+        "driftTheater": {
+          "meanFirstHalfDisplacementFraction": 0.9807929949524308,
+          "frontierDistanceEarlyMean": 15.929455,
+          "frontierDistanceLateMean": 2.052526,
+          "meanDistanceMoved": 70.364611,
+          "lateTrappingLikely": true
+        },
+        "frontierAlignment": 0.656981,
+        "boundaryAlignment": 0.314543
+      },
+      "3032": {
+        "acceptancePassed": true,
+        "failedGates": [],
+        "historyMetrics": {
+          "meanTerminalVelocity": 1.9777261900027545,
+          "medianTerminalVelocity": 1.7752872249267058,
+          "earlyMeanStepSpeedFromHistory": 3.572290493404047,
+          "lateMeanStepSpeedFromHistory": 1.9606146785898522,
+          "velocityDecayRatio": 0.5488396539030442,
+          "repeatedPositionRatio": 0.6222005208333333,
+          "meanTargetCellIdChurnRate": 0.05576584507042254,
+          "medianTargetCellIdChurnRate": 0.056338028169014086,
+          "oscillationScoreMean": 33.03088111660877,
+          "percentParticlesTrappedInSmallLoops": 0.846875,
+          "uniqueFinalTargetCellIds": 19,
+          "centralizationTop1Fraction": 0.3234375,
+          "centralizationTop3Fraction": 0.6453125,
+          "topFinalTargetCellIds": [
+            {
+              "cellId": "7,6",
+              "count": 207
+            },
+            {
+              "cellId": "4,12",
+              "count": 106
+            },
+            {
+              "cellId": "8,4",
+              "count": 100
+            },
+            {
+              "cellId": "4,5",
+              "count": 87
+            },
+            {
+              "cellId": "11,1",
+              "count": 51
+            },
+            {
+              "cellId": "3,9",
+              "count": 19
+            },
+            {
+              "cellId": "7,1",
+              "count": 18
+            },
+            {
+              "cellId": "1,13",
+              "count": 16
+            },
+            {
+              "cellId": "5,3",
+              "count": 12
+            },
+            {
+              "cellId": "3,8",
+              "count": 8
+            }
+          ]
+        },
+        "driftTheater": {
+          "meanFirstHalfDisplacementFraction": 0.987030658785417,
+          "frontierDistanceEarlyMean": 19.105927,
+          "frontierDistanceLateMean": 2.082243,
+          "meanDistanceMoved": 77.814952,
+          "lateTrappingLikely": true
+        },
+        "frontierAlignment": 0.664958,
+        "boundaryAlignment": 0.357347
+      },
+      "3033": {
+        "acceptancePassed": true,
+        "failedGates": [],
+        "historyMetrics": {
+          "meanTerminalVelocity": 1.868619360173422,
+          "medianTerminalVelocity": 1.774597702874551,
+          "earlyMeanStepSpeedFromHistory": 3.565647686938926,
+          "lateMeanStepSpeedFromHistory": 1.919270482702256,
+          "velocityDecayRatio": 0.5382669996237526,
+          "repeatedPositionRatio": 0.6006510416666667,
+          "meanTargetCellIdChurnRate": 0.07632042253521126,
+          "medianTargetCellIdChurnRate": 0.07042253521126761,
+          "oscillationScoreMean": 38.45077996802412,
+          "percentParticlesTrappedInSmallLoops": 0.84375,
+          "uniqueFinalTargetCellIds": 24,
+          "centralizationTop1Fraction": 0.21875,
+          "centralizationTop3Fraction": 0.5234375,
+          "topFinalTargetCellIds": [
+            {
+              "cellId": "7,6",
+              "count": 140
+            },
+            {
+              "cellId": "11,1",
+              "count": 108
+            },
+            {
+              "cellId": "4,12",
+              "count": 87
+            },
+            {
+              "cellId": "4,5",
+              "count": 72
+            },
+            {
+              "cellId": "8,4",
+              "count": 71
+            },
+            {
+              "cellId": "7,1",
+              "count": 37
+            },
+            {
+              "cellId": "3,8",
+              "count": 20
+            },
+            {
+              "cellId": "3,9",
+              "count": 18
+            },
+            {
+              "cellId": "1,13",
+              "count": 16
+            },
+            {
+              "cellId": "6,8",
+              "count": 15
+            }
+          ]
+        },
+        "driftTheater": {
+          "meanFirstHalfDisplacementFraction": 0.9644037933215729,
+          "frontierDistanceEarlyMean": 15.99677,
+          "frontierDistanceLateMean": 2.036851,
+          "meanDistanceMoved": 74.816147,
+          "lateTrappingLikely": true
+        },
+        "frontierAlignment": 0.680363,
+        "boundaryAlignment": 0.309669
+      },
+      "3034": {
+        "acceptancePassed": true,
+        "failedGates": [],
+        "historyMetrics": {
+          "meanTerminalVelocity": 2.0115253514897526,
+          "medianTerminalVelocity": 1.7753598299694542,
+          "earlyMeanStepSpeedFromHistory": 3.598286066866871,
+          "lateMeanStepSpeedFromHistory": 1.9463504926628838,
+          "velocityDecayRatio": 0.5409104379009854,
+          "repeatedPositionRatio": 0.6408203125,
+          "meanTargetCellIdChurnRate": 0.042011443661971834,
+          "medianTargetCellIdChurnRate": 0.04225352112676056,
+          "oscillationScoreMean": 29.880777202549005,
+          "percentParticlesTrappedInSmallLoops": 0.8359375,
+          "uniqueFinalTargetCellIds": 17,
+          "centralizationTop1Fraction": 0.3046875,
+          "centralizationTop3Fraction": 0.634375,
+          "topFinalTargetCellIds": [
+            {
+              "cellId": "7,6",
+              "count": 195
+            },
+            {
+              "cellId": "4,12",
+              "count": 120
+            },
+            {
+              "cellId": "4,5",
+              "count": 91
+            },
+            {
+              "cellId": "11,1",
+              "count": 88
+            },
+            {
+              "cellId": "8,4",
+              "count": 40
+            },
+            {
+              "cellId": "7,1",
+              "count": 24
+            },
+            {
+              "cellId": "6,8",
+              "count": 23
+            },
+            {
+              "cellId": "1,13",
+              "count": 21
+            },
+            {
+              "cellId": "3,9",
+              "count": 18
+            },
+            {
+              "cellId": "12,1",
+              "count": 6
+            }
+          ]
+        },
+        "driftTheater": {
+          "meanFirstHalfDisplacementFraction": 0.9791887538065933,
+          "frontierDistanceEarlyMean": 16.294842,
+          "frontierDistanceLateMean": 2.056103,
+          "meanDistanceMoved": 73.585816,
+          "lateTrappingLikely": true
+        },
+        "frontierAlignment": 0.655091,
+        "boundaryAlignment": 0.325689
+      }
+    },
+    "allPass": true,
+    "passCount": 5
+  },
+  "truthfulness": {
+    "verdict": "rejected",
+    "issues": [
+      "grep_evasion_runtime_string_composition",
+      "high_small_loop_trapping",
+      "target_cell_collapse",
+      "late_trapping_displacement_pattern"
+    ],
+    "rationale": "Self-gates pass on seeds 3030-3034, but motion is dominated by late local orbiting, severe target-cell collapse, grep evasion, and displacement that completes before trapping."
+  },
+  "phase30AcceptanceStatus": "not_accepted",
+  "selfGatePassVsAudit": {
+    "selfGatesAllPassSeeds3030to3034": true,
+    "auditRejects": true
+  }
+}

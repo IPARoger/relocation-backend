@@ -1,0 +1,34 @@
+{
+  "datelineLeft": {
+    "lon": -179,
+    "popupPresent": true,
+    "clickX": 375,
+    "clickY": 500,
+    "left": 249,
+    "right": 501,
+    "top": 77,
+    "bottom": 487,
+    "viewportWidth": 1600,
+    "viewportHeight": 1000,
+    "withinViewport": true,
+    "text": "Custom Location\nLat: 0.0000 \u00a0 Lon: -179.2969\nASC\n11\u00b0 Capricorn 03'\nMC\n13\u00b0 Libra 04'\nPlanet\nHouse\nSun\n12\nMoon\n4\nMercury\n1"
+  },
+  "datelineRight": {
+    "lon": 179,
+    "popupPresent": true,
+    "clickX": 885,
+    "clickY": 500,
+    "left": 759,
+    "right": 1011,
+    "top": 77,
+    "bottom": 487,
+    "viewportWidth": 1600,
+    "viewportHeight": 1000,
+    "withinViewport": true,
+    "text": "Custom Location\nLat: 0.0000 \u00a0 Lon: 179.2969\nASC\n9\u00b0 Capricorn 45'\nMC\n11\u00b0 Libra 33'\nPlanet\nHouse\nSun\n12\nMoon\n4\nMercury\n12\n"
+  },
+  "repeatedSearchClearsPopup": {
+    "before": 1,
+    "after": 0
+  }
+}

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Map Sandbox — Genie v4</title>
+
+<!--
+  ============================================================
+  map_SANDBOX_genie_v4.html  —  color/overlay sandbox
+  ============================================================
+  NEW FILE. Edits/deletes nothing. Combines a real Leaflet basemap (from the
+  map_CURRENT lineage) with the v4 "Genie" controller (internal name only).
+
+  This is RELOCATION astrology, brute-forced — NOT astrocartography. No astro
+  engine or plugin here. Overlays are MOCK translucent "placement regions"
+  (where a variable's condition holds) purely so we can tune:
+    (a) the overlay color palette against the real map, and
+    (b) the "NOT" dark-band color — set apart, same earthy family, NOT midnight.
+
+  v4 corrections folded in:
+   - Planet–House opens its sub-dropdowns (placeholder no longer 'disabled', so
+     selecting the FIRST option fires change). Sub-dropdowns appear together.
+   - Profile plate CENTERED at the top; strong Date/Time/Place, faint UTC/Placidus.
+   - Add Variable is prominent (gold) and distinct from Search Map (green).
+   - NOT = an icon + real checkbox to the right of the master dropdown; checking
+     it darkens the builder card (redaction preview); the shorthand token darkens
+     with a small NOT mark.
+   - Cancel is a small ✕ on the right.
+   - Pin sits to the right of Back/Forward, labelled 'Pin', retracts to its icon.
+   - Save is quiet link-text that becomes a disk near where Genie leaves off.
+   - Collapse: Genie becomes a small SQUARE (slow, obvious pulse to reopen) and
+     the variables float as a VERTICAL ghost list (no box, translucent, spaced)
+     center-right, each with NOT / Mute / Solo.
+
+  Basemap tiles (CARTO Positron) need internet; the rest works offline.
+  ============================================================
+-->
+
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+<style>
+  :root {
+    --ink:#243244; --ink-soft:#56657a; --ink-faint:#8d99ab;
+    --line:#d2dceb; --line-soft:#e6edf6;
+    --paper:#eef3fb; --card:#ffffff;
+    --accent:#2f7fb5; --gold:#e4a13a; --teal:#2bb6a8; --app:#d2603e;
+    --not:#2e3340;            /* NOT dark band — deep slate-blue, set apart, not midnight */
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; height:100%; color:var(--ink); font-family:var(--sans);
+    font-size:15px; line-height:1.5; background:#aad3e0; overflow:hidden; }
+  button { font:inherit; cursor:pointer; }
+  svg { display:block; }
+
+  /* ---------- header ---------- */
+  .topbar { position:fixed; top:0; left:0; right:0; z-index:1200; display:flex; align-items:center; gap:14px;
+    height:50px; padding:0 20px; background:rgba(255,255,255,.82); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  .brand { font-family:var(--serif); font-size:18px; font-weight:600; }
+  /* menu retracts to the hamburger by default (saves map real estate); logo stays */
+  .menu-handle { border:none; background:transparent; color:var(--ink-soft); font-size:19px; padding:4px 8px; border-radius:8px; line-height:1; }
+  .menu-handle:hover { background:var(--line-soft); color:var(--ink); }
+  .mainmenu { display:flex; gap:2px; overflow:hidden; max-width:0; opacity:0; pointer-events:none;
+    transition:opacity .5s ease, max-width 1.0s cubic-bezier(.4,0,.2,1); }
+  body.menu-open .mainmenu { max-width:680px; opacity:1; pointer-events:auto; }
+  .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 11px; border-radius:8px; white-space:nowrap; }
+  .mainmenu a.on { background:var(--paper); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(36,50,68,.1); }
+  .mainmenu a:hover { background:rgba(47,127,181,.12); color:var(--ink); }
+  .acct { margin-left:auto; display:inline-flex; align-items:center; gap:14px; font-size:13.5px; color:var(--ink-soft); }
+  .share-btn { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--card); color:var(--ink-soft);
+    border-radius:8px; padding:5px 11px; font-size:13px; }
+  .share-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .share-btn svg { width:14px; height:14px; }
+
+  /* ---------- map ---------- */
+  #map { position:fixed; inset:50px 0 0 0; z-index:0; background:#aad3e0; }
+  .leaflet-container { font-family:var(--sans); background:#aad3e0; }
+  /* overlays multiply into the map so overlaps deepen into a richer "juicier" color */
+  .leaflet-overlay-pane { mix-blend-mode:multiply; }
+
+  /* overlay UI sits above the map; only interactive elements catch pointer events */
+  .ov { position:fixed; z-index:600; }
+
+  /* ---------- map controls (top-left) ---------- */
+  .mapctrls { left:16px; top:64px; display:flex; gap:8px; align-items:flex-start; }
+  .ctrl-card { background:var(--card); border:1px solid var(--line); border-radius:11px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(51,41,31,.06), 0 12px 26px -18px rgba(51,41,31,.4); }
+  .zoomcol { display:flex; flex-direction:column; }
+  .zoomcol button { width:38px; height:36px; border:none; background:transparent; color:var(--ink-soft); font-size:16px; border-bottom:1px solid var(--line-soft); }
+  .zoomcol button:last-child { border-bottom:none; font-size:13px; }
+  .zoomcol button:hover { background:var(--line-soft); color:var(--ink); }
+  .navgrp { display:flex; }
+  .navbtn { border:none; background:transparent; color:var(--ink-soft); border-right:1px solid var(--line-soft);
+    height:36px; display:inline-flex; align-items:center; justify-content:center; padding:0 13px; position:relative;
+    transition:padding 1.1s cubic-bezier(.5,0,.2,1), width 1.1s cubic-bezier(.5,0,.2,1); }
+  .navbtn:last-child { border-right:none; }
+  .navbtn:hover { background:var(--line-soft); color:var(--ink); }
+  /* full (text) and mini (icon) cross-fade slowly so the retraction is legible */
+  .navbtn .full { font-size:13px; display:inline-flex; align-items:center; opacity:1; transition:opacity .8s ease; }
+  .navbtn .mini { font-size:16px; position:absolute; inset:0; display:inline-flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .8s ease; }
+  body.explore .navbtn { padding:0; width:34px; }
+  body.explore .navbtn .full { opacity:0; }
+  body.explore .navbtn .mini { opacity:1; }
+
+  /* ---------- city search (centered top) ---------- */
+  .topstack { left:50%; top:60px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:9px; }
+
+  /* ---------- profile plate: beside genie, right-aligned; outlined translucent text ---------- */
+  .plate { right:362px; top:60px; text-align:right; transition:opacity 1.0s ease; pointer-events:auto; max-width:260px; }
+  body.explore .plate { right:96px; opacity:.45; transition:opacity 1.0s ease, right 1.2s cubic-bezier(.5,0,.2,1); }
+  /* tools sit LEFT of the name so the name's right edge aligns with the lines below it */
+  .plate .name-row { display:flex; align-items:center; justify-content:flex-end; gap:7px; white-space:nowrap; }
+  .name-tools { display:inline-flex; gap:1px; }
+  .name-tools button { background:transparent; border:none; color:var(--ink-faint); padding:1px 4px; font-size:12px; text-shadow:0 1px 2px #fff; }
+  .name-tools button.plus { font-size:15px; }
+  .name-tools button:hover { color:var(--accent); }
+  .profile-select { font-family:var(--serif); font-size:23px; font-weight:700; background:transparent; border:none; padding:0;
+    display:inline-flex; align-items:center; gap:7px;
+    color:rgba(36,50,68,.30); -webkit-text-stroke:.85px rgba(20,28,40,.92); text-stroke:.85px rgba(20,28,40,.92); }
+  .profile-select .caret { font-size:12px; -webkit-text-stroke:0; }
+  .plate .strong { font-size:15px; font-weight:700; margin-top:3px; white-space:nowrap;
+    color:rgba(36,50,68,.28); -webkit-text-stroke:.6px rgba(20,28,40,.82); text-stroke:.6px rgba(20,28,40,.82); }
+  .plate .place { font-size:14px; font-weight:600; margin-top:1px;
+    color:rgba(36,50,68,.26); -webkit-text-stroke:.5px rgba(20,28,40,.78); text-stroke:.5px rgba(20,28,40,.78); }
+  .plate-tech { overflow:hidden; max-height:30px; opacity:.75; transition:max-height .8s ease, opacity .6s ease; }
+  .plate-tech .t { font-size:11px; color:var(--ink-soft); text-shadow:0 1px 2px rgba(255,255,255,.8); }
+  body.explore .plate-tech { max-height:0; opacity:0; }
+  /* setup state = bolder/more readable */
+  body:not(.explore) .profile-select { color:rgba(36,50,68,.42); }
+
+  /* city search rolls up like a projector screen */
+  .citysearch { display:flex; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:10px;
+    box-shadow:0 1px 2px rgba(36,50,68,.06), 0 10px 24px -16px rgba(36,50,68,.4); overflow:hidden; pointer-events:auto;
+    width:280px; max-height:40px; transition:max-height 1.0s ease, width 1.2s ease; }
+  .cs-input { flex:1 1 auto; min-width:0; font:inherit; font-size:13px; color:var(--ink); background:transparent; border:none; padding:9px 13px; }
+  .cs-input::placeholder { color:var(--ink-faint); }
+  .cs-input:focus { outline:none; }
+  .cs-handle { display:none; }
+  body.explore .citysearch { max-height:6px; width:120px; cursor:pointer; }
+  body.explore .citysearch .cs-input { opacity:0; }
+  body.explore.cs-open .citysearch { max-height:40px; width:260px; }
+  body.explore.cs-open .citysearch .cs-input { opacity:1; }
+
+  /* ---------- right rail / genie ---------- */
+  .rail { right:16px; top:64px; width:330px; max-width:calc(100% - 32px); pointer-events:none; }
+  .builder { pointer-events:auto; position:relative; background:var(--card); border:1px solid rgba(47,127,181,.32); border-radius:16px; padding:15px;
+    box-shadow:0 1px 2px rgba(36,50,68,.06), 0 26px 50px -24px rgba(36,50,68,.5);
+    transform-origin:top right; opacity:1; transform:none;
+    transition:opacity .4s ease, transform .5s cubic-bezier(.4,0,.2,1); }       /* expand (reopen) is quick */
+  body.explore .builder { opacity:0; transform:scale(.18) translate(120px,-40px); pointer-events:none; transition:opacity .6s ease, transform 1.2s cubic-bezier(.5,0,.2,1); }
+  /* redaction preview when NOT is checked */
+  .builder.redacting { background:linear-gradient(0deg, rgba(46,51,64,.12), rgba(46,51,64,.12)), var(--card); border-color:rgba(46,51,64,.4); }
+
+  .builder-top { display:flex; justify-content:flex-end; align-items:center; min-height:24px; margin-bottom:9px; }
+  .btn-clear { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft); background:var(--paper);
+    border:1px solid var(--line); border-radius:8px; padding:4px 9px; }
+  .btn-clear:hover { border-color:var(--app); color:var(--app); }
+
+  .chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .chips:not(:empty) { margin-bottom:11px; }
+  .chip { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink);
+    background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:5px 10px 5px 7px; animation:pop .22s ease both; }
+  .chip.notc { background:linear-gradient(0deg, rgba(46,51,64,.14), rgba(46,51,64,.14)), var(--paper); border-color:rgba(46,51,64,.5); color:var(--not); }
+  @keyframes pop { from{ opacity:0; transform:scale(.92);} to{ opacity:1; transform:none;} }
+  .sw { width:12px; height:12px; border-radius:50%; flex:0 0 auto; box-shadow:inset 0 0 0 1px rgba(51,41,31,.2); }
+  .sw.redact { border-radius:3px; }
+  .chip .lbl { cursor:pointer; }
+  .chip .notm { color:var(--not); }
+  .chip .x { background:transparent; border:none; color:var(--ink-faint); font-size:13px; padding:0 1px; }
+  .chip .x:hover { color:var(--app); }
+
+  /* build row */
+  .br-master { display:flex; align-items:stretch; gap:8px; }
+  .br-master .g-select { flex:1 1 auto; }
+  .g-select { width:100%; font:inherit; font-size:13.5px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:10px; padding:10px 11px; appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink-faint) 50%),linear-gradient(135deg,var(--ink-faint) 50%,transparent 50%);
+    background-position:calc(100% - 17px) 18px, calc(100% - 12px) 18px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; }
+  .g-select:focus { outline:none; border-color:var(--accent); }
+  /* NOT = icon + real checkbox, right of the master dropdown */
+  .not-box { flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; padding:0 9px; border:1px solid var(--line); border-radius:10px;
+    background:var(--paper); color:var(--ink-soft); cursor:pointer; user-select:none; }
+  .not-box:hover { border-color:var(--ink-faint); }
+  .not-box.on { background:var(--not); border-color:var(--not); color:#f1ece0; }
+  .not-box input { width:15px; height:15px; accent-color:var(--not); margin:0; cursor:pointer; }
+  .not-box svg { width:17px; height:17px; }
+
+  .subs { display:flex; flex-wrap:wrap; gap:7px; margin-top:8px; }
+  .subs .g-select { flex:1 1 130px; min-width:116px; width:auto; }
+  .br-foot { display:flex; justify-content:flex-end; min-height:0; }
+  .row-x { background:transparent; border:none; color:var(--ink-faint); font-size:15px; line-height:1; padding:6px 2px 0; }
+  .row-x:hover { color:var(--app); }
+
+  .actions { display:flex; flex-direction:column; gap:9px; margin-top:13px; }
+  /* Add Variable — prominent, GOLD, distinct from Search Map */
+  .btn-add { width:100%; font-size:14px; font-weight:700; color:#4a3a16; border-radius:11px; padding:12px;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    background:linear-gradient(180deg,#d8be78,var(--gold)); border:1px solid #a98a45; box-shadow:0 6px 16px -9px rgba(184,154,85,.9); }
+  .btn-add:hover:not(:disabled) { filter:brightness(1.04); }
+  .btn-add:disabled { background:var(--card); color:var(--ink-faint); border:1px dashed var(--line); box-shadow:none; cursor:not-allowed; font-weight:600; }
+  /* Search Map — GREEN */
+  .btn-search { width:100%; font-size:14px; font-weight:700; color:#fff; border-radius:11px; padding:12px;
+    background:linear-gradient(180deg,#6a7d72,var(--accent)); border:1px solid var(--accent); box-shadow:0 6px 16px -8px rgba(91,107,99,.85); }
+  .btn-search:hover { filter:brightness(1.05); }
+
+  .save-gap { height:26px; }
+  .save-inline { align-self:center; font-size:12px; color:var(--ink-faint); background:transparent; border:none;
+    display:inline-flex; align-items:center; gap:6px; text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--line); }
+  .save-inline:hover { color:var(--ink-soft); }
+  .save-inline svg { width:13px; height:13px; }
+
+  /* ---------- collapsed: small square 'bottle' + vertical ghost tokens ---------- */
+  .bottle { right:18px; top:64px; width:54px; height:54px; border-radius:15px; background:var(--card);
+    border:1px solid rgba(184,154,85,.55); color:var(--gold); display:none; align-items:center; justify-content:center;
+    pointer-events:auto; box-shadow:0 1px 2px rgba(51,41,31,.1), 0 16px 30px -16px rgba(51,41,31,.5); }
+  body.explore .bottle { display:flex; animation:bottleIn 1.0s ease both, breathe 2.6s ease-in-out 1.0s infinite; }
+  @keyframes bottleIn { from{ opacity:0; transform:scale(.4); } to{ opacity:1; transform:none; } }
+  @keyframes breathe { 0%,100%{ box-shadow:0 1px 2px rgba(51,41,31,.1), 0 16px 30px -16px rgba(51,41,31,.5), 0 0 0 0 rgba(184,154,85,.5);}
+    50%{ box-shadow:0 1px 2px rgba(51,41,31,.1), 0 16px 30px -16px rgba(51,41,31,.5), 0 0 0 9px rgba(184,154,85,0);} }
+  .bottle svg { width:24px; height:24px; }
+  .bottle .badge { position:absolute; top:-6px; right:-6px; min-width:19px; height:19px; padding:0 5px; border-radius:999px;
+    background:var(--accent); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #e9eeee; }
+
+  /* ghost tokens float vertically — NO background for max map visibility; left-aligned */
+  .ghoststrip { right:26px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; gap:16px; align-items:flex-start;
+    pointer-events:none; }
+  body.explore .ghoststrip { display:flex; }
+  .gtok { pointer-events:auto; display:inline-flex; align-items:center; gap:9px; padding:0; animation:ghostIn .7s ease both; transition:opacity .25s ease; }
+  @keyframes ghostIn { from{ opacity:0; transform:translateX(14px);} to{ opacity:1; transform:none;} }
+  .gtok.muted { opacity:.4; }
+  .gtok.dim { opacity:.28; }
+  .gtok .glbl { font-size:14px; font-weight:800; white-space:nowrap; color:var(--ink);
+    text-shadow:0 1px 3px rgba(255,255,255,.95), 0 0 9px rgba(255,255,255,.75); }
+  .gtok.notc .glbl { color:var(--not); }
+  .gtok .gctrls { display:inline-flex; gap:5px; }
+  .gtok .gb { width:28px; height:28px; border-radius:9px; border:1px solid rgba(36,50,68,.16); background:rgba(255,255,255,.72); color:var(--ink-soft);
+    font-size:12px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 2px 7px -3px rgba(36,50,68,.55); }
+  .gtok .gb:hover { background:#fff; color:var(--ink); }
+  .gtok .gb.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .gtok .gb[data-mini="not"].on { background:var(--not); color:#fff; border-color:var(--not); }
+  .gtok .gb svg { width:14px; height:14px; }
+  /* color chip on the right, inside a black ring to keep it contained */
+  .gtok .swring { width:22px; height:22px; border-radius:50%; border:2px solid #14181f; display:inline-flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.55); box-shadow:0 2px 7px -3px rgba(36,50,68,.6); }
+  .gtok .swring .sw { width:12px; height:12px; box-shadow:none; }
+  .gtok .swring .sw.redact { border-radius:3px; }
+
+  /* save now lives as a disk icon, dropped just below the ghost controls */
+  .gdisk { pointer-events:auto; width:34px; height:34px; border-radius:11px; background:rgba(255,255,255,.78); border:1px solid var(--line);
+    color:var(--ink-soft); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 12px -5px rgba(36,50,68,.5);
+    animation:diskDrop 1.1s cubic-bezier(.4,0,.2,1) both; }
+  @keyframes diskDrop { 0%{ opacity:0; transform:translateY(-34px) scale(.78);} 65%{ opacity:1;} 100%{ opacity:1; transform:none;} }
+  .gdisk:hover { color:var(--accent); border-color:var(--accent); background:#fff; }
+  .gdisk svg { width:17px; height:17px; }
+
+  /* save popover */
+  .savepop { position:fixed; z-index:1400; width:286px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px;
+    display:none; box-shadow:0 18px 44px -18px rgba(51,41,31,.55); }
+  .savepop.show { display:block; animation:pop .18s ease both; }
+  .sp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .sp-head .t { font-family:var(--serif); font-size:15px; font-weight:600; }
+  .sp-x { background:transparent; border:none; color:var(--ink-faint); font-size:14px; padding:2px 5px; border-radius:6px; }
+  .sp-x:hover { background:var(--line-soft); color:var(--ink); }
+  .sp-title { width:100%; font:inherit; font-size:13.5px; color:var(--ink); background:var(--paper); border:1px solid var(--line);
+    border-radius:9px; padding:8px 10px; margin-bottom:9px; }
+  .sp-notes-wrap { position:relative; }
+  .sp-notes { min-height:72px; max-height:150px; overflow:auto; font-size:13px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:9px; padding:8px 34px 8px 10px; }
+  .sp-notes:focus { outline:none; border-color:var(--accent); }
+  .sp-notes:empty:before { content:attr(data-ph); color:var(--ink-faint); }
+  .sp-mic { position:absolute; right:7px; bottom:7px; width:24px; height:24px; border-radius:7px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); display:inline-flex; align-items:center; justify-content:center; }
+  .sp-mic:hover { color:var(--app); border-color:var(--app); }
+  .sp-mic svg { width:13px; height:13px; }
+  .sp-actions { display:flex; justify-content:flex-end; margin-top:11px; }
+  .sp-save { font-size:13px; font-weight:600; color:#fff; background:var(--accent); border:1px solid var(--accent); border-radius:9px; padding:7px 16px; }
+
+  /* chip popover */
+  .popmenu { position:fixed; z-index:1400; min-width:140px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:5px;
+    display:none; box-shadow:0 14px 32px -14px rgba(51,41,31,.5); }
+  .popmenu.show { display:block; }
+  .popmenu button { display:block; width:100%; text-align:left; font-size:13px; color:var(--ink-soft); background:transparent; border:none; border-radius:7px; padding:7px 10px; }
+  .popmenu button:hover { background:var(--line-soft); color:var(--ink); }
+  .popmenu button.danger:hover { background:rgba(163,116,88,.12); color:var(--app); }
+  .popmenu .pm-head { font-size:11px; color:var(--ink-faint); padding:5px 10px 6px; border-bottom:1px solid var(--line-soft); margin-bottom:4px; }
+
+  /* color-depth slider — wordless; controls ALL overlays */
+  .lab { left:16px; bottom:18px; background:rgba(255,255,255,.6); border:1px solid rgba(36,50,68,.12); border-radius:999px; padding:9px 13px;
+    pointer-events:auto; box-shadow:0 8px 22px -14px rgba(36,50,68,.5); backdrop-filter:blur(4px); }
+  .lab input[type=range] { width:150px; accent-color:var(--accent); vertical-align:middle; }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <button class="menu-handle" data-act="menu-handle" title="Menu">≡</button>
+    <nav class="mainmenu">
+      <a href="#" class="on">View Map</a><a href="#">Profile</a><a href="#">Comparison</a>
+      <a href="#">Transit Lab</a><a href="#">Store</a><a href="#">Settings</a>
+    </nav>
+    <div class="acct">
+      <button class="share-btn" title="Share this map (not yet designed)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        Share</button>
+      <span>David Goodman ▾</span>
+    </div>
+  </header>
+
+  <div id="map"></div>
+
+  <!-- map controls -->
+  <div class="ov mapctrls">
+    <div class="ctrl-card zoomcol">
+      <button data-act="zoomin" title="Zoom in">+</button><button data-act="zoomout" title="Zoom out">–</button><button data-act="recenter" title="Recenter">○</button>
+    </div>
+    <div class="ctrl-card navgrp">
+      <button class="navbtn back" title="Previous search"><span class="full">Back</span><span class="mini">‹</span></button>
+      <button class="navbtn fwd" title="Next search"><span class="full">Forward</span><span class="mini">›</span></button>
+      <button class="navbtn pin" title="Pin this search to the front for comparison">
+        <span class="full">Pin</span>
+        <span class="mini"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3l6 6-4 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- profile plate (beside genie) -->
+  <div class="ov plate" id="plate"></div>
+
+  <!-- centered city search -->
+  <div class="ov topstack">
+    <div class="citysearch" id="citysearch" data-act="cs-handle">
+      <input class="cs-input" type="text" placeholder="Search a city…" autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- right rail / builder -->
+  <div class="ov rail">
+    <div class="builder" id="builder">
+      <div class="builder-top">
+        <button class="btn-clear" data-act="clearmap" title="Clear all variables and reset the map">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg>
+          Clear Map</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="buildrow" id="buildrow"></div>
+      <div class="actions">
+        <button class="btn-add" id="addBtn" data-act="add"><span>+</span> Add Variable</button>
+        <button class="btn-search" id="searchBtn" data-act="search">Search Map</button>
+      </div>
+      <div class="save-gap"></div>
+      <button class="save-inline" data-act="opensave">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Save search
+      </button>
+    </div>
+  </div>
+
+  <!-- collapsed reopen square -->
+  <button class="ov bottle" id="bottle" data-act="reopen" title="Open the variable builder">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v4l-4 9a4 4 0 0 0 4 6h4a4 4 0 0 0 4-6l-4-9V2"/><path d="M7.5 14h9"/></svg>
+    <span class="badge" id="bottleBadge">0</span>
+  </button>
+
+  <!-- floating ghost variable tokens (+ save disk appended in JS) -->
+  <div class="ov ghoststrip" id="ghoststrip"></div>
+
+  <!-- wordless color-depth slider -->
+  <div class="ov lab" id="lab">
+    <input id="ovOpacity" type="range" min="12" max="78" value="42" title="Overlay color depth">
+  </div>
+
+  <div class="savepop" id="savePop"></div>
+  <div class="popmenu" id="popmenu"></div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ===== CONFIG (DB/Settings-ready; relocation placements, brute-forced elsewhere) ===== */
+  var PLANETS = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  var SIGNS   = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  var ANGLES  = ["ASC","DSC","MC","IC"];
+  var HOUSES  = [1,2,3,4,5,6,7,8,9,10,11,12];
+  var ASPECTS = [
+    {id:"conjunction",label:"Conjunction",family:"hard"},{id:"sextile",label:"Sextile",family:"soft"},
+    {id:"square",label:"Square",family:"hard"},{id:"trine",label:"Trine",family:"soft"},
+    {id:"opposition",label:"Opposition",family:"hard"},
+    {id:"hard",label:"Hard Aspects",group:"hard"},{id:"soft",label:"Soft Aspects",group:"soft"},{id:"all_major",label:"All Major Aspects",group:"all"}
+  ];
+  var CATEGORIES = [
+    { id:"planet_house", label:"Planet – House",
+      fields:[{key:"planet",label:"Planet",src:"PLANETS"},{key:"house",label:"House",src:"HOUSES"}],
+      chip:function(v){return v.planet+" – "+ordinal(v.house);}, mini:function(v){return PLANET_ABBR[v.planet]+" · "+v.house;} },
+    { id:"aspect_angle", label:"Aspect – Angle",
+      fields:[{key:"planet",label:"Planet",src:"PLANETS"},{key:"aspect",label:"Aspect",src:"ASPECTS"},{key:"angle",label:"Angle",src:"ANGLES"}],
+      chip:function(v){return v.planet+" – "+aspectLabel(v.aspect)+" – "+v.angle;}, mini:function(v){return PLANET_ABBR[v.planet]+" "+ASP_ABBR[v.aspect]+" "+v.angle;} },
+    { id:"angle_sign", label:"Angle – Sign",
+      fields:[{key:"angle",label:"Angle",src:"ANGLES"},{key:"sign",label:"Sign",src:"SIGNS"}],
+      chip:function(v){return v.angle+" – "+v.sign;}, mini:function(v){return v.angle+" · "+SIGN_ABBR[v.sign];} }
+  ];
+  function SOURCES(name){
+    switch(name){
+      case "PLANETS": return PLANETS.map(function(p){return {value:p,label:p};});
+      case "SIGNS":   return SIGNS.map(function(s){return {value:s,label:s};});
+      case "ANGLES":  return ANGLES.map(function(a){return {value:a,label:a};});
+      case "HOUSES":  return HOUSES.map(function(h){return {value:h,label:ordinal(h)};});
+      case "ASPECTS": return ASPECTS.map(function(a){return {value:a.id,label:a.label};});
+      default: return [];
+    }
+  }
+  // vibrant, optimistic overlay palette (provisional — to be set by the design pass)
+  var VAR_COLORS = ["#e8902f","#2f9bd0","#e8553a","#52b878","#8b63d6","#e44d8a","#1fb3a6","#f0c020","#5d7ce6","#d24b46"];
+  var PLANET_ABBR = {Sun:"Sun",Moon:"Moon",Mercury:"Mer",Venus:"Ven",Mars:"Mar",Jupiter:"Jup",Saturn:"Sat",Uranus:"Ura",Neptune:"Nep",Pluto:"Plu",Chiron:"Chi"};
+  var SIGN_ABBR = {Aries:"Ari",Taurus:"Tau",Gemini:"Gem",Cancer:"Can",Leo:"Leo",Virgo:"Vir",Libra:"Lib",Scorpio:"Sco",Sagittarius:"Sag",Capricorn:"Cap",Aquarius:"Aqu",Pisces:"Pis"};
+  var ASP_ABBR = {conjunction:"Conj",sextile:"Sext",square:"Sq",trine:"Tri",opposition:"Opp",hard:"Hard",soft:"Soft",all_major:"Maj"};
+
+  // NOT band — deep slate-blue: dark, set apart, NOT midnight; reads against the blue map
+  var NOT_COLOR_DEFAULT = "#2e3340";
+  // NOT = "no symbol" (circle with a slash) — clearer than a redaction bar for now
+  var REDACT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>';
+  var DISK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>';
+  var MIC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+
+  /* ===== helpers ===== */
+  function ordinal(n){ n=+n; var s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+  function aspectLabel(id){ var a=ASPECTS.find(function(x){return x.id===id;}); return a?a.label:id; }
+  function catById(id){ return CATEGORIES.find(function(c){return c.id===id;}); }
+  function uid(){ return "v"+Math.random().toString(36).slice(2,9); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+  function hash(str){ var h=2166136261; for(var i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+
+  /* ===== state ===== */
+  var variables=[], soloId=null, colorTick=0;
+  var build={editId:null,not:false,category:null,values:{}};
+  var notColor = NOT_COLOR_DEFAULT;
+  var overlayOpacity = 0.42;
+
+  var PROFILE = { name:"Avery Rhodes", date:"14 March 1989", time:"7:42 AM", offset:"+00:00",
+    place:"Lisbon, Portugal", lat:"38.72° N", lon:"9.14° W", zodiac:"Tropical", houses:"Placidus" };
+
+  /* ===== Leaflet map ===== */
+  var map = L.map('map', { zoomControl:false, attributionControl:false, worldCopyJump:true, minZoom:2 }).setView([25,5], 3);
+  // blue-water, optimistic basemap (CARTO Voyager)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { subdomains:'abcd', maxZoom:19 }).addTo(map);
+  var overlayLayer = L.layerGroup().addTo(map);
+
+  var els = {
+    body:document.body, plate:document.getElementById("plate"), chips:document.getElementById("chips"),
+    buildrow:document.getElementById("buildrow"), addBtn:document.getElementById("addBtn"),
+    builder:document.getElementById("builder"), ghost:document.getElementById("ghoststrip"),
+    bottleBadge:document.getElementById("bottleBadge"), savePop:document.getElementById("savePop"),
+    popmenu:document.getElementById("popmenu")
+  };
+
+  /* ===== plate ===== */
+  function renderPlate(){
+    var p=PROFILE;
+    els.plate.innerHTML =
+      '<div class="name-row"><span class="name-tools"><button>Edit</button><button class="plus" title="Add profile">+</button></span>'+
+        '<button class="profile-select">'+esc(p.name)+' <span class="caret">▾</span></button></div>'+
+      '<div class="strong">'+esc(p.date)+' · '+esc(p.time)+'</div>'+
+      '<div class="place">'+esc(p.place)+'</div>'+
+      '<div class="plate-tech"><span class="t">'+esc(p.lat)+', '+esc(p.lon)+' · UTC '+esc(p.offset)+' · '+esc(p.zodiac)+' · '+esc(p.houses)+'</span></div>';
+  }
+
+  /* ===== chips / build ===== */
+  function buildComplete(){ if(!build.category) return false;
+    return catById(build.category).fields.every(function(f){ return build.values[f.key]!==undefined && build.values[f.key]!==""; }); }
+  function selectHtml(role,options,value,placeholder){
+    // placeholder is NOT disabled, so selecting the FIRST real option reliably fires change
+    var has=value!==undefined && value!=="";
+    var opts='<option value=""'+(has?'':' selected')+'>'+placeholder+'</option>';
+    opts+=options.map(function(o){ return '<option value="'+esc(o.value)+'"'+(String(o.value)===String(value)?' selected':'')+'>'+esc(o.label)+'</option>'; }).join("");
+    return '<select class="g-select" data-role="'+role+'">'+opts+'</select>';
+  }
+  function swatch(v,cls){ var s=v.not?notColor:v.color; return '<span class="sw'+(v.not?' redact':'')+(cls?' '+cls:'')+'" style="background:'+s+'"></span>'; }
+
+  function renderChips(){
+    els.chips.innerHTML = variables.map(function(v){
+      return '<span class="chip'+(v.not?' notc':'')+'" data-id="'+v.id+'">'+swatch(v)+
+        (v.not?'<span class="notm">'+REDACT_ICON+'</span>':'')+
+        '<span class="lbl" data-act="chip" data-id="'+v.id+'">'+esc(catById(v.category).chip(v.values))+'</span>'+
+        '<button class="x" data-act="remove" data-id="'+v.id+'" title="Remove">✕</button></span>';
+    }).join("");
+  }
+  function variableCap(){ return (window.matchMedia && window.matchMedia("(max-width:560px)").matches)?6:12; }
+  function renderBuildRow(){
+    els.buildrow.innerHTML =
+      '<div class="br-master">'+
+        selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Select Variable")+
+        '<label class="not-box'+(build.not?' on':'')+'" title="Redact — exclude these placements (NOT)">'+REDACT_ICON+
+          '<input type="checkbox" data-role="notcheck"'+(build.not?' checked':'')+'></label>'+
+      '</div>'+
+      '<div class="subs" id="subs"></div>'+
+      '<div class="br-foot" id="brFoot"></div>';
+    renderSubs(); applyRedactPreview();
+  }
+  function renderSubs(){
+    var subs=document.getElementById("subs"), foot=document.getElementById("brFoot");
+    if(!build.category){ subs.innerHTML=""; foot.innerHTML=""; updateAddState(); return; }
+    subs.innerHTML = catById(build.category).fields.map(function(f){
+      return selectHtml("field:"+f.key, SOURCES(f.src), build.values[f.key], f.label);
+    }).join("");
+    foot.innerHTML = '<button class="row-x" data-act="cancel" title="Discard this variable">✕</button>';
+    updateAddState();
+  }
+  function updateAddState(){
+    var atCap=!build.editId && variables.length>=variableCap();
+    els.addBtn.disabled=!buildComplete()||atCap;
+    els.addBtn.title=atCap?("Up to "+variableCap()+" variables for now"):"";
+  }
+  function applyRedactPreview(){ els.builder.classList.toggle("redacting", !!build.not); }
+
+  function renderGhost(){
+    els.bottleBadge.textContent = variables.length;
+    var toks = variables.map(function(v){
+      var dim=(soloId && soloId!==v.id);
+      return '<span class="gtok'+(v.not?' notc':'')+(v.mute?' muted':'')+(dim?' dim':'')+'" data-id="'+v.id+'">'+
+        '<span class="glbl">'+esc(catById(v.category).mini(v.values))+'</span>'+
+        '<span class="gctrls">'+
+          '<button class="gb'+(v.not?' on':'')+'" data-mini="not" data-id="'+v.id+'" title="Exclude (NOT)">'+REDACT_ICON+'</button>'+
+          '<button class="gb'+(v.mute?' on':'')+'" data-mini="mute" data-id="'+v.id+'" title="Mute">M</button>'+
+          '<button class="gb'+(soloId===v.id?' on':'')+'" data-mini="solo" data-id="'+v.id+'" title="Solo">S</button>'+
+        '</span>'+
+        '<span class="swring">'+swatch(v)+'</span></span>';
+    }).join("");
+    els.ghost.innerHTML = toks + '<button class="gdisk" data-act="opensave" title="Save search">'+DISK_ICON+'</button>';
+  }
+  // stable in-place refresh — no innerHTML rebuild, so toggling never flashes
+  function refreshGhost(){
+    els.bottleBadge.textContent = variables.length;
+    Array.prototype.forEach.call(els.ghost.querySelectorAll(".gtok"), function(tok){
+      var v=variables.find(function(x){return x.id===tok.getAttribute("data-id");}); if(!v) return;
+      tok.classList.toggle("notc", !!v.not);
+      tok.classList.toggle("muted", !!v.mute);
+      tok.classList.toggle("dim", !!(soloId && soloId!==v.id));
+      var sw=tok.querySelector(".sw"); if(sw){ sw.style.background=v.not?notColor:v.color; sw.classList.toggle("redact", !!v.not); }
+      tok.querySelector('[data-mini="not"]').classList.toggle("on", !!v.not);
+      tok.querySelector('[data-mini="mute"]').classList.toggle("on", !!v.mute);
+      tok.querySelector('[data-mini="solo"]').classList.toggle("on", soloId===v.id);
+    });
+  }
+  function renderAll(){ renderChips(); renderBuildRow(); renderGhost(); }
+
+  /* ===== build actions ===== */
+  function resetBuild(){ build={editId:null,not:false,category:null,values:{}}; }
+  function commitVariable(){
+    if(!buildComplete()) return;
+    if(build.editId){ var ex=variables.find(function(x){return x.id===build.editId;});
+      ex.not=build.not; ex.category=build.category; ex.values=Object.assign({},build.values);
+    } else { variables.push({id:uid(),not:build.not,category:build.category,values:Object.assign({},build.values),color:VAR_COLORS[colorTick++%VAR_COLORS.length],mute:false}); }
+    resetBuild(); renderAll();
+  }
+  function onCategoryChange(val){ build.category=val||null; build.values={}; renderSubs(); }
+  function onFieldChange(key,val){ build.values[key]=val; updateAddState(); }
+  function editVariable(id){ var v=variables.find(function(x){return x.id===id;});
+    build={editId:id,not:v.not,category:v.category,values:Object.assign({},v.values)}; renderBuildRow(); }
+  function removeVariable(id){ variables=variables.filter(function(x){return x.id!==id;});
+    if(soloId===id)soloId=null; if(build.editId===id)resetBuild(); renderAll(); if(els.body.classList.contains("explore")) drawOverlays(); }
+  function duplicateVariable(id){ var v=variables.find(function(x){return x.id===id;});
+    variables.push({id:uid(),not:v.not,category:v.category,values:Object.assign({},v.values),color:VAR_COLORS[colorTick++%VAR_COLORS.length],mute:false}); renderAll(); }
+
+  /* ===== setup <-> explore ===== */
+  function toExplore(){ resetBuild(); renderAll(); els.body.classList.add("explore"); drawOverlays(); }
+  function toSetup(){ els.body.classList.remove("explore","menu-open","cs-open"); closeSavePop(); renderBuildRow(); }
+
+  /* ===== MOCK overlays: translucent placement regions (relocation, not astrocartography) ===== */
+  function seededZones(seed, n){
+    var s=hash(seed), out=[];
+    for(var i=0;i<n;i++){
+      s=(Math.imul(s,1103515245)+12345)>>>0; var lat=((s%14000)/100)-65;
+      s=(Math.imul(s,1103515245)+12345)>>>0; var lon=((s%36000)/100)-180;
+      s=(Math.imul(s,1103515245)+12345)>>>0; var rad=600000+(s%1400000);
+      out.push([lat,lon,rad]);
+    }
+    return out;
+  }
+  function drawOverlays(){
+    overlayLayer.clearLayers();
+    var active=variables.filter(function(v){ if(v.mute) return false; if(soloId) return v.id===soloId; return true; });
+    active.forEach(function(v){
+      var col=v.not?notColor:v.color;
+      var zones=seededZones(v.id+v.category, 3);
+      zones.forEach(function(z){
+        L.circle([z[0],z[1]], { radius:z[2], color:col, weight:v.not?0:1, opacity:.5,
+          fillColor:col, fillOpacity: v.not?Math.min(.6,overlayOpacity+0.14):overlayOpacity }).addTo(overlayLayer);
+      });
+    });
+  }
+
+  /* ===== save popover ===== */
+  function openSavePop(anchor){
+    var summary=variables.map(function(v){return (v.not?"NOT ":"")+catById(v.category).chip(v.values);}).join(", ")||"this search";
+    els.savePop.innerHTML =
+      '<div class="sp-head"><span class="t">Save search</span><button class="sp-x" data-act="closesave" title="Close">✕</button></div>'+
+      '<input class="sp-title" type="text" placeholder="Name this search…">'+
+      '<div class="sp-notes-wrap"><div class="sp-notes" contenteditable="true" data-ph="Notes about '+esc(summary)+'…"></div>'+
+        '<button class="sp-mic" title="Record a voice note (transcribed later)">'+MIC_ICON+'</button></div>'+
+      '<div class="sp-actions"><button class="sp-save" data-act="closesave">Save</button></div>';
+    els.savePop.classList.add("show");
+    var r=anchor.getBoundingClientRect(), w=286, gap=10;
+    var left=Math.max(12, Math.min(r.right-w, window.innerWidth-w-12));
+    var top=r.top-els.savePop.offsetHeight-gap; if(top<60) top=r.bottom+gap;
+    els.savePop.style.left=left+"px"; els.savePop.style.top=top+"px";
+    var ti=els.savePop.querySelector(".sp-title"); if(ti) ti.focus();
+  }
+  function closeSavePop(){ els.savePop.classList.remove("show"); }
+
+  /* ===== NOT-color lab ===== */
+  function renderLab(){
+    document.getElementById("labSwatches").innerHTML = NOT_OPTIONS.map(function(o){
+      return '<button class="lswatch'+(o.color===notColor?' on':'')+'" data-not="'+o.color+'" data-name="'+esc(o.name)+'" style="background:'+o.color+'" title="'+esc(o.name)+'"></button>';
+    }).join("");
+    var cur=NOT_OPTIONS.find(function(o){return o.color===notColor;});
+    document.getElementById("labName").textContent = cur?cur.name:notColor;
+  }
+
+  /* ===== events ===== */
+  document.addEventListener("change", function(e){
+    if(e.target && e.target.getAttribute && e.target.getAttribute("data-role")==="notcheck"){
+      build.not=e.target.checked; var nb=els.buildrow.querySelector(".not-box"); if(nb) nb.classList.toggle("on",build.not); applyRedactPreview(); return;
+    }
+    var s=e.target.closest("select[data-role]"); if(!s) return;
+    var role=s.getAttribute("data-role");
+    if(role==="category") onCategoryChange(s.value);
+    else if(role.indexOf("field:")===0) onFieldChange(role.slice(6), s.value);
+  });
+
+  document.addEventListener("click", function(e){
+    var b=e.target.closest("[data-act],[data-mini],[data-not]");
+    if(!b){ closePop(); if(!e.target.closest("#savePop")) closeSavePop(); return; }
+
+    if(b.hasAttribute("data-not")){ notColor=b.getAttribute("data-not"); document.documentElement.style.setProperty("--not",notColor);
+      renderLab(); renderChips(); renderGhost(); if(els.body.classList.contains("explore")) drawOverlays(); return; }
+
+    var mini=b.getAttribute("data-mini");
+    if(mini){ e.stopPropagation(); var mv=variables.find(function(x){return x.id===b.getAttribute("data-id");});
+      if(mini==="not") mv.not=!mv.not; if(mini==="mute") mv.mute=!mv.mute; if(mini==="solo") soloId=(soloId===mv.id?null:mv.id);
+      renderGhost(); drawOverlays(); return; }
+
+    var act=b.getAttribute("data-act");
+    switch(act){
+      case "add": commitVariable(); break;
+      case "cancel": resetBuild(); renderBuildRow(); break;
+      case "search": toExplore(); break;
+      case "reopen": toSetup(); break;
+      case "clearmap": variables=[]; soloId=null; resetBuild(); renderAll(); overlayLayer.clearLayers(); break;
+      case "menu-handle": els.body.classList.toggle("menu-open"); break;
+      case "cs-handle": if(els.body.classList.contains("explore")) els.body.classList.toggle("cs-open"); break;
+      case "opensave": e.stopPropagation(); if(els.savePop.classList.contains("show")) closeSavePop(); else openSavePop(b); break;
+      case "closesave": closeSavePop(); break;
+      case "chip": openPop(b,b.getAttribute("data-id"),e); break;
+      case "remove": removeVariable(b.getAttribute("data-id")); break;
+      case "zoomin": map.zoomIn(); break;
+      case "zoomout": map.zoomOut(); break;
+      case "recenter": map.setView([25,5],3); break;
+    }
+  });
+
+  document.getElementById("ovOpacity").addEventListener("input", function(e){
+    overlayOpacity=(+e.target.value)/100; if(els.body.classList.contains("explore")) drawOverlays();
+  });
+
+  function openPop(anchor,id,e){ e.stopPropagation();
+    var v=variables.find(function(x){return x.id===id;});
+    els.popmenu.innerHTML='<div class="pm-head">'+(v.not?"NOT ":"")+esc(catById(v.category).chip(v.values))+'</div>'+
+      '<button data-pop="edit" data-id="'+id+'">Edit</button><button data-pop="dup" data-id="'+id+'">Duplicate</button>'+
+      '<button data-pop="del" data-id="'+id+'" class="danger">Remove</button>';
+    var r=anchor.getBoundingClientRect();
+    els.popmenu.style.left=Math.min(r.left,window.innerWidth-160)+"px"; els.popmenu.style.top=(r.bottom+6)+"px";
+    els.popmenu.classList.add("show");
+  }
+  function closePop(){ els.popmenu.classList.remove("show"); }
+  els.popmenu.addEventListener("click", function(e){ var b=e.target.closest("[data-pop]"); if(!b) return;
+    var id=b.getAttribute("data-id"), act=b.getAttribute("data-pop");
+    if(act==="edit") editVariable(id); else if(act==="dup") duplicateVariable(id); else if(act==="del") removeVariable(id);
+    closePop();
+  });
+
+  /* ===== init ===== */
+  renderPlate(); renderLab(); renderAll();
+  window.__sandbox = { get variables(){return variables;}, drawOverlays:drawOverlays };
+})();
+</script>
+</body>
+</html>

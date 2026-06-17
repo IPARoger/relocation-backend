@@ -1,0 +1,208 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Motion Lab v3</title>
+<style>
+:root{
+  --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9b9080;
+  --line:#ddd0b8; --line-soft:#ece2cf;
+  --paper:#f4ecdc; --card:#fdf8ee;
+  --accent:#5b6b63; --gold:#b89a55; --teal:#5f8a90;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --t:1.33; /* default 0.75x speed */
+  --ease:cubic-bezier(.25,.1,.25,1); /* decelerate, no overshoot */
+}
+*{box-sizing:border-box}
+html,body{margin:0;color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+  background:radial-gradient(58% 50% at 12% -4%, rgba(214,176,108,.16), transparent 60%),
+    radial-gradient(50% 44% at 98% 4%, rgba(150,178,150,.10), transparent 60%),
+    var(--paper); background-attachment:fixed; min-height:100vh;}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 30px 120px}
+h1{font-family:var(--serif);font-weight:700;font-size:24px;margin:0 0 3px}
+.sub{color:var(--ink-soft);margin:0 0 18px;max-width:840px;font-size:13.5px}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:11px 16px;margin-bottom:30px;box-shadow:0 1px 2px rgba(51,41,31,.05)}
+.toolbar b{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.speed button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+  border-radius:8px;padding:5px 11px;cursor:pointer;margin-left:5px}
+.speed button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+h2{font-family:var(--serif);font-size:18px;margin:32px 0 2px}
+.h2sub{color:var(--ink-soft);font-size:12.5px;margin:0 0 16px;max-width:840px}
+.lab{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;align-items:start;max-width:720px}
+.one{max-width:480px}
+.demo{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 14px 12px;
+  box-shadow:0 1px 2px rgba(51,41,31,.05),0 14px 30px -20px rgba(51,41,31,.4)}
+.demo .dtag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:800}
+.demo .dname{font-family:var(--serif);font-size:15px;font-weight:700;margin:1px 0 2px}
+.demo .ddesc{font-size:11.5px;color:var(--ink-soft);min-height:34px;margin:0 0 10px}
+.stage{position:relative;height:240px;border:1px dashed var(--line-soft);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.4)}
+.ctrls{display:flex;gap:7px;margin-top:9px}
+.ctrls button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:7px;padding:5px 10px;cursor:pointer}
+.ctrls button:hover{background:var(--line-soft);color:var(--ink)}
+
+/* ===== HIDE — whole card shrinks into the upper-left caret ===== */
+/* caret collapses into a small square around the arrow — Genie-bottle grammar */
+.handle{position:absolute;left:15px;top:10px;z-index:6;width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:var(--ink-faint);cursor:pointer;line-height:1;user-select:none;
+  border:1px solid transparent;border-radius:7px;background:transparent;transform:rotate(-90deg);
+  transition:transform calc(.4s*var(--t)) var(--ease), background calc(.42s*var(--t)) linear, border-color calc(.42s*var(--t)) linear, box-shadow calc(.42s*var(--t)) linear}
+.collapsed .handle{transform:rotate(0deg);background:var(--card);border-color:var(--line);
+  box-shadow:0 1px 2px rgba(31,45,56,.12),0 8px 16px -12px rgba(31,45,56,.4),inset 0 0 12px color-mix(in srgb,var(--teal) 6%,transparent)}
+.mcard{position:absolute;left:18px;right:18px;top:14px;background:var(--card);border:1px solid #e6e0d4;border-radius:11px;
+  box-shadow:inset 0 0 22px color-mix(in srgb,var(--teal) 4%,transparent),0 0 0 1.5px #fff,0 0 0 4.5px color-mix(in srgb,var(--teal) 8%,#e3ddd1);
+  transform-origin:10px 9px;
+  transition:transform calc(.5s*var(--t)) var(--ease), opacity calc(.4s*var(--t)) linear}
+.collapsed .mcard{transform:scale(.05);opacity:0;pointer-events:none}
+.mhead{display:flex;align-items:center;padding:8px 11px 6px 30px;border-bottom:1px solid var(--line-soft)}
+.mtitle{font-family:var(--serif);font-size:14px;font-weight:700}
+.mrow{display:flex;justify-content:space-between;padding:6px 12px;border-bottom:1px solid var(--line-soft);font-size:12.5px;color:var(--ink-soft)}
+.mrow:last-child{border-bottom:none}
+.mrow b{color:var(--ink);font-weight:600}
+
+/* ===== NOTES — morphs out of / back into the "Notes" button ===== */
+.notebtn{position:absolute;left:12px;top:12px;z-index:4;display:inline-flex;align-items:center;gap:8px;background:var(--card);
+  border:1px solid var(--line);border-radius:11px;padding:9px 12px;font-size:13px;color:var(--ink-soft);cursor:pointer;
+  box-shadow:inset 0 0 16px color-mix(in srgb,var(--gold) 4%,transparent);
+  transition:opacity calc(.22s*var(--t)) linear}
+.notebtn .exp{font-size:14px;color:var(--ink-faint)}
+.np-open .notebtn{opacity:0;pointer-events:none;transition:opacity calc(.1s*var(--t)) linear}
+.backdrop{position:absolute;inset:0;background:rgba(51,41,31,.14);opacity:0;pointer-events:none;transition:opacity calc(.3s*var(--t)) linear}
+.np-open .backdrop{opacity:1}
+/* continuous morph: editor grows FROM the button (content rides along, one unbroken motion) */
+.wp{position:absolute;left:10px;top:10px;right:10px;bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:0 22px 50px -22px rgba(51,41,31,.55);
+  transform-origin:54px 21px;transform:scale(.17);opacity:0;pointer-events:none;
+  transition:transform calc(.52s*var(--t)) var(--ease), opacity calc(.13s*var(--t)) linear}
+.np-open .wp{transform:scale(1);opacity:1;pointer-events:auto}
+.wp-head{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--line-soft)}
+.wp-title{font-family:var(--serif);font-weight:700;font-size:14px}
+.wp-x{cursor:pointer;color:var(--ink-faint);font-size:14px}
+.wp-tools{display:flex;align-items:center;gap:3px;padding:6px 11px;border-bottom:1px solid var(--line-soft);color:var(--ink-soft)}
+.wp-tools button{background:none;border:none;color:var(--ink-soft);font-size:12px;cursor:pointer;padding:3px 7px;border-radius:5px}
+.wp-tools button:hover{background:var(--line-soft)}
+.wp-inputwrap{position:relative;flex:1;display:flex}
+.wp-body{flex:1;padding:11px 13px 34px;font-size:12.5px;color:var(--ink-soft);line-height:1.55;overflow:auto}
+.wp-inmode{position:absolute;right:11px;bottom:9px;display:flex;gap:4px}
+.wp-inmode button{width:26px;height:24px;border:1px solid var(--line);background:var(--card);border-radius:7px;color:var(--ink-soft);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
+.wp-inmode button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== CAROUSEL — page-turn slide ===== */
+.car{position:absolute;left:18px;right:18px;top:34px;height:150px;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--card)}
+.track{position:absolute;inset:0;display:flex;width:300%;transition:transform calc(.45s*var(--t)) var(--ease)}
+.slide{width:33.333%;flex:0 0 33.333%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px}
+.slide .sgl{font-family:var(--serif);font-size:30px;color:var(--ink)}
+.slide .slab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:800}
+.slide .sval{font-size:13px;color:var(--ink-soft)}
+.dots{position:absolute;left:0;right:0;bottom:6px;display:flex;justify-content:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer}
+.dot.on{background:var(--accent)}
+.carnav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);cursor:pointer;color:var(--ink-soft);font-size:13px;display:flex;align-items:center;justify-content:center;z-index:5}
+.carnav.prev{left:8px}.carnav.next{right:8px}
+
+.note{margin-top:38px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 20px;font-size:12.8px;color:var(--ink-soft);line-height:1.65}
+.note b{color:var(--ink)}
+</style></head>
+<body>
+<div class="wrap">
+<h1>Motion Lab v3 — functional, human-paced</h1>
+<p class="sub">Default speed <b>0.75×</b>. No acceleration, no overshoot, no added color. Hide collapses the card into a small square around the arrow (Genie-bottle style). Note grows continuously out of the "Notes" button (one unbroken motion).</p>
+
+<div class="toolbar">
+  <b>Speed</b>
+  <span class="speed" id="speed">
+    <button data-t="1">1× normal</button>
+    <button data-t="1.33" class="on">0.75×</button>
+    <button data-t="2">0.5×</button>
+    <button data-t="4">0.25× study</button>
+  </span>
+</div>
+
+<h2>1 · Hide — card shrinks into the caret</h2>
+<p class="h2sub">The whole card retracts into a <b>small square around the arrow</b> (same grammar as the Genie bottle). No chip, no "AA", no words, no bounce. The square is the restore handle — click it to bring the table back.</p>
+<div class="lab one" style="grid-template-columns:1fr">
+  <div class="demo">
+    <div class="dtag">Single behavior</div><div class="dname">Collapse into the arrow-square</div>
+    <p class="ddesc">Calm decelerate into the square; caret points right when open, down when hidden.</p>
+    <div class="stage" id="h1">
+      <span class="handle" onclick="hide('h1')">&#9662;</span>
+      <div class="mcard">
+        <div class="mhead"><span class="mtitle">Aspect to Angle</span></div>
+        <div class="mrow"><span>Sun</span><b>Tri 2&deg;08'</b></div><div class="mrow"><span>Moon</span><b>Sq 3&deg;08'</b></div><div class="mrow"><span>Venus</span><b>Conj 0&deg;41'</b></div><div class="mrow"><span>Mars</span><b>Opp 1&deg;52'</b></div>
+      </div>
+    </div>
+    <div class="ctrls"><button onclick="hide('h1')">Hide / Show</button></div>
+  </div>
+</div>
+
+<h2>2 · Note pop-out — mini word processor (morphs from the button)</h2>
+<p class="h2sub">Opens by morphing out of the "Notes" button into a roomy editor (in the real app ≈ <b>1/3 to 1/2 of the screen</b>). Mic / keyboard toggle sits bottom-right of the input. Closes by morphing back into the button — not a flash.</p>
+<div class="lab one" style="grid-template-columns:1fr">
+  <div class="demo">
+    <div class="dtag">Single behavior</div><div class="dname">Morph ↔ Notes button</div>
+    <p class="ddesc">Button becomes the editor and back again. Stage is small here; real surface is much larger.</p>
+    <div class="stage" id="np" style="height:300px">
+      <div class="notebtn" onclick="np()">Notes <span class="exp">&#10138;</span></div>
+      <div class="backdrop" onclick="np()"></div>
+      <div class="wp">
+        <div class="wp-head"><span class="wp-title">Kyoto — Notes</span><span class="wp-x" onclick="np()">&times;</span></div>
+        <div class="wp-tools"><button><b>B</b></button><button><i>I</i></button><button><u>U</u></button><button>&#8226; List</button></div>
+        <div class="wp-inputwrap">
+          <div class="wp-body">Kyoto feels calmer than I expected — temples, the river walk, quiet mornings. Cost of living lower than Tokyo; the relocated Moon sits closer to the IC which tracks with how settled it feels here. Worth comparing against Lisbon before deciding…</div>
+          <div class="wp-inmode">
+            <button class="kbd on" title="Keyboard">&#9000;</button>
+            <button class="mic" title="Dictate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8.5" y1="22" x2="15.5" y2="22"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ctrls"><button onclick="np()">Open / Close</button></div>
+  </div>
+</div>
+
+<h2>3 · Carousel — page-turn slide</h2>
+<p class="h2sub">Horizontal page turn through A2A angles (locked: you like the horizontal movement). Calm, uniform pace.</p>
+<div class="lab one" style="grid-template-columns:1fr">
+  <div class="demo">
+    <div class="dtag">Single behavior</div><div class="dname">Uniform horizontal slide</div>
+    <p class="ddesc">Next from right, prev from left, same gentle 0.75× pace.</p>
+    <div class="stage">
+      <div class="car" id="car" data-i="0">
+        <button class="carnav prev" onclick="car(-1)">&#8249;</button>
+        <div class="track">
+          <div class="slide"><div class="slab">ASC</div><div class="sgl">&#9651;</div><div class="sval">Tri 2&deg;08'</div></div>
+          <div class="slide"><div class="slab">DSC</div><div class="sgl">&#9663;</div><div class="sval">Sq 3&deg;08'</div></div>
+          <div class="slide"><div class="slab">MC</div><div class="sgl">&#9633;</div><div class="sval">Conj 0&deg;41'</div></div>
+        </div>
+        <button class="carnav next" onclick="car(1)">&#8250;</button>
+        <div class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+<b>Locked direction:</b> 0.75× default pace · horizontal page-turn carousel · hide = shrink-into-caret (no chip/words/bounce) · note = morph in/out of its button into a large editor (mic+keyboard bottom-right). <b>Still TBD:</b> whether to ever add an AA/glyph marker (leaning caret-only).
+<br><b>Deferred clean-start:</b> map overlay reveal (rain/virga).
+</div>
+</div>
+<script>
+function hide(id){document.getElementById(id).classList.toggle('collapsed');}
+function np(){document.getElementById('np').classList.toggle('np-open');}
+function car(dir){
+  var c=document.getElementById('car');var n=3;var cur=+c.getAttribute('data-i')||0;
+  var next=Math.max(0,Math.min(n-1,cur+dir));
+  c.setAttribute('data-i',next);
+  c.querySelector('.track').style.transform='translateX(-'+(next*33.333)+'%)';
+  c.querySelectorAll('.dot').forEach(function(d,k){d.classList.toggle('on',k===next);});
+}
+document.querySelectorAll('.wp-inmode').forEach(function(g){
+  g.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();g.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
+});
+document.getElementById('speed').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');document.documentElement.style.setProperty('--t',b.getAttribute('data-t'));
+});
+</script>
+</body></html>

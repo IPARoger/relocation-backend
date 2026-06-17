@@ -1,0 +1,232 @@
+{
+  "schema": "truth_field_sandbox_animations@1",
+  "sandbox_url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html",
+  "output_dir": "validation/screenshots/truth_field_sandbox",
+  "animations": [
+    {
+      "gif_id": "mode_a_silent_asc_band",
+      "kind": "stage_progression",
+      "gif": "mode_a_silent_asc_band.gif",
+      "frame_count": 4,
+      "frame_duration_ms": 1200,
+      "frames": [
+        {
+          "stage_idx": 0,
+          "stage_id": "seed",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=silent&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=0&latCap=1",
+          "frame_image": "mode_a_silent_asc_band_frame_0.png",
+          "truth_sample_count": 240,
+          "leaf_count": 184,
+          "frontier_count": 166,
+          "residual_count": 0,
+          "max_delta_vs_reference": 0.28414,
+          "mean_delta_vs_reference": 0.024505,
+          "stop_reason": "sample_budget",
+          "converged": false
+        },
+        {
+          "stage_idx": 1,
+          "stage_id": "coarse",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=silent&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=1&latCap=1",
+          "frame_image": "mode_a_silent_asc_band_frame_1.png",
+          "truth_sample_count": 900,
+          "leaf_count": 679,
+          "frontier_count": 631,
+          "residual_count": 0,
+          "max_delta_vs_reference": 0.10285,
+          "mean_delta_vs_reference": 0.012301,
+          "stop_reason": "sample_budget",
+          "converged": false
+        },
+        {
+          "stage_idx": 2,
+          "stage_id": "refine",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=silent&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=2&latCap=1",
+          "frame_image": "mode_a_silent_asc_band_frame_2.png",
+          "truth_sample_count": 3452,
+          "leaf_count": 3544,
+          "frontier_count": 2099,
+          "residual_count": 2023,
+          "max_delta_vs_reference": 0.034051,
+          "mean_delta_vs_reference": 0.004601,
+          "stop_reason": "converged",
+          "converged": true
+        },
+        {
+          "stage_idx": 3,
+          "stage_id": "converge",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=silent&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=3&latCap=1",
+          "frame_image": "mode_a_silent_asc_band_frame_3.png",
+          "truth_sample_count": 3452,
+          "leaf_count": 3544,
+          "frontier_count": 2099,
+          "residual_count": 2023,
+          "max_delta_vs_reference": 0.034051,
+          "mean_delta_vs_reference": 0.004601,
+          "stop_reason": "converged",
+          "converged": true
+        }
+      ]
+    },
+    {
+      "gif_id": "mode_b_pointillist_asc_band",
+      "kind": "stage_progression",
+      "gif": "mode_b_pointillist_asc_band.gif",
+      "frame_count": 4,
+      "frame_duration_ms": 1200,
+      "frames": [
+        {
+          "stage_idx": 0,
+          "stage_id": "seed",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=pointillist&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=0&latCap=1",
+          "frame_image": "mode_b_pointillist_asc_band_frame_0.png",
+          "truth_sample_count": 240,
+          "leaf_count": 184,
+          "frontier_count": 166,
+          "residual_count": 0,
+          "max_delta_vs_reference": 0.28414,
+          "mean_delta_vs_reference": 0.024505,
+          "stop_reason": "sample_budget",
+          "converged": false
+        },
+        {
+          "stage_idx": 1,
+          "stage_id": "coarse",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=pointillist&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=1&latCap=1",
+          "frame_image": "mode_b_pointillist_asc_band_frame_1.png",
+          "truth_sample_count": 900,
+          "leaf_count": 679,
+          "frontier_count": 631,
+          "residual_count": 0,
+          "max_delta_vs_reference": 0.10285,
+          "mean_delta_vs_reference": 0.012301,
+          "stop_reason": "sample_budget",
+          "converged": false
+        },
+        {
+          "stage_idx": 2,
+          "stage_id": "refine",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=pointillist&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=2&latCap=1",
+          "frame_image": "mode_b_pointillist_asc_band_frame_2.png",
+          "truth_sample_count": 3452,
+          "leaf_count": 3544,
+          "frontier_count": 2099,
+          "residual_count": 2023,
+          "max_delta_vs_reference": 0.034051,
+          "mean_delta_vs_reference": 0.004601,
+          "stop_reason": "converged",
+          "converged": true
+        },
+        {
+          "stage_idx": 3,
+          "stage_id": "converge",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=pointillist&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=3&latCap=1",
+          "frame_image": "mode_b_pointillist_asc_band_frame_3.png",
+          "truth_sample_count": 3452,
+          "leaf_count": 3544,
+          "frontier_count": 2099,
+          "residual_count": 2023,
+          "max_delta_vs_reference": 0.034051,
+          "mean_delta_vs_reference": 0.004601,
+          "stop_reason": "converged",
+          "converged": true
+        }
+      ]
+    },
+    {
+      "gif_id": "mode_c_frontier_asc_band",
+      "kind": "stage_progression",
+      "gif": "mode_c_frontier_asc_band.gif",
+      "frame_count": 4,
+      "frame_duration_ms": 1200,
+      "frames": [
+        {
+          "stage_idx": 0,
+          "stage_id": "seed",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=frontier&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=0&latCap=1",
+          "frame_image": "mode_c_frontier_asc_band_frame_0.png",
+          "truth_sample_count": 240,
+          "leaf_count": 184,
+          "frontier_count": 166,
+          "residual_count": 0,
+          "max_delta_vs_reference": 0.28414,
+          "mean_delta_vs_reference": 0.024505,
+          "stop_reason": "sample_budget",
+          "converged": false
+        },
+        {
+          "stage_idx": 1,
+          "stage_id": "coarse",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=frontier&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=1&latCap=1",
+          "frame_image": "mode_c_frontier_asc_band_frame_1.png",
+          "truth_sample_count": 900,
+          "leaf_count": 679,
+          "frontier_count": 631,
+          "residual_count": 0,
+          "max_delta_vs_reference": 0.10285,
+          "mean_delta_vs_reference": 0.012301,
+          "stop_reason": "sample_budget",
+          "converged": false
+        },
+        {
+          "stage_idx": 2,
+          "stage_id": "refine",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=frontier&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=2&latCap=1",
+          "frame_image": "mode_c_frontier_asc_band_frame_2.png",
+          "truth_sample_count": 3452,
+          "leaf_count": 3544,
+          "frontier_count": 2099,
+          "residual_count": 2023,
+          "max_delta_vs_reference": 0.034051,
+          "mean_delta_vs_reference": 0.004601,
+          "stop_reason": "converged",
+          "converged": true
+        },
+        {
+          "stage_idx": 3,
+          "stage_id": "converge",
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=frontier&viewport=asc&profile=baseline_validated&auto=1&stopAtStage=3&latCap=1",
+          "frame_image": "mode_c_frontier_asc_band_frame_3.png",
+          "truth_sample_count": 3452,
+          "leaf_count": 3544,
+          "frontier_count": 2099,
+          "residual_count": 2023,
+          "max_delta_vs_reference": 0.034051,
+          "mean_delta_vs_reference": 0.004601,
+          "stop_reason": "converged",
+          "converged": true
+        }
+      ]
+    },
+    {
+      "gif_id": "latcap_ab_greenland",
+      "kind": "latcap_ab",
+      "gif": "latcap_ab_greenland.gif",
+      "frame_count": 2,
+      "frame_duration_ms": 1800,
+      "frames": [
+        {
+          "capped": true,
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=silent&viewport=greenland&profile=baseline_validated&auto=1&latCap=1",
+          "frame_image": "latcap_ab_greenland_frame_capped.png",
+          "truth_sample_count": 206,
+          "leaf_count": 208,
+          "frontier_count": 99,
+          "max_delta_vs_reference": 0.175739,
+          "stop_reason": "no_actionable_leaves"
+        },
+        {
+          "capped": false,
+          "url": "http://127.0.0.1:8000/map_SANDBOX_truth_reveal.html?mode=silent&viewport=greenland&profile=baseline_validated&auto=1&latCap=0",
+          "frame_image": "latcap_ab_greenland_frame_uncapped.png",
+          "truth_sample_count": 336,
+          "leaf_count": 325,
+          "frontier_count": 142,
+          "max_delta_vs_reference": 0.694057,
+          "stop_reason": "no_actionable_leaves"
+        }
+      ]
+    }
+  ],
+  "page_errors": []
+}

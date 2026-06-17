@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palette study 4 — teaching glow + badge font</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#2f323a;font-family:"Avenir Next",-apple-system,sans-serif;color:#222;padding:24px}
+.intro{max-width:1220px;margin:0 auto 8px;color:#e7e6e9}
+.intro h1{font-size:19px;margin:0 0 6px}
+.intro p{font-size:12.5px;color:#bcbcc4;margin:0;max-width:920px}
+.sec-label{max-width:1220px;margin:28px auto 12px;color:#e7e6e9;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #4a4d56;padding-bottom:6px}
+.sec-label span{font-weight:400;text-transform:none;letter-spacing:0;color:#9a9ca8;font-size:11.5px;margin-left:8px}
+
+.row{max-width:1220px;margin:0 auto 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.rowtag{max-width:1220px;margin:0 auto;color:#cfd2da;font-size:10.5px;letter-spacing:.04em;margin-bottom:6px}
+
+/* table cards with teaching glow */
+.tcard{border:1px solid #e6e8ec;border-radius:11px;padding:11px 12px;background:#fff}
+.tcard .mh{font-weight:700;font-size:12.5px;text-align:center;color:#1c2024;margin-bottom:7px;font-family:'Hoefler Text',Palatino,Georgia,serif}
+.tcard .r{display:grid;grid-template-columns:1fr auto;padding:5px 4px;font-size:11.5px;color:#1c2024;border-bottom:1px solid rgba(0,0,0,.05);margin:0 3px}
+.tcard .r:last-child{border-bottom:none}
+.tcard .r .v{color:#5b6470}
+/* glow B = radial even */
+.gB{background:radial-gradient(130% 130% at 50% 45%, color-mix(in srgb,var(--c) 8%, #fff), #fff 72%)}
+/* glow C = inner-edge */
+.gC{background:#fff;box-shadow:inset 0 0 26px -6px color-mix(in srgb,var(--c) 26%, transparent)}
+/* stronger sample to read the hue clearly */
+.gStrong{background:radial-gradient(130% 130% at 50% 45%, color-mix(in srgb,var(--c) 16%, #fff), #fff 75%)}
+
+/* badge font section */
+.badgeblock{max-width:1220px;margin:0 auto 16px;background:#fff;border-radius:11px;padding:16px 18px}
+.bbrow{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid #eef0f2}
+.bbrow:last-child{border-bottom:none}
+.bbname{width:230px;font-size:12px;color:#5b6470}
+.bbname b{color:#1c2024}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.bdg{padding:3px 9px;border-radius:999px;color:#fff;white-space:nowrap}
+.bdg.nat{background:#ffd60a;color:#4a3a00} .bdg.cur{background:#3a82d6} .bdg.rel{background:#46a35e} .bdg.cmp{background:#e0594a}
+/* font treatments */
+.f-chunky .bdg{font-family:'Avenir Next',sans-serif;font-weight:800;font-size:9px;letter-spacing:.02em;text-transform:uppercase}
+.f-track .bdg{font-family:'Avenir Next',sans-serif;font-weight:600;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase}
+.f-smallcaps .bdg{font-family:'Hoefler Text',Palatino,Georgia,serif;font-weight:600;font-size:10.5px;letter-spacing:.08em;font-variant:small-caps;text-transform:lowercase}
+.f-pill-outline .bdg{background:transparent;border:1.5px solid;font-family:'Avenir Next',sans-serif;font-weight:700;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase}
+.f-pill-outline .bdg.nat{color:#b88f00;border-color:#ffd60a} .f-pill-outline .bdg.cur{color:#3a82d6;border-color:#3a82d6} .f-pill-outline .bdg.rel{color:#46a35e;border-color:#46a35e} .f-pill-outline .bdg.cmp{color:#e0594a;border-color:#e0594a}
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>Palette study 4 — does the glow teach the table? + badge font</h1>
+  <p>Top: the same five table types, each with a subtle signature hue, so we can see whether color <b>subconsciously teaches</b> "this is PiH / AiS / A2A / Notes / City Intelligence." Two glow styles (B radial, C inner-edge), plus an exaggerated row to read the hues. Bottom: badge font treatments — the likely culprit behind the "McDonald's" feel — with a truer lemon-yellow Natal.</p>
+</div>
+
+<div class="sec-label">Step 1 — teaching glow across table types <span>each table a signature hue · ~5–8%</span></div>
+
+<div class="rowtag">Glow B · radial-even (5–8%)</div>
+<div class="row">
+  <div class="tcard gB" style="--c:#3a82d6"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+  <div class="tcard gB" style="--c:#46a35e"><div class="mh">Angle in Sign</div><div class="r"><span>ASC</span><span class="v">18° Vir</span></div><div class="r"><span>MC</span><span class="v">15° Gem</span></div><div class="r"><span>DSC</span><span class="v">18° Pis</span></div></div>
+  <div class="tcard gB" style="--c:#7b5cd0"><div class="mh">Aspect to Angle</div><div class="r"><span>Sun</span><span class="v">△ ASC</span></div><div class="r"><span>Moon</span><span class="v">—</span></div><div class="r"><span>Venus</span><span class="v">☌ MC</span></div></div>
+  <div class="tcard gB" style="--c:#f0b21d"><div class="mh">Notes</div><div class="r"><span>Kyoto</span><span class="v">·</span></div><div class="r"><span>Lisbon</span><span class="v">·</span></div><div class="r"><span>Bali</span><span class="v">·</span></div></div>
+  <div class="tcard gB" style="--c:#2fa39c"><div class="mh">City Intelligence</div><div class="r"><span>Safety</span><span class="v">High</span></div><div class="r"><span>Cost</span><span class="v">Mid</span></div><div class="r"><span>Climate</span><span class="v">Warm</span></div></div>
+</div>
+
+<div class="rowtag">Glow C · inner-edge (5–8%)</div>
+<div class="row">
+  <div class="tcard gC" style="--c:#3a82d6"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+  <div class="tcard gC" style="--c:#46a35e"><div class="mh">Angle in Sign</div><div class="r"><span>ASC</span><span class="v">18° Vir</span></div><div class="r"><span>MC</span><span class="v">15° Gem</span></div><div class="r"><span>DSC</span><span class="v">18° Pis</span></div></div>
+  <div class="tcard gC" style="--c:#7b5cd0"><div class="mh">Aspect to Angle</div><div class="r"><span>Sun</span><span class="v">△ ASC</span></div><div class="r"><span>Moon</span><span class="v">—</span></div><div class="r"><span>Venus</span><span class="v">☌ MC</span></div></div>
+  <div class="tcard gC" style="--c:#f0b21d"><div class="mh">Notes</div><div class="r"><span>Kyoto</span><span class="v">·</span></div><div class="r"><span>Lisbon</span><span class="v">·</span></div><div class="r"><span>Bali</span><span class="v">·</span></div></div>
+  <div class="tcard gC" style="--c:#2fa39c"><div class="mh">City Intelligence</div><div class="r"><span>Safety</span><span class="v">High</span></div><div class="r"><span>Cost</span><span class="v">Mid</span></div><div class="r"><span>Climate</span><span class="v">Warm</span></div></div>
+</div>
+
+<div class="rowtag">Exaggerated (16%) — only to confirm the hue assignments read distinctly; real product would be the rows above</div>
+<div class="row">
+  <div class="tcard gStrong" style="--c:#3a82d6"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div></div>
+  <div class="tcard gStrong" style="--c:#46a35e"><div class="mh">Angle in Sign</div><div class="r"><span>ASC</span><span class="v">18° Vir</span></div><div class="r"><span>MC</span><span class="v">15° Gem</span></div></div>
+  <div class="tcard gStrong" style="--c:#7b5cd0"><div class="mh">Aspect to Angle</div><div class="r"><span>Sun</span><span class="v">△ ASC</span></div><div class="r"><span>Venus</span><span class="v">☌ MC</span></div></div>
+  <div class="tcard gStrong" style="--c:#f0b21d"><div class="mh">Notes</div><div class="r"><span>Kyoto</span><span class="v">·</span></div><div class="r"><span>Lisbon</span><span class="v">·</span></div></div>
+  <div class="tcard gStrong" style="--c:#2fa39c"><div class="mh">City Intelligence</div><div class="r"><span>Safety</span><span class="v">High</span></div><div class="r"><span>Cost</span><span class="v">Mid</span></div></div>
+</div>
+
+<div class="sec-label">Step 2 — badge font (the "McDonald's" culprit) <span>truer lemon-yellow Natal</span></div>
+<div class="badgeblock">
+  <div class="bbrow f-chunky"><div class="bbname"><b>1 · Chunky</b> — current (heavy, tight)</div><div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div></div>
+  <div class="bbrow f-track"><div class="bbname"><b>2 · Tracked caps</b> — lighter, wide letter-spacing</div><div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div></div>
+  <div class="bbrow f-smallcaps"><div class="bbname"><b>3 · Serif small-caps</b> — editorial, sophisticated</div><div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div></div>
+  <div class="bbrow f-pill-outline"><div class="bbname"><b>4 · Outline pill</b> — color as outline, not fill (quietest)</div><div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div></div>
+</div>
+
+</body>
+</html>

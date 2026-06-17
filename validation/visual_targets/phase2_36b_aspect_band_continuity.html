@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 2.36b Fixed-Spine Side Width Proof</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px; color: #1f2937; background: #f8fafc; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 1220px; margin: 0 auto; }
+    h1 { margin: 0 0 8px; font-size: 26px; }
+    .intro { margin: 0 0 20px; color: #64748b; line-height: 1.45; max-width: 1060px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .case-card { background: white; border: 1px solid #dbe3ec; border-radius: 18px; box-shadow: 0 18px 45px rgba(15,23,42,.08); padding: 16px; }
+    .case-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+    h2 { margin: 0 0 4px; font-size: 17px; }
+    p { margin: 0; color: #64748b; font-size: 12px; line-height: 1.35; }
+    .badge { flex: 0 0 auto; color: #334155; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 999px; font-size: 11px; padding: 5px 9px; text-transform: uppercase; letter-spacing: .04em; }
+    .legend { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; color: #475569; font-size: 11px; }
+    .legend span { background: #f1f5f9; border: 1px solid #dbe3ec; border-radius: 999px; padding: 4px 8px; }
+    .frame { position: relative; height: 580px; overflow: hidden; border-radius: 14px; border: 1px solid #cbd5e1; background: #b9dfe7; isolation: isolate; }
+    .map-grid { position: absolute; inset: 0; background-image: linear-gradient(to right, rgba(255,255,255,.38) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.30) 1px, transparent 1px); background-size: 70px 70px; opacity: .62; }
+    .land { position: absolute; background: #f7f3ea; border: 1px solid rgba(100,116,139,.14); }
+    .land.a { width: 240px; height: 140px; left: -42px; top: 34px; border-radius: 45% 55% 42% 58%; transform: rotate(-8deg); }
+    .land.b { width: 250px; height: 150px; right: -48px; top: 52px; border-radius: 48% 52% 56% 44%; transform: rotate(10deg); }
+    .land.c { width: 360px; height: 126px; left: 128px; bottom: -38px; border-radius: 52% 48% 36% 64%; }
+    svg { position: absolute; inset: 0; z-index: 6; width: 100%; height: 100%; }
+    .band-fill { fill: rgba(255,255,255,.72); stroke: none; }
+    .band-edge { fill: none; stroke: rgba(30,41,59,.68); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+    .spine { fill: none; stroke: rgba(15,23,42,.72); stroke-width: 2.2; stroke-dasharray: 10 9; vector-effect: non-scaling-stroke; }
+    .measure { stroke: rgba(51,65,85,.72); stroke-width: 1.45; vector-effect: non-scaling-stroke; }
+    .measure-thin { stroke: rgba(51,65,85,.40); stroke-width: 1.05; vector-effect: non-scaling-stroke; }
+    .measure-label { font: 11px/1.2 Inter, sans-serif; fill: #334155; font-weight: 760; }
+    .point-label { font: 10px/1.2 Inter, sans-serif; fill: #475569; font-weight: 700; }
+    .spine-label { font: 12px/1.2 Inter, sans-serif; fill: #0f172a; font-weight: 800; }
+    footer { color: #64748b; font-size: 11px; margin-top: 10px; display: flex; justify-content: space-between; gap: 12px; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Phase 2.36b Fixed-Spine Side-Width Continuity Proof</h1>
+    <p class="intro">Boundary/mask-only schematic proof. The dashed centerline is the fixed exactness spine. Left and right boundaries are measured independently as perpendicular distances from that spine. This is schematic proportional geometry only, not truth-derived geographic extent.</p>
+    <div class="grid">
+      <section class="case-card" id="caseA" data-case="A" data-left-widths="10,6,3,2.5" data-right-widths="10,10,10,10">
+        <header><div><h2>Case A: left/9th side shrinks from fixed spine</h2><p>Only the left boundary moves inward. The right/10th side remains wide while the centerline stays fixed.</p></div><div class="badge">schematic only</div></header>
+        <div class="legend"><span>fixed dashed spine</span><span>left 10 -> 6 -> 3 -> 2.5</span><span>right stays 10</span><span>not truth-derived</span></div>
+        <div class="frame"><div class="map-grid"></div><div class="land a"></div><div class="land b"></div><div class="land c"></div>
+          <svg viewBox="0 0 820 580" aria-label="Case A fixed-spine side-width measurement proof">
+            <path class="band-fill" d="M 280 80 L 332 220 L 371 360 L 378 500 L 540 500 L 540 360 L 540 220 L 540 80 Z" />
+            <path class="band-edge left-edge" d="M 280 80 L 332 220 L 371 360 L 378 500" />
+            <path class="band-edge right-edge" d="M 540 80 L 540 220 L 540 360 L 540 500" />
+            <path class="spine" d="M 410 54 L 410 526" />
+            <text class="spine-label" x="424" y="62">fixed exactness spine</text>
+            <line class="measure-thin" x1="280" y1="80" x2="540" y2="80" /><line class="measure" x1="280" y1="80" x2="410" y2="80" /><line class="measure" x1="410" y1="80" x2="540" y2="80" /><text class="measure-label" x="292" y="68">left 10 / right 10</text><text class="point-label" x="220" y="84">start</text>
+            <line class="measure-thin" x1="332" y1="220" x2="540" y2="220" /><line class="measure" x1="332" y1="220" x2="410" y2="220" /><line class="measure" x1="410" y1="220" x2="540" y2="220" /><text class="measure-label" x="300" y="208">left 6 / right 10</text><text class="point-label" x="238" y="224">middle</text>
+            <line class="measure-thin" x1="371" y1="360" x2="540" y2="360" /><line class="measure" x1="371" y1="360" x2="410" y2="360" /><line class="measure" x1="410" y1="360" x2="540" y2="360" /><text class="measure-label" x="312" y="348">left 3 / right 10</text><text class="point-label" x="250" y="364">later</text>
+            <line class="measure-thin" x1="378" y1="500" x2="540" y2="500" /><line class="measure" x1="378" y1="500" x2="410" y2="500" /><line class="measure" x1="410" y1="500" x2="540" y2="500" /><text class="measure-label" x="304" y="488">left 2.5 / right 10</text><text class="point-label" x="260" y="504">end</text>
+            <text class="point-label" x="208" y="546">Only left/9th boundary moves inward toward the fixed spine.</text>
+          </svg>
+        </div><footer><span>Case A measured from centerline</span><span>No gradient, blur, aura color, rain, virga, particles, or animation.</span></footer>
+      </section>
+
+      <section class="case-card" id="caseB" data-case="B" data-left-widths="10,10,10,10" data-right-widths="10,6,3,2.5">
+        <header><div><h2>Case B: right/10th side shrinks from fixed spine</h2><p>Only the right boundary moves inward. The left/9th side remains wide while the centerline stays fixed.</p></div><div class="badge">schematic only</div></header>
+        <div class="legend"><span>fixed dashed spine</span><span>left stays 10</span><span>right 10 -> 6 -> 3 -> 2.5</span><span>not truth-derived</span></div>
+        <div class="frame"><div class="map-grid"></div><div class="land a"></div><div class="land b"></div><div class="land c"></div>
+          <svg viewBox="0 0 820 580" aria-label="Case B fixed-spine side-width measurement proof">
+            <path class="band-fill" d="M 280 80 L 280 220 L 280 360 L 280 500 L 442 500 L 449 360 L 488 220 L 540 80 Z" />
+            <path class="band-edge left-edge" d="M 280 80 L 280 220 L 280 360 L 280 500" />
+            <path class="band-edge right-edge" d="M 540 80 L 488 220 L 449 360 L 442 500" />
+            <path class="spine" d="M 410 54 L 410 526" />
+            <text class="spine-label" x="424" y="62">fixed exactness spine</text>
+            <line class="measure-thin" x1="280" y1="80" x2="540" y2="80" /><line class="measure" x1="280" y1="80" x2="410" y2="80" /><line class="measure" x1="410" y1="80" x2="540" y2="80" /><text class="measure-label" x="292" y="68">left 10 / right 10</text><text class="point-label" x="220" y="84">start</text>
+            <line class="measure-thin" x1="280" y1="220" x2="488" y2="220" /><line class="measure" x1="280" y1="220" x2="410" y2="220" /><line class="measure" x1="410" y1="220" x2="488" y2="220" /><text class="measure-label" x="294" y="208">left 10 / right 6</text><text class="point-label" x="226" y="224">middle</text>
+            <line class="measure-thin" x1="280" y1="360" x2="449" y2="360" /><line class="measure" x1="280" y1="360" x2="410" y2="360" /><line class="measure" x1="410" y1="360" x2="449" y2="360" /><text class="measure-label" x="296" y="348">left 10 / right 3</text><text class="point-label" x="236" y="364">later</text>
+            <line class="measure-thin" x1="280" y1="500" x2="442" y2="500" /><line class="measure" x1="280" y1="500" x2="410" y2="500" /><line class="measure" x1="410" y1="500" x2="442" y2="500" /><text class="measure-label" x="292" y="488">left 10 / right 2.5</text><text class="point-label" x="242" y="504">end</text>
+            <text class="point-label" x="208" y="546">Only right/10th boundary moves inward toward the fixed spine.</text>
+          </svg>
+        </div><footer><span>Case B measured from centerline</span><span>No gradient, blur, aura color, rain, virga, particles, or animation.</span></footer>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

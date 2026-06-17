@@ -1,0 +1,1 @@
+../../docs/architecture/PRODUCTION_WIRING_SCHEMA.md

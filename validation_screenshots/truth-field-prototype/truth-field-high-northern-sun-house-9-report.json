@@ -1,0 +1,106 @@
+{
+  "fixture": "high_northern",
+  "planet": "sun",
+  "targetHouse": 9,
+  "latitudeCap": [
+    -65.0,
+    65.0
+  ],
+  "periodicLongitude": true,
+  "stageReports": [
+    {
+      "stage": "coarse",
+      "runtimeSeconds": 0.0692,
+      "targetCellCount": 433,
+      "boundaryCellCount": 1277,
+      "validation": {
+        "contradictionCount": 0,
+        "sampledContradictions": []
+      },
+      "cacheSamples": 5160,
+      "cacheHits": 433,
+      "cacheMisses": 5160
+    },
+    {
+      "stage": "medium",
+      "runtimeSeconds": 0.202,
+      "targetCellCount": 1769,
+      "boundaryCellCount": 2695,
+      "validation": {
+        "contradictionCount": 0,
+        "sampledContradictions": []
+      },
+      "cacheSamples": 26040,
+      "cacheHits": 2202,
+      "cacheMisses": 26040
+    },
+    {
+      "stage": "refined-boundary",
+      "runtimeSeconds": 0.191,
+      "targetCellCount": 3215,
+      "boundaryCellCount": 2695,
+      "validation": {
+        "contradictionCount": 0,
+        "sampledContradictions": []
+      },
+      "cacheSamples": 47600,
+      "cacheHits": 8112,
+      "cacheMisses": 47600
+    }
+  ],
+  "knownFalseChecks": [
+    {
+      "name": "previous_false_house_7_sliver",
+      "lon": 172.5221,
+      "lat": -47.4666,
+      "actual_sun_house": 8,
+      "includedInPrototypeTargetCells": false,
+      "targetHouse": 9,
+      "passes": true
+    },
+    {
+      "name": "previous_false_house_9_sliver",
+      "lon": 163.2506,
+      "lat": 3.4072,
+      "actual_sun_house": 8,
+      "includedInPrototypeTargetCells": false,
+      "targetHouse": 9,
+      "passes": true
+    }
+  ],
+  "currentCanonicalComparison": {
+    "polygonCount": 2,
+    "knownFalseProbeResults": [
+      {
+        "name": "previous_false_house_7_sliver",
+        "lon": 172.5221,
+        "lat": -47.4666,
+        "actual_sun_house": 8,
+        "containedByCurrentCanonicalPolygons": []
+      },
+      {
+        "name": "previous_false_house_9_sliver",
+        "lon": 163.2506,
+        "lat": 3.4072,
+        "actual_sun_house": 8,
+        "containedByCurrentCanonicalPolygons": [
+          1
+        ]
+      }
+    ]
+  },
+  "outputs": {
+    "coarse": "validation_screenshots/truth-field-prototype/truth-field-high-northern-sun-house-9-coarse.geojson",
+    "medium": "validation_screenshots/truth-field-prototype/truth-field-high-northern-sun-house-9-medium.geojson",
+    "refined": "validation_screenshots/truth-field-prototype/truth-field-high-northern-sun-house-9-refined.geojson"
+  },
+  "cacheSummary": {
+    "sunHouseSamplesStored": 47600,
+    "allSunHousesAvailableFromSameSamples": true,
+    "estimatedAllPlanetsAllHousesCost": "Approximately one swe.houses call per point, plus cheap planet longitude classification. The house cusps can be reused for all planets at the same point."
+  },
+  "aspectNotes": {
+    "mc": "Keep current centerline strategy; it is already fast.",
+    "asc": "Keep current centerline strategy for now; optimize later with progressive resolution and caching."
+  }
+}

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Separator System — option study</title>
+<style>
+:root{
+  --ink:#2b2b30; --soft:#8a8893; --faint:#b7b4bd;
+  --paper:#fbfbfc; --card:#ffffff;
+  --line:#e4e2e8;          /* hairline */
+  --line-mid:#cfccd6;      /* section */
+  --line-strong:#a9a5b3;   /* major / sticky */
+  --tint:#f4f3f7;          /* neutral zebra */
+  --sans:"Avenir Next","Segoe UI",-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.4}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 28px 90px}
+h1{font-size:19px;margin:0 0 4px}
+.lead{color:var(--soft);font-size:12.5px;margin:0 0 8px;max-width:760px}
+.note{color:var(--faint);font-size:11.5px;margin:0 0 26px}
+
+.decision{margin:34px 0 0}
+.dec-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line-mid);padding-bottom:6px;margin-bottom:16px}
+.dec-num{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft)}
+.dec-title{font-size:15px;font-weight:700}
+.dec-q{color:var(--soft);font-size:12px;margin-left:auto}
+
+.opts{display:grid;gap:20px}
+.opts.cols-4{grid-template-columns:repeat(4,1fr)}
+.opts.cols-3{grid-template-columns:repeat(3,1fr)}
+.opts.cols-2{grid-template-columns:repeat(2,1fr)}
+.opt{min-width:0}
+.opt-tag{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.opt-tag .k{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border:1px solid var(--line-mid);border-radius:5px;margin-right:6px;font-size:10px;color:var(--soft)}
+.opt-desc{font-size:11px;color:var(--soft);margin-bottom:9px;min-height:28px}
+.demo{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 12px;overflow:hidden}
+
+/* sample table rows */
+.t .r{display:grid;grid-template-columns:1fr auto;padding:8px 4px;font-size:12.5px}
+.t .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+.t.none .r{}
+.t.hair .r{border-bottom:1px solid var(--line)}
+.t.hair .r:last-child{border-bottom:none}
+.t.inset .r{border-bottom:1px solid var(--line)}
+.t.inset .r{margin:0 6px;padding:8px 0}
+.t.inset .r:last-child{border-bottom:none}
+.t.zebra .r:nth-child(odd){background:var(--tint)}
+.t.tint .r{border-bottom:1px solid var(--line)}
+.t.tint .r:nth-child(odd){background:var(--tint)}
+.t.tint .r:last-child{border-bottom:none}
+
+/* section demo */
+.sec-demo{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0;overflow:hidden}
+.zone{padding:13px 14px;font-size:12px}
+.zone .zt{font-weight:700;font-size:12.5px;margin-bottom:3px}
+.zone .zs{color:var(--soft);font-size:11px}
+.s-space .zone + .zone{margin-top:0;padding-top:18px}
+.s-hair .zone + .zone{border-top:1px solid var(--line)}
+.s-mid .zone + .zone{border-top:1px solid var(--line-mid)}
+.s-label .zone .zt{border-bottom:1px solid var(--line);padding-bottom:6px;display:block}
+.s-label .zone + .zone{margin-top:4px}
+.s-short{position:relative}
+.s-short .zone + .zone::before{content:"";position:absolute;left:50%;transform:translateX(-50%);width:36px;height:1px;background:var(--line-mid);margin-top:-9px}
+
+/* card-separation demo */
+.cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.cards .cd{padding:12px;font-size:12px}
+.cards .cd .cdt{font-weight:700;margin-bottom:6px}
+.cards .cd .ln{height:8px;background:var(--tint);border-radius:3px;margin:5px 0}
+.cg-gap{gap:12px}
+.cg-gap .cd{border:1px solid var(--line);border-radius:9px}
+.cg-rule .cd{border-right:1px solid var(--line)}
+.cg-rule .cd:last-child{border-right:none}
+.cg-card{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cg-card .cd{border-right:1px solid var(--line)}
+.cg-card .cd:last-child{border-right:none}
+
+/* weight hierarchy */
+.weights{display:flex;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.wrow{display:flex;align-items:center;gap:14px;padding:10px 2px}
+.wrow .lbl{width:160px;font-size:12px}
+.wrow .sub{color:var(--soft);font-size:11px}
+.wrow .bar{flex:1;height:0}
+.w-hair{border-top:1px solid var(--line)}
+.w-mid{border-top:1px solid var(--line-mid)}
+.w-strong{border-top:2px solid var(--line-strong)}
+.w-shadow{border-top:1px solid var(--line);box-shadow:0 6px 10px -8px rgba(40,38,50,.5)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Separator System — option study (#5)</h1>
+  <p class="lead">Neutral ground + single typeface on purpose — this isolates <b>separation behavior</b> (lines vs tint vs space, and their weight hierarchy) from color/font, which we polish later. React per decision; I'll lock the winners.</p>
+  <p class="note">Same sample content repeated in each option so only the separator treatment differs.</p>
+
+  <!-- DECISION 1: ROW SEPARATORS -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 1</span><span class="dec-title">Row separators</span><span class="dec-q">within tables (PiH / AiS / A2A) and list rows</span></div>
+    <div class="opts cols-4">
+      <div class="opt"><div class="opt-tag"><span class="k">A</span>Spacing only</div><div class="opt-desc">No lines. Rhythm carries the eye. Calmest, least "spreadsheet."</div>
+        <div class="demo"><div class="t none"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">B</span>Hairline (full)</div><div class="opt-desc">Thin full-width rule between rows. Clear scanning, a touch more clinical.</div>
+        <div class="demo"><div class="t hair"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">C</span>Hairline (inset)</div><div class="opt-desc">Rule indented from the edges — softer, less boxy than full-width.</div>
+        <div class="demo"><div class="t inset"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">D</span>Alternating tint</div><div class="opt-desc">Zebra band, no lines. Easy tracking; tint stays neutral now, color later.</div>
+        <div class="demo"><div class="t zebra"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISION 2: SECTION SEPARATORS -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 2</span><span class="dec-title">Section separators</span><span class="dec-q">between major zones (wheel / tables / intelligence)</span></div>
+    <div class="opts cols-4">
+      <div class="opt"><div class="opt-tag"><span class="k">A</span>Whitespace</div><div class="opt-desc">Generous gap, no rule. Most editorial / breathing.</div>
+        <div class="demo sec-demo s-space"><div class="zone"><div class="zt">Chart</div><div class="zs">wheel + header</div></div><div class="zone"><div class="zt">Tables</div><div class="zs">PiH · AiS · A2A</div></div><div class="zone"><div class="zt">Intelligence</div><div class="zs">cost · safety · climate</div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">B</span>Hairline rule</div><div class="opt-desc">Same weight as rows. Quietly divides; risks feeling flat against row lines.</div>
+        <div class="demo sec-demo s-hair"><div class="zone"><div class="zt">Chart</div><div class="zs">wheel + header</div></div><div class="zone"><div class="zt">Tables</div><div class="zs">PiH · AiS · A2A</div></div><div class="zone"><div class="zt">Intelligence</div><div class="zs">cost · safety · climate</div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">C</span>Medium rule</div><div class="opt-desc">Heavier than row hairlines → reads as a bigger break. Clear hierarchy.</div>
+        <div class="demo sec-demo s-mid"><div class="zone"><div class="zt">Chart</div><div class="zs">wheel + header</div></div><div class="zone"><div class="zt">Tables</div><div class="zs">PiH · AiS · A2A</div></div><div class="zone"><div class="zt">Intelligence</div><div class="zs">cost · safety · climate</div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">D</span>Labelled header</div><div class="opt-desc">Section titled with its own underline; the title carries the separation.</div>
+        <div class="demo sec-demo s-label"><div class="zone"><div class="zt">Chart</div><div class="zs">wheel + header</div></div><div class="zone"><div class="zt">Tables</div><div class="zs">PiH · AiS · A2A</div></div><div class="zone"><div class="zt">Intelligence</div><div class="zs">cost · safety · climate</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISION 3: CARD SEPARATION -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 3</span><span class="dec-title">Card separation</span><span class="dec-q">between sibling cards (PiH | AiS | A2A)</span></div>
+    <div class="opts cols-3">
+      <div class="opt"><div class="opt-tag"><span class="k">A</span>Gap + own border</div><div class="opt-desc">Each card a discrete object with whitespace between. Current direction.</div>
+        <div class="demo"><div class="cards cg-gap"><div class="cd"><div class="cdt">PiH</div><div class="ln"></div><div class="ln"></div></div><div class="cd"><div class="cdt">AiS</div><div class="ln"></div><div class="ln"></div></div><div class="cd"><div class="cdt">A2A</div><div class="ln"></div><div class="ln"></div></div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">B</span>Shared rule</div><div class="opt-desc">One surface, vertical rules between. Unified band; can feel spreadsheety.</div>
+        <div class="demo"><div class="cards cg-rule"><div class="cd"><div class="cdt">PiH</div><div class="ln"></div><div class="ln"></div></div><div class="cd"><div class="cdt">AiS</div><div class="ln"></div><div class="ln"></div></div><div class="cd"><div class="cdt">A2A</div><div class="ln"></div><div class="ln"></div></div></div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">C</span>One outer card, inner rules</div><div class="opt-desc">Single rounded container, hairline dividers inside. Tidy "panel" feel.</div>
+        <div class="demo" style="padding:0"><div class="cards cg-card"><div class="cd"><div class="cdt">PiH</div><div class="ln"></div><div class="ln"></div></div><div class="cd"><div class="cdt">AiS</div><div class="ln"></div><div class="ln"></div></div><div class="cd"><div class="cdt">A2A</div><div class="ln"></div><div class="ln"></div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISION 4: WEIGHT HIERARCHY -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 4</span><span class="dec-title">Line-weight hierarchy</span><span class="dec-q">how many tiers, and how the strongest reads</span></div>
+    <div class="opts cols-2">
+      <div class="opt"><div class="opt-tag"><span class="k">A</span>Three tiers (weight)</div><div class="opt-desc">Hairline = rows · Medium = sections · Strong (2px) = major / sticky bars.</div>
+        <div class="demo"><div class="weights" style="border:none;padding:6px 4px">
+          <div class="wrow w-hair"><span class="lbl">Hairline<span class="sub"> · rows</span></span></div>
+          <div class="wrow w-mid"><span class="lbl">Medium<span class="sub"> · sections</span></span></div>
+          <div class="wrow w-strong"><span class="lbl">Strong<span class="sub"> · sticky / major</span></span></div>
+        </div></div>
+      </div>
+      <div class="opt"><div class="opt-tag"><span class="k">B</span>Two tiers + shadow</div><div class="opt-desc">Hairline everywhere; the "major" break uses a soft shadow instead of a thick line (less ink, more depth).</div>
+        <div class="demo"><div class="weights" style="border:none;padding:6px 4px">
+          <div class="wrow w-hair"><span class="lbl">Hairline<span class="sub"> · rows + sections</span></span></div>
+          <div class="wrow w-shadow"><span class="lbl">Shadow<span class="sub"> · sticky / major</span></span></div>
+          <div class="wrow"><span class="lbl sub">(no third line tier)</span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISION 5: GOVERNING RULE -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 5</span><span class="dec-title">"Earn the line" rule</span><span class="dec-q">the governing principle for line vs whitespace</span></div>
+    <div class="opts cols-3">
+      <div class="opt"><div class="opt-tag"><span class="k">A</span>Whitespace-first</div><div class="opt-desc">Default to space. A line only when scanning across columns genuinely needs it (dense data tables). Most pages stay airy.</div></div>
+      <div class="opt"><div class="opt-tag"><span class="k">B</span>Line-first</div><div class="opt-desc">Default to a hairline everywhere; remove only where it crowds. Most consistent, most "ledger."</div></div>
+      <div class="opt"><div class="opt-tag"><span class="k">C</span>Hybrid by density</div><div class="opt-desc">Dense numeric tables get separators; prose/snippet lists stay whitespace-only. Section breaks always earn a rule.</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

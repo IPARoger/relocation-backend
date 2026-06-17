@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_43_orthogonal_transport_asc.png",
+    "mc_png": "validation/visual_targets/phase2_43_orthogonal_transport_mc.png",
+    "narrative": "validation/narratives/phase2_43_orthogonal_transport.md",
+    "report": "validation/reports/phase2_43_orthogonal_transport.json"
+  },
+  "generated_at_utc": "2026-05-26T09:00:15.619618+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f centerline/leftBoundary/rightBoundary/polygon copied unchanged",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "map_CURRENT_changed": false,
+    "mask_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "staged": false,
+    "virga": false
+  },
+  "known_limitations": [
+    "Offline expensive reference, not production implementation.",
+    "Uses deterministic pseudo-basemap for self-contained validation, not Leaflet tiles.",
+    "If visual drift from 2.41d is observed, adjust transport sampling/overlap/masking only; transfer LUT remains locked."
+  ],
+  "locked_transfer_source": "validation/visual_targets/phase2_41d_locked_transfer_reference.png",
+  "phase": "2.43",
+  "qa_questions": {
+    "coherent_directional_pressure": "intended by local orthogonal slice transport",
+    "curved_version_feels_like_approved_rectangle": "requires human visual QA",
+    "dense_mids_preserved": "intended by locked LUT sampling per local cross-section",
+    "tail_releases_intentionally": "intended by locked LUT sampling",
+    "vector_clean_not_foggy": "requires human visual QA"
+  },
+  "rendering_method": "Offline Python/PIL/numpy supersampled render. Samples locked 2.41d transfer LUT, resamples Phase 2.36f centerline and boundaries, computes local tangent/normal, and transports the transfer via dense local orthogonal cross-section splats with overlap. Exact projected polygon mask applied.",
+  "revision": "orthogonal_transport_renderer_v1",
+  "scope": "validation-only orthogonal transport renderer using locked transfer",
+  "stats": {
+    "asc": {
+      "max_alpha": 0.7176470756530762,
+      "min_nonzero_alpha": 6.151480920379981e-05,
+      "orthogonal_transport": true,
+      "polygon_mask_applied": true,
+      "station_count": 568,
+      "u_samples": 760
+    },
+    "mc": {
+      "max_alpha": 0.7176470756530762,
+      "min_nonzero_alpha": 9.227221016772091e-05,
+      "orthogonal_transport": true,
+      "polygon_mask_applied": true,
+      "station_count": 662,
+      "u_samples": 760
+    },
+    "supersample": 4
+  },
+  "transfer_changed": false
+}

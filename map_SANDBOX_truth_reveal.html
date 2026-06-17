@@ -1,0 +1,613 @@
+<!doctype html>
+<!--
+  ARCHAEOLOGY / SUPERSEDED SANDBOX.
+
+  Historical truth-field / convergence reveal experiment retained for
+  validation history. Do not use for Phase-C production migration. Canonical
+  visible rendering is the adaptive screen-space truth substrate documented in
+  docs/PHASE_C_RENDERING_ARCHITECTURE.md.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Truth Field Reveal — Sandbox</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    background: #09090b; color: #e4e4e7; }
+  #app { display: flex; height: 100%; }
+  #map { flex: 1; min-width: 0; height: 100%; position: relative; background: #050507; }
+  /* dim the basemap so the truth field reads first */
+  .leaflet-tile-pane { filter: brightness(0.55) saturate(0.55) contrast(0.95); }
+  #panel {
+    width: 340px; flex-shrink: 0; height: 100%; overflow-y: auto;
+    background: #0c0c0e; border-left: 1px solid #27272a; padding: 16px 18px;
+    box-sizing: border-box; font-size: 12.5px; line-height: 1.45;
+  }
+  #panel h1 { font-size: 14px; font-weight: 600; margin: 0; letter-spacing: 0.01em; color: #fafafa; }
+  .badge { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #fcd34d; background: #422006;
+    padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 6px; }
+  .doctrine { color: #71717a; font-size: 11px; margin-top: 4px; margin-bottom: 14px; }
+  section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #1f1f23; }
+  section:last-child { border-bottom: none; }
+  section .head { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #71717a; margin-bottom: 6px; }
+  label.opt { display: block; padding: 3px 0; color: #d4d4d8; cursor: pointer; }
+  label.opt input { margin-right: 7px; vertical-align: middle; }
+  label.opt small { display: block; padding-left: 22px; color: #71717a; font-size: 11px; }
+  select, button {
+    width: 100%; box-sizing: border-box; padding: 7px 10px;
+    border: 1px solid #3f3f46; border-radius: 4px;
+    background: #18181b; color: #fafafa; font-size: 12px;
+  }
+  button { cursor: pointer; background: #1d4ed8; border-color: #2563eb; font-weight: 500; }
+  button:hover { background: #2563eb; }
+  button.secondary { background: #27272a; border-color: #3f3f46; }
+  button.secondary:hover { background: #3f3f46; }
+  button:disabled { background: #18181b; color: #52525b; border-color: #27272a; cursor: not-allowed; }
+  .btnRow { display: flex; gap: 8px; }
+  .btnRow button { flex: 1; }
+  #metrics {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+    background: #050507; border: 1px solid #1f1f23; border-radius: 4px;
+    padding: 8px 10px; color: #d4d4d8;
+  }
+  #metrics .row { display: flex; justify-content: space-between; gap: 10px;
+    padding: 1.5px 0; }
+  #metrics .key { color: #71717a; }
+  #metrics .val { color: #e4e4e7; }
+  #metrics .converged .val { color: #22c55e; }
+  #metrics .stalled .val { color: #eab308; }
+  #metrics .overshoot .val { color: #ef4444; }
+  .stage-bar { display: flex; gap: 3px; margin: 8px 0 4px 0; }
+  .stage-bar .dot { flex: 1; height: 4px; background: #27272a; border-radius: 2px;
+    transition: background 180ms ease-out; }
+  .stage-bar .dot.active { background: #3b82f6; }
+  .stage-bar .dot.done { background: #16a34a; }
+  .stage-bar .dot.stalled { background: #eab308; }
+  .stage-bar .dot.overshoot { background: #dc2626; }
+  .stage-labels { display: flex; gap: 3px; font-size: 9.5px;
+    color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage-labels span { flex: 1; text-align: center; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 10.5px; color: #a1a1aa;
+    margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .legend .sw { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .compareStrip { display: flex; gap: 4px; margin-top: 8px; }
+  .compareStrip .thumb { flex: 1; background: #050507; border: 1px solid #1f1f23;
+    border-radius: 3px; overflow: hidden; position: relative; aspect-ratio: 4 / 3; }
+  .compareStrip .thumb img { width: 100%; height: 100%; image-rendering: pixelated;
+    image-rendering: crisp-edges; display: block; opacity: 0.92; }
+  .compareStrip .thumb .label { position: absolute; bottom: 1px; left: 3px; right: 3px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #a1a1aa; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
+  .leaflet-control-attribution { background: rgba(15,15,17,0.7); color: #71717a; }
+  .leaflet-control-attribution a { color: #a1a1aa; }
+  /* truth raster: never bilinear-blurred by browser */
+  .aura-overlay { image-rendering: pixelated; image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    transition: opacity 220ms ease-out; }
+  .leaflet-pane.leaflet-overlay-pane svg { /* keep cell strokes crisp */ shape-rendering: crispEdges; }
+  /* Refinement-stage banner that hangs over the map */
+  #stageBanner {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    background: rgba(12,12,14,0.86); color: #e4e4e7; padding: 6px 12px;
+    border: 1px solid #27272a; border-radius: 6px; font-size: 11px;
+    pointer-events: none; backdrop-filter: blur(4px);
+    opacity: 0; transition: opacity 200ms ease-out;
+  }
+  #stageBanner.on { opacity: 1; }
+  #stageBanner .label { color: #fcd34d; font-weight: 600; letter-spacing: 0.03em; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map">
+    <div id="stageBanner"><span class="label">stage</span> <span id="stageBannerStage">—</span> <span style="color:#71717a">·</span> <span id="stageBannerCount">—</span> samples</div>
+  </div>
+  <div id="panel">
+    <div>
+      <h1>Truth Field Reveal<span class="badge">sandbox</span></h1>
+      <div class="doctrine">Sun · Conjunction · ASC. Every visible element derives from real engine state — no fake particles, blur, or smoothing.</div>
+    </div>
+
+    <section>
+      <div class="head">Chart profile</div>
+      <select id="profile"></select>
+    </section>
+
+    <section>
+      <div class="head">Reveal mode</div>
+      <label class="opt"><input type="radio" name="mode" value="silent" checked />A — Silent convergence
+        <small>Raster crossfades stage-by-stage. No outlines, no dots.</small></label>
+      <label class="opt"><input type="radio" name="mode" value="pointillist" />B — Pointillist discovery
+        <small>Real leaf centers appear; densify around frontier. No raster until convergence.</small></label>
+      <label class="opt"><input type="radio" name="mode" value="frontier" />C — Frontier visualization
+        <small>Raster + dashed outlines on non-settled leaves. Frontier contracts as the engine converges.</small></label>
+      <label class="opt"><input type="radio" name="mode" value="off" />Off — Final only
+        <small>Skip stages; paint converged raster in one step.</small></label>
+    </section>
+
+    <section>
+      <div class="head">Run</div>
+      <div class="btnRow">
+        <button id="runBtn">Reveal field</button>
+        <button id="cancelBtn" class="secondary" disabled>Cancel</button>
+      </div>
+      <div class="btnRow" style="margin-top:6px;">
+        <button id="fitAscBtn" class="secondary">Fit Sun–ASC band</button>
+        <button id="fitGreenlandBtn" class="secondary">Fit Greenland</button>
+      </div>
+      <div class="stage-bar" id="stageBar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="stage-labels">
+        <span>seed</span><span>coarse</span><span>refine</span><span>converge</span>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:#f59e0b"></span>aura strength</span>
+        <span><span class="sw" style="background:transparent;border:1px dashed #f43f5e"></span>frontier</span>
+        <span><span class="sw" style="background:#fde68a"></span>truth sample</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="head">Engine state</div>
+      <div id="metrics">— click <b>Reveal field</b> to begin —</div>
+    </section>
+
+    <section>
+      <div class="head">Stage comparison</div>
+      <div class="compareStrip" id="compareStrip">
+        <div class="thumb"><div class="label">seed</div></div>
+        <div class="thumb"><div class="label">coarse</div></div>
+        <div class="thumb"><div class="label">refine</div></div>
+        <div class="thumb"><div class="label">converge</div></div>
+      </div>
+      <div class="doctrine" style="margin-top:6px;">Each thumb is the literal raster the engine returned at that stage — not a recolor.</div>
+    </section>
+  </div>
+</div>
+<script>
+(() => {
+  // ----- Engine constants -----
+  const API = "http://127.0.0.1:8000";
+  const PAINT_W = 96, PAINT_H = 72;
+  // Sample budgets per stage. The convergence engine refines from the same coarse
+  // initial partition each call; higher budget = more truthful refinement.
+  const STAGE_BUDGETS  = [240,  900, 3600, 120000];
+  const STAGE_PASSES   = [1,    4,   12,   32];
+  const STAGE_PER_PASS = [240,  300, 600,  4000];
+  const STAGE_IDS = ["seed", "coarse", "refine", "converge"];
+  const OVERLAY = { planet: "sun", aspect: "conjunction", angle: "ASC" };
+  const DELTA_THRESH = 0.05;
+
+  // ----- Capture hooks (URL params; do not alter rendering logic) -----
+  const qs = new URLSearchParams(window.location.search);
+  const STOP_AT_STAGE = qs.has("stopAtStage") ? parseInt(qs.get("stopAtStage"), 10) : null;
+  const APPLY_LAT_CAP = qs.get("latCap") !== "0";
+  const INITIAL_MODE  = qs.get("mode");       // silent|pointillist|frontier|off
+  const INITIAL_VIEWPORT = qs.get("viewport"); // asc|greenland
+  const INITIAL_PROFILE_ID = qs.get("profile");
+  const AUTO_RUN = qs.get("auto") === "1";
+  window.__sandboxStatus = "loading";
+  window.__sandboxStageResults = [];
+  window.__sandboxLastError = null;
+  // Aura color (warm amber, doctrine-neutral; honest alpha = strength only)
+  const AURA_RGB = [245, 158, 11];
+  const AURA_MAX_ALPHA = 215; // 0..255
+
+  // ----- Map -----
+  const map = L.map("map", { zoomSnap: 0.25, zoomDelta: 0.5, preferCanvas: true })
+    .setView([5, -90], 4);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 11, minZoom: 2, attribution: "© OpenStreetMap",
+  }).addTo(map);
+  window.__rmMap = map;
+
+  // ----- Layers -----
+  const auraLayer = L.layerGroup().addTo(map);     // raster image overlays
+  const dotLayer  = L.layerGroup().addTo(map);     // Mode B dots
+  const frontierLayer = L.layerGroup().addTo(map); // Mode C frontier outlines
+
+  let lastOverlay = null;             // for Mode A crossfade
+  const plottedLeafKeys = new Set();  // Mode B additive dot dedupe (per run)
+
+  function clearAll() {
+    auraLayer.clearLayers();
+    dotLayer.clearLayers();
+    frontierLayer.clearLayers();
+    lastOverlay = null;
+    plottedLeafKeys.clear();
+  }
+
+  // ----- State -----
+  let runToken = 0;
+  let currentMode = "silent";
+  document.querySelectorAll('input[name="mode"]').forEach(el => {
+    el.addEventListener("change", () => { currentMode = el.value; clearAll(); resetStageBar(); resetCompareStrip(); });
+  });
+
+  // ----- Profiles -----
+  async function loadProfiles() {
+    try {
+      const r = await fetch(`${API}/chart-profiles`);
+      const profiles = await r.json();
+      const sel = document.getElementById("profile");
+      sel.innerHTML = "";
+      profiles.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id; opt.textContent = p.name;
+        opt.dataset.profile = JSON.stringify(p);
+        sel.appendChild(opt);
+      });
+      if (sel.options.length) sel.selectedIndex = 0;
+      // Capture hook: preselect a specific profile by id if requested.
+      if (INITIAL_PROFILE_ID) {
+        const match = Array.from(sel.options).findIndex(o => o.value === INITIAL_PROFILE_ID);
+        if (match >= 0) sel.selectedIndex = match;
+      }
+    } catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#f87171">chart-profiles: ${err.message}</div>`;
+      window.__sandboxStatus = "error";
+      window.__sandboxLastError = "profiles: " + err.message;
+      return;
+    }
+    // Capture hook: set initial mode (does not alter rendering logic).
+    if (INITIAL_MODE && ["silent","pointillist","frontier","off"].includes(INITIAL_MODE)) {
+      const radio = document.querySelector(`input[name="mode"][value="${INITIAL_MODE}"]`);
+      if (radio) { radio.checked = true; currentMode = INITIAL_MODE; }
+    }
+    // Capture hook: set initial viewport before run.
+    if (INITIAL_VIEWPORT === "asc") map.fitBounds([[-15, -105], [15, -75]]);
+    else if (INITIAL_VIEWPORT === "greenland") map.fitBounds([[58, -45], [72, -10]]);
+    // Wait a frame so Leaflet finishes the bounds animation before triggering.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    window.__sandboxStatus = "ready";
+    if (AUTO_RUN) {
+      // Small extra delay to let zoom-snap settle and tiles begin loading.
+      setTimeout(() => runReveal(), 250);
+    }
+  }
+  loadProfiles();
+
+  // ----- Engine call -----
+  async function callConvergence(birth, bounds, stageIdx) {
+    const payload = {
+      ...birth,
+      aspect_overlay: OVERLAY,
+      north: bounds.getNorth(),
+      south: bounds.getSouth(),
+      west: bounds.getWest(),
+      east: bounds.getEast(),
+      paint_width: PAINT_W,
+      paint_height: PAINT_H,
+      apply_lat_cap: APPLY_LAT_CAP,
+      initial_divisions: 4,
+      per_pass_sample_budget: STAGE_PER_PASS[stageIdx],
+      max_passes: STAGE_PASSES[stageIdx],
+      max_samples: STAGE_BUDGETS[stageIdx],
+      convergence_delta_threshold: DELTA_THRESH,
+      target_pixels_above_threshold_pct: 0.0,
+      overshoot_guard: true,
+      include_debug_cells: false,
+      include_pass_history: false,
+      include_pixel_attribution_sample: false,
+    };
+    const r = await fetch(`${API}/aura-raster-convergence`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+      const text = await r.text();
+      throw new Error(`engine ${r.status}: ${text.slice(0, 200)}`);
+    }
+    return r.json();
+  }
+
+  // ----- Raster: real strengths → 96x72 image, painted nearest-neighbor -----
+  function strengthsToDataURL(response) {
+    const W = response.width, H = response.height;
+    const off = document.createElement("canvas");
+    off.width = W; off.height = H;
+    const octx = off.getContext("2d");
+    const img = octx.createImageData(W, H);
+    const s = response.strengths;
+    for (let i = 0; i < s.length; i++) {
+      const v = Math.max(0, Math.min(1, s[i] || 0));
+      img.data[i*4]   = AURA_RGB[0];
+      img.data[i*4+1] = AURA_RGB[1];
+      img.data[i*4+2] = AURA_RGB[2];
+      img.data[i*4+3] = Math.round(v * AURA_MAX_ALPHA);
+    }
+    octx.putImageData(img, 0, 0);
+    return off.toDataURL();
+  }
+
+  function paintRaster(response, opacity = 0.85, { keepPrior = false } = {}) {
+    const b = response.bounds;
+    const url = strengthsToDataURL(response);
+    const overlay = L.imageOverlay(url, [[b.south, b.west], [b.north, b.east]], {
+      interactive: false,
+      opacity: 0,
+      className: "aura-overlay",
+    });
+    overlay.addTo(auraLayer);
+    // next frame -> trigger CSS opacity transition
+    requestAnimationFrame(() => overlay.setOpacity(opacity));
+    if (lastOverlay && !keepPrior) {
+      const old = lastOverlay;
+      old.setOpacity(0);
+      setTimeout(() => auraLayer.removeLayer(old), 260);
+    }
+    lastOverlay = overlay;
+    return url;
+  }
+
+  // ----- Mode B: leaf centers are REAL truth samples -----
+  function plotTruthSamples(response) {
+    const leaves = response.leaves || [];
+    for (const leaf of leaves) {
+      if (leaf.outside_lat_cap) continue;
+      const w = leaf.west, e = leaf.east, s = leaf.south, n = leaf.north;
+      // skip leaves that own zero pixels (book-keeping artifacts)
+      if (leaf.pixel_count === 0) continue;
+      const key = `${w.toFixed(4)}:${s.toFixed(4)}:${e.toFixed(4)}:${n.toFixed(4)}`;
+      if (plottedLeafKeys.has(key)) continue;
+      plottedLeafKeys.add(key);
+      const lon = (w + e) / 2, lat = (s + n) / 2;
+      const str = leaf.strength || 0;
+      if (str <= 0.02) continue; // truthful: don't dot the field's zeros
+      const r = Math.max(1.6, 3.6 - leaf.depth * 0.55);
+      const alpha = 0.32 + Math.min(0.62, str * 0.8);
+      L.circleMarker([lat, lon], {
+        radius: r,
+        color:       `rgba(${AURA_RGB.join(",")},${(alpha + 0.1).toFixed(3)})`,
+        fillColor:   `rgba(${AURA_RGB.join(",")},${alpha.toFixed(3)})`,
+        fillOpacity: 1,
+        weight: 0,
+        interactive: false,
+      }).addTo(dotLayer);
+    }
+  }
+
+  // ----- Mode C: frontier outlines from REAL leaf state -----
+  function plotFrontier(response) {
+    frontierLayer.clearLayers();
+    const leaves = response.leaves || [];
+    for (const leaf of leaves) {
+      if (leaf.outside_lat_cap) continue;
+      // settled = converged or hit a structural bound; frontier = anything still owed work
+      const settled = (leaf.stop_reason === "zero_debt") || leaf.settled === true;
+      const debt = leaf.debt || 0;
+      const isFrontier = (!settled) || debt > 0.0009;
+      // also flag pixel-atomic / min-cell leaves that bottomed out with non-zero debt
+      // as residual mismatch — they CAN'T refine further (visible honesty)
+      const residualMismatch = (leaf.stop_reason === "pixel_atomic" ||
+                                leaf.stop_reason === "min_cell") && debt > 0.0009;
+      if (!isFrontier && !residualMismatch) continue;
+      const style = residualMismatch
+        ? { color: "rgba(244,114,182,0.85)", weight: 1.1, dashArray: "1 3" }
+        : { color: "rgba(244,63,94,0.75)",  weight: 1,   dashArray: "3 3" };
+      L.rectangle(
+        [[leaf.south, leaf.west], [leaf.north, leaf.east]],
+        { ...style, fill: false, interactive: false }
+      ).addTo(frontierLayer);
+    }
+  }
+
+  // ----- Metrics + stage bar + comparison thumb -----
+  function row(k, v, cls) {
+    return `<div class="row ${cls || ""}"><span class="key">${k}</span><span class="val">${v}</span></div>`;
+  }
+  function updateMetrics(response, stageIdx, isFinal) {
+    const p = response.properties;
+    const cv = p.convergence_vs_reference || {};
+    const leaves = response.leaves || [];
+    const frontier = leaves.filter(l =>
+      !l.outside_lat_cap &&
+      l.stop_reason !== "zero_debt" &&
+      (l.debt || 0) > 0
+    ).length;
+    const residual = leaves.filter(l =>
+      (l.stop_reason === "pixel_atomic" || l.stop_reason === "min_cell") &&
+      (l.debt || 0) > 0.0009
+    ).length;
+    const status =
+      p.converged ? "converged" :
+      p.overshoot_detected ? "overshoot" :
+      (p.stop_reason || "staging");
+    const statusClass =
+      p.converged ? "converged" :
+      p.overshoot_detected ? "overshoot" : "stalled";
+
+    document.getElementById("metrics").innerHTML = [
+      row("stage", `${STAGE_IDS[stageIdx]}${isFinal ? " · final" : ""}`),
+      row("truth samples", p.truth_sample_count.toLocaleString()),
+      row("leaves", `${p.leaf_count.toLocaleString()} (frontier ${frontier}${residual ? `, residual ${residual}` : ""})`),
+      row("passes", p.passes_executed),
+      row("max Δ vs ref", (cv.max_delta_vs_reference || 0).toFixed(4)),
+      row("mean Δ vs ref", (cv.mean_delta_vs_reference || 0).toFixed(4)),
+      row("pixels Δ > " + DELTA_THRESH, (cv.pixels_above_threshold_pct || 0).toFixed(2) + "%"),
+      row("stop", status, statusClass),
+      row("compute", `${(p.compute_seconds || 0).toFixed(3)}s + ref ${(p.reference_compute_seconds || 0).toFixed(3)}s`),
+    ].join("");
+
+    updateStageBar(stageIdx, isFinal, p);
+    updateStageBanner(stageIdx, p);
+  }
+  function resetStageBar() {
+    document.querySelectorAll("#stageBar .dot").forEach(d => d.className = "dot");
+  }
+  function updateStageBar(stageIdx, isFinal, props) {
+    const dots = document.querySelectorAll("#stageBar .dot");
+    dots.forEach((d, i) => {
+      d.className = "dot";
+      if (i < stageIdx) d.classList.add("done");
+      if (i === stageIdx) {
+        if (!isFinal) d.classList.add("active");
+        else if (props.converged) d.classList.add("done");
+        else if (props.overshoot_detected) d.classList.add("overshoot");
+        else d.classList.add("stalled");
+      }
+    });
+  }
+  function updateStageBanner(stageIdx, p) {
+    document.getElementById("stageBannerStage").textContent = STAGE_IDS[stageIdx];
+    document.getElementById("stageBannerCount").textContent =
+      (p.truth_sample_count || 0).toLocaleString();
+    document.getElementById("stageBanner").classList.add("on");
+  }
+  function hideStageBanner() {
+    document.getElementById("stageBanner").classList.remove("on");
+  }
+
+  function resetCompareStrip() {
+    document.querySelectorAll(".compareStrip .thumb").forEach(t => {
+      const img = t.querySelector("img");
+      if (img) t.removeChild(img);
+    });
+  }
+  function fillCompareThumb(stageIdx, dataUrl) {
+    const thumb = document.querySelectorAll(".compareStrip .thumb")[stageIdx];
+    if (!thumb || !dataUrl) return;
+    let img = thumb.querySelector("img");
+    if (!img) {
+      img = document.createElement("img");
+      thumb.insertBefore(img, thumb.firstChild);
+    }
+    img.src = dataUrl;
+  }
+
+  // ----- Run sequence -----
+  function getBirthFromProfile() {
+    const sel = document.getElementById("profile");
+    if (!sel.value) throw new Error("no chart profile loaded");
+    const p = JSON.parse(sel.selectedOptions[0].dataset.profile);
+    const [y, mo, d] = p.date.split("-").map(Number);
+    const [h, mi] = (p.time || "12:00").split(":").map(Number);
+    return {
+      birth_year: y, birth_month: mo, birth_day: d, birth_hour_utc: h + mi/60,
+    };
+  }
+
+  async function runReveal() {
+    const token = ++runToken;
+    let birth;
+    try {
+      birth = getBirthFromProfile();
+    } catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#f87171">${err.message}</div>`;
+      window.__sandboxStatus = "error";
+      window.__sandboxLastError = err.message;
+      return;
+    }
+    const bounds = map.getBounds();
+    clearAll();
+    resetStageBar();
+    resetCompareStrip();
+    setControlsBusy(true);
+    window.__sandboxStatus = "running";
+    window.__sandboxStageResults = [];
+    try {
+      let stagesToRun = currentMode === "off" ? [STAGE_BUDGETS.length - 1]
+                          : [0, 1, 2, 3];
+      if (STOP_AT_STAGE !== null) {
+        // Run only stages 0..STOP_AT_STAGE for staged modes; cap at the
+        // requested stage for off mode too. Does not alter rendering.
+        if (currentMode === "off") {
+          stagesToRun = [STOP_AT_STAGE];
+        } else {
+          stagesToRun = stagesToRun.filter(i => i <= STOP_AT_STAGE);
+        }
+      }
+      const lastStageInRun = stagesToRun[stagesToRun.length - 1];
+      for (const i of stagesToRun) {
+        if (token !== runToken) return;
+        const r = await callConvergence(birth, bounds, i);
+        if (token !== runToken) return;
+        const isFinal = (i === lastStageInRun);
+        const opacity = 0.45 + i * 0.13; // 0.45 → 0.58 → 0.71 → 0.84
+
+        let url = null;
+        if (currentMode === "silent" || currentMode === "off") {
+          url = paintRaster(r, opacity);
+        } else if (currentMode === "pointillist") {
+          plotTruthSamples(r);
+          if (isFinal && r.properties.converged) {
+            url = paintRaster(r, 0.22);
+          } else if (isFinal && !r.properties.converged) {
+            url = strengthsToDataURL(r);
+          } else {
+            url = strengthsToDataURL(r);
+          }
+        } else if (currentMode === "frontier") {
+          url = paintRaster(r, Math.min(0.78, opacity));
+          plotFrontier(r);
+        }
+
+        if (url) fillCompareThumb(i, url);
+        updateMetrics(r, i, isFinal);
+        window.__sandboxStageResults.push({
+          stage_idx: i,
+          stage_id: STAGE_IDS[i],
+          is_final: isFinal,
+          mode: currentMode,
+          apply_lat_cap: APPLY_LAT_CAP,
+          properties: r.properties,
+          leaf_count: (r.leaves || []).length,
+          frontier_count: (r.leaves || []).filter(l =>
+            !l.outside_lat_cap &&
+            l.stop_reason !== "zero_debt" &&
+            (l.debt || 0) > 0
+          ).length,
+          residual_count: (r.leaves || []).filter(l =>
+            (l.stop_reason === "pixel_atomic" || l.stop_reason === "min_cell") &&
+            (l.debt || 0) > 0.0009
+          ).length,
+          bounds: r.bounds,
+        });
+        if (!isFinal) await sleep(90); // breathing room, NOT fake progress
+      }
+      window.__sandboxStatus = "complete";
+    } catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#f87171">error: ${err.message}</div>`;
+      window.__sandboxStatus = "error";
+      window.__sandboxLastError = err.message;
+    } finally {
+      if (token === runToken) setControlsBusy(false);
+      setTimeout(() => { if (token === runToken) hideStageBanner(); }, 1400);
+    }
+  }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  function setControlsBusy(busy) {
+    document.getElementById("runBtn").disabled = busy;
+    document.getElementById("cancelBtn").disabled = !busy;
+  }
+
+  // ----- Buttons -----
+  document.getElementById("runBtn").addEventListener("click", runReveal);
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    runToken++;
+    setControlsBusy(false);
+    hideStageBanner();
+  });
+  document.getElementById("fitAscBtn").addEventListener("click", () => {
+    // asc_band viewport from benchmark: -100..-80 lon, -10..10 lat
+    map.fitBounds([[-15, -105], [15, -75]]);
+  });
+  document.getElementById("fitGreenlandBtn").addEventListener("click", () => {
+    // Phase D lat-cap probe viewport (refinement should mostly clip / not subdivide)
+    map.fitBounds([[58, -45], [72, -10]]);
+  });
+})();
+</script>
+</body>
+</html>

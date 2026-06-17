@@ -1,0 +1,170 @@
+{
+  "baselineMetricsPath": "/Users/davegoodman/Desktop/relocation-backend/validation/reports/phase3_28_true_discovery_sim_metrics.json",
+  "emergentClaimSupported": false,
+  "likelyFakeEmergenceMechanisms": [
+    "Time-shaped metric curves independent of geometry (if reproduced across shapes)",
+    "Global abandonment synchronization",
+    "Metric saturation ceilings (frontier pressure -> 1.0)",
+    "Acceptance-pass despite non-convergence",
+    "Movement then freeze pattern (high displacement, ~0 terminal velocity)"
+  ],
+  "overallVerdict": "FAIL",
+  "phase": "3.29_hostile_solver_validation",
+  "solverAvailable": false,
+  "solverModule": "validation.solver.phase3_28_true_discovery_sim",
+  "strongestEvidenceAgainstEmergence": [
+    "Phase 3.28 solver module `validation.solver.phase3_28_true_discovery_sim` not importable. Live multi-geometry hostile tests could not run.",
+    "Abandonment count cliff at step 11 (0.115 normalized): global synchronization.",
+    "Particle sample shows single abandonment step for all particles: 11",
+    "Early global abandonment cliff suggests screenplay timing, not local decay.",
+    "Froth metric monotonic in 0.968 of steps \u2014 engineered curve shape.",
+    "Compression metric plateau run length 19 \u2014 staircase behavior.",
+    "Compression metric highly correlated with normalized time (0.9038).",
+    "maxFrontierPressure saturates early and flatlines \u2014 metric ceiling theater.",
+    "End-state particle velocities near zero after large displacement \u2014 moved then frozen, not converging.",
+    "Solver never reached convergence in archived run despite high acceptance metrics.",
+    "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit.",
+    "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit.",
+    "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit.",
+    "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit.",
+    "abandonment_virga_test: synchronized cliff transitions",
+    "time_dependence_audit: monotonic/time-shaped metrics",
+    "time_dependence_audit: synchronized cliff transitions"
+  ],
+  "strongestEvidenceForEmergence": [],
+  "summary": {
+    "failCount": 5,
+    "liveSolverRequiredForFullAudit": true,
+    "passCount": 0,
+    "unprovenCount": 4
+  },
+  "suspiciousBehaviors": [
+    "Archived baseline shows global abandonment cliff at step 11",
+    "Froth metric monotonic growth with late plateau in archived run",
+    "Compression metric staircase plateaus in archived run",
+    "maxFrontierPressure saturates to 1.0 early in archived run",
+    "convergenceReached=false in archived acceptance run",
+    "End-state particle velocities near zero after large displacement (sample)"
+  ],
+  "target": "Phase 3.28 mechanics (metrics-only prototype)",
+  "tests": [
+    {
+      "evidence": [],
+      "failures": [
+        "Phase 3.28 solver module `validation.solver.phase3_28_true_discovery_sim` not importable. Live multi-geometry hostile tests could not run."
+      ],
+      "mode": "blocker",
+      "name": "solver_availability",
+      "statistics": {},
+      "verdict": "FAIL"
+    },
+    {
+      "evidence": [
+        "abandoned sample steps unique count: 1"
+      ],
+      "failures": [
+        "Abandonment count cliff at step 11 (0.115 normalized): global synchronization.",
+        "Particle sample shows single abandonment step for all particles: 11"
+      ],
+      "mode": "retrospective_single_run",
+      "name": "abandonment_virga_test",
+      "statistics": {
+        "abandonmentCliffStep": 11,
+        "abandonmentTimingVariance": 0.0,
+        "finalAbandonedCount": 824
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "evidence": [
+        "archived frothPeakStep=95 of 96",
+        "archived compressionOnsetStep=15 of 96",
+        "convergenceReached=false in archived run"
+      ],
+      "failures": [
+        "Early global abandonment cliff suggests screenplay timing, not local decay.",
+        "Froth metric monotonic in 0.968 of steps \u2014 engineered curve shape.",
+        "Compression metric plateau run length 19 \u2014 staircase behavior."
+      ],
+      "mode": "retrospective_single_run",
+      "name": "time_dependence_audit",
+      "statistics": {
+        "compressionPlateauRun": 19,
+        "compressionTimeCorrelation": 0.9037844419578593,
+        "frothMonotonicFraction": 0.968421052631579,
+        "frothTimeCorrelation": 0.8144995324981901
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Compression metric highly correlated with normalized time (0.9038).",
+        "maxFrontierPressure saturates early and flatlines \u2014 metric ceiling theater."
+      ],
+      "mode": "retrospective_single_run",
+      "name": "metric_correlation_audit",
+      "statistics": {
+        "compressionTimeCorr": 0.9037844419578593,
+        "frothFrontierCorr": 0.23240382145613814,
+        "frothTimeCorr": 0.8144995324981901,
+        "pressureTailUnique": 1
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "evidence": [
+        "mean end speed=4.780e-12",
+        "meanDistanceMoved=60.285104 median=53.821466 percentMoved=0.867188"
+      ],
+      "failures": [
+        "End-state particle velocities near zero after large displacement \u2014 moved then frozen, not converging.",
+        "Solver never reached convergence in archived run despite high acceptance metrics."
+      ],
+      "mode": "retrospective_single_run",
+      "name": "drift_vs_convergence_test",
+      "statistics": {},
+      "verdict": "FAIL"
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit."
+      ],
+      "mode": "retrospective_unavailable",
+      "name": "geometry_variation_test",
+      "statistics": {},
+      "verdict": "UNPROVEN"
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit."
+      ],
+      "mode": "retrospective_unavailable",
+      "name": "randomized_initial_distribution_test",
+      "statistics": {},
+      "verdict": "UNPROVEN"
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit."
+      ],
+      "mode": "retrospective_unavailable",
+      "name": "frontier_authenticity_test",
+      "statistics": {},
+      "verdict": "UNPROVEN"
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Live solver module unavailable \u2014 cannot execute multi-geometry or trajectory audit."
+      ],
+      "mode": "retrospective_unavailable",
+      "name": "hidden_target_audit",
+      "statistics": {},
+      "verdict": "UNPROVEN"
+    }
+  ]
+}

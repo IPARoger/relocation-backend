@@ -1,0 +1,717 @@
+{
+  "adjacent_house_space_cap_behavior": "absent; not implemented in this artifact and remains pending",
+  "artifacts": {
+    "asymmetric_pngs": {
+      "10_3": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_asym_10_3.png",
+      "10_6": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_asym_10_6.png",
+      "3_10": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_asym_3_10.png",
+      "6_10": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_asym_6_10.png"
+    },
+    "html": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds.html",
+    "symmetric_pngs": {
+      "10": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_10deg.png",
+      "3": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_3deg.png",
+      "6": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_6deg.png",
+      "8": "validation/visual_targets/phase2_36c_truth_aspect_band_bounds_8deg.png"
+    }
+  },
+  "asym_3_10_and_10_3_visibly_differ_by_boundary_bboxes": true,
+  "asymmetric_cases": {
+    "10_3": {
+      "left_degrees": 10,
+      "right_degrees": 3,
+      "truth_derived_independent_side_widths": true
+    },
+    "10_6": {
+      "left_degrees": 10,
+      "right_degrees": 6,
+      "truth_derived_independent_side_widths": true
+    },
+    "3_10": {
+      "left_degrees": 3,
+      "right_degrees": 10,
+      "truth_derived_independent_side_widths": true
+    },
+    "6_10": {
+      "left_degrees": 6,
+      "right_degrees": 10,
+      "truth_derived_independent_side_widths": true
+    }
+  },
+  "asymmetric_side_cap_behavior_proven": false,
+  "asymmetric_side_width_rendering_proven": true,
+  "component_audit": {
+    "by_case": {
+      "asym_10_3": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 141.8869,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 55.3877
+            },
+            "point_count": 434
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 139.5513,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 30.9337
+            },
+            "point_count": 479
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 139.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 30.75
+            },
+            "point_count": 480
+          },
+          {
+            "bbox": {
+              "east": 141.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 55.25
+            },
+            "point_count": 435
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7637,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2637
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7455,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2457
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "asym_10_6": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 141.8869,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 55.3877
+            },
+            "point_count": 434
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 138.7883,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 25.3753
+            },
+            "point_count": 488
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 138.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 25.25
+            },
+            "point_count": 489
+          },
+          {
+            "bbox": {
+              "east": 141.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 55.25
+            },
+            "point_count": 435
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7637,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2637
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7413,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2415
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "asym_3_10": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 140.7807,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 42.1884
+            },
+            "point_count": 458
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 137.5763,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 18.0968
+            },
+            "point_count": 500
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 137.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 18.25
+            },
+            "point_count": 501
+          },
+          {
+            "bbox": {
+              "east": 140.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 42.25
+            },
+            "point_count": 459
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7539,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.254
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7357,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2359
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "asym_6_10": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 141.2896,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 47.8455
+            },
+            "point_count": 448
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 137.5763,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 18.0968
+            },
+            "point_count": 500
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 137.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 18.25
+            },
+            "point_count": 501
+          },
+          {
+            "bbox": {
+              "east": 141.25,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 47.75
+            },
+            "point_count": 449
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7581,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2582
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7357,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2359
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "symmetric_10": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 141.8869,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 55.3877
+            },
+            "point_count": 434
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 137.5763,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 18.0968
+            },
+            "point_count": 500
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 137.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 18.25
+            },
+            "point_count": 501
+          },
+          {
+            "bbox": {
+              "east": 141.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 55.25
+            },
+            "point_count": 435
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7637,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2637
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7357,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2359
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "symmetric_3": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 140.7807,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 42.1884
+            },
+            "point_count": 458
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 139.5513,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 30.9337
+            },
+            "point_count": 479
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 137.75,
+              "north": 65.0,
+              "south": -64.25,
+              "west": 30.75
+            },
+            "point_count": 924
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7539,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.254
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7455,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2457
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "symmetric_6": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 141.2896,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 47.8455
+            },
+            "point_count": 448
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 138.7883,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 25.3753
+            },
+            "point_count": 488
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 138.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 25.25
+            },
+            "point_count": 489
+          },
+          {
+            "bbox": {
+              "east": 141.25,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 47.75
+            },
+            "point_count": 449
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7581,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2582
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7413,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2415
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      },
+      "symmetric_8": {
+        "proof_minus_boundaries": [
+          {
+            "bbox": {
+              "east": 141.6001,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 51.618
+            },
+            "point_count": 441
+          }
+        ],
+        "proof_plus_boundaries": [
+          {
+            "bbox": {
+              "east": 138.2136,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 21.713
+            },
+            "point_count": 494
+          }
+        ],
+        "proof_polygons": [
+          {
+            "bbox": {
+              "east": 138.25,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 21.75
+            },
+            "point_count": 495
+          },
+          {
+            "bbox": {
+              "east": 141.75,
+              "north": 65.0,
+              "south": -65.0,
+              "west": 51.75
+            },
+            "point_count": 442
+          }
+        ],
+        "suppressed_nonproof_components": [
+          {
+            "bbox": {
+              "east": -39.7609,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.261
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          },
+          {
+            "bbox": {
+              "east": -39.7385,
+              "north": 65.0,
+              "south": -65.0,
+              "west": -143.2387
+            },
+            "component": "western_centerline_component",
+            "point_count": 468
+          }
+        ]
+      }
+    },
+    "centerline_components": [
+      {
+        "bbox": {
+          "east": -39.7497,
+          "north": 65.0,
+          "south": -65.0,
+          "west": -143.2498
+        },
+        "component": "western_centerline_component",
+        "point_count": 468,
+        "rendered": false
+      },
+      {
+        "bbox": {
+          "east": 140.2052,
+          "north": 65.0,
+          "south": -65.0,
+          "west": 36.5454
+        },
+        "component": "eastern_australia_branch_component",
+        "point_count": 468,
+        "rendered": true
+      }
+    ],
+    "proof_branch": "eastern_australia_branch_component",
+    "suppressed_branch_reason": "Western same-condition component remains suppressed from proof view pending separate component/seam validation."
+  },
+  "condition": {
+    "angle": "asc",
+    "aspect": "conjunction",
+    "planet": "saturn",
+    "planet_longitude_deg": 120.082995,
+    "target_degrees": 0.0,
+    "type": "aspect_to_angle"
+  },
+  "description": "Truth-derived symmetric and asymmetric sampled aspect-to-angle boundary-mask proof",
+  "diagnostic_annotations_obscure_geometry": false,
+  "generated_at_utc": "2026-05-25T16:07:44.357120+00:00",
+  "geometry_status": "truth-derived sampled diagnostic orb-band evidence for symmetric and independent signed-side widths on eastern/Australia proof branch only; not final renderer output",
+  "limitations": [
+    "Diagnostic output is sampled at 0.5 degrees in lon/lat and contoured from sampled scalar truth; it is not an analytic vector solution.",
+    "Asymmetric images prove independent signed side thresholds from the real centerline, not adjacent-house/space cap behavior.",
+    "Western same-condition component remains suppressed pending separate component/seam validation.",
+    "No production renderer integration, gradient/color/aura styling, rain, virga, dots, particles, or animation."
+  ],
+  "line_provenance": {
+    "dashed_centerline": "truth-derived 0 degree contour of signed Saturn-ASC separation, filtered to eastern/Australia proof branch",
+    "neutral_mask": "truth-derived sampled occupancy polygon for signed Saturn-ASC separation within requested left/right thresholds; fill is neutral presentation and has no stroke",
+    "solid_left_boundary": "truth-derived negative-side contour at -left_degrees from same signed field",
+    "solid_right_boundary": "truth-derived positive-side contour at +right_degrees from same signed field",
+    "western_component": "truth-derived same-condition component suppressed from proof view pending separate component/seam validation"
+  },
+  "math_source": {
+    "angle_source": "swe.houses(julian_day, lat, lon, b\"P\")[1][0] for ASC",
+    "backend_parity": "Same source formula as main_centerline_FIXER.py AspectToAngleCondition and /brute-force-grid a2a branch for conjunction-to-ASC.",
+    "ephemeris": "Swiss Ephemeris via swisseph",
+    "planet_source": "swe.calc_ut(julian_day, swe.SATURN)[0][0] % 360",
+    "signed_field": "signed_sep = ((planet_long - asc + 180) % 360) - 180"
+  },
+  "phase": "2.36c",
+  "profile": {
+    "date": "1976-01-13",
+    "id": "baseline_validated",
+    "lat": 0,
+    "lon": 0,
+    "name": "Baseline Validated Chart",
+    "notes": "Current validated baseline chart.",
+    "place": "Test",
+    "time": "12:47",
+    "timezone": "UTC"
+  },
+  "sampling": {
+    "compute_seconds": 1.0306,
+    "east": 180.0,
+    "error_points": 0,
+    "grid_deg": 0.5,
+    "lat_count": 261,
+    "lon_count": 721,
+    "north": 65.0,
+    "south": -65.0,
+    "total_points": 188181,
+    "valid_points": 188181,
+    "west": -180.0
+  },
+  "side_caps_or_narrowing_observed": false,
+  "symmetric_width_ordering_10_8_6_3_correct": true,
+  "width_metrics": {
+    "10": {
+      "match_cell_count": 10864,
+      "median_row_lon_span_deg": 20.5,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    },
+    "3": {
+      "match_cell_count": 3258,
+      "median_row_lon_span_deg": 6.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 1,
+      "suppressed_nonproof_component_count": 2
+    },
+    "6": {
+      "match_cell_count": 6510,
+      "median_row_lon_span_deg": 12.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    },
+    "8": {
+      "match_cell_count": 8689,
+      "median_row_lon_span_deg": 16.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    },
+    "asym_10_3": {
+      "match_cell_count": 6997,
+      "median_row_lon_span_deg": 13.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    },
+    "asym_10_6": {
+      "match_cell_count": 8642,
+      "median_row_lon_span_deg": 16.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    },
+    "asym_3_10": {
+      "match_cell_count": 7125,
+      "median_row_lon_span_deg": 13.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    },
+    "asym_6_10": {
+      "match_cell_count": 8732,
+      "median_row_lon_span_deg": 16.0,
+      "proof_minus_boundary_count": 1,
+      "proof_plus_boundary_count": 1,
+      "proof_polygon_count": 2,
+      "suppressed_nonproof_component_count": 2
+    }
+  }
+}

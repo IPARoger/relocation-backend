@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chart Wheel Skeleton — v01 (greyscale-first)</title>
+
+<!--
+  ============================================================
+  prototype_chart_wheel_skeleton_v01.html
+  ============================================================
+  PURPOSE
+  Structure-first chart wheel. Readable in greyscale; color is
+  spent ONLY on aspect lines (semantic), never on decoration.
+  This is the "trustworthy / functional" base before any of the
+  ~15% warmth. Artistic rendering + real glyphs are deferred.
+
+  COMMITTED-AS-PLACEHOLDER decisions (per direction):
+  - Paper (#f3f0e8), charcoal ink (#2c2a27, not pure black).
+  - 5-step greyscale layering hierarchy for line weight/value.
+  - Aspect hues: hard = muted brick, soft = slate blue,
+    minor = ochre (3rd), conjunction = neutral charcoal.
+    Autumn family, desaturated "almost grey" but distinguishable
+    (anti rainbow-barf AND anti heroin-chic).
+  - Placeholder planet glyphs = 2-letter tokens (NOT emoji / not
+    utilitarian Unicode). Real glyphs to come from Noun Project.
+  - Tables stay colorless; ONLY "late-in-house" planets get a
+    lighter greyscale (shown in the demo at right).
+
+  NOT solved: real geometry/positions, Placidus cusp math,
+  motion, final glyphs, paper-texture material pass.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --paper:#f3f0e8; --ink:#2c2a27;
+    --g1:#6f6b62; --g2:#9c988f; --g3:#c4bfb3; --hair:#ddd8cc;
+    --hard:#9c5347; --soft:#4f6f80; --minor:#9c7b3e;
+    --line:#e2ded5; --panel:#fbf9f3;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; padding:26px 24px 60px; }
+  h1 { font-size:18px; margin:0 0 2px; }
+  .sub { font-size:13px; color:var(--g1); margin:0 0 22px; }
+
+  .layout { display:grid; grid-template-columns:1.1fr .9fr; gap:30px; align-items:start; }
+  @media (max-width:820px){ .layout{ grid-template-columns:1fr; } }
+
+  /* paper disc with a very subtle material warmth (the eventual "15%") */
+  .disc { position:relative; width:100%; max-width:460px; margin:0 auto; }
+  .disc svg { display:block; width:100%; height:auto;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 42%, #f7f4ec 0%, #f1eee5 62%, #e9e5da 100%);
+    box-shadow: inset 0 1px 3px rgba(44,42,39,.06), 0 1px 2px rgba(44,42,39,.05); }
+
+  .glyph-tok { font-size:12px; font-weight:600; fill:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif; }
+  .house-num { font-size:9px; fill:var(--g2); font-family:inherit; }
+  .axis-lbl { font-size:10px; font-weight:700; fill:var(--ink); letter-spacing:.04em; }
+
+  /* palette panel */
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:18px; }
+  .panel h2 { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--g1); margin:0 0 12px; }
+  .sw-row { display:flex; align-items:center; gap:10px; padding:5px 0; font-size:12.5px; }
+  .sw { width:26px; height:18px; border-radius:4px; border:1px solid rgba(44,42,39,.15); flex:0 0 auto; }
+  .sw-row .nm { flex:1 1 auto; }
+  .sw-row .hex { color:var(--g1); font-size:11.5px; font-variant-numeric:tabular-nums; }
+  .sw-row .role { color:var(--g2); font-size:11px; }
+
+  /* late-in-house demo */
+  table { width:100%; border-collapse:collapse; }
+  th,td { text-align:left; padding:3px 10px; font-size:12.5px; }
+  th { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--g1); font-weight:500; }
+  td.glyph { font-family:"Iowan Old Style",Georgia,serif; font-weight:600; }
+  tr.late td { color:var(--g2); }            /* late-in-house = lighter greyscale */
+  .foot { font-size:11px; color:var(--g1); margin-top:8px; line-height:1.45; }
+  .foot b { color:var(--ink); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chart wheel — greyscale-first skeleton</h1>
+  <p class="sub">Structure and hierarchy first. Color only on aspect lines. Warmth held to a whisper.</p>
+
+  <div class="layout">
+    <div class="disc" id="disc"></div>
+
+    <div>
+      <div class="panel">
+        <h2>Greyscale layering hierarchy</h2>
+        <div class="sw-row"><span class="sw" style="background:#2c2a27"></span><span class="nm">Ink / charcoal</span><span class="role">outer ring · angles · glyphs</span><span class="hex">#2c2a27</span></div>
+        <div class="sw-row"><span class="sw" style="background:#6f6b62"></span><span class="nm">Grey 1</span><span class="role">sign boundaries</span><span class="hex">#6f6b62</span></div>
+        <div class="sw-row"><span class="sw" style="background:#9c988f"></span><span class="nm">Grey 2</span><span class="role">house spokes</span><span class="hex">#9c988f</span></div>
+        <div class="sw-row"><span class="sw" style="background:#c4bfb3"></span><span class="nm">Grey 3</span><span class="role">5° ticks</span><span class="hex">#c4bfb3</span></div>
+        <div class="sw-row"><span class="sw" style="background:#ddd8cc"></span><span class="nm">Hairline</span><span class="role">faint structure</span><span class="hex">#ddd8cc</span></div>
+        <div class="sw-row"><span class="sw" style="background:#f3f0e8"></span><span class="nm">Paper</span><span class="role">ground</span><span class="hex">#f3f0e8</span></div>
+      </div>
+
+      <div class="panel">
+        <h2>Aspect hues (semantic only)</h2>
+        <div class="sw-row"><span class="sw" style="background:#9c5347"></span><span class="nm">Hard</span><span class="role">square · opposition</span><span class="hex">#9c5347</span></div>
+        <div class="sw-row"><span class="sw" style="background:#4f6f80"></span><span class="nm">Soft</span><span class="role">trine · sextile</span><span class="hex">#4f6f80</span></div>
+        <div class="sw-row"><span class="sw" style="background:#9c7b3e"></span><span class="nm">Minor</span><span class="role">semi-sextile · quincunx</span><span class="hex">#9c7b3e</span></div>
+        <div class="sw-row"><span class="sw" style="background:#2c2a27"></span><span class="nm">Conjunction</span><span class="role">neutral charcoal</span><span class="hex">#2c2a27</span></div>
+      </div>
+
+      <div class="panel">
+        <h2>Late-in-house = lighter greyscale</h2>
+        <table>
+          <thead><tr><th>Planet</th><th>Sign &amp; degree</th><th>House</th></tr></thead>
+          <tbody>
+            <tr><td class="glyph">Su</td><td>23° Pisces</td><td>10th</td></tr>
+            <tr><td class="glyph">Ve</td><td>02° Aries</td><td>11th</td></tr>
+            <tr class="late"><td class="glyph">Mo</td><td>29° Virgo</td><td>4th</td></tr>
+          </tbody>
+        </table>
+        <p class="foot"><b>Moon 29° Virgo</b> renders lighter — at a late degree many astrologers read it as effectively in the <b>5th</b>. Same lighter-grey cue will be used on the map.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var GREY={ink:'#2c2a27',g1:'#6f6b62',g2:'#9c988f',g3:'#c4bfb3',hair:'#ddd8cc'};
+  var ASP={hard:'#9c5347',soft:'#4f6f80',minor:'#9c7b3e',conj:'#2c2a27'};
+
+  var cx=230, cy=230;
+  var R_out=210, R_sign_in=176, R_house_in=64, R_planet=120, R_houseNum=80, R_hub=58;
+
+  function pt(angDeg,r){ var a=angDeg*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)]; }
+  function line(a,r1,r2,stroke,w){ var p1=pt(a,r1),p2=pt(a,r2);
+    return '<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" stroke="'+stroke+'" stroke-width="'+w+'"/>'; }
+  function circle(r,stroke,w){ return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+stroke+'" stroke-width="'+w+'"/>'; }
+
+  // placeholder cusp screen-angles (ASC left=180, MC top=270), intentionally unequal
+  var cusps=[180,153,123,90,57,27,0,333,303,270,237,207];
+  // placeholder planet longitudes (screen angle) + 2-letter tokens
+  var planets=[
+    {t:'Su',a:200},{t:'Mo',a:95},{t:'Me',a:213},{t:'Ve',a:165},
+    {t:'Ma',a:300},{t:'Ju',a:40},{t:'Sa',a:340},{t:'Ur',a:128},
+    {t:'Ne',a:74},{t:'Pl',a:255},{t:'Ch',a:18}
+  ];
+  function byT(t){ return planets.find(function(p){return p.t===t;}); }
+  // placeholder aspect set
+  var aspects=[
+    ['Su','Mo','hard'],['Su','Ju','soft'],['Ve','Sa','soft'],
+    ['Ma','Pl','hard'],['Me','Ne','minor'],['Mo','Ur','soft'],['Su','Sa','hard']
+  ];
+
+  function build(){
+    var s='<svg viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg">';
+
+    // rings
+    s+=circle(R_out, GREY.ink, 1.4);
+    s+=circle(R_sign_in, GREY.g1, 0.8);
+    s+=circle(R_house_in, GREY.g2, 0.8);
+    s+=circle(R_hub, GREY.hair, 0.8);
+
+    // degree ticks: every 5° hairline, every 30° stronger sign boundary
+    for(var d=0; d<360; d+=5){
+      if(d%30===0){ s+=line(d, R_out, R_sign_in, GREY.g1, 1.1); }
+      else { s+=line(d, R_out, R_out-7, GREY.g3, 0.7); }
+    }
+
+    // house cusp spokes (Grey 2), ASC + MC heavier ink
+    cusps.forEach(function(c,i){
+      var isAxis = (i===0 || i===9); // ASC (1st) and MC (10th)
+      s+=line(c, R_sign_in, R_house_in, isAxis?GREY.ink:GREY.g2, isAxis?1.6:0.8);
+    });
+
+    // house numbers (faint), placed at mid-house
+    for(var i=0;i<12;i++){
+      var a1=cusps[i], a2=cusps[(i+1)%12];
+      var mid=a1 + (((a2 - a1 + 540)%360)-180)/2; // midpoint going CCW-ish
+      var p=pt(mid, R_houseNum);
+      s+='<text class="house-num" x="'+p[0].toFixed(1)+'" y="'+(p[1]+3).toFixed(1)+'" text-anchor="middle">'+(i+1)+'</text>';
+    }
+
+    // aspect lines (the only color), drawn between hub points
+    aspects.forEach(function(pair){
+      var A=byT(pair[0]), B=byT(pair[1]); if(!A||!B) return;
+      var p1=pt(A.a,R_hub), p2=pt(B.a,R_hub);
+      var col=ASP[pair[2]];
+      var w = pair[2]==='minor'?0.8:1.3;
+      var dash = pair[2]==='minor'?' stroke-dasharray="3 3"':'';
+      s+='<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" stroke="'+col+'" stroke-width="'+w+'"'+dash+'/>';
+    });
+
+    // planet glyph placeholders + ticks to the ring
+    planets.forEach(function(p){
+      var g=pt(p.a, R_planet);
+      var t1=pt(p.a, R_sign_in), t2=pt(p.a, R_sign_in-7);
+      s+='<line x1="'+t1[0].toFixed(1)+'" y1="'+t1[1].toFixed(1)+'" x2="'+t2[0].toFixed(1)+'" y2="'+t2[1].toFixed(1)+'" stroke="'+GREY.g1+'" stroke-width="1"/>';
+      s+='<text class="glyph-tok" x="'+g[0].toFixed(1)+'" y="'+(g[1]+4).toFixed(1)+'" text-anchor="middle">'+p.t+'</text>';
+    });
+
+    // axis labels
+    var asc=pt(cusps[0], R_out+0); var mc=pt(cusps[9], R_out+0);
+    s+='<text class="axis-lbl" x="14" y="'+(cy+3)+'" text-anchor="start">ASC</text>';
+    s+='<text class="axis-lbl" x="'+cx+'" y="14" text-anchor="middle">MC</text>';
+    s+='<text class="axis-lbl" x="446" y="'+(cy+3)+'" text-anchor="end">DSC</text>';
+    s+='<text class="axis-lbl" x="'+cx+'" y="454" text-anchor="middle">IC</text>';
+
+    s+='</svg>';
+    return s;
+  }
+  document.getElementById('disc').innerHTML=build();
+</script>
+</body>
+</html>

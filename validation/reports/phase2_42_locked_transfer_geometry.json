@@ -1,0 +1,72 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_42_locked_transfer_geometry_asc.png",
+    "mc_png": "validation/visual_targets/phase2_42_locked_transfer_geometry_mc.png",
+    "narrative": "validation/narratives/phase2_42_locked_transfer_geometry.md",
+    "report": "validation/reports/phase2_42_locked_transfer_geometry.json"
+  },
+  "generated_at_utc": "2026-05-26T08:10:20.551875+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f centerline/leftBoundary/rightBoundary/polygon copied unchanged",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "map_CURRENT_changed": false,
+    "mask_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "staged": false,
+    "virga": false
+  },
+  "known_limitations": [
+    "Uses deterministic pseudo-basemap for self-contained validation, not Leaflet tiles.",
+    "Offline expensive reference, not production implementation.",
+    "If visual drift from 2.41d is observed, adjust sampling/compositing only; transfer LUT remains locked."
+  ],
+  "locked_transfer_source": "validation/visual_targets/phase2_41d_locked_transfer_reference.png",
+  "phase": "2.42",
+  "qa_targets": {
+    "geometry_only_difference": true,
+    "no_new_curve_logic": true,
+    "no_visible_strip_decomposition": "improved by exact polygon-domain masking",
+    "no_white_centerline": true,
+    "preserve_approved_release_timing": true,
+    "same_transfer_behavior_for_mc_and_asc": true
+  },
+  "rendering_method": "Offline Python/PIL/numpy supersampled render. Samples locked 2.41d RGB transfer as LUT and applies it proportionally across dense centerline-to-left/right boundary samples. Exact projected polygon-domain mask is applied before and after smoothing/downsampling to prevent rectangular sampling footprints.",
+  "revision": "locked_transfer_geometry_reintegration_v2_polygon_masked",
+  "scope": "validation-only geometry reintegration using locked transfer",
+  "stats": {
+    "asc": {
+      "max_alpha": 0.7176470756530762,
+      "min_nonzero_alpha": 1.5378702300949953e-05,
+      "polygon_mask_applied": true,
+      "station_count": 836,
+      "u_samples": 620
+    },
+    "mc": {
+      "max_alpha": 0.7176470756530762,
+      "min_nonzero_alpha": 1.5378702300949953e-05,
+      "polygon_mask_applied": true,
+      "station_count": 975,
+      "u_samples": 620
+    },
+    "supersample": 4
+  },
+  "strict_audit": {
+    "geometry_only_difference": "pass",
+    "locked_transfer_preserved": "pass",
+    "mc_and_asc_same_transfer": "pass",
+    "residual_artifacts": "Faint horizontal endpoint edges may still be visible in the offline pseudo-basemap context; these are coverage/masking artifacts, not transfer drift.",
+    "smallest_next_correction": "If residual artifacts remain, keep 2.41d LUT locked and further refine polygon coverage/sampling density/edge antialiasing only.",
+    "visible_strip_decomposition": "improved by masking; requires human visual QA for residual endpoint-edge artifacts",
+    "white_centerline": "pass: no white centerline observed"
+  },
+  "transfer_changed": false
+}

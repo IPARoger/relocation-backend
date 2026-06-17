@@ -1,0 +1,97 @@
+{
+  "captured_at": "2026-06-12T19:01:40.834381Z",
+  "production_url": "https://dpmtmmryvlftfahipowa.supabase.co",
+  "row_counts": {
+    "profiles": 3,
+    "birth_records": 3,
+    "intention_profiles": 0,
+    "current_location_history": 0,
+    "location_events": 0,
+    "favorite_places": 18,
+    "visited_places": 1,
+    "saved_searches": 2,
+    "comparison_sets": 2,
+    "comparison_set_places": 0,
+    "notes": 2,
+    "share_links": 2,
+    "user_settings": 2,
+    "places": 21,
+    "accounts": "ERROR: {'message': \"Could not find the table 'public.accounts' in t",
+    "account_memberships": "ERROR: {'message': \"Could not find the table 'public.account_member",
+    "profile_relationships": 0
+  },
+  "account_user_id_values": {
+    "profiles": [
+      "00000000-0000-0000-0000-000000000000",
+      "00000000-0000-0000-0000-000000000001",
+      "00000000-0000-0000-0000-000000000002"
+    ],
+    "user_settings": [
+      "00000000-0000-0000-0000-000000000999",
+      "bffe7a2a-d183-4a96-abbf-c205fcb0d762"
+    ],
+    "profile_relationships": []
+  },
+  "critical_row_snapshots": {
+    "profiles": [
+      {
+        "id": "4173c016-ef70-47ff-820f-cd96243a14eb",
+        "account_user_id": "00000000-0000-0000-0000-000000000001",
+        "display_name": "Smoke Test Profile",
+        "profile_type": "human",
+        "created_at": "2026-06-08T13:39:31.858884+00:00",
+        "updated_at": "2026-06-08T13:39:31.858884+00:00",
+        "archived_at": null
+      },
+      {
+        "id": "757980ff-327a-43d1-96ea-47f261af2c92",
+        "account_user_id": "00000000-0000-0000-0000-000000000000",
+        "display_name": "SMOKE TEST renamed",
+        "profile_type": "human",
+        "created_at": "2026-06-08T13:43:46.82037+00:00",
+        "updated_at": "2026-06-08T13:43:47.204184+00:00",
+        "archived_at": "2026-06-08T13:43:47.204161+00:00"
+      },
+      {
+        "id": "fc10ef29-56bc-4308-a743-10921ac20117",
+        "account_user_id": "00000000-0000-0000-0000-000000000002",
+        "display_name": "API SMOKE patched",
+        "profile_type": "pet",
+        "created_at": "2026-06-08T13:50:27.67926+00:00",
+        "updated_at": "2026-06-08T13:50:36.759211+00:00",
+        "archived_at": "2026-06-08T13:50:36.759195+00:00"
+      }
+    ],
+    "user_settings": [
+      {
+        "id": "930ba94f-1a95-437a-95ae-3cdd60bd7994",
+        "account_user_id": "00000000-0000-0000-0000-000000000999",
+        "profile_id": null,
+        "settings_json": {
+          "theme": "quiet-updated",
+          "smoke_test": true,
+          "orb_defaults": {
+            "trine": 7,
+            "conjunction": 9
+          }
+        },
+        "created_at": "2026-06-08T17:12:34.293148+00:00",
+        "updated_at": "2026-06-08T17:12:34.606197+00:00"
+      },
+      {
+        "id": "5dce5b17-39df-4b48-bad3-596fa255b2bc",
+        "account_user_id": "bffe7a2a-d183-4a96-abbf-c205fcb0d762",
+        "profile_id": null,
+        "settings_json": {
+          "theme": "cloud-grey",
+          "zodiac": "tropical"
+        },
+        "created_at": "2026-06-08T17:16:30.848207+00:00",
+        "updated_at": "2026-06-08T17:16:31.393812+00:00"
+      }
+    ],
+    "profile_relationships": []
+  },
+  "anon_key_prefix": "sb_publishable_auf",
+  "svc_key_prefix": "sb_secret_Uxl10Pci"
+}

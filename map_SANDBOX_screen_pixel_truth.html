@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<!--
+  Screen-pixel-truth diagnostic sandbox.
+
+  Sibling to map_SANDBOX_brute_force.html. Same astrology, same
+  conditions, same color palette. The difference is the sampling axis:
+
+    map_SANDBOX_brute_force.html
+      - samples a regular lat/lon grid (server side)
+      - returns matching cell CENTERS only
+      - paints fixed-pixel squares (default 2 px) at the projected
+        centers; geographic cell area is not covered
+
+    map_SANDBOX_screen_pixel_truth.html   <-- this file
+      - iterates the visible map div in screen pixel blocks (default 4 px)
+      - converts each block's center pixel to lat/lon via Leaflet
+      - posts the explicit point list to /screen-pixel-truth
+      - paints EVERY matching block as a real screen-pixel rectangle
+
+  This is intentionally slow. It is a proof, not an optimization. The
+  goal is to determine whether the visible gaps and dashed lines in
+  the brute-force sandbox come from:
+    (a) the lat/lon grid step being too coarse for the current zoom,
+    (b) the drawing primitive being a fixed-pixel dot instead of a
+        filled cell-sized rectangle,
+    (c) Leaflet projection / tile / canvas issues, or
+    (d) some combination of the above.
+
+  This file is URL-driven for capture scripts:
+    ?A=...&B=...&C=...  - same slot syntax as the brute-force sandbox
+                          (pih:planet:house, ais:angle:sign,
+                           a2a:planet:angle:aspect:orb)
+    ?profile=<id>       - chart profile id from /chart-profiles
+    ?bounds=s,w,n,e     - explicit map bounds (degrees)
+    ?viewport=world|americas|eurasia
+    ?block=4            - screen-pixel block size (default 4)
+    ?zoom=<int>         - force a specific Leaflet zoom level
+    ?auto=1             - auto-run the classification on load
+
+  Status hooks for Playwright/capture:
+    window.__sptStatus       = "idle"|"running"|"complete"|"error"
+    window.__sptLastTimings  = {...}
+    window.__sptLastError    = "..."
+    window.__map             = Leaflet map instance
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Screen-pixel truth sandbox</title>
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #map { width: 100%; height: 100vh; background: #f4f4f5; }
+  .spt-canvas { pointer-events: none; }
+
+  #banner {
+    position: fixed; top: 8px; left: 8px; z-index: 1000;
+    background: rgba(15, 23, 42, 0.92); color: #fef9c3;
+    padding: 6px 12px; border-radius: 6px; font-size: 12px;
+    max-width: 60vw; display: none;
+  }
+  #metrics {
+    position: fixed; bottom: 8px; left: 8px; z-index: 1000;
+    background: rgba(255, 255, 255, 0.92); color: #0f172a;
+    padding: 8px 10px; border-radius: 6px; font-size: 12px;
+    min-width: 280px; max-width: 480px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #metrics .k { color: #64748b; }
+  #metrics b { color: #0f172a; }
+  #metrics .err { color: #dc2626; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="banner"></div>
+<div id="metrics">screen-pixel truth: loading…</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+
+const API = "";  // same origin
+
+// ---- URL params -----------------------------------------------------------
+const qs = new URLSearchParams(location.search);
+const URL_PROFILE  = qs.get("profile") || "baseline_validated";
+const URL_VIEWPORT = qs.get("viewport") || "world";
+const URL_BOUNDS   = qs.get("bounds");
+const URL_BLOCK    = Math.max(1, parseInt(qs.get("block") || "4", 10));
+const URL_ZOOM     = qs.get("zoom") ? parseInt(qs.get("zoom"), 10) : null;
+const URL_AUTO     = qs.get("auto") === "1";
+
+// ---- mask palette (same as brute-force sandbox, for parity) ---------------
+const MASK_PALETTE = {
+  1: { label: "A only",    rgba: "rgba(252, 211,  77, 0.55)", order: 0 },
+  2: { label: "B only",    rgba: "rgba( 56, 189, 248, 0.55)", order: 1 },
+  4: { label: "C only",    rgba: "rgba(244, 114, 182, 0.55)", order: 2 },
+  3: { label: "A + B",     rgba: "rgba( 34, 197,  94, 0.60)", order: 3 },
+  5: { label: "A + C",     rgba: "rgba(249, 115,  22, 0.60)", order: 4 },
+  6: { label: "B + C",     rgba: "rgba(167, 139, 250, 0.60)", order: 5 },
+  7: { label: "A + B + C", rgba: "rgba( 15,  23,  42, 0.55)", order: 6 },
+};
+
+const ASPECT_GLYPH = {
+  conjunction: "\u260C", sextile: "\u26B9", square: "\u25A1",
+  trine: "\u25B3", opposition: "\u260D",
+};
+
+// ---- slot parsing (subset of brute-force sandbox syntax) ------------------
+function parseSlot(raw) {
+  if (!raw) return null;
+  const s = String(raw);
+  const parts = s.split(":");
+  if (parts[0] === "pih" && parts.length === 3) {
+    return { type: "planet_in_house",
+             planet: parts[1].toLowerCase(),
+             house: parseInt(parts[2], 10) };
+  }
+  if (parts[0] === "ais" && parts.length === 3) {
+    return { type: "angle_in_sign",
+             angle: parts[1].toLowerCase(),
+             sign: parts[2].toLowerCase() };
+  }
+  if (parts[0] === "a2a" && parts.length >= 4) {
+    return { type: "aspect_to_angle",
+             planet: parts[1].toLowerCase(),
+             angle:  parts[2].toLowerCase(),
+             aspect: parts[3].toLowerCase(),
+             orb: parts.length >= 5 ? parseFloat(parts[4]) : 1.0 };
+  }
+  // Legacy "planet:house" shorthand.
+  if (parts.length === 2) {
+    return { type: "planet_in_house",
+             planet: parts[0].toLowerCase(),
+             house: parseInt(parts[1], 10) };
+  }
+  return null;
+}
+
+const URL_SLOTS = {
+  A: parseSlot(qs.get("A")),
+  B: parseSlot(qs.get("B")),
+  C: parseSlot(qs.get("C")),
+};
+
+function describeSlot(s) {
+  if (!s) return "";
+  if (s.type === "planet_in_house")
+    return `${s.planet} in ${s.house}th`;
+  if (s.type === "angle_in_sign")
+    return `${s.angle.toUpperCase()} in ${s.sign}`;
+  if (s.type === "aspect_to_angle")
+    return `${s.planet} ${ASPECT_GLYPH[s.aspect] || s.aspect} ${s.angle.toUpperCase()} (orb ${s.orb}°)`;
+  return JSON.stringify(s);
+}
+
+// ---- Leaflet map ---------------------------------------------------------
+const map = L.map("map", {
+  // Match the brute-force sandbox's zoom snapping so that ?fitBounds=
+  // lands on the same fractional zoom level in both renderers; without
+  // this the two sandboxes can pick different visible viewports for
+  // identical URL params and the comparison is not apples-to-apples.
+  worldCopyJump: false,
+  preferCanvas: true,
+  zoomControl: true,
+  zoomSnap: 0.25,
+  zoomDelta: 0.5,
+  minZoom: 2, maxZoom: 11,
+});
+window.__map = map;
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 11, minZoom: 2, attribution: "\u00a9 OpenStreetMap",
+}).addTo(map);
+
+// Initial view: honour ?bounds first, then ?viewport.
+function fitWorld()    { map.fitBounds([[-70, -180], [78, 180]]); }
+function fitAmericas() { map.fitBounds([[-55, -160], [70, -30]]); }
+function fitEurasia()  { map.fitBounds([[-15,  -10], [70, 160]]); }
+if (URL_BOUNDS) {
+  const parts = URL_BOUNDS.split(",").map(parseFloat);
+  if (parts.length === 4 && parts.every(Number.isFinite)) {
+    map.fitBounds([[parts[0], parts[1]], [parts[2], parts[3]]]);
+  } else { fitWorld(); }
+} else if (URL_VIEWPORT === "americas") fitAmericas();
+else if (URL_VIEWPORT === "eurasia")  fitEurasia();
+else                                  fitWorld();
+if (URL_ZOOM != null && Number.isFinite(URL_ZOOM)) {
+  map.setZoom(URL_ZOOM);
+}
+
+// ---- screen-pixel truth canvas layer -------------------------------------
+// Paints a real screen-pixel BLOCK for every classified point (not a fixed
+// dot at the projected center). One classified point ↔ one block_px ×
+// block_px filled rectangle. Coverage is structural: every block on
+// screen is asked.
+const ScreenPixelTruth = L.Layer.extend({
+  initialize(opts) {
+    this._opts = opts || {};
+    this._lastResult = null;   // {blockPx, blocks: [{x,y,mask}], width, height}
+  },
+  setResult(result) {
+    this._lastResult = result;
+    if (this._map) this._redraw();
+  },
+  onAdd(map) {
+    this._map = map;
+    const pane = map.getPane("overlayPane");
+    this._canvas = L.DomUtil.create("canvas", "spt-canvas", pane);
+    this._canvas.style.position = "absolute";
+    map.on("viewreset zoomend moveend resize", this._reposition, this);
+    this._reposition();
+    return this;
+  },
+  onRemove(map) {
+    L.DomUtil.remove(this._canvas);
+    map.off("viewreset zoomend moveend resize", this._reposition, this);
+    this._canvas = null;
+  },
+  _reposition() {
+    // We do NOT reproject the screen-pixel result on pan/zoom — the whole
+    // point of this sandbox is that the result IS tied to the screen at
+    // the moment of classification. If the user pans, the canvas is
+    // cleared (gaps would lie about the new viewport) and they must run
+    // again. Same with zoom. This is the diagnostic contract.
+    if (!this._canvas || !this._map) return;
+    const map = this._map;
+    const size = map.getSize();
+    const topLeft = map.containerPointToLayerPoint([0, 0]);
+    L.DomUtil.setPosition(this._canvas, topLeft);
+    this._canvas.width  = size.x;
+    this._canvas.height = size.y;
+    this._redraw();
+  },
+  _redraw() {
+    if (!this._canvas) return;
+    const ctx = this._canvas.getContext("2d");
+    ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    const r = this._lastResult;
+    if (!r) return;
+    // Only redraw if the current canvas size matches the result. After a
+    // pan/zoom the screen no longer matches the result, so clear and stop.
+    if (r.width !== this._canvas.width || r.height !== this._canvas.height) {
+      // Show stale result faded so the user can see the screen-pixel-truth
+      // was captured at a different zoom/pan and must be re-run. The
+      // capture script always runs fresh, so this only affects manual
+      // exploration.
+      ctx.fillStyle = "rgba(248, 113, 113, 0.08)";
+      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+      return;
+    }
+    const blockPx = r.blockPx;
+    // Bucket blocks by mask so we can paint cheap mask-by-mask.
+    const buckets = {};
+    for (const b of r.blocks) {
+      if (!buckets[b.mask]) buckets[b.mask] = [];
+      buckets[b.mask].push(b);
+    }
+    const ordered = Object.keys(buckets)
+      .map(Number)
+      .filter(m => MASK_PALETTE[m])
+      .sort((a, b) => MASK_PALETTE[a].order - MASK_PALETTE[b].order);
+    for (const mask of ordered) {
+      ctx.fillStyle = MASK_PALETTE[mask].rgba;
+      for (const b of buckets[mask]) {
+        ctx.fillRect(b.x, b.y, blockPx, blockPx);
+      }
+    }
+  },
+});
+
+const sptLayer = new ScreenPixelTruth();
+sptLayer.addTo(map);
+
+// ---- birth-profile loading (same path as brute-force sandbox) -------------
+let profileBirth = null;
+let profileName = "(loading)";
+async function loadProfile() {
+  const r = await fetch(`${API}/chart-profiles`);
+  if (!r.ok) throw new Error(`/chart-profiles ${r.status}`);
+  const profiles = await r.json();
+  const p = profiles.find(x => x.id === URL_PROFILE) || profiles[0];
+  if (!p) throw new Error("no chart profiles available");
+  const [y, mo, d] = p.date.split("-").map(Number);
+  const [h, mi]    = (p.time || "12:00").split(":").map(Number);
+  profileBirth = {
+    birth_year: y, birth_month: mo, birth_day: d,
+    birth_hour_utc: h + mi / 60,
+  };
+  profileName = `${p.name} (${p.id})`;
+}
+
+// ---- run loop -------------------------------------------------------------
+function showBanner(msg) {
+  const b = document.getElementById("banner");
+  b.textContent = msg; b.style.display = "block";
+}
+function hideBanner() {
+  document.getElementById("banner").style.display = "none";
+}
+
+function activeConditions() {
+  const out = [];
+  for (const id of ["A", "B", "C"]) {
+    if (URL_SLOTS[id]) out.push(URL_SLOTS[id]);
+  }
+  return out;
+}
+
+async function runScreenPixelTruth() {
+  if (!profileBirth) {
+    window.__sptStatus = "error";
+    window.__sptLastError = "no birth profile loaded";
+    document.getElementById("metrics").innerHTML =
+      `<span class="err">no birth profile loaded</span>`;
+    return;
+  }
+  const conds = activeConditions();
+  if (conds.length === 0) {
+    window.__sptStatus = "error";
+    window.__sptLastError = "no conditions in URL";
+    document.getElementById("metrics").innerHTML =
+      `<span class="err">no conditions in URL (set ?A=…)</span>`;
+    return;
+  }
+  window.__sptStatus = "running";
+
+  const size = map.getSize();
+  const blockPx = URL_BLOCK;
+  // Sample one (lat, lon) per block, at the block's center pixel.
+  // The block's screen position is (x, y) = (col*blockPx, row*blockPx),
+  // sampled at (x + blockPx/2, y + blockPx/2).
+  const cols = Math.ceil(size.x / blockPx);
+  const rows = Math.ceil(size.y / blockPx);
+  const halfBlock = blockPx / 2;
+  const points = new Array(cols * rows);
+  const screenXs = new Int32Array(cols * rows);
+  const screenYs = new Int32Array(cols * rows);
+  let idx = 0;
+  const projT0 = performance.now();
+  for (let r = 0; r < rows; r++) {
+    const sy = r * blockPx;
+    for (let c = 0; c < cols; c++) {
+      const sx = c * blockPx;
+      const ll = map.containerPointToLatLng([sx + halfBlock, sy + halfBlock]);
+      points[idx] = [ll.lat, ll.lng];
+      screenXs[idx] = sx;
+      screenYs[idx] = sy;
+      idx++;
+    }
+  }
+  const projMs = performance.now() - projT0;
+  showBanner(
+    `Classifying ${cols}×${rows} screen blocks (${(idx).toLocaleString()} points, ` +
+    `block_px=${blockPx})…`
+  );
+
+  // Chunk so even 1-pixel sampling (~1.3M points) fits inside reasonable
+  // POST bodies. This is the deliberately dumb path: we just slice the
+  // input array and stitch masks back together in order. Chunk size was
+  // chosen so each request body is ~12 MB of JSON.
+  const CHUNK_SIZE = 400_000;
+  const total = points.length;
+  const numChunks = Math.max(1, Math.ceil(total / CHUNK_SIZE));
+
+  const t0 = performance.now();
+  let masks;
+  let p;
+  try {
+    if (numChunks === 1) {
+      const r = await fetch(`${API}/screen-pixel-truth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...profileBirth,
+          points,
+          conditions: conds,
+          apply_lat_cap: false,
+        }),
+      });
+      if (!r.ok) throw new Error(`screen-pixel-truth ${r.status}: ${(await r.text()).slice(0, 240)}`);
+      const resp = await r.json();
+      window.__sptLastResponse = resp;
+      masks = resp.masks;
+      p = resp.properties;
+    } else {
+      // Aggregate across chunks. We sum compute_seconds, match counts, etc.
+      const all = new Array(total);
+      let serverCompute = 0;
+      let pointsPerSecondNum = 0;
+      let pointsPerSecondDen = 0;
+      let classified = 0;
+      let matched = 0;
+      let errored = 0;
+      const condAgg = new Map(); // id → {type, count}
+      const overlapAgg = new Map();
+      const perMaskAgg = new Map();
+      for (let ci = 0; ci < numChunks; ci++) {
+        const lo = ci * CHUNK_SIZE;
+        const hi = Math.min(total, lo + CHUNK_SIZE);
+        showBanner(
+          `Classifying ${cols}×${rows} screen blocks · ` +
+          `chunk ${ci + 1}/${numChunks} (${(hi - lo).toLocaleString()} points)…`
+        );
+        const r = await fetch(`${API}/screen-pixel-truth`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...profileBirth,
+            points: points.slice(lo, hi),
+            conditions: conds,
+            apply_lat_cap: false,
+          }),
+        });
+        if (!r.ok) throw new Error(`screen-pixel-truth chunk ${ci + 1}/${numChunks} ${r.status}: ${(await r.text()).slice(0, 240)}`);
+        const resp = await r.json();
+        for (let i = 0; i < resp.masks.length; i++) all[lo + i] = resp.masks[i];
+        const cp = resp.properties;
+        serverCompute += cp.compute_seconds || 0;
+        if (cp.points_per_second && cp.point_count) {
+          pointsPerSecondNum += cp.points_per_second * cp.point_count;
+          pointsPerSecondDen += cp.point_count;
+        }
+        classified += cp.classified_count || 0;
+        matched += cp.match_count || 0;
+        errored += cp.error_count || 0;
+        for (const c of (cp.conditions || [])) {
+          const cur = condAgg.get(c.id) || { id: c.id, type: c.type, count: 0 };
+          cur.count += c.count;
+          condAgg.set(c.id, cur);
+        }
+        if (cp.overlap_counts) {
+          for (const [k, v] of Object.entries(cp.overlap_counts)) {
+            overlapAgg.set(k, (overlapAgg.get(k) || 0) + (v || 0));
+          }
+        }
+        if (cp.per_mask_counts) {
+          for (const [k, v] of Object.entries(cp.per_mask_counts)) {
+            perMaskAgg.set(k, (perMaskAgg.get(k) || 0) + (v || 0));
+          }
+        }
+      }
+      masks = all;
+      p = {
+        compute_seconds: serverCompute,
+        points_per_second: pointsPerSecondDen
+          ? pointsPerSecondNum / pointsPerSecondDen
+          : 0,
+        point_count: total,
+        classified_count: classified,
+        match_count: matched,
+        error_count: errored,
+        conditions: Array.from(condAgg.values()),
+        overlap_counts: Object.fromEntries(overlapAgg),
+        per_mask_counts: Object.fromEntries(perMaskAgg),
+        chunked: { num_chunks: numChunks, chunk_size: CHUNK_SIZE },
+      };
+      window.__sptLastResponse = { masks: null, properties: p, chunked: true };
+    }
+  } catch (err) {
+    window.__sptStatus = "error";
+    window.__sptLastError = err.message;
+    document.getElementById("metrics").innerHTML =
+      `<span class="err">${err.message}</span>`;
+    hideBanner();
+    return;
+  }
+  const clientMs = performance.now() - t0;
+
+  // Build the painter input: only matching blocks (mask != 0).
+  const paintT0 = performance.now();
+  const blocks = [];
+  for (let i = 0; i < masks.length; i++) {
+    if (masks[i]) {
+      blocks.push({ x: screenXs[i], y: screenYs[i], mask: masks[i] });
+    }
+  }
+  sptLayer.setResult({
+    blockPx,
+    blocks,
+    width: size.x,
+    height: size.y,
+  });
+  const paintMs = performance.now() - paintT0;
+
+  window.__sptLastTimings = {
+    block_px: blockPx,
+    screen_width: size.x,
+    screen_height: size.y,
+    screen_cols: cols,
+    screen_rows: rows,
+    point_count: p.point_count,
+    classified_count: p.classified_count,
+    match_count: p.match_count,
+    error_count: p.error_count,
+    proj_ms: projMs,
+    server_compute_seconds: p.compute_seconds,
+    client_total_seconds: clientMs / 1000,
+    paint_ms: paintMs,
+    points_per_second_server: p.points_per_second,
+    conditions: p.conditions,
+    overlap_counts: p.overlap_counts,
+    per_mask_counts: p.per_mask_counts,
+    bounds: {
+      north: map.getBounds().getNorth(),
+      south: map.getBounds().getSouth(),
+      east:  map.getBounds().getEast(),
+      west:  map.getBounds().getWest(),
+    },
+    zoom: map.getZoom(),
+  };
+  renderMetrics();
+  hideBanner();
+  window.__sptStatus = "complete";
+}
+
+function renderMetrics() {
+  const t = window.__sptLastTimings;
+  if (!t) return;
+  const row = (k, v) => `<div><span class="k">${k}:</span> <b>${v}</b></div>`;
+  const condRows = (t.conditions || [])
+    .map(c => row(`${c.id} (${c.type})`, `count=${c.count.toLocaleString()}`))
+    .join("");
+  let overlapRows = "";
+  if (t.overlap_counts) {
+    overlapRows = Object.entries(t.overlap_counts)
+      .filter(([k, v]) => v && k !== "any")
+      .map(([k, v]) => row(k, v.toLocaleString()))
+      .join("");
+  }
+  document.getElementById("metrics").innerHTML =
+      row("profile", profileName)
+    + row("zoom", t.zoom)
+    + row("viewport", `${t.screen_width} × ${t.screen_height} px`)
+    + row("block_px", t.block_px)
+    + row("blocks", `${t.screen_cols} × ${t.screen_rows} (= ${t.point_count.toLocaleString()})`)
+    + row("classified", t.classified_count.toLocaleString())
+    + row("matches", t.match_count.toLocaleString())
+    + row("errors", t.error_count)
+    + row("server compute", `${t.server_compute_seconds.toFixed(2)} s`)
+    + row("client total", `${t.client_total_seconds.toFixed(2)} s`)
+    + row("proj+post-process", `${(t.proj_ms + t.paint_ms).toFixed(0)} ms`)
+    + condRows
+    + overlapRows;
+}
+
+// ---- bootstrap ------------------------------------------------------------
+window.__sptStatus = "idle";
+(async function init() {
+  try {
+    await loadProfile();
+    // Allow a capture script to drive the visible viewport before run.
+    const fb = qs.get("fitBounds");
+    if (fb) {
+      const [s, w, n, e] = fb.split(",").map(Number);
+      if ([s, w, n, e].every(Number.isFinite)) {
+        map.fitBounds([[s, w], [n, e]], {animate: false, padding: [0, 0]});
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      }
+    }
+    document.getElementById("metrics").innerHTML =
+      `<div>screen-pixel truth · ${profileName}</div>` +
+      activeConditions().map(c =>
+        `<div class="k">${describeSlot(c)}</div>`).join("") +
+      `<div class="k" style="margin-top:6px">` +
+      `block_px=${URL_BLOCK} · ${URL_AUTO ? "auto-run on load" : "Press R to run"}` +
+      `</div>`;
+    window.__sptStatus = "ready";
+    if (URL_AUTO) {
+      // Give the basemap one paint frame before sampling.
+      await new Promise(r => setTimeout(r, 250));
+      await runScreenPixelTruth();
+    }
+  } catch (err) {
+    window.__sptStatus = "error";
+    window.__sptLastError = err.message;
+    document.getElementById("metrics").innerHTML =
+      `<span class="err">init: ${err.message}</span>`;
+  }
+})();
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "r" || e.key === "R") { runScreenPixelTruth(); }
+});
+
+// Expose for the capture script.
+window.__runScreenPixelTruth = runScreenPixelTruth;
+</script>
+</body>
+</html>

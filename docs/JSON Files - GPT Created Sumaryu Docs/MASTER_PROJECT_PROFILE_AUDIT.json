@@ -1,0 +1,397 @@
+{
+  "source_archive": "/mnt/data/ALL_PROJECT_DOCUMENTS.txt",
+  "raw_blocks": 196,
+  "component_paths": [
+    "/mnt/data/FOUNDATIONAL_CONSTITUTION.md",
+    "/mnt/data/CORE_CONCEPTS_AND_LAYERS.md",
+    "/mnt/data/BACKEND_ENGINE_ARCHITECTURE.md",
+    "/mnt/data/ARCHITECTURE_AND_BACKEND_CANON.md",
+    "/mnt/data/INTERFACE_AND_DESIGN_CANON.md",
+    "/mnt/data/GOVERNANCE_AND_PROTOCOL_CANON.md",
+    "/mnt/data/AI_SYSTEMS_AND_PROMPT_PROTOCOLS.md",
+    "/mnt/data/SYSTEM_BOUNDARIES_AND_CANONS.md",
+    "/mnt/data/FUTURE_FEATURES_ROADMAP.md"
+  ],
+  "components_found": [
+    "FOUNDATIONAL_CONSTITUTION.md",
+    "CORE_CONCEPTS_AND_LAYERS.md",
+    "BACKEND_ENGINE_ARCHITECTURE.md",
+    "ARCHITECTURE_AND_BACKEND_CANON.md",
+    "INTERFACE_AND_DESIGN_CANON.md",
+    "GOVERNANCE_AND_PROTOCOL_CANON.md",
+    "AI_SYSTEMS_AND_PROMPT_PROTOCOLS.md",
+    "SYSTEM_BOUNDARIES_AND_CANONS.md",
+    "FUTURE_FEATURES_ROADMAP.md"
+  ],
+  "components_missing": [],
+  "source_category_counts": {
+    "architecture_backend": 196,
+    "interface_design": 188,
+    "governance_ai": 193,
+    "constitution_concepts": 175,
+    "future": 165
+  },
+  "gap_term_coverage": {
+    "backend_schemas_endpoints": [
+      {
+        "term": "relocated-chart",
+        "raw_count": 4,
+        "component_count": 3
+      },
+      {
+        "term": "search-regions",
+        "raw_count": 49,
+        "component_count": 9
+      },
+      {
+        "term": "screen-pixel-truth",
+        "raw_count": 35,
+        "component_count": 8
+      },
+      {
+        "term": "classify-points",
+        "raw_count": 4,
+        "component_count": 2
+      },
+      {
+        "term": "brute-force-grid",
+        "raw_count": 18,
+        "component_count": 2
+      },
+      {
+        "term": "genie_render",
+        "raw_count": 33,
+        "component_count": 13
+      },
+      {
+        "term": "payload",
+        "raw_count": 213,
+        "component_count": 285
+      },
+      {
+        "term": "variables[]",
+        "raw_count": 33,
+        "component_count": 7
+      },
+      {
+        "term": "settingsSnapshot",
+        "raw_count": 27,
+        "component_count": 0
+      },
+      {
+        "term": "chartRecordId",
+        "raw_count": 253,
+        "component_count": 2
+      },
+      {
+        "term": "notExclusions",
+        "raw_count": 26,
+        "component_count": 0
+      },
+      {
+        "term": "GeoJSON",
+        "raw_count": 67,
+        "component_count": 71
+      },
+      {
+        "term": "FeatureCollection",
+        "raw_count": 4,
+        "component_count": 1
+      },
+      {
+        "term": "truth_grid",
+        "raw_count": 66,
+        "component_count": 70
+      },
+      {
+        "term": "screen-space",
+        "raw_count": 49,
+        "component_count": 46
+      },
+      {
+        "term": "cache key",
+        "raw_count": 29,
+        "component_count": 10
+      },
+      {
+        "term": "invalidation",
+        "raw_count": 51,
+        "component_count": 10
+      }
+    ],
+    "validation_gates": [
+      {
+        "term": "popup-overlay parity",
+        "raw_count": 8,
+        "component_count": 4
+      },
+      {
+        "term": "brute-force wall",
+        "raw_count": 16,
+        "component_count": 12
+      },
+      {
+        "term": "smoke",
+        "raw_count": 318,
+        "component_count": 28
+      },
+      {
+        "term": "XOR",
+        "raw_count": 50,
+        "component_count": 1
+      },
+      {
+        "term": "regression",
+        "raw_count": 118,
+        "component_count": 20
+      },
+      {
+        "term": "rollback",
+        "raw_count": 121,
+        "component_count": 193
+      },
+      {
+        "term": "dateline",
+        "raw_count": 25,
+        "component_count": 12
+      },
+      {
+        "term": "high-latitude",
+        "raw_count": 44,
+        "component_count": 9
+      },
+      {
+        "term": "lat_cap",
+        "raw_count": 29,
+        "component_count": 1
+      },
+      {
+        "term": "validation",
+        "raw_count": 721,
+        "component_count": 961
+      },
+      {
+        "term": "audit",
+        "raw_count": 322,
+        "component_count": 229
+      },
+      {
+        "term": "checkpoint",
+        "raw_count": 8,
+        "component_count": 4
+      }
+    ],
+    "interface_layouts": [
+      {
+        "term": "Genie",
+        "raw_count": 803,
+        "component_count": 150
+      },
+      {
+        "term": "drawer",
+        "raw_count": 273,
+        "component_count": 76
+      },
+      {
+        "term": "layer controls",
+        "raw_count": 24,
+        "component_count": 4
+      },
+      {
+        "term": "mute",
+        "raw_count": 225,
+        "component_count": 25
+      },
+      {
+        "term": "solo",
+        "raw_count": 187,
+        "component_count": 14
+      },
+      {
+        "term": "NOT",
+        "raw_count": 6299,
+        "component_count": 1892
+      },
+      {
+        "term": "Save Search",
+        "raw_count": 124,
+        "component_count": 2
+      },
+      {
+        "term": "Clear Map",
+        "raw_count": 42,
+        "component_count": 6
+      },
+      {
+        "term": "Search Map",
+        "raw_count": 94,
+        "component_count": 5
+      },
+      {
+        "term": "map chrome",
+        "raw_count": 96,
+        "component_count": 1
+      },
+      {
+        "term": "city labels",
+        "raw_count": 18,
+        "component_count": 4
+      },
+      {
+        "term": "popup",
+        "raw_count": 588,
+        "component_count": 133
+      },
+      {
+        "term": "dashboard",
+        "raw_count": 379,
+        "component_count": 131
+      },
+      {
+        "term": "favorites",
+        "raw_count": 482,
+        "component_count": 57
+      },
+      {
+        "term": "comparisons",
+        "raw_count": 202,
+        "component_count": 24
+      }
+    ],
+    "constitutional_ai": [
+      {
+        "term": "Reveal structure",
+        "raw_count": 1,
+        "component_count": 12
+      },
+      {
+        "term": "Preserve judgment",
+        "raw_count": 1,
+        "component_count": 14
+      },
+      {
+        "term": "human judgment",
+        "raw_count": 24,
+        "component_count": 10
+      },
+      {
+        "term": "symbolic humility",
+        "raw_count": 27,
+        "component_count": 46
+      },
+      {
+        "term": "AI",
+        "raw_count": 5789,
+        "component_count": 4072
+      },
+      {
+        "term": "oracle",
+        "raw_count": 126,
+        "component_count": 31
+      },
+      {
+        "term": "flattery",
+        "raw_count": 28,
+        "component_count": 16
+      },
+      {
+        "term": "anti-Cursor",
+        "raw_count": 2,
+        "component_count": 19
+      },
+      {
+        "term": "hallucination",
+        "raw_count": 3,
+        "component_count": 2
+      },
+      {
+        "term": "fact from interpretation",
+        "raw_count": 2,
+        "component_count": 2
+      }
+    ],
+    "future_features": [
+      {
+        "term": "Supabase",
+        "raw_count": 36,
+        "component_count": 46
+      },
+      {
+        "term": "travel mode",
+        "raw_count": 11,
+        "component_count": 12
+      },
+      {
+        "term": "transits",
+        "raw_count": 38,
+        "component_count": 104
+      },
+      {
+        "term": "Web3",
+        "raw_count": 0,
+        "component_count": 210
+      },
+      {
+        "term": "2.0",
+        "raw_count": 336,
+        "component_count": 103
+      },
+      {
+        "term": "Rain",
+        "raw_count": 772,
+        "component_count": 543
+      },
+      {
+        "term": "Virga",
+        "raw_count": 61,
+        "component_count": 21
+      },
+      {
+        "term": "certification",
+        "raw_count": 13,
+        "component_count": 11
+      },
+      {
+        "term": "professional",
+        "raw_count": 820,
+        "component_count": 712
+      },
+      {
+        "term": "shared views",
+        "raw_count": 2,
+        "component_count": 13
+      },
+      {
+        "term": "mobile",
+        "raw_count": 219,
+        "component_count": 176
+      },
+      {
+        "term": "geocoder",
+        "raw_count": 147,
+        "component_count": 229
+      },
+      {
+        "term": "ontology",
+        "raw_count": 113,
+        "component_count": 235
+      }
+    ]
+  },
+  "future_sections_found": [
+    "FOUNDATIONAL_CONSTITUTION.md",
+    "CORE_CONCEPTS_AND_LAYERS.md",
+    "BACKEND_ENGINE_ARCHITECTURE.md",
+    "INTERFACE_AND_DESIGN_CANON.md",
+    "GOVERNANCE_AND_PROTOCOL_CANON.md",
+    "AI_SYSTEMS_AND_PROMPT_PROTOCOLS.md",
+    "SYSTEM_BOUNDARIES_AND_CANONS.md",
+    "FUTURE_FEATURES_ROADMAP.md"
+  ],
+  "manual_path": "/mnt/data/MASTER_PROJECT_PROFILE.md",
+  "manual_word_count": 12066,
+  "manual_sha256": "aa7882b647d0a1791467bdadae86dbefcb81db6a5605c3bb4c59247f4e7604ff",
+  "expanded_second_pass": true,
+  "final_engineering_annex_added": true,
+  "final_gap_audit_annex_added": true
+}

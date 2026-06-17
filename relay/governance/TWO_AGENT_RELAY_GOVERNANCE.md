@@ -1,0 +1,1 @@
+../../docs/architecture/TWO_AGENT_RELAY_GOVERNANCE.md

@@ -1,0 +1,1 @@
+../../docs/bootstrap/PROJECT_BOOTSTRAP_CANON_v1_2026-06-02.md

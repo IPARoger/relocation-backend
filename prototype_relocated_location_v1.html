@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relocated Location — Kyoto</title>
+<!--
+  prototype_relocated_location_v1.html
+  Phase 2.8 — Genetic descendant of prototype_profile_workspace_v11.html
+  Guest allele. Location subject. Profile authority. Astrology-first.
+-->
+<style>
+  :root {
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9b9080;
+    --line:#ddd0b8; --line-soft:#ece2cf;
+    --paper:#f4ecdc; --card:#fdf8ee;
+    --accent:#5b6b63; --gold:#b89a55; --teal:#5f8a90;
+    --app:#a37458; --sep:#5f8a90;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+    --arh:28px;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; color:var(--ink); font-family:var(--sans);
+    font-size:15.5px; line-height:1.5; overflow-x:hidden;
+    background:
+      radial-gradient(58% 50% at 12% -4%, rgba(150,178,150,.10), transparent 60%),
+      radial-gradient(50% 44% at 98% 4%, rgba(120,160,185,.08), transparent 60%),
+      radial-gradient(70% 60% at 86% 96%, rgba(120,160,185,.07), transparent 62%),
+      var(--paper); background-attachment:fixed; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 28px 64px; }
+
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:18px 0 10px; }
+  .brand { font-family:var(--serif); font-size:20px; font-weight:600; flex:0 0 auto; }
+  .mainmenu { display:flex; gap:2px; flex:1 1 auto; justify-content:center; flex-wrap:wrap; }
+  .mainmenu a { font-size:14px; color:var(--ink-soft); text-decoration:none; padding:6px 11px; border-radius:8px; }
+  .mainmenu a:hover { background:rgba(95,138,144,.12); color:var(--ink); }
+  .mainmenu a.on { color:var(--ink); font-weight:600; }
+  .profile-auth { flex:0 0 auto; }
+  .profile-select { font-family:var(--serif); font-size:15px; font-weight:600; color:var(--ink);
+    background:transparent; border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px; }
+  .profile-select .caret { font-size:11px; color:var(--ink-faint); }
+
+  .loc-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+    margin:12px 0 20px; flex-wrap:wrap; }
+  .loc-plate { flex:1 1 320px; }
+  .loc-subject { font-family:var(--serif); font-size:28px; font-weight:600; color:var(--ink); line-height:1.2; margin:0 0 4px; }
+  .loc-for { font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
+  .meta-block { background:rgba(154,144,128,.08); border:1px solid var(--line-soft); border-radius:10px;
+    padding:12px 14px; font-size:12.5px; color:var(--ink-soft); display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px 16px; }
+  .meta-block dt { font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); margin:0; }
+  .meta-block dd { margin:0 0 8px; color:var(--ink); font-variant-numeric:tabular-nums; }
+
+  .fav-action { flex:0 0 auto; padding-top:4px; }
+  .fav-btn { font:inherit; font-size:13px; padding:8px 16px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--line); background:var(--card); color:var(--ink-soft); transition:all .15s; }
+  .fav-btn:hover { border-color:var(--teal); color:var(--ink); }
+  .fav-btn.on { background:rgba(95,138,144,.12); border-color:rgba(95,138,144,.4); color:var(--teal); }
+  .fav-btn.on::before { content:"★ "; color:var(--gold); }
+
+  .charts { display:grid; gap:28px; }
+  .charts.single { grid-template-columns:1fr; max-width:100%; }
+
+  .chart-head { display:flex; gap:20px; margin-bottom:0; padding-bottom:18px; align-items:center; }
+  .charts.single .chart-head { flex-direction:row; }
+  .plate-side { flex:0 0 200px; font-size:12px; line-height:1.55; }
+  .plate-side .ps-label { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-faint); margin-bottom:4px; }
+  .plate-side .ps-row { color:var(--ink-soft); margin-bottom:2px; }
+  .plate-side .ps-row strong { color:var(--ink); font-weight:500; }
+
+  .wheel-wrap { flex:1 1 auto; display:flex; justify-content:center; }
+  .disc { position:relative; border-radius:50%; overflow:hidden; cursor:zoom-in;
+    box-shadow: 0 0 28px 1px rgba(95,138,144,.14), 0 2px 10px rgba(51,41,31,.10), inset 0 0 0 1px rgba(51,41,31,.04); }
+  .disc.guest { box-shadow: 0 0 30px 2px rgba(95,138,144,.16), 0 2px 10px rgba(51,41,31,.10), inset 0 0 0 1px rgba(51,41,31,.04); }
+  .charts.single .disc { width:510px; max-width:100%; }
+  .disc svg { display:block; width:100%; height:auto; }
+  .popout { position:absolute; top:12px; right:12px; padding:4px 9px; border-radius:8px; font-size:11.5px;
+    background:rgba(253,248,238,.92); border:1px solid var(--line); color:var(--ink-soft);
+    display:inline-flex; align-items:center; gap:5px; pointer-events:none; box-shadow:0 1px 3px rgba(51,41,31,.10); }
+
+  .ref-row { display:grid; gap:16px; align-items:stretch; border-top:1px solid var(--line); padding-top:20px; }
+  .charts.single .ref-row { grid-template-columns:1.05fr 0.72fr 1.23fr; }
+  @media (max-width:760px){ .ref-row{ grid-template-columns:1fr !important; } .chart-head{ flex-direction:column; } }
+
+  .tcard { position:relative; height:100%; background:var(--card); border-radius:14px; padding:6px 6px 12px;
+    border:1px solid rgba(95,138,144,.26);
+    box-shadow:0 1px 2px rgba(51,41,31,.04), 0 8px 20px -16px rgba(51,41,31,.22); }
+  .tcard.guest { border-color:rgba(95,138,144,.3); background:linear-gradient(180deg, rgba(95,138,144,.06), rgba(95,138,144,0) 40%), var(--card); }
+  .tcard h3 { font-family:var(--serif); font-size:15px; font-weight:700; margin:0; padding:12px 14px 6px; white-space:nowrap; }
+  .tcard h3 .deco { display:block; height:2px; width:24px; margin-top:5px; border-radius:2px; background:linear-gradient(90deg, var(--teal), transparent); }
+  table { width:100%; border-collapse:collapse; }
+  .rt td,.rt th { text-align:left; padding:0 14px; height:26px; font-size:13.5px; white-space:nowrap; }
+  .rt tbody tr:nth-child(even) td { background:rgba(95,138,144,.04); }
+  .rt td.pl { color:var(--ink-soft); }
+  .rt.pih { width:auto; margin:0 auto; }
+  .rt.pih td.hs { color:var(--ink); font-weight:400; text-align:center; padding-left:28px; }
+  .rt td.angle-name { color:var(--ink-soft); }
+  .rt td.pos { text-align:right; color:var(--ink); }
+  .rt .asp { color:var(--ink); }
+  .rt .orb { font-size:11.5px; color:var(--ink-faint); margin-left:6px; }
+  .rt .orb.app { color:var(--app); } .rt .orb.sep { color:var(--sep); }
+  .ph { color:var(--ink-faint); opacity:.55; }
+
+  .a2a-top { padding:10px 14px 6px; }
+  .apills { display:flex; gap:3px; flex-wrap:wrap; }
+  .apill { font-size:11.5px; padding:3px 10px; border:1px solid transparent; background:transparent;
+    color:var(--ink-faint); border-radius:999px; cursor:pointer; transition:all .15s ease; }
+  .apill:hover { background:rgba(51,41,31,.05); color:var(--ink-soft); }
+  .apill.on { background:rgba(91,107,99,.14); color:var(--accent); font-weight:600; }
+  .a2a-rows { display:flex; }
+  .a2a-planetcol { flex:0 0 96px; }
+  .a2a-viewport { flex:1 1 auto; overflow:hidden; }
+  .a2a-track { display:flex; width:500%; transition:transform .78s cubic-bezier(.33,.12,.18,1); }
+  .frame { flex:0 0 20%; }
+  .frame.all { display:flex; }
+  .frame.all .vcol { flex:1 1 0; }
+  .frame.single .vcol { width:100%; }
+  .frame.single .ar { justify-content:center; }
+  .ar { height:var(--arh); display:flex; align-items:center; padding:0 14px; font-size:13.5px; color:var(--ink); white-space:nowrap; }
+  .ar.pl { color:var(--ink-soft); }
+  .a2a-planetcol .ar:nth-child(even), .vcol .ar:nth-child(even) { background:rgba(95,138,144,.04); }
+  .ar.head { height:22px; font-size:10.5px; color:transparent; }
+  .ar.vh { font-family:var(--serif); font-size:12px; font-weight:700; color:var(--ink-soft); justify-content:center; }
+  .ar .orb { font-size:11.5px; color:var(--ink-faint); margin-left:6px; }
+  .ar .orb.app { color:var(--app); } .ar .orb.sep { color:var(--sep); }
+
+  .sys-meta { margin-top:24px; padding:16px 18px; background:var(--card); border:1px solid var(--line-soft);
+    border-radius:12px; font-size:12.5px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px 24px; }
+  @media (max-width:700px){ .sys-meta{ grid-template-columns:1fr; } }
+  .sys-meta h4 { font-family:var(--serif); font-size:13px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .sys-meta .row { color:var(--ink-soft); margin-bottom:3px; }
+  .sys-meta .row span { color:var(--ink); }
+
+  .lower-section { margin-top:32px; display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start; }
+  @media (max-width:760px){ .lower-section{ grid-template-columns:1fr; } }
+
+  .panel { background:var(--card); border:1px solid rgba(95,138,144,.2); border-radius:14px; padding:18px 18px 14px;
+    box-shadow:0 1px 2px rgba(51,41,31,.04), 0 8px 20px -16px rgba(51,41,31,.20); }
+  .panel h3 { font-family:var(--serif); font-size:16px; font-weight:600; margin:0 0 12px; color:var(--ink); }
+  .intel-list { list-style:none; margin:0; padding:0; font-size:13px; }
+  .intel-list li { padding:5px 0; border-bottom:1px solid var(--line-soft); color:var(--ink-soft); display:flex; justify-content:space-between; gap:12px; }
+  .intel-list li:last-child { border-bottom:none; }
+  .intel-list li b { color:var(--ink); font-weight:500; }
+  .intel-open { display:block; width:100%; text-align:left; margin-top:12px; padding-top:10px; font-size:12.5px;
+    color:var(--teal); background:none; border:none; border-top:1px solid var(--line-soft); cursor:pointer; padding-left:0; }
+  .intel-open:hover { text-decoration:underline; }
+
+  .notes-composer { border:1px solid var(--line); border-radius:8px; background:var(--paper); overflow:hidden; }
+  .notes-textarea { width:100%; border:none; padding:12px 14px; font:inherit; font-size:13.5px; resize:vertical;
+    background:transparent; color:var(--ink); outline:none; min-height:100px; }
+  .notes-textarea::placeholder { color:var(--ink-faint); }
+  .notes-toolbar { display:flex; align-items:center; gap:6px; padding:6px 10px; border-top:1px solid var(--line); background:rgba(244,236,220,.6); }
+  .notes-save { margin-left:auto; font-size:12px; padding:5px 12px; border:1px solid var(--line); border-radius:6px;
+    background:var(--card); cursor:pointer; color:var(--ink-soft); }
+  .notes-save:hover { color:var(--ink); border-color:var(--ink-faint); }
+  .notes-hint { font-size:11.5px; color:var(--ink-faint); margin-top:8px; }
+
+  .modal-back { position:fixed; inset:0; background:rgba(40,32,24,.4); display:none; align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .modal-back.open { display:flex; }
+  .modal { background:var(--card); border:1px solid var(--line); border-radius:16px; max-width:860px; width:100%;
+    max-height:94vh; overflow:auto; padding:26px; box-shadow:0 18px 50px rgba(51,41,31,.28); }
+  .modal .close { float:right; font:inherit; font-size:13px; padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:var(--card); cursor:pointer; }
+</style>
+</head>
+<body class="page-loc">
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <nav class="mainmenu">
+      <a href="#">View Map</a>
+      <a href="prototype_profile_workspace_v11.html">Profile</a>
+      <a href="#">Comparison</a>
+      <a href="#">Help</a>
+    </nav>
+    <div class="profile-auth">
+      <button type="button" class="profile-select" id="profileSelect" title="Profile authority — chart changes with profile">
+        David Goodman <span class="caret">▾</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="loc-header">
+    <div class="loc-plate">
+      <h1 class="loc-subject" id="locSubject">Kyoto, Japan</h1>
+      <div class="loc-for" id="locFor">For David Goodman</div>
+      <dl class="meta-block" id="locMeta">
+        <div><dt>Country</dt><dd>Japan</dd></div>
+        <div><dt>Region</dt><dd>Kansai</dd></div>
+        <div><dt>Latitude</dt><dd>35.01° N</dd></div>
+        <div><dt>Longitude</dt><dd>135.77° E</dd></div>
+        <div><dt>UTC</dt><dd>+09:00</dd></div>
+      </dl>
+    </div>
+    <div class="fav-action">
+      <button type="button" class="fav-btn on" id="favBtn" data-favorited="1">Favorited</button>
+    </div>
+  </div>
+
+  <div class="charts single" id="charts">
+    <section id="chart-relocated"></section>
+  </div>
+
+  <div class="sys-meta" id="sysMeta">
+    <div>
+      <h4>Birth</h4>
+      <div class="row">Place <span>Lisbon, Portugal</span></div>
+      <div class="row">Lat / Lon <span>38.72° N, 9.14° W</span></div>
+      <div class="row">UTC <span>+00:00</span></div>
+    </div>
+    <div>
+      <h4>Relocated</h4>
+      <div class="row">Place <span>Kyoto, Japan</span></div>
+      <div class="row">Lat / Lon <span>35.01° N, 135.77° E</span></div>
+      <div class="row">UTC <span>+09:00</span></div>
+    </div>
+    <div>
+      <h4>System</h4>
+      <div class="row">Zodiac <span>Tropical</span></div>
+      <div class="row">Houses <span>Placidus</span></div>
+      <div class="row">Source <span>city_dataset</span></div>
+    </div>
+  </div>
+
+  <div class="lower-section">
+    <section class="panel" id="intelPanel">
+      <h3>Location Intelligence</h3>
+      <ul class="intel-list" id="intelList">
+        <li><span>Country</span><b>Japan</b></li>
+        <li><span>Population</span><b>~1.46M (city)</b></li>
+        <li><span>Cost of Living</span><b>Moderate</b></li>
+        <li><span>Climate</span><b>Humid subtropical; hot summers, mild winters</b></li>
+        <li><span>UTC</span><b>+09:00 (JST)</b></li>
+      </ul>
+      <button type="button" class="intel-open" disabled title="Future navigation">Open Full City Intelligence</button>
+    </section>
+    <section class="panel" id="notesPanel">
+      <h3>Notes</h3>
+      <div class="notes-composer">
+        <textarea class="notes-textarea" id="notesArea" placeholder="Notes for this favorite place…" rows="5"></textarea>
+        <div class="notes-toolbar">
+          <button type="button" class="notes-save" id="notesSave">Save</button>
+        </div>
+      </div>
+      <p class="notes-hint">Same note record as Profile Favorites. Edits sync when wired.</p>
+    </section>
+  </div>
+
+</div>
+
+<div class="modal-back" id="modalBack"><div class="modal" id="modal"></div></div>
+
+<script>
+/* ============ WHEEL ============ */
+  var GREY={ink:'#2b2926', cusp:'#8a857a', divider:'#9b968b', tick5:'#c4bfb2', innerSoft:'#9a9485'};
+  var WHEEL_PLANETS=[
+    {t:'Su',a:200},{t:'Mo',a:95},{t:'Me',a:213},{t:'Ve',a:165},{t:'Ma',a:300},{t:'Ju',a:40},
+    {t:'Sa',a:340},{t:'Ur',a:128},{t:'Ne',a:74},{t:'Pl',a:255},{t:'Ch',a:18}
+  ];
+  var WHEEL_ASPECTS=[
+    ['Su','Mo','soft'],['Su','Ma','hard'],['Su','Ju','soft'],['Mo','Ve','soft'],['Mo','Pl','hard'],
+    ['Me','Ve','soft'],['Me','Ma','hard'],['Ve','Sa','soft'],['Ma','Pl','hard'],['Ju','Sa','hard'],
+    ['Ur','Ne','soft'],['Ne','Pl','soft'],['Su','Sa','minor'],['Me','Ne','minor']
+  ];
+  var WHEEL_CUSPS=[180,146,118,84,56,24,0,326,298,264,236,204];
+  var ASPCOL={hard:'#a8392c', soft:'#3d6b86', minor:'#9a7a3a'};
+
+  function wglyph(t){ switch(t){
+    case 'Su': return '<circle cx="0" cy="0" r="3.4"/><circle cx="0" cy="0" r="0.8" fill="currentColor"/>';
+    case 'Mo': return '<path d="M1.7,-3.7 A3.8,3.8 0 1 0 1.7,3.7 A2.6,3.8 0 1 1 1.7,-3.7 Z" fill="currentColor" stroke="none"/>';
+    case 'Me': return '<circle cx="0" cy="0" r="2"/><path d="M-2,-3.8 A2,2 0 0 0 2,-3.8"/><line x1="0" y1="2" x2="0" y2="4.7"/><line x1="-1.5" y1="3.4" x2="1.5" y2="3.4"/>';
+    case 'Ve': return '<circle cx="0" cy="-1.1" r="2.1"/><line x1="0" y1="1" x2="0" y2="4.7"/><line x1="-1.6" y1="2.9" x2="1.6" y2="2.9"/>';
+    case 'Ma': return '<circle cx="-1.1" cy="1.3" r="2.3"/><line x1="0.7" y1="-0.6" x2="3.9" y2="-3.8"/><line x1="3.9" y1="-3.8" x2="2.0" y2="-3.8"/><line x1="3.9" y1="-3.8" x2="3.9" y2="-1.9"/>';
+    case 'Ju': return '<path d="M-3.2,-2.4 C-3.2,-4.5 0.2,-4.5 0.2,-1 L0.2,4.5"/><line x1="-1.5" y1="1.5" x2="3.4" y2="1.5"/>';
+    case 'Sa': return '<path d="M-2.8,-3 C-1,-4.3 1.7,-3.6 1.7,-0.8 C1.7,2.4 0,4.5 -2.4,4.5"/><line x1="-3.6" y1="-1.3" x2="0.2" y2="-1.3"/>';
+    case 'Ur': return '<line x1="0" y1="-4.1" x2="0" y2="2.4"/><line x1="-2.8" y1="-1.5" x2="2.8" y2="-1.5"/><line x1="-2.8" y1="-3.2" x2="-2.8" y2="0"/><line x1="2.8" y1="-3.2" x2="2.8" y2="0"/><circle cx="0" cy="3.6" r="1.1"/>';
+    case 'Ne': return '<line x1="0" y1="-2.4" x2="0" y2="4.5"/><path d="M-3.2,-3.2 L-3.2,0.4 M3.2,-3.2 L3.2,0.4 M-3.2,0.2 Q0,3.2 3.2,0.2"/><line x1="-1.7" y1="2.6" x2="1.7" y2="2.6"/>';
+    case 'Pl': return '<circle cx="0" cy="-1.5" r="1.4"/><path d="M-2,4.5 L-2,-2.8 L0.1,-2.8"/>';
+    case 'Ch': return '<circle cx="0" cy="3.2" r="1.7"/><line x1="0" y1="1.5" x2="0" y2="-4.3"/><line x1="0" y1="-2.1" x2="2.6" y2="-4.5"/><line x1="0" y1="-2.1" x2="2.6" y2="0"/>';
+  } return ''; }
+  function wsign(i){ switch(i){
+    case 0:  return '<path d="M-3,2.5 C-3,-3 -0.6,-3 0,0 C0.6,-3 3,-3 3,2.5"/>';
+    case 1:  return '<circle cx="0" cy="1.4" r="2.4"/><path d="M-3.4,-3.2 A3 3 0 0 0 3.4,-3.2"/>';
+    case 2:  return '<line x1="-2.6" y1="-3" x2="2.6" y2="-3"/><line x1="-2.6" y1="3" x2="2.6" y2="3"/><line x1="-1.4" y1="-3" x2="-1.4" y2="3"/><line x1="1.4" y1="-3" x2="1.4" y2="3"/>';
+    case 3:  return '<circle cx="-1.4" cy="-1.2" r="1.3"/><circle cx="1.4" cy="1.2" r="1.3"/><path d="M-2.7,-1.2 A3 3 0 0 1 1.4,-2.6"/><path d="M2.7,1.2 A3 3 0 0 1 -1.4,2.6"/>';
+    case 4:  return '<circle cx="-1.2" cy="1.4" r="1.8"/><path d="M0.4,2 C0.4,-2 -1,-3.5 1.4,-3.5 C3,-3.5 3,-1.4 2.2,-0.6"/>';
+    case 5:  return '<path d="M-3.4,-2.5 L-3.4,2.5 M-3.4,-2.5 C-2,-3.4 -1,-2.6 -1,-1 L-1,2.5 M-1,-1 C-1,-3 0.6,-3.4 1.2,-1 L1.2,2.5 M1.2,1 C1.2,3.2 3,3 3.2,1.4"/>';
+    case 6:  return '<path d="M-3.4,2.4 L3.4,2.4 M-2.6,0 A2.6 2.6 0 0 1 2.6,0 L-2.6,0"/>';
+    case 7:  return '<path d="M-3.4,-2.5 L-3.4,2.5 M-3.4,-2.5 C-2,-3.4 -1,-2.6 -1,-1 L-1,2.5 M-1,-1 C-1,-3 0.6,-3.4 1.2,-1 L1.2,3.4"/><path d="M1.2,1 L3.4,3.4 M3.4,1.2 L3.4,3.4 L1.6,3.4"/>';
+    case 8:  return '<line x1="-3" y1="3" x2="3" y2="-3"/><line x1="3" y1="-3" x2="0.6" y2="-3"/><line x1="3" y1="-3" x2="3" y2="-0.6"/><line x1="-1.6" y1="0.4" x2="0.6" y2="2.6"/>';
+    case 9:  return '<path d="M-3,-3 C-2,-3.4 -1,-2.6 -1,-1 L-1,3 M-1,-1 C-1,-3 1,-3 1.4,-0.6 C2,2 -0.2,3.4 -1.6,2"/>';
+    case 10: return '<path d="M-3.4,-1.4 L-1.8,-2.6 L-0.2,-1.4 L1.4,-2.6 L3,-1.4 M-3.4,1.4 L-1.8,0.2 L-0.2,1.4 L1.4,0.2 L3,1.4"/>';
+    case 11: return '<path d="M-2.6,-3 C-4,-1 -4,1 -2.6,3 M2.6,-3 C4,-1 4,1 2.6,3 M-3.2,0 L3.2,0"/>';
+  } return ''; }
+
+  var wuid=0;
+  function buildWheel(S, rot){
+    wuid++; var c=S/2, k=S/480, id=wuid, R=rot||0;
+    var Rclip=0.5*S, Rout=0.41*S, Rzod=0.345*S, Rsg=0.378*S, Rplanet=0.308*S,
+        Raring=0.27*S, Rcore=0.072*S, Rnum=0.135*S;
+    var base='#eae8e3', band='#f1ece0', glow={color:'#5f8a90',alpha:0.13,reach:0.17};
+    function pt(a,r){var rad=(a+R)*Math.PI/180;return [c+r*Math.cos(rad), c-r*Math.sin(rad)];}
+    function ln(a,r1,r2,col,w){var p1=pt(a,r1),p2=pt(a,r2);
+      return '<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'"/>';}
+    function cir(r,col,w){return '<circle cx="'+c+'" cy="'+c+'" r="'+r.toFixed(2)+'" fill="none" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'"/>';}
+    function wedgeEven(a1,a2,rO,rI,fill){var pts=[],a;
+      for(a=a1;a<=a2;a+=3){var p=pt(a,rO);pts.push(p[0].toFixed(1)+','+p[1].toFixed(1));}
+      for(a=a2;a>=a1;a-=3){var q=pt(a,rI);pts.push(q[0].toFixed(1)+','+q[1].toFixed(1));}
+      return '<polygon points="'+pts.join(' ')+'" fill="'+fill+'" stroke="none"/>';}
+    function wedgeCusp(a1,a2,rO,rI,fill){var aa2=(a2<a1)?a2:a2-360,pts=[],a;
+      for(a=a1;a>=aa2;a-=3){var p=pt(a,rO);pts.push(p[0].toFixed(1)+','+p[1].toFixed(1));}
+      for(a=aa2;a<=a1;a+=3){var q=pt(a,rI);pts.push(q[0].toFixed(1)+','+q[1].toFixed(1));}
+      return '<polygon points="'+pts.join(' ')+'" fill="'+fill+'" stroke="none"/>';}
+
+    var s='<svg viewBox="0 0 '+S+' '+S+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">';
+    s+='<defs><clipPath id="clip'+id+'"><circle cx="'+c+'" cy="'+c+'" r="'+Rclip.toFixed(1)+'"/></clipPath>'+
+       '<filter id="paper'+id+'"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="n"/>'+
+       '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.30  0 0 0 0 0.29  0 0 0 0 0.26  0 0 0 0.7 0"/></filter>'+
+       '<radialGradient id="glow'+id+'" cx="50%" cy="50%" r="50%">'+
+         '<stop offset="0%" stop-color="'+glow.color+'" stop-opacity="'+glow.alpha+'"/>'+
+         '<stop offset="55%" stop-color="'+glow.color+'" stop-opacity="'+(glow.alpha*0.35).toFixed(3)+'"/>'+
+         '<stop offset="100%" stop-color="'+glow.color+'" stop-opacity="0"/></radialGradient></defs>';
+    s+='<g clip-path="url(#clip'+id+')">';
+    s+='<rect width="'+S+'" height="'+S+'" fill="'+base+'"/>';
+    s+='<circle cx="'+c+'" cy="'+c+'" r="'+((Rzod+Rout)/2).toFixed(1)+'" fill="none" stroke="'+band+'" stroke-width="'+(Rout-Rzod).toFixed(1)+'"/>';
+    s+='<rect width="'+S+'" height="'+S+'" filter="url(#paper'+id+')" opacity="0.05"/>';
+    s+='<circle cx="'+c+'" cy="'+c+'" r="'+(glow.reach*S).toFixed(1)+'" fill="url(#glow'+id+')"/>';
+    for(var sg=0;sg<12;sg++){ if(sg%2===0){ s+=wedgeEven(sg*30,(sg+1)*30,Rout,Rzod,'rgba(43,41,38,0.022)'); } }
+    for(var h=0;h<12;h++){ if(h%2===0){ s+=wedgeCusp(WHEEL_CUSPS[h],WHEEL_CUSPS[(h+1)%12],Rzod,Raring,'rgba(43,41,38,0.040)'); } }
+    s+=cir(Rout,GREY.ink,2.8)+cir(Rzod,GREY.ink,1.0)+cir(Raring,'#9a9487',1.0)+cir(Rcore,GREY.innerSoft,1.2);
+    for(var sd=0;sd<360;sd+=30){ s+=ln(sd,Rzod,Rout,GREY.divider,1.1); }
+    for(var t5=0;t5<360;t5+=5){ if(t5%30!==0){ s+=ln(t5,Rzod,Rzod+0.018*S,GREY.tick5,0.9); } }
+    for(var sgi=0;sgi<12;sgi++){ var sa=sgi*30+15, gp=pt(sa,Rsg), gsc=0.0046*S;
+      s+='<g transform="translate('+gp[0].toFixed(1)+','+gp[1].toFixed(1)+') scale('+gsc.toFixed(2)+')" stroke="'+GREY.cusp+'" stroke-width="0.7" fill="none" stroke-linecap="round" stroke-linejoin="round">'+wsign(sgi)+'</g>'; }
+    WHEEL_CUSPS.forEach(function(cu,i){ if(i===0||i===3||i===6||i===9) return; s+=ln(cu,Rzod,Rcore,GREY.cusp,1.0); });
+    for(var i2=0;i2<12;i2++){ var a1=WHEEL_CUSPS[i2],a2=WHEEL_CUSPS[(i2+1)%12];
+      var mid=a1+(((a2-a1+540)%360)-180)/2, p=pt(mid,Rnum);
+      s+='<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+3*k).toFixed(1)+'" text-anchor="middle" font-size="'+(9*k).toFixed(1)+'" fill="#3f3b34" font-weight="600" font-family="Helvetica,Arial,sans-serif">'+(i2+1)+'</text>'; }
+    WHEEL_ASPECTS.forEach(function(pr){
+      var A=WHEEL_PLANETS.find(function(x){return x.t===pr[0];}), B=WHEEL_PLANETS.find(function(x){return x.t===pr[1];});
+      if(!A||!B) return; var p1=pt(A.a,Raring),p2=pt(B.a,Raring),col=ASPCOL[pr[2]], w=(pr[2]==='minor'?1.0:1.6);
+      var dash=pr[2]==='minor'?' stroke-dasharray="'+(3*k)+' '+(3*k)+'"':'';
+      s+='<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+col+'" stroke-width="'+(w*k).toFixed(2)+'" stroke-linecap="round"'+dash+'/>'; });
+    WHEEL_PLANETS.forEach(function(p){ s+=ln(p.a,Raring,Raring+0.014*S,'#8f897c',0.9); });
+    WHEEL_PLANETS.forEach(function(p){
+      s+=ln(p.a,Rzod,Rzod+0.018*S,GREY.ink,1.1);
+      var g=pt(p.a,Rplanet), sc=0.0052*S;
+      s+='<g transform="translate('+g[0].toFixed(1)+','+g[1].toFixed(1)+') scale('+sc.toFixed(2)+')" stroke="'+GREY.ink+'" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:'+GREY.ink+'">'+wglyph(p.t)+'</g>'; });
+    [0,9,6,3].forEach(function(ci){ var cu=WHEEL_CUSPS[ci];
+      s+=ln(cu,Rzod,Rcore,GREY.ink,2.2)+ln(cu,Rout-1,Rout+0.012*S,GREY.ink,2.2); });
+    s+='</g></svg>';
+    return s;
+  }
+
+  /* ============ TABLE HELPERS ============ */
+  var PLANET_NAMES=["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  var ASPECT_PLANETS=PLANET_NAMES.concat(["ASC","MC"]);
+  var SIGN_ABBR={Aries:"Ari",Taurus:"Tau",Gemini:"Gem",Cancer:"Can",Leo:"Leo",Virgo:"Vir",
+    Libra:"Lib",Scorpio:"Sco",Sagittarius:"Sag",Capricorn:"Cap",Aquarius:"Aqu",Pisces:"Pis"};
+  var ASP_ABBR={Conjunct:"Conj",Square:"Sq",Trine:"Tri",Opposition:"Opp",Sextile:"Sext"};
+  function houseNum(h){ return String(h).replace(/(st|nd|rd|th)$/,''); }
+  function abbrPos(pos){ return pos.replace(/\b([A-Z][a-z]+)\b/, function(m){ return SIGN_ABBR[m]||m; }); }
+  function aspectCell(r){
+    if(!r||!r.aspect) return '<span class="ph">·</span>';
+    var cls=r.as==='A'?' app':(r.as==='S'?' sep':'');
+    return '<span class="asp">'+(ASP_ABBR[r.aspect]||r.aspect)+'</span> <span class="orb'+cls+'">'+r.orb+'</span>';
+  }
+
+  function pihTable(data){
+    return '<table class="rt pih"><tbody>'+PLANET_NAMES.map(function(n,i){
+      return '<tr><td class="pl">'+n+'</td><td class="hs">'+houseNum(data.houses[i])+'</td></tr>'; }).join('')+'</tbody></table>';
+  }
+  function aisTable(data){
+    return '<table class="rt"><tbody>'+data.angles.map(function(a){
+      return '<tr><td class="angle-name">'+a.angle+'</td><td class="pos">'+abbrPos(a.position)+'</td></tr>'; }).join('')+'</tbody></table>';
+  }
+  function pihCard(data,cls,withAis){
+    return '<div class="tcard '+cls+'"><h3>Planet in House<span class="deco"></span></h3>'+pihTable(data)+
+      (withAis?('<div class="subhead">Angle in Sign</div>'+aisTable(data)):'')+'</div>';
+  }
+  function aisCard(data,cls){
+    return '<div class="tcard '+cls+'"><h3>Angle in Sign<span class="deco"></span></h3>'+aisTable(data)+'</div>';
+  }
+
+  var ORDER=['ASC','DSC','MC','IC'];
+  var FRAMES=ORDER.concat(['All']);
+  var a2aState={};
+  function planetCol(){
+    return '<div class="a2a-planetcol"><div class="ar head">.</div>'+
+      ASPECT_PLANETS.map(function(n){ return '<div class="ar pl">'+n+'</div>'; }).join('')+'</div>';
+  }
+  function vcol(aspects,angle){
+    return '<div class="vcol"><div class="ar head vh">'+angle+'</div>'+
+      ASPECT_PLANETS.map(function(n,i){ return '<div class="ar">'+aspectCell(aspects[angle]&&aspects[angle][i])+'</div>'; }).join('')+'</div>';
+  }
+  function a2aBody(aspects){
+    var frames=ORDER.map(function(a){ return '<div class="frame single">'+vcol(aspects,a)+'</div>'; }).join('');
+    frames+='<div class="frame all">'+ORDER.map(function(a){ return vcol(aspects,a); }).join('')+'</div>';
+    return '<div class="a2a-rows">'+planetCol()+'<div class="a2a-viewport"><div class="a2a-track">'+frames+'</div></div></div>';
+  }
+  function a2aCard(key,aspects,cls){
+    if(!a2aState[key]) a2aState[key]={sel:'ASC'};
+    var st=a2aState[key];
+    var pills=FRAMES.map(function(a){
+      return '<button class="apill'+(st.sel===a?' on':'')+'" data-act="apill" data-key="'+key+'" data-sel="'+a+'">'+a+'</button>'; }).join('');
+    return '<div class="tcard '+cls+'" data-a2a="'+key+'"><h3>Aspect to Angle<span class="deco"></span></h3>'+
+      '<div class="a2a-top"><div class="apills">'+pills+'</div></div>'+a2aBody(aspects)+'</div>';
+  }
+  function positionTrack(key){
+    var idx=FRAMES.indexOf(a2aState[key].sel);
+    var card=document.querySelector('[data-a2a="'+key+'"]'); if(!card) return;
+    var track=card.querySelector('.a2a-track'); if(track) track.style.transform='translateX(-'+(idx*20)+'%)';
+  }
+
+  /* ============ CHARTS ============ */
+  var CHARTS={};
+  function discHtml(key,size,rot,cls){
+    return '<div class="disc '+cls+'" data-act="popout" data-key="'+key+'"><span class="popout">\u2922 Enlarge</span>'+buildWheel(size,rot)+'</div>';
+  }
+  function renderChart(host,key,plateHtml,data,rot,cls){
+    CHARTS[key]={data:data,rot:rot,cls:cls};
+    var single = !host.closest('.charts').classList.contains('sxs');
+    var size = single ? 510 : 466;
+    var ref = single
+      ? (pihCard(data,cls,false)+aisCard(data,cls)+a2aCard(key,data.aspects,cls))
+      : (pihCard(data,cls,true)+a2aCard(key,data.aspects,cls));
+    host.innerHTML=
+      '<div class="chart-head">'+plateHtml+'<div class="wheel-wrap">'+discHtml(key,size,rot,cls)+'</div></div>'+
+      '<div class="ref-row">'+ref+'</div>';
+    requestAnimationFrame(function(){ positionTrack(key); });
+  }
+
+  
+
+  /* ============ LOCATION PAGE ============ */
+  var PROFILES = [
+    { id:'david', name:'David Goodman', birthDate:'14 March 1989', birthTime:'07:42',
+      birthPlace:'Lisbon, Portugal', lat:'38.72° N', lon:'9.14° W', offset:'+00:00',
+      zodiac:'Tropical', houses:'Placidus' },
+    { id:'avery', name:'Avery Rhodes', birthDate:'22 July 1991', birthTime:'14:15',
+      birthPlace:'Portland, OR USA', lat:'45.52° N', lon:'122.68° W', offset:'-07:00',
+      zodiac:'Tropical', houses:'Placidus' }
+  ];
+  var activeProfileId = 'david';
+
+  var LOCATION = {
+    place:'Kyoto, Japan', country:'Japan', region:'Kansai',
+    lat:'35.01° N', lon:'135.77° E', utc:'+09:00', source:'city_dataset',
+    isRemote:false, favorited:true,
+    intel:{
+      population:'~1.46M (city)', costOfLiving:'Moderate',
+      climate:'Humid subtropical; hot summers, mild winters',
+      nearestAirport:'Osaka Itami (ITM)', airportDistance:'~45 km',
+      nearestSettlement:'Osaka', settlementDistance:'~40 km'
+    },
+    notes:''
+  };
+
+  var kyotoAspects = {
+    ASC:[{aspect:'Trine',orb:'2° 14\'',as:'A'},{},{},{aspect:'Sextile',orb:'1° 44\'',as:'S'},{},{},{},{},{},{},{},{aspect:'Square',orb:'3° 08\'',as:'A'}],
+    DSC:[{aspect:'Sextile',orb:'1° 12\'',as:'S'},{},{},{},{},{aspect:'Opposition',orb:'0° 41\'',as:'A'},{},{},{},{},{},{}],
+    MC:[{},{aspect:'Trine',orb:'1° 55\'',as:'A'},{},{aspect:'Conjunct',orb:'2° 38\'',as:'S'},{},{},{},{},{},{},{},{aspect:'Square',orb:'1° 10\'',as:'S'},{}],
+    IC:[{aspect:'Square',orb:'4° 02\'',as:'A'},{},{},{},{},{},{aspect:'Opposition',orb:'2° 38\'',as:'A'},{},{},{},{}]
+  };
+  var RELOCATED = {
+    houses:['5th','11th','4th','6th','8th','2nd','12th','3rd','1st','9th','7th','10th'],
+    angles:[{angle:'ASC',position:'18° Virgo 34\''},{angle:'DSC',position:'18° Pisces 34\''},
+            {angle:'MC',position:'15° Gemini 21\''},{angle:'IC',position:'15° Sagittarius 21\''}],
+    aspects:kyotoAspects
+  };
+
+  function getProfile(){ return PROFILES.find(function(p){ return p.id===activeProfileId; }) || PROFILES[0]; }
+
+  function plateSideMeta(){
+    var p=getProfile();
+    return '<div class="plate-side">'+
+      '<div class="ps-label">Relocated chart</div>'+
+      '<div class="ps-row"><strong>'+LOCATION.place+'</strong></div>'+
+      '<div class="ps-row">'+LOCATION.lat+', '+LOCATION.lon+'</div>'+
+      '<div class="ps-row" style="margin-top:10px">For <strong>'+p.name+'</strong></div>'+
+    '</div>';
+  }
+
+  function renderIntel(){
+    var ul=document.getElementById('intelList');
+    var rows=[
+      ['Country', LOCATION.country],
+      ['Population', LOCATION.intel.population],
+      ['Cost of Living', LOCATION.intel.costOfLiving],
+      ['Climate', LOCATION.intel.climate],
+      ['UTC', LOCATION.utc+' (JST)']
+    ];
+    if(LOCATION.isRemote){
+      rows.push(['Nearest Airport', LOCATION.intel.nearestAirport]);
+      rows.push(['Airport Distance', LOCATION.intel.airportDistance]);
+      rows.push(['Nearest Settlement', LOCATION.intel.nearestSettlement]);
+      rows.push(['Settlement Distance', LOCATION.intel.settlementDistance]);
+    }
+    ul.innerHTML=rows.map(function(r){
+      return '<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>';
+    }).join('');
+  }
+
+  function renderSysMeta(){
+    var p=getProfile();
+    document.getElementById('sysMeta').innerHTML=
+      '<div><h4>Birth</h4>'+
+        '<div class="row">Place <span>'+p.birthPlace+'</span></div>'+
+        '<div class="row">Lat / Lon <span>'+p.lat+', '+p.lon+'</span></div>'+
+        '<div class="row">UTC <span>'+p.offset+'</span></div></div>'+
+      '<div><h4>Relocated</h4>'+
+        '<div class="row">Place <span>'+LOCATION.place+'</span></div>'+
+        '<div class="row">Lat / Lon <span>'+LOCATION.lat+', '+LOCATION.lon+'</span></div>'+
+        '<div class="row">UTC <span>'+LOCATION.utc+'</span></div></div>'+
+      '<div><h4>System</h4>'+
+        '<div class="row">Zodiac <span>'+p.zodiac+'</span></div>'+
+        '<div class="row">Houses <span>'+p.houses+'</span></div>'+
+        '<div class="row">Source <span>'+LOCATION.source+'</span></div></div>';
+  }
+
+  function renderPage(){
+    var p=getProfile();
+    document.getElementById('locFor').textContent='For '+p.name;
+    document.getElementById('profileSelect').innerHTML=p.name+' <span class="caret">▾</span>';
+    renderChart(document.getElementById('chart-relocated'),'relocated',plateSideMeta(),RELOCATED,-48,'guest');
+    renderIntel();
+    renderSysMeta();
+    updateFavUI();
+    document.getElementById('notesArea').value=LOCATION.notes||'';
+  }
+
+  function updateFavUI(){
+    var btn=document.getElementById('favBtn');
+    if(LOCATION.favorited){ btn.classList.add('on'); btn.textContent='Favorited'; }
+    else { btn.classList.remove('on'); btn.textContent='Add to Favorites'; }
+  }
+
+  document.getElementById('favBtn').addEventListener('click',function(){
+    LOCATION.favorited=!LOCATION.favorited;
+    updateFavUI();
+  });
+
+  document.getElementById('profileSelect').addEventListener('click',function(){
+    var idx=PROFILES.findIndex(function(p){ return p.id===activeProfileId; });
+    activeProfileId=PROFILES[(idx+1)%PROFILES.length].id;
+    renderPage();
+  });
+
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b) return;
+    var act=b.getAttribute('data-act'), key=b.getAttribute('data-key');
+    if(act==='apill'){
+      a2aState[key].sel=b.getAttribute('data-sel');
+      var card=document.querySelector('[data-a2a="'+key+'"]');
+      card.querySelectorAll('.apill').forEach(function(p){
+        p.classList.toggle('on', p.getAttribute('data-sel')===a2aState[key].sel);
+      });
+      positionTrack(key); return;
+    }
+    if(act==='popout'){ openWheelModal(key); return; }
+  });
+
+  var modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal');
+  function openModal(html){ modal.innerHTML='<button type="button" class="close" onclick="closeModal()">Close</button>'+html; modalBack.classList.add('open'); }
+  function closeModal(){ modalBack.classList.remove('open'); }
+  modalBack.addEventListener('click',function(e){ if(e.target===modalBack) closeModal(); });
+  window.closeModal=closeModal;
+  function openWheelModal(key){
+    var ch=CHARTS[key], p=getProfile();
+    openModal('<div style="text-align:center;margin-bottom:14px">'+
+      '<div style="font-family:var(--serif);font-size:20px;font-weight:600">'+LOCATION.place+'</div>'+
+      '<div style="font-size:13px;color:var(--ink-soft);margin-top:4px">For '+p.name+'</div></div>'+
+      '<div style="display:flex;justify-content:center"><div class="disc guest" style="width:680px;max-width:100%;cursor:default">'+buildWheel(700,ch.rot)+'</div></div>');
+  }
+
+  document.getElementById('notesSave').addEventListener('click',function(){
+    LOCATION.notes=document.getElementById('notesArea').value;
+    try{ sessionStorage.setItem('rm_fav_notes_kyoto_demo', LOCATION.notes); }catch(e){}
+  });
+
+  (function bootstrap(){
+    var params=new URLSearchParams(window.location.search);
+    if(params.get('from')==='map') LOCATION.favorited=false;
+    if(params.get('from')==='favorites') LOCATION.favorited=true;
+    if(params.get('remote')==='1') LOCATION.isRemote=true;
+    try{
+      var saved=sessionStorage.getItem('rm_fav_notes_kyoto_demo');
+      if(saved!=null) LOCATION.notes=saved;
+    }catch(e){}
+  })();
+
+  renderPage();
+
+  window.__rmRelocatedLocation={
+    getState:function(){ return { profile:getProfile(), location:LOCATION, chart:RELOCATED }; },
+    setFavorited:function(v){ LOCATION.favorited=!!v; updateFavUI(); },
+    setRemote:function(v){ LOCATION.isRemote=!!v; renderIntel(); }
+  };
+
+</script>
+</body>
+</html>

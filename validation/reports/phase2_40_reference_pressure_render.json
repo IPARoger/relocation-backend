@@ -1,0 +1,66 @@
+{
+  "artifacts": {
+    "narrative": "validation/narratives/phase2_40_reference_pressure_render.md",
+    "png": "validation/visual_targets/phase2_40_reference_pressure_render.png",
+    "report": "validation/reports/phase2_40_reference_pressure_render.json"
+  },
+  "generated_at_utc": "2026-05-26T06:27:22.726204+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f HTML DATA payload; centerline/leftBoundary/rightBoundary/polygon copied unchanged",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "map_CURRENT_changed": false,
+    "mask_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "staged": false,
+    "virga": false
+  },
+  "known_limitations": [
+    "Offline reference uses deterministic pseudo-basemap instead of Leaflet tiles to keep the target self-contained.",
+    "Uses expensive supersampled alpha field and is not an implementation strategy.",
+    "Light smoothing is applied to the completed scalar material field, not as a blur/glow renderer.",
+    "First-run image still shows a faint rectangular/sampling footprint near the lower band ends; the scalar field should be clipped to the exact solved polygon domain before smoothing/downsampling in the next pass."
+  ],
+  "phase": "2.40",
+  "purpose": "Show the ideal end-state once so efficient production rendering can be worked backward from the visual target.",
+  "rendering_method": "Python/PIL/numpy offline supersampled scalar field from dense paired centerline-to-boundary samples, high-resolution alpha accumulation, light material alpha smoothing, final downsample only at end.",
+  "revision": "offline_reference_pressure_render_v1",
+  "scope": "expensive offline visual target only",
+  "stats": {
+    "asc": {
+      "max_alpha": 0.4745098054409027,
+      "min_nonzero_alpha": 0.003921568859368563,
+      "station_count": 536,
+      "supersample": 4,
+      "u_samples": 360
+    },
+    "canvas": {
+      "height": 736,
+      "supersample": 4,
+      "width": 1572
+    },
+    "mc": {
+      "max_alpha": 0.4745098054409027,
+      "min_nonzero_alpha": 0.003921568859368563,
+      "station_count": 625,
+      "supersample": 4,
+      "u_samples": 360
+    }
+  },
+  "visual_targets": {
+    "carrier": "saturated, continuous, no white centerline",
+    "edge": "low opacity but materially intact, not powder/dust/mist",
+    "field": "coherent pressure body with strong near-ridge mass and continuous material tail",
+    "first_run_issue": "Reference quality is improved, but not final: faint rectangular/sampling footprint remains near lower edges.",
+    "primitive_visibility": "no visible strips, quads, contour marks, ribbons, or wedge/membrane construction intended",
+    "smallest_next_correction": "Apply an exact polygon-domain alpha mask before smoothing and final downsample, so supersampled splat coverage cannot reveal rectangular station footprints."
+  }
+}

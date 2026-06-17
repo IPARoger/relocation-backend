@@ -1,0 +1,85 @@
+{
+  "sandbox": "validation/sandboxes/phase3_01_rain_reveal_sandbox.html",
+  "url": "http://127.0.0.1:49620/validation/sandboxes/phase3_01_rain_reveal_sandbox.html",
+  "capture_speed_multiplier": 4,
+  "frames": [
+    {
+      "file": "validation/screenshots/phase3_13_gap_pressure/01_t0_initial.png",
+      "name": "01_t0_initial",
+      "elapsed_ms": 0,
+      "guides": false,
+      "live": 42,
+      "spawned": 0,
+      "phase": "latent",
+      "localSpawnRatio": 1,
+      "unresolvedGapCount": 96,
+      "closureConfidence": 0,
+      "wakePropagationCount": 0
+    },
+    {
+      "file": "validation/screenshots/phase3_13_gap_pressure/02_seed_phase.png",
+      "name": "02_seed_phase",
+      "elapsed_ms": 700,
+      "guides": false,
+      "live": 53,
+      "spawned": 11,
+      "phase": "frontier-expanding",
+      "localSpawnRatio": 0.8181818181818182,
+      "unresolvedGapCount": 79,
+      "closureConfidence": 0.17708333333333337,
+      "wakePropagationCount": 4
+    },
+    {
+      "file": "validation/screenshots/phase3_13_gap_pressure/03_gap_pressure_closure.png",
+      "name": "03_gap_pressure_closure",
+      "elapsed_ms": 2200,
+      "guides": false,
+      "live": 151,
+      "spawned": 110,
+      "phase": "interior-filling",
+      "localSpawnRatio": 0.8454545454545455,
+      "unresolvedGapCount": 0,
+      "closureConfidence": 1,
+      "wakePropagationCount": 32
+    },
+    {
+      "file": "validation/screenshots/phase3_13_gap_pressure/04_membrane_locking.png",
+      "name": "04_membrane_locking",
+      "elapsed_ms": 4200,
+      "guides": false,
+      "live": 112,
+      "spawned": 111,
+      "phase": "interior-filling",
+      "localSpawnRatio": 0.8468468468468469,
+      "unresolvedGapCount": 0,
+      "closureConfidence": 1,
+      "wakePropagationCount": 32
+    },
+    {
+      "file": "validation/screenshots/phase3_13_gap_pressure/05_late_state.png",
+      "name": "05_late_state",
+      "elapsed_ms": 10000,
+      "guides": false,
+      "live": 112,
+      "spawned": 111,
+      "phase": "interior-filling",
+      "localSpawnRatio": 0.8468468468468469,
+      "unresolvedGapCount": 0,
+      "closureConfidence": 1,
+      "wakePropagationCount": 32
+    },
+    {
+      "file": "validation/screenshots/phase3_13_gap_pressure/06_late_state_guides.png",
+      "name": "06_late_state_guides",
+      "elapsed_ms": 10000,
+      "guides": true,
+      "live": 112,
+      "spawned": 111,
+      "phase": "interior-filling",
+      "localSpawnRatio": 0.8198198198198198,
+      "unresolvedGapCount": 0,
+      "closureConfidence": 1,
+      "wakePropagationCount": 34
+    }
+  ]
+}

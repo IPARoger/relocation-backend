@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brute-Force Polygon Proof — Sandbox</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    background: #f5f5f5; color: #18181b; }
+  #app { display: flex; height: 100%; }
+  #map { flex: 1; min-width: 0; height: 100%; position: relative; background: #fff; }
+  .leaflet-tile-pane { filter: none; }
+  #panel {
+    width: 360px; flex-shrink: 0; height: 100%; overflow-y: auto;
+    background: #fafafa; border-left: 1px solid #e4e4e7;
+    padding: 14px 16px; box-sizing: border-box;
+    font-size: 12.5px; line-height: 1.45; color: #18181b;
+  }
+  #panel h1 { font-size: 14px; font-weight: 600; margin: 0; color: #18181b; }
+  .badge { display: inline-block; font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: #b45309; background: #fef3c7;
+    padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+  .doctrine { color: #71717a; font-size: 11px; margin: 4px 0 12px 0; }
+  section { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e4e4e7; }
+  section:last-child { border-bottom: none; }
+  section .head { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #71717a; margin-bottom: 6px; }
+  select, button, input[type="number"] {
+    width: 100%; box-sizing: border-box; padding: 6px 8px;
+    border: 1px solid #d4d4d8; border-radius: 4px;
+    background: #fff; color: #18181b; font-size: 12px;
+  }
+  button { cursor: pointer; background: #1d4ed8; border-color: #1d4ed8; font-weight: 500; color: #fff; }
+  button:hover { background: #2563eb; }
+  button.secondary { background: #fff; border-color: #d4d4d8; color: #27272a; }
+  button.secondary:hover { background: #f4f4f5; }
+  button:disabled { background: #f4f4f5; color: #a1a1aa; border-color: #e4e4e7; cursor: not-allowed; }
+  .btnRow { display: flex; gap: 8px; }
+  .btnRow button { flex: 1; }
+  .row2 { display: flex; gap: 8px; }
+  .row2 > * { flex: 1; }
+  .row3 { display: flex; gap: 6px; align-items: center; }
+  label.checkbox { display: flex; align-items: center; gap: 7px; padding: 3px 0; color: #27272a; cursor: pointer; }
+
+  /* condition rows */
+  .cond {
+    border: 1px solid #e4e4e7; border-radius: 5px;
+    background: #fff; padding: 7px 8px; margin: 5px 0;
+  }
+  .cond .head {
+    display: flex; align-items: center; gap: 7px; margin-bottom: 5px;
+  }
+  .cond .swatch { width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.12); flex-shrink: 0; }
+  .cond .lbl { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-weight: 700; color: #18181b; font-size: 12px; width: 14px; text-align: center;
+    flex-shrink: 0; }
+  .cond .typeSel { flex: 1; }
+  .cond .params { display: flex; gap: 5px; }
+  .cond .params > select { flex: 1; }
+  .cond.disabled { opacity: 0.45; background: #fafafa; }
+  .cond input[type="checkbox"] { margin: 0; flex-shrink: 0; }
+  .cond select { padding: 4px 6px; font-size: 11.5px; }
+
+  /* metrics block */
+  #metrics {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+    background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 4px;
+    padding: 8px 10px; color: #27272a;
+  }
+  #metrics .group { margin-bottom: 6px; }
+  #metrics .group:last-child { margin-bottom: 0; }
+  #metrics .grouphead { font-size: 9.5px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #71717a; margin-bottom: 2px; }
+  #metrics .row { display: flex; justify-content: space-between; padding: 1px 0; }
+  #metrics .key { color: #71717a; }
+  #metrics .val { color: #18181b; }
+  #metrics .swatchRow { display: flex; align-items: center; gap: 6px; padding: 1px 0; }
+  #metrics .swatchRow .key { flex: 1; color: #71717a; }
+  #metrics .swatchRow .val { color: #18181b; }
+  #metrics .swatchRow .swatch { width: 11px; height: 11px; border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.1); }
+
+  .leaflet-control-attribution { background: rgba(255,255,255,0.85); color: #52525b; border: none; }
+  .leaflet-control-attribution a { color: #71717a; }
+
+  #banner {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; pointer-events: none;
+    background: rgba(255, 255, 255, 0.88); border: 1px solid #d4d4d8;
+    border-radius: 6px; color: #18181b; font-size: 11.5px;
+    padding: 6px 12px; backdrop-filter: blur(4px);
+    opacity: 0; transition: opacity 200ms ease-out; max-width: 70%;
+  }
+  #banner.on { opacity: 1; }
+  .brute-canvas { pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map"><div id="banner"><span id="bannerText">—</span></div></div>
+  <div id="panel">
+    <div>
+      <h1>Brute-Force Polygon Proof<span class="badge">multi</span></h1>
+      <div class="doctrine">
+        Every cell of the visible viewport is classified via real
+        <code>swe.houses</code> exactly once and tested against up to
+        three planet-in-house conditions in that single pass. Overlap
+        cells are returned with a bitmask telling the renderer which
+        conditions the same lat/lon satisfied — overlap is observed,
+        never reconstructed.
+      </div>
+    </div>
+
+    <section>
+      <div class="head">Chart profile</div>
+      <select id="profile"></select>
+    </section>
+
+    <section>
+      <div class="head">Conditions</div>
+      <div id="condRows"></div>
+    </section>
+
+    <section>
+      <div class="head">Grid resolution (degrees per cell)</div>
+      <div class="row2">
+        <select id="gridPreset">
+          <option value="2.0">2.0° (overview)</option>
+          <option value="1.0">1.0°</option>
+          <option value="0.5" selected>0.5° (default)</option>
+          <option value="0.25">0.25°</option>
+          <option value="0.1">0.1° (very fine)</option>
+          <option value="0.05">0.05° (continental only)</option>
+          <option value="custom">custom…</option>
+        </select>
+        <input type="number" id="gridCustom" step="0.01" min="0.01" value="0.5" />
+      </div>
+      <div style="margin-top:4px; font-size:10.5px; color:#71717a;" id="gridHint">—</div>
+    </section>
+
+    <section>
+      <div class="head">Viewport</div>
+      <div class="row2">
+        <button class="secondary" id="fitWorldBtn">World</button>
+        <button class="secondary" id="fitAmericasBtn">Americas</button>
+        <button class="secondary" id="fitEurasiaBtn">Eurasia</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="head">Options</div>
+      <label class="checkbox">
+        <input type="checkbox" id="applyLatCap" />
+        Apply ±65° lat-cap (product policy)
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="autoRerunOnPan" />
+        Re-run after pan/zoom
+      </label>
+    </section>
+
+    <section>
+      <div class="head">Run</div>
+      <div class="btnRow">
+        <button id="runBtn">Brute-force classify viewport</button>
+      </div>
+      <div class="btnRow" style="margin-top: 6px;">
+        <button id="clearBtn" class="secondary">Clear</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="head">Result</div>
+      <div id="metrics">— press <b>Brute-force classify viewport</b> —</div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const API = "http://127.0.0.1:8000";
+  const PLANETS = ["sun","moon","mercury","venus","mars","jupiter",
+                   "saturn","uranus","neptune","pluto","chiron"];
+  const HOUSES = [1,2,3,4,5,6,7,8,9,10,11,12];
+  const COND_IDS = ["A", "B", "C"];
+
+  // Bit i = condition COND_IDS[i]. Mask 1..7 covers every combination.
+  // Colors are chosen so that the overlap colors LOOK like a perceptual
+  // blend of their components: A=yellow + B=blue → AB=green;
+  // A=yellow + C=rose → AC=orange; B=blue + C=rose → BC=violet;
+  // ABC=deep slate (rarest combination → most visually distinct).
+  const COND_COLORS = {
+    A: { name: "yellow",  rgb: [252, 211,  77] },
+    B: { name: "blue",    rgb: [ 56, 189, 248] },
+    C: { name: "rose",    rgb: [244, 114, 182] },
+  };
+  // mask -> {label, fillStyle, sortOrder}
+  // sortOrder controls draw order so rarer overlap masks land on top of
+  // single-condition fills.
+  const MASK_PALETTE = {
+    1: { label: "A only",       rgba: "rgba(252, 211,  77, 0.55)", order: 0 },
+    2: { label: "B only",       rgba: "rgba( 56, 189, 248, 0.55)", order: 1 },
+    4: { label: "C only",       rgba: "rgba(244, 114, 182, 0.55)", order: 2 },
+    3: { label: "A + B",        rgba: "rgba( 34, 197,  94, 0.60)", order: 3 },
+    5: { label: "A + C",        rgba: "rgba(249, 115,  22, 0.60)", order: 4 },
+    6: { label: "B + C",        rgba: "rgba(167, 139, 250, 0.60)", order: 5 },
+    7: { label: "A + B + C",    rgba: "rgba( 15,  23,  42, 0.55)", order: 6 },
+  };
+
+  // ---- URL params ----
+  const qs = new URLSearchParams(location.search);
+  const URL_PROFILE  = qs.get("profile");
+  const URL_GRID     = qs.get("gridDeg") ? parseFloat(qs.get("gridDeg")) : null;
+  const URL_VIEWPORT = qs.get("viewport") || "americas";
+  // Optional explicit-bounds URL parameter for capture scripts:
+  //   ?bounds=south,west,north,east   (decimal degrees)
+  // If present, overrides the named viewport AND seeds an explicit
+  // engine bounds override for the first run, so the map view and the
+  // classified region match exactly.
+  const URL_BOUNDS = (() => {
+    const s = qs.get("bounds");
+    if (!s) return null;
+    const parts = s.split(",").map(parseFloat);
+    if (parts.length !== 4 || parts.some(Number.isNaN)) return null;
+    const [south, west, north, east] = parts;
+    if (!(south < north && west < east)) return null;
+    return { south, west, north, east };
+  })();
+  const URL_AUTO     = qs.get("auto") === "1";
+  const URL_LATCAP   = qs.get("latCap") === "1";
+  const URL_DOT_RAD  = qs.get("dotRadius") ? parseFloat(qs.get("dotRadius")) : 1.0;
+  const SIGNS = ["aries","taurus","gemini","cancer","leo","virgo",
+                 "libra","scorpio","sagittarius","capricorn","aquarius","pisces"];
+  const ANGLES = ["asc","mc","ic","dsc"];
+  const ASPECTS = ["conjunction","sextile","square","trine","opposition"];
+
+  // Condition slot parameters. Three URL shapes supported:
+  //   ?A=sun:1                          (legacy, treated as planet_in_house)
+  //   ?A=pih:sun:1                      (explicit planet_in_house)
+  //   ?A=ais:asc:scorpio                (angle_in_sign)
+  //   ?A=a2a:saturn:mc:conjunction:1.0  (aspect_to_angle, orb is the
+  //                                       trailing number in degrees)
+  // Legacy ?planet=sun&house=1 still works as a one-condition shorthand.
+  function parseSlot(s) {
+    if (!s) return null;
+    const parts = s.split(":");
+    if (parts.length === 2) {
+      const [p, h] = parts;
+      const house = parseInt(h, 10);
+      if (!PLANETS.includes(p.toLowerCase()) || !(house >= 1 && house <= 12))
+        return null;
+      return { type: "planet_in_house", planet: p.toLowerCase(), house };
+    }
+    if (parts.length === 3) {
+      const [tag, x, y] = parts;
+      const a = (x || "").toLowerCase(), b = (y || "").toLowerCase();
+      if (tag === "pih") {
+        const h = parseInt(b, 10);
+        if (!PLANETS.includes(a) || !(h >= 1 && h <= 12)) return null;
+        return { type: "planet_in_house", planet: a, house: h };
+      }
+      if (tag === "ais") {
+        if (!ANGLES.includes(a) || !SIGNS.includes(b)) return null;
+        return { type: "angle_in_sign", angle: a, sign: b };
+      }
+      return null;
+    }
+    if (parts.length === 5) {
+      const [tag, p, ang, asp, o] = parts;
+      if (tag !== "a2a") return null;
+      const planet = (p || "").toLowerCase();
+      const angle  = (ang || "").toLowerCase();
+      const aspect = (asp || "").toLowerCase();
+      const orb    = parseFloat(o);
+      if (!PLANETS.includes(planet) || !ANGLES.includes(angle)
+          || !ASPECTS.includes(aspect) || !(orb > 0 && orb <= 15))
+        return null;
+      return { type: "aspect_to_angle", planet, angle, aspect, orb };
+    }
+    return null;
+  }
+  function defaultSlot(id) {
+    if (id === "A") return { type: "planet_in_house", planet: "sun",  house: 1 };
+    if (id === "B") return { type: "planet_in_house", planet: "moon", house: 4 };
+    if (id === "C") return { type: "planet_in_house", planet: "mars", house: 2 };
+  }
+  function defaultForType(type) {
+    if (type === "planet_in_house")  return { planet: "sun", house: 1 };
+    if (type === "angle_in_sign")    return { angle: "asc", sign: "scorpio" };
+    if (type === "aspect_to_angle")  return { planet: "saturn", angle: "mc",
+                                              aspect: "conjunction", orb: 1.0 };
+  }
+  const URL_SLOTS = {};
+  for (const id of COND_IDS) {
+    let slot = parseSlot(qs.get(id));
+    if (!slot && id === "A" && qs.get("planet") && qs.get("house")) {
+      slot = parseSlot(`${qs.get("planet")}:${qs.get("house")}`);
+    }
+    if (!slot) slot = defaultSlot(id);
+    slot.enabled = qs.has(id) || (id === "A" && (qs.has("planet") || qs.has("A")));
+    if (id === "A") slot.enabled = true;  // A always enabled
+    URL_SLOTS[id] = slot;
+  }
+
+  window.__bruteStatus = "loading";
+  window.__bruteLastError = null;
+  window.__bruteLastResponse = null;
+  window.__bruteLastTimings = null;
+
+  // ---- map ----
+  const map = L.map("map", {
+    zoomSnap: 0.25, zoomDelta: 0.5,
+    worldCopyJump: false,
+    minZoom: 2, maxZoom: 9,
+    preferCanvas: false,
+  }).setView([20, -90], 3);
+  // Expose the Leaflet map so capture scripts can drive bounds, zoom,
+  // and re-run cycles without DOM scraping.
+  window.__map = map;
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 11, minZoom: 2, attribution: "© OpenStreetMap",
+  }).addTo(map);
+
+  // ---- mask-aware brute layer ----
+  // Holds the flat array of [lat, lon, mask] tuples. On each map move,
+  // re-projects every match to canvas pixel coords and paints them in
+  // ascending-rarity order so overlap dots end on top.
+  const BrutePoints = L.Layer.extend({
+    initialize(points, opts) {
+      this._points = points || [];
+      this._opts = opts || {};
+    },
+    setPoints(points) {
+      this._points = points || [];
+      if (this._map) this._redraw();
+    },
+    onAdd(map) {
+      this._map = map;
+      const pane = map.getPane("overlayPane");
+      this._canvas = L.DomUtil.create("canvas", "brute-canvas", pane);
+      this._canvas.style.position = "absolute";
+      map.on("viewreset zoomend moveend resize", this._redraw, this);
+      this._redraw();
+      return this;
+    },
+    onRemove(map) {
+      L.DomUtil.remove(this._canvas);
+      map.off("viewreset zoomend moveend resize", this._redraw, this);
+      this._canvas = null;
+    },
+    _redraw() {
+      if (!this._canvas || !this._map) return;
+      const map = this._map;
+      const size = map.getSize();
+      const topLeft = map.containerPointToLayerPoint([0, 0]);
+      L.DomUtil.setPosition(this._canvas, topLeft);
+      this._canvas.width  = size.x;
+      this._canvas.height = size.y;
+      const ctx = this._canvas.getContext("2d");
+      ctx.clearRect(0, 0, size.x, size.y);
+      const r = this._opts.radius || 1.0;
+      const r2 = r * 2;
+      // Bucket points by mask so we can paint mask-by-mask in the
+      // correct order (rarer overlaps last). We project once here, not
+      // 7× for 7 fill colors.
+      const buckets = {};
+      const pts = this._points;
+      for (let i = 0; i < pts.length; i++) {
+        const m = pts[i][2];
+        if (!buckets[m]) buckets[m] = [];
+        buckets[m].push(pts[i]);
+      }
+      const ordered = Object.keys(buckets)
+        .map(Number)
+        .filter(m => MASK_PALETTE[m])
+        .sort((a, b) => MASK_PALETTE[a].order - MASK_PALETTE[b].order);
+      for (const mask of ordered) {
+        ctx.fillStyle = MASK_PALETTE[mask].rgba;
+        const bucket = buckets[mask];
+        for (let i = 0; i < bucket.length; i++) {
+          const p = map.latLngToContainerPoint(bucket[i]);
+          if (p.x < -2 || p.y < -2 || p.x > size.x + 2 || p.y > size.y + 2) continue;
+          ctx.fillRect(p.x - r, p.y - r, r2, r2);
+        }
+      }
+    },
+  });
+  const bruteLayer = new BrutePoints([], { radius: URL_DOT_RAD });
+  bruteLayer.addTo(map);
+
+  // ---- conditions UI ----
+  function ordinal(n) { const s = ["th","st","nd","rd"], v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0]; }
+  const slotState = JSON.parse(JSON.stringify(URL_SLOTS));
+
+  function makeOption(value, text, selected) {
+    const o = document.createElement("option");
+    o.value = value; o.textContent = text;
+    if (selected) o.selected = true;
+    return o;
+  }
+  function renderCondRows() {
+    const root = document.getElementById("condRows");
+    root.innerHTML = "";
+    for (const id of COND_IDS) {
+      const s = slotState[id];
+      const required = id === "A";
+      const row = document.createElement("div");
+      row.className = "cond" + (s.enabled ? "" : " disabled");
+      row.dataset.cid = id;
+
+      const head = document.createElement("div");
+      head.className = "head";
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = !!s.enabled;
+      cb.disabled = required;
+      cb.title = required ? "Condition A is always enabled" : "";
+      cb.addEventListener("change", () => { s.enabled = cb.checked; renderCondRows(); });
+
+      const swatch = document.createElement("div");
+      swatch.className = "swatch";
+      const rgb = COND_COLORS[id].rgb;
+      swatch.style.background = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.75)`;
+
+      const lbl = document.createElement("div");
+      lbl.className = "lbl"; lbl.textContent = id;
+
+      const typeSel = document.createElement("select");
+      typeSel.className = "typeSel";
+      typeSel.appendChild(makeOption("planet_in_house", "Planet in House",
+        s.type === "planet_in_house"));
+      typeSel.appendChild(makeOption("angle_in_sign", "Angle in Sign",
+        s.type === "angle_in_sign"));
+      typeSel.appendChild(makeOption("aspect_to_angle", "Aspect to Angle",
+        s.type === "aspect_to_angle"));
+      typeSel.addEventListener("change", () => {
+        const newType = typeSel.value;
+        if (newType === s.type) return;
+        for (const k of ["planet","house","angle","sign","aspect","orb"]) delete s[k];
+        s.type = newType;
+        Object.assign(s, defaultForType(newType));
+        renderCondRows();
+      });
+
+      head.appendChild(cb);
+      head.appendChild(swatch);
+      head.appendChild(lbl);
+      head.appendChild(typeSel);
+
+      const params = document.createElement("div");
+      params.className = "params";
+      if (s.type === "planet_in_house") {
+        const planetSel = document.createElement("select");
+        for (const p of PLANETS) planetSel.appendChild(
+          makeOption(p, p[0].toUpperCase() + p.slice(1), p === s.planet));
+        planetSel.addEventListener("change", () => { s.planet = planetSel.value; });
+        const houseSel = document.createElement("select");
+        for (const h of HOUSES) houseSel.appendChild(
+          makeOption(String(h), `${h}${ordinal(h)} h.`, h === s.house));
+        houseSel.addEventListener("change", () => { s.house = parseInt(houseSel.value, 10); });
+        params.appendChild(planetSel);
+        params.appendChild(houseSel);
+      } else if (s.type === "angle_in_sign") {
+        const angleSel = document.createElement("select");
+        for (const a of ANGLES) angleSel.appendChild(
+          makeOption(a, a.toUpperCase(), a === s.angle));
+        angleSel.addEventListener("change", () => { s.angle = angleSel.value; });
+        const signSel = document.createElement("select");
+        for (const z of SIGNS) signSel.appendChild(
+          makeOption(z, z[0].toUpperCase() + z.slice(1), z === s.sign));
+        signSel.addEventListener("change", () => { s.sign = signSel.value; });
+        params.appendChild(angleSel);
+        params.appendChild(signSel);
+      } else {  // aspect_to_angle (centerline)
+        const planetSel = document.createElement("select");
+        for (const p of PLANETS) planetSel.appendChild(
+          makeOption(p, p[0].toUpperCase() + p.slice(1), p === s.planet));
+        planetSel.addEventListener("change", () => { s.planet = planetSel.value; });
+        const angleSel = document.createElement("select");
+        for (const a of ANGLES) angleSel.appendChild(
+          makeOption(a, a.toUpperCase(), a === s.angle));
+        angleSel.addEventListener("change", () => { s.angle = angleSel.value; });
+        const aspectSel = document.createElement("select");
+        for (const a of ASPECTS) aspectSel.appendChild(
+          makeOption(a, a[0].toUpperCase() + a.slice(1), a === s.aspect));
+        aspectSel.addEventListener("change", () => { s.aspect = aspectSel.value; });
+        const orbInput = document.createElement("input");
+        orbInput.type = "number"; orbInput.step = "0.1"; orbInput.min = "0.1";
+        orbInput.max = "15"; orbInput.value = String(s.orb ?? 1.0);
+        orbInput.title = "orb (degrees of separation tolerated)";
+        orbInput.style.width = "52px"; orbInput.style.padding = "4px 6px";
+        orbInput.style.fontSize = "11.5px";
+        orbInput.addEventListener("change", () => {
+          const v = parseFloat(orbInput.value);
+          if (v > 0 && v <= 15) s.orb = v;
+          else orbInput.value = String(s.orb);
+        });
+        params.appendChild(planetSel);
+        params.appendChild(angleSel);
+        params.appendChild(aspectSel);
+        params.appendChild(orbInput);
+      }
+      row.appendChild(head);
+      row.appendChild(params);
+      root.appendChild(row);
+    }
+  }
+
+  async function loadProfiles() {
+    const r = await fetch(`${API}/chart-profiles`);
+    const profiles = await r.json();
+    const sel = document.getElementById("profile");
+    sel.innerHTML = "";
+    profiles.forEach(p => {
+      const o = document.createElement("option");
+      o.value = p.id; o.textContent = p.name;
+      o.dataset.profile = JSON.stringify(p);
+      sel.appendChild(o);
+    });
+    if (URL_PROFILE) {
+      const idx = Array.from(sel.options).findIndex(o => o.value === URL_PROFILE);
+      if (idx >= 0) sel.selectedIndex = idx;
+    }
+  }
+
+  function fitWorld()    { map.fitBounds([[-70, -180], [78, 180]]); }
+  function fitAmericas() { map.fitBounds([[-55, -160], [70, -30]]); }
+  function fitEurasia()  { map.fitBounds([[-15,  -10], [70, 160]]); }
+  document.getElementById("fitWorldBtn").addEventListener("click", fitWorld);
+  document.getElementById("fitAmericasBtn").addEventListener("click", fitAmericas);
+  document.getElementById("fitEurasiaBtn").addEventListener("click", fitEurasia);
+
+  const gridPresetEl = document.getElementById("gridPreset");
+  const gridCustomEl = document.getElementById("gridCustom");
+  function updateGridHint() {
+    const deg = parseFloat(gridCustomEl.value || gridPresetEl.value || "0.5");
+    if (!Number.isFinite(deg) || deg <= 0) {
+      document.getElementById("gridHint").textContent = "—";
+      return;
+    }
+    const kmPerCell = Math.round(deg * 111);
+    const bounds = map.getBounds();
+    const lonSpan = Math.abs(bounds.getEast() - bounds.getWest());
+    const widthPx = document.getElementById("map").clientWidth || 1;
+    const pxPerCell = (deg / lonSpan) * widthPx;
+    let perceptual;
+    if (pxPerCell >= 4) perceptual = "individual squares visible";
+    else if (pxPerCell >= 1.4) perceptual = "lattice still readable";
+    else if (pxPerCell >= 0.8) perceptual = "near-continuous fill";
+    else perceptual = "over-sampled (no visual gain)";
+    document.getElementById("gridHint").textContent =
+      `≈ ${kmPerCell} km / cell · ${pxPerCell.toFixed(1)} px / cell at current zoom · ${perceptual}`;
+  }
+  gridPresetEl.addEventListener("change", () => {
+    if (gridPresetEl.value !== "custom") gridCustomEl.value = gridPresetEl.value;
+    updateGridHint();
+  });
+  gridCustomEl.addEventListener("input", () => {
+    gridPresetEl.value = "custom";
+    updateGridHint();
+  });
+  map.on("moveend", updateGridHint);
+
+  function getBirthFromProfile() {
+    const sel = document.getElementById("profile");
+    if (!sel.value) throw new Error("no chart profile loaded");
+    const p = JSON.parse(sel.selectedOptions[0].dataset.profile);
+    const [y, mo, d] = p.date.split("-").map(Number);
+    const [h, mi]    = (p.time || "12:00").split(":").map(Number);
+    return { birth_year: y, birth_month: mo, birth_day: d, birth_hour_utc: h + mi / 60 };
+  }
+
+  const ASPECT_GLYPH = {
+    conjunction: "\u260C", sextile: "\u26B9", square: "\u25A1",
+    trine: "\u25B3", opposition: "\u260D",
+  };
+  function activeConditions() {
+    return COND_IDS
+      .filter(id => slotState[id].enabled)
+      .map(id => {
+        const s = slotState[id];
+        if (s.type === "angle_in_sign")
+          return { id, type: "angle_in_sign", angle: s.angle, sign: s.sign };
+        if (s.type === "aspect_to_angle")
+          return { id, type: "aspect_to_angle",
+                   planet: s.planet, angle: s.angle,
+                   aspect: s.aspect, orb: s.orb };
+        return { id, type: "planet_in_house", planet: s.planet, house: s.house };
+      });
+  }
+  function describeCondition(c) {
+    if (c.type === "angle_in_sign")
+      return `${c.angle.toUpperCase()}-${c.sign[0].toUpperCase() + c.sign.slice(1)}`;
+    if (c.type === "aspect_to_angle") {
+      const g = ASPECT_GLYPH[c.aspect] || c.aspect;
+      return `${c.planet[0].toUpperCase() + c.planet.slice(1)} `
+           + `${g} ${c.angle.toUpperCase()} ±${c.orb}°`;
+    }
+    return `${c.planet[0].toUpperCase() + c.planet.slice(1)}-${c.house}${ordinal(c.house)}`;
+  }
+
+  async function runBruteForce() {
+    let birth;
+    try { birth = getBirthFromProfile(); }
+    catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#dc2626">${err.message}</div>`;
+      window.__bruteStatus = "error"; window.__bruteLastError = err.message;
+      return;
+    }
+    const conds = activeConditions();
+    if (!conds.length) {
+      window.__bruteStatus = "error";
+      window.__bruteLastError = "no conditions enabled";
+      return;
+    }
+    // Allow callers (capture scripts, tests) to override the
+    // viewport-derived bounds by stashing an explicit bounds object on
+    // `window.__bruteBoundsOverride`. The override is consumed once,
+    // then cleared, so subsequent runs fall back to the live map view.
+    let north, south, east, west;
+    const ov = window.__bruteBoundsOverride;
+    if (ov && typeof ov === "object") {
+      north = Math.min(85, +ov.north);
+      south = Math.max(-85, +ov.south);
+      east  = Math.min( 180, +ov.east);
+      west  = Math.max(-180, +ov.west);
+      window.__bruteBoundsOverride = null;
+    } else {
+      const b = map.getBounds();
+      north = Math.min(85, b.getNorth());
+      south = Math.max(-85, b.getSouth());
+      east  = Math.min( 180, b.getEast());
+      west  = Math.max(-180, b.getWest());
+    }
+    const grid_deg = parseFloat(gridCustomEl.value || gridPresetEl.value);
+    const apply_lat_cap = document.getElementById("applyLatCap").checked;
+    const body = {
+      ...birth,
+      north, south, east, west,
+      grid_deg,
+      conditions: conds.map(c => {
+        if (c.type === "angle_in_sign")
+          return { type: "angle_in_sign", angle: c.angle, sign: c.sign };
+        if (c.type === "aspect_to_angle")
+          return { type: "aspect_to_angle", planet: c.planet, angle: c.angle,
+                   aspect: c.aspect, orb: c.orb };
+        return { type: "planet_in_house", planet: c.planet, house: c.house };
+      }),
+      apply_lat_cap,
+      include_non_matches: false,
+    };
+    const expectedCells =
+      Math.round(((body.north - body.south) / grid_deg + 1)
+               * ((body.east  - body.west)  / grid_deg + 1));
+    const condDesc = conds.map(c => `${c.id}=${describeCondition(c)}`).join("  ");
+    showBanner(`Classifying ${expectedCells.toLocaleString()} cells × ${conds.length} conditions… (${condDesc})`);
+    document.getElementById("runBtn").disabled = true;
+    window.__bruteStatus = "running";
+
+    const t0 = performance.now();
+    let resp;
+    try {
+      const r = await fetch(`${API}/brute-force-grid`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error(`brute-force-grid ${r.status}: ${(await r.text()).slice(0, 240)}`);
+      resp = await r.json();
+    } catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#dc2626">${err.message}</div>`;
+      hideBanner();
+      document.getElementById("runBtn").disabled = false;
+      window.__bruteStatus = "error"; window.__bruteLastError = err.message;
+      return;
+    }
+    const clientSeconds = (performance.now() - t0) / 1000;
+    const p = resp.properties;
+    bruteLayer.setPoints(resp.matches);
+    const paintT0 = performance.now();
+    bruteLayer._redraw();
+    const paintMs = performance.now() - paintT0;
+
+    window.__bruteLastResponse = resp;
+    window.__bruteLastTimings = {
+      client_total_seconds: clientSeconds,
+      server_compute_seconds: p.compute_seconds,
+      paint_ms: paintMs,
+      total_cells: p.total_grid_points,
+      classified: p.classified_count,
+      matches: p.match_count,
+      capped: p.outside_lat_cap_count,
+      errors: p.error_count,
+      grid_deg: p.grid_deg,
+      points_per_second_server: p.points_per_second,
+      conditions: p.conditions,
+      overlap_counts: p.overlap_counts,
+      per_mask_counts: p.per_mask_counts,
+    };
+    window.__bruteStatus = "complete";
+    renderMetrics();
+    showBanner(
+      `${p.match_count.toLocaleString()} matches / ${p.classified_count.toLocaleString()} cells × ${p.conditions.length} conds`
+      + `  · server ${p.compute_seconds.toFixed(2)}s · client ${clientSeconds.toFixed(2)}s · paint ${paintMs.toFixed(0)} ms`
+    );
+    document.getElementById("runBtn").disabled = false;
+  }
+
+  function renderMetrics() {
+    const t = window.__bruteLastTimings;
+    if (!t) {
+      document.getElementById("metrics").textContent = "—";
+      return;
+    }
+    const fmtPct = (n, total) =>
+      total > 0 ? ` (${(100 * n / total).toFixed(2)}%)` : "";
+    const row = (k, v) =>
+      `<div class="row"><span class="key">${k}</span><span class="val">${v}</span></div>`;
+    const swatchRow = (mask, label, count) => {
+      const palette = MASK_PALETTE[mask] || { rgba: "transparent" };
+      return `<div class="swatchRow">`
+        + `<div class="swatch" style="background:${palette.rgba}"></div>`
+        + `<span class="key">${label}</span>`
+        + `<span class="val">${count.toLocaleString()}${fmtPct(count, t.matches)}</span>`
+        + `</div>`;
+    };
+    const o = t.overlap_counts || {};
+    const condCount = t.conditions.length;
+
+    const grid = `<div class="group">`
+      + `<div class="grouphead">grid</div>`
+      + row("grid resolution", `${t.grid_deg}°`)
+      + row("cells classified", t.classified.toLocaleString())
+      + row("any-condition matches", t.matches.toLocaleString() + fmtPct(t.matches, t.classified))
+      + row("polar errors", t.errors.toLocaleString())
+      + (t.capped ? row("above lat-cap", t.capped.toLocaleString()) : "")
+      + `</div>`;
+
+    function labelForConditionEntry(c) {
+      if (c.type === "angle_in_sign") {
+        return `${c.id}: ${c.angle.toUpperCase()} in `
+             + `${c.sign[0].toUpperCase() + c.sign.slice(1)}`;
+      }
+      if (c.type === "aspect_to_angle") {
+        const g = ASPECT_GLYPH[c.aspect] || c.aspect;
+        return `${c.id}: ${c.planet[0].toUpperCase() + c.planet.slice(1)} `
+             + `${g} ${c.angle.toUpperCase()} ±${c.orb}°`;
+      }
+      return `${c.id}: ${c.planet[0].toUpperCase() + c.planet.slice(1)} `
+           + `in ${c.house}${ordinal(c.house)}`;
+    }
+    let condBlock = `<div class="group"><div class="grouphead">per condition</div>`;
+    for (const c of t.conditions) {
+      const mask = 1 << COND_IDS.indexOf(c.id);
+      condBlock += swatchRow(mask, labelForConditionEntry(c), c.count);
+    }
+    condBlock += `</div>`;
+
+    let overlapBlock = "";
+    if (condCount >= 2) {
+      overlapBlock += `<div class="group"><div class="grouphead">overlap (real)</div>`;
+      // exclusive single-condition counts (mask = single bit set)
+      for (const id of COND_IDS.slice(0, condCount)) {
+        const mask = 1 << COND_IDS.indexOf(id);
+        const n = o[`${id}_only`] ?? 0;
+        overlapBlock += swatchRow(mask, `${id} only`, n);
+      }
+      // pairwise overlaps
+      const pairs = [];
+      if (condCount >= 2) pairs.push(["A","B",3]);
+      if (condCount >= 3) pairs.push(["A","C",5],["B","C",6]);
+      for (const [x, y, mask] of pairs) {
+        const n = o[`${x}_and_${y}`] ?? 0;
+        overlapBlock += swatchRow(mask, `${x} ∩ ${y}`, n);
+      }
+      // triple
+      if (condCount >= 3) {
+        const n = o.A_and_B_and_C ?? 0;
+        overlapBlock += swatchRow(7, "A ∩ B ∩ C", n);
+      }
+      overlapBlock += `</div>`;
+    }
+
+    const timings = `<div class="group"><div class="grouphead">timings</div>`
+      + row("server compute", `${t.server_compute_seconds.toFixed(3)} s`)
+      + row("client total", `${t.client_total_seconds.toFixed(3)} s`)
+      + row("paint", `${t.paint_ms.toFixed(0)} ms`)
+      + row("server rate", `${Math.round(t.points_per_second_server).toLocaleString()} pts/s`)
+      + `</div>`;
+
+    document.getElementById("metrics").innerHTML = grid + condBlock + overlapBlock + timings;
+  }
+
+  function showBanner(text) {
+    document.getElementById("bannerText").textContent = text;
+    document.getElementById("banner").classList.add("on");
+  }
+  function hideBanner() {
+    document.getElementById("banner").classList.remove("on");
+  }
+
+  document.getElementById("runBtn").addEventListener("click", runBruteForce);
+  // Expose for capture scripts (matches __runScreenPixelTruth in the
+  // screen-pixel sandbox).
+  window.__runBruteForce = runBruteForce;
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    bruteLayer.setPoints([]);
+    window.__bruteLastResponse = null;
+    window.__bruteLastTimings  = null;
+    document.getElementById("metrics").textContent = "—";
+    hideBanner();
+  });
+  map.on("moveend", () => {
+    if (document.getElementById("autoRerunOnPan").checked
+        && window.__bruteStatus === "complete") {
+      runBruteForce();
+    }
+  });
+
+  (async function init() {
+    renderCondRows();
+    try { await loadProfiles(); }
+    catch (err) {
+      document.getElementById("metrics").innerHTML =
+        `<div style="color:#dc2626">profiles: ${err.message}</div>`;
+      window.__bruteStatus = "error"; window.__bruteLastError = err.message;
+      return;
+    }
+    if (URL_LATCAP) document.getElementById("applyLatCap").checked = true;
+    if (URL_GRID !== null) {
+      gridCustomEl.value = String(URL_GRID);
+      gridPresetEl.value = "custom";
+    }
+    // ?fitBounds=s,w,n,e : set the visible viewport WITHOUT pinning the
+    // engine to that rectangle. Brute-force then queries whatever Leaflet
+    // actually shows (i.e. map.getBounds()), which is the apples-to-apples
+    // comparison knob for the screen-pixel diagnosis.
+    const urlFitBounds = qs.get("fitBounds");
+    let URL_FITBOUNDS = null;
+    if (urlFitBounds) {
+      const [s, w, n, e] = urlFitBounds.split(",").map(Number);
+      if ([s, w, n, e].every(Number.isFinite)) {
+        URL_FITBOUNDS = {south: s, west: w, north: n, east: e};
+      }
+    }
+    if (URL_BOUNDS) {
+      map.fitBounds(
+        [[URL_BOUNDS.south, URL_BOUNDS.west],
+         [URL_BOUNDS.north, URL_BOUNDS.east]],
+        {animate: false, padding: [0, 0]},
+      );
+      // Pin the engine to the exact requested bounds for the first run,
+      // independent of Leaflet's aspect-ratio padding.
+      window.__bruteBoundsOverride = {
+        north: URL_BOUNDS.north, south: URL_BOUNDS.south,
+        east:  URL_BOUNDS.east,  west:  URL_BOUNDS.west,
+      };
+    } else if (URL_FITBOUNDS) {
+      map.fitBounds(
+        [[URL_FITBOUNDS.south, URL_FITBOUNDS.west],
+         [URL_FITBOUNDS.north, URL_FITBOUNDS.east]],
+        {animate: false, padding: [0, 0]},
+      );
+      // Intentionally no __bruteBoundsOverride: let map.getBounds() drive.
+    } else if (URL_VIEWPORT === "world") {
+      fitWorld();
+    } else if (URL_VIEWPORT === "eurasia") {
+      fitEurasia();
+    } else {
+      fitAmericas();
+    }
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    updateGridHint();
+    window.__bruteStatus = "ready";
+    if (URL_AUTO) setTimeout(runBruteForce, 200);
+  })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+{
+  "artifacts": {
+    "narrative": "validation/narratives/phase2_41_transfer_function_study.md",
+    "png": "validation/visual_targets/phase2_41_transfer_function_study.png",
+    "report": "validation/reports/phase2_41_transfer_function_study.json"
+  },
+  "astrology_used": false,
+  "candidate_assessment": {
+    "control_failures": [
+      "bad_gaussian",
+      "bad_linear"
+    ],
+    "likely_too_soft": [
+      "enamel_membrane"
+    ],
+    "needs_visual_qa": "Determine which candidate reads as pressure release rather than fade/blur.",
+    "promising": [
+      "hybrid_candidate",
+      "plasma_density",
+      "exp_pressure",
+      "harmonic_pressure"
+    ]
+  },
+  "first_run_audit": {
+    "geometry_free_scope": "pass",
+    "label_overlap": "fixed_in_regenerated_board",
+    "non_fog_pressure_success": "partial",
+    "notes": "The board isolates transfer functions cleanly, but most candidates still resemble refined gradients. Plasma, Hybrid, Exponential, and Harmonic remain the best candidates for human visual QA; none should be treated as proven final pressure doctrine yet."
+  },
+  "generated_at_utc": "2026-05-26T06:45:11.715987+00:00",
+  "geometry_used": false,
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "geometry_changed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "staged": false,
+    "virga": false
+  },
+  "maps_used": false,
+  "masks_or_polygons_used": false,
+  "modes": [
+    "exp_pressure",
+    "harmonic_pressure",
+    "logistic_release",
+    "fibonacci_power",
+    "enamel_membrane",
+    "plasma_density",
+    "bad_gaussian",
+    "bad_linear",
+    "hybrid_candidate"
+  ],
+  "phase": "2.41",
+  "rendering_method": "Offline Python/PIL/numpy rectangular-domain board at 4x supersampling; left edge is carrier ridge and right edge is outer boundary. Each candidate is a continuous scalar transfer function over u=0..1.",
+  "revision": "geometry_free_transfer_function_study_v1",
+  "scope": "pure transfer-function/perceptual study only",
+  "stats": [
+    {
+      "carrier_alpha": 0.6117647886276245,
+      "edge_alpha": 0.019607843831181526,
+      "max_alpha": 0.6117647290229797,
+      "min_alpha": 0.019607843831181526,
+      "mode": "exp_pressure"
+    },
+    {
+      "carrier_alpha": 0.5176471471786499,
+      "edge_alpha": 0.027450982481241226,
+      "max_alpha": 0.5176470875740051,
+      "min_alpha": 0.027450980618596077,
+      "mode": "harmonic_pressure"
+    },
+    {
+      "carrier_alpha": 0.4745097756385803,
+      "edge_alpha": 0.0235294122248888,
+      "max_alpha": 0.4745098054409027,
+      "min_alpha": 0.0235294122248888,
+      "mode": "logistic_release"
+    },
+    {
+      "carrier_alpha": 0.5450981259346008,
+      "edge_alpha": 0.019607843831181526,
+      "max_alpha": 0.545098066329956,
+      "min_alpha": 0.019607843831181526,
+      "mode": "fibonacci_power"
+    },
+    {
+      "carrier_alpha": 0.41960781812667847,
+      "edge_alpha": 0.027450982481241226,
+      "max_alpha": 0.41960784792900085,
+      "min_alpha": 0.027450980618596077,
+      "mode": "enamel_membrane"
+    },
+    {
+      "carrier_alpha": 0.64705890417099,
+      "edge_alpha": 0.01568627543747425,
+      "max_alpha": 0.6470588445663452,
+      "min_alpha": 0.01568627543747425,
+      "mode": "plasma_density"
+    },
+    {
+      "carrier_alpha": 0.43137258291244507,
+      "edge_alpha": 0.0313725508749485,
+      "max_alpha": 0.4313725531101227,
+      "min_alpha": 0.0313725508749485,
+      "mode": "bad_gaussian"
+    },
+    {
+      "carrier_alpha": 0.43137258291244507,
+      "edge_alpha": 0.0117647061124444,
+      "max_alpha": 0.4313725531101227,
+      "min_alpha": 0.0117647061124444,
+      "mode": "bad_linear"
+    },
+    {
+      "carrier_alpha": 0.5568627715110779,
+      "edge_alpha": 0.0235294122248888,
+      "max_alpha": 0.5568627715110779,
+      "min_alpha": 0.0235294122248888,
+      "mode": "hybrid_candidate"
+    }
+  ],
+  "visual_doctrine": {
+    "avoid": [
+      "visible bands",
+      "stripes",
+      "contour marks",
+      "powder breakup",
+      "fog tails",
+      "wedge reads",
+      "opacity islands",
+      "blue fading to transparent"
+    ],
+    "preserve": [
+      "single material body",
+      "solid chroma at low opacity",
+      "compressed near-ridge density",
+      "continuous release",
+      "non-powder edge"
+    ],
+    "target": "coherent material pressure release across one rectangular domain"
+  }
+}

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table System — option study (#6)</title>
+<style>
+:root{
+  --ink:#2b2b30; --soft:#8a8893; --faint:#b7b4bd;
+  --paper:#fbfbfc; --card:#ffffff;
+  --line:#e4e2e8; --line-mid:#cfccd6; --line-strong:#a9a5b3; --tint:#f4f3f7;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Avenir Next","Segoe UI",-apple-system,sans-serif;
+  /* restrained identity hues for the border/glow preview only */
+  --natal:#b08a3c; --current:#3f8a86; --reloc:#7a6bd8; --compare:#c2603f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.4}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 28px 90px}
+h1{font-size:19px;margin:0 0 4px}
+.lead{color:var(--soft);font-size:12.5px;margin:0 0 8px;max-width:820px}
+.note{color:var(--faint);font-size:11.5px;margin:0 0 8px}
+
+.decision{margin:34px 0 0}
+.dec-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line-mid);padding-bottom:6px;margin-bottom:16px}
+.dec-num{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft)}
+.dec-title{font-size:15px;font-weight:700}
+.dec-q{color:var(--soft);font-size:12px;margin-left:auto}
+.opts{display:grid;gap:22px}
+.cols-4{grid-template-columns:repeat(4,1fr)}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.opt-tag{font-size:11px;font-weight:700;margin-bottom:3px}
+.opt-tag .k{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border:1px solid var(--line-mid);border-radius:5px;margin-right:6px;font-size:10px;color:var(--soft)}
+.opt-desc{font-size:11px;color:var(--soft);margin-bottom:9px;min-height:30px}
+
+/* base card */
+.tc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.tc .ph{font-family:var(--serif);font-weight:700;font-size:14px;text-align:center;margin:0 0 4px}
+.tc .deco{height:1px;background:var(--line);width:42px;margin:5px auto 9px}
+.tc .colh{display:grid;grid-template-columns:1fr auto;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:0 4px 6px;border-bottom:1px solid var(--line)}
+.t .r{display:grid;grid-template-columns:1fr auto;align-items:center}
+.t .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+.t .r{border-bottom:1px solid var(--line);margin:0 4px}
+.t .r:last-child{border-bottom:none}
+
+/* density */
+.d-spacious .r{padding:11px 0}
+.d-standard .r{padding:8px 0}
+.d-compact .r{padding:5px 0;font-size:12px}
+
+/* numeric alignment */
+.na-right .r{grid-template-columns:1fr auto}
+.na-right .r .v{text-align:right}
+.na-center .r{grid-template-columns:1fr 1fr}
+.na-center .r .v{text-align:center}
+.na-colcenter .r{grid-template-columns:34% 32% 34%}
+.na-colcenter .r .mid{}
+.na-colcenter .r .v{text-align:center}
+
+/* empty value */
+.ev .r .v.empty{color:var(--faint)}
+
+/* ---- border / glow preview ---- */
+.glow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.gcard{background:var(--card);border-radius:12px;padding:12px}
+.gcard .ph{font-family:var(--serif);font-weight:700;font-size:14px;text-align:center;margin:0 0 9px}
+.gcard .r{display:grid;grid-template-columns:1fr auto;padding:7px 4px;font-size:12.5px;border-bottom:1px solid var(--line);margin:0 4px}
+.gcard .r:last-child{border-bottom:none}
+.gcard .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+/* G1 hairline border only */
+.g1{border:1px solid var(--line)}
+/* G2 border + soft neutral outer glow */
+.g2{border:1px solid var(--line);box-shadow:0 10px 26px -14px rgba(40,38,50,.45)}
+/* G3 colored top-accent border (identity) */
+.g3{border:1px solid var(--line);border-top:3px solid var(--accent)}
+/* G4 full colored hairline + faint inner wash (identity) */
+.g4{border:1px solid color-mix(in srgb,var(--accent) 55%,var(--line));background:linear-gradient(var(--card),var(--card)) padding-box, linear-gradient(180deg,color-mix(in srgb,var(--accent) 8%,white),white) ;}
+/* G5 luminescent outer glow in identity hue */
+.g5{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 12%,transparent),0 8px 26px -12px color-mix(in srgb,var(--accent) 60%,transparent)}
+.swatchrow{display:flex;gap:8px;margin:14px 0 4px;flex-wrap:wrap}
+.idtag{font-size:10.5px;color:var(--soft);display:flex;align-items:center;gap:6px}
+.idtag i{width:11px;height:11px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Table System — option study (#6)</h1>
+  <p class="lead">Structural decisions kept neutral at ~80%. The last section opens your real question — <b>border / border-color / glow</b> — as the lever for adding color + life and teaching cross-page family resemblance. Color there is a <b>preview</b>, not a lock.</p>
+  <p class="note">Sample = Planet in House. Same data in every option.</p>
+
+  <!-- D1 row density -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 1</span><span class="dec-title">Row density</span><span class="dec-q">scan-comfort vs how much fits above the fold</span></div>
+    <div class="opts cols-3">
+      <div><div class="opt-tag"><span class="k">A</span>Spacious</div><div class="opt-desc">Roomiest; calm, fewer rows visible.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-spacious"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">B</span>Standard</div><div class="opt-desc">Balanced — current direction.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-standard"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">C</span>Compact</div><div class="opt-desc">Dense; more rows, good for long lists (nodes etc.).</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-compact"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div><div class="r"><span>Mars</span><span class="v">9th</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D2 header -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 2</span><span class="dec-title">Header treatment</span><span class="dec-q">title only vs title+deco vs column headers</span></div>
+    <div class="opts cols-3">
+      <div><div class="opt-tag"><span class="k">A</span>Serif title only</div><div class="opt-desc">Clean; relies on row labels for meaning.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="t d-standard"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">B</span>Title + deco rule</div><div class="opt-desc">Short centered rule under title — current.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-standard"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">C</span>Title + column headers</div><div class="opt-desc">Adds Planet / House labels; clearest, slightly more ledger.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="colh"><span>Planet</span><span>House</span></div><div class="t d-standard"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D3 numeric alignment -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 3</span><span class="dec-title">Value alignment</span><span class="dec-q">where the house/value sits</span></div>
+    <div class="opts cols-3">
+      <div><div class="opt-tag"><span class="k">A</span>Right-aligned</div><div class="opt-desc">Values flush right, tabular. Classic table scan.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-standard na-right"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">B</span>Centered</div><div class="opt-desc">Value centered in its own half. Softer, matches AiS centering you liked.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-standard na-center"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">C</span>Centered-right column</div><div class="opt-desc">Label left, value centered in a right column (3-col feel) — the PiH "heft" layout.</div>
+        <div class="tc"><div class="ph">Planet in House</div><div class="deco"></div><div class="t d-standard na-colcenter"><div class="r"><span>Sun</span><span class="mid"></span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="mid"></span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="mid"></span><span class="v">2nd</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D4 empty value -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 4</span><span class="dec-title">Empty value</span><span class="dec-q">A2A unoccupied cells</span></div>
+    <div class="opts cols-3">
+      <div><div class="opt-tag"><span class="k">A</span>Em-dash —</div><div class="opt-desc">Placeholder reads as "intentionally empty." Recommended.</div>
+        <div class="tc"><div class="ph">Aspect to Angle</div><div class="deco"></div><div class="t d-standard ev"><div class="r"><span>Sun</span><span class="v">△ ASC</span></div><div class="r"><span>Moon</span><span class="v empty">—</span></div><div class="r"><span>Venus</span><span class="v">☌ MC</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">B</span>Blank</div><div class="opt-desc">Nothing shown. Cleanest but can read as "missing/loading."</div>
+        <div class="tc"><div class="ph">Aspect to Angle</div><div class="deco"></div><div class="t d-standard"><div class="r"><span>Sun</span><span class="v">△ ASC</span></div><div class="r"><span>Moon</span><span class="v"></span></div><div class="r"><span>Venus</span><span class="v">☌ MC</span></div></div></div>
+      </div>
+      <div><div class="opt-tag"><span class="k">C</span>Mid-dot ·</div><div class="opt-desc">Tiny dot placeholder; lighter than em-dash.</div>
+        <div class="tc"><div class="ph">Aspect to Angle</div><div class="deco"></div><div class="t d-standard ev"><div class="r"><span>Sun</span><span class="v">△ ASC</span></div><div class="r"><span>Moon</span><span class="v empty">·</span></div><div class="r"><span>Venus</span><span class="v">☌ MC</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D5 BORDER / GLOW PREVIEW -->
+  <div class="decision">
+    <div class="dec-head"><span class="dec-num">DECISION 5</span><span class="dec-title">Border &amp; glow — the color/life + unity lever</span><span class="dec-q">PREVIEW · color not locked</span></div>
+    <p class="note">Each card below is the same table, shown in a different border/glow language. G3–G5 carry a faint <b>identity hue</b> to show how one shared mechanism can teach "Natal / Current / Relocated / Comparison" across pages while staying calm.</p>
+    <div class="swatchrow">
+      <span class="idtag"><i style="background:var(--natal)"></i>Natal</span>
+      <span class="idtag"><i style="background:var(--current)"></i>Current</span>
+      <span class="idtag"><i style="background:var(--reloc)"></i>Relocated</span>
+      <span class="idtag"><i style="background:var(--compare)"></i>Comparison</span>
+    </div>
+    <div class="glow-grid">
+      <div class="gcard g1"><div class="ph">G1 · Hairline only</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="gcard g2"><div class="ph">G2 · Border + soft shadow</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="gcard g3" style="--accent:var(--natal)"><div class="ph">G3 · Top-accent (Natal)</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="gcard g4" style="--accent:var(--current)"><div class="ph">G4 · Hairline + inner wash (Current)</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+    </div>
+    <div class="glow-grid" style="margin-top:22px">
+      <div class="gcard g5" style="--accent:var(--natal)"><div class="ph">G5 · Luminescent (Natal)</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="gcard g5" style="--accent:var(--current)"><div class="ph">G5 · Luminescent (Current)</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="gcard g5" style="--accent:var(--reloc)"><div class="ph">G5 · Luminescent (Relocated)</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="gcard g5" style="--accent:var(--compare)"><div class="ph">G5 · Luminescent (Comparison)</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

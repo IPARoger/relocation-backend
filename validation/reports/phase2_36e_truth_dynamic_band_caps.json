@@ -1,0 +1,289 @@
+{
+  "allowed_visual_outputs_created": [
+    "validation/visual_targets/phase2_36e_truth_dynamic_band_caps_asc_fairbanks.png"
+  ],
+  "asc_cases": {
+    "blocker": "ASC dynamic side-cap proof requires either broader fixture generation/search, a purpose-built real chart profile, or a more complete ASC centerline branch extraction method before visual artifact generation.",
+    "blocker_classification": "implementation-method/search-breadth blocker, not mathematical proof of impossibility. High-latitude compression exists, but a qualifying real aspect-to-ASC branch was not found with the current bounded branch-tracing method.",
+    "caseA_found": "partial_fairbanks_12th_side_narrows_more_strongly_but_1st_side_also_capped",
+    "caseB_found": false,
+    "exact_centerline_validation_result": "Those fixed-longitude compression examples did not survive exact ASC aspect centerline validation. When the real ASC target was held constant and longitude was solved at each latitude, the centerline shifted longitude and adjacent 12th/1st widths stayed full in the tested candidates.",
+    "fairbanks_case_found": true,
+    "high_latitude_continuation_performed": true,
+    "high_latitude_width_scan_result": "Strong 12th/1st compression exists at high latitudes on fixed longitudes. Example: 1988-06-21 00:00 at longitude -20 has 12th-side effective width 10 at lat 0, 8.717 at lat 50, 5.718 at lat 60, and 1.856 at lat 65 while 1st side remains 10. Example longitude 10 has 1st-side effective width 10 at lat 0 and 3.802 at lat 65 while 12th remains 10.",
+    "search_result": "No branch found where 12th-house side narrows to <=6 while 1st-house side remains >=9, and no branch found where 1st-house side narrows to <=6 while 12th-house side remains >=9, while starting from a normal region with both >=9.",
+    "search_scope": "bounded targeted search over baseline_validated, edge_high_north, edge_southern, selected high-latitude/stress fixtures, planets sun/moon/jupiter/saturn/uranus, aspects conjunction/sextile/square/trine/opposition",
+    "temporary_chart_assumptions": {
+      "dates": [
+        "1988-06-21",
+        "1988-12-21",
+        "1990-03-20",
+        "1990-09-23",
+        "2001-06-21",
+        "2001-12-21"
+      ],
+      "note": "Validation-only generated charts; not added to production profile files.",
+      "times_utc": [
+        "00:00",
+        "03:00",
+        "06:00",
+        "09:00",
+        "12:00",
+        "15:00",
+        "18:00",
+        "21:00"
+      ]
+    },
+    "temporary_high_latitude_birthplaces_tested": [
+      "Reykjavik, Iceland",
+      "Anchorage, Alaska",
+      "Stockholm, Sweden",
+      "Tromso, Norway",
+      "Fairbanks, Alaska",
+      "Ushuaia, Argentina",
+      "Punta Arenas, Chile"
+    ],
+    "visual_outputs_created_after_continuation": []
+  },
+  "core_rule": "effective_side_width = min(default_or_user_orb_for_aspect, cap_percentage * adjacent_house_width), applied independently per side. cap_percentage=0.30, default_orb=10 degrees.",
+  "fairbanks_focused_validation": {
+    "artifact": "validation/visual_targets/phase2_36e_truth_dynamic_band_caps_asc_fairbanks.png",
+    "branch_stable": true,
+    "constant_asymmetry": false,
+    "fairbanks_orb_delta_deg": 0.148736,
+    "finding": "House 12 is compressed to 12.699 deg at Fairbanks; house 1 is also below 30 deg at 25.672 deg. Along the real Uranus conjunct ASC branch, both sides are capped, but 12th side narrows more strongly and evolves continuously from 7.143 to 3.789 while 1st evolves from 8.675 to 7.671. Opposite side is less affected rather than fully 10.",
+    "html": "validation/visual_targets/phase2_36e_truth_dynamic_band_caps.html",
+    "performed": true,
+    "profile": {
+      "date": "1976-01-13",
+      "id": "baseline_validated",
+      "lat": 0,
+      "lon": 0,
+      "name": "Baseline Validated Chart",
+      "notes": "Current validated baseline chart.",
+      "place": "Test",
+      "time": "12:47",
+      "timezone": "UTC"
+    },
+    "relocated_asc_deg": 216.920478,
+    "relocated_house_spans": {
+      "1": 25.672,
+      "10": 30.847,
+      "11": 19.078,
+      "12": 12.699,
+      "2": 41.389,
+      "3": 50.315,
+      "4": 30.847,
+      "5": 19.078,
+      "6": 12.699,
+      "7": 25.672,
+      "8": 41.389,
+      "9": 50.315
+    },
+    "relocated_mc_deg": 154.296606,
+    "relocation": {
+      "lat": 64.8378,
+      "lon": -147.7164,
+      "place": "Fairbanks, Alaska, USA"
+    },
+    "samples": [
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 7.143,
+        "effective_1st_side_width_deg": 8.675,
+        "first_cap_applied": true,
+        "house12_width_deg": 23.809,
+        "house1_width_deg": 28.917,
+        "lat": 35,
+        "lon": -169.5672,
+        "twelfth_cap_applied": true
+      },
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 6.747,
+        "effective_1st_side_width_deg": 8.63,
+        "first_cap_applied": true,
+        "house12_width_deg": 22.491,
+        "house1_width_deg": 28.768,
+        "lat": 40,
+        "lon": -167.5802,
+        "twelfth_cap_applied": true
+      },
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 6.315,
+        "effective_1st_side_width_deg": 8.571,
+        "first_cap_applied": true,
+        "house12_width_deg": 21.051,
+        "house1_width_deg": 28.571,
+        "lat": 45,
+        "lon": -165.2599,
+        "twelfth_cap_applied": true
+      },
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 5.833,
+        "effective_1st_side_width_deg": 8.489,
+        "first_cap_applied": true,
+        "house12_width_deg": 19.442,
+        "house1_width_deg": 28.295,
+        "lat": 50,
+        "lon": -162.4629,
+        "twelfth_cap_applied": true
+      },
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 5.278,
+        "effective_1st_side_width_deg": 8.361,
+        "first_cap_applied": true,
+        "house12_width_deg": 17.592,
+        "house1_width_deg": 27.872,
+        "lat": 55,
+        "lon": -158.9555,
+        "twelfth_cap_applied": true
+      },
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 4.616,
+        "effective_1st_side_width_deg": 8.14,
+        "first_cap_applied": true,
+        "house12_width_deg": 15.388,
+        "house1_width_deg": 27.135,
+        "lat": 60,
+        "lon": -154.3226,
+        "twelfth_cap_applied": true
+      },
+      {
+        "asc_deg": 216.7717,
+        "effective_12th_side_width_deg": 3.789,
+        "effective_1st_side_width_deg": 7.671,
+        "first_cap_applied": true,
+        "house12_width_deg": 12.63,
+        "house1_width_deg": 25.571,
+        "lat": 65,
+        "lon": -147.7304,
+        "twelfth_cap_applied": true
+      }
+    ],
+    "selected_condition": "Uranus conjunction ASC",
+    "uranus_longitude_deg": 216.771741,
+    "worked": true
+  },
+  "full_artifact_generation_performed": false,
+  "generated_at_utc": "2026-05-25T17:42:26.904186+00:00",
+  "gradient_color_status": "blocked until dynamic cap geometry is approved",
+  "ic_dsc_generalization": "The same modular rule should generalize by choosing adjacent spaces around the target angle: IC uses 3rd/4th side spaces; DSC uses 6th/7th side spaces. Not implemented in this blocked pass.",
+  "mc_cases": {
+    "caseA_condition": "baseline_validated Moon square MC; house 9 side narrows while house 10 remains full",
+    "caseA_found": true,
+    "caseA_samples": [
+      {
+        "angle": "mc",
+        "condition": "moon square mc",
+        "effective_side_a_width_deg": 10.0,
+        "effective_side_b_width_deg": 10.0,
+        "lat": 0.0,
+        "lon": 34.8965,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 30.667,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 32.494
+      },
+      {
+        "angle": "mc",
+        "condition": "moon square mc",
+        "effective_side_a_width_deg": 8.54,
+        "effective_side_b_width_deg": 10.0,
+        "lat": 19.697,
+        "lon": 34.8965,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 28.467,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 33.012
+      },
+      {
+        "angle": "mc",
+        "condition": "moon square mc",
+        "effective_side_a_width_deg": 7.732,
+        "effective_side_b_width_deg": 10.0,
+        "lat": 39.394,
+        "lon": 34.8965,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 25.772,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 33.771
+      },
+      {
+        "angle": "mc",
+        "condition": "moon square mc",
+        "effective_side_a_width_deg": 5.615,
+        "effective_side_b_width_deg": 10.0,
+        "lat": 65.0,
+        "lon": 34.8965,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 18.716,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 36.76
+      }
+    ],
+    "caseB_condition": "baseline_validated Sun square MC; house 10 side narrows while house 9 remains full",
+    "caseB_found": true,
+    "caseB_samples": [
+      {
+        "angle": "mc",
+        "condition": "sun square mc",
+        "effective_side_a_width_deg": 10.0,
+        "effective_side_b_width_deg": 10.0,
+        "lat": 0.0,
+        "lon": -103.1134,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 32.503,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 30.704
+      },
+      {
+        "angle": "mc",
+        "condition": "sun square mc",
+        "effective_side_a_width_deg": 10.0,
+        "effective_side_b_width_deg": 8.555,
+        "lat": 19.697,
+        "lon": -103.1134,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 33.046,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 28.516
+      },
+      {
+        "angle": "mc",
+        "condition": "sun square mc",
+        "effective_side_a_width_deg": 10.0,
+        "effective_side_b_width_deg": 7.751,
+        "lat": 39.394,
+        "lon": -103.1134,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 33.842,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 25.837
+      },
+      {
+        "angle": "mc",
+        "condition": "sun square mc",
+        "effective_side_a_width_deg": 10.0,
+        "effective_side_b_width_deg": 5.652,
+        "lat": 65.0,
+        "lon": -103.1134,
+        "side_a_house": "9",
+        "side_a_house_width_deg": 36.978,
+        "side_b_house": "10",
+        "side_b_house_width_deg": 18.84
+      }
+    ]
+  },
+  "narrative_created": "validation/narratives/phase2_36e_truth_dynamic_band_caps.md",
+  "phase": "2.36e",
+  "production_code_touched": false,
+  "reason_full_generation_blocked": "ASC Case A and Case B remain unfound after targeted high-latitude generated-chart search. Fixed-longitude compression was observed, but no exact real ASC aspect centerline branch with required one-side-only dynamic caps was validated. Per instruction, no schematic or fabricated ASC PNGs were generated.",
+  "report_created": "validation/reports/phase2_36e_truth_dynamic_band_caps.json",
+  "status": "blocked_partial_validation_only",
+  "validation_artifact_only": true
+}

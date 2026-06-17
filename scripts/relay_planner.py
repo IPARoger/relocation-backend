@@ -2,7 +2,7 @@
 """relay_planner.py — the "GPT brain" of the two-agent relay.
 
 Reads the most recent results/ closeout and the relay rules, then asks an
-OpenAI model to do ONE of two things:
+language model (OpenAI or Anthropic) to do ONE of two things:
 
   1. Author the next single-objective task into tasks/<NN>_<slug>.md, or
   2. PAUSE and hand control to the human (when judgement / approval is needed).
@@ -16,7 +16,7 @@ Design constraints (kept deliberately small and cheap):
     proposes a task file for a human-gated PR.
 
 Environment:
-  OPENAI_API_KEY   Required for a live run.
+  OPENAI_API_KEY or ANTHROPIC_API_KEY   Required for a live run (planner).
   OPENAI_MODEL     Optional; defaults to a small/cheap model. Set to whatever
                    cheap model your account has access to.
 
@@ -46,7 +46,9 @@ GOVERNANCE = REPO / "docs" / "architecture" / "TWO_AGENT_RELAY_GOVERNANCE.md"
 TEMPLATE = TASKS_DIR / "TEMPLATE.md"
 
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
+ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_MODEL = "gpt-4o-mini"
+DEFAULT_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
 TIMEOUT_SECONDS = 60
 
 SYSTEM_PROMPT = """You are the planning half ("ChatGPT lane") of a governed two-agent
@@ -106,7 +108,7 @@ def latest_numbered(d):
     return best_n, (read_text(best_file) if best_file else "")
 
 
-def build_user_prompt():
+def build_user_prompt(full_context: bool = False):
     last_results_n, last_results = latest_numbered(RESULTS_DIR)
     last_tasks_n, _ = latest_numbered(TASKS_DIR)
     next_n = max(last_results_n, last_tasks_n) + 1
@@ -114,24 +116,64 @@ def build_user_prompt():
         [f.name for f in TASKS_DIR.glob("[0-9][0-9]_*.md")]
         + [f.name for f in RESULTS_DIR.glob("[0-9][0-9]_*.md")]
     )
-    parts = [
-        f"Next task number to use: {next_n:02d}",
-        "",
-        "=== RELAY GOVERNANCE (digest) ===",
-        read_text(GOVERNANCE, limit=8000),
-        "",
-        "=== TASK TEMPLATE (follow this structure) ===",
-        read_text(TEMPLATE, limit=4000),
-        "",
-        "=== MOST RECENT RESULT (what just finished) ===",
-        last_results or "(no results yet)",
-        "",
-        "=== EXISTING TASK/RESULT FILES ===",
-        "\n".join(existing) or "(none)",
-        "",
-        "Propose the next single safe task, or PAUSE for the human.",
-    ]
+    if full_context:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from relay_context import build_context_pack, write_context_snapshot
+        write_context_snapshot()
+        parts = [
+            f"Next task number to use: {next_n:02d}",
+            "",
+            build_context_pack(),
+            "",
+            "=== EXISTING TASK/RESULT FILES ===",
+            "\n".join(existing) or "(none)",
+            "",
+            "Propose the next single safe task, or PAUSE for the human.",
+        ]
+    else:
+        parts = [
+            f"Next task number to use: {next_n:02d}",
+            "",
+            "=== RELAY GOVERNANCE (digest) ===",
+            read_text(GOVERNANCE, limit=8000),
+            "",
+            "=== TASK TEMPLATE (follow this structure) ===",
+            read_text(TEMPLATE, limit=4000),
+            "",
+            "=== MOST RECENT RESULT (what just finished) ===",
+            last_results or "(no results yet)",
+            "",
+            "=== EXISTING TASK/RESULT FILES ===",
+            "\n".join(existing) or "(none)",
+            "",
+            "Propose the next single safe task, or PAUSE for the human.",
+        ]
     return next_n, "\n".join(parts)
+
+
+def call_anthropic(api_key, model, system, user):
+    payload = json.dumps(
+        {
+            "model": model,
+            "max_tokens": 4096,
+            "system": system,
+            "messages": [{"role": "user", "content": user}],
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        ANTHROPIC_URL,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=TIMEOUT_SECONDS) as resp:
+        parsed = json.loads(resp.read().decode("utf-8", "replace"))
+    parts = parsed.get("content") or []
+    return "".join(p.get("text", "") for p in parts if p.get("type") == "text").strip()
 
 
 def call_openai(api_key, model, system, user):
@@ -168,30 +210,42 @@ def write_task(next_n, slug, body):
 def main(argv):
     args = argv[1:]
     dry_run = "--dry-run" in args
-    args = [a for a in args if a != "--dry-run"]
+    full_context = "--full-context" in args
+    args = [a for a in args if a not in ("--dry-run", "--full-context")]
     if args:
-        sys.stderr.write("Usage: relay_planner.py [--dry-run]\n")
+        sys.stderr.write("Usage: relay_planner.py [--dry-run] [--full-context]\n")
         return 2
 
-    next_n, user_prompt = build_user_prompt()
+    next_n, user_prompt = build_user_prompt(full_context=full_context)
     model = os.environ.get("OPENAI_MODEL", "").strip() or DEFAULT_MODEL
 
     if dry_run:
         sys.stdout.write(
-            f"DRY-RUN: would ask {model} to plan task {next_n:02d} "
+            f"DRY-RUN: would ask planner model to plan task {next_n:02d} "
             f"({len(user_prompt)} chars of context, no API call made).\n"
         )
         return 0
 
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        sys.stderr.write("Missing OPENAI_API_KEY in environment.\n")
+    openai_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    anthropic_key = (
+        os.environ.get("ANTHROPIC_API_KEY", "").strip()
+        or os.environ.get("API_ROBOT", "").strip()
+    )
+    if not openai_key and not anthropic_key:
+        sys.stderr.write(
+            "Missing planner API key. Set API_ROBOT or ANTHROPIC_API_KEY (or OPENAI_API_KEY).\n"
+            "(ChatGPT / Claude web subscriptions are separate — need an API key.)\n"
+        )
         return 3
 
     try:
-        out = call_openai(api_key, model, SYSTEM_PROMPT, user_prompt)
+        if openai_key:
+            out = call_openai(openai_key, model, SYSTEM_PROMPT, user_prompt)
+        else:
+            amodel = os.environ.get("ANTHROPIC_MODEL", "").strip() or DEFAULT_ANTHROPIC_MODEL
+            out = call_anthropic(anthropic_key, amodel, SYSTEM_PROMPT, user_prompt)
     except Exception as e:
-        sys.stderr.write("OpenAI call failed: " + str(e) + "\n")
+        sys.stderr.write("Planner API call failed: " + str(e) + "\n")
         return 4
 
     if out.startswith("PAUSE:"):

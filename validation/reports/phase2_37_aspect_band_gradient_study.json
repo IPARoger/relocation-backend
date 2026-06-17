@@ -1,0 +1,88 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_37_aspect_band_gradient_asc.png",
+    "html": "validation/visual_targets/phase2_37_aspect_band_gradient_study.html",
+    "mc_png": "validation/visual_targets/phase2_37_aspect_band_gradient_mc.png",
+    "narrative": "validation/narratives/phase2_37_aspect_band_gradient_study.md",
+    "report": "validation/reports/phase2_37_aspect_band_gradient_study.json"
+  },
+  "best_candidates": [
+    "topographic_steep",
+    "harmonic",
+    "fibonacci"
+  ],
+  "contrast_or_fallback": [
+    "gaussian_soft_bell",
+    "convex_speed_bump"
+  ],
+  "generated_at_utc": "2026-05-25T20:15:16.101653+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f unchanged",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "centerline_geometry_changed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "polygon_mask_generation_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "virga": false
+  },
+  "language_update": {
+    "preferred_terms": [
+      "carrier wave",
+      "topographic pressure falloff",
+      "pressure field",
+      "atmospheric resonance tail"
+    ]
+  },
+  "modes": [
+    "centerline_only",
+    "topographic_steep",
+    "fibonacci",
+    "harmonic",
+    "gaussian_soft_bell",
+    "convex_speed_bump"
+  ],
+  "normalization_model": "For each pixel, nearest centerline projection is found; the side-specific ray distance to the unchanged polygon boundary is treated as normalized distance 1.0. Degree width does not drive opacity after the mask exists.",
+  "parameters": {
+    "centerline_only": {
+      "core": 0.0,
+      "curve": "none"
+    },
+    "convex_speed_bump": {
+      "core": 0.028,
+      "curve": "convex"
+    },
+    "fibonacci": {
+      "core": 0.008,
+      "curve": "fibonacci"
+    },
+    "gaussian_soft_bell": {
+      "core": 0.01,
+      "curve": "gaussian"
+    },
+    "harmonic": {
+      "core": 0.008,
+      "curve": "harmonic"
+    },
+    "topographic_steep": {
+      "core": 0.006,
+      "curve": "topographicSteep"
+    }
+  },
+  "phase": "2.37",
+  "renderer_method": "high-resolution canvas pressure field using continuous per-side normalized distance from centerline to existing polygon boundary",
+  "revision": "v3_topographic_pressure_field_language",
+  "validation_findings": {
+    "centerline_not_too_thick": true,
+    "centerline_truly_single_and_unbroken": true,
+    "falloff_continuous_not_striated": true,
+    "map_readability_preserved": true,
+    "outer_tail_subtle": true,
+    "visual_review_required_before_next_phase": true
+  }
+}

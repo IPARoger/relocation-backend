@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1960" viewBox="0 0 1440 1960">
+  <defs>
+    <style>
+      .serif { font-family: Georgia, "Times New Roman", serif; }
+      .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .nav { font-size: 15px; letter-spacing: 0.02em; }
+      .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+      .label { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
+      .small { font-size: 13px; }
+      .body { font-size: 16px; }
+      .title { font-size: 46px; }
+      .section { font-size: 25px; }
+      .chart-title { font-size: 30px; }
+    </style>
+
+    <radialGradient id="paperGlow" cx="50%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#fbfaf5"/>
+      <stop offset="100%" stop-color="#ebe7dc"/>
+    </radialGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="28" flood-color="#1c1a16" flood-opacity="0.10"/>
+    </filter>
+
+    <filter id="quietShadow" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#1c1a16" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="1960" fill="url(#paperGlow)"/>
+
+  <!-- Quiet global navigation -->
+  <rect x="44" y="28" width="1352" height="70" rx="24" fill="#f7f5ee" stroke="#d8d1c2"/>
+  <text x="80" y="70" class="sans nav" fill="#1f1d19">Profile</text>
+  <text x="160" y="70" class="sans nav" fill="#6f675a">Map</text>
+  <text x="224" y="70" class="sans nav" fill="#6f675a">Compare</text>
+  <text x="320" y="70" class="sans nav" fill="#6f675a">City Intelligence</text>
+  <text x="474" y="70" class="sans nav" fill="#6f675a">Store</text>
+  <text x="540" y="70" class="sans nav" fill="#6f675a">Help</text>
+  <text x="604" y="70" class="sans nav" fill="#6f675a">Settings</text>
+  <text x="1214" y="70" class="sans small" fill="#867d6f">Dave Goodman</text>
+
+  <!-- Chart subject header -->
+  <rect x="92" y="136" width="1256" height="196" rx="34" fill="#fffdf8" stroke="#d6cebd" filter="url(#quietShadow)"/>
+  <text x="132" y="190" class="sans eyebrow" fill="#9a876d">Chart Subject</text>
+  <text x="132" y="246" class="serif title" fill="#1a1814">Anna Rivera</text>
+  <text x="132" y="286" class="sans body" fill="#5f574c">Born March 14, 1989 � 6:42 AM � San Juan, Puerto Rico</text>
+
+  <rect x="778" y="174" width="358" height="92" rx="24" fill="#f5f0e5" stroke="#d1c6b4"/>
+  <text x="808" y="208" class="sans label" fill="#8b765c">Current Location</text>
+  <text x="808" y="246" class="serif" font-size="30" fill="#242018">Austin, Texas</text>
+  <text x="808" y="274" class="sans small" fill="#756b5e">Current lived chart context</text>
+
+  <rect x="1160" y="174" width="62" height="34" rx="17" fill="#f8f5ee" stroke="#d2c7b6"/>
+  <text x="1179" y="196" class="sans small" fill="#6e6253">Edit</text>
+  <rect x="1234" y="174" width="62" height="34" rx="17" fill="#f8f5ee" stroke="#d2c7b6"/>
+  <text x="1252" y="196" class="sans small" fill="#6e6253">Add</text>
+  <rect x="1160" y="222" width="136" height="34" rx="17" fill="#f8f5ee" stroke="#d2c7b6"/>
+  <text x="1194" y="244" class="sans small" fill="#6e6253">Change</text>
+  <text x="132" y="316" class="sans small" fill="#958b7c">UTC � coordinates � Tropical � Placidus</text>
+
+  <!-- Anchor chart pair -->
+  <rect x="92" y="380" width="604" height="654" rx="38" fill="#fffefb" stroke="#cfc5b3" filter="url(#softShadow)"/>
+  <text x="132" y="436" class="sans eyebrow" fill="#9a876d">Anchor Chart</text>
+  <text x="132" y="476" class="serif chart-title" fill="#181612">Natal Chart</text>
+  <text x="132" y="504" class="sans small" fill="#696154">Birth moment at birth place</text>
+
+  <circle cx="394" cy="698" r="174" fill="#fbfaf5" stroke="#4c4439" stroke-width="1.8"/>
+  <circle cx="394" cy="698" r="139" fill="none" stroke="#b8ac98" stroke-width="1"/>
+  <circle cx="394" cy="698" r="104" fill="none" stroke="#d5cdbc" stroke-width="1"/>
+  <circle cx="394" cy="698" r="62" fill="none" stroke="#e0d9ca" stroke-width="1"/>
+  <line x1="220" y1="698" x2="568" y2="698" stroke="#a99c87" stroke-width="1"/>
+  <line x1="394" y1="524" x2="394" y2="872" stroke="#a99c87" stroke-width="1"/>
+  <line x1="271" y1="575" x2="517" y2="821" stroke="#d2c7b4" stroke-width="1"/>
+  <line x1="517" y1="575" x2="271" y2="821" stroke="#d2c7b4" stroke-width="1"/>
+  <path d="M260 636 C320 598, 394 812, 520 652" fill="none" stroke="#6b5f4e" stroke-width="1.2"/>
+  <path d="M306 820 C348 618, 460 612, 502 808" fill="none" stroke="#93836c" stroke-width="1"/>
+
+  <rect x="132" y="910" width="524" height="86" rx="22" fill="#f7f3eb" stroke="#d8cebd"/>
+  <text x="158" y="944" class="sans label" fill="#877660">Preview</text>
+  <text x="158" y="972" class="sans body" fill="#3b352d">Houses � angles � aspect-to-angle facts</text>
+
+  <rect x="744" y="380" width="604" height="654" rx="38" fill="#fffefb" stroke="#cfc5b3" filter="url(#softShadow)"/>
+  <text x="784" y="436" class="sans eyebrow" fill="#9a876d">Anchor Chart</text>
+  <text x="784" y="476" class="serif chart-title" fill="#181612">Current Location Chart</text>
+  <text x="784" y="504" class="sans small" fill="#696154">Same birth moment cast for Austin, Texas</text>
+
+  <circle cx="1046" cy="698" r="174" fill="#fbfaf5" stroke="#4c4439" stroke-width="1.8"/>
+  <circle cx="1046" cy="698" r="139" fill="none" stroke="#b8ac98" stroke-width="1"/>
+  <circle cx="1046" cy="698" r="104" fill="none" stroke="#d5cdbc" stroke-width="1"/>
+  <circle cx="1046" cy="698" r="62" fill="none" stroke="#e0d9ca" stroke-width="1"/>
+  <line x1="872" y1="698" x2="1220" y2="698" stroke="#a99c87" stroke-width="1"/>
+  <line x1="1046" y1="524" x2="1046" y2="872" stroke="#a99c87" stroke-width="1"/>
+  <line x1="923" y1="575" x2="1169" y2="821" stroke="#d2c7b4" stroke-width="1"/>
+  <line x1="1169" y1="575" x2="923" y2="821" stroke="#d2c7b4" stroke-width="1"/>
+  <path d="M902 650 C986 574, 1054 828, 1196 636" fill="none" stroke="#6b5f4e" stroke-width="1.2"/>
+  <path d="M956 826 C982 642, 1130 598, 1158 800" fill="none" stroke="#93836c" stroke-width="1"/>
+
+  <rect x="784" y="910" width="524" height="86" rx="22" fill="#f7f3eb" stroke="#d8cebd"/>
+  <text x="810" y="944" class="sans label" fill="#877660">Preview</text>
+  <text x="810" y="972" class="sans body" fill="#3b352d">Relocated houses � angles � aspect-to-angle facts</text>
+
+  <!-- Chart fact tables -->
+  <rect x="92" y="1084" width="1256" height="330" rx="34" fill="#fdfbf6" stroke="#d6cebd" filter="url(#quietShadow)"/>
+  <text x="132" y="1140" class="serif section" fill="#1c1914">Chart Fact Tables</text>
+  <text x="132" y="1172" class="sans body" fill="#70675a">Factual structure for the natal and current-location chart contexts.</text>
+
+  <g>
+    <rect x="132" y="1212" width="374" height="152" rx="22" fill="#f7f3eb" stroke="#d8cebd"/>
+    <text x="158" y="1250" class="sans label" fill="#7e6f5c">Planet-in-House</text>
+    <text x="158" y="1284" class="sans body" fill="#302b24">Sun � House 9</text>
+    <text x="158" y="1316" class="sans body" fill="#302b24">Moon � House 4</text>
+    <text x="158" y="1348" class="sans small" fill="#80776a">More rows available</text>
+  </g>
+  <g>
+    <rect x="532" y="1212" width="374" height="152" rx="22" fill="#f7f3eb" stroke="#d8cebd"/>
+    <text x="558" y="1250" class="sans label" fill="#7e6f5c">Aspect-to-Angle</text>
+    <text x="558" y="1284" class="sans body" fill="#302b24">Venus � trine MC</text>
+    <text x="558" y="1316" class="sans body" fill="#302b24">Mars � square ASC</text>
+    <text x="558" y="1348" class="sans small" fill="#80776a">Orb and exactness shown in table</text>
+  </g>
+  <g>
+    <rect x="932" y="1212" width="374" height="152" rx="22" fill="#f7f3eb" stroke="#d8cebd"/>
+    <text x="958" y="1250" class="sans label" fill="#7e6f5c">Angle-in-Sign</text>
+    <text x="958" y="1284" class="sans body" fill="#302b24">ASC � Libra</text>
+    <text x="958" y="1316" class="sans body" fill="#302b24">MC � Cancer</text>
+    <text x="958" y="1348" class="sans small" fill="#80776a">Natal and current context separated</text>
+  </g>
+
+  <!-- Saved work: Favorites slightly stronger than Saved Searches -->
+  <rect x="92" y="1464" width="772" height="296" rx="34" fill="#fffefb" stroke="#c9bea9" filter="url(#quietShadow)"/>
+  <text x="132" y="1520" class="serif section" fill="#1c1914">Favorites</text>
+  <text x="132" y="1552" class="sans body" fill="#685f52">Saved places for this chart/person.</text>
+  <rect x="132" y="1588" width="692" height="48" rx="18" fill="#f6f1e7" stroke="#d6cbb8"/>
+  <text x="158" y="1618" class="sans body" fill="#28231d">Natal Place</text>
+  <text x="318" y="1618" class="sans body" fill="#665c4d">San Juan, Puerto Rico</text>
+  <rect x="132" y="1648" width="692" height="48" rx="18" fill="#f6f1e7" stroke="#d6cbb8"/>
+  <text x="158" y="1678" class="sans body" fill="#28231d">Current Location</text>
+  <text x="318" y="1678" class="sans body" fill="#665c4d">Austin, Texas</text>
+  <rect x="132" y="1708" width="692" height="48" rx="18" fill="#f6f1e7" stroke="#d6cbb8"/>
+  <text x="158" y="1738" class="sans body" fill="#28231d">Candidate Place</text>
+  <text x="318" y="1738" class="sans body" fill="#665c4d">Lisbon, Portugal</text>
+  <rect x="704" y="1500" width="120" height="38" rx="19" fill="#ede6d9" stroke="#cbbda8"/>
+  <text x="732" y="1524" class="sans small" fill="#4f4639">Compare</text>
+
+  <rect x="904" y="1464" width="444" height="296" rx="34" fill="#fcfaf5" stroke="#d6cebd" filter="url(#quietShadow)"/>
+  <text x="944" y="1520" class="serif section" fill="#1c1914">Saved Searches</text>
+  <text x="944" y="1552" class="sans body" fill="#685f52">Saved inquiries, not places.</text>
+  <rect x="944" y="1588" width="364" height="66" rx="18" fill="#f6f1e7" stroke="#d6cbb8"/>
+  <text x="968" y="1620" class="sans body" fill="#302b24">Jupiter 10th + Venus MC</text>
+  <text x="968" y="1642" class="sans small" fill="#80776a">conditions � settings � viewport</text>
+  <rect x="944" y="1670" width="364" height="66" rx="18" fill="#f6f1e7" stroke="#d6cbb8"/>
+  <text x="968" y="1702" class="sans body" fill="#302b24">Avoid Mars 12th inquiry</text>
+  <text x="968" y="1724" class="sans small" fill="#80776a">conditions � settings � viewport</text>
+
+  <!-- Scholarly notes -->
+  <rect x="92" y="1810" width="1256" height="104" rx="30" fill="#fffdf8" stroke="#d6cebd" filter="url(#quietShadow)"/>
+  <text x="132" y="1858" class="serif section" fill="#1c1914">Notes</text>
+  <text x="252" y="1858" class="sans body" fill="#686052">Human study notes, observations, and consultation context.</text>
+  <rect x="1192" y="1830" width="116" height="38" rx="19" fill="#f7f2e8" stroke="#d1c5b2"/>
+  <text x="1220" y="1854" class="sans small" fill="#5e5447">Add Note</text>
+</svg>

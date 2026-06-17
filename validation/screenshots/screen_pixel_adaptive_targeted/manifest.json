@@ -1,0 +1,4866 @@
+{
+  "viewport_px": {
+    "width": 720,
+    "height": 450
+  },
+  "phase_sizes": [
+    16,
+    8,
+    4,
+    2,
+    1
+  ],
+  "pass_xor_threshold_pct": 0.2,
+  "structural_safeguards": {
+    "lat_cap_boundary_force_refine": true,
+    "lat_cap_boundary_margin_deg": 4.0,
+    "product_lat_cap_deg": 65.0
+  },
+  "policies": [
+    {
+      "name": "baseline",
+      "edge_margin_tiles": 1,
+      "edge_halo_extra": 0,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 0,
+      "lat_cap_halo_extra": 0,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 0,
+      "thin_line_extra_probes": false
+    },
+    {
+      "name": "edge1",
+      "edge_margin_tiles": 1,
+      "edge_halo_extra": 1,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 0,
+      "lat_cap_halo_extra": 0,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 0,
+      "thin_line_extra_probes": false
+    },
+    {
+      "name": "edge1_thin1",
+      "edge_margin_tiles": 1,
+      "edge_halo_extra": 1,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 0,
+      "lat_cap_halo_extra": 0,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 1,
+      "thin_line_extra_probes": false
+    },
+    {
+      "name": "edge1_thin1_highlat1",
+      "edge_margin_tiles": 1,
+      "edge_halo_extra": 1,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 1,
+      "lat_cap_halo_extra": 0,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 1,
+      "thin_line_extra_probes": false
+    },
+    {
+      "name": "edge2_thin2_highlat1",
+      "edge_margin_tiles": 2,
+      "edge_halo_extra": 2,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 1,
+      "lat_cap_halo_extra": 0,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 2,
+      "thin_line_extra_probes": false
+    },
+    {
+      "name": "edge2_thin2_highlat2_probes",
+      "edge_margin_tiles": 2,
+      "edge_halo_extra": 2,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 2,
+      "lat_cap_halo_extra": 0,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 2,
+      "thin_line_extra_probes": true
+    },
+    {
+      "name": "edge2_thin2_hl2_latcap2",
+      "edge_margin_tiles": 2,
+      "edge_halo_extra": 2,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 2,
+      "lat_cap_halo_extra": 2,
+      "edge_no_early_accept_above_px": 0,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 2,
+      "thin_line_extra_probes": true
+    },
+    {
+      "name": "edge2_thin2_hl2_latcap2_nocoarse4",
+      "edge_margin_tiles": 2,
+      "edge_halo_extra": 2,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 2,
+      "lat_cap_halo_extra": 2,
+      "edge_no_early_accept_above_px": 4,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 2,
+      "thin_line_extra_probes": true
+    },
+    {
+      "name": "edge3_thin3_hl3_latcap3_nocoarse2",
+      "edge_margin_tiles": 3,
+      "edge_halo_extra": 3,
+      "high_lat_deg": 65.0,
+      "high_lat_viewport_deg": 55.0,
+      "high_lat_halo_extra": 3,
+      "lat_cap_halo_extra": 3,
+      "edge_no_early_accept_above_px": 2,
+      "thin_line_orb": 0.5,
+      "thin_line_halo_extra": 3,
+      "thin_line_extra_probes": true
+    }
+  ],
+  "policy_sweep": [
+    {
+      "policy": "baseline",
+      "policy_fields": {
+        "name": "baseline",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 0,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 47998,
+      "reduction_pct": 85.18580246913581,
+      "final_xor_pct": 0.41459369817578773,
+      "final_changed_pct": 0.00154320987654321,
+      "diff_bbox": {
+        "left": 239,
+        "top": 11,
+        "right": 260,
+        "bottom": 17
+      },
+      "adaptive_server_seconds": 0.30279999999999996,
+      "wall_seconds": 1.0618739128112793,
+      "passes": false
+    },
+    {
+      "policy": "edge1",
+      "policy_fields": {
+        "name": "edge1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 50303,
+      "reduction_pct": 84.47438271604938,
+      "final_xor_pct": 0.16583747927031509,
+      "final_changed_pct": 0.0006172839506172839,
+      "diff_bbox": {
+        "left": 252,
+        "top": 11,
+        "right": 260,
+        "bottom": 13
+      },
+      "adaptive_server_seconds": 0.3275,
+      "wall_seconds": 1.1204471588134766,
+      "passes": true
+    },
+    {
+      "policy": "edge1_thin1",
+      "policy_fields": {
+        "name": "edge1_thin1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 69911,
+      "reduction_pct": 78.42253086419753,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.44079999999999997,
+      "wall_seconds": 1.3906972408294678,
+      "passes": true
+    },
+    {
+      "policy": "edge1_thin1_highlat1",
+      "policy_fields": {
+        "name": "edge1_thin1_highlat1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 74996,
+      "reduction_pct": 76.85308641975308,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.487,
+      "wall_seconds": 1.5004701614379883,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_highlat1",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat1",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 97147,
+      "reduction_pct": 70.01635802469136,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6406,
+      "wall_seconds": 1.9062340259552002,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_highlat2_probes",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat2_probes",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 104720,
+      "reduction_pct": 67.67901234567901,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6677,
+      "wall_seconds": 1.8498680591583252,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 104720,
+      "reduction_pct": 67.67901234567901,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6911999999999999,
+      "wall_seconds": 1.8839621543884277,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2_nocoarse4",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2_nocoarse4",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 4,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 104720,
+      "reduction_pct": 67.67901234567901,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6930999999999999,
+      "wall_seconds": 1.921180009841919,
+      "passes": true
+    },
+    {
+      "policy": "edge3_thin3_hl3_latcap3_nocoarse2",
+      "policy_fields": {
+        "name": "edge3_thin3_hl3_latcap3_nocoarse2",
+        "edge_margin_tiles": 3,
+        "edge_halo_extra": 3,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 3,
+        "lat_cap_halo_extra": 3,
+        "edge_no_early_accept_above_px": 2,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 3,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "thin_pluto_square_asc_0p25",
+      "label": "Pluto square ASC, orb 0.25",
+      "adaptive_samples": 129469,
+      "reduction_pct": 60.040432098765436,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.8795,
+      "wall_seconds": 2.1805481910705566,
+      "passes": true
+    },
+    {
+      "policy": "baseline",
+      "policy_fields": {
+        "name": "baseline",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 0,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 106893,
+      "reduction_pct": 67.00833333333334,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 1.0693,
+      "wall_seconds": 2.536949872970581,
+      "passes": false
+    },
+    {
+      "policy": "edge1",
+      "policy_fields": {
+        "name": "edge1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 109909,
+      "reduction_pct": 66.07746913580247,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 0.8195,
+      "wall_seconds": 2.205021858215332,
+      "passes": false
+    },
+    {
+      "policy": "edge1_thin1",
+      "policy_fields": {
+        "name": "edge1_thin1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 147817,
+      "reduction_pct": 54.37746913580247,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 1.1603,
+      "wall_seconds": 2.870459794998169,
+      "passes": false
+    },
+    {
+      "policy": "edge1_thin1_highlat1",
+      "policy_fields": {
+        "name": "edge1_thin1_highlat1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 154757,
+      "reduction_pct": 52.2354938271605,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 1.1563999999999999,
+      "wall_seconds": 2.904263973236084,
+      "passes": false
+    },
+    {
+      "policy": "edge2_thin2_highlat1",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat1",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 187956,
+      "reduction_pct": 41.98888888888889,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 1.3540999999999999,
+      "wall_seconds": 3.5258853435516357,
+      "passes": false
+    },
+    {
+      "policy": "edge2_thin2_highlat2_probes",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat2_probes",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 194265,
+      "reduction_pct": 40.041666666666664,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 1.4870999999999999,
+      "wall_seconds": 3.7307870388031006,
+      "passes": false
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 194265,
+      "reduction_pct": 40.041666666666664,
+      "final_xor_pct": 0.33408556123965016,
+      "final_changed_pct": 0.12839506172839507,
+      "diff_bbox": {
+        "left": 176,
+        "top": 16,
+        "right": 687,
+        "bottom": 449
+      },
+      "adaptive_server_seconds": 1.3680999999999999,
+      "wall_seconds": 3.5141031742095947,
+      "passes": false
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2_nocoarse4",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2_nocoarse4",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 4,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 197617,
+      "reduction_pct": 39.007098765432104,
+      "final_xor_pct": 0.3140713608687969,
+      "final_changed_pct": 0.120679012345679,
+      "diff_bbox": {
+        "left": 366,
+        "top": 24,
+        "right": 687,
+        "bottom": 431
+      },
+      "adaptive_server_seconds": 1.3964999999999999,
+      "wall_seconds": 3.5408520698547363,
+      "passes": false
+    },
+    {
+      "policy": "edge3_thin3_hl3_latcap3_nocoarse2",
+      "policy_fields": {
+        "name": "edge3_thin3_hl3_latcap3_nocoarse2",
+        "edge_margin_tiles": 3,
+        "edge_halo_extra": 3,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 3,
+        "lat_cap_halo_extra": 3,
+        "edge_no_early_accept_above_px": 2,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 3,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "mixed_dense_six_conditions",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "adaptive_samples": 228053,
+      "reduction_pct": 29.613271604938273,
+      "final_xor_pct": 0.30686428083704864,
+      "final_changed_pct": 0.11790123456790125,
+      "diff_bbox": {
+        "left": 366,
+        "top": 39,
+        "right": 687,
+        "bottom": 423
+      },
+      "adaptive_server_seconds": 1.6137000000000001,
+      "wall_seconds": 4.132130146026611,
+      "passes": false
+    },
+    {
+      "policy": "baseline",
+      "policy_fields": {
+        "name": "baseline",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 0,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 27209,
+      "reduction_pct": 91.60216049382716,
+      "final_xor_pct": 5.614973262032086,
+      "final_changed_pct": 0.006481481481481481,
+      "diff_bbox": {
+        "left": 0,
+        "top": 349,
+        "right": 59,
+        "bottom": 369
+      },
+      "adaptive_server_seconds": 0.1291,
+      "wall_seconds": 0.7595810890197754,
+      "passes": false
+    },
+    {
+      "policy": "edge1",
+      "policy_fields": {
+        "name": "edge1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 27710,
+      "reduction_pct": 91.44753086419753,
+      "final_xor_pct": 5.614973262032086,
+      "final_changed_pct": 0.006481481481481481,
+      "diff_bbox": {
+        "left": 0,
+        "top": 349,
+        "right": 59,
+        "bottom": 369
+      },
+      "adaptive_server_seconds": 0.1387,
+      "wall_seconds": 0.8307909965515137,
+      "passes": false
+    },
+    {
+      "policy": "edge1_thin1",
+      "policy_fields": {
+        "name": "edge1_thin1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 32311,
+      "reduction_pct": 90.02746913580248,
+      "final_xor_pct": 5.614973262032086,
+      "final_changed_pct": 0.006481481481481481,
+      "diff_bbox": {
+        "left": 0,
+        "top": 349,
+        "right": 59,
+        "bottom": 369
+      },
+      "adaptive_server_seconds": 0.1644,
+      "wall_seconds": 0.8189268112182617,
+      "passes": false
+    },
+    {
+      "policy": "edge1_thin1_highlat1",
+      "policy_fields": {
+        "name": "edge1_thin1_highlat1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 37176,
+      "reduction_pct": 88.52592592592593,
+      "final_xor_pct": 5.614973262032086,
+      "final_changed_pct": 0.006481481481481481,
+      "diff_bbox": {
+        "left": 0,
+        "top": 349,
+        "right": 59,
+        "bottom": 369
+      },
+      "adaptive_server_seconds": 0.22279999999999997,
+      "wall_seconds": 0.9354832172393799,
+      "passes": false
+    },
+    {
+      "policy": "edge2_thin2_highlat1",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat1",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 43406,
+      "reduction_pct": 86.60308641975308,
+      "final_xor_pct": 5.614973262032086,
+      "final_changed_pct": 0.006481481481481481,
+      "diff_bbox": {
+        "left": 0,
+        "top": 349,
+        "right": 59,
+        "bottom": 369
+      },
+      "adaptive_server_seconds": 0.23240000000000002,
+      "wall_seconds": 0.9612128734588623,
+      "passes": false
+    },
+    {
+      "policy": "edge2_thin2_highlat2_probes",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat2_probes",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 63403,
+      "reduction_pct": 80.43117283950617,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.36029999999999995,
+      "wall_seconds": 1.21382474899292,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 63403,
+      "reduction_pct": 80.43117283950617,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.33699999999999997,
+      "wall_seconds": 1.1870439052581787,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2_nocoarse4",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2_nocoarse4",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 4,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 63403,
+      "reduction_pct": 80.43117283950617,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.35169999999999996,
+      "wall_seconds": 1.226501703262329,
+      "passes": true
+    },
+    {
+      "policy": "edge3_thin3_hl3_latcap3_nocoarse2",
+      "policy_fields": {
+        "name": "edge3_thin3_hl3_latcap3_nocoarse2",
+        "edge_margin_tiles": 3,
+        "edge_halo_extra": 3,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 3,
+        "lat_cap_halo_extra": 3,
+        "edge_no_early_accept_above_px": 2,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 3,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_off",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "adaptive_samples": 79797,
+      "reduction_pct": 75.3712962962963,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.4302,
+      "wall_seconds": 1.4616541862487793,
+      "passes": true
+    },
+    {
+      "policy": "baseline",
+      "policy_fields": {
+        "name": "baseline",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 0,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 56285,
+      "reduction_pct": 82.62808641975309,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.2778,
+      "wall_seconds": 1.1348698139190674,
+      "passes": true
+    },
+    {
+      "policy": "edge1",
+      "policy_fields": {
+        "name": "edge1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 56785,
+      "reduction_pct": 82.47376543209877,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.2934,
+      "wall_seconds": 1.1880488395690918,
+      "passes": true
+    },
+    {
+      "policy": "edge1_thin1",
+      "policy_fields": {
+        "name": "edge1_thin1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 58826,
+      "reduction_pct": 81.84382716049383,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.2903,
+      "wall_seconds": 1.1858513355255127,
+      "passes": true
+    },
+    {
+      "policy": "edge1_thin1_highlat1",
+      "policy_fields": {
+        "name": "edge1_thin1_highlat1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 61475,
+      "reduction_pct": 81.02623456790124,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.2984,
+      "wall_seconds": 1.2317938804626465,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_highlat1",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat1",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 65984,
+      "reduction_pct": 79.63456790123456,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.311,
+      "wall_seconds": 1.3289012908935547,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_highlat2_probes",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat2_probes",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 74805,
+      "reduction_pct": 76.91203703703704,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.3281,
+      "wall_seconds": 1.38726806640625,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 83493,
+      "reduction_pct": 74.23055555555555,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.3438,
+      "wall_seconds": 1.413841962814331,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2_nocoarse4",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2_nocoarse4",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 4,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 83493,
+      "reduction_pct": 74.23055555555555,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.3409,
+      "wall_seconds": 1.4061119556427002,
+      "passes": true
+    },
+    {
+      "policy": "edge3_thin3_hl3_latcap3_nocoarse2",
+      "policy_fields": {
+        "name": "edge3_thin3_hl3_latcap3_nocoarse2",
+        "edge_margin_tiles": 3,
+        "edge_halo_extra": 3,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 3,
+        "lat_cap_halo_extra": 3,
+        "edge_no_early_accept_above_px": 2,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 3,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "high_svalbard_latcap_on",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "adaptive_samples": 101460,
+      "reduction_pct": 68.68518518518518,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.3803,
+      "wall_seconds": 1.5666868686676025,
+      "passes": true
+    },
+    {
+      "policy": "baseline",
+      "policy_fields": {
+        "name": "baseline",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 0,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 44206,
+      "reduction_pct": 86.35617283950617,
+      "final_xor_pct": 0.17331022530329288,
+      "final_changed_pct": 0.0006172839506172839,
+      "diff_bbox": {
+        "left": 711,
+        "top": 32,
+        "right": 712,
+        "bottom": 33
+      },
+      "adaptive_server_seconds": 0.36129999999999995,
+      "wall_seconds": 1.2511937618255615,
+      "passes": true
+    },
+    {
+      "policy": "edge1",
+      "policy_fields": {
+        "name": "edge1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 0,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 45784,
+      "reduction_pct": 85.86913580246913,
+      "final_xor_pct": 0.17331022530329288,
+      "final_changed_pct": 0.0006172839506172839,
+      "diff_bbox": {
+        "left": 711,
+        "top": 32,
+        "right": 712,
+        "bottom": 33
+      },
+      "adaptive_server_seconds": 0.3103,
+      "wall_seconds": 1.0612561702728271,
+      "passes": true
+    },
+    {
+      "policy": "edge1_thin1",
+      "policy_fields": {
+        "name": "edge1_thin1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 0,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 62876,
+      "reduction_pct": 80.59382716049383,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.3961,
+      "wall_seconds": 1.2554960250854492,
+      "passes": true
+    },
+    {
+      "policy": "edge1_thin1_highlat1",
+      "policy_fields": {
+        "name": "edge1_thin1_highlat1",
+        "edge_margin_tiles": 1,
+        "edge_halo_extra": 1,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 1,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 65733,
+      "reduction_pct": 79.71203703703705,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.43290000000000006,
+      "wall_seconds": 1.32444429397583,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_highlat1",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat1",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 1,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": false
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 85670,
+      "reduction_pct": 73.55864197530863,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.5681,
+      "wall_seconds": 1.5911259651184082,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_highlat2_probes",
+      "policy_fields": {
+        "name": "edge2_thin2_highlat2_probes",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 0,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 93384,
+      "reduction_pct": 71.17777777777778,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6335999999999999,
+      "wall_seconds": 1.6664979457855225,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 0,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 93384,
+      "reduction_pct": 71.17777777777778,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6073,
+      "wall_seconds": 1.6503040790557861,
+      "passes": true
+    },
+    {
+      "policy": "edge2_thin2_hl2_latcap2_nocoarse4",
+      "policy_fields": {
+        "name": "edge2_thin2_hl2_latcap2_nocoarse4",
+        "edge_margin_tiles": 2,
+        "edge_halo_extra": 2,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 2,
+        "lat_cap_halo_extra": 2,
+        "edge_no_early_accept_above_px": 4,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 2,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 93384,
+      "reduction_pct": 71.17777777777778,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.6078,
+      "wall_seconds": 1.6476118564605713,
+      "passes": true
+    },
+    {
+      "policy": "edge3_thin3_hl3_latcap3_nocoarse2",
+      "policy_fields": {
+        "name": "edge3_thin3_hl3_latcap3_nocoarse2",
+        "edge_margin_tiles": 3,
+        "edge_halo_extra": 3,
+        "high_lat_deg": 65.0,
+        "high_lat_viewport_deg": 55.0,
+        "high_lat_halo_extra": 3,
+        "lat_cap_halo_extra": 3,
+        "edge_no_early_accept_above_px": 2,
+        "thin_line_orb": 0.5,
+        "thin_line_halo_extra": 3,
+        "thin_line_extra_probes": true
+      },
+      "case_id": "profile_polar_reykjavik",
+      "label": "Synthetic polar profile mixed thin lines",
+      "adaptive_samples": 119089,
+      "reduction_pct": 63.24413580246914,
+      "final_xor_pct": 0.0,
+      "final_changed_pct": 0.0,
+      "diff_bbox": null,
+      "adaptive_server_seconds": 0.7673,
+      "wall_seconds": 1.9510059356689453,
+      "passes": true
+    }
+  ],
+  "final_policy": {
+    "name": "edge2_thin2_highlat2_probes",
+    "edge_margin_tiles": 2,
+    "edge_halo_extra": 2,
+    "high_lat_deg": 65.0,
+    "high_lat_viewport_deg": 55.0,
+    "high_lat_halo_extra": 2,
+    "lat_cap_halo_extra": 0,
+    "edge_no_early_accept_above_px": 0,
+    "thin_line_orb": 0.5,
+    "thin_line_halo_extra": 2,
+    "thin_line_extra_probes": true
+  },
+  "final_runs": [
+    {
+      "case_id": "thin_pluto_square_asc_0p25",
+      "group": "thin_aspect_lines",
+      "label": "Pluto square ASC, orb 0.25",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "pluto",
+          "angle": "asc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 47998,
+        "final_xor_pct": 0.41459369817578773,
+        "reduction_pct": 85.18580246913581,
+        "server_seconds": 0.30329999999999996
+      },
+      "chosen": {
+        "adaptive_samples": 104720,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 67.67901234567901,
+        "server_seconds": 0.6764,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1709,
+            "wall_seconds": 0.3312709331512451,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2646,
+            "diff": {
+              "changed_pixels": 1206,
+              "changed_pct": 0.37222222222222223,
+              "overlay_union_pixels": 1206,
+              "overlay_xor_pixels": 1206,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 656,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 2646,
+            "new_samples": 28450,
+            "cumulative_samples": 55855,
+            "server_seconds": 0.1761,
+            "wall_seconds": 0.344897985458374,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 5742,
+            "diff": {
+              "changed_pixels": 1206,
+              "changed_pct": 0.37222222222222223,
+              "overlay_union_pixels": 1206,
+              "overlay_xor_pixels": 1206,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 656,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 5742,
+            "new_samples": 28710,
+            "cumulative_samples": 84565,
+            "server_seconds": 0.1852,
+            "wall_seconds": 0.44144272804260254,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 11506,
+            "diff": {
+              "changed_pixels": 1206,
+              "changed_pct": 0.37222222222222223,
+              "overlay_union_pixels": 1206,
+              "overlay_xor_pixels": 1206,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 656,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 11506,
+            "new_samples": 20155,
+            "cumulative_samples": 104720,
+            "server_seconds": 0.1442,
+            "wall_seconds": 0.3246030807495117,
+            "accepted_tiles": 8,
+            "refine_tiles_next": 22544,
+            "diff": {
+              "changed_pixels": 1174,
+              "changed_pct": 0.3623456790123457,
+              "overlay_union_pixels": 1206,
+              "overlay_xor_pixels": 1174,
+              "overlay_xor_pct_of_union": 97.34660033167496,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 656,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 22544,
+            "new_samples": 0,
+            "cumulative_samples": 104720,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.11475896835327148,
+            "accepted_tiles": 1206,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 1206,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_pluto_square_asc_0p25/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.2443,
+        "wall_seconds": 2.9737069606781006
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_thin_pluto_square_asc_0p25.png"
+    },
+    {
+      "case_id": "mixed_dense_six_conditions",
+      "group": "mixed_dense_overlays",
+      "label": "Sun 1st + Moon 4th + Mars 2nd + ASC Cap + MC Libra + Saturn MC 0.5",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "D"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "E"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "F"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "-55,-160,70,-30"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 16.29905101458183,
+          "lng": -94.921875
+        },
+        "bounds": {
+          "north": 68.65655498475738,
+          "south": -52.908902047770255,
+          "east": 31.640625000000004,
+          "west": -221.48437500000003
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 106893,
+        "final_xor_pct": 0.33408556123965016,
+        "reduction_pct": 67.00833333333334,
+        "server_seconds": 0.7706999999999999
+      },
+      "chosen": {
+        "adaptive_samples": 194265,
+        "final_xor_pct": 0.33408556123965016,
+        "reduction_pct": 40.041666666666664,
+        "server_seconds": 1.6442,
+        "diff_bbox": {
+          "left": 176,
+          "top": 16,
+          "right": 687,
+          "bottom": 449
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1968,
+            "wall_seconds": 0.4126253128051758,
+            "accepted_tiles": 329,
+            "refine_tiles_next": 4678,
+            "diff": {
+              "changed_pixels": 45255,
+              "changed_pct": 13.967592592592592,
+              "overlay_union_pixels": 124491,
+              "overlay_xor_pixels": 45135,
+              "overlay_xor_pct_of_union": 36.25563293732077,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 4678,
+            "new_samples": 50311,
+            "cumulative_samples": 77716,
+            "server_seconds": 0.3589,
+            "wall_seconds": 0.6637108325958252,
+            "accepted_tiles": 1545,
+            "refine_tiles_next": 12248,
+            "diff": {
+              "changed_pixels": 24410,
+              "changed_pct": 7.533950617283951,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 24199,
+              "overlay_xor_pct_of_union": 19.433981962592053,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 12248,
+            "new_samples": 61240,
+            "cumulative_samples": 138956,
+            "server_seconds": 0.6592,
+            "wall_seconds": 1.0221538543701172,
+            "accepted_tiles": 5658,
+            "refine_tiles_next": 31416,
+            "diff": {
+              "changed_pixels": 13530,
+              "changed_pct": 4.175925925925926,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 13319,
+              "overlay_xor_pct_of_union": 10.696359591708896,
+              "diff_bbox": {
+                "left": 112,
+                "top": 16,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 31416,
+            "new_samples": 55246,
+            "cumulative_samples": 194202,
+            "server_seconds": 0.4288,
+            "wall_seconds": 0.8998467922210693,
+            "accepted_tiles": 18539,
+            "refine_tiles_next": 68592,
+            "diff": {
+              "changed_pixels": 4962,
+              "changed_pct": 1.5314814814814814,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 4795,
+              "overlay_xor_pct_of_union": 3.8508179474618336,
+              "diff_bbox": {
+                "left": 114,
+                "top": 16,
+                "right": 718,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 68592,
+            "new_samples": 63,
+            "cumulative_samples": 194265,
+            "server_seconds": 0.0005,
+            "wall_seconds": 0.30127620697021484,
+            "accepted_tiles": 47491,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 416,
+              "changed_pct": 0.12839506172839507,
+              "overlay_union_pixels": 124519,
+              "overlay_xor_pixels": 416,
+              "overlay_xor_pct_of_union": 0.33408556123965016,
+              "diff_bbox": {
+                "left": 176,
+                "top": 16,
+                "right": 687,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/mixed_dense_six_conditions/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.2709,
+        "wall_seconds": 3.0118930339813232
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_mixed_dense_six_conditions.png"
+    },
+    {
+      "case_id": "high_svalbard_latcap_off",
+      "group": "high_latitude",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap OFF",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "pluto",
+          "angle": "asc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "58,0,83,55"
+      },
+      "leaflet_view": {
+        "zoom": 2.75,
+        "center": {
+          "lat": 74.91226392331816,
+          "lng": 27.500000000000025
+        },
+        "bounds": {
+          "north": 83.32864478637114,
+          "south": 56.495671705059664,
+          "east": 102.83154373804952,
+          "west": -47.677481754482386
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 27209,
+        "final_xor_pct": 5.614973262032086,
+        "reduction_pct": 91.60216049382716,
+        "server_seconds": 0.1318
+      },
+      "chosen": {
+        "adaptive_samples": 63403,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 80.43117283950617,
+        "server_seconds": 0.3387,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1073,
+            "wall_seconds": 0.27179980278015137,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1442,
+            "diff": {
+              "changed_pixels": 374,
+              "changed_pct": 0.1154320987654321,
+              "overlay_union_pixels": 374,
+              "overlay_xor_pixels": 374,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 348,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1442,
+            "new_samples": 15516,
+            "cumulative_samples": 42921,
+            "server_seconds": 0.0883,
+            "wall_seconds": 0.23000001907348633,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2528,
+            "diff": {
+              "changed_pixels": 374,
+              "changed_pct": 0.1154320987654321,
+              "overlay_union_pixels": 374,
+              "overlay_xor_pixels": 374,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 348,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2528,
+            "new_samples": 12640,
+            "cumulative_samples": 55561,
+            "server_seconds": 0.0844,
+            "wall_seconds": 0.23285984992980957,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 4464,
+            "diff": {
+              "changed_pixels": 374,
+              "changed_pct": 0.1154320987654321,
+              "overlay_union_pixels": 374,
+              "overlay_xor_pixels": 374,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 348,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 4464,
+            "new_samples": 7842,
+            "cumulative_samples": 63403,
+            "server_seconds": 0.0587,
+            "wall_seconds": 0.2048201560974121,
+            "accepted_tiles": 19,
+            "refine_tiles_next": 8532,
+            "diff": {
+              "changed_pixels": 298,
+              "changed_pct": 0.09197530864197531,
+              "overlay_union_pixels": 374,
+              "overlay_xor_pixels": 298,
+              "overlay_xor_pct_of_union": 79.67914438502673,
+              "diff_bbox": {
+                "left": 0,
+                "top": 348,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 8532,
+            "new_samples": 0,
+            "cumulative_samples": 63403,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.13303399085998535,
+            "accepted_tiles": 374,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 374,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_off/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.2169,
+        "wall_seconds": 2.009237051010132
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_high_svalbard_latcap_off.png"
+    },
+    {
+      "case_id": "high_svalbard_latcap_on",
+      "group": "high_latitude",
+      "label": "Norway/Svalbard Pluto ASC 0.25 lat-cap ON",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "pluto",
+          "angle": "asc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": true,
+      "view_request": {
+        "fitBounds": "58,0,83,55"
+      },
+      "leaflet_view": {
+        "zoom": 2.75,
+        "center": {
+          "lat": 74.91226392331816,
+          "lng": 27.500000000000025
+        },
+        "bounds": {
+          "north": 83.32864478637114,
+          "south": 56.495671705059664,
+          "east": 102.83154373804952,
+          "west": -47.677481754482386
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 56285,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 82.62808641975309,
+        "server_seconds": 0.279
+      },
+      "chosen": {
+        "adaptive_samples": 74805,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 76.91203703703704,
+        "server_seconds": 0.3221,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0447,
+            "wall_seconds": 0.21407103538513184,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1266,
+            "diff": {
+              "changed_pixels": 282,
+              "changed_pct": 0.08703703703703704,
+              "overlay_union_pixels": 282,
+              "overlay_xor_pixels": 282,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 366,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1266,
+            "new_samples": 13620,
+            "cumulative_samples": 41025,
+            "server_seconds": 0.0635,
+            "wall_seconds": 0.20328807830810547,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 3284,
+            "diff": {
+              "changed_pixels": 282,
+              "changed_pct": 0.08703703703703704,
+              "overlay_union_pixels": 282,
+              "overlay_xor_pixels": 282,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 366,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 3284,
+            "new_samples": 17020,
+            "cumulative_samples": 58045,
+            "server_seconds": 0.0994,
+            "wall_seconds": 0.2573220729827881,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 9560,
+            "diff": {
+              "changed_pixels": 282,
+              "changed_pct": 0.08703703703703704,
+              "overlay_union_pixels": 282,
+              "overlay_xor_pixels": 282,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 366,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 9560,
+            "new_samples": 16760,
+            "cumulative_samples": 74805,
+            "server_seconds": 0.1145,
+            "wall_seconds": 0.31470203399658203,
+            "accepted_tiles": 19,
+            "refine_tiles_next": 32972,
+            "diff": {
+              "changed_pixels": 206,
+              "changed_pct": 0.06358024691358025,
+              "overlay_union_pixels": 282,
+              "overlay_xor_pixels": 206,
+              "overlay_xor_pct_of_union": 73.04964539007092,
+              "diff_bbox": {
+                "left": 0,
+                "top": 366,
+                "right": 368,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 32972,
+            "new_samples": 0,
+            "cumulative_samples": 74805,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.12697911262512207,
+            "accepted_tiles": 282,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 282,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_svalbard_latcap_on/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 0.4672,
+        "wall_seconds": 1.2899410724639893
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_high_svalbard_latcap_on.png"
+    },
+    {
+      "case_id": "profile_polar_reykjavik",
+      "group": "synthetic_profiles",
+      "label": "Synthetic polar profile mixed thin lines",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.25,
+          "id": "A"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "pluto",
+          "angle": "asc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "B"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 44206,
+        "final_xor_pct": 0.17331022530329288,
+        "reduction_pct": 86.35617283950617,
+        "server_seconds": 0.2774
+      },
+      "chosen": {
+        "adaptive_samples": 93384,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 71.17777777777778,
+        "server_seconds": 0.6166999999999999,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1783,
+            "wall_seconds": 0.3406708240509033,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2490,
+            "diff": {
+              "changed_pixels": 1154,
+              "changed_pct": 0.35617283950617284,
+              "overlay_union_pixels": 1154,
+              "overlay_xor_pixels": 1154,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 32,
+                "right": 712,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 2490,
+            "new_samples": 26783,
+            "cumulative_samples": 54188,
+            "server_seconds": 0.1727,
+            "wall_seconds": 0.3555941581726074,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 4680,
+            "diff": {
+              "changed_pixels": 1154,
+              "changed_pct": 0.35617283950617284,
+              "overlay_union_pixels": 1154,
+              "overlay_xor_pixels": 1154,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 32,
+                "right": 712,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 4680,
+            "new_samples": 23400,
+            "cumulative_samples": 77588,
+            "server_seconds": 0.1484,
+            "wall_seconds": 0.37041497230529785,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 9004,
+            "diff": {
+              "changed_pixels": 1154,
+              "changed_pct": 0.35617283950617284,
+              "overlay_union_pixels": 1154,
+              "overlay_xor_pixels": 1154,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 32,
+                "right": 712,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 9004,
+            "new_samples": 15796,
+            "cumulative_samples": 93384,
+            "server_seconds": 0.1173,
+            "wall_seconds": 0.2942671775817871,
+            "accepted_tiles": 30,
+            "refine_tiles_next": 17588,
+            "diff": {
+              "changed_pixels": 1034,
+              "changed_pct": 0.3191358024691358,
+              "overlay_union_pixels": 1154,
+              "overlay_xor_pixels": 1034,
+              "overlay_xor_pct_of_union": 89.60138648180242,
+              "diff_bbox": {
+                "left": 0,
+                "top": 32,
+                "right": 712,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 17588,
+            "new_samples": 0,
+            "cumulative_samples": 93384,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.11143803596496582,
+            "accepted_tiles": 1154,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 1154,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_polar_reykjavik/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.1826,
+        "wall_seconds": 2.884960174560547
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_profile_polar_reykjavik.png"
+    },
+    {
+      "case_id": "thin_saturn_mc_0p25",
+      "group": "thin_aspect_lines",
+      "label": "Saturn conjunct MC, orb 0.25",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "-65,150,65,180"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 0,
+          "lng": 164.88281250000003
+        },
+        "bounds": {
+          "north": 61.77312286453146,
+          "south": -61.77312286453146,
+          "east": 291.44531250000006,
+          "west": 38.3203125
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 30741,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 90.51203703703705,
+        "server_seconds": 0.2048
+      },
+      "chosen": {
+        "adaptive_samples": 60716,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 81.2604938271605,
+        "server_seconds": 0.3781,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1712,
+            "wall_seconds": 0.32898902893066406,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1422,
+            "diff": {
+              "changed_pixels": 450,
+              "changed_pct": 0.1388888888888889,
+              "overlay_union_pixels": 450,
+              "overlay_xor_pixels": 450,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 398,
+                "top": 0,
+                "right": 398,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1422,
+            "new_samples": 15294,
+            "cumulative_samples": 42699,
+            "server_seconds": 0.0954,
+            "wall_seconds": 0.23323631286621094,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2222,
+            "diff": {
+              "changed_pixels": 450,
+              "changed_pct": 0.1388888888888889,
+              "overlay_union_pixels": 450,
+              "overlay_xor_pixels": 450,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 398,
+                "top": 0,
+                "right": 398,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2222,
+            "new_samples": 11110,
+            "cumulative_samples": 53809,
+            "server_seconds": 0.0692,
+            "wall_seconds": 0.20189881324768066,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 3934,
+            "diff": {
+              "changed_pixels": 450,
+              "changed_pct": 0.1388888888888889,
+              "overlay_union_pixels": 450,
+              "overlay_xor_pixels": 450,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 398,
+                "top": 0,
+                "right": 398,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 3934,
+            "new_samples": 6907,
+            "cumulative_samples": 60716,
+            "server_seconds": 0.0423,
+            "wall_seconds": 0.1729447841644287,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 7388,
+            "diff": {
+              "changed_pixels": 450,
+              "changed_pct": 0.1388888888888889,
+              "overlay_union_pixels": 450,
+              "overlay_xor_pixels": 450,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 398,
+                "top": 0,
+                "right": 398,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 7388,
+            "new_samples": 0,
+            "cumulative_samples": 60716,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.1235048770904541,
+            "accepted_tiles": 450,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 450,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_mc_0p25/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.9743,
+        "wall_seconds": 2.7029807567596436
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_thin_saturn_mc_0p25.png"
+    },
+    {
+      "case_id": "thin_saturn_asc_0p25",
+      "group": "thin_aspect_lines",
+      "label": "Saturn conjunct ASC, orb 0.25",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "asc",
+          "aspect": "conjunction",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 35278,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 89.11172839506173,
+        "server_seconds": 0.218
+      },
+      "chosen": {
+        "adaptive_samples": 66136,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 79.58765432098765,
+        "server_seconds": 0.4204,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1799,
+            "wall_seconds": 0.3538050651550293,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1372,
+            "diff": {
+              "changed_pixels": 707,
+              "changed_pct": 0.21820987654320986,
+              "overlay_union_pixels": 707,
+              "overlay_xor_pixels": 707,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 447,
+                "top": 11,
+                "right": 696,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1372,
+            "new_samples": 14753,
+            "cumulative_samples": 42158,
+            "server_seconds": 0.0914,
+            "wall_seconds": 0.24577832221984863,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2796,
+            "diff": {
+              "changed_pixels": 707,
+              "changed_pct": 0.21820987654320986,
+              "overlay_union_pixels": 707,
+              "overlay_xor_pixels": 707,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 447,
+                "top": 11,
+                "right": 696,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2796,
+            "new_samples": 13980,
+            "cumulative_samples": 56138,
+            "server_seconds": 0.0871,
+            "wall_seconds": 0.23685097694396973,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 5702,
+            "diff": {
+              "changed_pixels": 707,
+              "changed_pct": 0.21820987654320986,
+              "overlay_union_pixels": 707,
+              "overlay_xor_pixels": 707,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 447,
+                "top": 11,
+                "right": 696,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 5702,
+            "new_samples": 9998,
+            "cumulative_samples": 66136,
+            "server_seconds": 0.062,
+            "wall_seconds": 0.2150728702545166,
+            "accepted_tiles": 14,
+            "refine_tiles_next": 11188,
+            "diff": {
+              "changed_pixels": 651,
+              "changed_pct": 0.20092592592592592,
+              "overlay_union_pixels": 707,
+              "overlay_xor_pixels": 651,
+              "overlay_xor_pct_of_union": 92.07920792079209,
+              "diff_bbox": {
+                "left": 447,
+                "top": 11,
+                "right": 696,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 11188,
+            "new_samples": 0,
+            "cumulative_samples": 66136,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.13137602806091309,
+            "accepted_tiles": 707,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 707,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_saturn_asc_0p25/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.9553,
+        "wall_seconds": 2.706336736679077
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_thin_saturn_asc_0p25.png"
+    },
+    {
+      "case_id": "thin_uranus_square_mc_0p25",
+      "group": "thin_aspect_lines",
+      "label": "Uranus square MC, orb 0.25",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "uranus",
+          "angle": "mc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 30720,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 90.51851851851852,
+        "server_seconds": 0.18830000000000002
+      },
+      "chosen": {
+        "adaptive_samples": 59840,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 81.53086419753086,
+        "server_seconds": 0.431,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1687,
+            "wall_seconds": 0.3267199993133545,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1358,
+            "diff": {
+              "changed_pixels": 878,
+              "changed_pct": 0.27098765432098765,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 878,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1358,
+            "new_samples": 14606,
+            "cumulative_samples": 42011,
+            "server_seconds": 0.1146,
+            "wall_seconds": 0.2528679370880127,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2222,
+            "diff": {
+              "changed_pixels": 878,
+              "changed_pct": 0.27098765432098765,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 878,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2222,
+            "new_samples": 11110,
+            "cumulative_samples": 53121,
+            "server_seconds": 0.1064,
+            "wall_seconds": 0.24331307411193848,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 3830,
+            "diff": {
+              "changed_pixels": 878,
+              "changed_pct": 0.27098765432098765,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 878,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 3830,
+            "new_samples": 6719,
+            "cumulative_samples": 59840,
+            "server_seconds": 0.0413,
+            "wall_seconds": 0.16425800323486328,
+            "accepted_tiles": 219,
+            "refine_tiles_next": 484,
+            "diff": {
+              "changed_pixels": 2,
+              "changed_pct": 0.0006172839506172839,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 2,
+              "overlay_xor_pct_of_union": 0.22779043280182232,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 11
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 484,
+            "new_samples": 0,
+            "cumulative_samples": 59840,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10213088989257812,
+            "accepted_tiles": 22,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/thin_uranus_square_mc_0p25/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.9649,
+        "wall_seconds": 2.7435028553009033
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_thin_uranus_square_mc_0p25.png"
+    },
+    {
+      "case_id": "multi_thin_lines_world",
+      "group": "multiple_thin_lines",
+      "label": "Four simultaneous 0.5\u00b0 aspect lines",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "A"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "pluto",
+          "angle": "asc",
+          "aspect": "square",
+          "orb": 0.5,
+          "id": "B"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "uranus",
+          "angle": "dsc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "C"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "neptune",
+          "angle": "ic",
+          "aspect": "square",
+          "orb": 0.5,
+          "id": "D"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 71238,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 78.01296296296296,
+        "server_seconds": 0.5143
+      },
+      "chosen": {
+        "adaptive_samples": 145437,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 55.11203703703704,
+        "server_seconds": 1.0443,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1856,
+            "wall_seconds": 0.3499000072479248,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 3668,
+            "diff": {
+              "changed_pixels": 4341,
+              "changed_pct": 1.3398148148148148,
+              "overlay_union_pixels": 4341,
+              "overlay_xor_pixels": 4341,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 657,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 3668,
+            "new_samples": 39444,
+            "cumulative_samples": 66849,
+            "server_seconds": 0.2671,
+            "wall_seconds": 0.47350597381591797,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 8912,
+            "diff": {
+              "changed_pixels": 4341,
+              "changed_pct": 1.3398148148148148,
+              "overlay_union_pixels": 4341,
+              "overlay_xor_pixels": 4341,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 657,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 8912,
+            "new_samples": 44560,
+            "cumulative_samples": 111409,
+            "server_seconds": 0.3532,
+            "wall_seconds": 0.6241269111633301,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 19412,
+            "diff": {
+              "changed_pixels": 4341,
+              "changed_pct": 1.3398148148148148,
+              "overlay_union_pixels": 4341,
+              "overlay_xor_pixels": 4341,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 657,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 19412,
+            "new_samples": 34028,
+            "cumulative_samples": 145437,
+            "server_seconds": 0.2384,
+            "wall_seconds": 0.48120713233947754,
+            "accepted_tiles": 621,
+            "refine_tiles_next": 33788,
+            "diff": {
+              "changed_pixels": 1857,
+              "changed_pct": 0.5731481481481482,
+              "overlay_union_pixels": 4341,
+              "overlay_xor_pixels": 1857,
+              "overlay_xor_pct_of_union": 42.77816171389081,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 657,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 33788,
+            "new_samples": 0,
+            "cumulative_samples": 145437,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.12739992141723633,
+            "accepted_tiles": 3557,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 4341,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/multi_thin_lines_world/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.1679,
+        "wall_seconds": 2.9421980381011963
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_multi_thin_lines_world.png"
+    },
+    {
+      "case_id": "seam_fiji_nz",
+      "group": "seam_dateline",
+      "label": "Saturn MC 0.5 near Fiji/NZ",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "-50,160,5,190"
+      },
+      "leaflet_view": {
+        "zoom": 3.25,
+        "center": {
+          "lat": -25.558370774557574,
+          "lng": 175.00000000000003
+        },
+        "bounds": {
+          "north": 6.746555065058136,
+          "south": -51.17206796952312,
+          "east": 228.26177910892264,
+          "west": 121.83582655337436
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 33449,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 89.67623456790123,
+        "server_seconds": 0.21989999999999998
+      },
+      "chosen": {
+        "adaptive_samples": 56476,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 82.56913580246913,
+        "server_seconds": 0.33370000000000005,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1632,
+            "wall_seconds": 0.32729387283325195,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1046,
+            "diff": {
+              "changed_pixels": 3150,
+              "changed_pct": 0.9722222222222222,
+              "overlay_union_pixels": 3150,
+              "overlay_xor_pixels": 3150,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 379,
+                "top": 0,
+                "right": 385,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1046,
+            "new_samples": 11250,
+            "cumulative_samples": 38655,
+            "server_seconds": 0.0659,
+            "wall_seconds": 0.2004842758178711,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2056,
+            "diff": {
+              "changed_pixels": 3150,
+              "changed_pct": 0.9722222222222222,
+              "overlay_union_pixels": 3150,
+              "overlay_xor_pixels": 3150,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 379,
+                "top": 0,
+                "right": 385,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2056,
+            "new_samples": 10280,
+            "cumulative_samples": 48935,
+            "server_seconds": 0.0604,
+            "wall_seconds": 0.21083402633666992,
+            "accepted_tiles": 113,
+            "refine_tiles_next": 4298,
+            "diff": {
+              "changed_pixels": 1350,
+              "changed_pct": 0.4166666666666667,
+              "overlay_union_pixels": 3150,
+              "overlay_xor_pixels": 1350,
+              "overlay_xor_pct_of_union": 42.857142857142854,
+              "diff_bbox": {
+                "left": 379,
+                "top": 0,
+                "right": 385,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 4298,
+            "new_samples": 7541,
+            "cumulative_samples": 56476,
+            "server_seconds": 0.0442,
+            "wall_seconds": 0.17901992797851562,
+            "accepted_tiles": 675,
+            "refine_tiles_next": 6556,
+            "diff": {
+              "changed_pixels": 450,
+              "changed_pct": 0.1388888888888889,
+              "overlay_union_pixels": 3150,
+              "overlay_xor_pixels": 450,
+              "overlay_xor_pct_of_union": 14.285714285714285,
+              "diff_bbox": {
+                "left": 379,
+                "top": 0,
+                "right": 379,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 6556,
+            "new_samples": 0,
+            "cumulative_samples": 56476,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.12359285354614258,
+            "accepted_tiles": 3150,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 3150,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_fiji_nz/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.894,
+        "wall_seconds": 2.716740131378174
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_seam_fiji_nz.png"
+    },
+    {
+      "case_id": "seam_alaska_siberia",
+      "group": "seam_dateline",
+      "label": "Saturn ASC 0.5 Alaska/Siberia",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "asc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "35,150,75,210"
+      },
+      "leaflet_view": {
+        "zoom": 3,
+        "center": {
+          "lat": 60.65953125373582,
+          "lng": 180
+        },
+        "bounds": {
+          "north": 75.05035357407698,
+          "south": 34.88593094075317,
+          "east": 243.28125000000003,
+          "west": 116.71875000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 20880,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 93.55555555555556,
+        "server_seconds": 0.1087
+      },
+      "chosen": {
+        "adaptive_samples": 27405,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 91.54166666666667,
+        "server_seconds": 0.143,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.143,
+            "wall_seconds": 0.31601905822753906,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10193991661071777,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10224366188049316,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10240697860717773,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10140180587768555,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_alaska_siberia/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.6627,
+        "wall_seconds": 2.399688959121704
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_seam_alaska_siberia.png"
+    },
+    {
+      "case_id": "seam_world_crossing_180",
+      "group": "seam_dateline",
+      "label": "Mixed aspect world crossing \u00b1180",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "A"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "uranus",
+          "angle": "mc",
+          "aspect": "square",
+          "orb": 0.5,
+          "id": "B"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 30720,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 90.51851851851852,
+        "server_seconds": 0.2144
+      },
+      "chosen": {
+        "adaptive_samples": 59840,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 81.53086419753086,
+        "server_seconds": 0.386,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1753,
+            "wall_seconds": 0.3515737056732178,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1358,
+            "diff": {
+              "changed_pixels": 878,
+              "changed_pct": 0.27098765432098765,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 878,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1358,
+            "new_samples": 14606,
+            "cumulative_samples": 42011,
+            "server_seconds": 0.0947,
+            "wall_seconds": 0.2418351173400879,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2222,
+            "diff": {
+              "changed_pixels": 878,
+              "changed_pct": 0.27098765432098765,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 878,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2222,
+            "new_samples": 11110,
+            "cumulative_samples": 53121,
+            "server_seconds": 0.0731,
+            "wall_seconds": 0.20505905151367188,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 3830,
+            "diff": {
+              "changed_pixels": 878,
+              "changed_pct": 0.27098765432098765,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 878,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 3830,
+            "new_samples": 6719,
+            "cumulative_samples": 59840,
+            "server_seconds": 0.0429,
+            "wall_seconds": 0.16394495964050293,
+            "accepted_tiles": 219,
+            "refine_tiles_next": 484,
+            "diff": {
+              "changed_pixels": 2,
+              "changed_pct": 0.0006172839506172839,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 2,
+              "overlay_xor_pct_of_union": 0.22779043280182232,
+              "diff_bbox": {
+                "left": 374,
+                "top": 11,
+                "right": 375,
+                "bottom": 11
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 484,
+            "new_samples": 0,
+            "cumulative_samples": 59840,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.11821699142456055,
+            "accepted_tiles": 22,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 878,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/seam_world_crossing_180/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.1154,
+        "wall_seconds": 2.8113350868225098
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_seam_world_crossing_180.png"
+    },
+    {
+      "case_id": "high_greenland_latcap_off",
+      "group": "high_latitude",
+      "label": "Greenland/Iceland Saturn MC 0.5 lat-cap OFF",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "55,-60,82,20"
+      },
+      "leaflet_view": {
+        "zoom": 2.75,
+        "center": {
+          "lat": 73.10827585452964,
+          "lng": -20.000000000000014
+        },
+        "bounds": {
+          "north": 82.53191776983762,
+          "south": 52.747081995218956,
+          "east": 55.17035233208108,
+          "west": -95.33867316045082
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 20880,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 93.55555555555556,
+        "server_seconds": 0.0872
+      },
+      "chosen": {
+        "adaptive_samples": 27405,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 91.54166666666667,
+        "server_seconds": 0.1146,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1146,
+            "wall_seconds": 0.27484917640686035,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10136604309082031,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10174012184143066,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10156607627868652,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 0,
+            "new_samples": 0,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10148215293884277,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_off/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.3132,
+        "wall_seconds": 2.1477131843566895
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_high_greenland_latcap_off.png"
+    },
+    {
+      "case_id": "high_greenland_latcap_on",
+      "group": "high_latitude",
+      "label": "Greenland/Iceland Saturn MC 0.5 lat-cap ON",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": true,
+      "view_request": {
+        "fitBounds": "55,-60,82,20"
+      },
+      "leaflet_view": {
+        "zoom": 2.75,
+        "center": {
+          "lat": 73.10827585452964,
+          "lng": -20.000000000000014
+        },
+        "bounds": {
+          "north": 82.53191776983762,
+          "south": 52.747081995218956,
+          "east": 55.17035233208108,
+          "west": -95.33867316045082
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 57240,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 82.33333333333334,
+        "server_seconds": 0.2965
+      },
+      "chosen": {
+        "adaptive_samples": 62865,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 80.59722222222221,
+        "server_seconds": 0.3059,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0566,
+            "wall_seconds": 0.22147488594055176,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 720,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 720,
+            "new_samples": 7740,
+            "cumulative_samples": 35145,
+            "server_seconds": 0.0467,
+            "wall_seconds": 0.17023110389709473,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2520,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2520,
+            "new_samples": 12600,
+            "cumulative_samples": 47745,
+            "server_seconds": 0.0906,
+            "wall_seconds": 0.24105215072631836,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 8640,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 8640,
+            "new_samples": 15120,
+            "cumulative_samples": 62865,
+            "server_seconds": 0.112,
+            "wall_seconds": 0.2997250556945801,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 31680,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 31680,
+            "new_samples": 0,
+            "cumulative_samples": 62865,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.1320657730102539,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 0,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_greenland_latcap_on/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 0.621,
+        "wall_seconds": 1.4866788387298584
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_high_greenland_latcap_on.png"
+    },
+    {
+      "case_id": "high_southern_latcap_off",
+      "group": "high_latitude",
+      "label": "Southern high lat Uranus MC 0.25 lat-cap OFF",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "uranus",
+          "angle": "mc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "fitBounds": "-82,-80,-50,40"
+      },
+      "leaflet_view": {
+        "zoom": 2.5,
+        "center": {
+          "lat": -71.87145331709601,
+          "lng": -19.999999999999993
+        },
+        "bounds": {
+          "north": -44.07557708690033,
+          "south": -83.1174145568643,
+          "east": 69.58659667193918,
+          "west": -109.39980731590566
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 24810,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 92.34259259259258,
+        "server_seconds": 0.1091
+      },
+      "chosen": {
+        "adaptive_samples": 44123,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 86.3817901234568,
+        "server_seconds": 0.2019,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1104,
+            "wall_seconds": 0.2748420238494873,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 704,
+            "diff": {
+              "changed_pixels": 328,
+              "changed_pct": 0.10123456790123457,
+              "overlay_union_pixels": 328,
+              "overlay_xor_pixels": 328,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 163
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 704,
+            "new_samples": 7568,
+            "cumulative_samples": 34973,
+            "server_seconds": 0.0387,
+            "wall_seconds": 0.16115903854370117,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1144,
+            "diff": {
+              "changed_pixels": 328,
+              "changed_pct": 0.10123456790123457,
+              "overlay_union_pixels": 328,
+              "overlay_xor_pixels": 328,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 163
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 1144,
+            "new_samples": 5720,
+            "cumulative_samples": 40693,
+            "server_seconds": 0.0321,
+            "wall_seconds": 0.15101909637451172,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1960,
+            "diff": {
+              "changed_pixels": 328,
+              "changed_pct": 0.10123456790123457,
+              "overlay_union_pixels": 328,
+              "overlay_xor_pixels": 328,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 163
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 1960,
+            "new_samples": 3430,
+            "cumulative_samples": 44123,
+            "server_seconds": 0.0207,
+            "wall_seconds": 0.13771915435791016,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 3840,
+            "diff": {
+              "changed_pixels": 328,
+              "changed_pct": 0.10123456790123457,
+              "overlay_union_pixels": 328,
+              "overlay_xor_pixels": 328,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 163
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 3840,
+            "new_samples": 0,
+            "cumulative_samples": 44123,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.10474491119384766,
+            "accepted_tiles": 328,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 328,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_off/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 1.3034,
+        "wall_seconds": 2.114306926727295
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_high_southern_latcap_off.png"
+    },
+    {
+      "case_id": "high_southern_latcap_on",
+      "group": "high_latitude",
+      "label": "Southern high lat Uranus MC 0.25 lat-cap ON",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "planet": "uranus",
+          "angle": "mc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "A"
+        }
+      ],
+      "apply_lat_cap": true,
+      "view_request": {
+        "fitBounds": "-82,-80,-50,40"
+      },
+      "leaflet_view": {
+        "zoom": 2.5,
+        "center": {
+          "lat": -71.87145331709601,
+          "lng": -19.999999999999993
+        },
+        "bounds": {
+          "north": -44.07557708690033,
+          "south": -83.1174145568643,
+          "east": 69.58659667193918,
+          "west": -109.39980731590566
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 51621,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 84.0675925925926,
+        "server_seconds": 0.2411
+      },
+      "chosen": {
+        "adaptive_samples": 67095,
+        "final_xor_pct": 0.0,
+        "reduction_pct": 79.29166666666667,
+        "server_seconds": 0.2865,
+        "diff_bbox": null,
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.0591,
+            "wall_seconds": 0.22327184677124023,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1068,
+            "diff": {
+              "changed_pixels": 298,
+              "changed_pct": 0.09197530864197531,
+              "overlay_union_pixels": 298,
+              "overlay_xor_pixels": 298,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 148
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1068,
+            "new_samples": 11481,
+            "cumulative_samples": 38886,
+            "server_seconds": 0.0543,
+            "wall_seconds": 0.18769311904907227,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2636,
+            "diff": {
+              "changed_pixels": 298,
+              "changed_pct": 0.09197530864197531,
+              "overlay_union_pixels": 298,
+              "overlay_xor_pixels": 298,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 148
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2636,
+            "new_samples": 13180,
+            "cumulative_samples": 52066,
+            "server_seconds": 0.0783,
+            "wall_seconds": 0.23108386993408203,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 8588,
+            "diff": {
+              "changed_pixels": 298,
+              "changed_pct": 0.09197530864197531,
+              "overlay_union_pixels": 298,
+              "overlay_xor_pixels": 298,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 148
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 8588,
+            "new_samples": 15029,
+            "cumulative_samples": 67095,
+            "server_seconds": 0.0948,
+            "wall_seconds": 0.2807140350341797,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 28560,
+            "diff": {
+              "changed_pixels": 298,
+              "changed_pct": 0.09197530864197531,
+              "overlay_union_pixels": 298,
+              "overlay_xor_pixels": 298,
+              "overlay_xor_pct_of_union": 100.0,
+              "diff_bbox": {
+                "left": 461,
+                "top": 0,
+                "right": 462,
+                "bottom": 148
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 28560,
+            "new_samples": 0,
+            "cumulative_samples": 67095,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.13277006149291992,
+            "accepted_tiles": 298,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 298,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "diff_bbox": null
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/high_southern_latcap_on/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 0.9826,
+        "wall_seconds": 1.837230920791626
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_high_southern_latcap_on.png"
+    },
+    {
+      "case_id": "profile_solstice_boundaries",
+      "group": "synthetic_profiles",
+      "label": "Synthetic solstice profile angle sign boundaries",
+      "conditions": [
+        {
+          "type": "angle_in_sign",
+          "angle": "asc",
+          "sign": "capricorn",
+          "id": "A"
+        },
+        {
+          "type": "angle_in_sign",
+          "angle": "mc",
+          "sign": "libra",
+          "id": "B"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "uranus",
+          "angle": "mc",
+          "aspect": "square",
+          "orb": 0.25,
+          "id": "C"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 67107,
+        "final_xor_pct": 0.05664296053873749,
+        "reduction_pct": 79.28796296296296,
+        "server_seconds": 0.4602
+      },
+      "chosen": {
+        "adaptive_samples": 124191,
+        "final_xor_pct": 0.05664296053873749,
+        "reduction_pct": 61.669444444444444,
+        "server_seconds": 0.8267,
+        "diff_bbox": {
+          "left": 512,
+          "top": 320,
+          "right": 594,
+          "bottom": 449
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.1766,
+            "wall_seconds": 0.35065698623657227,
+            "accepted_tiles": 103,
+            "refine_tiles_next": 3036,
+            "diff": {
+              "changed_pixels": 23347,
+              "changed_pct": 7.205864197530865,
+              "overlay_union_pixels": 47667,
+              "overlay_xor_pixels": 23342,
+              "overlay_xor_pct_of_union": 48.96888832945224,
+              "diff_bbox": {
+                "left": 161,
+                "top": 11,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 3036,
+            "new_samples": 32655,
+            "cumulative_samples": 60060,
+            "server_seconds": 0.2099,
+            "wall_seconds": 0.3990919589996338,
+            "accepted_tiles": 557,
+            "refine_tiles_next": 6880,
+            "diff": {
+              "changed_pixels": 12750,
+              "changed_pct": 3.935185185185185,
+              "overlay_union_pixels": 47667,
+              "overlay_xor_pixels": 12734,
+              "overlay_xor_pct_of_union": 26.714498500010492,
+              "diff_bbox": {
+                "left": 161,
+                "top": 11,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 6880,
+            "new_samples": 34400,
+            "cumulative_samples": 94460,
+            "server_seconds": 0.2478,
+            "wall_seconds": 0.5111589431762695,
+            "accepted_tiles": 2570,
+            "refine_tiles_next": 16942,
+            "diff": {
+              "changed_pixels": 6710,
+              "changed_pct": 2.0709876543209873,
+              "overlay_union_pixels": 47667,
+              "overlay_xor_pixels": 6694,
+              "overlay_xor_pct_of_union": 14.043258438752176,
+              "diff_bbox": {
+                "left": 161,
+                "top": 11,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 16942,
+            "new_samples": 29731,
+            "cumulative_samples": 124191,
+            "server_seconds": 0.1924,
+            "wall_seconds": 0.4573078155517578,
+            "accepted_tiles": 8493,
+            "refine_tiles_next": 33964,
+            "diff": {
+              "changed_pixels": 3974,
+              "changed_pct": 1.2265432098765432,
+              "overlay_union_pixels": 47667,
+              "overlay_xor_pixels": 3958,
+              "overlay_xor_pct_of_union": 8.303438437493444,
+              "diff_bbox": {
+                "left": 161,
+                "top": 11,
+                "right": 719,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 33964,
+            "new_samples": 0,
+            "cumulative_samples": 124191,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.1833951473236084,
+            "accepted_tiles": 20624,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 27,
+              "changed_pct": 0.008333333333333333,
+              "overlay_union_pixels": 47667,
+              "overlay_xor_pixels": 27,
+              "overlay_xor_pct_of_union": 0.05664296053873749,
+              "diff_bbox": {
+                "left": 512,
+                "top": 320,
+                "right": 594,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_solstice_boundaries/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.0524,
+        "wall_seconds": 2.8205909729003906
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_profile_solstice_boundaries.png"
+    },
+    {
+      "case_id": "profile_eclipse_cluster",
+      "group": "synthetic_profiles",
+      "label": "Synthetic clustered profile dense overlay",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "planet": "sun",
+          "house": 1,
+          "id": "A"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "moon",
+          "house": 4,
+          "id": "B"
+        },
+        {
+          "type": "planet_in_house",
+          "planet": "mars",
+          "house": 2,
+          "id": "C"
+        },
+        {
+          "type": "aspect_to_angle",
+          "planet": "neptune",
+          "angle": "ic",
+          "aspect": "square",
+          "orb": 0.5,
+          "id": "D"
+        }
+      ],
+      "apply_lat_cap": false,
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 68.00757101804007,
+          "south": -53.95608553098789,
+          "east": 126.56250000000001,
+          "west": -126.56250000000001
+        },
+        "size": {
+          "x": 720,
+          "y": 450
+        }
+      },
+      "policy": "edge2_thin2_highlat2_probes",
+      "baseline": {
+        "adaptive_samples": 81038,
+        "final_xor_pct": 0.1631427825632994,
+        "reduction_pct": 74.98827160493828,
+        "server_seconds": 0.5605
+      },
+      "chosen": {
+        "adaptive_samples": 166084,
+        "final_xor_pct": 0.1631427825632994,
+        "reduction_pct": 48.73950617283951,
+        "server_seconds": 1.2974,
+        "diff_bbox": {
+          "left": 16,
+          "top": 39,
+          "right": 367,
+          "bottom": 447
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 1305,
+            "new_samples": 27405,
+            "cumulative_samples": 27405,
+            "server_seconds": 0.181,
+            "wall_seconds": 0.36409497261047363,
+            "accepted_tiles": 227,
+            "refine_tiles_next": 4260,
+            "diff": {
+              "changed_pixels": 19913,
+              "changed_pct": 6.1459876543209875,
+              "overlay_union_pixels": 76586,
+              "overlay_xor_pixels": 19909,
+              "overlay_xor_pct_of_union": 25.99561277518084,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 603,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_1_16px_diff.png"
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 4260,
+            "new_samples": 45814,
+            "cumulative_samples": 73219,
+            "server_seconds": 0.3123,
+            "wall_seconds": 0.5607781410217285,
+            "accepted_tiles": 1032,
+            "refine_tiles_next": 10540,
+            "diff": {
+              "changed_pixels": 10893,
+              "changed_pct": 3.362037037037037,
+              "overlay_union_pixels": 76620,
+              "overlay_xor_pixels": 10889,
+              "overlay_xor_pct_of_union": 14.211694074654138,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 603,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_2_8px_diff.png"
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 10540,
+            "new_samples": 52700,
+            "cumulative_samples": 125919,
+            "server_seconds": 0.3662,
+            "wall_seconds": 0.659355878829956,
+            "accepted_tiles": 3849,
+            "refine_tiles_next": 22906,
+            "diff": {
+              "changed_pixels": 6085,
+              "changed_pct": 1.8780864197530864,
+              "overlay_union_pixels": 76620,
+              "overlay_xor_pixels": 6081,
+              "overlay_xor_pct_of_union": 7.9365700861393895,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 603,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_3_4px_diff.png"
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 22906,
+            "new_samples": 40165,
+            "cumulative_samples": 166084,
+            "server_seconds": 0.4379,
+            "wall_seconds": 0.7853720188140869,
+            "accepted_tiles": 10086,
+            "refine_tiles_next": 47588,
+            "diff": {
+              "changed_pixels": 2513,
+              "changed_pct": 0.7756172839506172,
+              "overlay_union_pixels": 76620,
+              "overlay_xor_pixels": 2509,
+              "overlay_xor_pct_of_union": 3.2746019316105457,
+              "diff_bbox": {
+                "left": 0,
+                "top": 11,
+                "right": 603,
+                "bottom": 449
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_4_2px_diff.png"
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 47588,
+            "new_samples": 0,
+            "cumulative_samples": 166084,
+            "server_seconds": 0.0,
+            "wall_seconds": 0.21594691276550293,
+            "accepted_tiles": 23195,
+            "refine_tiles_next": 0,
+            "diff": {
+              "changed_pixels": 125,
+              "changed_pct": 0.038580246913580245,
+              "overlay_union_pixels": 76620,
+              "overlay_xor_pixels": 125,
+              "overlay_xor_pct_of_union": 0.1631427825632994,
+              "diff_bbox": {
+                "left": 16,
+                "top": 39,
+                "right": 367,
+                "bottom": 447
+              }
+            },
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_targeted/final/profile_eclipse_cluster/phase_5_1px_diff.png"
+          }
+        ]
+      },
+      "reference": {
+        "classified_samples": 324000,
+        "server_seconds": 2.1169,
+        "wall_seconds": 2.8713088035583496
+      },
+      "human_review_sheet": "validation/screenshots/screen_pixel_adaptive_targeted/human_review_profile_eclipse_cluster.png"
+    }
+  ],
+  "lat_cap_observations": [
+    {
+      "off_id": "high_greenland_latcap_off",
+      "on_id": "high_greenland_latcap_on",
+      "off_xor": 0.0,
+      "on_xor": 0.0,
+      "off_samples": 27405,
+      "on_samples": 62865
+    },
+    {
+      "off_id": "high_svalbard_latcap_off",
+      "on_id": "high_svalbard_latcap_on",
+      "off_xor": 0.0,
+      "on_xor": 0.0,
+      "off_samples": 63403,
+      "on_samples": 74805
+    },
+    {
+      "off_id": "high_southern_latcap_off",
+      "on_id": "high_southern_latcap_on",
+      "off_xor": 0.0,
+      "on_xor": 0.0,
+      "off_samples": 44123,
+      "on_samples": 67095
+    }
+  ],
+  "safety_buffer_recommendations": [
+    {
+      "label": "observed_minimum",
+      "samples": 194265
+    },
+    {
+      "label": "+10%",
+      "samples": 213691
+    },
+    {
+      "label": "+20%",
+      "samples": 233118
+    },
+    {
+      "label": "+30%",
+      "samples": 252544
+    }
+  ],
+  "failure_focus_cost_table": [
+    {
+      "case_id": "thin_pluto_square_asc_0p25",
+      "baseline_samples": 47998,
+      "chosen_samples": 104720,
+      "extra_samples_pct": 118.1757573232218,
+      "baseline_xor_pct": 0.41459369817578773,
+      "chosen_xor_pct": 0.0
+    },
+    {
+      "case_id": "mixed_dense_six_conditions",
+      "baseline_samples": 106893,
+      "chosen_samples": 194265,
+      "extra_samples_pct": 81.73781257893408,
+      "baseline_xor_pct": 0.33408556123965016,
+      "chosen_xor_pct": 0.33408556123965016
+    },
+    {
+      "case_id": "high_svalbard_latcap_off",
+      "baseline_samples": 27209,
+      "chosen_samples": 63403,
+      "extra_samples_pct": 133.0221617847036,
+      "baseline_xor_pct": 5.614973262032086,
+      "chosen_xor_pct": 0.0
+    },
+    {
+      "case_id": "high_svalbard_latcap_on",
+      "baseline_samples": 56285,
+      "chosen_samples": 74805,
+      "extra_samples_pct": 32.9039708625744,
+      "baseline_xor_pct": 0.0,
+      "chosen_xor_pct": 0.0
+    },
+    {
+      "case_id": "profile_polar_reykjavik",
+      "baseline_samples": 44206,
+      "chosen_samples": 93384,
+      "extra_samples_pct": 111.24734198977515,
+      "baseline_xor_pct": 0.17331022530329288,
+      "chosen_xor_pct": 0.0
+    }
+  ],
+  "wall_seconds_total": 230.83657717704773
+}

@@ -1,0 +1,141 @@
+{
+  "renders": [
+    {
+      "profile": "edge_high_north",
+      "polygonPathCount": 65,
+      "blackStrokeCount": 0,
+      "mapBounds": "-442.96875000000006,-89.75205555413258,442.96875000000006,89.7520555541326",
+      "popupCount": 0,
+      "screenshot": "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/final-qa/final-qa-high-northern-render.png"
+    },
+    {
+      "profile": "edge_southern",
+      "polygonPathCount": 61,
+      "blackStrokeCount": 0,
+      "mapBounds": "-442.96875000000006,-89.75205555413258,442.96875000000006,89.7520555541326",
+      "popupCount": 0,
+      "screenshot": "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/final-qa/final-qa-southern-render.png"
+    }
+  ],
+  "popup": {
+    "left": {
+      "side": "left",
+      "popupPresent": true,
+      "left": -114,
+      "right": 138,
+      "top": 77,
+      "bottom": 487,
+      "viewportWidth": 1600,
+      "viewportHeight": 1000,
+      "withinViewport": false
+    },
+    "right": {
+      "side": "right",
+      "popupPresent": true,
+      "left": 1003,
+      "right": 1255,
+      "top": 77,
+      "bottom": 487,
+      "viewportWidth": 1600,
+      "viewportHeight": 1000,
+      "withinViewport": true
+    },
+    "repeatedSearchClearsPopup": {
+      "before": 1,
+      "after": 0
+    }
+  },
+  "consoleTail": [
+    {
+      "type": "log",
+      "args": [
+        "Cities loaded:",
+        232317
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "START RENDER",
+        1
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "COMPLETE RENDER",
+        1
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "START RENDER",
+        2
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "COMPLETE RENDER",
+        2
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "RELOCATED DATA",
+        null
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "Planet houses:",
+        null
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "Planet houses entries:",
+        null
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "RELOCATED DATA",
+        null
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "Planet houses:",
+        null
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "Planet houses entries:",
+        null
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "START RENDER",
+        3
+      ]
+    },
+    {
+      "type": "log",
+      "args": [
+        "COMPLETE RENDER",
+        3
+      ]
+    }
+  ]
+}

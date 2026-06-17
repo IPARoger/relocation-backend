@@ -1,0 +1,68 @@
+{
+  "sandbox": "validation/sandboxes/phase3_01_rain_reveal_sandbox.html",
+  "url": "http://127.0.0.1:59313/validation/sandboxes/phase3_01_rain_reveal_sandbox.html",
+  "capture_speed_multiplier": 4,
+  "probe_count_at_load": 3740,
+  "frames": [
+    {
+      "name": "01_t0_initial",
+      "file": "validation/screenshots/phase3_09_rain_reproduction/01_t0_initial.png",
+      "elapsed_ms": 0,
+      "wall_ms": 0,
+      "guides": false,
+      "observed_status": "latent probes initializing",
+      "expected_status_hint": "latent probes initializing",
+      "probe_count": 3740
+    },
+    {
+      "name": "02_scout_phase",
+      "file": "validation/screenshots/phase3_09_rain_reproduction/02_scout_phase.png",
+      "elapsed_ms": 900,
+      "wall_ms": 225.0,
+      "guides": false,
+      "observed_status": "scouts searching hidden regions",
+      "expected_status_hint": "scouts searching hidden regions",
+      "probe_count": 3740
+    },
+    {
+      "name": "03_reproduction_phase",
+      "file": "validation/screenshots/phase3_09_rain_reproduction/03_reproduction_phase.png",
+      "elapsed_ms": 2700,
+      "wall_ms": 675.0,
+      "guides": false,
+      "observed_status": "local reproduction near boundary candidates",
+      "expected_status_hint": "local reproduction near boundary candidates",
+      "probe_count": 3740
+    },
+    {
+      "name": "04_ghost_fade_phase",
+      "file": "validation/screenshots/phase3_09_rain_reproduction/04_ghost_fade_phase.png",
+      "elapsed_ms": 5500,
+      "wall_ms": 1375.0,
+      "guides": false,
+      "observed_status": "ghost candidate samples fading",
+      "expected_status_hint": "ghost candidate samples fading",
+      "probe_count": 3740
+    },
+    {
+      "name": "05_late_state",
+      "file": "validation/screenshots/phase3_09_rain_reproduction/05_late_state.png",
+      "elapsed_ms": 9000,
+      "wall_ms": 2250.0,
+      "guides": false,
+      "observed_status": "ghost candidate samples fading",
+      "expected_status_hint": "ghost candidate samples fading",
+      "probe_count": 3740
+    },
+    {
+      "name": "06_late_state_guides",
+      "file": "validation/screenshots/phase3_09_rain_reproduction/06_late_state_guides.png",
+      "elapsed_ms": 9000,
+      "wall_ms": 2250.0,
+      "guides": true,
+      "observed_status": "ghost candidate samples fading",
+      "expected_status_hint": "ghost candidate samples fading",
+      "probe_count": 3740
+    }
+  ]
+}

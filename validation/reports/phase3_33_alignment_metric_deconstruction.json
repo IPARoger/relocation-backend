@@ -1,0 +1,2273 @@
+{
+  "phase": "3.33_alignment_metric_deconstruction",
+  "emergenceClaimed": false,
+  "solverScript": "validation/scripts/phase3_30_minimal_migration_core.py",
+  "phase32ReportReference": "validation/reports/phase3_32_geometry_diversification_audit.json",
+  "seeds": [
+    3030,
+    3031,
+    3032,
+    3033,
+    3034,
+    3035,
+    3036,
+    3037,
+    3038,
+    3039
+  ],
+  "geometries": [
+    "sun_in_1_polygon",
+    "circle",
+    "thin_diagonal_ribbon",
+    "two_disconnected_islands",
+    "concave_crescent",
+    "narrow_fjord",
+    "randomized_noisy_blob",
+    "hollow_ring_donut",
+    "long_coastline_strip",
+    "small_compact_island"
+  ],
+  "perRunScores": {
+    "sun_in_1_polygon": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.767257041842993,
+        "chosen_target_pull": 0.767257041842993,
+        "nearest_frontier_direction": 0.043894256852896545,
+        "random_steering_baseline": 0.0016241953784661193,
+        "displacement_from_initial": 0.3014446491882517,
+        "center_pull_baseline": 0.014225946820862112,
+        "boundary_normal_audit": 0.17058491487794253,
+        "final_target_cell_direction": 0.557514741471938,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7651916261433932,
+        "chosen_target_pull": 0.7651916261433932,
+        "nearest_frontier_direction": 0.030031633693501748,
+        "random_steering_baseline": 0.00034679041803408747,
+        "displacement_from_initial": 0.2848862663777006,
+        "center_pull_baseline": 0.027711367781835448,
+        "boundary_normal_audit": 0.15537180488445132,
+        "final_target_cell_direction": 0.5108594652300876,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7681287359343859,
+        "chosen_target_pull": 0.7681287359343859,
+        "nearest_frontier_direction": 0.04185799718408751,
+        "random_steering_baseline": 0.0022699185604189358,
+        "displacement_from_initial": 0.2965041350859187,
+        "center_pull_baseline": 0.03395253558644811,
+        "boundary_normal_audit": 0.19684789003346273,
+        "final_target_cell_direction": 0.5223271005230228,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.76151352479676,
+        "chosen_target_pull": 0.76151352479676,
+        "nearest_frontier_direction": 0.027340454970038636,
+        "random_steering_baseline": -0.0021138173558588676,
+        "displacement_from_initial": 0.2996272439890366,
+        "center_pull_baseline": 0.038105121134451296,
+        "boundary_normal_audit": 0.18827996509003112,
+        "final_target_cell_direction": 0.5722125205606996,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7646749121906661,
+        "chosen_target_pull": 0.7646749121906661,
+        "nearest_frontier_direction": 0.04062777056421211,
+        "random_steering_baseline": 0.0036421415364038144,
+        "displacement_from_initial": 0.29191858507888246,
+        "center_pull_baseline": 0.023269016237674897,
+        "boundary_normal_audit": 0.16884494071343514,
+        "final_target_cell_direction": 0.5448244349440838,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35827,
+          "chosen_target_pull": 35827,
+          "nearest_frontier_direction": 35827,
+          "random_steering_baseline": 35827,
+          "displacement_from_initial": 35827,
+          "center_pull_baseline": 35827,
+          "boundary_normal_audit": 35827,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7640704144695647,
+        "chosen_target_pull": 0.7640704144695647,
+        "nearest_frontier_direction": 0.052978175614188154,
+        "random_steering_baseline": 0.001519513552449198,
+        "displacement_from_initial": 0.2813533271700844,
+        "center_pull_baseline": 0.018127669431174883,
+        "boundary_normal_audit": 0.17778270337432264,
+        "final_target_cell_direction": 0.5303437854366433,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7641857744949233,
+        "chosen_target_pull": 0.7641857744949233,
+        "nearest_frontier_direction": 0.02075133763382431,
+        "random_steering_baseline": -0.002025034690368346,
+        "displacement_from_initial": 0.27961651974039725,
+        "center_pull_baseline": 0.03273732120580243,
+        "boundary_normal_audit": 0.17627585282169644,
+        "final_target_cell_direction": 0.5063158625633257,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7633127367225679,
+        "chosen_target_pull": 0.7633127367225679,
+        "nearest_frontier_direction": 0.03580020532384902,
+        "random_steering_baseline": 0.0036531687702206416,
+        "displacement_from_initial": 0.28734031891056755,
+        "center_pull_baseline": 0.017942907645615,
+        "boundary_normal_audit": 0.1686483143836466,
+        "final_target_cell_direction": 0.5770852191553002,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35834,
+          "chosen_target_pull": 35834,
+          "nearest_frontier_direction": 35834,
+          "random_steering_baseline": 35834,
+          "displacement_from_initial": 35834,
+          "center_pull_baseline": 35834,
+          "boundary_normal_audit": 35834,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7690095165024076,
+        "chosen_target_pull": 0.7690095165024076,
+        "nearest_frontier_direction": 0.03233156685873928,
+        "random_steering_baseline": 0.002443853882958694,
+        "displacement_from_initial": 0.3101536706022301,
+        "center_pull_baseline": 0.03307487580290591,
+        "boundary_normal_audit": 0.18902353252050905,
+        "final_target_cell_direction": 0.5337309505557514,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7637780498464711,
+        "chosen_target_pull": 0.7637780498464711,
+        "nearest_frontier_direction": 0.040941564378507794,
+        "random_steering_baseline": 0.0031789190970626835,
+        "displacement_from_initial": 0.28864011144576046,
+        "center_pull_baseline": 0.020859572016342733,
+        "boundary_normal_audit": 0.18022551329780892,
+        "final_target_cell_direction": 0.5216865895348961,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      }
+    },
+    "circle": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.7660998831146012,
+        "chosen_target_pull": 0.7660998831146012,
+        "nearest_frontier_direction": -0.011106990446383927,
+        "random_steering_baseline": 0.002775787849661213,
+        "displacement_from_initial": 0.21454945789100224,
+        "center_pull_baseline": 0.14667711579443193,
+        "boundary_normal_audit": 0.13300972101828631,
+        "final_target_cell_direction": 0.5535853609148794,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7696267594176784,
+        "chosen_target_pull": 0.7696267594176784,
+        "nearest_frontier_direction": -0.0035754976183350767,
+        "random_steering_baseline": 0.0009656470100386517,
+        "displacement_from_initial": 0.1999120572520776,
+        "center_pull_baseline": 0.16372190387655,
+        "boundary_normal_audit": 0.1378124108338629,
+        "final_target_cell_direction": 0.5698973614131871,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7633301282756401,
+        "chosen_target_pull": 0.7633301282756401,
+        "nearest_frontier_direction": -0.0021683601476471586,
+        "random_steering_baseline": -0.0025949479056556366,
+        "displacement_from_initial": 0.21322002602121365,
+        "center_pull_baseline": 0.15317713019763976,
+        "boundary_normal_audit": 0.11802210154011684,
+        "final_target_cell_direction": 0.5243170103999942,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7638660329441457,
+        "chosen_target_pull": 0.7638660329441457,
+        "nearest_frontier_direction": -0.0027730770290822883,
+        "random_steering_baseline": -0.00231240450583714,
+        "displacement_from_initial": 0.2078472118250549,
+        "center_pull_baseline": 0.1598897248078779,
+        "boundary_normal_audit": 0.14152712058927142,
+        "final_target_cell_direction": 0.5843032596472116,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7669522616232193,
+        "chosen_target_pull": 0.7669522616232193,
+        "nearest_frontier_direction": -0.008962681005576179,
+        "random_steering_baseline": 0.003738471368877626,
+        "displacement_from_initial": 0.21911832586970575,
+        "center_pull_baseline": 0.14823066065969132,
+        "boundary_normal_audit": 0.12045101006405544,
+        "final_target_cell_direction": 0.552304590067458,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7658680482748635,
+        "chosen_target_pull": 0.7658680482748635,
+        "nearest_frontier_direction": 0.0007470579397607308,
+        "random_steering_baseline": -0.0009816801183771715,
+        "displacement_from_initial": 0.2147173606634544,
+        "center_pull_baseline": 0.1439279866382174,
+        "boundary_normal_audit": 0.11558665869650397,
+        "final_target_cell_direction": 0.5664615574069548,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7686826560988862,
+        "chosen_target_pull": 0.7686826560988862,
+        "nearest_frontier_direction": -0.0017972012577826334,
+        "random_steering_baseline": 0.0030520375833159147,
+        "displacement_from_initial": 0.22769003361504667,
+        "center_pull_baseline": 0.17640667802940743,
+        "boundary_normal_audit": 0.14300614492882174,
+        "final_target_cell_direction": 0.5716297191290408,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7669845869888912,
+        "chosen_target_pull": 0.7669845869888912,
+        "nearest_frontier_direction": -0.001790361017882045,
+        "random_steering_baseline": 0.008955772065959355,
+        "displacement_from_initial": 0.2233379738609101,
+        "center_pull_baseline": 0.14777379940951424,
+        "boundary_normal_audit": 0.1277519841332373,
+        "final_target_cell_direction": 0.5259029300262107,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7674264689390559,
+        "chosen_target_pull": 0.7674264689390559,
+        "nearest_frontier_direction": -0.006742330530769435,
+        "random_steering_baseline": -0.003773217856345863,
+        "displacement_from_initial": 0.2214421324736563,
+        "center_pull_baseline": 0.1570082716950575,
+        "boundary_normal_audit": 0.13805617190950648,
+        "final_target_cell_direction": 0.5287656251602494,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.763249606258297,
+        "chosen_target_pull": 0.763249606258297,
+        "nearest_frontier_direction": -0.0041301082148369065,
+        "random_steering_baseline": -0.008380761359137671,
+        "displacement_from_initial": 0.2154843622357982,
+        "center_pull_baseline": 0.1486104818575949,
+        "boundary_normal_audit": 0.1245665864486073,
+        "final_target_cell_direction": 0.5362431946331733,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35836,
+          "chosen_target_pull": 35836,
+          "nearest_frontier_direction": 35836,
+          "random_steering_baseline": 35836,
+          "displacement_from_initial": 35836,
+          "center_pull_baseline": 35836,
+          "boundary_normal_audit": 35836,
+          "final_target_cell_direction": 640
+        }
+      }
+    },
+    "thin_diagonal_ribbon": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.7604448481924391,
+        "chosen_target_pull": 0.7604448481924391,
+        "nearest_frontier_direction": 0.029968417750117122,
+        "random_steering_baseline": 0.0038629278462781825,
+        "displacement_from_initial": 0.26573957178902696,
+        "center_pull_baseline": 0.05655431072379219,
+        "boundary_normal_audit": 0.1572133209558871,
+        "final_target_cell_direction": 0.5391298319763138,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.757852981179749,
+        "chosen_target_pull": 0.757852981179749,
+        "nearest_frontier_direction": 0.023680843647493413,
+        "random_steering_baseline": 0.001304085293172105,
+        "displacement_from_initial": 0.2528980135922707,
+        "center_pull_baseline": 0.07245607978256229,
+        "boundary_normal_audit": 0.15654014745122924,
+        "final_target_cell_direction": 0.5509494611344498,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7633259084162428,
+        "chosen_target_pull": 0.7633259084162428,
+        "nearest_frontier_direction": 0.02794774612199945,
+        "random_steering_baseline": 0.0008132760047194494,
+        "displacement_from_initial": 0.2705234344982672,
+        "center_pull_baseline": 0.05738847300088614,
+        "boundary_normal_audit": 0.17231275905461255,
+        "final_target_cell_direction": 0.5661062787714652,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35834,
+          "chosen_target_pull": 35834,
+          "nearest_frontier_direction": 35834,
+          "random_steering_baseline": 35834,
+          "displacement_from_initial": 35834,
+          "center_pull_baseline": 35834,
+          "boundary_normal_audit": 35834,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7640660589936249,
+        "chosen_target_pull": 0.7640660589936249,
+        "nearest_frontier_direction": 0.029932194599738022,
+        "random_steering_baseline": -0.003668587913187973,
+        "displacement_from_initial": 0.26943600334386997,
+        "center_pull_baseline": 0.07977714080615515,
+        "boundary_normal_audit": 0.18423812515388377,
+        "final_target_cell_direction": 0.5174853416320289,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35834,
+          "chosen_target_pull": 35834,
+          "nearest_frontier_direction": 35834,
+          "random_steering_baseline": 35834,
+          "displacement_from_initial": 35834,
+          "center_pull_baseline": 35834,
+          "boundary_normal_audit": 35834,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7617887478557916,
+        "chosen_target_pull": 0.7617887478557916,
+        "nearest_frontier_direction": 0.029780813189962375,
+        "random_steering_baseline": 0.0021360547768299824,
+        "displacement_from_initial": 0.2714727410933593,
+        "center_pull_baseline": 0.06531650697851081,
+        "boundary_normal_audit": 0.17142474534963387,
+        "final_target_cell_direction": 0.5347944801958661,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7607634985811541,
+        "chosen_target_pull": 0.7607634985811541,
+        "nearest_frontier_direction": 0.03015998396093709,
+        "random_steering_baseline": -0.002842700488885676,
+        "displacement_from_initial": 0.27419729017411193,
+        "center_pull_baseline": 0.06577657218999411,
+        "boundary_normal_audit": 0.17804093885051117,
+        "final_target_cell_direction": 0.5009478717143733,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35824,
+          "chosen_target_pull": 35824,
+          "nearest_frontier_direction": 35824,
+          "random_steering_baseline": 35824,
+          "displacement_from_initial": 35824,
+          "center_pull_baseline": 35824,
+          "boundary_normal_audit": 35824,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7611827563672192,
+        "chosen_target_pull": 0.7611827563672192,
+        "nearest_frontier_direction": 0.030955294569938924,
+        "random_steering_baseline": 0.0006564202634839532,
+        "displacement_from_initial": 0.28436058991414764,
+        "center_pull_baseline": 0.0789410624458227,
+        "boundary_normal_audit": 0.1872989430751887,
+        "final_target_cell_direction": 0.46757271514285165,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35839,
+          "chosen_target_pull": 35839,
+          "nearest_frontier_direction": 35839,
+          "random_steering_baseline": 35839,
+          "displacement_from_initial": 35839,
+          "center_pull_baseline": 35839,
+          "boundary_normal_audit": 35839,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7642618913857927,
+        "chosen_target_pull": 0.7642618913857927,
+        "nearest_frontier_direction": 0.030118796651399823,
+        "random_steering_baseline": 0.0020604060266103666,
+        "displacement_from_initial": 0.27339261356836636,
+        "center_pull_baseline": 0.05749721579248929,
+        "boundary_normal_audit": 0.1708033849090418,
+        "final_target_cell_direction": 0.5509455885517353,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7641727547369954,
+        "chosen_target_pull": 0.7641727547369954,
+        "nearest_frontier_direction": 0.03016040882976697,
+        "random_steering_baseline": 0.001020761593111824,
+        "displacement_from_initial": 0.28125511027454475,
+        "center_pull_baseline": 0.07355804212907124,
+        "boundary_normal_audit": 0.19546578845403936,
+        "final_target_cell_direction": 0.544071088805024,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7671589996707956,
+        "chosen_target_pull": 0.7671589996707956,
+        "nearest_frontier_direction": 0.025964067189204534,
+        "random_steering_baseline": -0.0053120253364403605,
+        "displacement_from_initial": 0.2847029855820141,
+        "center_pull_baseline": 0.0771150593384626,
+        "boundary_normal_audit": 0.1920543099183021,
+        "final_target_cell_direction": 0.5065477677358694,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35825,
+          "chosen_target_pull": 35825,
+          "nearest_frontier_direction": 35825,
+          "random_steering_baseline": 35825,
+          "displacement_from_initial": 35825,
+          "center_pull_baseline": 35825,
+          "boundary_normal_audit": 35825,
+          "final_target_cell_direction": 639
+        }
+      }
+    },
+    "two_disconnected_islands": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.763541893999044,
+        "chosen_target_pull": 0.763541893999044,
+        "nearest_frontier_direction": 0.013276393290790217,
+        "random_steering_baseline": -0.004868296197199396,
+        "displacement_from_initial": 0.2623891989552653,
+        "center_pull_baseline": 0.074324149223186,
+        "boundary_normal_audit": 0.08187920934497422,
+        "final_target_cell_direction": 0.4960588965010542,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.761366242125959,
+        "chosen_target_pull": 0.761366242125959,
+        "nearest_frontier_direction": 0.004662004846591384,
+        "random_steering_baseline": -0.004494845399012499,
+        "displacement_from_initial": 0.24603916140490414,
+        "center_pull_baseline": 0.0803231945480322,
+        "boundary_normal_audit": 0.06462259035920097,
+        "final_target_cell_direction": 0.5177415955316538,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7609409011025168,
+        "chosen_target_pull": 0.7609409011025168,
+        "nearest_frontier_direction": 0.007557412164191157,
+        "random_steering_baseline": 0.002918024150272392,
+        "displacement_from_initial": 0.25387544546977353,
+        "center_pull_baseline": 0.06846523557224429,
+        "boundary_normal_audit": 0.10550174177051619,
+        "final_target_cell_direction": 0.5410467123927872,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7636709872657034,
+        "chosen_target_pull": 0.7636709872657034,
+        "nearest_frontier_direction": 0.0037550202568580153,
+        "random_steering_baseline": 0.003972586091431346,
+        "displacement_from_initial": 0.23287520370964138,
+        "center_pull_baseline": 0.09119569077404026,
+        "boundary_normal_audit": 0.10341766058041134,
+        "final_target_cell_direction": 0.5516214424054605,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35834,
+          "chosen_target_pull": 35834,
+          "nearest_frontier_direction": 35834,
+          "random_steering_baseline": 35834,
+          "displacement_from_initial": 35834,
+          "center_pull_baseline": 35834,
+          "boundary_normal_audit": 35834,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7646563314839079,
+        "chosen_target_pull": 0.7646563314839079,
+        "nearest_frontier_direction": 0.017687409233783764,
+        "random_steering_baseline": -0.005508618821813657,
+        "displacement_from_initial": 0.2606838458320216,
+        "center_pull_baseline": 0.07959707647092128,
+        "boundary_normal_audit": 0.0835112850728496,
+        "final_target_cell_direction": 0.5740091209711383,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7627519177727673,
+        "chosen_target_pull": 0.7627519177727673,
+        "nearest_frontier_direction": 0.0138002493462079,
+        "random_steering_baseline": 0.0006421059035108081,
+        "displacement_from_initial": 0.24250642241288498,
+        "center_pull_baseline": 0.07875580314070134,
+        "boundary_normal_audit": 0.08331870478857982,
+        "final_target_cell_direction": 0.5329390854102821,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7622534076467598,
+        "chosen_target_pull": 0.7622534076467598,
+        "nearest_frontier_direction": 0.011412376493129322,
+        "random_steering_baseline": 0.0008879346711674197,
+        "displacement_from_initial": 0.2534052198909234,
+        "center_pull_baseline": 0.0962996013680047,
+        "boundary_normal_audit": 0.08632494565206017,
+        "final_target_cell_direction": 0.5226842549906479,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7628961371592747,
+        "chosen_target_pull": 0.7628961371592747,
+        "nearest_frontier_direction": 0.007636833162815733,
+        "random_steering_baseline": 0.0022269955932566663,
+        "displacement_from_initial": 0.2532802029227837,
+        "center_pull_baseline": 0.0706609784364198,
+        "boundary_normal_audit": 0.07834403709779371,
+        "final_target_cell_direction": 0.5382711744606671,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7651484235104322,
+        "chosen_target_pull": 0.7651484235104322,
+        "nearest_frontier_direction": 0.012886441311896802,
+        "random_steering_baseline": -0.0014599826599094425,
+        "displacement_from_initial": 0.2358576517201512,
+        "center_pull_baseline": 0.08002198129216426,
+        "boundary_normal_audit": 0.09174549730159584,
+        "final_target_cell_direction": 0.5428698655095251,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7644250484610077,
+        "chosen_target_pull": 0.7644250484610077,
+        "nearest_frontier_direction": 0.010573853658028693,
+        "random_steering_baseline": 0.0006714789348458216,
+        "displacement_from_initial": 0.24277267769051492,
+        "center_pull_baseline": 0.06533392824339852,
+        "boundary_normal_audit": 0.0886674510066506,
+        "final_target_cell_direction": 0.518067727154056,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      }
+    },
+    "concave_crescent": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.7622427065305971,
+        "chosen_target_pull": 0.7622427065305971,
+        "nearest_frontier_direction": -0.001580260879562493,
+        "random_steering_baseline": 0.005311007074412852,
+        "displacement_from_initial": 0.25438487153818345,
+        "center_pull_baseline": 0.157752197810564,
+        "boundary_normal_audit": 0.09678769483278898,
+        "final_target_cell_direction": 0.530704159778752,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35836,
+          "chosen_target_pull": 35836,
+          "nearest_frontier_direction": 35836,
+          "random_steering_baseline": 35836,
+          "displacement_from_initial": 35836,
+          "center_pull_baseline": 35836,
+          "boundary_normal_audit": 35836,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7657308802588332,
+        "chosen_target_pull": 0.7657308802588332,
+        "nearest_frontier_direction": -0.00611079490529201,
+        "random_steering_baseline": -0.0064970357508608405,
+        "displacement_from_initial": 0.24498219142922115,
+        "center_pull_baseline": 0.16373473167759844,
+        "boundary_normal_audit": 0.10116134430403839,
+        "final_target_cell_direction": 0.5338343755198263,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35825,
+          "chosen_target_pull": 35825,
+          "nearest_frontier_direction": 35825,
+          "random_steering_baseline": 35825,
+          "displacement_from_initial": 35825,
+          "center_pull_baseline": 35825,
+          "boundary_normal_audit": 35825,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7641044596489864,
+        "chosen_target_pull": 0.7641044596489864,
+        "nearest_frontier_direction": 0.0046007009736726365,
+        "random_steering_baseline": -0.0008606663235218179,
+        "displacement_from_initial": 0.232929210203895,
+        "center_pull_baseline": 0.15379997232700782,
+        "boundary_normal_audit": 0.08307907719269539,
+        "final_target_cell_direction": 0.5640957684504271,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35827,
+          "chosen_target_pull": 35827,
+          "nearest_frontier_direction": 35827,
+          "random_steering_baseline": 35827,
+          "displacement_from_initial": 35827,
+          "center_pull_baseline": 35827,
+          "boundary_normal_audit": 35827,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7660430375207409,
+        "chosen_target_pull": 0.7660430375207409,
+        "nearest_frontier_direction": -0.010584005685128578,
+        "random_steering_baseline": 0.0016566357874187815,
+        "displacement_from_initial": 0.2425477890709864,
+        "center_pull_baseline": 0.1701282883393496,
+        "boundary_normal_audit": 0.1086544546544317,
+        "final_target_cell_direction": 0.552178822229414,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7636915540655802,
+        "chosen_target_pull": 0.7636915540655802,
+        "nearest_frontier_direction": 0.0038125470059324116,
+        "random_steering_baseline": -0.004366305149629686,
+        "displacement_from_initial": 0.2447127734062181,
+        "center_pull_baseline": 0.15792834821009716,
+        "boundary_normal_audit": 0.08244056486988233,
+        "final_target_cell_direction": 0.5233485006495996,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7596700751470874,
+        "chosen_target_pull": 0.7596700751470874,
+        "nearest_frontier_direction": 0.004050380339820315,
+        "random_steering_baseline": -0.005935249530903984,
+        "displacement_from_initial": 0.22987391420907494,
+        "center_pull_baseline": 0.15349974879771075,
+        "boundary_normal_audit": 0.0859837773596238,
+        "final_target_cell_direction": 0.5318323790501746,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35827,
+          "chosen_target_pull": 35827,
+          "nearest_frontier_direction": 35827,
+          "random_steering_baseline": 35827,
+          "displacement_from_initial": 35827,
+          "center_pull_baseline": 35827,
+          "boundary_normal_audit": 35827,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7618094654080659,
+        "chosen_target_pull": 0.7618094654080659,
+        "nearest_frontier_direction": -0.007562495688012918,
+        "random_steering_baseline": -0.005308460578346687,
+        "displacement_from_initial": 0.23014249518711066,
+        "center_pull_baseline": 0.17030353141615615,
+        "boundary_normal_audit": 0.10679501310996445,
+        "final_target_cell_direction": 0.5299043326686077,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7631052166964163,
+        "chosen_target_pull": 0.7631052166964163,
+        "nearest_frontier_direction": 0.006113664436702267,
+        "random_steering_baseline": 0.0032025374708491558,
+        "displacement_from_initial": 0.2395205964566714,
+        "center_pull_baseline": 0.15401672943298209,
+        "boundary_normal_audit": 0.09095526089762648,
+        "final_target_cell_direction": 0.5523849499687847,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7636803792527372,
+        "chosen_target_pull": 0.7636803792527372,
+        "nearest_frontier_direction": -0.0030241813418175525,
+        "random_steering_baseline": -0.0014653003272261844,
+        "displacement_from_initial": 0.2543753046898422,
+        "center_pull_baseline": 0.15953078390331166,
+        "boundary_normal_audit": 0.10054524578732137,
+        "final_target_cell_direction": 0.5571257028565506,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7649786697107007,
+        "chosen_target_pull": 0.7649786697107007,
+        "nearest_frontier_direction": -0.0013725415720116292,
+        "random_steering_baseline": -0.0001444197242568764,
+        "displacement_from_initial": 0.2528371354606422,
+        "center_pull_baseline": 0.161974491238206,
+        "boundary_normal_audit": 0.10588398502174301,
+        "final_target_cell_direction": 0.5267223964965084,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      }
+    },
+    "narrow_fjord": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.7475189341217231,
+        "chosen_target_pull": 0.7475189341217231,
+        "nearest_frontier_direction": 0.004379738511962969,
+        "random_steering_baseline": 7.42558130522556e-05,
+        "displacement_from_initial": 0.2077644016721754,
+        "center_pull_baseline": 0.0771976383576457,
+        "boundary_normal_audit": 0.1253726290489515,
+        "final_target_cell_direction": 0.5278822535646691,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7505836772102327,
+        "chosen_target_pull": 0.7505836772102327,
+        "nearest_frontier_direction": 0.007492949237557179,
+        "random_steering_baseline": 0.00082736035430412,
+        "displacement_from_initial": 0.21299561446414178,
+        "center_pull_baseline": 0.09171503660427323,
+        "boundary_normal_audit": 0.12874034815371083,
+        "final_target_cell_direction": 0.559131054966955,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7493228472556936,
+        "chosen_target_pull": 0.7493228472556936,
+        "nearest_frontier_direction": 0.0049989047121008715,
+        "random_steering_baseline": -0.0008200504918252093,
+        "displacement_from_initial": 0.22399422106128186,
+        "center_pull_baseline": 0.07446053769752664,
+        "boundary_normal_audit": 0.1282093344566481,
+        "final_target_cell_direction": 0.4962985023405328,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7464449893321663,
+        "chosen_target_pull": 0.7464449893321663,
+        "nearest_frontier_direction": 0.0003623734042508745,
+        "random_steering_baseline": 0.0017022987799479683,
+        "displacement_from_initial": 0.2042209028241114,
+        "center_pull_baseline": 0.09580086844917375,
+        "boundary_normal_audit": 0.14212968650613977,
+        "final_target_cell_direction": 0.519707123239115,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7481331341357191,
+        "chosen_target_pull": 0.7481331341357191,
+        "nearest_frontier_direction": -0.001846181729641235,
+        "random_steering_baseline": -0.009528049318251774,
+        "displacement_from_initial": 0.20254576729671822,
+        "center_pull_baseline": 0.07682947293277548,
+        "boundary_normal_audit": 0.129881688375387,
+        "final_target_cell_direction": 0.5356356032273921,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35827,
+          "chosen_target_pull": 35827,
+          "nearest_frontier_direction": 35827,
+          "random_steering_baseline": 35827,
+          "displacement_from_initial": 35827,
+          "center_pull_baseline": 35827,
+          "boundary_normal_audit": 35827,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7467142008041051,
+        "chosen_target_pull": 0.7467142008041051,
+        "nearest_frontier_direction": 0.0029981160852402483,
+        "random_steering_baseline": 0.004463733195375366,
+        "displacement_from_initial": 0.2072444830748716,
+        "center_pull_baseline": 0.07912830120564113,
+        "boundary_normal_audit": 0.11934745520172571,
+        "final_target_cell_direction": 0.5607553408878452,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7448665617454159,
+        "chosen_target_pull": 0.7448665617454159,
+        "nearest_frontier_direction": 0.002904318754484964,
+        "random_steering_baseline": 0.0013652319930878524,
+        "displacement_from_initial": 0.21632354047415622,
+        "center_pull_baseline": 0.09308127804940008,
+        "boundary_normal_audit": 0.14322631503794483,
+        "final_target_cell_direction": 0.5270292733541907,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7459501813909769,
+        "chosen_target_pull": 0.7459501813909769,
+        "nearest_frontier_direction": 0.010893993405197437,
+        "random_steering_baseline": -0.0030401101551552965,
+        "displacement_from_initial": 0.21859569182373725,
+        "center_pull_baseline": 0.06706564790145432,
+        "boundary_normal_audit": 0.13466910683407338,
+        "final_target_cell_direction": 0.5430248556627246,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7482785380732452,
+        "chosen_target_pull": 0.7482785380732452,
+        "nearest_frontier_direction": 0.0012111927493100936,
+        "random_steering_baseline": -0.0027139269180108208,
+        "displacement_from_initial": 0.2312561277297578,
+        "center_pull_baseline": 0.08608555523383964,
+        "boundary_normal_audit": 0.12813732184330712,
+        "final_target_cell_direction": 0.5411735703149965,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.749984658418332,
+        "chosen_target_pull": 0.749984658418332,
+        "nearest_frontier_direction": 0.004497120411959477,
+        "random_steering_baseline": -0.004810633275047299,
+        "displacement_from_initial": 0.21567385532374506,
+        "center_pull_baseline": 0.07854922546939302,
+        "boundary_normal_audit": 0.12956344065945474,
+        "final_target_cell_direction": 0.5588023322795307,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35826,
+          "chosen_target_pull": 35826,
+          "nearest_frontier_direction": 35826,
+          "random_steering_baseline": 35826,
+          "displacement_from_initial": 35826,
+          "center_pull_baseline": 35826,
+          "boundary_normal_audit": 35826,
+          "final_target_cell_direction": 639
+        }
+      }
+    },
+    "randomized_noisy_blob": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.7636647114602249,
+        "chosen_target_pull": 0.7636647114602249,
+        "nearest_frontier_direction": -0.0016298111700003373,
+        "random_steering_baseline": 0.0024272411994396,
+        "displacement_from_initial": 0.24143871729884225,
+        "center_pull_baseline": 0.1833510267239833,
+        "boundary_normal_audit": 0.12140671734798873,
+        "final_target_cell_direction": 0.49288393113230733,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7699042112878426,
+        "chosen_target_pull": 0.7699042112878426,
+        "nearest_frontier_direction": 0.008791700775516463,
+        "random_steering_baseline": -0.00012449224567595313,
+        "displacement_from_initial": 0.23418762826944228,
+        "center_pull_baseline": 0.19595750091765857,
+        "boundary_normal_audit": 0.13404198745390825,
+        "final_target_cell_direction": 0.5365973223282171,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.766029917980758,
+        "chosen_target_pull": 0.766029917980758,
+        "nearest_frontier_direction": -0.00755485491392029,
+        "random_steering_baseline": -0.0028483975411157,
+        "displacement_from_initial": 0.23635951263879393,
+        "center_pull_baseline": 0.19079670379363392,
+        "boundary_normal_audit": 0.12983747480495395,
+        "final_target_cell_direction": 0.5194320127714832,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7687056175951854,
+        "chosen_target_pull": 0.7687056175951854,
+        "nearest_frontier_direction": -0.0008209697445868996,
+        "random_steering_baseline": -0.002121020438606201,
+        "displacement_from_initial": 0.23427619228430868,
+        "center_pull_baseline": 0.20516023567683792,
+        "boundary_normal_audit": 0.1320565024563059,
+        "final_target_cell_direction": 0.5065821498813402,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35827,
+          "chosen_target_pull": 35827,
+          "nearest_frontier_direction": 35827,
+          "random_steering_baseline": 35827,
+          "displacement_from_initial": 35827,
+          "center_pull_baseline": 35827,
+          "boundary_normal_audit": 35827,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7643139610728418,
+        "chosen_target_pull": 0.7643139610728418,
+        "nearest_frontier_direction": -0.002924197601403372,
+        "random_steering_baseline": -0.0027887654539267225,
+        "displacement_from_initial": 0.2393948206611691,
+        "center_pull_baseline": 0.19319598542521507,
+        "boundary_normal_audit": 0.12330339349039114,
+        "final_target_cell_direction": 0.5883066495278345,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.766792492229801,
+        "chosen_target_pull": 0.766792492229801,
+        "nearest_frontier_direction": 0.007986532168538608,
+        "random_steering_baseline": -0.0041035939387833245,
+        "displacement_from_initial": 0.22522402746737608,
+        "center_pull_baseline": 0.17877651289323623,
+        "boundary_normal_audit": 0.10981974590218027,
+        "final_target_cell_direction": 0.5393639331724609,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35826,
+          "chosen_target_pull": 35826,
+          "nearest_frontier_direction": 35826,
+          "random_steering_baseline": 35826,
+          "displacement_from_initial": 35826,
+          "center_pull_baseline": 35826,
+          "boundary_normal_audit": 35826,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7654161434620679,
+        "chosen_target_pull": 0.7654161434620679,
+        "nearest_frontier_direction": 0.0009581290428602622,
+        "random_steering_baseline": -0.0012962379251267335,
+        "displacement_from_initial": 0.2447932765143086,
+        "center_pull_baseline": 0.1956847518641482,
+        "boundary_normal_audit": 0.1335493272196509,
+        "final_target_cell_direction": 0.5241282419174301,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35834,
+          "chosen_target_pull": 35834,
+          "nearest_frontier_direction": 35834,
+          "random_steering_baseline": 35834,
+          "displacement_from_initial": 35834,
+          "center_pull_baseline": 35834,
+          "boundary_normal_audit": 35834,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7647497860878787,
+        "chosen_target_pull": 0.7647497860878787,
+        "nearest_frontier_direction": -0.0025196564131412494,
+        "random_steering_baseline": 0.002242878672517071,
+        "displacement_from_initial": 0.23974842899183393,
+        "center_pull_baseline": 0.20030373356157655,
+        "boundary_normal_audit": 0.13246673905658393,
+        "final_target_cell_direction": 0.5667902397247824,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7667536845380781,
+        "chosen_target_pull": 0.7667536845380781,
+        "nearest_frontier_direction": -0.00401602121894213,
+        "random_steering_baseline": 0.0019296518487030387,
+        "displacement_from_initial": 0.24580011541139785,
+        "center_pull_baseline": 0.1935213051668943,
+        "boundary_normal_audit": 0.13170709708499242,
+        "final_target_cell_direction": 0.5370032083884148,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7650271162245962,
+        "chosen_target_pull": 0.7650271162245962,
+        "nearest_frontier_direction": -0.00033249941385527675,
+        "random_steering_baseline": -0.0002937145228538479,
+        "displacement_from_initial": 0.22839849737175383,
+        "center_pull_baseline": 0.19015313938458417,
+        "boundary_normal_audit": 0.1327797503745584,
+        "final_target_cell_direction": 0.540778858930858,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      }
+    },
+    "hollow_ring_donut": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.7564566570946285,
+        "chosen_target_pull": 0.7564566570946285,
+        "nearest_frontier_direction": 0.00011994067367926409,
+        "random_steering_baseline": -0.004751674495303303,
+        "displacement_from_initial": 0.2471297613652721,
+        "center_pull_baseline": 0.2228600542872766,
+        "boundary_normal_audit": 0.1106692759777867,
+        "final_target_cell_direction": 0.5631319511451286,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7610216145950204,
+        "chosen_target_pull": 0.7610216145950204,
+        "nearest_frontier_direction": -0.0027708910199690925,
+        "random_steering_baseline": 0.007809044365315245,
+        "displacement_from_initial": 0.2517655956661205,
+        "center_pull_baseline": 0.2465208146666525,
+        "boundary_normal_audit": 0.1252150382861939,
+        "final_target_cell_direction": 0.49858656424401093,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7558520181189151,
+        "chosen_target_pull": 0.7558520181189151,
+        "nearest_frontier_direction": -0.0002451923076012428,
+        "random_steering_baseline": -0.007895941454178858,
+        "displacement_from_initial": 0.2636502888899812,
+        "center_pull_baseline": 0.2492598424098178,
+        "boundary_normal_audit": 0.10020971403478514,
+        "final_target_cell_direction": 0.5344301871395218,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7599119328956189,
+        "chosen_target_pull": 0.7599119328956189,
+        "nearest_frontier_direction": -0.0023513340457194803,
+        "random_steering_baseline": 0.00306824492127448,
+        "displacement_from_initial": 0.25033300992545693,
+        "center_pull_baseline": 0.2523985593461005,
+        "boundary_normal_audit": 0.12903121733776673,
+        "final_target_cell_direction": 0.5246922434568632,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7569528828303183,
+        "chosen_target_pull": 0.7569528828303183,
+        "nearest_frontier_direction": -0.004824403526154766,
+        "random_steering_baseline": -0.0011696814833775898,
+        "displacement_from_initial": 0.25092811670376985,
+        "center_pull_baseline": 0.2433835433500251,
+        "boundary_normal_audit": 0.09069926429923861,
+        "final_target_cell_direction": 0.49517112292767435,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.759626611614277,
+        "chosen_target_pull": 0.759626611614277,
+        "nearest_frontier_direction": -0.0002086046092042254,
+        "random_steering_baseline": 0.0035682128590002363,
+        "displacement_from_initial": 0.2537858523125588,
+        "center_pull_baseline": 0.2477455453368105,
+        "boundary_normal_audit": 0.10153141640167435,
+        "final_target_cell_direction": 0.5661625692054899,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7589317703133588,
+        "chosen_target_pull": 0.7589317703133588,
+        "nearest_frontier_direction": -0.005697668307275746,
+        "random_steering_baseline": -0.0002483972337277168,
+        "displacement_from_initial": 0.2556208526286108,
+        "center_pull_baseline": 0.2581332965373042,
+        "boundary_normal_audit": 0.11714089284768747,
+        "final_target_cell_direction": 0.5223141633432324,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7570998288747113,
+        "chosen_target_pull": 0.7570998288747113,
+        "nearest_frontier_direction": -0.0038075863920758175,
+        "random_steering_baseline": 0.0020624959792799524,
+        "displacement_from_initial": 0.257212103483782,
+        "center_pull_baseline": 0.2587262093397678,
+        "boundary_normal_audit": 0.11412228881435252,
+        "final_target_cell_direction": 0.5492349443650905,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7606648185014963,
+        "chosen_target_pull": 0.7606648185014963,
+        "nearest_frontier_direction": -0.008511749964373462,
+        "random_steering_baseline": 0.004805774756490994,
+        "displacement_from_initial": 0.2606913919894594,
+        "center_pull_baseline": 0.25592043441470586,
+        "boundary_normal_audit": 0.1030308246059563,
+        "final_target_cell_direction": 0.531120775523946,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7554978172690345,
+        "chosen_target_pull": 0.7554978172690345,
+        "nearest_frontier_direction": -0.004602307982841311,
+        "random_steering_baseline": -0.0052935136166667495,
+        "displacement_from_initial": 0.2548306515423316,
+        "center_pull_baseline": 0.2403406624534932,
+        "boundary_normal_audit": 0.10585320365805546,
+        "final_target_cell_direction": 0.48197799624873783,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      }
+    },
+    "long_coastline_strip": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.760353918887906,
+        "chosen_target_pull": 0.760353918887906,
+        "nearest_frontier_direction": 0.004430298292568669,
+        "random_steering_baseline": -0.00153361503331652,
+        "displacement_from_initial": 0.2429539299293651,
+        "center_pull_baseline": 0.11468148390161646,
+        "boundary_normal_audit": 0.15607914832434713,
+        "final_target_cell_direction": 0.5092562862544651,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7571403445410174,
+        "chosen_target_pull": 0.7571403445410174,
+        "nearest_frontier_direction": 0.004879009354810639,
+        "random_steering_baseline": -0.00016637717125610237,
+        "displacement_from_initial": 0.24482479550636296,
+        "center_pull_baseline": 0.12580705418301408,
+        "boundary_normal_audit": 0.15623893340467382,
+        "final_target_cell_direction": 0.5618684883674784,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35836,
+          "chosen_target_pull": 35836,
+          "nearest_frontier_direction": 35836,
+          "random_steering_baseline": 35836,
+          "displacement_from_initial": 35836,
+          "center_pull_baseline": 35836,
+          "boundary_normal_audit": 35836,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7606649145453613,
+        "chosen_target_pull": 0.7606649145453613,
+        "nearest_frontier_direction": 0.003016963710820077,
+        "random_steering_baseline": 0.005635529870099294,
+        "displacement_from_initial": 0.24791271858673897,
+        "center_pull_baseline": 0.1168771789893117,
+        "boundary_normal_audit": 0.16236938640620524,
+        "final_target_cell_direction": 0.5378196924718346,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.7615292366968299,
+        "chosen_target_pull": 0.7615292366968299,
+        "nearest_frontier_direction": 0.007970088740042292,
+        "random_steering_baseline": 0.0005946673790770885,
+        "displacement_from_initial": 0.24124127302048312,
+        "center_pull_baseline": 0.13693132722715412,
+        "boundary_normal_audit": 0.18094617814177935,
+        "final_target_cell_direction": 0.5204686659423785,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35826,
+          "chosen_target_pull": 35826,
+          "nearest_frontier_direction": 35826,
+          "random_steering_baseline": 35826,
+          "displacement_from_initial": 35826,
+          "center_pull_baseline": 35826,
+          "boundary_normal_audit": 35826,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.7605832378311651,
+        "chosen_target_pull": 0.7605832378311651,
+        "nearest_frontier_direction": 0.011316937695055696,
+        "random_steering_baseline": -0.0032803887442682117,
+        "displacement_from_initial": 0.24478032501399036,
+        "center_pull_baseline": 0.12282129274871727,
+        "boundary_normal_audit": 0.1625355006842058,
+        "final_target_cell_direction": 0.5064957532369018,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35826,
+          "chosen_target_pull": 35826,
+          "nearest_frontier_direction": 35826,
+          "random_steering_baseline": 35826,
+          "displacement_from_initial": 35826,
+          "center_pull_baseline": 35826,
+          "boundary_normal_audit": 35826,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7603496752658999,
+        "chosen_target_pull": 0.7603496752658999,
+        "nearest_frontier_direction": 0.027586416056445552,
+        "random_steering_baseline": -0.008531391134636563,
+        "displacement_from_initial": 0.24240238974005257,
+        "center_pull_baseline": 0.10939251373725765,
+        "boundary_normal_audit": 0.18130812928757728,
+        "final_target_cell_direction": 0.5256721441226058,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35828,
+          "chosen_target_pull": 35828,
+          "nearest_frontier_direction": 35828,
+          "random_steering_baseline": 35828,
+          "displacement_from_initial": 35828,
+          "center_pull_baseline": 35828,
+          "boundary_normal_audit": 35828,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.7623160107075126,
+        "chosen_target_pull": 0.7623160107075126,
+        "nearest_frontier_direction": 0.010511162080649625,
+        "random_steering_baseline": 7.163309841739967e-05,
+        "displacement_from_initial": 0.2501290213866244,
+        "center_pull_baseline": 0.12983293932449816,
+        "boundary_normal_audit": 0.17258918010740334,
+        "final_target_cell_direction": 0.5210305237274534,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35836,
+          "chosen_target_pull": 35836,
+          "nearest_frontier_direction": 35836,
+          "random_steering_baseline": 35836,
+          "displacement_from_initial": 35836,
+          "center_pull_baseline": 35836,
+          "boundary_normal_audit": 35836,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7606060173737745,
+        "chosen_target_pull": 0.7606060173737745,
+        "nearest_frontier_direction": 0.008723754192148273,
+        "random_steering_baseline": 0.003615753680010474,
+        "displacement_from_initial": 0.24759798786479564,
+        "center_pull_baseline": 0.11155263159246467,
+        "boundary_normal_audit": 0.1752504736082168,
+        "final_target_cell_direction": 0.5517872869970948,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7609769680735844,
+        "chosen_target_pull": 0.7609769680735844,
+        "nearest_frontier_direction": 0.005051587220412986,
+        "random_steering_baseline": -0.0008398642453644363,
+        "displacement_from_initial": 0.2460760525126166,
+        "center_pull_baseline": 0.12824216653343296,
+        "boundary_normal_audit": 0.17509928485575743,
+        "final_target_cell_direction": 0.49137501876104084,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 638
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7566572585739851,
+        "chosen_target_pull": 0.7566572585739851,
+        "nearest_frontier_direction": 0.009565021779564075,
+        "random_steering_baseline": 0.007626087886399831,
+        "displacement_from_initial": 0.24402865376450983,
+        "center_pull_baseline": 0.11787935403727214,
+        "boundary_normal_audit": 0.1687630353774217,
+        "final_target_cell_direction": 0.5427513583413248,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 639
+        }
+      }
+    },
+    "small_compact_island": {
+      "3030": {
+        "frontierAttractionAlignmentScore_reported": 0.775222249157695,
+        "chosen_target_pull": 0.775222249157695,
+        "nearest_frontier_direction": 0.012318293759897965,
+        "random_steering_baseline": -0.007528508741178285,
+        "displacement_from_initial": 0.21128249485305078,
+        "center_pull_baseline": 0.10694402265077309,
+        "boundary_normal_audit": 0.08467013620911139,
+        "final_target_cell_direction": 0.5023099858408263,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35831,
+          "chosen_target_pull": 35831,
+          "nearest_frontier_direction": 35831,
+          "random_steering_baseline": 35831,
+          "displacement_from_initial": 35831,
+          "center_pull_baseline": 35831,
+          "boundary_normal_audit": 35831,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3031": {
+        "frontierAttractionAlignmentScore_reported": 0.7742692032670139,
+        "chosen_target_pull": 0.7742692032670139,
+        "nearest_frontier_direction": 0.02090383066330239,
+        "random_steering_baseline": 0.0028817578061117862,
+        "displacement_from_initial": 0.20049102472899719,
+        "center_pull_baseline": 0.11490239794119496,
+        "boundary_normal_audit": 0.09533848868896248,
+        "final_target_cell_direction": 0.499530120670577,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35837,
+          "chosen_target_pull": 35837,
+          "nearest_frontier_direction": 35837,
+          "random_steering_baseline": 35837,
+          "displacement_from_initial": 35837,
+          "center_pull_baseline": 35837,
+          "boundary_normal_audit": 35837,
+          "final_target_cell_direction": 639
+        }
+      },
+      "3032": {
+        "frontierAttractionAlignmentScore_reported": 0.7765776044169945,
+        "chosen_target_pull": 0.7765776044169945,
+        "nearest_frontier_direction": 0.013416072747957268,
+        "random_steering_baseline": -0.002312470721117043,
+        "displacement_from_initial": 0.21682389935254717,
+        "center_pull_baseline": 0.10754024220157646,
+        "boundary_normal_audit": 0.08604411725492764,
+        "final_target_cell_direction": 0.5611541936597525,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3033": {
+        "frontierAttractionAlignmentScore_reported": 0.772518413727818,
+        "chosen_target_pull": 0.772518413727818,
+        "nearest_frontier_direction": 0.009904233725306638,
+        "random_steering_baseline": 0.0012084737369901768,
+        "displacement_from_initial": 0.18406519806485205,
+        "center_pull_baseline": 0.10535802123230678,
+        "boundary_normal_audit": 0.08889717680527069,
+        "final_target_cell_direction": 0.5370081281176743,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35835,
+          "chosen_target_pull": 35835,
+          "nearest_frontier_direction": 35835,
+          "random_steering_baseline": 35835,
+          "displacement_from_initial": 35835,
+          "center_pull_baseline": 35835,
+          "boundary_normal_audit": 35835,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3034": {
+        "frontierAttractionAlignmentScore_reported": 0.774678794283532,
+        "chosen_target_pull": 0.774678794283532,
+        "nearest_frontier_direction": 0.03268818108707516,
+        "random_steering_baseline": -0.004390228232506849,
+        "displacement_from_initial": 0.20917261169283133,
+        "center_pull_baseline": 0.0950089897133489,
+        "boundary_normal_audit": 0.07506800747934489,
+        "final_target_cell_direction": 0.4986091944622135,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35832,
+          "chosen_target_pull": 35832,
+          "nearest_frontier_direction": 35832,
+          "random_steering_baseline": 35832,
+          "displacement_from_initial": 35832,
+          "center_pull_baseline": 35832,
+          "boundary_normal_audit": 35832,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3035": {
+        "frontierAttractionAlignmentScore_reported": 0.7755730331697314,
+        "chosen_target_pull": 0.7755730331697314,
+        "nearest_frontier_direction": 0.02284859416821948,
+        "random_steering_baseline": 0.0025780854799793344,
+        "displacement_from_initial": 0.21512878748869643,
+        "center_pull_baseline": 0.10498738837137792,
+        "boundary_normal_audit": 0.08006969841007038,
+        "final_target_cell_direction": 0.5163616470864678,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3036": {
+        "frontierAttractionAlignmentScore_reported": 0.773500013229129,
+        "chosen_target_pull": 0.773500013229129,
+        "nearest_frontier_direction": 0.01776234912208066,
+        "random_steering_baseline": -0.001242799503504558,
+        "displacement_from_initial": 0.2075004954653538,
+        "center_pull_baseline": 0.11069686144392697,
+        "boundary_normal_audit": 0.09038240374498616,
+        "final_target_cell_direction": 0.4834934080977322,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35830,
+          "chosen_target_pull": 35830,
+          "nearest_frontier_direction": 35830,
+          "random_steering_baseline": 35830,
+          "displacement_from_initial": 35830,
+          "center_pull_baseline": 35830,
+          "boundary_normal_audit": 35830,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3037": {
+        "frontierAttractionAlignmentScore_reported": 0.7734272385176808,
+        "chosen_target_pull": 0.7734272385176808,
+        "nearest_frontier_direction": 0.01703627699206374,
+        "random_steering_baseline": -0.004411493095897396,
+        "displacement_from_initial": 0.20254563058446773,
+        "center_pull_baseline": 0.0919908725110742,
+        "boundary_normal_audit": 0.07197811501766706,
+        "final_target_cell_direction": 0.4939668042698202,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35837,
+          "chosen_target_pull": 35837,
+          "nearest_frontier_direction": 35837,
+          "random_steering_baseline": 35837,
+          "displacement_from_initial": 35837,
+          "center_pull_baseline": 35837,
+          "boundary_normal_audit": 35837,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3038": {
+        "frontierAttractionAlignmentScore_reported": 0.7753450238130043,
+        "chosen_target_pull": 0.7753450238130043,
+        "nearest_frontier_direction": 0.016535047036492993,
+        "random_steering_baseline": -0.007265229404874078,
+        "displacement_from_initial": 0.20669222164181447,
+        "center_pull_baseline": 0.11070401232046936,
+        "boundary_normal_audit": 0.0912326910677207,
+        "final_target_cell_direction": 0.5189396171326215,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35833,
+          "chosen_target_pull": 35833,
+          "nearest_frontier_direction": 35833,
+          "random_steering_baseline": 35833,
+          "displacement_from_initial": 35833,
+          "center_pull_baseline": 35833,
+          "boundary_normal_audit": 35833,
+          "final_target_cell_direction": 640
+        }
+      },
+      "3039": {
+        "frontierAttractionAlignmentScore_reported": 0.7743018239806826,
+        "chosen_target_pull": 0.7743018239806826,
+        "nearest_frontier_direction": 0.02846350774785274,
+        "random_steering_baseline": -2.387170118551515e-05,
+        "displacement_from_initial": 0.20806387861757028,
+        "center_pull_baseline": 0.09652346012233455,
+        "boundary_normal_audit": 0.07386584598629631,
+        "final_target_cell_direction": 0.5287634420507006,
+        "sampleCounts": {
+          "frontierAttractionAlignmentScore_reported": 35829,
+          "chosen_target_pull": 35829,
+          "nearest_frontier_direction": 35829,
+          "random_steering_baseline": 35829,
+          "displacement_from_initial": 35829,
+          "center_pull_baseline": 35829,
+          "boundary_normal_audit": 35829,
+          "final_target_cell_direction": 640
+        }
+      }
+    }
+  },
+  "geometryMeans": {
+    "sun_in_1_polygon": {
+      "frontierAttractionAlignmentScore_reported": 0.765112,
+      "chosen_target_pull": 0.765112,
+      "nearest_frontier_direction": 0.036655,
+      "random_steering_baseline": 0.001454,
+      "displacement_from_initial": 0.292148,
+      "center_pull_baseline": 0.026001,
+      "boundary_normal_audit": 0.177189,
+      "final_target_cell_direction": 0.53769
+    },
+    "circle": {
+      "frontierAttractionAlignmentScore_reported": 0.766209,
+      "chosen_target_pull": 0.766209,
+      "nearest_frontier_direction": -0.00423,
+      "random_steering_baseline": 0.000144,
+      "displacement_from_initial": 0.215732,
+      "center_pull_baseline": 0.154542,
+      "boundary_normal_audit": 0.129979,
+      "final_target_cell_direction": 0.551341
+    },
+    "thin_diagonal_ribbon": {
+      "frontierAttractionAlignmentScore_reported": 0.762502,
+      "chosen_target_pull": 0.762502,
+      "nearest_frontier_direction": 0.028867,
+      "random_steering_baseline": 3e-06,
+      "displacement_from_initial": 0.272798,
+      "center_pull_baseline": 0.068438,
+      "boundary_normal_audit": 0.176539,
+      "final_target_cell_direction": 0.527855
+    },
+    "two_disconnected_islands": {
+      "frontierAttractionAlignmentScore_reported": 0.763165,
+      "chosen_target_pull": 0.763165,
+      "nearest_frontier_direction": 0.010325,
+      "random_steering_baseline": -0.000501,
+      "displacement_from_initial": 0.248369,
+      "center_pull_baseline": 0.078498,
+      "boundary_normal_audit": 0.086733,
+      "final_target_cell_direction": 0.533531
+    },
+    "concave_crescent": {
+      "frontierAttractionAlignmentScore_reported": 0.763506,
+      "chosen_target_pull": 0.763506,
+      "nearest_frontier_direction": -0.001166,
+      "random_steering_baseline": -0.001441,
+      "displacement_from_initial": 0.242631,
+      "center_pull_baseline": 0.160267,
+      "boundary_normal_audit": 0.096229,
+      "final_target_cell_direction": 0.540213
+    },
+    "narrow_fjord": {
+      "frontierAttractionAlignmentScore_reported": 0.74778,
+      "chosen_target_pull": 0.74778,
+      "nearest_frontier_direction": 0.003789,
+      "random_steering_baseline": -0.001248,
+      "displacement_from_initial": 0.214061,
+      "center_pull_baseline": 0.081991,
+      "boundary_normal_audit": 0.130928,
+      "final_target_cell_direction": 0.536944
+    },
+    "randomized_noisy_blob": {
+      "frontierAttractionAlignmentScore_reported": 0.766136,
+      "chosen_target_pull": 0.766136,
+      "nearest_frontier_direction": -0.000206,
+      "random_steering_baseline": -0.000698,
+      "displacement_from_initial": 0.236962,
+      "center_pull_baseline": 0.19269,
+      "boundary_normal_audit": 0.128097,
+      "final_target_cell_direction": 0.535187
+    },
+    "hollow_ring_donut": {
+      "frontierAttractionAlignmentScore_reported": 0.758202,
+      "chosen_target_pull": 0.758202,
+      "nearest_frontier_direction": -0.00329,
+      "random_steering_baseline": 0.000195,
+      "displacement_from_initial": 0.254595,
+      "center_pull_baseline": 0.247529,
+      "boundary_normal_audit": 0.10975,
+      "final_target_cell_direction": 0.526682
+    },
+    "long_coastline_strip": {
+      "frontierAttractionAlignmentScore_reported": 0.760118,
+      "chosen_target_pull": 0.760118,
+      "nearest_frontier_direction": 0.009305,
+      "random_steering_baseline": 0.000319,
+      "displacement_from_initial": 0.245195,
+      "center_pull_baseline": 0.121402,
+      "boundary_normal_audit": 0.169118,
+      "final_target_cell_direction": 0.526853
+    },
+    "small_compact_island": {
+      "frontierAttractionAlignmentScore_reported": 0.774541,
+      "chosen_target_pull": 0.774541,
+      "nearest_frontier_direction": 0.019188,
+      "random_steering_baseline": -0.002051,
+      "displacement_from_initial": 0.206177,
+      "center_pull_baseline": 0.104466,
+      "boundary_normal_audit": 0.083755,
+      "final_target_cell_direction": 0.514014
+    }
+  },
+  "metricRelativeSpread": {
+    "frontierAttractionAlignmentScore_reported": 0.035086,
+    "chosen_target_pull": 0.035086,
+    "nearest_frontier_direction": 4.119935,
+    "random_steering_baseline": 9.165795,
+    "displacement_from_initial": 0.353984,
+    "center_pull_baseline": 1.792553,
+    "boundary_normal_audit": 0.725241,
+    "final_target_cell_direction": 0.070028
+  },
+  "crossGeometryMetricCorrelation": {
+    "frontierAttractionAlignmentScore_reported__chosen_target_pull": 1.0,
+    "frontierAttractionAlignmentScore_reported__nearest_frontier_direction": 0.264232,
+    "frontierAttractionAlignmentScore_reported__random_steering_baseline": -0.112084,
+    "frontierAttractionAlignmentScore_reported__displacement_from_initial": -0.038645,
+    "frontierAttractionAlignmentScore_reported__center_pull_baseline": -0.006766,
+    "frontierAttractionAlignmentScore_reported__boundary_normal_audit": -0.236885,
+    "frontierAttractionAlignmentScore_reported__final_target_cell_direction": -0.242957,
+    "chosen_target_pull__nearest_frontier_direction": 0.264232,
+    "chosen_target_pull__random_steering_baseline": -0.112084,
+    "chosen_target_pull__displacement_from_initial": -0.038645,
+    "chosen_target_pull__center_pull_baseline": -0.006766,
+    "chosen_target_pull__boundary_normal_audit": -0.236885,
+    "chosen_target_pull__final_target_cell_direction": -0.242957,
+    "nearest_frontier_direction__random_steering_baseline": 0.351057,
+    "nearest_frontier_direction__displacement_from_initial": 0.591484,
+    "nearest_frontier_direction__center_pull_baseline": -0.8076,
+    "nearest_frontier_direction__boundary_normal_audit": 0.512752,
+    "nearest_frontier_direction__final_target_cell_direction": -0.351787,
+    "random_steering_baseline__displacement_from_initial": 0.746986,
+    "random_steering_baseline__center_pull_baseline": -0.167444,
+    "random_steering_baseline__boundary_normal_audit": 0.72553,
+    "random_steering_baseline__final_target_cell_direction": 0.307504,
+    "displacement_from_initial__center_pull_baseline": -0.290658,
+    "displacement_from_initial__boundary_normal_audit": 0.584181,
+    "displacement_from_initial__final_target_cell_direction": 0.025944,
+    "center_pull_baseline__boundary_normal_audit": -0.3936,
+    "center_pull_baseline__final_target_cell_direction": 0.036298,
+    "boundary_normal_audit__final_target_cell_direction": 0.149809
+  },
+  "comparisons": {
+    "reportedMeanAcrossGeometries": 0.762727,
+    "randomBaselineMeanAcrossGeometries": -0.000382,
+    "reportedMinusRandomMean": 0.763109,
+    "reportedRelativeSpread": 0.035086,
+    "nearestFrontierRelativeSpread": 4.119935,
+    "phase32ReportedRelativeSpread": 0.035086,
+    "corrReportedVsChosenTargetPull": 1.0,
+    "corrReportedVsNearestFrontier": 0.264232,
+    "corrReportedVsCenterPull": -0.006766,
+    "redundantWithChosenTargetPull": true,
+    "geometryInsensitive": true,
+    "nearestFrontierMoreGeometrySensitive": true
+  },
+  "tests": {
+    "tautology_check": {
+      "verdict": "FAIL",
+      "corrReportedChosen": 1.0
+    },
+    "geometry_sensitivity_check": {
+      "verdict": "FAIL",
+      "reportedSpread": 0.035086,
+      "threshold": 0.1
+    },
+    "random_baseline_check": {
+      "verdict": "PASS",
+      "gap": 0.763109
+    },
+    "center_pull_redundancy_check": {
+      "verdict": "PASS",
+      "correlation": -0.006766
+    },
+    "frontier_migration_evidence_check": {
+      "verdict": "FAIL",
+      "conditions": {
+        "notTautologicalWithChosenTargetPull": false,
+        "reportedMetricGeometrySensitive": false,
+        "nearestFrontierMateriallyPositive": false
+      },
+      "values": {
+        "nearestFrontierMeanAlignment": 0.009924,
+        "nearestFrontierMinRequired": 0.15,
+        "reportedRelativeSpread": 0.035086,
+        "nearestFrontierRelativeSpread": 4.119935
+      }
+    }
+  },
+  "conclusions": {
+    "frontierAttractionAlignmentScoreVerdict": "FAIL",
+    "metricRecommendation": "RETIRE_or_RENAME",
+    "rationale": "frontierAttractionAlignmentScore is tautologically identical to chosen-target pull alignment and shows negligible cross-geometry spread (~3-4%). It measures generic solver steering toward selected grid cells, not frontier geometry.",
+    "isMetricTheater": true,
+    "tracksGenericTargetPull": true,
+    "distinguishesGeometryBetterThanRandom": true,
+    "distinguishesGeometryBetterThanCenter": true,
+    "evidenceSupportsFrontierResponsiveMigration": false
+  },
+  "frontierMigrationEvidence": {
+    "conditions": {
+      "notTautologicalWithChosenTargetPull": false,
+      "reportedMetricGeometrySensitive": false,
+      "nearestFrontierMateriallyPositive": false
+    },
+    "values": {
+      "nearestFrontierMeanAlignment": 0.009924,
+      "nearestFrontierMinRequired": 0.15,
+      "reportedRelativeSpread": 0.035086,
+      "nearestFrontierRelativeSpread": 4.119935
+    }
+  },
+  "contradictionAudit": {
+    "phase": "3.34_report_integrity_correction",
+    "priorFieldWrong": true,
+    "priorValue": true,
+    "correctedValue": false,
+    "whyPriorWasWrong": "evidenceSupportsFrontierResponsiveMigration was set to (nearestFrontierRelativeSpread >= GEOMETRY_SENSITIVE_MIN_SPREAD). High relative spread around a near-zero mean (~0.03) was mistaken for positive frontier-directional migration evidence.",
+    "controllingRule": "Field is true only when ALL hold: (1) reported metric not tautological with chosen target pull, (2) reported metric geometry-sensitive (relative spread >= 0.1), (3) nearest-frontier mean alignment >= 0.15."
+  },
+  "reportIntegrityCorrection": "3.34"
+}

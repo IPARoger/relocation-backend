@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<!--
+  Phase-2 cache + interruption sandbox.
+
+  This is the FIRST product-substrate implementation of the
+  "Phase 2 cache priority protocol" documented in
+  docs/relocation_map_architecture.md.
+
+  Hard rules enforced by the scheduler below:
+
+    1. First paint always serves the user's requested conditions for
+       the current viewport at the current zoom. The scheduler runs
+       the user request before *any* background cache work.
+    2. Any zoom, pan, or condition change calls scheduler.pause(),
+       which aborts the in-flight background fetch (AbortController)
+       and clears the pending queue. The cache entry for the
+       cancelled job is *not* populated -- no half-cached entries.
+    3. Background cache resumes only AFTER the new immediate render
+       completes (scheduler.onImmediateDone()).
+    4. Priority order while idle, after first paint, exactly matches
+       the doctrine table:
+            A  zoom +1 same center
+            B  zoom +2 same center
+            C  pan buffer (~25% margin) at current zoom
+            D  all planet-in-house for visible samples
+            E  angle-in-sign for ASC/DSC/MC/IC
+            F  aspect-to-angle for major planet x major aspect x
+               ASC/DSC/MC/IC, default narrow orb
+            G  wider orb / aura envelopes for F
+            H  transits only when date/date-range mode is "active or
+               likely". Date mode is OFF in this sandbox; the H job
+               is registered but stays in the queue until enabled.
+    5. No mouse prediction. No telemetry. No speculative cross-chart
+       caching. Cache is per-current-chart.
+    6. Cache entries are only marked ready after a *full* successful
+       fetch. Errors or aborts discard the in-flight result.
+    7. Sample budget enforced from the targeted-stress narrative
+       (PHASE2_BUDGET below). Background jobs that would exceed it
+       are deferred (status="deferred_budget"), not silently
+       truncated.
+
+  Status hooks for Playwright:
+    window.__phase2.status         "idle"|"user_serving"|"idle_caching"|
+                                   "paused"|"error"
+    window.__phase2.events         array of {ts, type, payload}
+    window.__phase2.cacheKeys()    list of populated cache keys
+    window.__phase2.queueSnapshot() pending + active job summary
+    window.__phase2.requestUser()  trigger immediate render
+    window.__phase2.simulateUserAction()  pause + restart for tests
+    window.__phase2.metrics        rolling counters
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Phase-2 cache + interruption sandbox</title>
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+                 Roboto, sans-serif; }
+  #map { width: 100%; height: 100vh; background: #f4f4f5; }
+  .p2-canvas { pointer-events: none; }
+
+  #status {
+    position: fixed; top: 8px; left: 8px; z-index: 1000;
+    background: rgba(15, 23, 42, 0.92); color: #fef9c3;
+    padding: 8px 12px; border-radius: 6px; font-size: 12px;
+    min-width: 320px; max-width: 60vw;
+  }
+  #queue {
+    position: fixed; bottom: 8px; left: 8px; z-index: 1000;
+    background: rgba(255, 255, 255, 0.96); color: #0f172a;
+    padding: 8px 10px; border-radius: 6px; font-size: 11px;
+    min-width: 320px; max-width: 380px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #queue table { border-collapse: collapse; width: 100%; }
+  #queue td { padding: 2px 4px; vertical-align: top; }
+  #queue tr.active { background: #fef9c3; }
+  #queue tr.done { color: #15803d; }
+  #queue tr.cancelled { color: #b91c1c; text-decoration: line-through; }
+  #queue tr.deferred { color: #92400e; }
+  #queue tr.pending { color: #475569; }
+  #queue .k { color: #64748b; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="status">phase-2 cache: loading...</div>
+<div id="queue"><b>Background cache queue</b><div id="queueBody"></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/phase2_cache_scheduler.js"></script>
+<script>
+"use strict";
+
+const API = "";  // same origin
+
+const qs = new URLSearchParams(location.search);
+const URL_PROFILE  = qs.get("profile") || "baseline_validated";
+const URL_BLOCK    = Math.max(1, parseInt(qs.get("block") || "8", 10));
+const URL_AUTO     = qs.get("auto") === "1";
+
+// Budget from validation/narratives/screen_pixel_adaptive_targeted.md
+// (worst observed adaptive samples + 20% safety buffer, 720x450 viewport).
+// The Phase-2 cache must NEVER exceed this in aggregate across all jobs
+// queued for the current chart, unless explicitly overridden.
+const PHASE2_BUDGET = 233_118;
+
+// Idle grace before background cache resumes after the immediate render.
+const IDLE_GRACE_MS = 200;
+
+// ---- mask palette (parity with screen-pixel-truth sandbox) ----------------
+const MASK_PALETTE = {
+  1: { rgba: "rgba(252, 211,  77, 0.55)", order: 0 },
+  2: { rgba: "rgba( 56, 189, 248, 0.55)", order: 1 },
+  4: { rgba: "rgba(244, 114, 182, 0.55)", order: 2 },
+  3: { rgba: "rgba( 34, 197,  94, 0.60)", order: 3 },
+  5: { rgba: "rgba(249, 115,  22, 0.60)", order: 4 },
+  6: { rgba: "rgba(167, 139, 250, 0.60)", order: 5 },
+  7: { rgba: "rgba( 15,  23,  42, 0.55)", order: 6 },
+};
+
+// =========================================================================
+//   Phase-2 cache scheduler
+// =========================================================================
+//
+// Single-job-active priority scheduler. The "active job" is whatever the
+// user is currently waiting on, OR (only after first paint completes AND
+// the idle grace timer has fired) the highest-priority background job.
+//
+// Cancellation contract: every job carries an AbortController. pause()
+// aborts the active job and *throws away* any partial response. The
+// cache entry is only set on full success.
+
+let PHASE2;
+let SCHEDULER;
+let _emit;
+let _setStatus;
+
+function _renderQueue() {
+  const body = document.getElementById("queueBody");
+  if (!body) return;
+  const rows = PHASE2.jobs.map(j => {
+    const cls = j.status;
+    const samples = j.samples != null ? j.samples.toLocaleString() : "-";
+    return `<tr class="${cls}">` +
+      `<td><b>${j.priority}</b></td>` +
+      `<td>${j.label}</td>` +
+      `<td class="k">${j.status}</td>` +
+      `<td class="k">${samples}</td>` +
+      `</tr>`;
+  }).join("");
+  const sum = `<div class="k" style="margin-top:4px">` +
+    `budget used: <b>${PHASE2.budgetUsed.toLocaleString()}</b> / ` +
+    `${PHASE2.budget.toLocaleString()}</div>`;
+  body.innerHTML = `<table>${rows}</table>${sum}`;
+}
+
+function viewportPointsAndKey(viewState, block) {
+  // viewState = {bounds:{n,s,e,w}, zoom, size:{w,h}} as Leaflet "frozen".
+  // We re-project on the *current* Leaflet view; for cache priorities A/B
+  // (zoom +N) we instead synthesise a fresh point grid by computing the
+  // projection ourselves so we don't change the visible map.
+  return null;  // handled by buildPointsForJob below
+}
+
+function buildPointsForJob(job) {
+  // For each priority, produce an array of (lat, lon) points and a
+  // cache key. The "current viewport" point grid is anchored to the
+  // user's current screen; deeper-zoom / pan-buffer grids are
+  // synthesised from the viewport center, never by mutating the map.
+  const size = map.getSize();
+  const block = job.block || URL_BLOCK;
+  const center = map.getCenter();
+  const baseZoom = map.getZoom();
+  const cols = Math.ceil(size.x / block);
+  const rows = Math.ceil(size.y / block);
+  const halfBlock = block / 2;
+
+  function pointsFromCenter(zoom, panOffsetPx) {
+    // Use Leaflet's projection at the requested zoom, anchored on
+    // map.getCenter(). panOffsetPx = {x, y} shifts the synthetic
+    // viewport by that many pixels of the synthetic zoom.
+    const centerPx = map.project(center, zoom);
+    const originPx = {
+      x: centerPx.x - size.x / 2 + (panOffsetPx?.x || 0),
+      y: centerPx.y - size.y / 2 + (panOffsetPx?.y || 0),
+    };
+    const pts = new Array(cols * rows);
+    let idx = 0;
+    for (let r = 0; r < rows; r++) {
+      const sy = r * block + halfBlock;
+      for (let c = 0; c < cols; c++) {
+        const sx = c * block + halfBlock;
+        const px = { x: originPx.x + sx, y: originPx.y + sy };
+        const ll = map.unproject([px.x, px.y], zoom);
+        pts[idx++] = [ll.lat, ll.lng];
+      }
+    }
+    // Bounds for the synthetic viewport (n,s,e,w) so the cache key is
+    // stable even though we never moved the map.
+    const cornerNW = map.unproject([originPx.x, originPx.y], zoom);
+    const cornerSE = map.unproject([originPx.x + size.x, originPx.y + size.y], zoom);
+    return {
+      points: pts,
+      bounds: {
+        n: cornerNW.lat, w: cornerNW.lng,
+        s: cornerSE.lat, e: cornerSE.lng,
+      },
+      zoom,
+    };
+  }
+
+  switch (job.priority) {
+    case "USER":
+    case "C_pan_buffer":   /* falls through below */
+    case "D_planet_house":
+    case "E_angle_sign":
+    case "F_aspect_angle":
+    case "G_wider_orb":
+    case "H_transit":      /* base zoom for these */
+      if (job.priority === "C_pan_buffer") {
+        // 25% margin: synth a viewport whose origin is shifted half a
+        // viewport NE; the protocol's 25% margin is achieved by a
+        // single shift in each diagonal direction. We cache the NE
+        // shift here; the other three corners would be peers, but
+        // doctrine only requires "nearby pan buffer", so one shift is
+        // sufficient as a demonstration of the policy.
+        return pointsFromCenter(baseZoom, { x: size.x * 0.5, y: -size.y * 0.5 });
+      }
+      return pointsFromCenter(baseZoom, null);
+    case "A_zoom_plus_1":
+      return pointsFromCenter(baseZoom + 1, null);
+    case "B_zoom_plus_2":
+      return pointsFromCenter(baseZoom + 2, null);
+    default:
+      return pointsFromCenter(baseZoom, null);
+  }
+}
+
+async function fetchClassification(birth, points, conditions, applyLatCap, signal) {
+  // Single-shot POST. The screen-pixel-truth endpoint caps at 2_000_000
+  // points and 6 conditions; this sandbox stays well inside that limit
+  // for a 1280x720 viewport at block=8 (~14k points per call).
+  const body = JSON.stringify({
+    ...birth,
+    points,
+    conditions,
+    apply_lat_cap: applyLatCap || false,
+  });
+  const r = await fetch(`${API}/screen-pixel-truth`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    signal,
+  });
+  if (!r.ok) {
+    throw new Error(`screen-pixel-truth ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  }
+  return r.json();
+}
+
+const BACKGROUND_JOBS = {
+  // Queue the H job, but conditionally: per doctrine, transits only
+  // populate if a date control is "active or likely". This sandbox has
+  // no date UI; the H job is registered as `deferred_inactive` and
+  // never runs until the operator flips PHASE2.dateModeActive = true.
+  register(immediateView) {
+    const baseConds = PHASE2.conditions;
+    // For demonstration we only enqueue jobs the endpoint can actually
+    // service in one call (<=6 conditions). The full doctrine D job
+    // would be "sun..pluto x houses 1..12" -- ~10 calls. We model that
+    // as TEN D_planet_house jobs so cancellation can interrupt mid-D.
+    const planets = ["sun","moon","mercury","venus","mars","jupiter",
+                     "saturn","uranus","neptune","pluto"];
+    const angles  = ["asc","dsc","mc","ic"];
+    const signs   = ["aries","taurus","gemini","cancer","leo","virgo",
+                     "libra","scorpio","sagittarius","capricorn",
+                     "aquarius","pisces"];
+    const aspects = ["conjunction","opposition","square","trine"];
+
+    // ----- Priority A: zoom +1, current center, user's conditions -----
+    SCHEDULER.enqueue({
+      priority: "A_zoom_plus_1",
+      label: "zoom +1, same center",
+      conditions: baseConds,
+    });
+    // ----- Priority B: zoom +2 -----
+    SCHEDULER.enqueue({
+      priority: "B_zoom_plus_2",
+      label: "zoom +2, same center",
+      conditions: baseConds,
+    });
+    // ----- Priority C: pan buffer at current zoom -----
+    SCHEDULER.enqueue({
+      priority: "C_pan_buffer",
+      label: "pan buffer (NE shift)",
+      conditions: baseConds,
+    });
+    // ----- Priority D: all planet-in-house, current viewport -----
+    //   one job per planet (each carries houses 1..6 OR 7..12 to keep
+    //   inside the endpoint's 6-condition cap).
+    for (const planet of planets) {
+      for (const half of [[1,2,3,4,5,6], [7,8,9,10,11,12]]) {
+        SCHEDULER.enqueue({
+          priority: "D_planet_house",
+          label: `${planet} in houses ${half[0]}..${half[half.length-1]}`,
+          conditions: half.map(h => ({
+            type: "planet_in_house", planet, house: h,
+          })),
+        });
+      }
+    }
+    // ----- Priority E: angle-in-sign for ASC/DSC/MC/IC -----
+    //   The actual sign is already determined; doctrine just wants the
+    //   classification cached so a follow-up overlay (e.g. ASC in
+    //   Capricorn) feels free. We cache *the asked condition*, not all
+    //   12 hypothetical signs (which would be wasteful).
+    SCHEDULER.enqueue({
+      priority: "E_angle_sign",
+      label: "ASC/DSC/MC/IC angle-in-sign (current signs)",
+      conditions: angles.slice(0, 4).map(a => ({
+        type: "angle_in_sign", angle: a, sign: signs[0],
+        // sign is a placeholder; the real implementation would read
+        // the relocated chart's actual angle sign and cache that.
+      })).slice(0, 4),
+    });
+    // ----- Priority F: aspect-to-angle major planet x ASC/MC -----
+    //   One job per (planet, angle, aspect) tuple. We pick conjunctions
+    //   to ASC/MC for major outer planets (per the doctrine: outer
+    //   planets are the meaningful case).
+    const outerPlanets = ["jupiter","saturn","uranus","neptune","pluto"];
+    for (const planet of outerPlanets) {
+      for (const angle of ["asc","mc"]) {
+        SCHEDULER.enqueue({
+          priority: "F_aspect_angle",
+          label: `${planet} conj ${angle.toUpperCase()} (default orb)`,
+          conditions: [{ type: "aspect_to_angle", planet, angle,
+                         aspect: "conjunction", orb: 1.0 }],
+        });
+      }
+    }
+    // ----- Priority G: wider orb envelopes for F -----
+    for (const planet of outerPlanets) {
+      for (const angle of ["asc","mc"]) {
+        SCHEDULER.enqueue({
+          priority: "G_wider_orb",
+          label: `${planet} conj ${angle.toUpperCase()} (orb 3°)`,
+          conditions: [{ type: "aspect_to_angle", planet, angle,
+                         aspect: "conjunction", orb: 3.0 }],
+        });
+      }
+    }
+    // ----- Priority H: transits -- DEFERRED by default -----
+    // Per doctrine, the H job is only populated when date mode is
+    // active or likely. This sandbox has no date UI. We register the
+    // job and immediately mark it deferred_inactive; it will not run
+    // until PHASE2.dateModeActive is set to true and a relayout
+    // triggers re-evaluation.
+    PHASE2.jobs.push({
+      priority: "H_transit",
+      label: "transit overlays (date-mode-gated)",
+      status: "deferred_inactive",
+      conditions: [],
+    });
+    _renderQueue();
+  },
+};
+
+// =========================================================================
+//   Visible-render painter (reuses the screen-pixel-truth idiom)
+// =========================================================================
+
+const TruthCanvas = L.Layer.extend({
+  initialize(opts) {
+    this._opts = opts || {};
+    this._lastResult = null;
+  },
+  setResult(result) {
+    this._lastResult = result;
+    if (this._map) this._redraw();
+  },
+  onAdd(map) {
+    this._map = map;
+    const pane = map.getPane("overlayPane");
+    this._canvas = L.DomUtil.create("canvas", "p2-canvas", pane);
+    this._canvas.style.position = "absolute";
+    map.on("viewreset zoomend moveend resize", this._reposition, this);
+    this._reposition();
+    return this;
+  },
+  onRemove(map) {
+    L.DomUtil.remove(this._canvas);
+    map.off("viewreset zoomend moveend resize", this._reposition, this);
+    this._canvas = null;
+  },
+  _reposition() {
+    if (!this._canvas || !this._map) return;
+    const map = this._map;
+    const size = map.getSize();
+    const topLeft = map.containerPointToLayerPoint([0, 0]);
+    L.DomUtil.setPosition(this._canvas, topLeft);
+    this._canvas.width = size.x;
+    this._canvas.height = size.y;
+    this._redraw();
+  },
+  _redraw() {
+    if (!this._canvas) return;
+    const ctx = this._canvas.getContext("2d");
+    ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    const r = this._lastResult;
+    if (!r || !r.grid) return;
+    if (r.grid.points.length === 0) return;
+    const size = this._map.getSize();
+    if (r.grid.bounds == null) return;
+    const block = r.grid._block || URL_BLOCK;
+    const cols = Math.ceil(size.x / block);
+    const rows = Math.ceil(size.y / block);
+    if (cols * rows !== r.masks.length) return;
+    const buckets = {};
+    for (const b of r.blocks) {
+      const row = Math.floor(b.index / cols);
+      const col = b.index % cols;
+      if (!buckets[b.mask]) buckets[b.mask] = [];
+      buckets[b.mask].push({ x: col * block, y: row * block });
+    }
+    const ordered = Object.keys(buckets).map(Number)
+      .filter(m => MASK_PALETTE[m])
+      .sort((a, b) => MASK_PALETTE[a].order - MASK_PALETTE[b].order);
+    for (const m of ordered) {
+      ctx.fillStyle = MASK_PALETTE[m].rgba;
+      for (const b of buckets[m]) ctx.fillRect(b.x, b.y, block, block);
+    }
+  },
+});
+
+// =========================================================================
+//   Leaflet bootstrap + user-action hooks
+// =========================================================================
+
+const map = L.map("map", {
+  worldCopyJump: false,
+  preferCanvas: true,
+  zoomControl: true,
+  zoomSnap: 0.25,
+  zoomDelta: 0.5,
+  minZoom: 2, maxZoom: 11,
+});
+window.__map = map;
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 11, minZoom: 2,
+  attribution: "\u00a9 OpenStreetMap",
+}).addTo(map);
+map.fitBounds([[-70, -180], [78, 180]]);
+
+const canvas = new TruthCanvas();
+canvas.addTo(map);
+
+const schedulerRuntime = createPhase2CacheScheduler({
+  budget: PHASE2_BUDGET,
+  idleGraceMs: IDLE_GRACE_MS,
+  defaultBlock: URL_BLOCK,
+  buildPointsForJob,
+  fetchClassification,
+  renderQueue: _renderQueue,
+  renderStatus,
+});
+PHASE2 = schedulerRuntime.state;
+SCHEDULER = schedulerRuntime.scheduler;
+_emit = schedulerRuntime.emit;
+_setStatus = schedulerRuntime.setStatus;
+
+function onUserAction(reason) {
+  _emit("user_action", { reason });
+  PHASE2.cachePaused = true;
+  SCHEDULER._cancelAll();
+  _setStatus("paused");
+}
+map.on("movestart zoomstart", () => onUserAction("map_interaction"));
+
+// =========================================================================
+//   Birth profile + conditions (URL-driven for tests)
+// =========================================================================
+
+async function loadProfile() {
+  const r = await fetch(`${API}/chart-profiles`);
+  if (!r.ok) throw new Error(`/chart-profiles ${r.status}`);
+  const profiles = await r.json();
+  const p = profiles.find(x => x.id === URL_PROFILE) || profiles[0];
+  const [y, mo, d] = p.date.split("-").map(Number);
+  const [h, mi]    = (p.time || "12:00").split(":").map(Number);
+  PHASE2.birth = {
+    birth_year: y, birth_month: mo, birth_day: d,
+    birth_hour_utc: h + mi / 60,
+  };
+  PHASE2.birthKey = `${p.id}:${y}-${mo}-${d}T${h}:${mi}`;
+}
+
+function parseSlot(raw) {
+  if (!raw) return null;
+  const parts = String(raw).split(":");
+  if (parts[0] === "pih" && parts.length === 3)
+    return { type: "planet_in_house",
+             planet: parts[1].toLowerCase(),
+             house: parseInt(parts[2], 10) };
+  if (parts[0] === "ais" && parts.length === 3)
+    return { type: "angle_in_sign",
+             angle: parts[1].toLowerCase(),
+             sign: parts[2].toLowerCase() };
+  if (parts[0] === "a2a" && parts.length >= 4)
+    return { type: "aspect_to_angle",
+             planet: parts[1].toLowerCase(),
+             angle: parts[2].toLowerCase(),
+             aspect: parts[3].toLowerCase(),
+             orb: parts.length >= 5 ? parseFloat(parts[4]) : 1.0 };
+  return null;
+}
+
+function readConditions() {
+  const out = [];
+  for (const id of ["A", "B", "C", "D", "E", "F"]) {
+    const s = parseSlot(qs.get(id));
+    if (s) out.push(s);
+  }
+  // Sensible default if no URL params: Sun in 1st only. This makes
+  // the sandbox work for manual exploration without a query string.
+  if (out.length === 0) {
+    out.push({ type: "planet_in_house", planet: "sun", house: 1 });
+  }
+  return out;
+}
+
+// =========================================================================
+//   Public API for capture / smoke tests
+// =========================================================================
+
+let _backgroundRegistered = false;
+
+async function requestUser() {
+  PHASE2.cachePaused = false;
+  // Build the immediate user job. AbortController is per-job so a
+  // user-initiated cancel never affects the *next* user job.
+  const userJob = {
+    priority: "USER",
+    label: "user request (current viewport)",
+    conditions: PHASE2.conditions,
+    isUser: true,
+    onResult: (result) => {
+      result.grid._block = URL_BLOCK;
+      canvas.setResult(result);
+    },
+  };
+  PHASE2.jobs.push(userJob);
+  _renderQueue();
+  await SCHEDULER.serveUser(userJob);
+  // Register the background priority order once per chart session.
+  if (!_backgroundRegistered) {
+    BACKGROUND_JOBS.register();
+    _backgroundRegistered = true;
+  } else {
+    // Re-enqueue only jobs that were cancelled by the latest interrupt.
+    for (const j of PHASE2.jobs) {
+      if (j.priority !== "USER" && j.status === "cancelled") {
+        const clone = {
+          priority: j.priority,
+          label: j.label,
+          conditions: j.conditions,
+          applyLatCap: j.applyLatCap,
+        };
+        SCHEDULER.enqueue(clone);
+      }
+    }
+  }
+  SCHEDULER._maybeStartNext();
+}
+
+function renderStatus() {
+  const el = document.getElementById("status");
+  if (!el) return;
+  const m = PHASE2.metrics;
+  el.innerHTML =
+    `<div>status: <b>${PHASE2.status}</b></div>` +
+    `<div class="k">cache entries: ${PHASE2.cache.size} · ` +
+    `server calls: ${m.serverCalls} · ` +
+    `cache hits: ${m.cacheHits}</div>` +
+    `<div class="k">aborts: ${m.abortsObserved} · ` +
+    `deferred (budget): ${m.deferredForBudget} · ` +
+    `bg done: ${m.backgroundCompleted}</div>`;
+}
+
+window.__phase2 = {
+  get status() { return PHASE2.status; },
+  events: PHASE2.events,
+  cacheKeys: () => Array.from(PHASE2.cache.keys()),
+  queueSnapshot: () => PHASE2.jobs.map(j => ({
+    priority: j.priority,
+    label: j.label,
+    status: j.status,
+    samples: j.samples ?? null,
+    served_from_cache: !!(j.servedFromCache),
+  })),
+  requestUser,
+  simulateUserAction: (reason) => onUserAction(reason || "synthetic"),
+  setDateModeActive: (b) => { PHASE2.dateModeActive = !!b; },
+  metrics: PHASE2.metrics,
+  budget: PHASE2_BUDGET,
+};
+
+// =========================================================================
+//   Bootstrap
+// =========================================================================
+
+(async function init() {
+  try {
+    await loadProfile();
+    PHASE2.conditions = readConditions();
+    _setStatus("idle");
+    _renderQueue();
+    if (URL_AUTO) {
+      await new Promise(r => setTimeout(r, 200));
+      await requestUser();
+    }
+  } catch (err) {
+    PHASE2.lastError = err.message;
+    _setStatus("error");
+    document.getElementById("status").innerHTML =
+      `<span style="color:#fca5a5">init: ${err.message}</span>`;
+  }
+})();
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "r" || e.key === "R") requestUser();
+  if (e.key === "p" || e.key === "P") onUserAction("manual");
+});
+</script>
+</body>
+</html>

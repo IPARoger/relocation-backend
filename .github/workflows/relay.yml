@@ -1,7 +1,7 @@
 name: two-agent-relay
 
 # Fast loop: plan next task when a closeout lands on main (results/*.md push).
-# Auto-merges relay PRs. Telegram digest every 15 tasks. Ping on PAUSE, merge fail, or digest.
+# Launches cloud agent (non-blocking). relay-automerge.yml merges PRs. Digest every 15 tasks.
 # Manual "Run workflow" still available. Weekly schedule is a safety net only.
 
 on:
@@ -152,31 +152,6 @@ jobs:
           echo "exec_out<<EOF" >> "$GITHUB_OUTPUT"
           echo "$OUT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
-
-      - name: Auto-merge relay PR (squash)
-        id: automerge
-        continue-on-error: true
-        if: ${{ startsWith(steps.exec.outputs.exec_out, 'EXECUTED') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          TASK_NUM=$(echo "${{ steps.plan.outputs.planner_out }}" | grep -oE '[0-9]+' | head -1)
-          python scripts/relay_auto_merge.py --task "$TASK_NUM"
-
-      - name: Email — auto-merge failed (human needed)
-        continue-on-error: true
-        if: ${{ startsWith(steps.exec.outputs.exec_out, 'EXECUTED') && steps.automerge.outcome == 'failure' }}
-        env:
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TASK_NUM=$(echo "${{ steps.plan.outputs.planner_out }}" | grep -oE '[0-9]+' | head -1)
-          python scripts/relay_notify_email.py approval --task "$TASK_NUM" \
-            --message "Auto-merge failed. Open the PR manually or fix conflicts."
 
       - name: Email — human decision needed (planner PAUSE)
         if: ${{ startsWith(steps.plan.outputs.planner_out, 'PAUSE') }}

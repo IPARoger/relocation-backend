@@ -1,0 +1,1 @@
+../../docs/architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md

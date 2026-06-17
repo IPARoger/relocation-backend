@@ -1,0 +1,168 @@
+{
+  "artifacts": {
+    "narrative": "validation/narratives/phase2_41b_density_retention_transfer_study.md",
+    "png": "validation/visual_targets/phase2_41b_density_retention_transfer_study.png",
+    "report": "validation/reports/phase2_41b_density_retention_transfer_study.json"
+  },
+  "astrology_used": false,
+  "candidate_assessment": {
+    "control_failure": [
+      "bad_alpha_only"
+    ],
+    "needs_visual_qa": "Judge whether density retention reads as compressed pressure body rather than darker gradient.",
+    "promising": [
+      "candidate_composite",
+      "delayed_logistic",
+      "hybrid_density_hold",
+      "harmonic_body",
+      "luminance_retention"
+    ]
+  },
+  "generated_at_utc": "2026-05-26T07:02:39.549401+00:00",
+  "geometry_used": false,
+  "first_run_audit": {
+    "center_density_strengthened": "pass",
+    "delayed_release_explored": "pass",
+    "non_alpha_shaping_explored": "pass",
+    "visible_terracing_or_banding": "not observed in generated board, pending human visual QA",
+    "pressure_body_vs_gradient": "improved but not proven; several candidates now hold body near the carrier, but human QA must decide whether they escape the refined-gradient read",
+    "strongest_first_candidates": [
+      "candidate_composite",
+      "delayed_logistic",
+      "hybrid_density_hold",
+      "harmonic_body"
+    ]
+  },
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "geometry_changed": false,
+    "map_CURRENT_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "staged": false,
+    "virga": false
+  },
+  "maps_used": false,
+  "masks_or_polygons_used": false,
+  "modes": [
+    "delayed_logistic",
+    "hybrid_density_hold",
+    "harmonic_body",
+    "enamel_density",
+    "plasma_hold",
+    "gamma_body",
+    "luminance_retention",
+    "bad_alpha_only",
+    "candidate_composite"
+  ],
+  "phase": "2.41b",
+  "rendering_method": "Offline Python/PIL/numpy rectangular-domain board at 4x supersampling. Transfer functions combine alpha, tonal shaping, and luminance retention over normalized u=0..1.",
+  "revision": "density_retention_transfer_study_v1",
+  "scope": "pure transfer-function/perceptual study only",
+  "stats": [
+    {
+      "carrier_alpha": 0.8627451658248901,
+      "carrier_tone": 1.0,
+      "edge_alpha": 0.0313725508749485,
+      "edge_tone": 0.0,
+      "max_alpha": 0.8627451062202454,
+      "min_alpha": 0.0313725508749485,
+      "mode": "delayed_logistic"
+    },
+    {
+      "carrier_alpha": 0.8274508714675903,
+      "carrier_tone": 0.9764705896377563,
+      "edge_alpha": 0.019607843831181526,
+      "edge_tone": 0.0117647061124444,
+      "max_alpha": 0.8274509906768799,
+      "min_alpha": 0.019607843831181526,
+      "mode": "hybrid_density_hold"
+    },
+    {
+      "carrier_alpha": 0.73333340883255,
+      "carrier_tone": 0.8980392217636108,
+      "edge_alpha": 0.04313725605607033,
+      "edge_tone": 0.04313725605607033,
+      "max_alpha": 0.7333333492279053,
+      "min_alpha": 0.04313725605607033,
+      "mode": "harmonic_body"
+    },
+    {
+      "carrier_alpha": 0.6627450585365295,
+      "carrier_tone": 0.8156863451004028,
+      "edge_alpha": 0.027450982481241226,
+      "edge_tone": 0.0,
+      "max_alpha": 0.6627451181411743,
+      "min_alpha": 0.027450980618596077,
+      "mode": "enamel_density"
+    },
+    {
+      "carrier_alpha": 0.8980392217636108,
+      "carrier_tone": 1.0,
+      "edge_alpha": 0.01568627543747425,
+      "edge_tone": 0.0,
+      "max_alpha": 0.8980392217636108,
+      "min_alpha": 0.01568627543747425,
+      "mode": "plasma_hold"
+    },
+    {
+      "carrier_alpha": 0.7568626999855042,
+      "carrier_tone": 0.9372549057006836,
+      "edge_alpha": 0.01568627543747425,
+      "edge_tone": 0.0,
+      "max_alpha": 0.7568627595901489,
+      "min_alpha": 0.01568627543747425,
+      "mode": "gamma_body"
+    },
+    {
+      "carrier_alpha": 0.5450981259346008,
+      "carrier_tone": 1.0,
+      "edge_alpha": 0.0235294122248888,
+      "edge_tone": 0.0,
+      "max_alpha": 0.545098066329956,
+      "min_alpha": 0.0235294122248888,
+      "mode": "luminance_retention"
+    },
+    {
+      "carrier_alpha": 0.45098036527633667,
+      "carrier_tone": 0.41960781812667847,
+      "edge_alpha": 0.0117647061124444,
+      "edge_tone": 0.0,
+      "max_alpha": 0.45098039507865906,
+      "min_alpha": 0.0117647061124444,
+      "mode": "bad_alpha_only"
+    },
+    {
+      "carrier_alpha": 0.8823529481887817,
+      "carrier_tone": 1.0,
+      "edge_alpha": 0.0235294122248888,
+      "edge_tone": 0.0,
+      "max_alpha": 0.8823529481887817,
+      "min_alpha": 0.0235294122248888,
+      "mode": "candidate_composite"
+    }
+  ],
+  "visual_doctrine": {
+    "avoid": [
+      "alpha-only fade",
+      "visible tonal shelves",
+      "terracing",
+      "fog",
+      "milkiness",
+      "powder edge",
+      "construction marks"
+    ],
+    "corrections": [
+      "much stronger center density",
+      "preserve density longer near ridge",
+      "delayed falloff",
+      "tonal/gamma/luminance shaping beyond alpha",
+      "continuous material body"
+    ],
+    "target": "compressed pressure body releasing outward"
+  }
+}

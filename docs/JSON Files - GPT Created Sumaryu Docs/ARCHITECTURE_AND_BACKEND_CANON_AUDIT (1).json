@@ -1,0 +1,24 @@
+{
+  "source": "/mnt/data/ALL_PROJECT_DOCUMENTS.txt",
+  "source_chars": 2468239,
+  "source_sha256": "75d36c484e55c0eeb4eb391536153494b159202e01717050a634873fafd7acee",
+  "total_file_blocks": 196,
+  "matched_engineering_blocks": 196,
+  "output": "/mnt/data/ARCHITECTURE_AND_BACKEND_CANON.md",
+  "output_chars": 29813,
+  "output_words": 4093,
+  "primary_blocks_used": [
+    "relocation_map_architecture.md",
+    "PHASE_C_RENDERING_ARCHITECTURE.md",
+    "PHASE_C_PRODUCTION_MIGRATION_PLAN.md",
+    "PHASE_C_CACHE_INTEGRATION_ARCHITECTURE.md",
+    "PHASE_C_IMPLEMENTATION_PROTOCOL.md",
+    "architecture/client_chart_data_model_v1_2026-05-29.md",
+    "data_model/supabase_schema_sandbox_plan_v1.md",
+    "contracts/genie_render_payload_v1_2026-05-30.md",
+    "ui/map_workspace_behavior_audit_v1_2026-05-30.md",
+    "ui/map_drawer_and_layer_control_doctrine.md",
+    "visual_semantic_style_guide.md",
+    "overlay_and_aura_visual_strategy.md"
+  ]
+}

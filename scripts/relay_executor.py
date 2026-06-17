@@ -17,7 +17,7 @@ Environment:
 
 Usage:
   python scripts/relay_executor.py --dry-run   # shows which task it would run
-  python scripts/relay_executor.py             # live: launches cloud agent + PR
+  python scripts/relay_executor.py             # live: cloud agent (default) or local (RELAY_RUNTIME=local)
 
 Exit codes:
   0  launched an agent (id printed) OR nothing pending
@@ -53,8 +53,13 @@ def next_pending_task():
     return tasks[pending[-1]] if pending else None
 
 
-def build_prompt(task_path):
+def build_prompt(task_path, local: bool = False):
     task_text = task_path.read_text(encoding="utf-8")
+    finish = (
+        "Apply changes directly in the working tree. Do not open a PR.\n"
+        if local
+        else "Do not merge; a human merges the PR.\n"
+    )
     return (
         "You are the executing (Cursor) half of a governed two-agent relay.\n"
         "Execute EXACTLY the task below, staying strictly inside its declared\n"
@@ -64,8 +69,12 @@ def build_prompt(task_path):
         "When done, write the closeout to "
         f"results/{task_path.stem}.md following the relay closeout contract\n"
         "(files changed, validation evidence, rollback command, rejected scope,\n"
-        "and VERIFIED or NOT VERIFIED). Do not merge; a human merges the PR.\n\n"
-        "=== TASK FILE: " + task_path.name + " ===\n" + task_text
+        "and VERIFIED or NOT VERIFIED). "
+        + finish
+        + "\n=== TASK FILE: "
+        + task_path.name
+        + " ===\n"
+        + task_text
     )
 
 
@@ -83,8 +92,10 @@ def main(argv):
         return 0
 
     if dry_run:
+        runtime = os.environ.get("RELAY_RUNTIME", "cloud").strip().lower()
+        where = "local agent" if runtime == "local" else "cloud agent"
         sys.stdout.write(
-            "DRY-RUN: would launch a Cursor cloud agent for "
+            "DRY-RUN: would launch a Cursor " + where + " for "
             + task.name
             + " (no API call made).\n"
         )
@@ -95,13 +106,35 @@ def main(argv):
         sys.stderr.write("Missing CURSOR_API_KEY in environment.\n")
         return 3
 
+    runtime = os.environ.get("RELAY_RUNTIME", "cloud").strip().lower()
     repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
     branch = os.environ.get("RELAY_BRANCH", "").strip()
-    model = os.environ.get("CURSOR_MODEL", "").strip() or "auto"
-    prompt = build_prompt(task)
+    default_model = "composer-2.5" if runtime == "local" else "auto"
+    model = os.environ.get("CURSOR_MODEL", "").strip() or default_model
+    prompt = build_prompt(task, local=(runtime == "local"))
 
     try:
-        from cursor_sdk import Agent, AgentOptions, CloudAgentOptions
+        from cursor_sdk import Agent, AgentOptions, CloudAgentOptions, LocalAgentOptions
+
+        if runtime == "local":
+            opts = AgentOptions(
+                api_key=api_key,
+                model=model,
+                local=LocalAgentOptions(cwd=str(REPO)),
+            )
+            result = Agent.prompt(prompt, opts)
+            agent_id = getattr(result, "id", None) or getattr(result, "agent_id", "?")
+            status = getattr(result, "status", "?")
+            sys.stdout.write(
+                "EXECUTED_LOCAL agent="
+                + str(agent_id)
+                + " status="
+                + str(status)
+                + " task="
+                + task.name
+                + "\n"
+            )
+            return 0
 
         repo_url = "https://github.com/" + repo + ".git" if repo else None
         cloud = CloudAgentOptions(
@@ -110,12 +143,24 @@ def main(argv):
             skip_reviewer_request=True,
         )
 
-        result = Agent.prompt(
-            prompt,
-            AgentOptions(api_key=api_key, model=model, cloud=cloud),
+        wait = os.environ.get("RELAY_EXECUTOR_WAIT", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
         )
-        agent_id = getattr(result, "id", None) or getattr(result, "agent_id", "?")
-        sys.stdout.write("EXECUTED agent=" + str(agent_id) + " task=" + task.name + "\n")
+        opts = AgentOptions(api_key=api_key, model=model, cloud=cloud)
+        if wait:
+            result = Agent.prompt(prompt, opts)
+            agent_id = getattr(result, "id", None) or getattr(result, "agent_id", "?")
+            sys.stdout.write("EXECUTED agent=" + str(agent_id) + " task=" + task.name + "\n")
+            return 0
+
+        agent = Agent.create(opts)
+        run = agent.send(prompt)
+        run_id = getattr(run, "run_id", None) or getattr(run, "id", "?")
+        sys.stdout.write(
+            "LAUNCHED agent=" + agent.agent_id + " run=" + str(run_id) + " task=" + task.name + "\n"
+        )
         return 0
     except Exception as e:
         msg = str(e).lower()

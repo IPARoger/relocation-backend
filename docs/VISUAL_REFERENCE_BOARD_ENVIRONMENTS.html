@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Emotional Room — Environments Contact Sheet</title>
+<style>
+  :root{
+    --bg:#13120e; --panel:#1c1a15; --panel-2:#211f19; --line:#33302a;
+    --ink:#efe9dc; --muted:#9a9384; --stay:#cdd9be; --feel:#c8c2dd; --never:#d9bcb8; --accent:#b9a36b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  header{padding:46px 44px 24px;border-bottom:1px solid var(--line);}
+  header h1{margin:0;font-weight:600;font-size:19px;letter-spacing:.2em;text-transform:uppercase;}
+  header p{margin:10px 0 0;color:var(--muted);font-size:12.5px;max-width:760px;line-height:1.6;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:22px;padding:38px 44px;}
+  .card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);
+    transition:transform .18s ease,border-color .18s ease;}
+  .card:hover{transform:translateY(-2px);border-color:var(--accent);}
+  .thumb{position:relative;display:block;width:100%;aspect-ratio:3/2;background:var(--panel-2);overflow:hidden;}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .5s ease;}
+  .thumb img.loaded{opacity:1;}
+  .thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:12px;letter-spacing:.04em;
+    background:repeating-linear-gradient(135deg,#1e1c16,#1e1c16 12px,#221f19 12px,#221f19 24px);}
+  .cap{padding:12px 15px 16px;}
+  .cap h3{margin:0 0 9px;font-size:14.5px;font-weight:600;}
+  .cap p{margin:4px 0;font-size:12px;line-height:1.5;}
+  .cap .stay{color:var(--stay);} .cap .feel{color:var(--feel);} .cap .never{color:var(--never);}
+  .cap .tag{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-right:6px;opacity:.72;}
+</style>
+</head>
+<body>
+<header>
+  <h1>The Emotional Room</h1>
+  <p>30 real environments where people voluntarily spend two to four hours thinking. Image first, analysis second. Each photo is pinned to a canonical source; click to open a full image search. The goal is the emotional room our software should become — not the decoration.</p>
+</header>
+<div class="grid" id="board"></div>
+<script>
+const REFS = [
+  {t:"Long Room, Trinity College", title:"Long Room", q:"Long Room Trinity College Dublin interior", stay:"Endless tiers of books wrap you in centuries of accumulated thought.", feel:"Reverent, scholarly belonging.", never:"The cathedral-scale grandeur and tourist spectacle."},
+  {t:"Rose Main Reading Room, NYPL", title:"Rose Main Reading Room", q:"Rose Main Reading Room New York Public Library", stay:"Long shared tables and warm lamps make hours of work feel private yet communal.", feel:"Calm productive solitude in company.", never:"The monumental civic ceiling as decoration."},
+  {t:"George Peabody Library", title:"George Peabody Library", q:"George Peabody Library atrium interior", stay:"A luminous skylit atrium of stacked galleries invites looking up and settling in.", feel:"Uplifted, hushed wonder.", never:"The ornate cast-iron theatricality."},
+  {t:"Beinecke Rare Book Library", title:"Beinecke Rare Book & Manuscript Library", q:"Beinecke library glowing marble interior", stay:"Translucent marble glows like parchment, protecting rare thought in soft light.", feel:"Serene, suspended concentration.", never:"The cold modernist monumentality."},
+  {t:"Duke Humfrey's Library, Oxford", title:"Duke Humfrey's Library", q:"Duke Humfrey's Library Bodleian interior", stay:"Dark timber and medieval order make deep reading feel ancient and safe.", feel:"Timeless scholarly gravity.", never:"The museum-relic preciousness."},
+  {t:"La Trobe Reading Room, Melbourne", title:"State Library Victoria", q:"La Trobe Reading Room State Library Victoria dome", stay:"A vast domed room radiates desks outward under steady daylight.", feel:"Orientation and shared purpose.", never:"The imposing institutional dome as showpiece."},
+  {t:"Stockholm Public Library", title:"Stockholm Public Library", q:"Stockholm Public Library rotunda interior", stay:"A circular wall of books orients you instantly and invites slow browsing.", feel:"Clarity and calm self-direction.", never:"The stark monochrome severity."},
+  {t:"Strahov Monastery Library, Prague", title:"Strahov Monastery", q:"Strahov Library Theological Hall Prague interior", stay:"Frescoed baroque halls turn study into a sensory ceremony.", feel:"Awe and contemplative richness.", never:"The gilded baroque ornament."},
+  {t:"Admont Abbey Library", title:"Admont Abbey", q:"Admont Abbey library hall interior", stay:"A white-and-gold luminous hall makes knowledge feel infinite and bright.", feel:"Expansive, optimistic focus.", never:"The rococo excess and ceiling drama."},
+  {t:"Boston Athenæum", title:"Boston Athenæum", q:"Boston Athenaeum reading room interior", stay:"A private-club hush with busts, light, and worn leather invites unhurried thought.", feel:"Dignified, protected calm.", never:"The elite members-only exclusivity."},
+  {t:"Bibliotheca Alexandrina", title:"Bibliotheca Alexandrina", q:"Bibliotheca Alexandrina reading hall interior", stay:"A vast tiered daylight hall lets you choose your own level of solitude.", feel:"Open, modern contemplation.", never:"The monumental scale as statement."},
+  {t:"Stuttgart City Library", title:"Stuttgart City Library", q:"Stuttgart City Library white interior", stay:"A pure white cube of book-lined galleries quiets the mind to a whisper.", feel:"Minimal, meditative focus.", never:"The clinical all-white sterility."},
+  {t:"Tianjin Binhai Library", title:"Tianjin Binhai Library", q:"Tianjin Binhai Library terraced interior", stay:"Undulating terraced shelves make the room itself feel like flowing thought.", feel:"Playful awe.", never:"The photogenic spectacle (many shelves are printed)."},
+  {t:"Klementinum Baroque Hall, Prague", title:"Klementinum", q:"Klementinum Baroque Library Hall Prague", stay:"A jewel-box baroque hall makes reading feel sacred.", feel:"Reverence and intimacy.", never:"The ornate gilt theater."},
+  {t:"Joanina Library, Coimbra", title:"Joanina Library", q:"Joanina Library Coimbra interior", stay:"Gilded tropical-wood halls wrap study in warm opulence.", feel:"Warm, ceremonial focus.", never:"The baroque gold excess."},
+  {t:"Wiblingen Abbey Library", title:"Wiblingen Abbey", q:"Wiblingen Abbey library rococo interior", stay:"Rococo columns and light turn a library into a contemplative chapel.", feel:"Uplifted serenity.", never:"The rococo decorative overload."},
+  {t:"Abbey Library of Saint Gall", title:"Abbey library of Saint Gall", q:"Abbey Library of Saint Gall interior", stay:"Warm parquet and curved galleries invite slow, careful reading.", feel:"Crafted, intimate scholarship.", never:"The baroque ornament as identity."},
+  {t:"Morgan Library, East Room", title:"Morgan Library & Museum", q:"Morgan Library East Room interior tiers", stay:"Tiered walnut shelves and a hearth make a room feel like a private mind.", feel:"Intimate, possessive focus.", never:"The Gilded-Age opulence."},
+  {t:"Sir John Soane's Museum", title:"Sir John Soane's Museum", q:"Sir John Soane's Museum interior", stay:"Layered artifacts and top-light reward slow, curious looking.", feel:"Discovery and intimate density.", never:"The cabinet-of-curiosities clutter."},
+  {t:"Café Central, Vienna", title:"Café Central", q:"Cafe Central Vienna interior", stay:"Vaulted arches, marble tables, and coffee invite hours of reading and talk.", feel:"Convivial, unhurried thinking.", never:"The grand-café ornament and nostalgia."},
+  {t:"A Brasileira, Lisbon", title:"A Brasileira", q:"A Brasileira Lisbon cafe interior", stay:"Mirrored warmth and strong coffee make lingering the whole point.", feel:"Literary, relaxed belonging.", never:"The heritage-tourism kitsch."},
+  {t:"Caffè Florian, Venice", title:"Caffè Florian", q:"Caffe Florian Venice interior salon", stay:"Small ornate salons make a coffee feel like an occasion.", feel:"Refined, slow indulgence.", never:"The museum-café ornamentation."},
+  {t:"Antico Caffè Greco, Rome", title:"Antico Caffè Greco", q:"Antico Caffe Greco Rome interior", stay:"Salon walls of art and history invite contemplation over espresso.", feel:"Cultured, reflective ease.", never:"The gallery-of-relics density."},
+  {t:"Viennese Coffee House", title:"Viennese coffee house", q:"Viennese coffee house interior marble table", stay:"A marble table, a newspaper, and no one rushing you out.", feel:"Permission to stay and think.", never:"The period-costume nostalgia."},
+  {t:"Freud's Study, Freud Museum", title:"Freud Museum", q:"Freud study Vienna London desk books", stay:"A book-lined study packed with objects holds a single thinking mind.", feel:"Introspective intimacy.", never:"The literal psychoanalytic-couch theming."},
+  {t:"Octagon Room, Greenwich", title:"Octagon Room", q:"Octagon Room Royal Observatory Greenwich interior", stay:"Tall windows and instruments make a room built purely for observation.", feel:"Clear, purposeful attention.", never:"The Restoration-period skeuomorphism."},
+  {t:"British Museum Reading Room", title:"British Museum Reading Room", q:"British Museum Reading Room dome interior", stay:"A blue-and-gold dome encircles desks radiating from a center.", feel:"Focused belonging in shared pursuit.", never:"The imperial dome grandeur."},
+  {t:"Yerkes Observatory", title:"Yerkes Observatory", q:"Yerkes Observatory great dome interior telescope", stay:"A great dome and instrument frame the act of looking outward.", feel:"Awe paired with disciplined patience.", never:"The antique-machinery romance."},
+  {t:"Chained Library, Hereford", title:"Chained library", q:"Hereford Cathedral chained library interior", stay:"Chained volumes in oak stalls make each book feel earned.", feel:"Reverent, deliberate study.", never:"The literal chains and medieval cosplay."},
+  {t:"Salk Institute Courtyard", title:"Salk Institute for Biological Studies", q:"Salk Institute courtyard travertine Kahn", stay:"A travertine court open to sky and sea clears the mind to think.", feel:"Monumental calm and focus.", never:"The cold concrete austerity."}
+];
+
+const board = document.getElementById('board');
+const gimg = q => "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q);
+
+function card(ref){
+  const c=document.createElement('div'); c.className='card';
+  const a=document.createElement('a'); a.className='thumb'; a.href=gimg(ref.q); a.target='_blank'; a.rel='noopener';
+  const ph=document.createElement('div'); ph.className='ph'; ph.textContent='loading…';
+  const img=document.createElement('img'); img.alt=ref.t; img.loading='lazy';
+  img.addEventListener('load',()=>{ if(img.src){img.classList.add('loaded'); ph.style.display='none';}});
+  a.appendChild(ph); a.appendChild(img);
+  const cap=document.createElement('div'); cap.className='cap';
+  cap.innerHTML='<h3>'+ref.t+'</h3>'+
+    '<p class="stay"><span class="tag">Stay</span>'+ref.stay+'</p>'+
+    '<p class="feel"><span class="tag">Feel</span>'+ref.feel+'</p>'+
+    '<p class="never"><span class="tag">Never</span>'+ref.never+'</p>';
+  c.appendChild(a); c.appendChild(cap);
+  pin(ref.title).then(u=>{ if(u){img.src=u;} else {ph.textContent='click to search';} })
+    .catch(()=>{ ph.textContent='click to search'; });
+  return c;
+}
+
+async function pin(title){
+  const url="https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*"+
+    "&redirects=1&titles="+encodeURIComponent(title)+
+    "&prop=pageimages&piprop=thumbnail&pithumbsize=1000";
+  const r=await fetch(url); if(!r.ok) return null;
+  const j=await r.json(); const pages=j&&j.query&&j.query.pages; if(!pages) return null;
+  for(const p of Object.values(pages)){ if(p.thumbnail&&p.thumbnail.source) return p.thumbnail.source; }
+  return null;
+}
+
+REFS.forEach(r=>board.appendChild(card(r)));
+</script>
+</body>
+</html>

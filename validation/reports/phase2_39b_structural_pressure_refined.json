@@ -1,0 +1,184 @@
+{
+  "artifacts": {
+    "asc_png": "validation/visual_targets/phase2_39b_structural_pressure_refined_asc.png",
+    "html": "validation/visual_targets/phase2_39b_structural_pressure_refined.html",
+    "mc_png": "validation/visual_targets/phase2_39b_structural_pressure_refined_mc.png",
+    "narrative": "validation/narratives/phase2_39b_structural_pressure_refined.md",
+    "report": "validation/reports/phase2_39b_structural_pressure_refined.json"
+  },
+  "diagnostics": {
+    "asc:carrier_only": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 200,
+      "whiteCarrierStroke": false
+    },
+    "asc:laminated_surface": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 200,
+      "whiteCarrierStroke": false
+    },
+    "asc:premium_hybrid": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 200,
+      "whiteCarrierStroke": false
+    },
+    "asc:ridge_compression": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 200,
+      "whiteCarrierStroke": false
+    },
+    "asc:unified_pressure": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 200,
+      "whiteCarrierStroke": false
+    },
+    "mc:carrier_only": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 233,
+      "whiteCarrierStroke": false
+    },
+    "mc:laminated_surface": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 233,
+      "whiteCarrierStroke": false
+    },
+    "mc:premium_hybrid": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 233,
+      "whiteCarrierStroke": false
+    },
+    "mc:ridge_compression": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 233,
+      "whiteCarrierStroke": false
+    },
+    "mc:unified_pressure": {
+      "blur": false,
+      "carrierDrawnLast": true,
+      "degreeSubdivision": false,
+      "normalizedSideDomain": true,
+      "rasterField": false,
+      "stations": 233,
+      "whiteCarrierStroke": false
+    }
+  },
+  "domain_model": "Each side uses paired boundary correspondence and normalized centerline-to-boundary width u=0..1. No degree subdivisions, half-degree rings, or fake shells.",
+  "generated_at_utc": "2026-05-25T21:07:04.305696+00:00",
+  "geometry_changed": false,
+  "geometry_source": "Phase 2.36f HTML DATA payload; centerline/leftBoundary/rightBoundary/polygon copied unchanged",
+  "goal": "Merge contour-density intelligence into one coherent topographic pressure surface without regressing to blur fog or overcorrecting into diagrammatic contour art.",
+  "governance": {
+    "animation": false,
+    "caching_implementation": false,
+    "committed": false,
+    "dynamic_side_cap_math_changed": false,
+    "house_width_sampling_changed": false,
+    "map_CURRENT_changed": false,
+    "mask_changed": false,
+    "production_code_changed": false,
+    "production_integration": false,
+    "rain": false,
+    "scheduler_work": false,
+    "source_geometry_changed": false,
+    "staged": false,
+    "virga": false
+  },
+  "strict_visual_methodology_audit": {
+    "1_carrier_line_continuous_and_saturated_everywhere": {
+      "result": "pass",
+      "notes": "Carrier is drawn last from the same station geometry in all modes and appears continuous in both MC and ASC screenshots."
+    },
+    "2_white_or_washed_out_centerline_artifacts": {
+      "result": "pass",
+      "notes": "No white carrier stroke is used and no white centerline artifact is visible in the first-run screenshots."
+    },
+    "3_structural_bands_merged_or_still_stripes": {
+      "result": "partial",
+      "notes": "Unified pressure and premium hybrid reduce visible striation, but ridge compression and some micro-laminations can still read as structural marks/stripes if pushed further."
+    },
+    "4_topographic_pressure_not_blur_glow": {
+      "result": "partial",
+      "notes": "The SVG vector surface reduces alpha-fog behavior and reads more structurally than Phases 2.37/2.38, but the unified surface still uses translucent ribbons and may be judged too soft by visual QA."
+    },
+    "5_pressure_consistent_without_random_pockets": {
+      "result": "partial",
+      "notes": "Pressure is more consistent than Phase 2.39 because the hard contours were softened, but MC still has subtle local density variation where micro-laminations and ribbons overlap."
+    },
+    "6_field_inside_locked_phase_236f_mask": {
+      "result": "pass",
+      "notes": "The renderer uses paired correspondence between the locked centerline, leftBoundary, and rightBoundary polylines; no sampled field extends beyond those side domains."
+    },
+    "7_mc_and_asc_both_improved": {
+      "result": "pass",
+      "notes": "Both MC and ASC improve over Phase 2.39 in carrier continuity and reduced line-art dominance; ASC especially benefits from reduced hard contour visibility."
+    },
+    "overall_result": "diagnostic_success_not_final_visual_success",
+    "smallest_next_correction": "Choose one candidate, likely unified_pressure or premium_hybrid, then tune density/contrast in a single-mode artifact: reduce ridge_compression-style marks, slightly strengthen carrier/near-ridge pressure, and keep outer ribbons subtle without adding blur."
+  },
+  "modes": [
+    "carrier_only",
+    "unified_pressure",
+    "ridge_compression",
+    "laminated_surface",
+    "premium_hybrid"
+  ],
+  "phase": "2.39b",
+  "rendering_method": "SVG vector surface: translucent normalized-domain ribbons for continuity plus low-contrast compressed micro-laminations; carrier drawn last as saturated blue ridge. No raster ImageData field, blur filter, gaussian feather, or white carrier stroke.",
+  "revision": "structural_pressure_refined_v1",
+  "scope": "validation-only visual refinement",
+  "visual_assessment": {
+    "asc_improved": true,
+    "best_candidates": [
+      "unified_pressure",
+      "premium_hybrid"
+    ],
+    "carrier_continuous_and_saturated": true,
+    "field_reads_as_structure_rather_than_blur": "mostly; unified_pressure and premium_hybrid best balance structure with surface continuity",
+    "mc_improved": true,
+    "needs_next_pass": "Human visual QA should decide between unified_pressure and premium_hybrid, then tune density/contrast in a single candidate.",
+    "overcorrects_into_diagram_art": "pressure_terraces removed; ridge_compression remains most at risk if density is pushed further",
+    "risks": [
+      "Unified surface still uses translucent ribbons and could be perceived as soft wash if density is too low.",
+      "Micro-laminations must remain faint enough to merge rather than become stripes.",
+      "Further tuning should reduce mode count and converge on one restrained candidate."
+    ],
+    "visible_striation_reduced": "partially; individual contour lines are less dominant than Phase 2.39, but ridge-compression mode can still show visible structural marks",
+    "white_centerline_artifacts_remaining": false
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "url": "http://127.0.0.1:8000/map_SANDBOX_phase2_cache.html?A=pih:sun:1",
+  "wall_seconds": 1.5618722438812256,
+  "results": [
+    {
+      "test": "first_paint_completes",
+      "pass": true,
+      "detail": {
+        "user_job": [
+          {
+            "priority": "USER",
+            "label": "user request (current viewport)",
+            "status": "done",
+            "samples": 5130,
+            "served_from_cache": false
+          }
+        ]
+      }
+    },
+    {
+      "test": "user_action_pauses_background",
+      "pass": true,
+      "detail": {
+        "status": "paused",
+        "cancelled_jobs": 44,
+        "aborts_observed": 1
+      }
+    },
+    {
+      "test": "priority_order_registered",
+      "pass": true,
+      "detail": {
+        "first_four": [
+          "USER",
+          "A_zoom_plus_1",
+          "B_zoom_plus_2",
+          "C_pan_buffer"
+        ],
+        "has_D": true,
+        "H_deferred_inactive": true
+      }
+    },
+    {
+      "test": "immediate_render_after_interrupt",
+      "pass": true,
+      "detail": {
+        "immediate_completed": 2
+      }
+    },
+    {
+      "test": "cache_populated_without_half_entries",
+      "pass": true,
+      "detail": {
+        "cache_keys_count": 1,
+        "done_background_jobs": 0
+      }
+    },
+    {
+      "test": "budget_constant_matches_doctrine",
+      "pass": true,
+      "detail": {
+        "budget": 233118,
+        "deferred_for_budget": 0
+      }
+    },
+    {
+      "test": "cache_entries_after_protocol",
+      "pass": true,
+      "detail": {
+        "background_completed": 0,
+        "cache_keys": 1
+      }
+    }
+  ],
+  "all_pass": true
+}

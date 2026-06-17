@@ -1,0 +1,59 @@
+{
+  "screenshots": [
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/southern-edge-full-render.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/southern-edge-seam-polygon-0-zoom.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/southern-edge-seam-polygon-1-zoom.png",
+    "/Users/davegoodman/Desktop/relocation-backend/validation_screenshots/southern-edge-popup-on-suspicious-polygon.png"
+  ],
+  "domMetrics": {
+    "pathCount": 65,
+    "blackOutlinePathCount": 2,
+    "mapRect": {
+      "left": 0,
+      "top": 0,
+      "width": 1060,
+      "height": 900
+    }
+  },
+  "suspiciousCenters": [
+    {
+      "idx": 0,
+      "lat": -25.8595139330762,
+      "lon": 153.01960978424228,
+      "props": {
+        "condition_index": 0,
+        "overlap_count": 1,
+        "touches_seam": true,
+        "max_lon_jump": 56.56434128191522,
+        "large_lon_jump": false
+      }
+    },
+    {
+      "idx": 1,
+      "lat": 54.415133650787354,
+      "lon": -156.42085392632117,
+      "props": {
+        "condition_index": 0,
+        "overlap_count": 1,
+        "touches_seam": true,
+        "max_lon_jump": 28.5,
+        "large_lon_jump": false
+      }
+    }
+  ],
+  "popup": {
+    "text": "Custom Location\nLat: -25.8790   Lon: 153.0176\nASC\n26° Sagittarius 45'\nMC\n13° Virgo 00'\nPlanet\nHouse\nSun\n1\nMoon\n5\nMercury\n12\nVenus\n12\nMars\n1\nJupiter\n11\nSaturn\n3\nUranus\n2\nNeptune\n1\nPluto\n12\nChiron\n9\nOpen Chart\n★ Favorite\n×",
+    "width": 252,
+    "height": 410.5
+  },
+  "consoleMessages": [
+    "Cities loaded: 232317",
+    "Cities loaded: 232317",
+    "START RENDER 1",
+    "COMPLETE RENDER 1",
+    "RELOCATED DATA Object",
+    "Planet houses: Object",
+    "Planet houses entries: Array(11)"
+  ],
+  "networkFailures": []
+}

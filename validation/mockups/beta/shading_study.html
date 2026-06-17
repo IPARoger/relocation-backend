@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shading & Divider Study</title>
+<style>
+  :root{
+    --paper:#f4ece0; --card:#fdf8ee; --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9a8f7f;
+    --line:rgba(51,41,31,.14); --line-soft:rgba(51,41,31,.08); --teal:#5f8a90;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);font-family:var(--sans);color:var(--ink);padding:36px 40px 80px}
+  h1{font-family:var(--serif);font-size:24px;font-weight:700;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 8px;max-width:760px;line-height:1.5}
+  .legend{color:var(--ink-faint);font-size:12.5px;margin:0 0 28px}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(210px,1fr));gap:24px;max-width:1280px}
+  .study{background:var(--card);border-radius:14px;padding:16px 4px 8px;box-shadow:0 1px 2px rgba(51,41,31,.05)}
+  .study h3{font-family:var(--sans);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink);margin:0 8px 2px}
+  .study .desc{font-size:11.5px;color:var(--ink-faint);margin:0 8px 10px}
+  table{width:100%;border-collapse:collapse}
+  td{font-size:15px;padding:0 16px;height:34px;color:var(--ink)}
+  td.lbl{color:var(--ink-soft)}
+  td.val{text-align:center}
+  .lines td{border-bottom:1px solid var(--line-soft)}
+  .lines tr:last-child td{border-bottom:none}
+  .tex tr:nth-child(even) td{
+    background-image:repeating-linear-gradient(-12deg,transparent,transparent 2px,rgba(51,41,31,.022) 2px,rgba(51,41,31,.022) 3px)}
+  .tex2 tr:nth-child(even) td{
+    background-image:repeating-linear-gradient(-12deg,transparent,transparent 2px,rgba(51,41,31,.04) 2px,rgba(51,41,31,.04) 3px)}
+  .teal tr:nth-child(even) td{background-color:rgba(95,138,144,.045)}
+  .teal2 tr:nth-child(even) td{background-color:rgba(95,138,144,.08)}
+  .warm tr:nth-child(even) td{background-color:rgba(184,154,85,.05)}
+  .note{margin-top:30px;font-size:12.5px;color:var(--ink-faint);max-width:820px;line-height:1.55}
+</style>
+</head>
+<body>
+  <h1>Shading &amp; Divider Study</h1>
+  <p class="sub">Same table, eight treatments. The question: how little shading / color do we need for rows to read cleanly &mdash; with and without dividing lines? The chart pages currently use <b>texture zebra, no lines</b> (treatment C).</p>
+  <p class="legend">Texture = diagonal hatch only &middot; Color = flat fill &middot; Lines = hairline row divider</p>
+
+  <div class="grid">
+    <div class="study"><h3>A &middot; Plain</h3><div class="desc">No shading, no lines</div><table id="t1"></table></div>
+    <div class="study"><h3>B &middot; Lines only</h3><div class="desc">Hairline dividers, no fill</div><table class="lines" id="t2"></table></div>
+    <div class="study"><h3>C &middot; Texture only</h3><div class="desc">Hatch 2.2% &middot; no lines</div><table class="tex" id="t3"></table></div>
+    <div class="study"><h3>D &middot; Texture + lines</h3><div class="desc">Hatch 2.2% + hairline</div><table class="tex lines" id="t4"></table></div>
+    <div class="study"><h3>E &middot; Texture (stronger)</h3><div class="desc">Hatch 4% &middot; no lines</div><table class="tex2" id="t5"></table></div>
+    <div class="study"><h3>F &middot; Teal 4.5%</h3><div class="desc">Flat color &middot; no lines</div><table class="teal" id="t6"></table></div>
+    <div class="study"><h3>G &middot; Teal 8% + lines</h3><div class="desc">Stronger color + hairline</div><table class="teal2 lines" id="t7"></table></div>
+    <div class="study"><h3>H &middot; Warm 5% + lines</h3><div class="desc">Gold fill + hairline</div><table class="warm lines" id="t8"></table></div>
+  </div>
+
+  <p class="note">Recommendation lane: <b>C / D</b> keep the page warm and &ldquo;alive&rdquo; without introducing emotional color bias. <b>F&ndash;H</b> show how little color reads as a row band &mdash; useful if we later want a faint per-table tint (e.g. teal = PiH, gold/brick = A2A) to subconsciously teach the user what&rsquo;s what. Pick one column treatment and one optional per-table hue, and it locks as doctrine across all pages.</p>
+
+<script>
+  var ROWS=[['Sun','10th'],['Moon','4th'],['Mercury','9th'],['Venus','11th'],
+            ['Mars','1st'],['Jupiter','7th'],['Saturn','5th'],['Uranus','8th'],
+            ['Neptune','6th'],['Pluto','5th'],['Chiron','12th']];
+  function fill(id){
+    var h=ROWS.map(function(r){return '<tr><td class="lbl">'+r[0]+'</td><td class="val">'+r[1]+'</td></tr>';}).join('');
+    document.getElementById(id).innerHTML=h;
+  }
+  ['t1','t2','t3','t4','t5','t6','t7','t8'].forEach(fill);
+</script>
+</body>
+</html>

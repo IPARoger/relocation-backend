@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Separator calibration — 1C indent + 2 hierarchy</title>
+<style>
+:root{
+  --ink:#2b2b30; --soft:#8a8893; --faint:#b7b4bd;
+  --paper:#fbfbfc; --card:#ffffff;
+  --line:#e4e2e8; --line-mid:#cfccd6; --line-strong:#a9a5b3; --tint:#f4f3f7;
+  --sans:"Avenir Next","Segoe UI",-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.4}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 28px 90px}
+h1{font-size:19px;margin:0 0 4px}
+.lead{color:var(--soft);font-size:12.5px;margin:0 0 24px;max-width:780px}
+.dec-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line-mid);padding-bottom:6px;margin:32px 0 16px}
+.dec-num{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft)}
+.dec-title{font-size:15px;font-weight:700}
+.dec-q{color:var(--soft);font-size:12px;margin-left:auto}
+
+/* PiH-like narrow card to test cramping at real width */
+.row-of-cards{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.pcard{width:210px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 12px 8px}
+.pcard.narrow{width:170px}
+.pcard .ph{font-weight:700;font-size:13px;margin:0 0 8px;text-align:center}
+.indtag{font-size:11px;color:var(--soft);margin-bottom:6px}
+.t .r{display:grid;grid-template-columns:1fr auto;padding:8px 0;font-size:12.5px}
+.t .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+/* inset hairline driven by --pad */
+.t.inset .r{border-bottom:1px solid var(--line);margin:0 var(--pad);}
+.t.inset .r:last-child{border-bottom:none}
+
+/* section hierarchy demo: medium for major, hairline for minor */
+.sec-demo{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;max-width:460px}
+.zone{padding:13px 14px}
+.zone .zt{font-weight:700;font-size:12.5px}
+.zone .zs{color:var(--soft);font-size:11px;margin-top:2px}
+.subzone{padding:9px 14px}
+.subzone .zt{font-size:12px;font-weight:600}
+.major + .zone, .major + .subzone{border-top:1px solid var(--line-mid)}   /* medium = big break */
+.minor + .subzone{border-top:1px solid var(--line)}                       /* hairline = small break */
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Separator calibration</h1>
+  <p class="lead">Two things to settle: (1) how much inset the row hairline can take before a narrow PiH column feels cramped, and (2) the 2B+2C hierarchy mix (medium rule for major breaks, hairline for minor) — which is exactly the 4A three-tier scale you picked.</p>
+
+  <!-- 1C indent calibration -->
+  <div class="dec-head"><span class="dec-num">DECISION 1C</span><span class="dec-title">Inset amount vs column width</span><span class="dec-q">find the max indent that still breathes</span></div>
+
+  <div class="indtag">Standard column width (≈210px)</div>
+  <div class="row-of-cards">
+    <div class="pcard"><div class="ph">Planet in House</div><div class="indtag">0px · full-width</div><div class="t inset" style="--pad:0px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div class="pcard"><div class="ph">Planet in House</div><div class="indtag">4px inset</div><div class="t inset" style="--pad:4px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div class="pcard"><div class="ph">Planet in House</div><div class="indtag">8px inset</div><div class="t inset" style="--pad:8px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div class="pcard"><div class="ph">Planet in House</div><div class="indtag">12px inset · likely too much</div><div class="t inset" style="--pad:12px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+  </div>
+
+  <div class="indtag" style="margin-top:24px">Narrow column (≈170px — comparison / tight layouts)</div>
+  <div class="row-of-cards">
+    <div class="pcard narrow"><div class="ph">PiH</div><div class="indtag">0px</div><div class="t inset" style="--pad:0px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div class="pcard narrow"><div class="ph">PiH</div><div class="indtag">4px</div><div class="t inset" style="--pad:4px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+    <div class="pcard narrow"><div class="ph">PiH</div><div class="indtag">8px</div><div class="t inset" style="--pad:8px"><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Mercury</span><span class="v">4th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+  </div>
+
+  <!-- 2 hierarchy mix -->
+  <div class="dec-head"><span class="dec-num">DECISION 2 · B+C</span><span class="dec-title">Section hierarchy mix</span><span class="dec-q">medium rule = major break · hairline = minor break</span></div>
+  <div class="sec-demo">
+    <div class="zone major"><div class="zt">Chart</div><div class="zs">wheel + header</div></div>
+    <div class="zone major"><div class="zt">Tables</div><div class="zs">PiH · AiS · A2A &nbsp;—&nbsp; major break above (medium rule)</div></div>
+    <div class="subzone minor"><div class="zt">Planet in House</div></div>
+    <div class="subzone minor"><div class="zt">Aspect in Sign</div></div>
+    <div class="subzone minor"><div class="zt">Angle to Angle</div></div>
+    <div class="zone major"><div class="zt">City Intelligence</div><div class="zs">cost · safety · climate &nbsp;—&nbsp; major break above (medium rule)</div></div>
+  </div>
+  <p class="lead" style="margin-top:14px">Above: <b>medium rule</b> separates the three big zones; <b>hairline</b> separates sub-sections within the tables zone. Same scale as 4A — intensity gets tuned at the color pass.</p>
+</div>
+</body>
+</html>

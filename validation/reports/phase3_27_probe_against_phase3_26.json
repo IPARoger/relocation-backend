@@ -1,0 +1,120 @@
+{
+  "passed": false,
+  "report": "CURSOR_EXPORT_PHASE_3_26_FIELD_SOLVER_EMERGENCE.md",
+  "sandbox": "validation/sandboxes/phase3_26_field_solver_emergence.html",
+  "tests": [
+    {
+      "evidence": [
+        "drawBackground L23: drawCell(center.x, center.y, COLORS.silverDim, 0.08 + seed * 0.10, 1);",
+        "drawBackground L3: ctx.fillRect(0, 0, W, H);"
+      ],
+      "failures": [
+        "Passive renderer drawBackground() contains star-like draw calls: drawCell(, fillRect("
+      ],
+      "name": "passive_sky_detection",
+      "passed": false
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Particle state lacks fields required for migration proof: id, x0, y0, targetReason"
+      ],
+      "name": "full_field_migration_test",
+      "passed": false
+    },
+    {
+      "evidence": [
+        "L558: hasDirectBoundaryTargets: false,",
+        "L559: usesTruthOracleOnly: true,"
+      ],
+      "failures": [
+        "Hardcoded proof boolean is not acceptance evidence: hasDirectBoundaryTargets\\s*:\\s*false",
+        "Hardcoded proof boolean is not acceptance evidence: usesTruthOracleOnly\\s*:\\s*true"
+      ],
+      "name": "boundary_target_audit",
+      "passed": false
+    },
+    {
+      "evidence": [
+        "L140: final: smoothstep((progress - 0.93) / 0.07),",
+        "L341: const compression = smoothstep((progress - 0.56) / 0.20);",
+        "L417: const cooling = smoothstep((state.progress - 0.76) / 0.16);",
+        "L459: const cooling = smoothstep((state.progress - 0.76) / 0.16);",
+        "L486: const cooling = smoothstep((state.progress - 0.74) / 0.18);",
+        "L436: size = state.progress > 0.55 ? 4 : 3;",
+        "L437: if (state.progress > 0.42 && confidence > 0.30) color = signed > 0 ? COLORS.yellow : COLORS.blue;",
+        "L438: } else if (confidence > 0.45 && state.progress > 0.42) {",
+        "L468: if (state.progress > 0.44 && confidence > 0.45) color = probe.lastTruth > 0 ? COLORS.yellow : COLORS.blue;",
+        "L309: if (progress < 0.28 || progress > 0.76 || probes.length >= MAX_PROBES) return;",
+        "L436: size = state.progress > 0.55 ? 4 : 3;",
+        "L437: if (state.progress > 0.42 && confidence > 0.30) color = signed > 0 ? COLORS.yellow : COLORS.blue;",
+        "L438: } else if (confidence > 0.45 && state.progress > 0.42) {",
+        "L468: if (state.progress > 0.44 && confidence > 0.45) color = probe.lastTruth > 0 ? COLORS.yellow : COLORS.blue;",
+        "L80: const PHASES = [",
+        "L81: { t: 0.00, name: \"uncertainty\" },",
+        "L82: { t: 0.18, name: \"sampling\" },",
+        "L83: { t: 0.34, name: \"frontier emergence\" },",
+        "L84: { t: 0.55, name: \"peak froth\" },",
+        "L85: { t: 0.70, name: \"compression\" },",
+        "L86: { t: 0.88, name: \"cooling / virga\" },"
+      ],
+      "failures": [
+        "Time/progress-script pattern matched: final\\s*:\\s*smoothstep\\s*\\([^)]*progress",
+        "Time/progress-script pattern matched: \\bcompression\\s*=\\s*smoothstep\\s*\\([^)]*progress",
+        "Time/progress-script pattern matched: \\bcooling\\s*=\\s*smoothstep\\s*\\([^)]*(?:progress|state\\.progress)",
+        "Time/progress-script pattern matched: state\\.progress\\s*>\\s*0\\.\\d+",
+        "Time/progress-script pattern matched: \\bprogress\\s*>\\s*0\\.\\d+",
+        "Time/progress-script pattern matched: const\\s+PHASES\\s*=\\s*\\[",
+        "Time/progress-script pattern matched: \\{\\s*t\\s*:\\s*0\\.\\d+\\s*,\\s*name\\s*:"
+      ],
+      "name": "time_script_audit",
+      "passed": false
+    },
+    {
+      "evidence": [
+        "L436: size = state.progress > 0.55 ? 4 : 3;"
+      ],
+      "failures": [
+        "Missing explicit froth causality metrics: localParticleDensity, baselineParticleDensity, densityMultiplier, localVelocityVariance, recentSampleRate, frontierPressure, neighborDisagreement, unresolvedDuration",
+        "Froth-like size change is gated by state.progress > 0.55."
+      ],
+      "name": "froth_causality_test",
+      "passed": false
+    },
+    {
+      "evidence": [
+        "L417: const cooling = smoothstep((state.progress - 0.76) / 0.16);",
+        "L459: const cooling = smoothstep((state.progress - 0.76) / 0.16);",
+        "L486: const cooling = smoothstep((state.progress - 0.74) / 0.18);"
+      ],
+      "failures": [
+        "Missing explicit virga abandonment state: abandoned, abandonedStep, abandonmentReason",
+        "Virga/cooling appears driven by progress/time."
+      ],
+      "name": "virga_causality_test",
+      "passed": false
+    },
+    {
+      "evidence": [
+        "L15: ctx.fillRect(center.x - CELL_W * 0.50, center.y - CELL_H * 0.50, CELL_W + 0.4, CELL_H + 0.4);",
+        "L4: final: smoothstep((progress - 0.93) / 0.07),"
+      ],
+      "failures": [
+        "drawFinal() uses fillRect(), indicating raw grid-brick final rendering.",
+        "Final reveal alpha is derived from progress/time."
+      ],
+      "name": "final_renderer_test",
+      "passed": false
+    },
+    {
+      "evidence": [],
+      "failures": [
+        "Report cites hardcoded debug booleans as acceptance evidence.",
+        "Report treats grep-style absence as success evidence without mechanism proof."
+      ],
+      "name": "report_truthfulness_test",
+      "passed": false
+    }
+  ],
+  "url": null
+}

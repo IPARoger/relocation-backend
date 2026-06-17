@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<!--
+  ARCHAEOLOGY / DEBUG POC.
+
+  Direct Sun conjunct ASC truth-pixel sandbox retained for Phase A/B
+  validation history. Not the canonical production overlay path; Phase-C
+  production migration targets adaptive screen-space occupancy via
+  /screen-pixel-truth.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Truth Pixels Sandbox — Sun conjunct ASC</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
+#app { display: flex; width: 100%; height: 100%; }
+#map { flex: 1; min-width: 0; height: 100%; position: relative; }
+#panel {
+    width: 320px; flex-shrink: 0; height: 100%; overflow-y: auto;
+    background: #0f172a; color: #e2e8f0; border-left: 1px solid #334155;
+    padding: 14px 16px; box-sizing: border-box; font-size: 13px;
+}
+#panel h1 { margin: 0 0 4px; font-size: 16px; color: #f8fafc; }
+.sandbox-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #fcd34d; background: #422006; padding: 3px 8px;
+    border-radius: 4px; margin-bottom: 12px;
+}
+.panel-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #334155; }
+.panel-section:last-child { border-bottom: none; }
+.panel-section h2 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; }
+label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+select, button { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: #f1f5f9; font-size: 13px; }
+button { cursor: pointer; background: #2563eb; border-color: #1d4ed8; font-weight: 600; margin-top: 8px; }
+button:hover { background: #1d4ed8; }
+button.secondary { background: #334155; border-color: #475569; margin-top: 6px; }
+button.secondary:hover { background: #475569; }
+#renderStatus { margin-top: 10px; font-size: 12px; color: #cbd5e1; line-height: 1.45; min-height: 2.8em; }
+.flag-list { font-size: 11px; color: #94a3b8; line-height: 1.5; margin: 0; padding-left: 16px; }
+.flag-list code { color: #fcd34d; font-size: 10px; }
+.doctrine-note { font-size: 11px; color: #64748b; line-height: 1.45; margin-top: 8px; }
+#sandboxBanner {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    background: rgba(15, 23, 42, 0.92); color: #f8fafc; padding: 8px 14px; border-radius: 8px;
+    border: 1px solid #475569; font-size: 12px; max-width: min(92vw, 560px); text-align: center;
+    pointer-events: none; line-height: 1.4;
+}
+#sandboxBanner .stage { color: #fcd34d; font-weight: 600; }
+#latCapLabel {
+    position: absolute; top: 52px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; pointer-events: none;
+}
+#latCapLabel.cap-on { background: rgba(219,234,254,0.95); color: #1e3a8a; border: 1px solid #93c5fd; }
+#latCapLabel.cap-off { background: rgba(254,226,226,0.95); color: #991b1b; border: 1px solid #fca5a5; }
+#truthCanvas {
+    position: absolute; left: 0; top: 0; z-index: 450; pointer-events: none; display: none;
+}
+#metricsPanel {
+    position: absolute; bottom: 12px; left: 12px; z-index: 1000; max-width: 340px;
+    background: rgba(15, 23, 42, 0.94); color: #e2e8f0; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #475569; font-size: 11px; line-height: 1.45; display: none;
+}
+#metricsPanel b { color: #fcd34d; }
+.map-progressive-reveal #truthCanvas.reveal-in { animation: reveal-in 220ms ease-out; }
+@keyframes reveal-in { from { opacity: 0.65; } to { opacity: 1; } }
+.leaflet-container { background: #dbeafe; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="map">
+        <div id="sandboxBanner" aria-live="polite">Truth Pixels Sandbox — experimental only</div>
+        <div id="latCapLabel" class="cap-on">Latitude cap: ON (±65°)</div>
+        <canvas id="truthCanvas" aria-hidden="true"></canvas>
+        <div id="metricsPanel"></div>
+    </div>
+    <div id="panel">
+        <span class="sandbox-badge">Sandbox · not production</span>
+        <h1>Truth Pixels</h1>
+        <p class="doctrine-note">Direct sampled Sun–ASC orb at each paint pixel. No blur, feather, or fake interpolation. Separate from <code>map_CURRENT.html</code>.</p>
+
+        <div class="panel-section">
+            <h2>Chart</h2>
+            <label for="chartProfile">Profile</label>
+            <select id="chartProfile"><option value="">Loading…</option></select>
+        </div>
+
+        <div class="panel-section">
+            <h2>Overlay (fixed PoC)</h2>
+            <p style="margin:0;color:#cbd5e1">Sun · Conjunction · ASC</p>
+            <p class="doctrine-note">strength = max(0, 1 − orb / maxOrb)</p>
+        </div>
+
+        <div class="panel-section">
+            <h2>Test viewports</h2>
+            <button type="button" class="secondary" id="btnWorld">World</button>
+            <button type="button" class="secondary" id="btnAscBand">ASC band (mid-lat)</button>
+            <button type="button" class="secondary" id="btnGreenland">Greenland / Iceland</button>
+            <button type="button" class="secondary" id="btnHighNorth">High north cap edge</button>
+        </div>
+
+        <div class="panel-section">
+            <h2>Render</h2>
+            <button type="button" id="findBtn">Sample field</button>
+            <div id="renderStatus">Ready. Set flags via URL, pick viewport, then Sample field.</div>
+        </div>
+
+        <div class="panel-section">
+            <h2>URL flags</h2>
+            <ul class="flag-list">
+                <li><code>?truthPixels=1</code> — direct pixel truth (default on)</li>
+                <li><code>?debugReveal=1</code> — progressive reveal → final pixel truth</li>
+                <li><code>?noLatCap=1</code> — disable ±65° cap (polar honesty test)</li>
+                <li><code>?maxOrb=6</code> — orb cutoff (default 6°)</li>
+            </ul>
+        </div>
+
+        <div class="panel-section">
+            <h2>Interaction</h2>
+            <p class="doctrine-note">Right-click a point to verify popup orb vs raster strength at that location.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const MAP_URL = new URLSearchParams(window.location.search);
+const API = "http://127.0.0.1:8000";
+
+/** Default on in sandbox — explicit opt-out via ?truthPixels=0 */
+const truthPixelsMode = !MAP_URL.has("truthPixels") || MAP_URL.get("truthPixels") !== "0";
+const debugRevealMode = MAP_URL.has("debugReveal");
+const noLatCap = MAP_URL.has("noLatCap");
+const maxOrb = Math.max(0.5, Math.min(12, parseFloat(MAP_URL.get("maxOrb") || "6") || 6));
+
+const PRODUCT_LAT_CAP = 65;
+const MAX_RASTER_PIXELS = 120000;
+const FINAL_PX_STEP = 3;
+
+const REVEAL_ADAPTIVE_STAGES = [
+    { id: "coarse_world", label: "Coarse cells", initialDivisions: 4, maxDepth: 2, maxSamples: 8000 },
+    { id: "regional_refine", label: "Regional refine", initialDivisions: 5, maxDepth: 4, maxSamples: 24000 },
+    { id: "boundary_refine", label: "Boundary refine", initialDivisions: 6, maxDepth: 5, maxSamples: 60000 }
+];
+
+const FINAL_STAGE = { id: "direct_pixel_truth", label: "Direct pixel truth", pxStep: FINAL_PX_STEP };
+
+if (debugRevealMode) {
+    document.documentElement.classList.add("map-progressive-reveal");
+}
+
+function latCapActive() {
+    return !noLatCap;
+}
+
+function updateLatCapLabel() {
+    const el = document.getElementById("latCapLabel");
+    const on = latCapActive();
+    el.textContent = on
+        ? `Latitude cap: ON (±${PRODUCT_LAT_CAP}°) — samples zeroed above cap`
+        : "Latitude cap: OFF — full polar sampling (may expose engine limits)";
+    el.className = on ? "cap-on" : "cap-off";
+}
+
+function setStatus(msg) {
+    document.getElementById("renderStatus").textContent = msg;
+}
+
+function setBanner(html) {
+    document.getElementById("sandboxBanner").innerHTML = html;
+}
+
+const map = L.map("map", {
+    center: [25, 10],
+    zoom: 3,
+    minZoom: 2,
+    maxBounds: L.latLngBounds([-85, -180], [85, 180])
+});
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap",
+    maxZoom: 18
+}).addTo(map);
+
+const cellLayer = L.layerGroup().addTo(map);
+const sampleLayer = L.layerGroup().addTo(map);
+const frontierLayer = L.layerGroup().addTo(map);
+
+let renderToken = 0;
+let lastMetrics = null;
+
+async function loadProfiles() {
+    const res = await fetch(`${API}/chart-profiles`);
+    const profiles = await res.json();
+    const sel = document.getElementById("chartProfile");
+    sel.innerHTML = "";
+    profiles.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.label || p.id;
+        opt.dataset.profile = JSON.stringify(p);
+        sel.appendChild(opt);
+    });
+}
+
+function birthParams() {
+    const opt = document.getElementById("chartProfile").selectedOptions[0];
+    const p = JSON.parse(opt.dataset.profile);
+    const [y, m, d] = p.date.split("-").map(Number);
+    const [hh, mm] = p.time.split(":").map(Number);
+    return {
+        birth_year: y,
+        birth_month: m,
+        birth_day: d,
+        birth_hour_utc: hh + mm / 60
+    };
+}
+
+function syncCanvasSize() {
+    const canvas = document.getElementById("truthCanvas");
+    const size = map.getSize();
+    const topLeft = map.containerPointToLayerPoint([0, 0]);
+    L.DomUtil.setPosition(canvas, topLeft);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.floor(size.x * dpr));
+    canvas.height = Math.max(1, Math.floor(size.y * dpr));
+    canvas.style.width = `${size.x}px`;
+    canvas.style.height = `${size.y}px`;
+    return { canvasWidth: size.x, canvasHeight: size.y, dpr };
+}
+
+function gridDimensions(pxStep) {
+    const { canvasWidth: cw, canvasHeight: ch } = syncCanvasSize();
+    let gw = Math.max(8, Math.ceil(cw / pxStep));
+    let gh = Math.max(8, Math.ceil(ch / pxStep));
+    while (gw * gh > MAX_RASTER_PIXELS) {
+        gw = Math.max(8, Math.floor(gw * 0.85));
+        gh = Math.max(8, Math.floor(gh * 0.85));
+    }
+    return { width: gw, height: gh, pxStep };
+}
+
+function strengthToRgba(strength) {
+    const s = Math.max(0, Math.min(1, Number(strength) || 0));
+    return [245, 158, 11, Math.round(s * 210)];
+}
+
+function hideCanvas() {
+    const canvas = document.getElementById("truthCanvas");
+    canvas.style.display = "none";
+    canvas.setAttribute("aria-hidden", "true");
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function paintRaster(rasterData, animate) {
+    const canvas = document.getElementById("truthCanvas");
+    syncCanvasSize();
+    const ctx = canvas.getContext("2d");
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const gw = rasterData.width;
+    const gh = rasterData.height;
+    const strengths = rasterData.strengths;
+    const img = ctx.createImageData(gw, gh);
+    for (let j = 0; j < gh; j++) {
+        for (let i = 0; i < gw; i++) {
+            const s = strengths[j * gw + i] || 0;
+            const idx = (j * gw + i) * 4;
+            const rgba = strengthToRgba(s);
+            img.data[idx] = rgba[0];
+            img.data[idx + 1] = rgba[1];
+            img.data[idx + 2] = rgba[2];
+            img.data[idx + 3] = rgba[3];
+        }
+    }
+    const off = document.createElement("canvas");
+    off.width = gw;
+    off.height = gh;
+    off.getContext("2d").putImageData(img, 0, 0);
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, gw, gh, 0, 0, cw, ch);
+    canvas.style.display = "block";
+    canvas.removeAttribute("aria-hidden");
+    if (animate) {
+        canvas.classList.remove("reveal-in");
+        void canvas.offsetWidth;
+        canvas.classList.add("reveal-in");
+    }
+}
+
+function clearRevealLayers() {
+    cellLayer.clearLayers();
+    sampleLayer.clearLayers();
+    frontierLayer.clearLayers();
+}
+
+function cellStyle(depth, maxDepth, stable) {
+    if (stable) {
+        return { color: "#64748b", weight: 0.6, dashArray: "4 3", fillOpacity: 0.03, opacity: 0.45 };
+    }
+    const t = maxDepth > 0 ? depth / maxDepth : 0;
+    const hue = 220 - t * 200;
+    return {
+        color: `hsl(${hue}, 70%, 42%)`,
+        weight: 1,
+        fillColor: `hsl(${hue}, 65%, 50%)`,
+        fillOpacity: 0.05 + t * 0.12,
+        opacity: 0.8
+    };
+}
+
+function drawAdaptiveCells(debugFc, maxDepth) {
+    cellLayer.clearLayers();
+    if (!debugFc?.features?.length) return;
+    L.geoJSON(debugFc, {
+        style: f => cellStyle(f.properties.depth || 0, maxDepth, Boolean(f.properties.stable))
+    }).addTo(cellLayer);
+}
+
+function drawTruthSamples(samples) {
+    sampleLayer.clearLayers();
+    if (!samples?.length) return;
+    for (const pt of samples) {
+        if (pt.lat == null || pt.lon == null) continue;
+        const s = Math.max(0, Math.min(1, Number(pt.strength) || 0));
+        const alpha = pt.role === "center" ? 0.5 + s * 0.4 : 0.3 + s * 0.3;
+        L.circleMarker([pt.lat, pt.lon], {
+            radius: pt.role === "center" ? 3 : 2,
+            fillColor: `rgba(245,158,11,${alpha})`,
+            color: "#92400e",
+            weight: 0.5,
+            fillOpacity: alpha
+        }).addTo(sampleLayer);
+    }
+}
+
+function drawFrontier(frontierFc) {
+    frontierLayer.clearLayers();
+    if (!frontierFc?.features?.length) return;
+    L.geoJSON(frontierFc, {
+        style: () => ({
+            color: "#dc2626", weight: 1, dashArray: "2 2",
+            fillColor: "#fecaca", fillOpacity: 0.06, opacity: 0.7
+        })
+    }).addTo(frontierLayer);
+}
+
+function updateMetricsPanel(data) {
+    const panel = document.getElementById("metricsPanel");
+    if (!data) {
+        panel.style.display = "none";
+        return;
+    }
+    const p = data.properties || {};
+    const conv = p.convergence_vs_reference;
+    const lines = [
+        `<div><b>${data.stageLabel || data.stageId}</b> · ${data.renderMode || "—"}</div>`,
+        `<div>Grid: ${data.width}×${data.height} · samples: ${p.sample_count ?? p.truth_sample_count ?? "—"}</div>`,
+        `<div>maxOrb: ${maxOrb}° · lat cap: ${latCapActive() ? "ON" : "OFF"}</div>`,
+        `<div>API: ${p.compute_seconds ?? "—"}s · paint: ${data.paintMs ?? "—"}ms</div>`
+    ];
+    if (p.render_mode === "adaptive_raster") {
+        lines.push(`<div>Adaptive · depth ${p.max_depth_reached}/${p.max_depth} · stop: ${p.stop_reason || "—"}</div>`);
+        if (conv) {
+            lines.push(
+                `<div>vs pixel reference: meanΔ ${conv.mean_delta_vs_reference} · maxΔ ${conv.max_delta_vs_reference}` +
+                ` · >${conv.delta_threshold}: ${conv.pixels_above_threshold_pct}%` +
+                (conv.converged ? " · <b>converged</b>" : "") + `</div>`
+            );
+        }
+    } else {
+        lines.push(`<div><b>Direct pixel truth</b> — one swe.houses sample per paint cell</div>`);
+        lines.push(`<div>~${p.deg_per_pixel_lon}°×${p.deg_per_pixel_lat}° per pixel</div>`);
+    }
+    if (data.note) lines.push(`<div style="color:#94a3b8">${data.note}</div>`);
+    panel.innerHTML = lines.join("");
+    panel.style.display = "block";
+    lastMetrics = data;
+}
+
+async function postAuraRaster(body) {
+    const res = await fetch(`${API}/aura-raster`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `aura-raster HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+async function postAuraAdaptive(body) {
+    const res = await fetch(`${API}/aura-raster-adaptive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `aura-raster-adaptive HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+function viewportPayload(grid) {
+    const b = map.getBounds();
+    return {
+        ...birthParams(),
+        aspect_overlay: { planet: "sun", aspect: "conjunction", angle: "ASC" },
+        north: b.getNorth(),
+        south: b.getSouth(),
+        west: b.getWest(),
+        east: b.getEast(),
+        max_orb: maxOrb,
+        apply_lat_cap: latCapActive(),
+        ...grid
+    };
+}
+
+async function renderDirectPixelTruth(grid, token, stageLabel) {
+    const t0 = performance.now();
+    const payload = viewportPayload({
+        width: grid.width,
+        height: grid.height
+    });
+    const raster = await postAuraRaster(payload);
+    if (token !== renderToken) return null;
+    const paintMs = Math.round(performance.now() - t0);
+    clearRevealLayers();
+    paintRaster(raster, debugRevealMode);
+    const out = {
+        ...raster,
+        stageId: FINAL_STAGE.id,
+        stageLabel: stageLabel || FINAL_STAGE.label,
+        renderMode: "direct_pixel_truth",
+        paintMs,
+        note: "Each paint pixel = one real Sun–ASC orb evaluation at geographic center."
+    };
+    updateMetricsPanel(out);
+    return out;
+}
+
+async function renderAdaptiveStage(stage, grid, token) {
+    const t0 = performance.now();
+    const payload = viewportPayload({
+        paint_width: grid.width,
+        paint_height: grid.height,
+        initial_divisions: stage.initialDivisions,
+        max_depth: stage.maxDepth,
+        max_samples: stage.maxSamples,
+        include_debug_cells: true,
+        include_reveal_transport: true,
+        include_convergence_metrics: true,
+        refinement_stage_id: stage.id
+    });
+    const raster = await postAuraAdaptive(payload);
+    if (token !== renderToken) return null;
+    const paintMs = Math.round(performance.now() - t0);
+    paintRaster(raster, true);
+    drawAdaptiveCells(raster.debug_cells, raster.properties?.max_depth_reached || stage.maxDepth);
+    const rt = raster.reveal_transport;
+    if (rt) {
+        drawTruthSamples(rt.truth_samples);
+        drawFrontier(rt.frontier_cells);
+    }
+    const out = {
+        ...raster,
+        stageId: stage.id,
+        stageLabel: stage.label,
+        renderMode: "adaptive_inferred",
+        paintMs,
+        note: "Adaptive cells: leaf center strength assigned to contained pixels — provisional until direct pixel pass."
+    };
+    updateMetricsPanel(out);
+    return out;
+}
+
+async function runRender() {
+    if (!truthPixelsMode && !debugRevealMode) {
+        setStatus("Enable ?truthPixels=1 and/or ?debugReveal=1");
+        return;
+    }
+    renderToken++;
+    const token = renderToken;
+    hideCanvas();
+    clearRevealLayers();
+    updateLatCapLabel();
+
+    const finalGrid = gridDimensions(FINAL_PX_STEP);
+    setStatus("Sampling…");
+
+    try {
+        if (debugRevealMode) {
+            for (const stage of REVEAL_ADAPTIVE_STAGES) {
+                if (token !== renderToken) return;
+                setStatus(`Reveal: ${stage.label}…`);
+                setBanner(`Truth Pixels Sandbox · <span class="stage">${stage.label}</span> — adaptive cells (provisional)`);
+                await renderAdaptiveStage(stage, finalGrid, token);
+            }
+            if (token !== renderToken) return;
+            setStatus("Reveal: direct pixel truth (final)…");
+            setBanner(`Truth Pixels Sandbox · <span class="stage">Direct pixel truth</span> — one sample per paint pixel`);
+            const final = await renderDirectPixelTruth(finalGrid, token, "Direct pixel truth (final)");
+            if (!final) return;
+            setStatus(
+                `Reveal complete · final ${final.width}×${final.height} direct samples · ${final.properties?.sample_count} swe.houses calls`
+            );
+        } else {
+            setBanner(`Truth Pixels Sandbox · <span class="stage">Direct pixel truth</span>`);
+            const final = await renderDirectPixelTruth(finalGrid, token);
+            if (!final) return;
+            setStatus(
+                `Direct pixel truth ready · ${final.width}×${final.height} grid · ${final.properties?.sample_count} samples · ${final.properties?.compute_seconds}s`
+            );
+        }
+    } catch (e) {
+        console.error(e);
+        setStatus(`Error: ${e.message}`);
+        setBanner("Truth Pixels Sandbox · <span class="stage">Error</span> — see status");
+    }
+}
+
+map.on("contextmenu", async e => {
+    L.DomEvent.preventDefault(e);
+    const birth = birthParams();
+    const q = new URLSearchParams({
+        lat: e.latlng.lat,
+        lon: e.latlng.lng,
+        birth_year: birth.birth_year,
+        birth_month: birth.birth_month,
+        birth_day: birth.birth_day,
+        birth_hour_utc: birth.birth_hour_utc,
+        planet: "sun",
+        aspect: "conjunction",
+        angle: "ASC"
+    });
+    try {
+        const res = await fetch(`${API}/aspect-orb-at-point?${q}`);
+        const data = await res.json();
+        const strength = Math.max(0, 1 - data.orb_deg / maxOrb);
+        L.popup()
+            .setLatLng(e.latlng)
+            .setContent(
+                `<div style="font:12px system-ui,sans-serif;line-height:1.45">` +
+                `<b>Sun conjunct ASC</b> (direct point truth)<br>` +
+                `orb: ${data.orb_deg}° · strength: ${strength.toFixed(4)}<br>` +
+                `maxOrb: ${maxOrb}° · lat cap policy: ${latCapActive() ? "ON" : "OFF"}<br>` +
+                `<span style="color:#64748b">Popup uses same swe.houses path as raster.</span></div>`
+            )
+            .openOn(map);
+    } catch (err) {
+        L.popup().setLatLng(e.latlng).setContent(`Point query failed: ${err.message}`).openOn(map);
+    }
+});
+
+document.getElementById("findBtn").addEventListener("click", () => runRender());
+
+document.getElementById("btnWorld").addEventListener("click", () => {
+    map.setView([20, 0], 2);
+});
+document.getElementById("btnAscBand").addEventListener("click", () => {
+    map.fitBounds(L.latLngBounds([28, -25], [42, 35]));
+});
+document.getElementById("btnGreenland").addEventListener("click", () => {
+    map.fitBounds(L.latLngBounds([59, -45], [72, -12]));
+});
+document.getElementById("btnHighNorth").addEventListener("click", () => {
+    map.fitBounds(L.latLngBounds([62, -30], [68, 20]));
+});
+
+map.on("resize", () => {
+    if (lastMetrics) syncCanvasSize();
+});
+
+loadProfiles()
+    .then(() => {
+        updateLatCapLabel();
+        const flags = [
+            truthPixelsMode ? "truthPixels" : null,
+            debugRevealMode ? "debugReveal" : null,
+            noLatCap ? "noLatCap" : null,
+            `maxOrb=${maxOrb}`
+        ].filter(Boolean).join(" · ");
+        setBanner(`Truth Pixels Sandbox · ${flags}`);
+        console.info(
+            "[sandbox] Truth pixel experiment. truthPixels=%s debugReveal=%s noLatCap=%s maxOrb=%s",
+            truthPixelsMode, debugRevealMode, noLatCap, maxOrb
+        );
+    })
+    .catch(err => setStatus(`Failed to load profiles: ${err.message}`));
+</script>
+</body>
+</html>

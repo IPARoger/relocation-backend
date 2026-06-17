@@ -1,0 +1,35 @@
+name: relay-automerge
+
+# Merge cursor/* PRs without blocking the planner job. Runs on PR open + every 10 min.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: relay-automerge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'cursor/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Squash-merge open relay PRs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RELAY_AUTO_MERGE_TIMEOUT: '120'
+          RELAY_AUTO_MERGE_POLL: '15'
+        run: python scripts/relay_auto_merge.py --once || true

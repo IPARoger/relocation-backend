@@ -1,0 +1,234 @@
+{
+  "runs": [
+    {
+      "mode": "blue_noise",
+      "pace_ms": 5000,
+      "density": "readable",
+      "wall_seconds": 907.9428749084473,
+      "metrics": {
+        "mode": "blue_noise",
+        "pace_ms": 5000,
+        "density": "readable",
+        "samples": 150463,
+        "server_seconds": 1.0153,
+        "match_dots": 40737,
+        "wall_seconds": 907.5978999999985,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/blue_noise_5s_readable/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "blue_noise_5s_readable"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 5000,
+      "density": "readable",
+      "wall_seconds": 1669.773854970932,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 5000,
+        "density": "readable",
+        "samples": 151313,
+        "server_seconds": 1.1557000000000002,
+        "match_dots": 40691,
+        "wall_seconds": 1001.106200000003,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_5s_readable/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "bacteria_5s_readable"
+    },
+    {
+      "mode": "virga",
+      "pace_ms": 5000,
+      "density": "readable",
+      "wall_seconds": 155.5608401298523,
+      "metrics": {
+        "mode": "virga",
+        "pace_ms": 5000,
+        "density": "readable",
+        "samples": 86204,
+        "server_seconds": 0.9993999999999998,
+        "match_dots": 19828,
+        "wall_seconds": 155.23720000000299,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/virga_5s_readable/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "virga_5s_readable"
+    },
+    {
+      "mode": "harmonic",
+      "pace_ms": 5000,
+      "density": "readable",
+      "wall_seconds": 202.99135518074036,
+      "metrics": {
+        "mode": "harmonic",
+        "pace_ms": 5000,
+        "density": "readable",
+        "samples": 77132,
+        "server_seconds": 1.1936999999999998,
+        "match_dots": 19828,
+        "wall_seconds": 202.656,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/harmonic_5s_readable/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "harmonic_5s_readable"
+    },
+    {
+      "mode": "fibonacci",
+      "pace_ms": 5000,
+      "density": "readable",
+      "wall_seconds": 179.27645611763,
+      "metrics": {
+        "mode": "fibonacci",
+        "pace_ms": 5000,
+        "density": "readable",
+        "samples": 77132,
+        "server_seconds": 1.2602,
+        "match_dots": 19828,
+        "wall_seconds": 178.9596000000015,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/fibonacci_5s_readable/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "fibonacci_5s_readable"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 2000,
+      "density": "readable",
+      "wall_seconds": 1487.5293340682983,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 2000,
+        "density": "readable",
+        "samples": 116515,
+        "server_seconds": 1.7573,
+        "match_dots": 51616,
+        "wall_seconds": 1487.2845,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_2000ms_readable/final.png",
+      "cache_window_estimate_ms": 2000,
+      "id": "bacteria_2000ms_readable"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 3000,
+      "density": "readable",
+      "wall_seconds": 964.9525620937347,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 3000,
+        "density": "readable",
+        "samples": 79213,
+        "server_seconds": 0.5838999999999999,
+        "match_dots": 21594,
+        "wall_seconds": 64.0765,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_3000ms_readable/final.png",
+      "cache_window_estimate_ms": 3000,
+      "id": "bacteria_3000ms_readable"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 7000,
+      "density": "readable",
+      "wall_seconds": 1521.8075950145721,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 7000,
+        "density": "readable",
+        "samples": 79213,
+        "server_seconds": 0.5527,
+        "match_dots": 21594,
+        "wall_seconds": 71.6185,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_7000ms_readable/final.png",
+      "cache_window_estimate_ms": 7000,
+      "id": "bacteria_7000ms_readable"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 5000,
+      "density": "sparse",
+      "wall_seconds": 1025.7590837478638,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 5000,
+        "density": "sparse",
+        "samples": 79534,
+        "server_seconds": 0.8045,
+        "match_dots": 22211,
+        "wall_seconds": 63.9515,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_5s_sparse/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "bacteria_5s_sparse"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 5000,
+      "density": "magical",
+      "wall_seconds": 50.68053722381592,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 5000,
+        "density": "magical",
+        "samples": 77618,
+        "server_seconds": 0.5803,
+        "match_dots": 21234,
+        "wall_seconds": 50.58910000000149,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_5s_magical/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "bacteria_5s_magical"
+    },
+    {
+      "mode": "bacteria",
+      "pace_ms": 5000,
+      "density": "dense",
+      "wall_seconds": 51.54940915107727,
+      "metrics": {
+        "mode": "bacteria",
+        "pace_ms": 5000,
+        "density": "dense",
+        "samples": 77508,
+        "server_seconds": 0.5554,
+        "match_dots": 21156,
+        "wall_seconds": 51.43860000000149,
+        "conditions": 1
+      },
+      "final_png": "validation/screenshots/raindrop_aesthetic/bacteria_5s_dense/final.png",
+      "cache_window_estimate_ms": 5000,
+      "id": "bacteria_5s_dense"
+    }
+  ],
+  "modes": [
+    "blue_noise",
+    "bacteria",
+    "virga",
+    "harmonic",
+    "fibonacci"
+  ],
+  "paces_ms": [
+    2000,
+    3000,
+    5000,
+    7000
+  ],
+  "densities": [
+    "sparse",
+    "readable",
+    "magical",
+    "dense"
+  ],
+  "gif_pace_sweep": "validation/screenshots/raindrop_aesthetic/bacteria_pace_sweep.gif",
+  "wall_seconds_total": 8219.947374105453
+}

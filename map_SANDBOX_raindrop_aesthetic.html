@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<!--
+  Raindrop / virga aesthetic exploration sandbox.
+
+  TRUTH SUBSTRATE (unchanged):
+    - Classifications come only from POST /screen-pixel-truth
+    - Adaptive screen-space refinement (16→8→4→2→1) with simplified
+      targeted escalation (edge halo, thin-line halo)
+    - Final painted occupancy must match the adaptive 1px reference
+
+  AESTHETIC LAYER (this file only):
+    - How probes appear over time: jitter, clustering, virga ghosts,
+      neutral→color progression, harmonic/Fibonacci opacity curves
+    - Does NOT change astrology math or production map_CURRENT.html
+
+  URL params:
+    ?profile=baseline_validated
+    ?A=pih:sun:1  (&B..&F up to 6 conditions)
+    ?mode=blue_noise|bacteria|virga|harmonic|fibonacci
+    ?pace=2000|3000|5000|7000     (reveal duration ms)
+    ?density=sparse|readable|magical|dense
+    ?viewport=world|americas
+    ?fitBounds=s,w,n,e
+    ?auto=1                        run reveal on load
+    ?ghost=pih:moon:4              optional virga ghost condition
+
+  Hooks (Playwright):
+    window.__raindrop.status
+    window.__raindrop.metrics
+    window.__raindrop.events
+    window.__raindrop.startReveal()
+    window.__raindrop.finalizeReference()
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Raindrop aesthetic sandbox</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  html, body { margin: 0; height: 100%;
+    font-family: ui-sans-serif, system-ui, sans-serif; }
+  #map { width: 100%; height: 100vh; background: #f4f4f5; }
+  .rd-canvas { pointer-events: none; }
+  #hud {
+    position: fixed; top: 8px; left: 8px; z-index: 1000;
+    background: rgba(15,23,42,0.92); color: #e2e8f0;
+    padding: 8px 12px; border-radius: 8px; font-size: 12px;
+    max-width: 52vw; line-height: 1.45;
+  }
+  #hud b { color: #fef9c3; }
+  #hud .k { color: #94a3b8; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="hud">raindrop aesthetic: loading…</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+
+const API = "";
+const qs = new URLSearchParams(location.search);
+const URL_PROFILE = qs.get("profile") || "baseline_validated";
+const URL_MODE = qs.get("mode") || "blue_noise";
+const URL_PACE = parseInt(qs.get("pace") || "5000", 10);
+const URL_DENSITY = qs.get("density") || "readable";
+const URL_AUTO = qs.get("auto") === "1";
+const URL_GHOST = qs.get("ghost") || "pih:moon:4";
+const URL_LATCAP = qs.get("latcap") !== "0";
+const PRODUCT_LAT_CAP = 65;
+const LAT_CAP_BOUNDARY_MARGIN = 4;
+
+const PHASE_SIZES = [16, 8, 4, 2, 1];
+
+const DENSITY_PRESETS = {
+  sparse:    { block: 16, dot: 2,  initialFrac: 0.025, budgetScale: 0.55 },
+  readable:  { block: 8,  dot: 3,  initialFrac: 0.08,  budgetScale: 0.75 },
+  magical:   { block: 4,  dot: 4,  initialFrac: 0.14,  budgetScale: 1.0 },
+  dense:     { block: 2,  dot: 5,  initialFrac: 0.28,  budgetScale: 1.35 },
+};
+const DENSITY = DENSITY_PRESETS[URL_DENSITY] || DENSITY_PRESETS.readable;
+
+// Six-condition palette (proof colors; not final product palette)
+const SLOT_COLORS = [
+  "rgba(252,211,77,ALPHA)",
+  "rgba(56,189,248,ALPHA)",
+  "rgba(244,114,182,ALPHA)",
+  "rgba(34,197,94,ALPHA)",
+  "rgba(249,115,22,ALPHA)",
+  "rgba(167,139,250,ALPHA)",
+];
+
+function parseSlot(raw) {
+  if (!raw) return null;
+  const p = String(raw).split(":");
+  if (p[0] === "pih" && p.length === 3)
+    return { type: "planet_in_house", planet: p[1].toLowerCase(), house: +p[2] };
+  if (p[0] === "ais" && p.length === 3)
+    return { type: "angle_in_sign", angle: p[1].toLowerCase(), sign: p[2].toLowerCase() };
+  if (p[0] === "a2a" && p.length >= 4)
+    return { type: "aspect_to_angle", planet: p[1].toLowerCase(), angle: p[2].toLowerCase(),
+             aspect: p[3].toLowerCase(), orb: p.length >= 5 ? +p[4] : 1.0 };
+  if (p.length === 2)
+    return { type: "planet_in_house", planet: p[0].toLowerCase(), house: +p[1] };
+  return null;
+}
+
+const CONDITIONS = [];
+for (const id of ["A","B","C","D","E","F"]) {
+  const c = parseSlot(qs.get(id));
+  if (c) CONDITIONS.push(c);
+}
+if (!CONDITIONS.length)
+  CONDITIONS.push({ type: "planet_in_house", planet: "sun", house: 1 });
+
+const GHOST_COND = parseSlot(URL_GHOST);
+
+function maskColor(mask, alpha) {
+  if (!mask) return null;
+  const bits = [];
+  for (let i = 0; i < 6; i++) if (mask & (1 << i)) bits.push(i);
+  if (!bits.length) return null;
+  if (bits.length === 1) return SLOT_COLORS[bits[0]].replace("ALPHA", alpha.toFixed(3));
+  // Simple overlap blend: average RGB of active slots
+  let r=0,g=0,b=0;
+  for (const i of bits) {
+    const c = SLOT_COLORS[i].match(/\d+/g).map(Number);
+    r += c[0]; g += c[1]; b += c[2];
+  }
+  r = Math.round(r/bits.length); g = Math.round(g/bits.length); b = Math.round(b/bits.length);
+  return `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+}
+
+// ---- blue-noise-ish jitter (no grid soldiers) -----------------------------
+function hash2(x, y) {
+  let h = (x * 374761393 + y * 668265263) | 0;
+  h = (h ^ (h >> 13)) * 1274126177;
+  return ((h ^ (h >> 16)) >>> 0) / 4294967296;
+}
+
+function jitterPx(x, y, block, amp) {
+  const jx = (hash2(x, y) - 0.5) * amp;
+  const jy = (hash2(y, x + 17) - 0.5) * amp;
+  return [x + jx, y + jy];
+}
+
+// ---- opacity curves -------------------------------------------------------
+const HARMONIC = [1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8];
+const FIB = [1, 1, 2, 3, 5, 8, 13, 21];
+
+function curveOpacity(t, kind) {
+  // t in [0,1]: low at edge of reveal, high near convergence
+  const u = Math.max(0, Math.min(1, t));
+  if (kind === "fibonacci") {
+    const idx = Math.min(FIB.length - 1, Math.floor(u * (FIB.length - 1)));
+    const w = FIB[idx] / FIB[FIB.length - 1];
+    return 0.08 + 0.52 * Math.pow(w, 1.15);
+  }
+  if (kind === "harmonic") {
+    const idx = Math.min(HARMONIC.length - 1, Math.floor(u * (HARMONIC.length - 1)));
+    const w = HARMONIC[idx] / HARMONIC[0];
+    return 0.06 + 0.50 * Math.pow(w, 0.85);
+  }
+  return 0.12 + 0.45 * u;
+}
+
+// ---- Leaflet --------------------------------------------------------------
+const map = L.map("map", {
+  worldCopyJump: false, preferCanvas: true,
+  zoomSnap: 0.25, zoomDelta: 0.5, minZoom: 2, maxZoom: 11,
+});
+window.__map = map;
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 11, minZoom: 2, attribution: "\u00a9 OSM",
+}).addTo(map);
+function fitDefault() {
+  const v = qs.get("viewport") || "world";
+  if (qs.get("fitBounds")) {
+    const [s,w,n,e] = qs.get("fitBounds").split(",").map(Number);
+    if ([s,w,n,e].every(Number.isFinite)) map.fitBounds([[s,w],[n,e]], {animate:false});
+    return;
+  }
+  if (v === "americas") map.fitBounds([[-55,-160],[70,-30]], {animate:false});
+  else map.fitBounds([[-70,-180],[78,180]], {animate:false});
+}
+fitDefault();
+
+const RD = {
+  status: "idle",
+  events: [],
+  metrics: {},
+  revealStart: 0,
+  birth: null,
+  classified: new Map(),
+  ghostClassified: new Map(),
+  hitPoints: [],
+  samples: 0,
+  serverSec: 0,
+};
+
+function emit(type, payload) {
+  RD.events.push({ ts: performance.now(), type, payload: payload || {} });
+}
+
+const RainCanvas = L.Layer.extend({
+  onAdd(m) {
+    this._map = m;
+    this._canvas = L.DomUtil.create("canvas", "rd-canvas", m.getPane("overlayPane"));
+    this._canvas.style.position = "absolute";
+    this._dots = new Map(); // key "x,y" -> {x,y,mask,ghost,birthMs,revealed}
+    m.on("viewreset zoomend moveend resize", this._sync, this);
+    this._sync();
+    return this;
+  },
+  onRemove(m) {
+    L.DomUtil.remove(this._canvas);
+    m.off("viewreset zoomend moveend resize", this._sync, this);
+  },
+  _sync() {
+    if (!this._canvas) return;
+    const sz = this._map.getSize();
+    const tl = this._map.containerPointToLayerPoint([0,0]);
+    L.DomUtil.setPosition(this._canvas, tl);
+    this._canvas.width = sz.x;
+    this._canvas.height = sz.y;
+    this._redraw();
+  },
+  addDot(d) {
+    const k = `${Math.round(d.x)},${Math.round(d.y)}`;
+    if (!this._dots.has(k)) this._dots.set(k, d);
+    else Object.assign(this._dots.get(k), d);
+    this._redraw();
+  },
+  clear() { this._dots.clear(); this._redraw(); },
+  startAnim() {
+    if (this._animId) cancelAnimationFrame(this._animId);
+    const tick = () => {
+      this._redraw();
+      if (RD.status === "running" || RD.revealStart)
+        this._animId = requestAnimationFrame(tick);
+    };
+    this._animId = requestAnimationFrame(tick);
+  },
+  _redraw() {
+    const ctx = this._canvas.getContext("2d");
+    ctx.clearRect(0,0,this._canvas.width,this._canvas.height);
+    const now = performance.now();
+    const pace = URL_PACE;
+    const tGlobal = RD.revealStart ? Math.min(1, (now - RD.revealStart) / pace) : 1;
+    const dotR = DENSITY.dot;
+    for (const d of this._dots.values()) {
+      const age = d.birthMs ? Math.min(1, (now - d.birthMs) / Math.max(400, pace * 0.35)) : tGlobal;
+      const mode = URL_MODE;
+      let alpha = curveOpacity(age, mode === "fibonacci" ? "fibonacci" : mode === "harmonic" ? "harmonic" : "linear");
+      let colorMask = d.mask;
+
+      // Virga ghosts fade out
+      if (d.ghost) {
+        const ghostFade = Math.max(0, 1 - tGlobal / 0.65);
+        alpha *= 0.22 * ghostFade;
+        colorMask = d.ghostMask;
+      }
+
+      // Incremental colorification (neutral early → slot color)
+      const colorT = Math.max(0, Math.min(1, (age - 0.15) / 0.7));
+      const neutral = `rgba(248,250,252,${(alpha * 0.35).toFixed(3)})`;
+      const finalC = maskColor(colorMask, alpha * (0.35 + 0.55 * colorT));
+      const fill = (mode === "harmonic" || mode === "fibonacci" || mode === "blue_noise" || mode === "bacteria" || mode === "virga")
+        ? (colorT < 0.25 ? neutral : (finalC || neutral))
+        : (finalC || neutral);
+      if (!fill) continue;
+
+      let px = d.x, py = d.y;
+      if (mode === "blue_noise" || mode === "bacteria") {
+        const amp = mode === "bacteria" ? 5 : 3;
+        [px, py] = jitterPx(d.x, d.y, DENSITY.block, amp);
+      }
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.arc(px + dotR/2, py + dotR/2, dotR/2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+});
+const layer = new RainCanvas();
+layer.addTo(map);
+
+// ---- adaptive refinement (truth path; matches stress/targeted policy) ----
+async function classifyBatch(points, conditions, applyLatCap = URL_LATCAP) {
+  if (!points.length) return [];
+  const CHUNK = 80000;
+  const masks = [];
+  for (let i = 0; i < points.length; i += CHUNK) {
+    const chunk = points.slice(i, i + CHUNK);
+    const body = JSON.stringify({
+      ...RD.birth, points: chunk, conditions, apply_lat_cap: applyLatCap,
+    });
+    const r = await fetch(`${API}/screen-pixel-truth`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body,
+    });
+    if (!r.ok) throw new Error(`screen-pixel-truth ${r.status}`);
+    const resp = await r.json();
+    RD.serverSec += (resp.properties?.compute_seconds || 0);
+    RD.samples += chunk.length;
+    masks.push(...resp.masks);
+  }
+  return masks;
+}
+
+function latLngPoints(pixels) {
+  const half = DENSITY.block / 2;
+  return pixels.map(([x,y]) => {
+    const ll = map.containerPointToLatLng([x + half, y + half]);
+    return [ll.lat, ll.lng];
+  });
+}
+
+function tileNearEdge(tile, w, h, marginTiles = 1) {
+  const m = marginTiles * (tile.size || 16);
+  return tile.x <= m || tile.y <= m ||
+    tile.x + tile.size >= w - m || tile.y + tile.size >= h - m;
+}
+
+function tileLatRange(tile) {
+  const corners = [
+    [tile.x, tile.y],
+    [tile.x + tile.size - 1, tile.y],
+    [tile.x, tile.y + tile.size - 1],
+    [tile.x + tile.size - 1, tile.y + tile.size - 1],
+  ];
+  const lats = corners.map(([x, y]) => map.containerPointToLatLng([x, y]).lat);
+  return [Math.min(...lats), Math.max(...lats)];
+}
+
+function tileNeedsLatCapBoundary(tile) {
+  const [lo, hi] = tileLatRange(tile);
+  const cap = PRODUCT_LAT_CAP;
+  if (lo > cap || hi < -cap) return false;
+  if (hi > cap || lo < -cap) return true;
+  return Math.max(Math.abs(lo), Math.abs(hi)) >= cap - LAT_CAP_BOUNDARY_MARGIN;
+}
+
+function tileHighLatitude(tile, threshold = 55) {
+  const [lo, hi] = tileLatRange(tile);
+  return Math.max(Math.abs(lo), Math.abs(hi)) >= threshold;
+}
+
+function perTileHaloRadius(tile, w, h, hasThin, hasA2a) {
+  let r = 1;
+  if (tileNearEdge(tile, w, h, 2)) r += 2;
+  if (hasThin) r += 2;
+  if (hasA2a && tileHighLatitude(tile)) r += 2;
+  if (URL_LATCAP && hasThin && tileNearEdge(tile, w, h, 2)) r += 2;
+  return r;
+}
+
+function dilateTiles(tilesWithRadius, size, w, h) {
+  const keys = new Set();
+  for (const { tile, radius } of tilesWithRadius) {
+    const gx = Math.floor(tile.x / size), gy = Math.floor(tile.y / size);
+    for (let dy = -radius; dy <= radius; dy++)
+      for (let dx = -radius; dx <= radius; dx++) {
+        const x = (gx + dx) * size, y = (gy + dy) * size;
+        if (x >= 0 && y >= 0 && x < w && y < h) keys.add(`${x},${y}`);
+      }
+  }
+  return [...keys].map(k => {
+    const [x, y] = k.split(",").map(Number);
+    return { x, y, size };
+  });
+}
+
+function dedupeTiles(tiles) {
+  return [...new Map(tiles.map(t => [`${t.x},${t.y},${t.size}`, t])).values()];
+}
+
+function initialTiles(w, h, size) {
+  const tiles = [];
+  for (let y = 0; y < h; y += size)
+    for (let x = 0; x < w; x += size)
+      tiles.push({ x, y, size });
+  return tiles;
+}
+
+function subdivide(tile, child, w, h) {
+  const out = [];
+  for (let y = tile.y; y < Math.min(h, tile.y + tile.size); y += child)
+    for (let x = tile.x; x < Math.min(w, tile.x + tile.size); x += child)
+      out.push({ x, y, size: child });
+  return out;
+}
+
+function sampleTile(tile, mode, hasThin) {
+  const pts = [];
+  const n = tile.size <= 2 ? (tile.size === 1 ? 1 : 4) : (tile.size >= 8 ? 4 : 3);
+  for (let iy = 0; iy < n; iy++) {
+    for (let ix = 0; ix < n; ix++) {
+      let px = Math.min(tile.x + tile.size - 1, tile.x + Math.round((ix + 0.5) * tile.size / n - 0.5));
+      let py = Math.min(tile.y + tile.size - 1, tile.y + Math.round((iy + 0.5) * tile.size / n - 0.5));
+      if (mode === "blue_noise" || mode === "bacteria")
+        [px, py] = jitterPx(px, py, tile.size, mode === "bacteria" ? 6 : 4);
+      pts.push([px, py]);
+    }
+  }
+  if (hasThin && tile.size >= 8) {
+    for (const [fx, fy] of [[0.25,0.25],[0.75,0.25],[0.25,0.75],[0.75,0.75],[0.5,0.5]]) {
+      const px = Math.min(tile.x + tile.size - 1, tile.x + Math.floor(fx * tile.size));
+      const py = Math.min(tile.y + tile.size - 1, tile.y + Math.floor(fy * tile.size));
+      pts.push([px, py]);
+    }
+  }
+  return [...new Map(pts.map(p => [`${p[0]},${p[1]}`, p])).values()];
+}
+
+function bacteriaExtra(tile, hits) {
+  const extras = [];
+  for (const h of hits) {
+    const [x, y] = h;
+    if (x < tile.x || y < tile.y || x >= tile.x + tile.size || y >= tile.y + tile.size) continue;
+    extras.push(jitterPx(x, y, 4, 10));
+    extras.push(jitterPx(x + 3, y - 2, 4, 8));
+    if (extras.length >= 8) break;
+  }
+  return extras;
+}
+
+function spawnDotsForProbes(pts, masks, tileSize) {
+  const now = performance.now();
+  const hits = [];
+  for (let i = 0; i < pts.length; i++) if (masks[i]) hits.push([pts[i][0], pts[i][1], masks[i]]);
+  if (!hits.length) return;
+  if (tileSize > 4) {
+    const [x, y, mask] = hits[Math.floor(hash2(hits[0][0], hits[0][1]) * hits.length)];
+    layer.addDot({ x, y, mask, birthMs: now });
+    return;
+  }
+  for (const [x, y, mask] of hits)
+    layer.addDot({ x, y, mask, birthMs: now });
+}
+
+async function runAdaptiveReveal() {
+  RD.status = "running";
+  emit("reveal_start", { mode: URL_MODE, pace: URL_PACE, density: URL_DENSITY });
+  layer.clear();
+  RD.classified.clear();
+  RD.ghostClassified.clear();
+  RD.hitPoints = [];
+  RD.samples = 0;
+  RD.serverSec = 0;
+  RD.revealStart = performance.now();
+  layer.startAnim();
+  const paceStart = RD.revealStart;
+  const paceMs = URL_PACE;
+
+  const sz = map.getSize();
+  const w = sz.x, h = sz.y;
+  let currentTiles = initialTiles(w, h, PHASE_SIZES[0]);
+  const classifiedCache = new Map();
+
+  // Optional virga: sparse ghost probes first
+  if (URL_MODE === "virga" && GHOST_COND) {
+    const ghostN = Math.floor(w * h * DENSITY.initialFrac * 0.35);
+    const ghostPixels = [];
+    for (let i = 0; i < ghostN; i++) {
+      const x = Math.floor(hash2(i, 99) * (w - 1));
+      const y = Math.floor(hash2(99, i) * (h - 1));
+      ghostPixels.push([x, y]);
+    }
+    const gmasks = await classifyBatch(latLngPoints(ghostPixels), [GHOST_COND]);
+    ghostPixels.forEach(([x,y], i) => {
+      if (gmasks[i]) {
+        RD.ghostClassified.set(`${x},${y}`, gmasks[i]);
+        layer.addDot({ x, y, ghost: true, ghostMask: gmasks[i], mask: 0, birthMs: performance.now() });
+      }
+    });
+    emit("virga_ghost_pass", { probes: ghostPixels.length });
+  }
+
+  const hasThin = CONDITIONS.some(c => c.type === "aspect_to_angle" && (c.orb || 99) <= 0.5);
+  const hasA2a = CONDITIONS.some(c => c.type === "aspect_to_angle");
+
+  for (let pi = 0; pi < PHASE_SIZES.length; pi++) {
+    const size = PHASE_SIZES[pi];
+    const tilePoints = new Map();
+    const newPoints = [];
+
+    for (const tile of currentTiles) {
+      let pts = sampleTile(tile, URL_MODE, hasThin);
+      if (URL_MODE === "bacteria") pts = pts.concat(bacteriaExtra(tile, RD.hitPoints));
+      pts = [...new Map(pts.map(p => [`${p[0]},${p[1]}`, p])).values()];
+      tilePoints.set(`${tile.x},${tile.y},${tile.size}`, { tile, pts });
+      for (const p of pts) {
+        const k = `${p[0]},${p[1]}`;
+        if (!classifiedCache.has(k)) newPoints.push(p);
+      }
+    }
+
+    const uniqueNew = [...new Map(newPoints.map(p => [`${p[0]},${p[1]}`, p])).values()];
+    if (uniqueNew.length) {
+      const masks = await classifyBatch(latLngPoints(uniqueNew), CONDITIONS);
+      uniqueNew.forEach(([x, y], i) => {
+        classifiedCache.set(`${x},${y}`, masks[i]);
+        RD.classified.set(`${x},${y}`, masks[i]);
+        if (masks[i]) RD.hitPoints.push([x, y]);
+      });
+      if (RD.hitPoints.length > 400) RD.hitPoints = RD.hitPoints.slice(-400);
+    }
+
+    const refineParents = [];
+    const hitOrMixed = [];
+    let phaseHits = 0;
+
+    for (const { tile, pts } of tilePoints.values()) {
+      const masks = pts.map(([x, y]) => classifiedCache.get(`${x},${y}`) || 0);
+      const uniq = new Set(masks);
+      const nonzero = masks.filter(m => m);
+
+      if (size === 1) {
+        if (masks[0]) {
+          phaseHits++;
+          spawnDotsForProbes(pts, masks, size);
+        }
+        continue;
+      }
+      if (uniq.size === 1) {
+        if (!masks[0]) {
+          if (URL_LATCAP && tileNeedsLatCapBoundary(tile)) refineParents.push(tile);
+          continue;
+        }
+        if (hasThin && tileNearEdge(tile, w, h, 2) && size > 4) {
+          hitOrMixed.push(tile);
+          refineParents.push(tile);
+          continue;
+        }
+        phaseHits += nonzero.length;
+        spawnDotsForProbes(pts, masks, size);
+        continue;
+      }
+      if (nonzero.length) hitOrMixed.push(tile);
+      refineParents.push(tile);
+    }
+
+    if (size !== 1) {
+      const childSize = PHASE_SIZES[pi + 1];
+      const tilesWithRadius = hitOrMixed.map(t => ({
+        tile: t,
+        radius: perTileHaloRadius(t, w, h, hasThin, hasA2a),
+      }));
+      const halo = dilateTiles(tilesWithRadius, size, w, h);
+      const parents = dedupeTiles([...refineParents, ...halo]);
+      currentTiles = [];
+      for (const p of parents) currentTiles.push(...subdivide(p, childSize, w, h));
+      currentTiles = dedupeTiles(currentTiles);
+    }
+
+    emit("phase", { size, probes: uniqueNew.length, hits: phaseHits });
+    const phaseEnd = paceStart + ((pi + 1) / PHASE_SIZES.length) * paceMs;
+    while (performance.now() < phaseEnd) await new Promise(r => setTimeout(r, 16));
+  }
+
+  while (performance.now() < paceStart + paceMs) await new Promise(r => setTimeout(r, 16));
+  RD.status = "complete";
+  RD.metrics = {
+    mode: URL_MODE,
+    pace_ms: URL_PACE,
+    density: URL_DENSITY,
+    samples: RD.samples,
+    server_seconds: RD.serverSec,
+    match_dots: [...classifiedCache.values()].filter(m => m).length,
+    wall_seconds: (performance.now() - RD.revealStart) / 1000,
+    conditions: CONDITIONS.length,
+  };
+  emit("reveal_complete", RD.metrics);
+  renderHud();
+}
+
+async function finalizeReference() {
+  // 1px truth wall for XOR check (capture script)
+  const sz = map.getSize();
+  const pts = [];
+  for (let y = 0; y < sz.y; y++)
+    for (let x = 0; x < sz.x; x++)
+      pts.push([x, y]);
+  const CHUNK = 120000;
+  const masks = new Array(pts.length);
+  for (let i = 0; i < pts.length; i += CHUNK) {
+    const chunk = pts.slice(i, i + CHUNK);
+    const ll = latLngPoints(chunk);
+    const m = await classifyBatch(ll, CONDITIONS);
+    for (let j = 0; j < m.length; j++) masks[i + j] = m[j];
+  }
+  RD.referenceMasks = masks;
+  RD.referenceSize = { w: sz.x, h: sz.y };
+  emit("reference_ready", { points: pts.length });
+  return { masks, w: sz.x, h: sz.y };
+}
+
+function renderHud() {
+  const m = RD.metrics;
+  document.getElementById("hud").innerHTML =
+    `<div><b>mode</b> ${URL_MODE} · <b>pace</b> ${URL_PACE}ms · <b>density</b> ${URL_DENSITY}</div>` +
+    `<div class="k">status: ${RD.status} · conditions: ${CONDITIONS.length}</div>` +
+    (m.samples ? `<div class="k">samples: ${m.samples.toLocaleString()} · server: ${m.server_seconds.toFixed(2)}s · wall: ${m.wall_seconds.toFixed(2)}s</div>` : "") +
+    `<div class="k">R=reveal · C=reference XOR</div>`;
+}
+
+async function loadProfile() {
+  const r = await fetch(`${API}/chart-profiles`);
+  const profiles = await r.json();
+  const p = profiles.find(x => x.id === URL_PROFILE) || profiles[0];
+  const [y, mo, d] = p.date.split("-").map(Number);
+  const [hh, mm] = (p.time || "12:00").split(":").map(Number);
+  RD.birth = { birth_year: y, birth_month: mo, birth_day: d, birth_hour_utc: hh + mm/60 };
+}
+
+window.__raindrop = {
+  get status() { return RD.status; },
+  events: RD.events,
+  metrics: () => RD.metrics,
+  startReveal: runAdaptiveReveal,
+  finalizeReference,
+};
+
+(async function init() {
+  try {
+    await loadProfile();
+    RD.status = "ready";
+    renderHud();
+    if (URL_AUTO) {
+      await new Promise(r => setTimeout(r, 300));
+      await runAdaptiveReveal();
+    }
+  } catch (e) {
+    RD.status = "error";
+    document.getElementById("hud").textContent = "error: " + e.message;
+  }
+})();
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "r" || e.key === "R") runAdaptiveReveal();
+  if (e.key === "c" || e.key === "C") finalizeReference();
+});
+</script>
+</body>
+</html>

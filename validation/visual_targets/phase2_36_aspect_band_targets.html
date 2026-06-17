@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 2.36 Aspect Band Static Targets</title>
+  <style>
+    :root {
+      --selected-rgb: 218, 165, 32;
+      --selected-deep: rgb(132, 84, 0);
+      --selected-rich: rgba(var(--selected-rgb), 0.72);
+      --selected-mid: rgba(var(--selected-rgb), 0.20);
+      --selected-edge: rgba(var(--selected-rgb), 0.018);
+      --ink: #1f2937;
+      --muted: #64748b;
+      --water: #b9dfe7;
+      --land: #f7f3ea;
+      --line: rgba(51, 65, 85, 0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 28px;
+      color: var(--ink);
+      background: #f8fafc;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1120px; margin: 0 auto; }
+    h1 { margin: 0 0 8px; font-size: 26px; }
+    .intro { margin: 0 0 24px; color: var(--muted); line-height: 1.45; max-width: 900px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .target-card {
+      background: white;
+      border: 1px solid #dbe3ec;
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      padding: 16px;
+    }
+    .target-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    h2 { margin: 0 0 4px; font-size: 16px; }
+    p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .badge {
+      flex: 0 0 auto;
+      color: #854d0e;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 5px 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .map-frame {
+      position: relative;
+      height: 420px;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      background: var(--water);
+      isolation: isolate;
+    }
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.35) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.28) 1px, transparent 1px);
+      background-size: 96px 96px;
+      opacity: 0.55;
+    }
+    .land { position: absolute; background: var(--land); border: 1px solid rgba(100, 116, 139, 0.14); }
+    .land-a { width: 360px; height: 250px; left: -70px; top: 22px; border-radius: 45% 55% 42% 58%; transform: rotate(-12deg); }
+    .land-b { width: 310px; height: 210px; right: -54px; top: 42px; border-radius: 48% 52% 56% 44%; transform: rotate(17deg); }
+    .land-c { width: 420px; height: 165px; left: 122px; bottom: -56px; border-radius: 52% 48% 36% 64%; transform: rotate(3deg); }
+    .city {
+      position: absolute;
+      z-index: 8;
+      color: rgba(30, 41, 59, 0.78);
+      font-size: 11px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 -1px 2px rgba(255,255,255,0.75);
+    }
+    .city::before { content: ''; display: inline-block; width: 5px; height: 5px; margin-right: 4px; border-radius: 50%; border: 1.5px solid rgba(30,41,59,0.68); background: white; vertical-align: 1px; }
+    .c1 { left: 98px; top: 110px; }
+    .c2 { left: 300px; top: 142px; }
+    .c3 { left: 388px; top: 246px; }
+    .c4 { left: 194px; top: 300px; }
+    .c5 { left: 478px; top: 176px; }
+    .c6 { left: 66px; top: 238px; }
+    .aspect-band {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      top: 50%;
+      width: var(--band-width);
+      height: 960px;
+      transform: translate(-50%, -50%) rotate(34deg);
+      transform-origin: center;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        var(--selected-edge) 2%,
+        rgba(var(--selected-rgb), 0.055) 14%,
+        rgba(var(--selected-rgb), 0.12) 28%,
+        rgba(var(--selected-rgb), 0.28) calc(50% - var(--core-width)),
+        rgba(var(--selected-rgb), 0.62) calc(50% - (var(--core-width) * 0.42)),
+        rgba(var(--selected-rgb), 0.86) 50%,
+        rgba(var(--selected-rgb), 0.62) calc(50% + (var(--core-width) * 0.42)),
+        rgba(var(--selected-rgb), 0.28) calc(50% + var(--core-width)),
+        rgba(var(--selected-rgb), 0.12) 72%,
+        rgba(var(--selected-rgb), 0.055) 86%,
+        var(--selected-edge) 98%,
+        transparent 100%
+      );
+      filter: saturate(1.05);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+    .centerline {
+      position: absolute;
+      z-index: 6;
+      left: 50%;
+      top: 50%;
+      width: 3px;
+      height: 960px;
+      transform: translate(-50%, -50%) rotate(34deg);
+      background: rgba(121, 73, 0, 0.72);
+      box-shadow: 0 0 6px rgba(218,165,32,0.28);
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    footer { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 11px; margin-top: 10px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Phase 2.36 Static Aspect-to-Angle Band Targets</h1>
+    <p class="intro">Static design artifacts only. These targets use a consistent map-like background, a single gold selected color, and the same diagonal exactness path. They intentionally exclude rain, virga, dots, particles, animation, production code, and renderer integration.</p>
+    <div class="grid">
+      
+      <section class="target-card" id="target-10deg" data-target="10deg">
+        <header>
+          <div>
+            <h2>Aspect-to-Angle Band ±10° per side</h2>
+            <p>Widest target, still transparent outside the tight core.</p>
+          </div>
+          <div class="badge">static target only</div>
+        </header>
+        <div class="map-frame">
+          <div class="map-grid"></div>
+          <div class="land land-a"></div>
+          <div class="land land-b"></div>
+          <div class="land land-c"></div>
+          <div class="city c1">Lisbon</div>
+          <div class="city c2">Milan</div>
+          <div class="city c3">Athens</div>
+          <div class="city c4">Cairo</div>
+          <div class="city c5">Istanbul</div>
+          <div class="city c6">Tunis</div>
+          <div class="aspect-band" style="--band-width: 220px; --core-width: 7.5px;" aria-hidden="true"></div>
+          <div class="centerline" aria-hidden="true"></div>
+        </div>
+        <footer>
+          <span>Selected color: gold</span>
+          <span>Continuous gradient, stripe-free, no white.</span>
+        </footer>
+      </section>
+    
+      <section class="target-card" id="target-8deg" data-target="8deg">
+        <header>
+          <div>
+            <h2>Aspect-to-Angle Band ±8° per side</h2>
+            <p>Broad but controlled exactness crest.</p>
+          </div>
+          <div class="badge">static target only</div>
+        </header>
+        <div class="map-frame">
+          <div class="map-grid"></div>
+          <div class="land land-a"></div>
+          <div class="land land-b"></div>
+          <div class="land land-c"></div>
+          <div class="city c1">Lisbon</div>
+          <div class="city c2">Milan</div>
+          <div class="city c3">Athens</div>
+          <div class="city c4">Cairo</div>
+          <div class="city c5">Istanbul</div>
+          <div class="city c6">Tunis</div>
+          <div class="aspect-band" style="--band-width: 176px; --core-width: 6.0px;" aria-hidden="true"></div>
+          <div class="centerline" aria-hidden="true"></div>
+        </div>
+        <footer>
+          <span>Selected color: gold</span>
+          <span>Continuous gradient, stripe-free, no white.</span>
+        </footer>
+      </section>
+    
+      <section class="target-card" id="target-6deg" data-target="6deg">
+        <header>
+          <div>
+            <h2>Aspect-to-Angle Band ±6° per side</h2>
+            <p>Middle target with rapid falloff.</p>
+          </div>
+          <div class="badge">static target only</div>
+        </header>
+        <div class="map-frame">
+          <div class="map-grid"></div>
+          <div class="land land-a"></div>
+          <div class="land land-b"></div>
+          <div class="land land-c"></div>
+          <div class="city c1">Lisbon</div>
+          <div class="city c2">Milan</div>
+          <div class="city c3">Athens</div>
+          <div class="city c4">Cairo</div>
+          <div class="city c5">Istanbul</div>
+          <div class="city c6">Tunis</div>
+          <div class="aspect-band" style="--band-width: 132px; --core-width: 4.5px;" aria-hidden="true"></div>
+          <div class="centerline" aria-hidden="true"></div>
+        </div>
+        <footer>
+          <span>Selected color: gold</span>
+          <span>Continuous gradient, stripe-free, no white.</span>
+        </footer>
+      </section>
+    
+      <section class="target-card" id="target-3deg" data-target="3deg">
+        <header>
+          <div>
+            <h2>Aspect-to-Angle Band ±3° per side</h2>
+            <p>Narrow exactness crest target.</p>
+          </div>
+          <div class="badge">static target only</div>
+        </header>
+        <div class="map-frame">
+          <div class="map-grid"></div>
+          <div class="land land-a"></div>
+          <div class="land land-b"></div>
+          <div class="land land-c"></div>
+          <div class="city c1">Lisbon</div>
+          <div class="city c2">Milan</div>
+          <div class="city c3">Athens</div>
+          <div class="city c4">Cairo</div>
+          <div class="city c5">Istanbul</div>
+          <div class="city c6">Tunis</div>
+          <div class="aspect-band" style="--band-width: 66px; --core-width: 2.8px;" aria-hidden="true"></div>
+          <div class="centerline" aria-hidden="true"></div>
+        </div>
+        <footer>
+          <span>Selected color: gold</span>
+          <span>Continuous gradient, stripe-free, no white.</span>
+        </footer>
+      </section>
+    
+    </div>
+  </main>
+</body>
+</html>

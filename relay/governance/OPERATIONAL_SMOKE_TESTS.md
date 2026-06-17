@@ -1,0 +1,1 @@
+../../docs/architecture/OPERATIONAL_SMOKE_TESTS.md

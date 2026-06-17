@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Questions — Decision Board</title>
+<style>
+:root{
+  --paper:#fff;--ink:#1d241f;--soft:#5b6560;--faint:#9aa49b;
+  --line:#eef3ee;--mid:#dde6dd;--bd:#e4ece5;
+  --ais:#42a85e;--pih:#3b7fd3;--a2a:#7b5cd0;--notes:#e8b400;--accent:#3b7fd3;
+  --app:#bf6a40;--sep:#3b7fd3;
+  --display:"Charter",Georgia,serif;--body:"Avenir Next","Segoe UI",-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f7f4;color:var(--ink);font-family:var(--body);font-size:13px;line-height:1.4}
+.wrap{max-width:1160px;margin:0 auto;padding:26px 30px 90px}
+h1{font-size:20px;margin:0 0 4px}.lead{color:var(--soft);max-width:860px;margin:0 0 6px}
+.how{font-size:12px;color:var(--faint);background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 13px;margin:10px 0 6px}
+.how b{color:var(--ink)}
+.sec{margin:34px 0 12px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:800;border-bottom:1px solid var(--mid);padding-bottom:6px}
+.q{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.qid{display:inline-block;font-weight:800;font-size:11px;letter-spacing:.06em;color:#fff;background:var(--accent);border-radius:6px;padding:2px 8px;margin-right:8px}
+.qt{font-weight:700}.qsub{color:var(--soft);margin:4px 0 13px;font-size:12.5px}
+.opts{display:grid;gap:14px}
+.opts.c3{grid-template-columns:repeat(3,1fr)}.opts.c2{grid-template-columns:repeat(2,1fr)}
+.opt{border:1px solid var(--bd);border-radius:11px;padding:12px;background:#fff}
+.olab{font-size:11px;font-weight:800;color:var(--ink);margin-bottom:9px}.olab .rec{color:var(--ais);font-weight:700}
+.cap{font-size:11px;color:var(--faint);margin-top:9px}
+/* generic dropdown demos */
+.ddwrap{display:flex;justify-content:center;padding:6px 0 2px}
+.menu{width:190px;border-radius:10px;overflow:hidden}
+.menu .mtrig{display:flex;align-items:center;gap:7px;justify-content:flex-end;font-size:12.5px;color:var(--soft);padding:4px 2px 8px}
+.menu .mtrig .circ{width:26px;height:26px;border-radius:50%;border:1px solid var(--mid);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--soft)}
+.d1 .panel{border:1px solid var(--line);background:#fff}
+.d1 .panel a{display:block;padding:7px 10px;color:var(--soft);text-decoration:none;font-size:12.5px}
+.d1 .panel a:hover{color:var(--ink)}
+.d2 .panel{border:1px solid var(--line);background:#fff;border-radius:11px;box-shadow:0 10px 26px -14px rgba(20,40,25,.4);padding:5px}
+.d2 .panel a{display:block;padding:8px 11px;border-radius:8px;color:var(--soft);text-decoration:none;font-size:12.5px}
+.d2 .panel a:hover{background:#f1f6f1;color:var(--ink)}
+.d2 .lbl{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:6px 11px 3px}
+.d3 .panel{border:1px solid var(--mid);background:#fff;border-radius:10px;overflow:hidden}
+.d3 .panel a{display:flex;align-items:center;gap:9px;padding:9px 12px;color:var(--soft);text-decoration:none;font-size:12.5px;border-bottom:1px solid var(--line)}
+.d3 .panel a:last-child{border-bottom:none}.d3 .ic{width:15px;text-align:center;color:var(--faint)}
+.d3 .panel a:hover{background:#f6faf6;color:var(--ink)}
+/* hide/collapse demos */
+.tcard{border:1px solid var(--bd);border-radius:11px;padding:11px 12px;background:#fff}
+.chead{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:13px}
+.car{color:var(--faint);font-size:11px;cursor:pointer;transition:transform .2s}.car.shut{transform:rotate(-90deg)}
+.trow{display:grid;grid-template-columns:1fr auto;padding:5px 2px;border-bottom:1px solid var(--line);color:var(--soft);font-size:12px}.trow:last-child{border-bottom:none}
+.stub{margin-top:8px;font-size:11px;color:var(--accent);cursor:pointer}
+.chip{display:inline-block;font-size:10px;color:var(--soft);background:#eef3ee;border-radius:999px;padding:2px 9px;margin-left:auto}
+/* checkbox demos */
+.frow{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:12.5px}.frow:last-child{border-bottom:none}
+.cb{width:15px;height:15px;border:1.5px solid var(--mid);border-radius:4px;flex:0 0 auto}
+.cb.on{background:var(--accent);border-color:var(--accent);position:relative}
+.cb.on::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.cbc{width:16px;height:16px;border:1.5px solid var(--mid);border-radius:50%;flex:0 0 auto}
+.cbc.on{background:var(--accent);border-color:var(--accent);position:relative}
+.cbc.on::after{content:"";position:absolute;left:4px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.frow.rowsel{cursor:pointer;border-radius:8px}.frow.rowsel.on{background:#eef4fb}
+.frow .nm{flex:1 1 auto;color:var(--ink)}.frow .mt{color:var(--faint);font-size:11px}
+/* sort demos */
+.sortbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--mid);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--soft);background:#fff}
+.pop{margin-top:8px;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 26px -14px rgba(20,40,25,.4);padding:5px;width:160px}
+.pop a{display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;color:var(--soft);text-decoration:none;font-size:12px}
+.pop a.on{color:var(--ink);font-weight:700}.pop a:hover{background:#f1f6f1}
+.seg{display:inline-flex;border:1px solid var(--mid);border-radius:8px;overflow:hidden}
+.seg button{border:none;background:#fff;padding:6px 11px;font-size:12px;color:var(--soft);cursor:pointer;border-right:1px solid var(--mid)}
+.seg button:last-child{border-right:none}.seg button.on{background:#eef4fb;color:var(--ink);font-weight:700}
+/* a2a width demo */
+.a2a{border:1px solid var(--bd);border-radius:11px;padding:10px 11px;background:#fff}
+.a2a .h{font-family:var(--display);font-weight:700;font-size:12.5px;margin-bottom:7px}
+.a2a .r{display:grid;grid-template-columns:54px repeat(4,1fr);gap:5px;padding:4px 0;border-bottom:1px solid var(--line);font-size:11px;align-items:baseline}.a2a .r:last-child{border-bottom:none}
+.a2a .hd{font-size:9px;color:var(--faint);text-transform:uppercase;text-align:center}
+.a2a .pl{color:var(--ink)}.a2a .c{text-align:center;white-space:nowrap}.a2a .orb.app{color:var(--app)}.a2a .orb.sep{color:var(--sep)}.a2a .ph{color:var(--faint)}
+/* notes-gap demo */
+.band{display:grid;gap:var(--g,18px);grid-template-columns:1fr 1fr 1fr;align-items:start}
+.band .mini{border:1px solid var(--bd);border-radius:10px;padding:9px;font-size:11px;color:var(--soft);min-height:70px}
+.band .mini.notes{border-style:dashed;color:var(--faint)}
+/* policy list */
+.policy{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 18px}
+.prow{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}.prow:last-child{border-bottom:none}
+.prow .pid{flex:0 0 auto;font-weight:800;font-size:11px;color:#fff;background:#7b8b80;border-radius:6px;padding:2px 8px;margin-top:1px}
+.prow .pq{flex:1 1 auto}.prow .pq b{color:var(--ink)}.prow .optn{color:var(--soft);font-size:12px;margin-top:3px}
+.lean{color:var(--ais);font-weight:700}
+</style></head><body>
+<div class="wrap">
+  <h1>Open Questions — Decision Board</h1>
+  <p class="lead">Everything blocking the next two steps (Controls &amp; Disclosure canon, then animation). Pick an option per question; visual ones show real candidates.</p>
+  <div class="how">How to answer: reply with the code per question — e.g. <b>A1=D2 · A2=H1 · A3=C1 · A4=S1 · B1=11 · B2=fixed · B3=med · C1=settings · C2=future · C3=yes · C4=selective · C5=signature</b>. <span style="color:var(--ais);font-weight:700">Green = my recommendation.</span></p>
+
+  <div class="sec">A · Controls &amp; Disclosure (feeds the next canon)</div>
+
+  <div class="q">
+    <div><span class="qid">A1</span><span class="qt">Custom site dropdown style</span></div>
+    <div class="qsub">Used for the account menu, profile selector, and settings selects. You wanted "not generic / not raw OS chrome."</div>
+    <div class="opts c3">
+      <div class="opt"><div class="olab">D1 · Minimal hairline</div>
+        <div class="ddwrap"><div class="menu d1"><div class="mtrig"><span class="circ">DG</span><span>&#9662;</span></div><div class="panel"><a>Help</a><a>Profile</a><a>Log out</a></div></div></div>
+        <div class="cap">Barely-there. Least chrome.</div></div>
+      <div class="opt"><div class="olab">D2 · Soft card <span class="rec">(rec)</span></div>
+        <div class="ddwrap"><div class="menu d2"><div class="mtrig"><span class="circ">DG</span><span>&#9662;</span></div><div class="panel"><div class="lbl">Account</div><a>Help</a><a>Profile</a><a>Log out</a></div></div></div>
+        <div class="cap">Rounded, soft shadow, hover fill, section label.</div></div>
+      <div class="opt"><div class="olab">D3 · Structured w/ icons</div>
+        <div class="ddwrap"><div class="menu d3"><div class="mtrig"><span class="circ">DG</span><span>&#9662;</span></div><div class="panel"><a><span class="ic">?</span>Help</a><a><span class="ic">&#9678;</span>Profile</a><a><span class="ic">&#10138;</span>Log out</a></div></div></div>
+        <div class="cap">Dividers + leading icons. Most explicit.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div><span class="qid">A2</span><span class="qt">Table hide / collapse behavior</span></div>
+    <div class="qsub">Caret sits left of the title (locked). Question is what's left behind so you can bring it back. Hide &ne; Remove.</div>
+    <div class="opts c3">
+      <div class="opt"><div class="olab">H1 · Title-only row <span class="rec">(rec)</span></div>
+        <div class="tcard"><div class="chead"><span class="car shut">&#9662;</span> Aspect to Angle</div></div>
+        <div class="cap">Collapses to just the titled header; caret rotated. Click to reopen.</div></div>
+      <div class="opt"><div class="olab">H2 · Title + "hidden" chip</div>
+        <div class="tcard"><div class="chead"><span class="car shut">&#9662;</span> Aspect to Angle <span class="chip">hidden</span></div></div>
+        <div class="cap">Explicit restore affordance.</div></div>
+      <div class="opt"><div class="olab">H3 · Labelled stub link</div>
+        <div class="tcard"><div class="chead"><span class="car shut">&#9662;</span> Aspect to Angle</div><div class="stub">&#9656; show table</div></div>
+        <div class="cap">Tiny "show" link under the title.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div><span class="qid">A3</span><span class="qt">Favorites compare-selection control</span></div>
+    <div class="qsub">Select up to 5 cities to compare. Checkbox lives left of the row.</div>
+    <div class="opts c3">
+      <div class="opt"><div class="olab">C1 · Square check <span class="rec">(rec)</span></div>
+        <div><div class="frow"><span class="cb on"></span><span class="nm">Kyoto, Japan</span><span class="mt">2,340 mi</span></div><div class="frow"><span class="cb"></span><span class="nm">Lisbon, Portugal</span><span class="mt">1,100 mi</span></div></div>
+        <div class="cap">Familiar, unambiguous.</div></div>
+      <div class="opt"><div class="olab">C2 · Round check</div>
+        <div><div class="frow"><span class="cbc on"></span><span class="nm">Kyoto, Japan</span><span class="mt">2,340 mi</span></div><div class="frow"><span class="cbc"></span><span class="nm">Lisbon, Portugal</span><span class="mt">1,100 mi</span></div></div>
+        <div class="cap">Softer; reads more "selectable."</div></div>
+      <div class="opt"><div class="olab">C3 · Whole-row select</div>
+        <div><div class="frow rowsel on"><span class="cb on"></span><span class="nm">Kyoto, Japan</span><span class="mt">2,340 mi</span></div><div class="frow rowsel"><span class="cb"></span><span class="nm">Lisbon, Portugal</span><span class="mt">1,100 mi</span></div></div>
+        <div class="cap">Click anywhere on the row; check + tint.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div><span class="qid">A4</span><span class="qt">Sort control (Favorites / Saved)</span></div>
+    <div class="qsub">Sort by Recent · A&ndash;Z · Distance. You leaned Google-Docs-style icon + popover.</div>
+    <div class="opts c3">
+      <div class="opt"><div class="olab">S1 · Icon + popover <span class="rec">(rec)</span></div>
+        <div><span class="sortbtn">&#8645; Sort</span><div class="pop"><a class="on">Recent <span>&#10003;</span></a><a>A&ndash;Z</a><a>Distance</a></div></div>
+        <div class="cap">Compact; criteria in a menu.</div></div>
+      <div class="opt"><div class="olab">S2 · Direction toggle only</div>
+        <div><span class="sortbtn">A&ndash;Z &#8645;</span></div>
+        <div class="cap">One criterion, flips direction. Too limited?</div></div>
+      <div class="opt"><div class="olab">S3 · Segmented inline</div>
+        <div><span class="seg"><button class="on">Recent</button><button>A&ndash;Z</button><button>Dist</button></span></div>
+        <div class="cap">All visible; heavier, eats width.</div></div>
+    </div>
+  </div>
+
+  <div class="sec">B · Table system (left open from the format study)</div>
+
+  <div class="q">
+    <div><span class="qid">B1</span><span class="qt">A2A column width</span></div>
+    <div class="qsub">Keep 13 units, or tighten to 11 (reserve &rarr; 7)? Both shown at the same scale.</div>
+    <div class="opts c2">
+      <div class="opt"><div class="olab">13 units (current)</div>
+        <div class="a2a" style="max-width:430px"><div class="h">Aspect to Angle</div>
+          <div class="r"><span class="hd"></span><span class="hd">ASC</span><span class="hd">DSC</span><span class="hd">MC</span><span class="hd">IC</span></div>
+          <div class="r"><span class="pl">Sun</span><span class="c">Tri <span class="orb app">2&deg;08'</span></span><span class="c ph">&mdash;</span><span class="c">Conj <span class="orb sep">0&deg;41'</span></span><span class="c ph">&mdash;</span></div>
+          <div class="r"><span class="pl">Moon</span><span class="c ph">&mdash;</span><span class="c">Sq <span class="orb app">3&deg;08'</span></span><span class="c ph">&mdash;</span><span class="c">Sext <span class="orb sep">1&deg;52'</span></span></div></div>
+        <div class="cap">Roomier cells.</div></div>
+      <div class="opt"><div class="olab">11 units <span class="rec">(rec)</span></div>
+        <div class="a2a" style="max-width:360px"><div class="h">Aspect to Angle</div>
+          <div class="r"><span class="hd"></span><span class="hd">ASC</span><span class="hd">DSC</span><span class="hd">MC</span><span class="hd">IC</span></div>
+          <div class="r"><span class="pl">Sun</span><span class="c">Tri <span class="orb app">2&deg;08'</span></span><span class="c ph">&mdash;</span><span class="c">Conj <span class="orb sep">0&deg;41'</span></span><span class="c ph">&mdash;</span></div>
+          <div class="r"><span class="pl">Moon</span><span class="c ph">&mdash;</span><span class="c">Sq <span class="orb app">3&deg;08'</span></span><span class="c ph">&mdash;</span><span class="c">Sext <span class="orb sep">1&deg;52'</span></span></div></div>
+        <div class="cap">Tighter; frees 2 units for the reserve/notes slot.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div><span class="qid">B2</span><span class="qt">Vertical row rhythm</span></div>
+    <div class="qsub">Fixed row unit (rows align across all tables, total height floats) vs fixed Fibonacci slot block (e.g. 13 rows, row height floats).</div>
+    <div class="opts c2">
+      <div class="opt"><div class="olab">Fixed row unit <span class="rec">(rec)</span></div><div class="cap">Sun in PiH lines up with Sun in A2A and ASC in AiS. Adds whole rows as bodies are added. Cross-table alignment guaranteed.</div></div>
+      <div class="opt"><div class="olab">Fixed 13-slot block</div><div class="cap">Block height locks to a Fibonacci count; 11 bodies breathe a little, 13 snug, >13 rolls to 21. Rows may not align across tables.</div></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div><span class="qid">B3</span><span class="qt">Whitespace before Notes</span></div>
+    <div class="qsub">Notes is a different species (set apart). How much gap before the Notes/reserve column?</div>
+    <div class="opts c3">
+      <div class="opt"><div class="olab">None — equal gap</div><div class="band" style="--g:18px"><div class="mini">AiS</div><div class="mini">PiH</div><div class="mini notes">Notes</div></div></div>
+      <div class="opt"><div class="olab">Medium <span class="rec">(rec)</span></div><div class="band" style="--g:18px;grid-template-columns:1fr 1fr 0.3fr 1fr"><div class="mini">AiS</div><div class="mini">PiH</div><div></div><div class="mini notes">Notes</div></div></div>
+      <div class="opt"><div class="olab">Large divider gap</div><div class="band" style="--g:18px;grid-template-columns:1fr 1fr 0.7fr 1fr"><div class="mini">AiS</div><div class="mini">PiH</div><div></div><div class="mini notes">Notes</div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">C · Policy questions (no visual — just decide)</div>
+  <div class="policy">
+    <div class="prow"><span class="pid">C1</span><div class="pq"><b>Nodes in the default chart table set?</b><div class="optn">on by default · <span class="lean">settings-only (rec)</span> · off entirely — they lengthen PiH/A2A vs AiS.</div></div></div>
+    <div class="prow"><span class="pid">C2</span><div class="pq"><b>Changing Tropical/Placidus in settings:</b><div class="optn">retroactively re-render existing saved charts · <span class="lean">apply to future charts only (rec)</span> · ask each time.</div></div></div>
+    <div class="prow"><span class="pid">C3</span><div class="pq"><b>Comparison name-plate scroll behavior:</b><div class="optn"><span class="lean">keep the geometry — plate descends into the city-bar gap as you scroll (rec)</span> · drop it, keep plate static. (Motion timing handled in animation pass.)</div></div></div>
+    <div class="prow"><span class="pid">C4</span><div class="pq"><b>Map dropdowns:</b><div class="optn">full custom-dropdown replacement everywhere · <span class="lean">selective — harden native where it works, custom for profile/Genie (rec)</span>.</div></div></div>
+    <div class="prow"><span class="pid">C5</span><div class="pq"><b>Border/inner-glow hue:</b><div class="optn"><span class="lean">per-table signature hue (blue/green/violet…) (rec)</span> · single neutral grey for all. (Final intensity set by colorist.)</div></div></div>
+  </div>
+</div>
+</body></html>

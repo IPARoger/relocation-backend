@@ -1,0 +1,1 @@
+../../docs/product/UI_STANDARDIZATION_CANON_v1_2026-06-12.md

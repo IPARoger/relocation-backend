@@ -1,0 +1,1002 @@
+{
+  "profile": "baseline_validated",
+  "viewport_px": {
+    "width": 960,
+    "height": 600
+  },
+  "phase_sizes": [
+    16,
+    8,
+    4,
+    2,
+    1
+  ],
+  "contract": "adaptive screen-space refinement toward 1px truth; not global lower resolution",
+  "runs": [
+    {
+      "case_id": "sun_1st_world",
+      "label": "Sun in 1st, world",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "id": "A",
+          "planet": "sun",
+          "house": 1
+        }
+      ],
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 76.01609366420996,
+          "south": -66.79190947341796,
+          "east": 168.75000000000003,
+          "west": -168.75000000000003
+        },
+        "size": {
+          "x": 960,
+          "y": 600
+        }
+      },
+      "reference": {
+        "path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/reference_1px.png",
+        "pixels": 576000,
+        "classified_samples": 576000,
+        "seconds": 4.886066913604736,
+        "match_pixels": 43649
+      },
+      "adaptive": {
+        "progression_sheet": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/progression_sheet.png",
+        "classified_samples": 70329,
+        "classify_seconds": 0.5778682231903076,
+        "reduction_vs_1px_pct": 87.79010416666667,
+        "speedup_vs_1px": 8.455330674923827,
+        "final_diff": {
+          "changed_pixels": 61,
+          "changed_pct": 0.010590277777777777,
+          "overlay_union_pixels": 43710,
+          "overlay_xor_pixels": 61,
+          "overlay_xor_pct_of_union": 0.13955616563715395,
+          "rmse_rgba": 1.8804081726671296
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 2280,
+            "new_samples": 36480,
+            "cumulative_samples": 36480,
+            "classify_seconds": 0.285139799118042,
+            "phase_seconds": 0.659660816192627,
+            "accepted_tiles": 128,
+            "refine_tiles_next": 1120,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_1_16px_diff.png",
+            "diff": {
+              "changed_pixels": 10923,
+              "changed_pct": 1.8963541666666668,
+              "overlay_union_pixels": 43670,
+              "overlay_xor_pixels": 10923,
+              "overlay_xor_pct_of_union": 25.012594458438286,
+              "rmse_rgba": 25.162754438604292
+            }
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1120,
+            "new_samples": 13440,
+            "cumulative_samples": 49920,
+            "classify_seconds": 0.11646318435668945,
+            "phase_seconds": 0.46177005767822266,
+            "accepted_tiles": 438,
+            "refine_tiles_next": 2364,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_2_8px_diff.png",
+            "diff": {
+              "changed_pixels": 4667,
+              "changed_pct": 0.8102430555555555,
+              "overlay_union_pixels": 43710,
+              "overlay_xor_pixels": 4667,
+              "overlay_xor_pct_of_union": 10.677190574239305,
+              "rmse_rgba": 16.447735485596997
+            }
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2364,
+            "new_samples": 11820,
+            "cumulative_samples": 61740,
+            "classify_seconds": 0.10088920593261719,
+            "phase_seconds": 0.455078125,
+            "accepted_tiles": 946,
+            "refine_tiles_next": 4908,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_3_4px_diff.png",
+            "diff": {
+              "changed_pixels": 2555,
+              "changed_pct": 0.44357638888888895,
+              "overlay_union_pixels": 43710,
+              "overlay_xor_pixels": 2555,
+              "overlay_xor_pct_of_union": 5.845344314802105,
+              "rmse_rgba": 12.169778247945468
+            }
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 4908,
+            "new_samples": 8589,
+            "cumulative_samples": 70329,
+            "classify_seconds": 0.07537508010864258,
+            "phase_seconds": 0.4853811264038086,
+            "accepted_tiles": 2238,
+            "refine_tiles_next": 8108,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_4_2px_diff.png",
+            "diff": {
+              "changed_pixels": 807,
+              "changed_pct": 0.14010416666666667,
+              "overlay_union_pixels": 43710,
+              "overlay_xor_pixels": 807,
+              "overlay_xor_pct_of_union": 1.8462594371997254,
+              "rmse_rgba": 6.839494110495308
+            }
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 8108,
+            "new_samples": 0,
+            "cumulative_samples": 70329,
+            "classify_seconds": 9.5367431640625e-07,
+            "phase_seconds": 0.3352930545806885,
+            "accepted_tiles": 4065,
+            "refine_tiles_next": 0,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_world/phase_5_1px_diff.png",
+            "diff": {
+              "changed_pixels": 61,
+              "changed_pct": 0.010590277777777777,
+              "overlay_union_pixels": 43710,
+              "overlay_xor_pixels": 61,
+              "overlay_xor_pct_of_union": 0.13955616563715395,
+              "rmse_rgba": 1.8804081726671296
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "sun_1st_americas_overlap_scale",
+      "label": "Sun in 1st, Americas/regional",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "id": "A",
+          "planet": "sun",
+          "house": 1
+        }
+      ],
+      "view_request": {
+        "fitBounds": "-55,-160,70,-30"
+      },
+      "leaflet_view": {
+        "zoom": 2.25,
+        "center": {
+          "lat": 16.42010363551454,
+          "lng": -95
+        },
+        "bounds": {
+          "north": 71.88392887424203,
+          "south": -58.31588621393943,
+          "east": 47.04203211850293,
+          "west": -236.76050802962575
+        },
+        "size": {
+          "x": 960,
+          "y": 600
+        }
+      },
+      "reference": {
+        "path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/reference_1px.png",
+        "pixels": 576000,
+        "classified_samples": 576000,
+        "seconds": 5.0602922439575195,
+        "match_pixels": 59251
+      },
+      "adaptive": {
+        "progression_sheet": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/progression_sheet.png",
+        "classified_samples": 72868,
+        "classify_seconds": 0.6578583717346191,
+        "reduction_vs_1px_pct": 87.34930555555556,
+        "speedup_vs_1px": 7.692069389669252,
+        "final_diff": {
+          "changed_pixels": 74,
+          "changed_pct": 0.012847222222222223,
+          "overlay_union_pixels": 59325,
+          "overlay_xor_pixels": 74,
+          "overlay_xor_pct_of_union": 0.12473662031184155,
+          "rmse_rgba": 2.0711095556890915
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 2280,
+            "new_samples": 36480,
+            "cumulative_samples": 36480,
+            "classify_seconds": 0.29334306716918945,
+            "phase_seconds": 0.6533799171447754,
+            "accepted_tiles": 185,
+            "refine_tiles_next": 1240,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_1_16px_diff.png",
+            "diff": {
+              "changed_pixels": 12227,
+              "changed_pct": 2.1227430555555555,
+              "overlay_union_pixels": 59291,
+              "overlay_xor_pixels": 12227,
+              "overlay_xor_pct_of_union": 20.622016832234237,
+              "rmse_rgba": 26.622397809066086
+            }
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 1240,
+            "new_samples": 14880,
+            "cumulative_samples": 51360,
+            "classify_seconds": 0.17476820945739746,
+            "phase_seconds": 0.5342562198638916,
+            "accepted_tiles": 515,
+            "refine_tiles_next": 2504,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_2_8px_diff.png",
+            "diff": {
+              "changed_pixels": 5319,
+              "changed_pct": 0.9234374999999999,
+              "overlay_union_pixels": 59325,
+              "overlay_xor_pixels": 5319,
+              "overlay_xor_pct_of_union": 8.965865992414665,
+              "rmse_rgba": 17.559098202570087
+            }
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 2504,
+            "new_samples": 12520,
+            "cumulative_samples": 63880,
+            "classify_seconds": 0.10903406143188477,
+            "phase_seconds": 0.4678380489349365,
+            "accepted_tiles": 1067,
+            "refine_tiles_next": 5136,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_3_4px_diff.png",
+            "diff": {
+              "changed_pixels": 2455,
+              "changed_pct": 0.4262152777777778,
+              "overlay_union_pixels": 59325,
+              "overlay_xor_pixels": 2455,
+              "overlay_xor_pct_of_union": 4.138221660345554,
+              "rmse_rgba": 11.929245073383031
+            }
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 5136,
+            "new_samples": 8988,
+            "cumulative_samples": 72868,
+            "classify_seconds": 0.08071303367614746,
+            "phase_seconds": 0.4978461265563965,
+            "accepted_tiles": 2249,
+            "refine_tiles_next": 9460,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_4_2px_diff.png",
+            "diff": {
+              "changed_pixels": 1011,
+              "changed_pct": 0.17552083333333332,
+              "overlay_union_pixels": 59325,
+              "overlay_xor_pixels": 1011,
+              "overlay_xor_pct_of_union": 1.70417193426043,
+              "rmse_rgba": 7.655310146395116
+            }
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 9460,
+            "new_samples": 0,
+            "cumulative_samples": 72868,
+            "classify_seconds": 0.0,
+            "phase_seconds": 0.356630802154541,
+            "accepted_tiles": 4703,
+            "refine_tiles_next": 0,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/sun_1st_americas_overlap_scale/phase_5_1px_diff.png",
+            "diff": {
+              "changed_pixels": 74,
+              "changed_pct": 0.012847222222222223,
+              "overlay_union_pixels": 59325,
+              "overlay_xor_pixels": 74,
+              "overlay_xor_pct_of_union": 0.12473662031184155,
+              "rmse_rgba": 2.0711095556890915
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "saturn_mc_0p5_pacific",
+      "label": "Saturn conjunct MC, orb 0.5, Pacific",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "id": "A",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 0.5
+        }
+      ],
+      "view_request": {
+        "fitBounds": "-65,150,65,180"
+      },
+      "leaflet_view": {
+        "zoom": 2.25,
+        "center": {
+          "lat": 0,
+          "lng": 164.99999999999994
+        },
+        "bounds": {
+          "north": 65.9698190273354,
+          "south": -66.00012768728882,
+          "east": 306.8987329416332,
+          "west": 23.09619279350459
+        },
+        "size": {
+          "x": 960,
+          "y": 600
+        }
+      },
+      "reference": {
+        "path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/reference_1px.png",
+        "pixels": 576000,
+        "classified_samples": 576000,
+        "seconds": 5.405179262161255,
+        "match_pixels": 2400
+      },
+      "adaptive": {
+        "progression_sheet": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/progression_sheet.png",
+        "classified_samples": 50580,
+        "classify_seconds": 0.47196388244628906,
+        "reduction_vs_1px_pct": 91.21875,
+        "speedup_vs_1px": 11.452527329305502,
+        "final_diff": {
+          "changed_pixels": 0,
+          "changed_pct": 0.0,
+          "overlay_union_pixels": 2400,
+          "overlay_xor_pixels": 0,
+          "overlay_xor_pct_of_union": 0.0,
+          "rmse_rgba": 0.0
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 2280,
+            "new_samples": 36480,
+            "cumulative_samples": 36480,
+            "classify_seconds": 0.3453240394592285,
+            "phase_seconds": 0.7092938423156738,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 450,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_1_16px_diff.png",
+            "diff": {
+              "changed_pixels": 2400,
+              "changed_pct": 0.4166666666666667,
+              "overlay_union_pixels": 2400,
+              "overlay_xor_pixels": 2400,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 11.794861169170241
+            }
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 450,
+            "new_samples": 5400,
+            "cumulative_samples": 41880,
+            "classify_seconds": 0.04779791831970215,
+            "phase_seconds": 0.3689568042755127,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 900,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_2_8px_diff.png",
+            "diff": {
+              "changed_pixels": 2400,
+              "changed_pct": 0.4166666666666667,
+              "overlay_union_pixels": 2400,
+              "overlay_xor_pixels": 2400,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 11.794861169170241
+            }
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 900,
+            "new_samples": 4500,
+            "cumulative_samples": 46380,
+            "classify_seconds": 0.04078817367553711,
+            "phase_seconds": 0.3742070198059082,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 2400,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_3_4px_diff.png",
+            "diff": {
+              "changed_pixels": 2400,
+              "changed_pct": 0.4166666666666667,
+              "overlay_union_pixels": 2400,
+              "overlay_xor_pixels": 2400,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 11.794861169170241
+            }
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 2400,
+            "new_samples": 4200,
+            "cumulative_samples": 50580,
+            "classify_seconds": 0.03805279731750488,
+            "phase_seconds": 0.3871161937713623,
+            "accepted_tiles": 300,
+            "refine_tiles_next": 6000,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_4_2px_diff.png",
+            "diff": {
+              "changed_pixels": 1200,
+              "changed_pct": 0.20833333333333334,
+              "overlay_union_pixels": 2400,
+              "overlay_xor_pixels": 1200,
+              "overlay_xor_pct_of_union": 50.0,
+              "rmse_rgba": 8.340226315874169
+            }
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 6000,
+            "new_samples": 0,
+            "cumulative_samples": 50580,
+            "classify_seconds": 9.5367431640625e-07,
+            "phase_seconds": 0.3920609951019287,
+            "accepted_tiles": 2400,
+            "refine_tiles_next": 0,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_0p5_pacific/phase_5_1px_diff.png",
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 2400,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "rmse_rgba": 0.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "saturn_mc_1_pacific",
+      "label": "Saturn conjunct MC, orb 1, Pacific",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "id": "A",
+          "planet": "saturn",
+          "angle": "mc",
+          "aspect": "conjunction",
+          "orb": 1.0
+        }
+      ],
+      "view_request": {
+        "fitBounds": "-65,150,65,180"
+      },
+      "leaflet_view": {
+        "zoom": 2.25,
+        "center": {
+          "lat": 0,
+          "lng": 164.99999999999994
+        },
+        "bounds": {
+          "north": 65.9698190273354,
+          "south": -66.00012768728882,
+          "east": 306.8987329416332,
+          "west": 23.09619279350459
+        },
+        "size": {
+          "x": 960,
+          "y": 600
+        }
+      },
+      "reference": {
+        "path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/reference_1px.png",
+        "pixels": 576000,
+        "classified_samples": 576000,
+        "seconds": 5.383049964904785,
+        "match_pixels": 4200
+      },
+      "adaptive": {
+        "progression_sheet": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/progression_sheet.png",
+        "classified_samples": 53130,
+        "classify_seconds": 0.4871222972869873,
+        "reduction_vs_1px_pct": 90.77604166666666,
+        "speedup_vs_1px": 11.050715590079774,
+        "final_diff": {
+          "changed_pixels": 0,
+          "changed_pct": 0.0,
+          "overlay_union_pixels": 4200,
+          "overlay_xor_pixels": 0,
+          "overlay_xor_pct_of_union": 0.0,
+          "rmse_rgba": 0.0
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 2280,
+            "new_samples": 36480,
+            "cumulative_samples": 36480,
+            "classify_seconds": 0.32085394859313965,
+            "phase_seconds": 0.6821141242980957,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 450,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_1_16px_diff.png",
+            "diff": {
+              "changed_pixels": 4200,
+              "changed_pct": 0.7291666666666666,
+              "overlay_union_pixels": 4200,
+              "overlay_xor_pixels": 4200,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 15.603134701078497
+            }
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 450,
+            "new_samples": 5400,
+            "cumulative_samples": 41880,
+            "classify_seconds": 0.04748702049255371,
+            "phase_seconds": 0.37126994132995605,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1200,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_2_8px_diff.png",
+            "diff": {
+              "changed_pixels": 4200,
+              "changed_pct": 0.7291666666666666,
+              "overlay_union_pixels": 4200,
+              "overlay_xor_pixels": 4200,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 15.603134701078497
+            }
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 1200,
+            "new_samples": 6000,
+            "cumulative_samples": 47880,
+            "classify_seconds": 0.053751230239868164,
+            "phase_seconds": 0.38113880157470703,
+            "accepted_tiles": 150,
+            "refine_tiles_next": 3000,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_3_4px_diff.png",
+            "diff": {
+              "changed_pixels": 1800,
+              "changed_pct": 0.3125,
+              "overlay_union_pixels": 4200,
+              "overlay_xor_pixels": 1800,
+              "overlay_xor_pct_of_union": 42.857142857142854,
+              "rmse_rgba": 10.214649406612054
+            }
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 3000,
+            "new_samples": 5250,
+            "cumulative_samples": 53130,
+            "classify_seconds": 0.06503009796142578,
+            "phase_seconds": 0.4253878593444824,
+            "accepted_tiles": 900,
+            "refine_tiles_next": 3600,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_4_2px_diff.png",
+            "diff": {
+              "changed_pixels": 600,
+              "changed_pct": 0.10416666666666667,
+              "overlay_union_pixels": 4200,
+              "overlay_xor_pixels": 600,
+              "overlay_xor_pct_of_union": 14.285714285714285,
+              "rmse_rgba": 5.897430584585121
+            }
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 3600,
+            "new_samples": 0,
+            "cumulative_samples": 53130,
+            "classify_seconds": 0.0,
+            "phase_seconds": 0.38147711753845215,
+            "accepted_tiles": 1800,
+            "refine_tiles_next": 0,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_mc_1_pacific/phase_5_1px_diff.png",
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 4200,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "rmse_rgba": 0.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "saturn_asc_1_world",
+      "label": "Saturn conjunct ASC, orb 1, world",
+      "conditions": [
+        {
+          "type": "aspect_to_angle",
+          "id": "A",
+          "planet": "saturn",
+          "angle": "asc",
+          "aspect": "conjunction",
+          "orb": 1.0
+        }
+      ],
+      "view_request": {
+        "viewport": "world"
+      },
+      "leaflet_view": {
+        "zoom": 2,
+        "center": {
+          "lat": 14.65945304571974,
+          "lng": 0
+        },
+        "bounds": {
+          "north": 76.01609366420996,
+          "south": -66.79190947341796,
+          "east": 168.75000000000003,
+          "west": -168.75000000000003
+        },
+        "size": {
+          "x": 960,
+          "y": 600
+        }
+      },
+      "reference": {
+        "path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/reference_1px.png",
+        "pixels": 576000,
+        "classified_samples": 576000,
+        "seconds": 4.984422922134399,
+        "match_pixels": 3026
+      },
+      "adaptive": {
+        "progression_sheet": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/progression_sheet.png",
+        "classified_samples": 56168,
+        "classify_seconds": 0.4781765937805176,
+        "reduction_vs_1px_pct": 90.2486111111111,
+        "speedup_vs_1px": 10.423812012058129,
+        "final_diff": {
+          "changed_pixels": 0,
+          "changed_pct": 0.0,
+          "overlay_union_pixels": 3026,
+          "overlay_xor_pixels": 0,
+          "overlay_xor_pct_of_union": 0.0,
+          "rmse_rgba": 0.0
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 2280,
+            "new_samples": 36480,
+            "cumulative_samples": 36480,
+            "classify_seconds": 0.3057718276977539,
+            "phase_seconds": 0.6660449504852295,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 628,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_1_16px_diff.png",
+            "diff": {
+              "changed_pixels": 3026,
+              "changed_pct": 0.5253472222222222,
+              "overlay_union_pixels": 3026,
+              "overlay_xor_pixels": 3026,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 13.244076309492733
+            }
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 628,
+            "new_samples": 7536,
+            "cumulative_samples": 44016,
+            "classify_seconds": 0.06518983840942383,
+            "phase_seconds": 0.4048960208892822,
+            "accepted_tiles": 0,
+            "refine_tiles_next": 1344,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_2_8px_diff.png",
+            "diff": {
+              "changed_pixels": 3026,
+              "changed_pct": 0.5253472222222222,
+              "overlay_union_pixels": 3026,
+              "overlay_xor_pixels": 3026,
+              "overlay_xor_pct_of_union": 100.0,
+              "rmse_rgba": 13.244076309492733
+            }
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 1344,
+            "new_samples": 6720,
+            "cumulative_samples": 50736,
+            "classify_seconds": 0.059519052505493164,
+            "phase_seconds": 0.3952193260192871,
+            "accepted_tiles": 49,
+            "refine_tiles_next": 3104,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_3_4px_diff.png",
+            "diff": {
+              "changed_pixels": 2242,
+              "changed_pct": 0.3892361111111111,
+              "overlay_union_pixels": 3026,
+              "overlay_xor_pixels": 2242,
+              "overlay_xor_pct_of_union": 74.09120951751487,
+              "rmse_rgba": 11.400004340276952
+            }
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 3104,
+            "new_samples": 5432,
+            "cumulative_samples": 56168,
+            "classify_seconds": 0.04769492149353027,
+            "phase_seconds": 0.4025568962097168,
+            "accepted_tiles": 547,
+            "refine_tiles_next": 7208,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_4_2px_diff.png",
+            "diff": {
+              "changed_pixels": 838,
+              "changed_pct": 0.14548611111111112,
+              "overlay_union_pixels": 3026,
+              "overlay_xor_pixels": 838,
+              "overlay_xor_pct_of_union": 27.693324520819562,
+              "rmse_rgba": 6.969621955912196
+            }
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 7208,
+            "new_samples": 0,
+            "cumulative_samples": 56168,
+            "classify_seconds": 9.5367431640625e-07,
+            "phase_seconds": 0.3778979778289795,
+            "accepted_tiles": 3022,
+            "refine_tiles_next": 0,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/saturn_asc_1_world/phase_5_1px_diff.png",
+            "diff": {
+              "changed_pixels": 0,
+              "changed_pct": 0.0,
+              "overlay_union_pixels": 3026,
+              "overlay_xor_pixels": 0,
+              "overlay_xor_pct_of_union": 0.0,
+              "rmse_rgba": 0.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "triple_overlap_americas",
+      "label": "Sun 1st + ASC Capricorn + MC Libra, Americas",
+      "conditions": [
+        {
+          "type": "planet_in_house",
+          "id": "A",
+          "planet": "sun",
+          "house": 1
+        },
+        {
+          "type": "angle_in_sign",
+          "id": "B",
+          "angle": "asc",
+          "sign": "capricorn"
+        },
+        {
+          "type": "angle_in_sign",
+          "id": "C",
+          "angle": "mc",
+          "sign": "libra"
+        }
+      ],
+      "view_request": {
+        "fitBounds": "-55,-160,70,-30"
+      },
+      "leaflet_view": {
+        "zoom": 2.25,
+        "center": {
+          "lat": 16.42010363551454,
+          "lng": -95
+        },
+        "bounds": {
+          "north": 71.88392887424203,
+          "south": -58.31588621393943,
+          "east": 47.04203211850293,
+          "west": -236.76050802962575
+        },
+        "size": {
+          "x": 960,
+          "y": 600
+        }
+      },
+      "reference": {
+        "path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/reference_1px.png",
+        "pixels": 576000,
+        "classified_samples": 576000,
+        "seconds": 5.025831937789917,
+        "match_pixels": 95508
+      },
+      "adaptive": {
+        "progression_sheet": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/progression_sheet.png",
+        "classified_samples": 109423,
+        "classify_seconds": 0.9959352016448975,
+        "reduction_vs_1px_pct": 81.00295138888889,
+        "speedup_vs_1px": 5.046344309839835,
+        "final_diff": {
+          "changed_pixels": 17,
+          "changed_pct": 0.002951388888888889,
+          "overlay_union_pixels": 95525,
+          "overlay_xor_pixels": 17,
+          "overlay_xor_pct_of_union": 0.017796388380005235,
+          "rmse_rgba": 0.9408128965155611
+        },
+        "phases": [
+          {
+            "phase": 1,
+            "tile_size": 16,
+            "tiles_evaluated": 2280,
+            "new_samples": 36480,
+            "cumulative_samples": 36480,
+            "classify_seconds": 0.3105781078338623,
+            "phase_seconds": 0.6984820365905762,
+            "accepted_tiles": 204,
+            "refine_tiles_next": 2050,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_1_16px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_1_16px_diff.png",
+            "diff": {
+              "changed_pixels": 44559,
+              "changed_pct": 7.7359374999999995,
+              "overlay_union_pixels": 95510,
+              "overlay_xor_pixels": 44440,
+              "overlay_xor_pct_of_union": 46.52915925034028,
+              "rmse_rgba": 43.45639270894796
+            }
+          },
+          {
+            "phase": 2,
+            "tile_size": 8,
+            "tiles_evaluated": 2050,
+            "new_samples": 24600,
+            "cumulative_samples": 61080,
+            "classify_seconds": 0.22116303443908691,
+            "phase_seconds": 0.60801100730896,
+            "accepted_tiles": 1054,
+            "refine_tiles_next": 5344,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_2_8px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_2_8px_diff.png",
+            "diff": {
+              "changed_pixels": 22270,
+              "changed_pct": 3.8663194444444446,
+              "overlay_union_pixels": 95525,
+              "overlay_xor_pixels": 22070,
+              "overlay_xor_pct_of_union": 23.10389950274797,
+              "rmse_rgba": 30.965372874782336
+            }
+          },
+          {
+            "phase": 3,
+            "tile_size": 4,
+            "tiles_evaluated": 5344,
+            "new_samples": 26720,
+            "cumulative_samples": 87800,
+            "classify_seconds": 0.26433682441711426,
+            "phase_seconds": 0.754439115524292,
+            "accepted_tiles": 3309,
+            "refine_tiles_next": 12356,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_3_4px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_3_4px_diff.png",
+            "diff": {
+              "changed_pixels": 10974,
+              "changed_pct": 1.9052083333333334,
+              "overlay_union_pixels": 95525,
+              "overlay_xor_pixels": 10774,
+              "overlay_xor_pct_of_union": 11.27872284742214,
+              "rmse_rgba": 21.696252186517658
+            }
+          },
+          {
+            "phase": 4,
+            "tile_size": 2,
+            "tiles_evaluated": 12356,
+            "new_samples": 21623,
+            "cumulative_samples": 109423,
+            "classify_seconds": 0.19985628128051758,
+            "phase_seconds": 0.6643519401550293,
+            "accepted_tiles": 8597,
+            "refine_tiles_next": 21704,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_4_2px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_4_2px_diff.png",
+            "diff": {
+              "changed_pixels": 3838,
+              "changed_pct": 0.6663194444444445,
+              "overlay_union_pixels": 95525,
+              "overlay_xor_pixels": 3682,
+              "overlay_xor_pct_of_union": 3.854488353834075,
+              "rmse_rgba": 12.908189002178897
+            }
+          },
+          {
+            "phase": 5,
+            "tile_size": 1,
+            "tiles_evaluated": 21704,
+            "new_samples": 0,
+            "cumulative_samples": 109423,
+            "classify_seconds": 9.5367431640625e-07,
+            "phase_seconds": 0.40845489501953125,
+            "accepted_tiles": 17392,
+            "refine_tiles_next": 0,
+            "approx_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_5_1px_approx.png",
+            "diff_path": "validation/screenshots/screen_pixel_adaptive_refinement/triple_overlap_americas/phase_5_1px_diff.png",
+            "diff": {
+              "changed_pixels": 17,
+              "changed_pct": 0.002951388888888889,
+              "overlay_union_pixels": 95525,
+              "overlay_xor_pixels": 17,
+              "overlay_xor_pct_of_union": 0.017796388380005235,
+              "rmse_rgba": 0.9408128965155611
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "wall_seconds_total": 58.32981300354004
+}

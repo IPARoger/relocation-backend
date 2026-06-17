@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palette + Type study</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#34373d;font-family:"Avenir Next",-apple-system,sans-serif;color:#222;padding:24px}
+.intro{max-width:1180px;margin:0 auto 22px;color:#e7e6e9}
+.intro h1{font-size:19px;margin:0 0 6px}
+.intro p{font-size:12.5px;color:#b9b8c0;margin:0;max-width:860px}
+.grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+
+.panel{border-radius:14px;overflow:hidden;box-shadow:0 18px 40px -20px rgba(0,0,0,.6)}
+.pbar{padding:9px 16px;font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.pbar .type{font-weight:500;opacity:.85;font-size:10.5px}
+.pbody{background:var(--paper);color:var(--ink);padding:20px}
+
+/* specimen */
+.spec-name{font-family:var(--serif);font-weight:700;font-size:26px;color:var(--ink);line-height:1.05}
+.spec-meta{font-family:var(--sans);font-size:11.5px;color:var(--soft);margin-top:5px;letter-spacing:.01em}
+.spec-sys{font-family:var(--sans);font-size:10px;color:var(--faint);margin-top:2px}
+
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+.bdg{font-family:var(--sans);font-size:9px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;color:#fff}
+.bdg.nat{background:var(--natal)} .bdg.cur{background:var(--current)} .bdg.rel{background:var(--reloc)} .bdg.cmp{background:var(--compare)}
+
+.mini{margin-top:16px;background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:12px 13px;box-shadow:0 0 0 1px color-mix(in srgb,var(--natal) 6%,transparent),0 8px 22px -14px color-mix(in srgb,var(--natal) 35%,transparent)}
+.mini .mh{font-family:var(--serif);font-weight:700;font-size:14px;text-align:center;color:var(--ink);margin-bottom:8px}
+.mini .r{display:grid;grid-template-columns:1fr auto;padding:7px 6px;font-family:var(--sans);font-size:12.5px;color:var(--ink);border-bottom:1px solid var(--line);margin:0 4px}
+.mini .r:last-child{border-bottom:none}
+.mini .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+
+.lines{margin-top:16px}
+.lines .lt{font-family:var(--sans);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.linerow{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-family:var(--sans);font-size:11px;color:var(--soft)}
+.linerow .ln{height:2px;width:80px;border-radius:2px}
+.linerow .ln.app{background:var(--apply)} .linerow .ln.sep{background:var(--separate)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.chip{font-family:var(--sans);font-size:9.5px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:7px;padding:4px 7px;display:flex;align-items:center;gap:6px}
+.chip i{width:12px;height:12px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>Palette + Type study — finding "solid, optimistic, imaginative"</h1>
+  <p>Four complete worlds. Each shows: name/meta type hierarchy, the four identity badges, a mini table (border + glow at ~10%), applying/separating aspect-line colors, and border/aspect chips. Target zone is between the old "grim library" and the new "too silly." Pick a direction (or mix), and we'll refine the winner.</p>
+</div>
+
+<div class="grid">
+
+  <!-- P1 Twilight Almanac -->
+  <div class="panel" style="--paper:#f6f7fa;--card:#ffffff;--ink:#222838;--soft:#6b7385;--faint:#a3a9b8;--line:#e6e8ef;--bd:#dfe2ec;--natal:#c79a3e;--current:#2f8f86;--reloc:#6f5bd0;--compare:#c8633f;--apply:#c8633f;--separate:#2f8f86;--serif:'Hoefler Text',Palatino,Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar" style="background:#222838"><span>P1 · Twilight Almanac</span><span class="type">Hoefler Text + Avenir</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div>
+      <div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="spec-sys">45.51°N, 122.68°W · UTC−08:00 · Tropical · Placidus</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="lt">Aspect lines</div><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+      <div class="chips"><span class="chip"><i style="background:#222838"></i>Ink</span><span class="chip"><i style="background:#f6f7fa;border:1px solid #ddd"></i>Ground</span><span class="chip"><i style="background:#dfe2ec"></i>Border</span></div>
+    </div>
+  </div>
+
+  <!-- P2 Sun-warmed Paper -->
+  <div class="panel" style="--paper:#fcfaf5;--card:#ffffff;--ink:#2c2a28;--soft:#73695c;--faint:#a89c8b;--line:#ece5d8;--bd:#e6ddcd;--natal:#bf8a34;--current:#3f857a;--reloc:#8a5a86;--compare:#c2603f;--apply:#c2603f;--separate:#3f857a;--serif:'Charter','Spectral',Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar" style="background:#2c2a28"><span>P2 · Sun-warmed Paper</span><span class="type">Charter + Avenir</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div>
+      <div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="spec-sys">45.51°N, 122.68°W · UTC−08:00 · Tropical · Placidus</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="lt">Aspect lines</div><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+      <div class="chips"><span class="chip"><i style="background:#2c2a28"></i>Ink</span><span class="chip"><i style="background:#fcfaf5;border:1px solid #ddd"></i>Ground</span><span class="chip"><i style="background:#e6ddcd"></i>Border</span></div>
+    </div>
+  </div>
+
+  <!-- P3 Clear Optimist -->
+  <div class="panel" style="--paper:#fdfdfd;--card:#ffffff;--ink:#283038;--soft:#677380;--faint:#a6b0ba;--line:#e8ebee;--bd:#e0e5ea;--natal:#e0a32e;--current:#1f9e92;--reloc:#5b6ee0;--compare:#e8694f;--apply:#e8694f;--separate:#1f9e92;--serif:'Spectral','Lora',Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar" style="background:#283038"><span>P3 · Clear Optimist</span><span class="type">Spectral + Avenir</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div>
+      <div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="spec-sys">45.51°N, 122.68°W · UTC−08:00 · Tropical · Placidus</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="lt">Aspect lines</div><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+      <div class="chips"><span class="chip"><i style="background:#283038"></i>Ink</span><span class="chip"><i style="background:#fdfdfd;border:1px solid #ddd"></i>Ground</span><span class="chip"><i style="background:#e0e5ea"></i>Border</span></div>
+    </div>
+  </div>
+
+  <!-- P4 Ink & Ember -->
+  <div class="panel" style="--paper:#f3f3f6;--card:#ffffff;--ink:#1e1f26;--soft:#62646f;--faint:#9b9da8;--line:#e4e4ea;--bd:#dcdce4;--natal:#caa23a;--current:#1f857b;--reloc:#6a4fb0;--compare:#cf5a3a;--apply:#cf5a3a;--separate:#1f857b;--serif:'Baskerville','Hoefler Text',Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar" style="background:#1e1f26"><span>P4 · Ink &amp; Ember</span><span class="type">Baskerville + Avenir</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div>
+      <div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="spec-sys">45.51°N, 122.68°W · UTC−08:00 · Tropical · Placidus</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="lt">Aspect lines</div><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+      <div class="chips"><span class="chip"><i style="background:#1e1f26"></i>Ink</span><span class="chip"><i style="background:#f3f3f6;border:1px solid #ddd"></i>Ground</span><span class="chip"><i style="background:#dcdce4"></i>Border</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

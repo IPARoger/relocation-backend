@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Genie — v1</title>
+
+<!--
+  ============================================================
+  prototype_genie_v1.html  —  "Genie" variable builder, first render
+  ============================================================
+  Doctrine: section 7 of CHART_AND_PROFILE_WORKING_NOTES.md.
+  Sibling screen to prototype_profile_workspace_v11.html (do NOT touch v11).
+
+  v1 scope (locked with David, 4 Jun):
+   - Add Variable is the primary action; selections become chips.
+   - ONE category dropdown: Planet – House, Aspect – Angle, Angle – Sign.
+     (Transit parked — still being researched.)
+   - Sequential / progressive disclosure: only the next decision is shown.
+   - NOT is created at creation time (Include / Exclude toggle), NOT a
+     separate later filter. Mute / Solo deferred to a later iteration.
+   - Press Search -> Genie collapses into her "bottle" (a small square at
+     the top-right of the map). Click the bottle to reopen and adjust.
+   - Styling matches the v11 instrument look (warm sand, serif headings).
+   - Map is a cheap static placeholder, just enough to show the bottle.
+
+  IMPORTANT — not painted into a corner:
+   Every dropdown is fed from the CONFIG block (PLANETS / SIGNS / ANGLES /
+   HOUSES / ASPECTS / CATEGORIES) via SOURCES(). In production those become
+   DB / Settings-driven; swap SOURCES to fetch and the UI follows. Nothing
+   about the option lists is hardcoded into the builder logic.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9b9080;
+    --line:#ddd0b8; --line-soft:#ece2cf;
+    --paper:#f4ecdc; --card:#fdf8ee;
+    --accent:#5b6b63; --gold:#b89a55; --teal:#5f8a90; --app:#a37458;
+    --water:#e7edec; --water-line:rgba(95,138,144,.14);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; height:100%; color:var(--ink); font-family:var(--sans);
+    font-size:15px; line-height:1.5; background:var(--paper); overflow:hidden; }
+
+  /* header (slim, echoes v11) */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:24px;
+    height:52px; padding:0 22px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(184,154,85,.06), transparent), var(--paper); }
+  .brand { font-family:var(--serif); font-size:19px; font-weight:600; }
+  .mainmenu { display:flex; gap:2px; }
+  .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 11px; border-radius:8px; }
+  .mainmenu a.on { background:var(--card); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(51,41,31,.1); }
+  .mainmenu a:hover { background:rgba(184,154,85,.14); color:var(--ink); }
+  .acct { font-size:13.5px; color:var(--ink-soft); }
+
+  /* app stage */
+  .stage { position:relative; height:calc(100vh - 52px); overflow:hidden; }
+
+  /* placeholder map */
+  .map { position:absolute; inset:0;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(95,138,144,.05), transparent 60%),
+      repeating-linear-gradient(0deg, transparent 0 59px, var(--water-line) 59px 60px),
+      repeating-linear-gradient(90deg, transparent 0 59px, var(--water-line) 59px 60px),
+      var(--water); }
+  .map .equator { position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(95,138,144,.28); }
+  .map .pin { position:absolute; width:7px; height:7px; border-radius:50%; transform:translate(-50%,-50%);
+    background:rgba(51,41,31,.32); box-shadow:0 0 0 4px rgba(51,41,31,.06); }
+  .map-tag { position:absolute; left:14px; bottom:12px; font-size:11.5px; color:var(--ink-faint);
+    background:rgba(253,248,238,.82); border:1px solid var(--line); border-radius:7px; padding:3px 9px; }
+
+  /* GENIE panel */
+  .genie { position:absolute; top:18px; right:18px; width:328px; max-width:calc(100% - 36px);
+    max-height:calc(100% - 36px); overflow:auto; background:var(--card);
+    border:1px solid rgba(184,154,85,.34); border-radius:16px; padding:16px 16px 14px;
+    box-shadow:0 1px 2px rgba(51,41,31,.06), 0 22px 44px -22px rgba(51,41,31,.5);
+    animation:genieIn .42s cubic-bezier(.22,.61,.36,1) both; }
+  @keyframes genieIn { from{ opacity:0; transform:translateY(-6px) scale(.985);} to{ opacity:1; transform:none;} }
+  .genie.hidden { display:none; }
+
+  .g-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .g-title { font-family:var(--serif); font-size:18px; font-weight:600; display:inline-flex; align-items:center; gap:7px; }
+  .g-title .spark { color:var(--gold); font-size:14px; }
+  .g-min { background:transparent; border:none; color:var(--ink-faint); cursor:pointer; font-size:15px;
+    padding:4px 7px; border-radius:8px; line-height:1; }
+  .g-min:hover { background:var(--line-soft); color:var(--ink-soft); }
+
+  .g-field { margin-bottom:12px; }
+  .g-label { font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-faint); margin-bottom:5px; }
+  .g-select { width:100%; font:inherit; font-size:13.5px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:10px; padding:9px 11px; cursor:pointer; appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink-faint) 50%),linear-gradient(135deg,var(--ink-faint) 50%,transparent 50%);
+    background-position:calc(100% - 17px) 17px, calc(100% - 12px) 17px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; }
+  .g-select:focus { outline:none; border-color:var(--accent); }
+  .g-select.reveal { animation:slideDown .26s ease both; }
+  @keyframes slideDown { from{ opacity:0; transform:translateY(-4px);} to{ opacity:1; transform:none;} }
+
+  .g-sep { height:1px; background:var(--line-soft); margin:12px -16px; }
+
+  /* current search / chips */
+  .g-search-label { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .g-search-label .ttl { font-family:var(--serif); font-size:13.5px; font-weight:700; color:var(--ink); }
+  .g-search-label .count { font-size:11px; color:var(--ink-faint); }
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink);
+    background:linear-gradient(180deg, rgba(184,154,85,.1), rgba(184,154,85,.02)); border:1px solid rgba(184,154,85,.42);
+    border-radius:999px; padding:5px 11px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
+    animation:chipIn .28s cubic-bezier(.22,.61,.36,1) both; }
+  .chip:hover { border-color:var(--gold); }
+  @keyframes chipIn { from{ opacity:0; transform:scale(.9);} to{ opacity:1; transform:none;} }
+  .chip.not { background:linear-gradient(180deg, rgba(163,116,88,.12), rgba(163,116,88,.03)); border-color:rgba(163,116,88,.5); }
+  .chip .not-badge { font-size:9.5px; font-weight:700; letter-spacing:.06em; color:#fff; background:var(--app);
+    border-radius:5px; padding:1px 5px; }
+  .chip-empty { font-size:12.5px; color:var(--ink-faint); font-style:italic; padding:4px 2px 10px; }
+
+  /* primary buttons */
+  .addvar { width:100%; font:inherit; font-size:14px; font-weight:600; color:var(--accent);
+    background:var(--card); border:1px dashed rgba(91,107,99,.55); border-radius:11px; padding:11px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:7px; transition:all .15s ease; }
+  .addvar:hover { background:rgba(91,107,99,.08); border-color:var(--accent); }
+  .addvar .plus { font-size:16px; line-height:1; }
+
+  /* builder card */
+  .builder { border:1px solid var(--line); border-radius:12px; padding:13px; background:var(--paper);
+    animation:slideDown .24s ease both; }
+  .seg { display:inline-flex; padding:3px; gap:2px; background:rgba(184,154,85,.12); border:1px solid var(--line);
+    border-radius:999px; margin-bottom:12px; }
+  .seg button { font:inherit; font-size:12px; padding:5px 14px; border:none; background:transparent; color:var(--ink-soft);
+    border-radius:999px; cursor:pointer; }
+  .seg button.on { background:var(--card); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(51,41,31,.12); }
+  .seg button.on.exc { color:var(--app); }
+  .builder-actions { display:flex; gap:8px; margin-top:4px; }
+  .btn-primary { flex:1 1 auto; font:inherit; font-size:13.5px; font-weight:600; color:#fff; background:var(--accent);
+    border:1px solid var(--accent); border-radius:10px; padding:9px; cursor:pointer; }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-ghost { font:inherit; font-size:13.5px; color:var(--ink-soft); background:transparent; border:1px solid var(--line);
+    border-radius:10px; padding:9px 14px; cursor:pointer; }
+  .btn-ghost:hover { border-color:var(--ink-faint); }
+
+  .search-btn { width:100%; font:inherit; font-size:14.5px; font-weight:600; color:#fff;
+    background:linear-gradient(180deg, #6a7d72, var(--accent)); border:1px solid var(--accent); border-radius:12px;
+    padding:12px; cursor:pointer; margin-top:4px; box-shadow:0 6px 16px -8px rgba(91,107,99,.8); }
+  .search-btn:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .search-btn:not(:disabled):hover { filter:brightness(1.04); }
+
+  /* bottle (collapsed Genie) */
+  .bottle { position:absolute; top:18px; right:18px; width:56px; height:56px; border-radius:15px;
+    background:var(--card); border:1px solid rgba(184,154,85,.5); cursor:pointer; display:none;
+    align-items:center; justify-content:center; color:var(--gold); font-size:20px;
+    box-shadow:0 1px 2px rgba(51,41,31,.08), 0 14px 30px -16px rgba(51,41,31,.55);
+    transition:transform .15s ease; }
+  .bottle.show { display:flex; animation:genieIn .3s ease both; }
+  .bottle:hover { transform:translateY(-1px) scale(1.03); }
+  .bottle .badge { position:absolute; top:-6px; right:-6px; min-width:19px; height:19px; padding:0 5px; border-radius:999px;
+    background:var(--accent); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--paper); }
+  .toast { position:absolute; top:84px; right:18px; max-width:210px; font-size:12px; color:var(--ink-soft);
+    background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 12px; display:none;
+    box-shadow:0 10px 24px -14px rgba(51,41,31,.5); }
+  .toast.show { display:block; animation:genieIn .3s ease both; }
+
+  /* chip action popover */
+  .popmenu { position:absolute; z-index:60; min-width:140px; background:var(--card); border:1px solid var(--line);
+    border-radius:11px; padding:5px; display:none; box-shadow:0 14px 32px -14px rgba(51,41,31,.5); }
+  .popmenu.show { display:block; }
+  .popmenu button { display:block; width:100%; text-align:left; font:inherit; font-size:13px; color:var(--ink-soft);
+    background:transparent; border:none; border-radius:7px; padding:7px 10px; cursor:pointer; }
+  .popmenu button:hover { background:var(--line-soft); color:var(--ink); }
+  .popmenu button.danger:hover { background:rgba(163,116,88,.12); color:var(--app); }
+  .popmenu .pm-head { font-size:11px; color:var(--ink-faint); padding:5px 10px 6px; border-bottom:1px solid var(--line-soft); margin-bottom:4px; }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <nav class="mainmenu">
+      <a href="#" class="on">View Map</a><a href="#">Profile</a><a href="#">Comparison</a>
+      <a href="#">Transit Lab</a><a href="#">Store</a><a href="#">Settings</a>
+    </nav>
+    <div class="acct">David Goodman ▾</div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="map" id="map"><div class="equator"></div><div class="map-tag">Map preview · placeholder</div></div>
+
+    <!-- GENIE -->
+    <aside class="genie" id="genie">
+      <div class="g-head">
+        <div class="g-title"><span class="spark">✦</span> Genie</div>
+        <button class="g-min" data-act="minimize" title="Tuck into bottle">▾</button>
+      </div>
+
+      <div class="g-field">
+        <div class="g-label">Chart Profile</div>
+        <select class="g-select" data-role="chartprofile">
+          <option>Baseline Validated Chart</option>
+          <option>Avery Rhodes — Natal</option>
+          <option>Add a profile…</option>
+        </select>
+      </div>
+
+      <div class="g-sep"></div>
+
+      <div class="g-search-label">
+        <span class="ttl">Current Search</span>
+        <span class="count" id="varCount"></span>
+      </div>
+      <div class="chips" id="chips"></div>
+
+      <div id="builderSlot"></div>
+
+      <div class="g-sep"></div>
+      <button class="search-btn" id="searchBtn" data-act="search" disabled>Search</button>
+    </aside>
+
+    <!-- BOTTLE (Genie collapsed) -->
+    <button class="bottle" id="bottle" title="Reopen Genie">✦<span class="badge" id="bottleBadge">0</span></button>
+    <div class="toast" id="toast">Genie tucked into her bottle — searching. Tap her to adjust the variables.</div>
+  </div>
+
+  <div class="popmenu" id="popmenu"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     CONFIG  — swap these for DB / Settings sources in production.
+     The builder reads everything through SOURCES(); nothing below
+     is referenced by name inside the UI logic, so Settings can add
+     planets / aspects / etc. without code changes.
+     ========================================================= */
+  var PLANETS = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  var SIGNS   = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  var ANGLES  = ["ASC","DSC","MC","IC"];
+  var HOUSES  = [1,2,3,4,5,6,7,8,9,10,11,12];
+  // Individual aspects carry a `family` (hard / soft / neutral). The group
+  // options (Hard / Soft / All Major) resolve to their members via that
+  // family, so "Hard Aspects" expands correctly and stays correct when
+  // Settings adds new aspects later.  Opposition + Square = hard;
+  // Trine + Sextile = soft; Conjunction = neutral (flag if it should be hard).
+  var ASPECTS = [
+    {id:"conjunction", label:"Conjunction", family:"neutral"},
+    {id:"sextile",     label:"Sextile",     family:"soft"},
+    {id:"square",      label:"Square",      family:"hard"},
+    {id:"trine",       label:"Trine",       family:"soft"},
+    {id:"opposition",  label:"Opposition",  family:"hard"},
+    {id:"hard",        label:"Hard Aspects",      group:"hard"},
+    {id:"soft",        label:"Soft Aspects",      group:"soft"},
+    {id:"all_major",   label:"All Major Aspects", group:"all"}
+  ];
+  // Resolve a group id to its member aspect ids (used by search; data-driven).
+  function aspectMembers(groupId){
+    if(groupId==="all") return ASPECTS.filter(function(a){return !a.group;}).map(function(a){return a.id;});
+    return ASPECTS.filter(function(a){return !a.group && a.family===groupId;}).map(function(a){return a.id;});
+  }
+
+  // Variable categories. fields[] drives the sequential picker, in order.
+  // chip() builds the visible chip label from the chosen values.
+  var CATEGORIES = [
+    { id:"planet_house", label:"Planet – House",
+      fields:[ {key:"planet", label:"Planet", src:"PLANETS"}, {key:"house", label:"House", src:"HOUSES"} ],
+      chip:function(v){ return v.planet + " – " + ordinal(v.house); } },
+    { id:"aspect_angle", label:"Aspect – Angle",
+      fields:[ {key:"planet", label:"Planet", src:"PLANETS"}, {key:"aspect", label:"Aspect", src:"ASPECTS"}, {key:"angle", label:"Angle", src:"ANGLES"} ],
+      chip:function(v){ return v.planet + " – " + aspectLabel(v.aspect) + " – " + v.angle; } },
+    { id:"angle_sign", label:"Angle – Sign",
+      fields:[ {key:"angle", label:"Angle", src:"ANGLES"}, {key:"sign", label:"Sign", src:"SIGNS"} ],
+      chip:function(v){ return v.angle + " – " + v.sign; } }
+  ];
+
+  // Normalises any source into [{value,label}] — this is the seam a DB plugs into.
+  function SOURCES(name){
+    switch(name){
+      case "PLANETS": return PLANETS.map(function(p){ return {value:p, label:p}; });
+      case "SIGNS":   return SIGNS.map(function(s){ return {value:s, label:s}; });
+      case "ANGLES":  return ANGLES.map(function(a){ return {value:a, label:a}; });
+      case "HOUSES":  return HOUSES.map(function(h){ return {value:h, label:ordinal(h)}; });
+      case "ASPECTS": return ASPECTS.map(function(a){ return {value:a.id, label:a.label}; });
+      default: return [];
+    }
+  }
+
+  /* ===================== helpers ===================== */
+  function ordinal(n){ n=+n; var s=["th","st","nd","rd"], v=n%100; return n + (s[(v-20)%10] || s[v] || s[0]); }
+  function aspectLabel(id){ var a=ASPECTS.find(function(x){return x.id===id;}); return a ? a.label : id; }
+  function catById(id){ return CATEGORIES.find(function(c){return c.id===id;}); }
+  function uid(){ return "v"+Math.random().toString(36).slice(2,9); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+  /* ===================== state ===================== */
+  var variables = [];   // [{id, not, category, values}]
+  var draft = null;     // {editId|null, not, category, values}
+
+  var genie     = document.getElementById("genie");
+  var bottle    = document.getElementById("bottle");
+  var toast     = document.getElementById("toast");
+  var chipsEl   = document.getElementById("chips");
+  var slot      = document.getElementById("builderSlot");
+  var searchBtn = document.getElementById("searchBtn");
+  var popmenu   = document.getElementById("popmenu");
+
+  /* ===================== render: chips ===================== */
+  function renderChips(){
+    document.getElementById("varCount").textContent = variables.length ? (variables.length + (variables.length>1?" variables":" variable")) : "";
+    document.getElementById("bottleBadge").textContent = variables.length;
+    searchBtn.disabled = variables.length === 0;
+    if(!variables.length){
+      chipsEl.innerHTML = '<div class="chip-empty">No variables yet — start with Add Variable.</div>';
+      return;
+    }
+    chipsEl.innerHTML = variables.map(function(v){
+      var label = catById(v.category).chip(v.values);
+      return '<span class="chip'+(v.not?' not':'')+'" data-act="chip" data-id="'+v.id+'">'+
+               (v.not?'<span class="not-badge">NOT</span>':'')+ esc(label) +
+             '</span>';
+    }).join("");
+  }
+
+  /* ===================== render: builder ===================== */
+  function renderBuilder(){
+    if(!draft){ slot.innerHTML =
+      '<button class="addvar" data-act="addvar"><span class="plus">+</span> Add Variable</button>';
+      return;
+    }
+    var html = '<div class="builder">';
+
+    // Include / Exclude(NOT) — chosen at creation, doctrine.
+    html += '<div class="seg">'+
+      '<button data-act="inc" class="'+(!draft.not?'on':'')+'">Include</button>'+
+      '<button data-act="exc" class="'+(draft.not?'on exc':'')+'">Exclude (NOT)</button>'+
+    '</div>';
+
+    // Category
+    html += '<div class="g-field"><div class="g-label">Variable</div>'+
+      selectHtml("category", CATEGORIES.map(function(c){return {value:c.id,label:c.label};}), draft.category, "Choose a variable…")+
+    '</div>';
+
+    // Sequential fields: render filled fields + the first empty one, then stop.
+    if(draft.category){
+      var fields = catById(draft.category).fields;
+      for(var i=0;i<fields.length;i++){
+        var f = fields[i];
+        html += '<div class="g-field"><div class="g-label">'+f.label+'</div>'+
+          selectHtml("field:"+f.key, SOURCES(f.src), draft.values[f.key], "Choose "+f.label.toLowerCase()+"…", true)+
+        '</div>';
+        if(draft.values[f.key]===undefined || draft.values[f.key]==="") break;
+      }
+    }
+
+    var complete = isComplete();
+    html += '<div class="builder-actions">'+
+      '<button class="btn-primary" data-act="commit"'+(complete?'':' disabled')+'>'+(draft.editId?'Update':'Add')+'</button>'+
+      '<button class="btn-ghost" data-act="cancel">Cancel</button>'+
+    '</div>';
+
+    html += '</div>';
+    slot.innerHTML = html;
+  }
+
+  function selectHtml(role, options, value, placeholder, reveal){
+    var has = value!==undefined && value!=="";
+    var opts = '<option value="" '+(has?'':'selected')+' disabled>'+placeholder+'</option>';
+    opts += options.map(function(o){
+      return '<option value="'+esc(o.value)+'"'+(String(o.value)===String(value)?' selected':'')+'>'+esc(o.label)+'</option>';
+    }).join("");
+    return '<select class="g-select'+(reveal?' reveal':'')+'" data-role="'+role+'">'+opts+'</select>';
+  }
+
+  function isComplete(){
+    if(!draft || !draft.category) return false;
+    return catById(draft.category).fields.every(function(f){
+      return draft.values[f.key]!==undefined && draft.values[f.key]!=="";
+    });
+  }
+
+  /* ===================== builder actions ===================== */
+  function openBuilder(editId){
+    if(editId){
+      var v = variables.find(function(x){return x.id===editId;});
+      draft = { editId:editId, not:v.not, category:v.category, values:Object.assign({}, v.values) };
+    } else {
+      draft = { editId:null, not:false, category:null, values:{} };
+    }
+    renderBuilder();
+  }
+  function closeBuilder(){ draft=null; renderBuilder(); }
+
+  function commit(){
+    if(!isComplete()) return;
+    if(draft.editId){
+      var v = variables.find(function(x){return x.id===draft.editId;});
+      v.not = draft.not; v.category = draft.category; v.values = Object.assign({}, draft.values);
+    } else {
+      variables.push({ id:uid(), not:draft.not, category:draft.category, values:Object.assign({}, draft.values) });
+    }
+    draft = null;
+    renderChips(); renderBuilder();
+  }
+
+  function onCategoryChange(val){ draft.category = val; draft.values = {}; renderBuilder(); }
+  function onFieldChange(key, val){
+    var fields = catById(draft.category).fields, idx = fields.findIndex(function(f){return f.key===key;});
+    fields.forEach(function(f,i){ if(i>idx) delete draft.values[f.key]; }); // clear downstream
+    draft.values[key] = val;
+    renderBuilder();
+  }
+
+  /* ===================== events: genie panel ===================== */
+  genie.addEventListener("change", function(e){
+    var s = e.target.closest("select"); if(!s) return;
+    var role = s.getAttribute("data-role");
+    if(role==="category") onCategoryChange(s.value);
+    else if(role && role.indexOf("field:")===0) onFieldChange(role.slice(6), s.value);
+  });
+  genie.addEventListener("click", function(e){
+    var b = e.target.closest("[data-act]"); if(!b) return;
+    var act = b.getAttribute("data-act");
+    if(act==="addvar")   openBuilder();
+    else if(act==="cancel")   closeBuilder();
+    else if(act==="commit")   commit();
+    else if(act==="inc")      { draft.not=false; renderBuilder(); }
+    else if(act==="exc")      { draft.not=true;  renderBuilder(); }
+    else if(act==="minimize") collapse(false);
+    else if(act==="search")   collapse(true);
+    else if(act==="chip")     openChipMenu(b, b.getAttribute("data-id"), e);
+  });
+
+  /* ===================== collapse / bottle ===================== */
+  function collapse(didSearch){
+    closeBuilder();
+    genie.classList.add("hidden");
+    bottle.classList.add("show");
+    if(didSearch){ runSearch(); toast.classList.add("show"); setTimeout(function(){ toast.classList.remove("show"); }, 2600); }
+  }
+  function reopen(){ genie.classList.remove("hidden"); bottle.classList.remove("show"); toast.classList.remove("show"); }
+  bottle.addEventListener("click", reopen);
+
+  function runSearch(){
+    // Placeholder: scatter pins so the map visibly "responds" to a search.
+    var map = document.getElementById("map");
+    map.querySelectorAll(".pin").forEach(function(p){ p.remove(); });
+    var n = 8 + variables.length * 2;
+    for(var i=0;i<n;i++){
+      var pin = document.createElement("div"); pin.className="pin";
+      pin.style.left = (8 + Math.random()*84) + "%";
+      pin.style.top  = (14 + Math.random()*70) + "%";
+      map.appendChild(pin);
+    }
+  }
+
+  /* ===================== chip popover (chip = control surface) ===================== */
+  function openChipMenu(anchor, id, e){
+    e.stopPropagation();
+    var v = variables.find(function(x){return x.id===id;});
+    popmenu.innerHTML =
+      '<div class="pm-head">'+(v.not?'NOT ':'')+esc(catById(v.category).chip(v.values))+'</div>'+
+      '<button data-pm="edit" data-id="'+id+'">Edit</button>'+
+      '<button data-pm="dup" data-id="'+id+'">Duplicate</button>'+
+      '<button data-pm="del" data-id="'+id+'" class="danger">Remove</button>';
+    var r = anchor.getBoundingClientRect();
+    popmenu.style.left = Math.min(r.left, window.innerWidth-160) + "px";
+    popmenu.style.top  = (r.bottom + 6) + "px";
+    popmenu.classList.add("show");
+  }
+  function closeChipMenu(){ popmenu.classList.remove("show"); }
+  popmenu.addEventListener("click", function(e){
+    var b = e.target.closest("[data-pm]"); if(!b) return;
+    var id = b.getAttribute("data-id"), act = b.getAttribute("data-pm");
+    if(act==="del"){ variables = variables.filter(function(x){return x.id!==id;}); renderChips(); }
+    else if(act==="dup"){ var v=variables.find(function(x){return x.id===id;});
+      variables.push({ id:uid(), not:v.not, category:v.category, values:Object.assign({}, v.values) }); renderChips(); }
+    else if(act==="edit"){ openBuilder(id); slot.scrollIntoView({behavior:"smooth", block:"nearest"}); }
+    closeChipMenu();
+  });
+  document.addEventListener("click", function(e){
+    if(!e.target.closest("#popmenu") && !e.target.closest('[data-act="chip"]')) closeChipMenu();
+  });
+
+  /* ===================== map: idle decorative pins ===================== */
+  (function seedPins(){
+    var map = document.getElementById("map");
+    var spots = [[14,30],[22,52],[30,40],[44,26],[52,60],[58,38],[66,48],[72,30],[80,56],[86,42],[38,68],[64,72]];
+    spots.forEach(function(s){ var p=document.createElement("div"); p.className="pin";
+      p.style.left=s[0]+"%"; p.style.top=s[1]+"%"; p.style.opacity=".5"; map.appendChild(p); });
+  })();
+
+  /* ===================== init ===================== */
+  renderChips();
+  renderBuilder();
+})();
+</script>
+</body>
+</html>

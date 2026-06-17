@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile Workspace — Prototype v01</title>
+
+<!--
+  ============================================================
+  prototype_profile_workspace_v01.html
+  ============================================================
+
+  WHAT THIS PROTOTYPE IS TESTING
+  - Whether the profile/chart workspace can feel personal and
+    workable ("this is my journey", "I can work here") rather
+    than like a cathedral, cockpit, mystical app, or generic SaaS.
+  - The relationship between the chart wheel and the reference
+    tables: the wheel stays essential but should NOT dominate
+    every task. Tables are first-class, not afterthoughts.
+  - Actual space requirements for FULL planet tables (all 11
+    bodies) across two charts (Natal ~60% / Current ~40%).
+  - Whether quiet, muted color used only for hierarchy reads as
+    calm and competent at human scale.
+
+  WHAT THIS PROTOTYPE IS NOT TRYING TO SOLVE
+  - Final branding, color system, typography, or layout.
+  - Real chart rendering, real data, geometry, or astrology math.
+  - Backend logic, state, persistence, or routing.
+  - Multiple pages or the full app surface.
+  - Animation, polish, responsiveness beyond a basic stacking.
+  - Accessibility pass, theming, or interaction depth.
+
+  OPEN DESIGN QUESTIONS
+  - How large should each wheel be relative to its tables?
+  - Final layout for the four Aspect-to-Angle blocks (ASC/MC/
+    DSC/IC) — stacked for now, future TBD.
+  - Final layout for Saved Places / Comparisons / Searches
+    (thirds? tabs?) — TBD.
+  - Where "advanced doors" live for beginners vs. pros.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --ink:        #2b2b29;
+    --ink-soft:   #5c5a54;
+    --ink-faint:  #8a877f;
+    --line:       #e2ded5;
+    --line-soft:  #eeeae1;
+    --paper:      #f7f5ef;
+    --panel:      #fffefb;
+    --accent:     #5b6b63;
+    --accent-2:   #8a6f52;
+    --radius:     6px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  /* ---------- main header + menu ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 26px;
+  }
+  .brand {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    flex: 0 0 auto;
+  }
+  .mainmenu {
+    display: flex;
+    gap: 4px;
+    flex: 1 1 auto;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .mainmenu a {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+  }
+  .mainmenu a:hover { background: var(--line-soft); }
+
+  .account {
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .account .account-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  .account .account-btn .chev { color: var(--ink-faint); font-size: 11px; }
+  .account .menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    min-width: 180px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 6px;
+    display: none;
+    z-index: 20;
+  }
+  .account.open .menu { display: block; }
+  .account .menu a {
+    display: block;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 7px 10px;
+    border-radius: var(--radius);
+  }
+  .account .menu a:hover { background: var(--line-soft); }
+
+  /* ---------- shared controls ---------- */
+  button, .btn {
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  button:hover, .btn:hover { border-color: var(--ink-faint); }
+  .btn-quiet {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- standard profile block ---------- */
+  .profile-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  .profile-block .name {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+  .profile-block dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 14px;
+    font-size: 13px;
+  }
+  .profile-block dt {
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .profile-block dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .profile-block .sub {
+    color: var(--ink-faint);
+    font-size: 12px;
+  }
+
+  /* ---------- two-chart layout (60 / 40) ---------- */
+  .charts {
+    display: grid;
+    grid-template-columns: 60fr 40fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .charts { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- chart wheel placeholder ---------- */
+  .wheel {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+  }
+  .wheel::before,
+  .wheel::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid var(--line-soft);
+  }
+  .wheel::before { inset: 14%; }
+  .wheel::after  { inset: 30%; }
+  .wheel .hub {
+    position: absolute;
+    inset: 44%;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .wheel .spokes {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, transparent calc(50% - 0.5px), var(--line-soft) 50%, transparent calc(50% + 0.5px)),
+      linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--line-soft) 50%, transparent calc(50% + 0.5px));
+    border-radius: 50%;
+  }
+  .wheel .note {
+    position: absolute;
+    bottom: -24px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- tables ---------- */
+  .table-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .table-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    background: #fbfaf5;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    text-align: left;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+  th {
+    font-weight: 500;
+    color: var(--ink-faint);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tbody tr + tr td { border-top: 1px solid var(--line-soft); }
+  td .glyph { color: var(--accent-2); margin-right: 6px; }
+  td .dim { color: var(--ink-faint); }
+  td.center, th.center { text-align: center; }
+
+  .aspect-group h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 0;
+    padding: 8px 14px;
+    background: #fbfaf5;
+    border-bottom: 1px solid var(--line-soft);
+    border-top: 1px solid var(--line-soft);
+  }
+  .aspect-group:first-of-type h4 { border-top: none; }
+
+  /* ---------- advanced settings affordance ---------- */
+  .advanced {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .advanced .hint { font-size: 12.5px; color: var(--ink-faint); }
+
+  /* ---------- lower page content ---------- */
+  .lower {
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel h3 { font-size: 13px; font-weight: 600; margin: 0 0 12px; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line-soft);
+    font-size: 13.5px;
+  }
+  .list li:first-child { border-top: none; }
+  .list .meta { font-size: 12px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- main header + menu + account owner -->
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <nav class="mainmenu">
+      <a href="#">View Map</a>
+      <a href="#">Profile</a>
+      <a href="#">Comparison</a>
+      <a href="#">Transit Lab</a>
+      <a href="#">Store</a>
+      <a href="#">Help</a>
+      <a href="#">Settings</a>
+    </nav>
+    <div class="account" id="account">
+      <button class="account-btn" id="accountBtn">
+        David Goodman <span class="chev">▾</span>
+      </button>
+      <div class="menu">
+        <a href="#">Account</a>
+        <a href="#">Billing</a>
+        <a href="#">Sign out</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- two charts: Natal (~60%) + Current Location (~40%) -->
+  <div class="charts">
+    <section id="chart-natal"></section>
+    <section id="chart-current"></section>
+  </div>
+
+  <!-- lower page content -->
+  <div class="lower">
+    <section class="panel">
+      <h3>Saved Places</h3>
+      <ul class="list">
+        <li><span>Lisbon, PT</span><span class="meta">Home</span></li>
+        <li><span>Mexico City, MX</span><span class="meta">Considering</span></li>
+        <li><span>Lyon, FR</span><span class="meta">Visited</span></li>
+        <li><span>Wellington, NZ</span><span class="meta">Curious</span></li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h3>Saved Comparisons</h3>
+      <ul class="list">
+        <li><span>Lisbon vs. Mexico City</span><span class="meta">2 charts</span></li>
+        <li><span>Lyon vs. Wellington vs. Lisbon</span><span class="meta">3 charts</span></li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h3>Saved Searches</h3>
+      <ul class="list">
+        <li><span>Venus line within 200km of coast</span><span class="meta">Europe</span></li>
+        <li><span>Strong MC relocations</span><span class="meta">Global</span></li>
+      </ul>
+    </section>
+  </div>
+
+</div>
+
+<script>
+  // ---- account owner dropdown ----
+  (function () {
+    var acct = document.getElementById('account');
+    var btn = document.getElementById('accountBtn');
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      acct.classList.toggle('open');
+    });
+    document.addEventListener('click', function () {
+      acct.classList.remove('open');
+    });
+  })();
+
+  // ---- shared planet set (all 11 bodies) ----
+  var BODIES = [
+    { glyph: "\u2609", name: "Sun" },
+    { glyph: "\u263D", name: "Moon" },
+    { glyph: "\u263F", name: "Mercury" },
+    { glyph: "\u2640", name: "Venus" },
+    { glyph: "\u2642", name: "Mars" },
+    { glyph: "\u2643", name: "Jupiter" },
+    { glyph: "\u2644", name: "Saturn" },
+    { glyph: "\u2645", name: "Uranus" },
+    { glyph: "\u2646", name: "Neptune" },
+    { glyph: "\u2647", name: "Pluto" },
+    { glyph: "\u26B7", name: "Chiron" }
+  ];
+
+  function planetCell(b) {
+    return '<td><span class="glyph">' + b.glyph + '</span>' + b.name + '</td>';
+  }
+
+  // ---- standard profile block (reusable) ----
+  function profileBlock(p) {
+    return '' +
+      '<div class="profile-block">' +
+        '<p class="name">' + p.name + '</p>' +
+        '<dl>' +
+          '<dt>Birth Date</dt><dd>' + p.birthDate + '</dd>' +
+          '<dt>Birth Time</dt><dd>' + p.birthTime +
+            ' <span class="sub">(UTC ' + p.utcTime + ' · ' + p.offset + ')</span></dd>' +
+          '<dt>Birth Place</dt><dd>' + p.birthPlace +
+            ' <span class="sub">(' + p.lat + ', ' + p.lon + ')</span></dd>' +
+          '<dt>Settings</dt><dd>' + p.zodiac + ' · ' + p.houses + '</dd>' +
+        '</dl>' +
+      '</div>';
+  }
+
+  // ---- Planet in House (2 cols) ----
+  function planetInHouse(rows) {
+    var body = BODIES.map(function (b, i) {
+      return '<tr>' + planetCell(b) + '<td>' + rows[i] + '</td></tr>';
+    }).join('');
+    return '' +
+      '<div class="table-card">' +
+        '<h3>Planet in House</h3>' +
+        '<table><thead><tr><th>Planet</th><th>House</th></tr></thead>' +
+        '<tbody>' + body + '</tbody></table>' +
+      '</div>';
+  }
+
+  // ---- Angle in Sign (2 cols: Angle, Position "26° Capricorn 19'") ----
+  function angleInSign(angles) {
+    var body = angles.map(function (a) {
+      return '<tr><td>' + a.angle + '</td><td>' + a.position + '</td></tr>';
+    }).join('');
+    return '' +
+      '<div class="table-card">' +
+        '<h3>Angle in Sign</h3>' +
+        '<table><thead><tr><th>Angle</th><th>Position</th></tr></thead>' +
+        '<tbody>' + body + '</tbody></table>' +
+      '</div>';
+  }
+
+  // ---- Aspect to Angle: 4 blocks (ASC/MC/DSC/IC), cols Planet/Aspect/Orb/A/S ----
+  function aspectBlock(label, rows) {
+    var body = BODIES.map(function (b, i) {
+      var r = rows[i] || {};
+      var aspect = r.aspect || '*';
+      var orb = r.orb || '*';
+      var as = r.as || '*';
+      return '<tr>' + planetCell(b) +
+        '<td>' + aspect + '</td>' +
+        '<td><span class="dim">' + orb + '</span></td>' +
+        '<td class="center">' + as + '</td></tr>';
+    }).join('');
+    return '' +
+      '<div class="aspect-group">' +
+        '<h4>' + label + '</h4>' +
+        '<table><thead><tr><th>Planet</th><th>Aspect</th><th>Orb</th><th class="center">A/S</th></tr></thead>' +
+        '<tbody>' + body + '</tbody></table>' +
+      '</div>';
+  }
+
+  function aspectToAngle(blocks) {
+    return '' +
+      '<div class="table-card">' +
+        '<h3>Aspect to Angle</h3>' +
+        aspectBlock('ASC', blocks.ASC) +
+        aspectBlock('MC', blocks.MC) +
+        aspectBlock('DSC', blocks.DSC) +
+        aspectBlock('IC', blocks.IC) +
+      '</div>';
+  }
+
+  function renderChart(elId, data) {
+    var html =
+      profileBlock(data.profile) +
+      '<div class="wheel"><div class="spokes"></div><div class="hub"></div>' +
+        '<div class="note">Chart wheel placeholder</div></div>' +
+      planetInHouse(data.houses) +
+      angleInSign(data.angles) +
+      aspectToAngle(data.aspects) +
+      '<div class="advanced">' +
+        '<span class="hint">House system · Orbs · Zodiac type</span>' +
+        '<button class="btn-quiet">Advanced settings</button>' +
+      '</div>';
+    document.getElementById(elId).innerHTML = html;
+  }
+
+  // ---- placeholder data ----
+  var natalAngles = [
+    { angle: "Ascendant", position: "11\u00B0 Taurus 04'" },
+    { angle: "Midheaven", position: "26\u00B0 Capricorn 19'" },
+    { angle: "Descendant", position: "11\u00B0 Scorpio 04'" },
+    { angle: "Imum Coeli", position: "26\u00B0 Cancer 19'" }
+  ];
+
+  // partial aspect data; unfilled bodies fall back to "*"
+  var natalAspects = {
+    ASC: [ {}, { aspect: "Square", orb: "3\u00B0 08'", as: "A" }, {}, {}, { aspect: "Conjunct", orb: "0\u00B0 41'", as: "S" }, {}, {}, {}, {}, {}, {} ],
+    MC:  [ { aspect: "Conjunct", orb: "2\u00B0 38'", as: "A" }, {}, {}, { aspect: "Trine", orb: "1\u00B0 12'", as: "S" }, {}, {}, {}, {}, {}, {}, {} ],
+    DSC: [ {}, {}, {}, {}, { aspect: "Opposition", orb: "0\u00B0 41'", as: "A" }, {}, {}, {}, {}, {}, {} ],
+    IC:  [ { aspect: "Opposition", orb: "2\u00B0 38'", as: "S" }, {}, {}, {}, {}, {}, { aspect: "Square", orb: "4\u00B0 02'", as: "A" }, {}, {}, {}, {} ]
+  };
+
+  renderChart('chart-natal', {
+    profile: {
+      name: "Avery Rhodes",
+      birthDate: "14 March 1989",
+      birthTime: "07:42",
+      utcTime: "07:42",
+      offset: "+00:00",
+      birthPlace: "Lisbon, Portugal",
+      lat: "38.7223\u00B0 N",
+      lon: "9.1393\u00B0 W",
+      zodiac: "Tropical",
+      houses: "Placidus"
+    },
+    houses: ["10th","4th","9th","11th","1st","7th","5th","8th","6th","5th","12th"],
+    angles: natalAngles,
+    aspects: natalAspects
+  });
+
+  var currentAngles = [
+    { angle: "Ascendant", position: "02\u00B0 Leo 18'" },
+    { angle: "Midheaven", position: "19\u00B0 Aries 47'" },
+    { angle: "Descendant", position: "02\u00B0 Aquarius 18'" },
+    { angle: "Imum Coeli", position: "19\u00B0 Libra 47'" }
+  ];
+
+  var currentAspects = {
+    ASC: [ { aspect: "Trine", orb: "1\u00B0 55'", as: "A" }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ],
+    MC:  [ {}, { aspect: "Sextile", orb: "2\u00B0 10'", as: "S" }, {}, {}, {}, { aspect: "Conjunct", orb: "0\u00B0 33'", as: "A" }, {}, {}, {}, {}, {} ],
+    DSC: [ {}, {}, { aspect: "Square", orb: "3\u00B0 41'", as: "A" }, {}, {}, {}, {}, {}, {}, {}, {} ],
+    IC:  [ {}, {}, {}, {}, {}, {}, {}, {}, { aspect: "Trine", orb: "2\u00B0 04'", as: "S" }, {}, {} ]
+  };
+
+  renderChart('chart-current', {
+    profile: {
+      name: "Avery Rhodes",
+      birthDate: "14 March 1989",
+      birthTime: "07:42",
+      utcTime: "07:42",
+      offset: "+00:00",
+      birthPlace: "Mexico City, Mexico (current)",
+      lat: "19.4326\u00B0 N",
+      lon: "99.1332\u00B0 W",
+      zodiac: "Tropical",
+      houses: "Placidus"
+    },
+    houses: ["7th","1st","6th","8th","10th","4th","2nd","5th","3rd","2nd","9th"],
+    angles: currentAngles,
+    aspects: currentAspects
+  });
+</script>
+</body>
+</html>

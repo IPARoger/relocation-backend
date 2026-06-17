@@ -1,0 +1,131 @@
+{
+  "acceptance_criteria": {
+    "map_labels_background_useful_for_scale": true,
+    "mixed_example_asymmetric": true,
+    "no_color_gradient_decisions_implied": true,
+    "outer_boundaries_smooth_continuous": true,
+    "same_diagonal_path": true,
+    "six_deg_clearly_wider_than_three_deg": true,
+    "ten_deg_clearly_wider_than_six_deg": true,
+    "three_deg_narrow_exactness_corridor": true
+  },
+  "all_pass": true,
+  "description": "Monochrome boundary/mask-only aspect-band targets after rejection of colored Phase 2.36 targets",
+  "generated_at_utc": "2026-05-25T12:27:28.669022+00:00",
+  "html": "validation/visual_targets/phase2_36_aspect_band_bounds.html",
+  "notes": [
+    "Flat neutral fill only.",
+    "No gold gradient, no centerline opacity styling, no blur, no feathering, no dots, no rain, no virga, no animation, no particles.",
+    "Future gradient work should fill the approved mask instead of creating geometry by blurring a centerline."
+  ],
+  "phase": "2.36-boundary-mask-correction",
+  "previous_colored_targets_status": "not approved",
+  "purpose": "Approve outer band bounds before any color-gradient or centerline falloff decisions.",
+  "variants": [
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "boundary_mask_only_declared": true,
+        "flat_mask_language": true,
+        "neutral_fill_only": true,
+        "no_disallowed_particle_elements": true,
+        "target_exists": true
+      },
+      "id": "3deg",
+      "label": "\u00b13\u00b0 per side",
+      "probe": {
+        "badgeText": "BOUNDARY MASK ONLY",
+        "maskBackground": "rgba(255, 255, 255, 0.72)",
+        "maskLeft": 55.7420539855957,
+        "maskRight": 652.2579231262207,
+        "maskWidth": 72,
+        "pathGuideLeft": 84.75836944580078,
+        "renderedDisallowedElements": 0,
+        "targetExists": true,
+        "text": "Aspect Band Boundary \u00b13\u00b0 per side\n\nNarrow exactness corridor\n\nBOUNDARY MASK ONLY\nLisbon\nMilan\nAthens\nCairo\nIstanbul\nTunis\nNeutral fill only\nFlat mask only; no blur, styling, dots, rain, virga, or particles."
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_bounds_3deg.png"
+    },
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "boundary_mask_only_declared": true,
+        "flat_mask_language": true,
+        "neutral_fill_only": true,
+        "no_disallowed_particle_elements": true,
+        "target_exists": true
+      },
+      "id": "6deg",
+      "label": "\u00b16\u00b0 per side",
+      "probe": {
+        "badgeText": "BOUNDARY MASK ONLY",
+        "maskBackground": "rgba(255, 255, 255, 0.72)",
+        "maskLeft": 597.896728515625,
+        "maskRight": 1254.103271484375,
+        "maskWidth": 144,
+        "pathGuideLeft": 656.7583618164062,
+        "renderedDisallowedElements": 0,
+        "targetExists": true,
+        "text": "Aspect Band Boundary \u00b16\u00b0 per side\n\nMedium boundary, clearly wider than \u00b13\u00b0\n\nBOUNDARY MASK ONLY\nLisbon\nMilan\nAthens\nCairo\nIstanbul\nTunis\nNeutral fill only\nFlat mask only; no blur, styling, dots, rain, virga, or particles."
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_bounds_6deg.png"
+    },
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "boundary_mask_only_declared": true,
+        "flat_mask_language": true,
+        "neutral_fill_only": true,
+        "no_disallowed_particle_elements": true,
+        "target_exists": true
+      },
+      "id": "10deg",
+      "label": "\u00b110\u00b0 per side",
+      "probe": {
+        "badgeText": "BOUNDARY MASK ONLY",
+        "maskBackground": "rgba(255, 255, 255, 0.72)",
+        "maskLeft": -13.897102355957031,
+        "maskRight": 721.897087097168,
+        "maskWidth": 240,
+        "pathGuideLeft": 84.75836944580078,
+        "renderedDisallowedElements": 0,
+        "targetExists": true,
+        "text": "Aspect Band Boundary \u00b110\u00b0 per side\n\nWide boundary, clearly wider than \u00b16\u00b0\n\nBOUNDARY MASK ONLY\nLisbon\nMilan\nAthens\nCairo\nIstanbul\nTunis\nNeutral fill only\nFlat mask only; no blur, styling, dots, rain, virga, or particles."
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_bounds_10deg.png"
+    },
+    {
+      "all_checks_passed": true,
+      "checks": {
+        "asymmetric_widths_visible": true,
+        "boundary_mask_only_declared": true,
+        "flat_mask_language": true,
+        "neutral_fill_only": true,
+        "no_disallowed_particle_elements": true,
+        "target_exists": true
+      },
+      "id": "mixed_3_10deg",
+      "label": "3\u00b0 left / 10\u00b0 right",
+      "probe": {
+        "badgeText": "BOUNDARY MASK ONLY",
+        "leftWidthApproxPx": 44.5,
+        "maskBackground": "rgba(255, 255, 255, 0.72)",
+        "maskLeft": 612.257568359375,
+        "maskRight": 1407.742431640625,
+        "maskWidth": 312,
+        "pathGuideLeft": 656.7583618164062,
+        "renderedDisallowedElements": 0,
+        "rightWidthApproxPx": 751.0,
+        "targetExists": true,
+        "text": "Aspect Band Boundary 3\u00b0 left / 10\u00b0 right\n\nAsymmetric cap example\n\nBOUNDARY MASK ONLY\nLisbon\nMilan\nAthens\nCairo\nIstanbul\nTunis\n3\u00b0 side\n10\u00b0 side\nNeutral fill only\nFlat mask only; no blur, styling, dots, rain, virga, or particles."
+      },
+      "screenshot": "validation/visual_targets/phase2_36_aspect_band_bounds_mixed_3_10deg.png"
+    }
+  ],
+  "widths_px": {
+    "10deg": 240,
+    "3deg": 72,
+    "6deg": 144,
+    "mixed_3_10deg": 312
+  }
+}

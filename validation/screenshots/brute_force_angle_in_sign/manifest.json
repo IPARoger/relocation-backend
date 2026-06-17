@@ -1,0 +1,558 @@
+{
+  "schema": "brute_force_angle_in_sign_proof@1",
+  "sandbox_url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html",
+  "profile_id": "baseline_validated",
+  "output_dir": "validation/screenshots/brute_force_angle_in_sign",
+  "case_count": 12,
+  "pass_count": 12,
+  "fail_count": 0,
+  "page_errors": [],
+  "captures": [
+    {
+      "case_id": "01_asc_in_scorpio_baseline",
+      "description": "Single condition \u2014 ASC in Scorpio, Americas, 0.25\u00b0.",
+      "image": "01_asc_in_scorpio_baseline.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aasc%3Ascorpio&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:asc:scorpio",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 6.3975,
+        "server_compute_seconds": 6.119,
+        "paint_ms": 18.600000001490116,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 49843,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 67428,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "scorpio",
+            "count": 49843
+          }
+        ],
+        "overlap_counts": {
+          "any": 49843,
+          "A_only": 49843
+        },
+        "per_mask_counts": {
+          "1": 49843
+        }
+      }
+    },
+    {
+      "case_id": "02_mc_in_capricorn_baseline",
+      "description": "Single condition \u2014 MC in Capricorn, Americas, 0.25\u00b0.",
+      "image": "02_mc_in_capricorn_baseline.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Amc%3Acapricorn&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:mc:capricorn",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 6.174300000000745,
+        "server_compute_seconds": 5.6846,
+        "paint_ms": 26.199999999254942,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 65790,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 72580,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "mc",
+            "sign": "capricorn",
+            "count": 65790
+          }
+        ],
+        "overlap_counts": {
+          "any": 65790,
+          "A_only": 65790
+        },
+        "per_mask_counts": {
+          "1": 65790
+        }
+      }
+    },
+    {
+      "case_id": "03_ic_in_cancer_baseline",
+      "description": "Single condition \u2014 IC in Cancer, Americas, 0.25\u00b0. IC \u2261 MC + 180\u00b0, so this polygon should be the longitudinal complement of MC-in-Cancer.",
+      "image": "03_ic_in_cancer_baseline.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aic%3Acancer&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:ic:cancer",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 5.964699999999255,
+        "server_compute_seconds": 5.5933,
+        "paint_ms": 36.90000000037253,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 65790,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 73765,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "ic",
+            "sign": "cancer",
+            "count": 65790
+          }
+        ],
+        "overlap_counts": {
+          "any": 65790,
+          "A_only": 65790
+        },
+        "per_mask_counts": {
+          "1": 65790
+        }
+      }
+    },
+    {
+      "case_id": "04_dsc_in_taurus_baseline",
+      "description": "Single condition \u2014 DSC in Taurus, Americas, 0.25\u00b0.",
+      "image": "04_dsc_in_taurus_baseline.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Adsc%3Ataurus&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:dsc:taurus",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 6.637400000000373,
+        "server_compute_seconds": 6.3211,
+        "paint_ms": 24.40000000037253,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 49843,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 65272,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "dsc",
+            "sign": "taurus",
+            "count": 49843
+          }
+        ],
+        "overlap_counts": {
+          "any": 49843,
+          "A_only": 49843
+        },
+        "per_mask_counts": {
+          "1": 49843
+        }
+      }
+    },
+    {
+      "case_id": "05_asc_sign_sweep_aries",
+      "description": "ASC-in-Aries (world, 0.5\u00b0) \u2014 shape sweep frame 1/4.",
+      "image": "05_asc_sign_sweep_aries.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aasc%3Aaries&viewport=world&gridDeg=0.5&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:asc:aries",
+        "viewport": "world",
+        "gridDeg": "0.5"
+      },
+      "timings": {
+        "client_total_seconds": 3.11,
+        "server_compute_seconds": 2.9986,
+        "paint_ms": 4.400000000372529,
+        "total_cells": 238651,
+        "classified": 191786,
+        "matches": 14752,
+        "capped": 0,
+        "errors": 46865,
+        "grid_deg": 0.5,
+        "points_per_second_server": 63958,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "aries",
+            "count": 14752
+          }
+        ],
+        "overlap_counts": {
+          "any": 14752,
+          "A_only": 14752
+        },
+        "per_mask_counts": {
+          "1": 14752
+        }
+      }
+    },
+    {
+      "case_id": "06_asc_sign_sweep_cancer",
+      "description": "ASC-in-Cancer (world, 0.5\u00b0) \u2014 shape sweep frame 2/4.",
+      "image": "06_asc_sign_sweep_cancer.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aasc%3Acancer&viewport=world&gridDeg=0.5&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:asc:cancer",
+        "viewport": "world",
+        "gridDeg": "0.5"
+      },
+      "timings": {
+        "client_total_seconds": 3.084799999998882,
+        "server_compute_seconds": 2.9468,
+        "paint_ms": 4.900000000372529,
+        "total_cells": 238651,
+        "classified": 191786,
+        "matches": 17135,
+        "capped": 0,
+        "errors": 46865,
+        "grid_deg": 0.5,
+        "points_per_second_server": 65083,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "cancer",
+            "count": 17135
+          }
+        ],
+        "overlap_counts": {
+          "any": 17135,
+          "A_only": 17135
+        },
+        "per_mask_counts": {
+          "1": 17135
+        }
+      }
+    },
+    {
+      "case_id": "07_asc_sign_sweep_libra",
+      "description": "ASC-in-Libra (world, 0.5\u00b0) \u2014 shape sweep frame 3/4.",
+      "image": "07_asc_sign_sweep_libra.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aasc%3Alibra&viewport=world&gridDeg=0.5&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:asc:libra",
+        "viewport": "world",
+        "gridDeg": "0.5"
+      },
+      "timings": {
+        "client_total_seconds": 3.1009000000003724,
+        "server_compute_seconds": 3.0043,
+        "paint_ms": 4.5,
+        "total_cells": 238651,
+        "classified": 191786,
+        "matches": 14868,
+        "capped": 0,
+        "errors": 46865,
+        "grid_deg": 0.5,
+        "points_per_second_server": 63838,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "libra",
+            "count": 14868
+          }
+        ],
+        "overlap_counts": {
+          "any": 14868,
+          "A_only": 14868
+        },
+        "per_mask_counts": {
+          "1": 14868
+        }
+      }
+    },
+    {
+      "case_id": "08_asc_sign_sweep_capricorn",
+      "description": "ASC-in-Capricorn (world, 0.5\u00b0) \u2014 shape sweep frame 4/4.",
+      "image": "08_asc_sign_sweep_capricorn.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aasc%3Acapricorn&viewport=world&gridDeg=0.5&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:asc:capricorn",
+        "viewport": "world",
+        "gridDeg": "0.5"
+      },
+      "timings": {
+        "client_total_seconds": 2.9569000000003727,
+        "server_compute_seconds": 2.8264,
+        "paint_ms": 8.5,
+        "total_cells": 238651,
+        "classified": 191786,
+        "matches": 17103,
+        "capped": 0,
+        "errors": 46865,
+        "grid_deg": 0.5,
+        "points_per_second_server": 67856,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "capricorn",
+            "count": 17103
+          }
+        ],
+        "overlap_counts": {
+          "any": 17103,
+          "A_only": 17103
+        },
+        "per_mask_counts": {
+          "1": 17103
+        }
+      }
+    },
+    {
+      "case_id": "09_mixed_two_slot_overlap_sun_1st_asc_capricorn",
+      "description": "Mixed (real overlap) \u2014 A = Sun in 1st (planet_in_house), B = ASC in Capricorn (angle_in_sign). Americas, 0.25\u00b0. Sun is at 22\u00b0 Capricorn for this chart, so the two conditions deeply overlap; expect a large green band.",
+      "image": "09_mixed_two_slot_overlap_sun_1st_asc_capricorn.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=pih%3Asun%3A1&B=ais%3Aasc%3Acapricorn&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "pih:sun:1",
+        "B": "ais:asc:capricorn",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 6.8885,
+        "server_compute_seconds": 6.405,
+        "paint_ms": 30.299999998882413,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 81199,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 64417,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "planet_in_house",
+            "planet": "sun",
+            "house": 1,
+            "count": 62766
+          },
+          {
+            "id": "B",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "capricorn",
+            "count": 64385
+          }
+        ],
+        "overlap_counts": {
+          "any": 81199,
+          "A_only": 16814,
+          "B_only": 18433,
+          "A_and_B": 45952
+        },
+        "per_mask_counts": {
+          "1": 16814,
+          "2": 18433,
+          "3": 45952
+        }
+      }
+    },
+    {
+      "case_id": "10_mixed_three_slot_overlap",
+      "description": "Mixed three-slot with real overlap \u2014 A = Sun in 1st, B = ASC in Capricorn, C = MC in Libra. Each pair intersects; the triple region exists where all three coincide. Americas, 0.25\u00b0.",
+      "image": "10_mixed_three_slot_overlap.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=pih%3Asun%3A1&B=ais%3Aasc%3Acapricorn&C=ais%3Amc%3Alibra&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "pih:sun:1",
+        "B": "ais:asc:capricorn",
+        "C": "ais:mc:libra",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 6.815200000001117,
+        "server_compute_seconds": 6.2894,
+        "paint_ms": 39.20000000111759,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 99701,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 65601,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "planet_in_house",
+            "planet": "sun",
+            "house": 1,
+            "count": 62766
+          },
+          {
+            "id": "B",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "capricorn",
+            "count": 64385
+          },
+          {
+            "id": "C",
+            "type": "angle_in_sign",
+            "angle": "mc",
+            "sign": "libra",
+            "count": 57120
+          }
+        ],
+        "overlap_counts": {
+          "any": 99701,
+          "A_only": 7400,
+          "B_only": 11338,
+          "C_only": 18502,
+          "A_and_B": 45952,
+          "A_and_C": 31523,
+          "B_and_C": 29204,
+          "A_and_B_and_C": 22109
+        },
+        "per_mask_counts": {
+          "1": 7400,
+          "2": 11338,
+          "3": 23843,
+          "4": 18502,
+          "5": 9414,
+          "6": 7095,
+          "7": 22109
+        }
+      }
+    },
+    {
+      "case_id": "11_identity_sanity_asc_capricorn_dsc_cancer",
+      "description": "Identity sanity \u2014 A = ASC in Capricorn, B = DSC in Cancer. DSC \u2261 ASC + 180\u00b0 and Cancer \u2261 Capricorn + 180\u00b0, so EVERY match cell must satisfy both. The polygon should be entirely the green A\u2229B color with A_only = B_only = 0.",
+      "image": "11_identity_sanity_asc_capricorn_dsc_cancer.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=ais%3Aasc%3Acapricorn&B=ais%3Adsc%3Acancer&viewport=americas&gridDeg=0.25&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "ais:asc:capricorn",
+        "B": "ais:dsc:cancer",
+        "viewport": "americas",
+        "gridDeg": "0.25"
+      },
+      "timings": {
+        "client_total_seconds": 6.519299999998882,
+        "server_compute_seconds": 6.1212,
+        "paint_ms": 22.90000000037253,
+        "total_cells": 436590,
+        "classified": 412590,
+        "matches": 64385,
+        "capped": 0,
+        "errors": 22652,
+        "grid_deg": 0.25,
+        "points_per_second_server": 67404,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "capricorn",
+            "count": 64385
+          },
+          {
+            "id": "B",
+            "type": "angle_in_sign",
+            "angle": "dsc",
+            "sign": "cancer",
+            "count": 64385
+          }
+        ],
+        "overlap_counts": {
+          "any": 64385,
+          "A_only": 0,
+          "B_only": 0,
+          "A_and_B": 64385
+        },
+        "per_mask_counts": {
+          "3": 64385
+        }
+      }
+    },
+    {
+      "case_id": "12_mixed_three_slot_overlap_world",
+      "description": "Same mixed three-slot as case 10 at world view, 0.5\u00b0. Shows the global topology of the three condition families and their overlap regions.",
+      "image": "12_mixed_three_slot_overlap_world.png",
+      "url": "http://127.0.0.1:8000/map_SANDBOX_brute_force.html?A=pih%3Asun%3A1&B=ais%3Aasc%3Acapricorn&C=ais%3Amc%3Alibra&viewport=world&gridDeg=0.5&profile=baseline_validated&auto=1",
+      "params": {
+        "A": "pih:sun:1",
+        "B": "ais:asc:capricorn",
+        "C": "ais:mc:libra",
+        "viewport": "world",
+        "gridDeg": "0.5"
+      },
+      "timings": {
+        "client_total_seconds": 3.332699999999255,
+        "server_compute_seconds": 3.173,
+        "paint_ms": 10,
+        "total_cells": 238651,
+        "classified": 191786,
+        "matches": 26577,
+        "capped": 0,
+        "errors": 46865,
+        "grid_deg": 0.5,
+        "points_per_second_server": 60443,
+        "conditions": [
+          {
+            "id": "A",
+            "type": "planet_in_house",
+            "planet": "sun",
+            "house": 1,
+            "count": 15973
+          },
+          {
+            "id": "B",
+            "type": "angle_in_sign",
+            "angle": "asc",
+            "sign": "capricorn",
+            "count": 17103
+          },
+          {
+            "id": "C",
+            "type": "angle_in_sign",
+            "angle": "mc",
+            "sign": "libra",
+            "count": 14896
+          }
+        ],
+        "overlap_counts": {
+          "any": 26577,
+          "A_only": 1877,
+          "B_only": 3580,
+          "C_only": 5246,
+          "A_and_B": 11745,
+          "A_and_C": 7872,
+          "B_and_C": 7299,
+          "A_and_B_and_C": 5521
+        },
+        "per_mask_counts": {
+          "1": 1877,
+          "2": 3580,
+          "3": 6224,
+          "4": 5246,
+          "5": 2351,
+          "6": 1778,
+          "7": 5521
+        }
+      }
+    }
+  ]
+}

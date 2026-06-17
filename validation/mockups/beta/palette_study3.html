@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palette study 3 — ordinary + micro glow</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#2f323a;font-family:"Avenir Next",-apple-system,sans-serif;color:#222;padding:24px}
+.intro{max-width:1200px;margin:0 auto 20px;color:#e7e6e9}
+.intro h1{font-size:19px;margin:0 0 6px}
+.intro p{font-size:12.5px;color:#bcbcc4;margin:0 0 4px;max-width:900px}
+.sec-label{max-width:1200px;margin:30px auto 12px;color:#e7e6e9;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #4a4d56;padding-bottom:6px}
+.grid3{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.grid4{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:18px}
+
+.panel{border-radius:13px;overflow:hidden;box-shadow:0 16px 36px -22px rgba(0,0,0,.6)}
+.pbar{padding:9px 15px;font-size:11px;font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:center;background:#1c2024}
+.pbar .t{font-weight:500;opacity:.8;font-size:10px}
+.pbody{background:var(--paper);color:var(--ink);padding:18px}
+
+.spec-name{font-family:var(--serif);font-weight:700;font-size:22px;color:var(--ink);line-height:1.05}
+.spec-meta{font-family:var(--sans);font-size:11px;color:var(--soft);margin-top:4px}
+.badges{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0 4px}
+.bdg{font-family:var(--sans);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:999px;color:#fff}
+.bdg.nat{background:var(--natal);color:#3a2e00} .bdg.cur{background:var(--current)} .bdg.rel{background:var(--reloc)} .bdg.cmp{background:var(--compare)}
+
+.mini{margin-top:14px;border:1px solid var(--bd);border-radius:11px;padding:11px 12px;
+  background:color-mix(in srgb,var(--natal) 4%, #fff)}
+.mini .mh{font-family:var(--serif);font-weight:700;font-size:13.5px;text-align:center;color:var(--ink);margin-bottom:7px}
+.mini .r{display:grid;grid-template-columns:1fr auto;padding:6px 5px;font-family:var(--sans);font-size:12px;color:var(--ink);border-bottom:1px solid var(--line);margin:0 4px}
+.mini .r:last-child{border-bottom:none}
+.mini .r .v{color:var(--soft);font-variant-numeric:tabular-nums}
+.lines{margin-top:13px}
+.linerow{display:flex;align-items:center;gap:9px;margin-bottom:6px;font-family:var(--sans);font-size:10.5px;color:var(--soft)}
+.linerow .ln{height:2px;width:72px;border-radius:2px}
+.linerow .ln.app{background:var(--apply)} .linerow .ln.sep{background:var(--separate)}
+
+/* glow demos */
+.gcard{border:1px solid var(--bd);border-radius:11px;padding:12px;background:#fff}
+.gcard .mh{font-family:var(--serif);font-weight:700;font-size:13px;text-align:center;color:#1c2024;margin-bottom:7px}
+.gcard .r{display:grid;grid-template-columns:1fr auto;padding:6px 5px;font-family:var(--sans);font-size:12px;color:#1c2024;border-bottom:1px solid #eef0f2;margin:0 4px}
+.gcard .r:last-child{border-bottom:none}
+.gcard .r .v{color:#5b6470}
+.glabel{font-family:var(--sans);font-size:10px;color:#cfd2da;margin-bottom:7px;text-align:center}
+/* GA even interior tint 4% */
+.ga{background:color-mix(in srgb,#2b7de0 4%, #fff)}
+/* GB radial from center 6%->0 */
+.gb{background:radial-gradient(120% 120% at 50% 45%, color-mix(in srgb,#2b7de0 7%, #fff), #fff 70%)}
+/* GC inner-edge glow (inset) 5% */
+.gc{box-shadow:inset 0 0 22px -6px color-mix(in srgb,#2b7de0 22%, transparent)}
+/* GD top hairline hint + 3% wash */
+.gd{background:color-mix(in srgb,#2b7de0 3%, #fff);border-top:2px solid color-mix(in srgb,#2b7de0 55%, #fff)}
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>Palette study 3 — ordinary, optimistic color + micro interior glow</h1>
+  <p>Colors pushed toward <b>ordinary/primary</b> (yellow not gold, blue not teal), starting near "McDonald's" and backing off in three steps so you can pick the distance. Identity logic follows the metaphor: <b>yellow = Natal/sun</b>, <b>blue = Current/where you are</b>, <b>green = Relocated/new pastures</b>, <b>red = Comparison</b>. Glow is redone below as a <b>micro interior wash (3–5%)</b> — no more drop-shadow.</p>
+</div>
+
+<div class="sec-label">Step 1 — how far to back off from primary</div>
+<div class="grid3">
+  <!-- Bright -->
+  <div class="panel" style="--paper:#fff;--card:#fff;--ink:#1c2024;--soft:#5b6470;--line:#eef0f2;--bd:#e6e8ec;--natal:#ffc21a;--current:#2b7de0;--reloc:#2fa84f;--compare:#f0463a;--apply:#f0463a;--separate:#2b7de0;--serif:'Hoefler Text',Palatino,Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar"><span>A · Bright</span><span class="t">≈10% off primary</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div><div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+    </div>
+  </div>
+  <!-- Friendly -->
+  <div class="panel" style="--paper:#fff;--card:#fff;--ink:#1c2024;--soft:#5b6470;--line:#eef0f2;--bd:#e6e8ec;--natal:#f2c23e;--current:#4084d6;--reloc:#46a862;--compare:#e85c4f;--apply:#e85c4f;--separate:#4084d6;--serif:'Hoefler Text',Palatino,Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar"><span>B · Friendly</span><span class="t">≈25% off</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div><div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+    </div>
+  </div>
+  <!-- Soft -->
+  <div class="panel" style="--paper:#fff;--card:#fff;--ink:#1c2024;--soft:#5b6470;--line:#eef0f2;--bd:#e6e8ec;--natal:#e6c45e;--current:#5e8fcb;--reloc:#5fa677;--compare:#d9756a;--apply:#d9756a;--separate:#5e8fcb;--serif:'Hoefler Text',Palatino,Georgia,serif;--sans:'Avenir Next',sans-serif">
+    <div class="pbar"><span>C · Soft</span><span class="t">≈40% off</span></div>
+    <div class="pbody">
+      <div class="spec-name">David Goodman</div><div class="spec-meta">13 Jan 1976 · 07:42 · Portland, OR</div>
+      <div class="badges"><span class="bdg nat">Natal</span><span class="bdg cur">Current</span><span class="bdg rel">Relocated</span><span class="bdg cmp">Comparison</span></div>
+      <div class="mini"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div>
+      <div class="lines"><div class="linerow"><span class="ln app"></span>Applying</div><div class="linerow"><span class="ln sep"></span>Separating</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec-label">Step 2 — micro interior glow (3–5%, no drop-shadow) · shown in blue</div>
+<div class="grid4">
+  <div><div class="glabel">GA · even tint 4%</div><div class="gcard ga"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+  <div><div class="glabel">GB · radial from center</div><div class="gcard gb"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+  <div><div class="glabel">GC · inner-edge glow</div><div class="gcard gc"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+  <div><div class="glabel">GD · 3% wash + hairline cap</div><div class="gcard gd"><div class="mh">Planet in House</div><div class="r"><span>Sun</span><span class="v">5th</span></div><div class="r"><span>Moon</span><span class="v">11th</span></div><div class="r"><span>Venus</span><span class="v">2nd</span></div></div></div>
+</div>
+
+</body>
+</html>

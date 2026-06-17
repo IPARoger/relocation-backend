@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Map Workspace — v3</title>
+
+<!--
+  ============================================================
+  prototype_genie_v3.html  —  the map controller (internal name: "Genie")
+  ============================================================
+  Sibling to prototype_profile_workspace_v11.html (do NOT touch v11).
+  Doctrine: section 7 of CHART_AND_PROFILE_WORKING_NOTES.md.
+
+  v3 fixes (from David):
+   - Planet–House now opens its sub-dropdowns (stable render; no full re-render
+     on each change, which also kills the flash).
+   - NOT is now an ICON toggle to the RIGHT of the master dropdown — no words.
+     Its visual language is "redaction": charcoal, slightly translucent, so you
+     can barely read the map beneath. Distinct from the color palette.
+   - Profile plate has NO card backdrop — black letters straight on the map that
+     dissolve to translucence; UTC/Tropical/Placidus fade away on collapse.
+     Name + Edit + (+) on one line; Tropical · Placidus on one line.
+   - City search no longer collides with the plate.
+   - Pin = "pin a search to the front" (browser-history-of-searches metaphor):
+     the word Pin + a thumbtack icon. NOT a map pin.
+   - Clear Map is visible WHILE the builder is open, where the reopen control sits.
+   - Save Search is quiet link-text; clicking opens a small popover NEAR it / near
+     the disk (does NOT take over the map) with a title placeholder, rich-text
+     notes + a mic for voice notes, and an X to close.
+   - Collapsed builder = shorthand strip where the builder was: tiny glyph label
+     + color swatch + NOT / Mute / Solo, per variable.
+
+  Animation polish, color strategy, typography + the real Leaflet map are the
+  NEXT pass (Leaflet is downloaded in vendor/leaflet/).
+
+  Data-driven: planets, signs, angles/target-points, houses, aspects all read
+  through SOURCES() / CATEGORIES — exotic bodies/aspects/points just extend data.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9b9080;
+    --line:#ddd0b8; --line-soft:#ece2cf;
+    --paper:#f4ecdc; --card:#fdf8ee;
+    --accent:#5b6b63; --gold:#b89a55; --teal:#5f8a90; --app:#a37458;
+    --redact:#2b2926;
+    --water:#e7edec; --water-line:rgba(95,138,144,.14);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; height:100%; color:var(--ink); font-family:var(--sans);
+    font-size:15px; line-height:1.5; background:var(--paper); overflow:hidden; }
+  button { font:inherit; cursor:pointer; }
+  svg { display:block; }
+
+  /* ---------- header ---------- */
+  .topbar { position:relative; z-index:30; display:flex; align-items:center; gap:18px;
+    height:52px; padding:0 22px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(184,154,85,.06), transparent), var(--paper); }
+  .brand { font-family:var(--serif); font-size:19px; font-weight:600; flex:0 0 auto; }
+  .mainmenu { display:flex; gap:2px; flex:1 1 auto; overflow:hidden; max-width:680px;
+    opacity:1; transition:opacity .55s ease, max-width 1.1s cubic-bezier(.4,0,.2,1); }
+  .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 11px; border-radius:8px; white-space:nowrap; }
+  .mainmenu a.on { background:var(--card); color:var(--ink); font-weight:600; box-shadow:0 1px 2px rgba(51,41,31,.1); }
+  .mainmenu a:hover { background:rgba(184,154,85,.14); color:var(--ink); }
+  .menu-handle { flex:0 0 auto; opacity:0; width:0; overflow:hidden; padding:0; border:none; background:transparent;
+    color:var(--ink-soft); font-size:18px; transition:opacity .5s ease .35s, width .5s ease; }
+  .menu-handle:hover { color:var(--ink); }
+  .acct { margin-left:auto; flex:0 0 auto; font-size:13.5px; color:var(--ink-soft); }
+  body.explore .mainmenu { max-width:0; opacity:0; pointer-events:none; }
+  body.explore.menu-open .mainmenu { max-width:680px; opacity:1; pointer-events:auto; }
+  body.explore .menu-handle { opacity:1; width:30px; }
+
+  /* ---------- stage + map ---------- */
+  .stage { position:relative; height:calc(100vh - 52px); overflow:hidden; }
+  .map { position:absolute; inset:0;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(95,138,144,.05), transparent 60%),
+      repeating-linear-gradient(0deg, transparent 0 59px, var(--water-line) 59px 60px),
+      repeating-linear-gradient(90deg, transparent 0 59px, var(--water-line) 59px 60px),
+      var(--water); }
+  .map .equator { position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(95,138,144,.26); }
+  .pin { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%);
+    box-shadow:0 0 0 4px rgba(51,41,31,.05); transition:opacity .3s ease; }
+  .pin.redact { width:26px; height:11px; border-radius:2px; box-shadow:none;
+    background:repeating-linear-gradient(90deg, rgba(43,41,38,.62) 0 6px, rgba(43,41,38,.5) 6px 8px); }
+
+  /* ---------- map controls (top-left) ---------- */
+  .mapctrls { position:absolute; top:16px; left:16px; z-index:20; display:flex; gap:8px; align-items:flex-start; }
+  .ctrl-card { background:var(--card); border:1px solid var(--line); border-radius:11px;
+    box-shadow:0 1px 2px rgba(51,41,31,.06), 0 12px 26px -18px rgba(51,41,31,.35); overflow:hidden; }
+  .zoomcol { display:flex; flex-direction:column; }
+  .zoomcol button { width:38px; height:36px; border:none; background:transparent; color:var(--ink-soft); font-size:16px; border-bottom:1px solid var(--line-soft); }
+  .zoomcol button:last-child { border-bottom:none; font-size:13px; }
+  .zoomcol button:hover { background:var(--line-soft); color:var(--ink); }
+  .navgrp { display:flex; }
+  .navbtn { border:none; background:transparent; color:var(--ink-soft); border-right:1px solid var(--line-soft);
+    height:36px; display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:0 12px;
+    transition:padding .7s ease, width .7s ease; }
+  .navbtn:last-child { border-right:none; }
+  .navbtn:hover { background:var(--line-soft); color:var(--ink); }
+  .navbtn .full { font-size:13px; display:inline-flex; align-items:center; gap:5px; }
+  .navbtn .mini { font-size:16px; display:none; align-items:center; }
+  body.explore .navbtn { padding:0; width:34px; }
+  body.explore .navbtn .full { display:none; }
+  body.explore .navbtn .mini { display:inline-flex; }
+
+  /* ---------- city search (center-top) ---------- */
+  .citysearch { position:absolute; top:16px; left:47%; transform:translateX(-50%); z-index:20;
+    display:flex; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:11px;
+    box-shadow:0 1px 2px rgba(51,41,31,.06), 0 12px 26px -18px rgba(51,41,31,.35);
+    transition:width 1.4s cubic-bezier(.4,0,.2,1); width:220px; overflow:hidden; }
+  .cs-handle { flex:0 0 auto; width:0; opacity:0; overflow:hidden; color:var(--ink-faint); font-size:16px;
+    transition:opacity .6s ease, width .6s ease; }
+  .cs-input { flex:1 1 auto; min-width:0; font:inherit; font-size:13.5px; color:var(--ink); background:transparent;
+    border:none; padding:10px 14px; transition:opacity .8s ease; }
+  .cs-input::placeholder { color:var(--ink-faint); }
+  .cs-input:focus { outline:none; }
+  body.explore .citysearch { width:40px; cursor:pointer; }
+  body.explore .citysearch .cs-handle { width:40px; opacity:1; text-align:center; }
+  body.explore .citysearch .cs-input { opacity:0; pointer-events:none; }
+  body.explore.cs-open .citysearch { width:220px; }
+  body.explore.cs-open .citysearch .cs-handle { width:0; opacity:0; }
+  body.explore.cs-open .citysearch .cs-input { opacity:1; pointer-events:auto; }
+
+  /* ---------- right rail ---------- */
+  .rail { position:absolute; top:16px; right:16px; z-index:20; max-width:calc(100% - 32px);
+    max-height:calc(100% - 32px); display:flex; flex-direction:row; flex-wrap:wrap;
+    justify-content:flex-end; align-items:flex-start; gap:14px; }
+  .rail-right { flex:0 0 332px; max-width:100%; display:flex; flex-direction:column; }
+
+  /* plate — NO backdrop: black letters on the map, right-aligned, to the LEFT of the builder */
+  .plate { flex:0 0 auto; max-width:188px; align-self:flex-start; text-align:right; color:var(--ink);
+    font-size:12.5px; line-height:1.5; padding-top:4px; text-shadow:0 1px 2px rgba(247,240,224,.75);
+    transition:opacity 1.0s ease; }
+  body.explore .plate { opacity:.5; }
+  .plate .name-row { display:flex; flex-wrap:nowrap; align-items:center; justify-content:flex-end; gap:7px; margin-bottom:3px; white-space:nowrap; }
+  .profile-select { font-family:var(--serif); font-size:17px; font-weight:600; color:var(--ink);
+    background:transparent; border:none; padding:0; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+  .profile-select .caret { font-size:11px; }
+  .name-tools { display:inline-flex; gap:1px; }
+  .name-tools button { background:transparent; border:none; color:var(--ink-faint); padding:1px 3px; font-size:11.5px; }
+  .name-tools button.plus { font-size:15px; line-height:1; }
+  .name-tools button:hover { color:var(--accent); }
+  .plate .primary { color:var(--ink); white-space:nowrap; }
+  .plate .sub { color:var(--ink-soft); white-space:nowrap; }
+  .plate-tech { overflow:hidden; max-height:48px; opacity:1; transition:max-height .8s ease, opacity .6s ease; }
+  body.explore .plate-tech { max-height:0; opacity:0; }
+
+  /* builder */
+  .builder { background:var(--card); border:1px solid rgba(184,154,85,.34); border-radius:14px; padding:14px;
+    box-shadow:0 1px 2px rgba(51,41,31,.06), 0 22px 44px -22px rgba(51,41,31,.5);
+    overflow:hidden; max-height:780px; opacity:1;
+    transition:max-height .9s cubic-bezier(.4,0,.2,1), opacity .55s ease, padding .9s ease, border-color .9s ease; }
+  body.explore .builder { max-height:0; opacity:0; padding-top:0; padding-bottom:0; border-color:transparent; pointer-events:none; }
+
+  .builder-top { display:flex; justify-content:flex-end; margin-bottom:6px; }
+  .btn-clear { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft);
+    background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:4px 9px; }
+  .btn-clear:hover { border-color:var(--app); color:var(--app); }
+
+  .chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .chips:not(:empty) { margin-bottom:11px; }
+  .chip { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink);
+    background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:5px 10px 5px 7px;
+    animation:pop .24s cubic-bezier(.22,.61,.36,1) both; }
+  @keyframes pop { from{ opacity:0; transform:scale(.92);} to{ opacity:1; transform:none;} }
+  .sw { width:11px; height:11px; border-radius:50%; flex:0 0 auto; box-shadow:inset 0 0 0 1px rgba(51,41,31,.18); }
+  .sw.redact { border-radius:3px; background:repeating-linear-gradient(90deg, var(--redact) 0 3px, #4a463f 3px 5px) !important; }
+  .chip .lbl { cursor:pointer; }
+  .chip .x { background:transparent; border:none; color:var(--ink-faint); font-size:13px; padding:0 1px; line-height:1; }
+  .chip .x:hover { color:var(--app); }
+
+  /* build row */
+  .buildrow { margin-top:2px; }
+  .br-master { display:flex; align-items:stretch; gap:8px; }
+  .br-master .g-select { flex:1 1 auto; }
+  .g-select { width:100%; font:inherit; font-size:13.5px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:10px; padding:9px 11px; appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink-faint) 50%),linear-gradient(135deg,var(--ink-faint) 50%,transparent 50%);
+    background-position:calc(100% - 17px) 17px, calc(100% - 12px) 17px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; }
+  .g-select:focus { outline:none; border-color:var(--accent); }
+  /* NOT toggle — redaction icon, to the RIGHT of the master dropdown */
+  .not-toggle { flex:0 0 auto; width:40px; border:1px solid var(--line); border-radius:10px; background:var(--paper);
+    color:var(--ink-faint); display:inline-flex; align-items:center; justify-content:center; transition:all .15s ease; }
+  .not-toggle:hover { border-color:var(--ink-faint); color:var(--ink-soft); }
+  .not-toggle.on { background:var(--redact); border-color:var(--redact); color:#f4ecdc; }
+  .not-toggle svg { width:18px; height:18px; }
+
+  .subs { display:flex; flex-wrap:wrap; gap:7px; margin-top:8px; }
+  .subs .g-select { flex:1 1 130px; min-width:118px; width:auto; }
+  .br-foot { min-height:0; }
+  .row-cancel { background:transparent; border:none; color:var(--ink-faint); font-size:12px; padding:8px 2px 0; }
+  .row-cancel:hover { color:var(--app); }
+
+  .actions { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+  .btn-add { width:100%; font-size:13.5px; font-weight:600; color:var(--accent); background:var(--card);
+    border:1px dashed rgba(91,107,99,.55); border-radius:10px; padding:11px; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .btn-add:hover:not(:disabled) { background:rgba(91,107,99,.08); border-color:var(--accent); }
+  .btn-add:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-search { width:100%; font-size:13.5px; font-weight:600; color:#fff;
+    background:linear-gradient(180deg,#6a7d72,var(--accent)); border:1px solid var(--accent); border-radius:10px; padding:11px;
+    box-shadow:0 6px 16px -8px rgba(91,107,99,.8); }
+  .btn-search:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .btn-search:not(:disabled):hover { filter:brightness(1.04); }
+
+  /* save = quiet link text */
+  .save-gap { height:30px; }
+  .save-inline { align-self:center; font-size:12px; color:var(--ink-faint); background:transparent; border:none;
+    display:inline-flex; align-items:center; gap:6px; text-decoration:underline; text-underline-offset:3px;
+    text-decoration-color:var(--line); }
+  .save-inline:hover { color:var(--ink-soft); text-decoration-color:var(--ink-faint); }
+  .save-inline svg { width:13px; height:13px; }
+
+  /* mini shorthand strip (explore) — where the builder was */
+  .ministrip-wrap { max-height:0; overflow:hidden; opacity:0; transform:translateY(-6px); pointer-events:none;
+    transition:opacity 1.0s ease .2s, transform 1.0s ease .2s, max-height .9s ease; }
+  body.explore .ministrip-wrap { max-height:460px; opacity:1; transform:none; pointer-events:auto; }
+  .ministrip { display:flex; flex-wrap:wrap; gap:7px; padding:7px; background:var(--card);
+    border:1px solid rgba(184,154,85,.34); border-radius:12px; min-height:34px; cursor:pointer;
+    box-shadow:0 1px 2px rgba(51,41,31,.06), 0 16px 32px -20px rgba(51,41,31,.45); }
+  .mtok { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink);
+    background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:4px 6px; transition:opacity .25s ease; }
+  .mtok.muted { opacity:.32; }
+  .mtok.dim { opacity:.28; }
+  .mtok .mlbl { white-space:nowrap; }
+  .mtok .mt-ctrls { display:inline-flex; gap:1px; margin-left:2px; }
+  .mtok .mb { width:18px; height:18px; border:none; border-radius:5px; background:transparent; color:var(--ink-faint);
+    font-size:10px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; }
+  .mtok .mb:hover { background:var(--line-soft); color:var(--ink-soft); }
+  .mtok .mb.on { background:var(--accent); color:#fff; }
+  .mtok .mb.notb { font-size:0; }
+  .mtok .mb.notb svg { width:12px; height:12px; }
+  .mtok .mb.notb.on { background:var(--redact); color:#f4ecdc; }
+
+  /* save disk (explore, bottom-right) */
+  .save-disk { position:absolute; right:18px; bottom:18px; z-index:20; width:48px; height:48px; border-radius:13px;
+    background:var(--card); border:1px solid var(--line); color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 2px rgba(51,41,31,.08), 0 14px 30px -16px rgba(51,41,31,.5);
+    opacity:0; transform:scale(.85) translateY(8px); pointer-events:none;
+    transition:opacity 1.2s ease, transform 1.2s cubic-bezier(.4,0,.2,1); }
+  body.explore .save-disk { opacity:1; transform:none; pointer-events:auto; }
+  .save-disk:hover { color:var(--accent); border-color:var(--accent); }
+  .save-disk svg { width:20px; height:20px; }
+
+  /* save popover — small, near the trigger, never takes over the map */
+  .savepop { position:fixed; z-index:80; width:288px; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px; display:none; box-shadow:0 18px 44px -18px rgba(51,41,31,.5);
+    transform-origin:bottom right; animation:popIn .18s ease both; }
+  .savepop.show { display:block; }
+  @keyframes popIn { from{ opacity:0; transform:scale(.94) translateY(6px);} to{ opacity:1; transform:none;} }
+  .sp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .sp-head .t { font-family:var(--serif); font-size:15px; font-weight:600; }
+  .sp-x { background:transparent; border:none; color:var(--ink-faint); font-size:14px; padding:2px 5px; border-radius:6px; }
+  .sp-x:hover { background:var(--line-soft); color:var(--ink); }
+  .sp-title { width:100%; font:inherit; font-size:13.5px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:9px; }
+  .sp-title::placeholder { color:var(--ink-faint); }
+  .sp-notes-wrap { position:relative; }
+  .sp-notes { min-height:74px; max-height:150px; overflow:auto; font-size:13px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:9px; padding:8px 34px 8px 10px; }
+  .sp-notes:focus { outline:none; border-color:var(--accent); }
+  .sp-notes:empty:before { content:attr(data-ph); color:var(--ink-faint); }
+  .sp-mic { position:absolute; right:7px; bottom:7px; width:24px; height:24px; border-radius:7px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); display:inline-flex; align-items:center; justify-content:center; }
+  .sp-mic:hover { color:var(--app); border-color:var(--app); }
+  .sp-mic svg { width:13px; height:13px; }
+  .sp-actions { display:flex; justify-content:flex-end; margin-top:11px; }
+  .sp-save { font-size:13px; font-weight:600; color:#fff; background:var(--accent); border:1px solid var(--accent);
+    border-radius:9px; padding:7px 16px; }
+
+  /* chip popover */
+  .popmenu { position:absolute; z-index:70; min-width:140px; background:var(--card); border:1px solid var(--line);
+    border-radius:11px; padding:5px; display:none; box-shadow:0 14px 32px -14px rgba(51,41,31,.5); }
+  .popmenu.show { display:block; }
+  .popmenu button { display:block; width:100%; text-align:left; font-size:13px; color:var(--ink-soft);
+    background:transparent; border:none; border-radius:7px; padding:7px 10px; }
+  .popmenu button:hover { background:var(--line-soft); color:var(--ink); }
+  .popmenu button.danger:hover { background:rgba(163,116,88,.12); color:var(--app); }
+  .popmenu .pm-head { font-size:11px; color:var(--ink-faint); padding:5px 10px 6px; border-bottom:1px solid var(--line-soft); margin-bottom:4px; }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">Relocation</div>
+    <button class="menu-handle" data-act="menu-handle" title="Menu">≡</button>
+    <nav class="mainmenu">
+      <a href="#" class="on">View Map</a><a href="#">Profile</a><a href="#">Comparison</a>
+      <a href="#">Transit Lab</a><a href="#">Store</a><a href="#">Settings</a>
+    </nav>
+    <div class="acct">David Goodman ▾</div>
+  </header>
+
+  <div class="stage">
+    <div class="map" id="map"><div class="equator"></div></div>
+
+    <!-- map controls -->
+    <div class="mapctrls">
+      <div class="ctrl-card zoomcol">
+        <button title="Zoom in">+</button><button title="Zoom out">–</button><button title="Recenter">○</button>
+      </div>
+      <div class="ctrl-card navgrp">
+        <button class="navbtn back" title="Previous search"><span class="full">Back</span><span class="mini">‹</span></button>
+        <button class="navbtn fwd" title="Next search"><span class="full">Forward</span><span class="mini">›</span></button>
+        <button class="navbtn pin" title="Pin this search to the front for comparison">
+          <span class="full"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3l6 6-4 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg> Pin</span>
+          <span class="mini"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3l6 6-4 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- city search -->
+    <div class="citysearch" id="citysearch">
+      <span class="cs-handle" data-act="cs-handle">⌕</span>
+      <input class="cs-input" type="text" placeholder="Search a city…" autocomplete="off" />
+    </div>
+
+    <!-- right rail -->
+    <div class="rail">
+      <div class="plate" id="plate"></div>
+      <div class="rail-right">
+        <div class="builder" id="builder">
+          <div class="builder-top" id="builderTop"></div>
+          <div class="chips" id="chips"></div>
+          <div class="buildrow" id="buildrow"></div>
+          <div class="actions">
+            <button class="btn-add" id="addBtn" data-act="add"><span>+</span> Add Variable</button>
+            <button class="btn-search" id="searchBtn" data-act="search">Search Map</button>
+          </div>
+          <div class="save-gap"></div>
+          <button class="save-inline" data-act="opensave">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+            Save search
+          </button>
+        </div>
+
+        <div class="ministrip-wrap" id="ministripWrap">
+          <div class="ministrip" id="ministrip" data-act="reopen"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="save-disk" id="saveDisk" data-act="opensave" title="Save this search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+    </button>
+  </div>
+
+  <div class="savepop" id="savePop"></div>
+  <div class="popmenu" id="popmenu"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ========================= CONFIG (DB/Settings-ready) =========================
+     Every list is a placeholder for a DB/Settings source. Users will add EXOTIC
+     planets, EXOTIC aspects and EXOTIC target points (e.g. "Aspect to 6th-house
+     cusp"). The builder reads only via SOURCES()/CATEGORIES, so extending the
+     data extends the UI — nothing is special-cased.
+     ============================================================================ */
+  var PLANETS = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  var SIGNS   = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  var ANGLES  = ["ASC","DSC","MC","IC"];
+  var HOUSES  = [1,2,3,4,5,6,7,8,9,10,11,12];
+  var ASPECTS = [
+    {id:"conjunction", label:"Conjunction", family:"hard"},
+    {id:"sextile",     label:"Sextile",     family:"soft"},
+    {id:"square",      label:"Square",      family:"hard"},
+    {id:"trine",       label:"Trine",       family:"soft"},
+    {id:"opposition",  label:"Opposition",  family:"hard"},
+    {id:"hard",        label:"Hard Aspects",      group:"hard"},
+    {id:"soft",        label:"Soft Aspects",      group:"soft"},
+    {id:"all_major",   label:"All Major Aspects", group:"all"}
+  ];
+  function aspectMembers(g){ return g==="all"
+    ? ASPECTS.filter(function(a){return !a.group;}).map(function(a){return a.id;})
+    : ASPECTS.filter(function(a){return !a.group && a.family===g;}).map(function(a){return a.id;}); }
+
+  var CATEGORIES = [
+    { id:"planet_house", label:"Planet – House",
+      fields:[ {key:"planet", label:"Planet", src:"PLANETS"}, {key:"house", label:"House", src:"HOUSES"} ],
+      chip:function(v){ return v.planet + " – " + ordinal(v.house); },
+      mini:function(v){ return PLANET_ABBR[v.planet] + " · " + v.house; } },
+    { id:"aspect_angle", label:"Aspect – Angle",
+      fields:[ {key:"planet", label:"Planet", src:"PLANETS"}, {key:"aspect", label:"Aspect", src:"ASPECTS"}, {key:"angle", label:"Angle", src:"ANGLES"} ],
+      chip:function(v){ return v.planet + " – " + aspectLabel(v.aspect) + " – " + v.angle; },
+      mini:function(v){ return PLANET_ABBR[v.planet] + " " + ASP_ABBR[v.aspect] + " " + v.angle; } },
+    { id:"angle_sign", label:"Angle – Sign",
+      fields:[ {key:"angle", label:"Angle", src:"ANGLES"}, {key:"sign", label:"Sign", src:"SIGNS"} ],
+      chip:function(v){ return v.angle + " – " + v.sign; },
+      mini:function(v){ return v.angle + " · " + SIGN_ABBR[v.sign]; } }
+  ];
+
+  function SOURCES(name){
+    switch(name){
+      case "PLANETS": return PLANETS.map(function(p){return {value:p,label:p};});
+      case "SIGNS":   return SIGNS.map(function(s){return {value:s,label:s};});
+      case "ANGLES":  return ANGLES.map(function(a){return {value:a,label:a};});
+      case "HOUSES":  return HOUSES.map(function(h){return {value:h,label:ordinal(h)};});
+      case "ASPECTS": return ASPECTS.map(function(a){return {value:a.id,label:a.label};});
+      default: return [];
+    }
+  }
+
+  var VAR_COLORS = ["#b89a55","#5f8a90","#a37458","#5b6b63","#c08a4a","#6b8299","#8a8a5a","#a76f72","#3f6b6b","#c9a24a"];
+  var PLANET_ABBR = {Sun:"Sun",Moon:"Moon",Mercury:"Mer",Venus:"Ven",Mars:"Mar",Jupiter:"Jup",Saturn:"Sat",Uranus:"Ura",Neptune:"Nep",Pluto:"Plu",Chiron:"Chi"};
+  var SIGN_ABBR = {Aries:"Ari",Taurus:"Tau",Gemini:"Gem",Cancer:"Can",Leo:"Leo",Virgo:"Vir",Libra:"Lib",Scorpio:"Sco",Sagittarius:"Sag",Capricorn:"Cap",Aquarius:"Aqu",Pisces:"Pis"};
+  var ASP_ABBR = {conjunction:"Conj",sextile:"Sext",square:"Sq",trine:"Tri",opposition:"Opp",hard:"Hard",soft:"Soft",all_major:"Maj"};
+
+  var REDACT_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="8.5" width="18" height="7" rx="1.5"/></svg>';
+  var MIC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+
+  /* ========================= helpers ========================= */
+  function ordinal(n){ n=+n; var s=["th","st","nd","rd"], v=n%100; return n + (s[(v-20)%10]||s[v]||s[0]); }
+  function aspectLabel(id){ var a=ASPECTS.find(function(x){return x.id===id;}); return a?a.label:id; }
+  function catById(id){ return CATEGORIES.find(function(c){return c.id===id;}); }
+  function uid(){ return "v"+Math.random().toString(36).slice(2,9); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+  /* ========================= state ========================= */
+  var variables = [];                                  // {id,not,category,values,color,mute}
+  var soloId = null;
+  var build = { editId:null, not:false, category:null, values:{} };
+  var colorTick = 0;
+
+  var PROFILE = { name:"Avery Rhodes", date:"14 March 1989", time:"07:42", offset:"+00:00",
+    place:"Lisbon, Portugal", lat:"38.72° N", lon:"9.14° W", zodiac:"Tropical", houses:"Placidus" };
+
+  var els = {
+    body: document.body,
+    plate: document.getElementById("plate"),
+    chips: document.getElementById("chips"),
+    buildrow: document.getElementById("buildrow"),
+    addBtn: document.getElementById("addBtn"),
+    ministrip: document.getElementById("ministrip"),
+    map: document.getElementById("map"),
+    popmenu: document.getElementById("popmenu"),
+    savePop: document.getElementById("savePop"),
+    saveDisk: document.getElementById("saveDisk")
+  };
+
+  /* ========================= plate ========================= */
+  function renderPlate(){
+    var p = PROFILE;
+    els.plate.innerHTML =
+      '<div class="name-row">'+
+        '<button class="profile-select">'+esc(p.name)+' <span class="caret">▾</span></button>'+
+        '<span class="name-tools"><button>Edit</button><button class="plus" title="Add profile">+</button></span>'+
+      '</div>'+
+      '<div class="primary">'+esc(p.date)+' · '+esc(p.time)+'</div>'+
+      '<div class="primary">'+esc(p.place)+'</div>'+
+      '<div class="plate-tech">'+
+        '<div class="sub">'+esc(p.lat)+', '+esc(p.lon)+'</div>'+
+        '<div class="sub">UTC '+esc(p.time)+' · '+esc(p.offset)+' · '+esc(p.zodiac)+' · '+esc(p.houses)+'</div>'+
+      '</div>';
+  }
+
+  /* ========================= chips ========================= */
+  function buildComplete(){
+    if(!build.category) return false;
+    return catById(build.category).fields.every(function(f){ return build.values[f.key]!==undefined && build.values[f.key]!==""; });
+  }
+  function selectHtml(role, options, value, placeholder){
+    var has = value!==undefined && value!=="";
+    var opts = '<option value="" '+(has?'':'selected')+' disabled>'+placeholder+'</option>';
+    opts += options.map(function(o){
+      return '<option value="'+esc(o.value)+'"'+(String(o.value)===String(value)?' selected':'')+'>'+esc(o.label)+'</option>';
+    }).join("");
+    return '<select class="g-select" data-role="'+role+'">'+opts+'</select>';
+  }
+  function swatch(v){ return '<span class="sw'+(v.not?' redact':'')+'"'+(v.not?'':' style="background:'+v.color+'"')+'></span>'; }
+
+  function renderChips(){
+    els.chips.innerHTML = variables.map(function(v){
+      return '<span class="chip" data-id="'+v.id+'">'+ swatch(v) +
+        '<span class="lbl" data-act="chip" data-id="'+v.id+'">'+esc(catById(v.category).chip(v.values))+'</span>'+
+        '<button class="x" data-act="remove" data-id="'+v.id+'" title="Remove">✕</button>'+
+      '</span>';
+    }).join("");
+  }
+
+  /* ========================= build row (stable; no flash) ========================= */
+  function variableCap(){ return (window.matchMedia && window.matchMedia("(max-width:560px)").matches) ? 6 : 12; }
+
+  function renderBuildRow(){
+    els.buildrow.innerHTML =
+      '<div class="br-master">'+
+        selectHtml("category", CATEGORIES.map(function(c){return {value:c.id,label:c.label};}), build.category, "Select Variable")+
+        '<button class="not-toggle'+(build.not?' on':'')+'" data-act="not" title="Redact — exclude these placements (NOT)">'+REDACT_ICON+'</button>'+
+      '</div>'+
+      '<div class="subs" id="subs"></div>'+
+      '<div class="br-foot" id="brFoot"></div>';
+    renderSubs();
+  }
+  function renderSubs(){
+    var subs = document.getElementById("subs"), foot = document.getElementById("brFoot");
+    if(!build.category){ subs.innerHTML=""; foot.innerHTML=""; updateAddState(); return; }
+    var fields = catById(build.category).fields;
+    subs.innerHTML = fields.map(function(f){
+      return selectHtml("field:"+f.key, SOURCES(f.src), build.values[f.key], f.label);
+    }).join("");
+    foot.innerHTML = '<button class="row-cancel" data-act="cancel">Cancel</button>';
+    updateAddState();
+  }
+  function updateAddState(){
+    var atCap = !build.editId && variables.length >= variableCap();
+    els.addBtn.disabled = !buildComplete() || atCap;
+    els.addBtn.title = atCap ? ("Up to "+variableCap()+" variables for now") : "";
+  }
+
+  function renderBuilderTop(){
+    document.getElementById("builderTop").innerHTML =
+      '<button class="btn-clear" data-act="clearmap" title="Clear all variables and reset the map">'+
+        '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg>'+
+        'Clear Map</button>';
+  }
+
+  function renderMini(){
+    els.ministrip.innerHTML = variables.map(function(v){
+      var dim = (soloId && soloId!==v.id);
+      return '<span class="mtok'+(v.mute?' muted':'')+(dim?' dim':'')+'" data-id="'+v.id+'">'+ swatch(v) +
+        '<span class="mlbl">'+esc(catById(v.category).mini(v.values))+'</span>'+
+        '<span class="mt-ctrls">'+
+          '<button class="mb notb'+(v.not?' on':'')+'" data-mini="not" data-id="'+v.id+'" title="NOT (redact)">'+REDACT_ICON+'</button>'+
+          '<button class="mb'+(v.mute?' on':'')+'" data-mini="mute" data-id="'+v.id+'" title="Mute">M</button>'+
+          '<button class="mb'+(soloId===v.id?' on':'')+'" data-mini="solo" data-id="'+v.id+'" title="Solo">S</button>'+
+        '</span>'+
+      '</span>';
+    }).join("");
+  }
+
+  function renderAll(){ renderBuilderTop(); renderChips(); renderBuildRow(); renderMini(); }
+
+  /* ========================= build actions ========================= */
+  function resetBuild(){ build = { editId:null, not:false, category:null, values:{} }; }
+  function commitVariable(){
+    if(!buildComplete()) return;
+    if(build.editId){
+      var ex = variables.find(function(x){return x.id===build.editId;});
+      ex.not=build.not; ex.category=build.category; ex.values=Object.assign({},build.values);
+    } else {
+      variables.push({ id:uid(), not:build.not, category:build.category,
+        values:Object.assign({},build.values), color:VAR_COLORS[colorTick++ % VAR_COLORS.length], mute:false });
+    }
+    resetBuild(); renderAll();
+  }
+  function onCategoryChange(val){ build.category=val||null; build.values={}; renderSubs(); }
+  function onFieldChange(key,val){ build.values[key]=val; updateAddState(); }
+  function editVariable(id){
+    var v = variables.find(function(x){return x.id===id;});
+    build = { editId:id, not:v.not, category:v.category, values:Object.assign({},v.values) };
+    renderBuildRow();
+  }
+  function removeVariable(id){
+    variables = variables.filter(function(x){return x.id!==id;});
+    if(soloId===id) soloId=null;
+    if(build.editId===id) resetBuild();
+    renderAll();
+  }
+  function duplicateVariable(id){
+    var v = variables.find(function(x){return x.id===id;});
+    variables.push({ id:uid(), not:v.not, category:v.category, values:Object.assign({},v.values),
+      color:VAR_COLORS[colorTick++ % VAR_COLORS.length], mute:false });
+    renderAll();
+  }
+
+  /* ========================= setup <-> explore ========================= */
+  function toExplore(){ resetBuild(); renderAll(); els.body.classList.add("explore"); runSearch(); }
+  function toSetup(){ els.body.classList.remove("explore","menu-open","cs-open"); closeSavePop(); renderBuildRow(); }
+
+  function runSearch(){
+    Array.prototype.forEach.call(els.map.querySelectorAll(".pin"), function(p){ p.remove(); });
+    var active = variables.filter(function(v){
+      if(v.mute) return false;
+      if(soloId) return v.id===soloId;
+      return true;
+    });
+    if(!active.length) active = [{color:"#8a857a"}];
+    active.forEach(function(v){
+      var n = 4 + Math.floor(Math.random()*4);
+      for(var i=0;i<n;i++){
+        var pin=document.createElement("div");
+        pin.className = "pin" + (v.not?" redact":"");
+        pin.style.left=(8+Math.random()*84)+"%"; pin.style.top=(14+Math.random()*70)+"%";
+        if(!v.not) pin.style.background = v.color || "#33291f";
+        els.map.appendChild(pin);
+      }
+    });
+  }
+
+  /* ========================= save popover (near trigger; no takeover) ========================= */
+  function openSavePop(anchor){
+    var summary = variables.map(function(v){ return (v.not?"NOT ":"")+catById(v.category).chip(v.values); }).join(", ") || "this search";
+    els.savePop.innerHTML =
+      '<div class="sp-head"><span class="t">Save search</span><button class="sp-x" data-act="closesave" title="Close">✕</button></div>'+
+      '<input class="sp-title" type="text" placeholder="Name this search…">'+
+      '<div class="sp-notes-wrap">'+
+        '<div class="sp-notes" contenteditable="true" data-ph="Notes about '+esc(summary)+'…"></div>'+
+        '<button class="sp-mic" title="Record a voice note (transcribed later)">'+MIC_ICON+'</button>'+
+      '</div>'+
+      '<div class="sp-actions"><button class="sp-save" data-act="closesave">Save</button></div>';
+    els.savePop.classList.add("show");
+    // position near the trigger, opening up/left, kept on-screen
+    var r = anchor.getBoundingClientRect(), w = 288, gap = 10;
+    var left = Math.min(r.right - w, window.innerWidth - w - 12);
+    left = Math.max(12, left);
+    var top = r.top - els.savePop.offsetHeight - gap;
+    if(top < 12) top = r.bottom + gap;
+    els.savePop.style.left = left + "px";
+    els.savePop.style.top  = top + "px";
+    var ti = els.savePop.querySelector(".sp-title"); if(ti) ti.focus();
+  }
+  function closeSavePop(){ els.savePop.classList.remove("show"); }
+
+  /* ========================= events ========================= */
+  document.addEventListener("change", function(e){
+    var s = e.target.closest("select[data-role]"); if(!s) return;
+    var role = s.getAttribute("data-role");
+    if(role==="category") onCategoryChange(s.value);
+    else if(role.indexOf("field:")===0) onFieldChange(role.slice(6), s.value);
+  });
+
+  document.addEventListener("click", function(e){
+    var b = e.target.closest("[data-act], [data-mini]");
+    if(!b){ closePop(); if(!e.target.closest("#savePop")) closeSavePop(); return; }
+
+    var mini = b.getAttribute("data-mini");
+    if(mini){
+      e.stopPropagation();
+      var mv = variables.find(function(x){return x.id===b.getAttribute("data-id");});
+      if(mini==="not")  mv.not=!mv.not;
+      if(mini==="mute") mv.mute=!mv.mute;
+      if(mini==="solo") soloId = (soloId===mv.id?null:mv.id);
+      renderMini(); runSearch(); return;
+    }
+
+    var act = b.getAttribute("data-act");
+    switch(act){
+      case "not":        build.not=!build.not; var nt=els.buildrow.querySelector(".not-toggle"); if(nt) nt.classList.toggle("on", build.not); break;
+      case "cancel":     resetBuild(); renderBuildRow(); break;
+      case "add":        commitVariable(); break;
+      case "search":     toExplore(); break;
+      case "reopen":     toSetup(); break;
+      case "clearmap":   variables=[]; soloId=null; resetBuild(); renderAll(); runSearch(); break;
+      case "menu-handle":els.body.classList.toggle("menu-open"); break;
+      case "cs-handle":  els.body.classList.toggle("cs-open"); break;
+      case "opensave":   e.stopPropagation(); if(els.savePop.classList.contains("show")) closeSavePop(); else openSavePop(b); break;
+      case "closesave":  closeSavePop(); break;
+      case "chip":       openPop(b, b.getAttribute("data-id"), e); break;
+      case "remove":     removeVariable(b.getAttribute("data-id")); break;
+    }
+  });
+
+  /* chip popover (chip = control surface) */
+  function openPop(anchor, id, e){
+    e.stopPropagation();
+    var v = variables.find(function(x){return x.id===id;});
+    els.popmenu.innerHTML =
+      '<div class="pm-head">'+(v.not?"NOT ":"")+esc(catById(v.category).chip(v.values))+'</div>'+
+      '<button data-pop="edit" data-id="'+id+'">Edit</button>'+
+      '<button data-pop="dup" data-id="'+id+'">Duplicate</button>'+
+      '<button data-pop="del" data-id="'+id+'" class="danger">Remove</button>';
+    var r = anchor.getBoundingClientRect();
+    els.popmenu.style.left = Math.min(r.left, window.innerWidth-160)+"px";
+    els.popmenu.style.top  = (r.bottom+6)+"px";
+    els.popmenu.classList.add("show");
+  }
+  function closePop(){ els.popmenu.classList.remove("show"); }
+  els.popmenu.addEventListener("click", function(e){
+    var b=e.target.closest("[data-pop]"); if(!b) return;
+    var id=b.getAttribute("data-id"), act=b.getAttribute("data-pop");
+    if(act==="edit") editVariable(id);
+    else if(act==="dup") duplicateVariable(id);
+    else if(act==="del") removeVariable(id);
+    closePop();
+  });
+
+  /* ========================= seed + init ========================= */
+  (function seed(){
+    var spots=[[14,30],[22,52],[30,40],[44,26],[52,60],[58,38],[66,48],[72,30],[80,56],[86,42],[38,68],[64,72]];
+    spots.forEach(function(s){ var p=document.createElement("div"); p.className="pin";
+      p.style.left=s[0]+"%"; p.style.top=s[1]+"%"; p.style.opacity=".4"; p.style.background="#8a857a"; els.map.appendChild(p); });
+  })();
+
+  renderPlate();
+  renderAll();
+})();
+</script>
+</body>
+</html>
