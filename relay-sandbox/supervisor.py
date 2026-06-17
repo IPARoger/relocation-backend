@@ -99,11 +99,16 @@ def has_pending() -> bool:
 def cycle_succeeded() -> bool:
     if not LOG.is_file():
         return False
-    tail = LOG.read_text(encoding="utf-8", errors="replace").splitlines()[-30:]
-    block = "\n".join(tail)
+    lines = LOG.read_text(encoding="utf-8", errors="replace").splitlines()
+    start = 0
+    for i in range(len(lines) - 1, -1, -1):
+        if lines[i].startswith("--- cycle start "):
+            start = i
+            break
+    block = "\n".join(lines[start:])
     if "NO_PENDING_TASK" in block or "Planner API call failed" in block:
         return False
-    return any(x in block for x in ("EXECUTED_LOCAL", "PLANNED ", "CLOSEOUT_FOR_BRAIN"))
+    return any(x in block for x in ("EXECUTED_LOCAL", "EXECUTED_MOCK", "PLANNED ", "CLOSEOUT_FOR_BRAIN"))
 
 
 def run_cycle(env: dict[str, str]) -> int:
