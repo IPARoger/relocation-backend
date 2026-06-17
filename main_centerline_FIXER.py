@@ -2369,10 +2369,13 @@ class ProfileUpdate(BaseModel):
 
 
 @app.get("/profiles")
-def api_list_profiles():
-    from repositories.profiles_repository import list_profiles
-
-    return list_profiles()
+def api_list_profiles(request: Request):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or malformed Authorization header")
+    jwt_token = auth_header[len("Bearer "):]
+    from repositories.profiles_repository import list_profiles_for_user
+    return list_profiles_for_user(jwt_token)
 
 
 @app.get("/profiles/{profile_id}")

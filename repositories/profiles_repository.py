@@ -1,4 +1,8 @@
+import os
 from datetime import datetime, timezone
+
+from dotenv import load_dotenv
+from supabase import create_client
 
 from services.supabase_client import get_supabase
 
@@ -8,7 +12,26 @@ def _utc_now_iso():
 
 
 def list_profiles():
+    """Service-role query — bypasses RLS. For internal/admin use only."""
     client = get_supabase()
+    result = client.table("profiles").select("*").order("created_at", desc=False).execute()
+    return result.data
+
+
+def list_profiles_for_user(jwt_token: str):
+    """RLS-scoped query using the authenticated user's JWT.
+
+    Uses the anon key + the caller's Bearer token so the existing
+    profiles_select RLS policy (account_id in app_account_ids()) filters
+    results to the user's own account only.
+    """
+    load_dotenv()
+    url = os.getenv("SUPABASE_URL")
+    anon_key = os.getenv("SUPABASE_ANON_KEY")
+    if not url or not anon_key:
+        raise RuntimeError("SUPABASE_URL or SUPABASE_ANON_KEY missing")
+    client = create_client(url, anon_key)
+    client.postgrest.auth(jwt_token)
     result = client.table("profiles").select("*").order("created_at", desc=False).execute()
     return result.data
 
