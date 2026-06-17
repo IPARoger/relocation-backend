@@ -94,6 +94,37 @@ jobs:
           git commit -m "relay: plan ${{ steps.plan.outputs.planner_out }}" || echo "nothing to commit"
           git push origin HEAD:main
 
+      - name: Install cursor-sdk
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && startsWith(steps.plan.outputs.planner_out, 'PLANNED') }}
+        run: pip install cursor-sdk
+
+      - name: Launch Cursor cloud agent (bot push does not trigger cursor-task-trigger)
+        id: exec
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && startsWith(steps.plan.outputs.planner_out, 'PLANNED') }}
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          RELAY_BRANCH: main
+        run: |
+          set -euo pipefail
+          OUT="$(python scripts/relay_executor.py)"
+          echo "$OUT"
+          echo "exec_out<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Email — merge PR (only ping when we need you)
+        continue-on-error: true
+        if: ${{ startsWith(steps.exec.outputs.exec_out, 'EXECUTED') }}
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TASK_NUM=$(echo "${{ steps.plan.outputs.planner_out }}" | grep -oE '[0-9]+' | head -1)
+          python scripts/relay_notify_email.py approval --task "$TASK_NUM"             --message "Cloud agent finished. Open the PR link below. If Draft, click Ready for review then Merge."
+
       - name: Email — human decision needed (planner PAUSE)
         if: ${{ startsWith(steps.plan.outputs.planner_out, 'PAUSE') }}
         continue-on-error: true
