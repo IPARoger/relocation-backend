@@ -1,7 +1,7 @@
 name: two-agent-relay
 
 # Fast loop: plan next task when a closeout lands on main (results/*.md push).
-# You are only pinged by email when: PR needs merge, planner PAUSEs, or low balance.
+# Auto-merges relay PRs by default. Ping only on PAUSE, low balance, or merge failure.
 # Manual "Run workflow" still available. Weekly schedule is a safety net only.
 
 on:
@@ -20,7 +20,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
   group: relay-planner
@@ -112,9 +112,20 @@ jobs:
           echo "$OUT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Email — merge PR (only ping when we need you)
+      - name: Auto-merge relay PR (squash)
+        id: automerge
         continue-on-error: true
         if: ${{ startsWith(steps.exec.outputs.exec_out, 'EXECUTED') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          TASK_NUM=$(echo "${{ steps.plan.outputs.planner_out }}" | grep -oE '[0-9]+' | head -1)
+          python scripts/relay_auto_merge.py --task "$TASK_NUM"
+
+      - name: Email — auto-merge failed (human needed)
+        continue-on-error: true
+        if: ${{ startsWith(steps.exec.outputs.exec_out, 'EXECUTED') && steps.automerge.outcome == 'failure' }}
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
@@ -123,7 +134,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TASK_NUM=$(echo "${{ steps.plan.outputs.planner_out }}" | grep -oE '[0-9]+' | head -1)
-          python scripts/relay_notify_email.py approval --task "$TASK_NUM"             --message "Cloud agent finished. Open the PR link below. If Draft, click Ready for review then Merge."
+          python scripts/relay_notify_email.py approval --task "$TASK_NUM" \
+            --message "Auto-merge failed. Open the PR manually or fix conflicts."
 
       - name: Email — human decision needed (planner PAUSE)
         if: ${{ startsWith(steps.plan.outputs.planner_out, 'PAUSE') }}

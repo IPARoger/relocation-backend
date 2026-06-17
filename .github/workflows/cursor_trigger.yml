@@ -1,7 +1,7 @@
 name: cursor-task-trigger
 
 # Runs immediately when a new task file lands on main → launches Cursor cloud agent.
-# Email is sent ONLY when a PR is ready for your merge (human gate).
+# Auto-merges relay PRs. Email only if auto-merge fails.
 
 on:
   workflow_dispatch:
@@ -11,8 +11,8 @@ on:
       - 'tasks/[0-9]*.md'
 
 permissions:
-  contents: read
-  pull-requests: read
+  contents: write
+  pull-requests: write
 
 concurrency:
   group: relay-executor
@@ -70,9 +70,18 @@ jobs:
           echo "$OUT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Email — merge PR (only ping when we need you)
+      - name: Auto-merge relay PR (squash)
+        id: automerge
         continue-on-error: true
         if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/relay_auto_merge.py --task "${{ needs.gate.outputs.number }}"
+
+      - name: Email — auto-merge failed (human needed)
+        continue-on-error: true
+        if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED') && steps.automerge.outcome == 'failure'
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
@@ -81,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python scripts/relay_notify_email.py approval --task "${{ needs.gate.outputs.number }}" \
-            --message "Cloud agent finished. Open the PR link below. If it says Draft, click Ready for review then Merge."
+            --message "Auto-merge failed. Open the PR manually or fix conflicts."
 
       - name: Email — low balance
         if: failure() && contains(steps.exec.outputs.exec_out, 'LOW')
