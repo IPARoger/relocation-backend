@@ -22,3 +22,4 @@ library/library.*.json
 *api_key*
 *API_KEY*
 *.token
+*.pdf
