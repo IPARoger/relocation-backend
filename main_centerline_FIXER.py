@@ -2582,26 +2582,13 @@ def api_get_place(place_id: str):
 
 @app.post("/places")
 def api_create_place(body: PlaceCreate):
-    from repositories.places_repository import create_place
-
-    return create_place(
-        display_name=body.display_name,
-        latitude=body.latitude,
-        longitude=body.longitude,
-        provider=body.provider,
-        provider_place_id=body.provider_place_id,
-        geonames_id=body.geonames_id,
-        canonical_name=body.canonical_name,
-        admin1=body.admin1,
-        admin2=body.admin2,
-        country_code=body.country_code,
-        country_name=body.country_name,
-        timezone_id=body.timezone_id,
-        population=body.population,
-        importance_rank=body.importance_rank,
-        language_code=body.language_code,
-        alternate_names_json=body.alternate_names_json,
-        source_json=body.source_json,
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "error": "deprecated",
+            "replacement": "/places/resolve-or-create",
+            "message": "Use POST /places/resolve-or-create",
+        },
     )
 
 
