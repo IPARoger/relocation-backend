@@ -17,3 +17,8 @@ Do not modify application code except this sandbox tree.
 1. First incomplete SB-* only.
 2. Read-only — no code changes, no commits.
 3. Closeout path: `relay-sandbox/results/<NN>_*.md` with `**Roadmap ID:** SB-N`
+| SB-8 | S | Count `*.md` files under `docs/architecture/` | closeout SB-8 |
+| SB-9 | S | List top-level directories in repo root (names only) | closeout SB-9 |
+| SB-10 | S | Grep `smokes/` for files referencing `port 8004` | closeout SB-10 |
+| SB-11 | S | Count lines in `relay/CHAT_INSTRUCTIONS.md` | closeout SB-11 |
+| SB-12 | S | List `validation/reports/*.json` filenames | closeout SB-12 |
