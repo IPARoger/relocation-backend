@@ -1,11 +1,11 @@
 {
-  "ok_streak": 6,
+  "ok_streak": 7,
   "target": 10,
   "min_elapsed_min": 60.0,
-  "elapsed_min": 4.8,
+  "elapsed_min": 11.6,
   "last_code": 0,
-  "last_error": null,
+  "last_error": "Planner API call failed: HTTP Error 404: Not Found",
   "mock": "0",
-  "note": "ok",
-  "updated": "2026-06-17T19:24:30.477498+00:00"
+  "note": "waiting",
+  "updated": "2026-06-17T19:31:17.243020+00:00"
 }
