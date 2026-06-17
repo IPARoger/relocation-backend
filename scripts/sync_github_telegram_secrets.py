@@ -89,3 +89,6 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# Also sync Gmail if present in .env.local
+GMAIL_KEYS = ("GMAIL_USER", "GMAIL_APP_PASSWORD", "RELAY_NOTIFY_EMAIL")
