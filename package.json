@@ -1,0 +1,16 @@
+{
+  "name": "relocation-backend",
+  "version": "1.0.0",
+  "main": "account_drawer.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
