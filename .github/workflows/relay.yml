@@ -53,7 +53,7 @@ jobs:
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          OPENAI_MODEL: gpt-4o-mini
         run: |
           set +e
           OUT="$(python scripts/relay_preflight.py)"; CODE=$?
@@ -77,7 +77,7 @@ jobs:
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          OPENAI_MODEL: gpt-4o-mini
         run: |
           OUT="$(python scripts/relay_planner.py)"; echo "$OUT"
           echo "planner_out<<EOF" >> "$GITHUB_OUTPUT"

@@ -34,7 +34,7 @@ import urllib.error
 import urllib.request
 
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
-DEFAULT_MODEL = "gpt-5-mini"
+DEFAULT_MODEL = "gpt-4o-mini"
 TIMEOUT_SECONDS = 30
 
 

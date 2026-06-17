@@ -46,7 +46,7 @@ GOVERNANCE = REPO / "docs" / "architecture" / "TWO_AGENT_RELAY_GOVERNANCE.md"
 TEMPLATE = TASKS_DIR / "TEMPLATE.md"
 
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
-DEFAULT_MODEL = "gpt-5-mini"
+DEFAULT_MODEL = "gpt-4o-mini"
 TIMEOUT_SECONDS = 60
 
 SYSTEM_PROMPT = """You are the planning half ("ChatGPT lane") of a governed two-agent
