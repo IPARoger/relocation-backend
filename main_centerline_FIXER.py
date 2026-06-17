@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
 from typing import Annotated, Any, List, Literal, Union
@@ -2389,6 +2389,16 @@ def api_get_profile(profile_id: str):
 
 
 
+
+
+
+def _quarantine_legacy_read(route: str) -> JSONResponse:
+    print(f"[quarantine] GET {route} -> 410 Gone (legacy read path retired)", flush=True)
+    return JSONResponse(
+        {"error": "Gone", "reason": "legacy read path retired"},
+        status_code=410,
+    )
+
 def _deprecated_legacy_write(replacement: str | None, message: str) -> None:
     raise HTTPException(
         status_code=410,
@@ -3045,35 +3055,7 @@ def api_revoke_share_link(share_link_id: str):
 
 @app.get("/profile-library/{profile_id}")
 def api_profile_library(profile_id: str):
-    from repositories.profiles_repository import get_profile
-    from repositories.birth_records_repository import list_birth_records
-    from repositories.saved_searches_repository import list_saved_searches
-    from repositories.comparison_sets_repository import list_comparison_sets
-    from repositories.favorite_places_repository import list_favorite_places
-    from repositories.visited_places_repository import list_visited_places
-    from repositories.notes_repository import list_notes
-    from repositories.share_links_repository import list_share_links
-
-    try:
-        profile = get_profile(profile_id)
-    except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
-            raise HTTPException(status_code=404, detail="profile not found") from e
-        raise
-    if profile is None:
-        raise HTTPException(status_code=404, detail="profile not found")
-
-    return {
-        "profile": profile,
-        "birth_records": list_birth_records(profile_id),
-        "saved_searches": list_saved_searches(profile_id),
-        "comparison_sets": list_comparison_sets(profile_id),
-        "favorite_places": list_favorite_places(profile_id),
-        "visited_places": list_visited_places(profile_id),
-        "notes": list_notes(profile_id),
-        "share_links": list_share_links(profile_id),
-    }
+    return _quarantine_legacy_read(f"/profile-library/{profile_id}")
 
 # ---------------------------------------------------------------------------
 # Account store aggregate (read-only, JWT-scoped; mirrors supabase_store_bridge.js)
@@ -3082,25 +3064,7 @@ def api_profile_library(profile_id: str):
 
 @app.get("/account-store")
 def api_account_store(request: Request):
-    auth_header = request.headers.get("Authorization", "")
-    if not auth_header.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401,
-            detail="Missing or malformed Authorization header",
-        )
-    jwt_token = auth_header[len("Bearer ") :]
-    from repositories.account_store_repository import (
-        AccountStoreBuildError,
-        build_account_store,
-    )
-
-    try:
-        return build_account_store(jwt_token)
-    except AccountStoreBuildError as err:
-        raise HTTPException(
-            status_code=422,
-            detail={"error": err.reason, "message": str(err)},
-        ) from err
+    return _quarantine_legacy_read("/account-store")
 
 # ---------------------------------------------------------------------------
 # Current Location ownership (read-only GET + JWT-scoped POST set).
