@@ -2058,9 +2058,7 @@ def serve_app_shell_html():
     return FileResponse(APP_DIR / "app_shell.html", media_type="text/html")
 
 
-@app.get("/local-product-store.json")
-def serve_local_product_store_json():
-    return _quarantine_legacy_read("/local-product-store.json")
+# removed: serve_local_product_store_json C5-2a
 
 
 @app.get("/chart-records")
@@ -2388,12 +2386,7 @@ def api_get_profile(profile_id: str):
 
 
 
-def _quarantine_legacy_read(route: str) -> JSONResponse:
-    print(f"[quarantine] GET {route} -> 410 Gone (legacy read path retired)", flush=True)
-    return JSONResponse(
-        {"error": "Gone", "reason": "legacy read path retired"},
-        status_code=410,
-    )
+# removed: _quarantine_legacy_read C5-2a
 
 def _deprecated_legacy_write(replacement: str | None, message: str) -> None:
     raise HTTPException(
@@ -2598,14 +2591,10 @@ class SavedSearchUpdate(BaseModel):
     date_end: str | None = None
 
 
-@app.get("/saved-searches/{profile_id}")
-def api_list_saved_searches(profile_id: str):
-    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
+# removed: api_list_saved_searches C5-2a
 
 
-@app.get("/saved-search/{saved_search_id}")
-def api_get_saved_search(saved_search_id: str):
-    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
+# removed: api_get_saved_search C5-2a
 
 
 @app.post("/saved-searches")
@@ -3036,18 +3025,14 @@ def api_revoke_share_link(share_link_id: str):
 # ---------------------------------------------------------------------------
 
 
-@app.get("/profile-library/{profile_id}")
-def api_profile_library(profile_id: str):
-    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
+# removed: api_profile_library C5-2a
 
 # ---------------------------------------------------------------------------
 # Account store aggregate (read-only, JWT-scoped; mirrors supabase_store_bridge.js)
 # ---------------------------------------------------------------------------
 
 
-@app.get("/account-store")
-def api_account_store(request: Request):
-    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
+# removed: api_account_store C5-2a
 
 # ---------------------------------------------------------------------------
 # Current Location ownership (read-only GET + JWT-scoped POST set).
