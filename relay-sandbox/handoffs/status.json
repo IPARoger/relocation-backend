@@ -1,11 +1,11 @@
 {
-  "ok_streak": 2,
+  "ok_streak": 3,
   "target": 10,
   "min_elapsed_min": 60.0,
-  "elapsed_min": 1.2,
+  "elapsed_min": 2.0,
   "last_code": 0,
   "last_error": null,
   "mock": "0",
   "note": "ok",
-  "updated": "2026-06-17T19:20:54.720344+00:00"
+  "updated": "2026-06-17T19:21:37.438801+00:00"
 }
