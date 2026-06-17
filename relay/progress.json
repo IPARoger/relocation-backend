@@ -1,6 +1,7 @@
 {
-  "completed_since_digest": 25,
-  "last_digest_through_task": 0,
+  "completed_since_digest": 1,
+  "last_digest_through_task": 65,
   "digest_interval": 15,
-  "last_completed_task": 65
+  "last_completed_task": 66,
+  "awaiting_digest_ack": true
 }
