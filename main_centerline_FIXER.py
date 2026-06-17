@@ -3478,6 +3478,30 @@ def api_create_saved_investigation(request: Request, body: SavedInvestigationCre
         ) from err
 
 
+
+
+@app.get("/saved-investigations/{investigation_id}")
+def api_get_saved_investigation(request: Request, investigation_id: str):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_saved_investigations_repository import (
+        SavedInvestigationsError,
+        get_saved_investigation_by_id,
+    )
+
+    try:
+        return get_saved_investigation_by_id(jwt_token, investigation_id)
+    except SavedInvestigationsError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason in ("saved_search_not_found",):
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
 @app.post("/saved-investigations/rename")
 def api_rename_saved_investigation(request: Request, body: SavedInvestigationRename):
     jwt_token = _jwt_from_request(request)

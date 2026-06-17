@@ -1834,7 +1834,7 @@ window.__rmApplyLibrarySavedViewReplay = applyLibrarySavedViewReplay;
 
 // Phase 2.9 — Reopen Supabase saved_searches investigation from app_shell handoff.
 // Requires: lastAppShellHandoff.explorationId, window.SupabaseClient, window.CurrentUser.
-// Direct Supabase fetch — works same-tab and new-tab (no sessionStorage dependency).
+// Backend-owned JWT fetch — works same-tab and new-tab (no sessionStorage dependency).
 async function applySupabaseSavedInvestigationReplay() {
     const statusEl = document.getElementById("reopenInvestigationStatus");
     function setStatus(msg, isErr) {
@@ -1852,25 +1852,25 @@ async function applySupabaseSavedInvestigationReplay() {
         return false;
     }
 
-    const accountId = window.CurrentUser && window.CurrentUser.accountId;
-
     try {
-        const { data: row, error: fetchErr } = await sbClient
-            .from("saved_searches")
-            .select("id, account_id, title, conditions_json, viewport_json, archived_at")
-            .eq("id", explorationId)
-            .is("archived_at", null)
-            .maybeSingle();
-
-        if (fetchErr) throw fetchErr;
-        if (!row) {
-            setStatus("Saved investigation not found or archived.", true);
-            return false;
+        const { data: _sess } = await sbClient.auth.getSession();
+        const _token = _sess && _sess.session && _sess.session.access_token;
+        if (!_token) throw new Error("Session unavailable. Reload and try again.");
+        const _resp = await fetch(`${API_BASE}/saved-investigations/${encodeURIComponent(explorationId)}`, {
+            headers: { "Authorization": "Bearer " + _token },
+        });
+        if (!_resp.ok) {
+            if (_resp.status === 404) {
+                setStatus("Saved investigation not found or archived.", true);
+                return false;
+            }
+            let _detail = null;
+            try { _detail = (await _resp.json()).detail; } catch (_e) { /* non-JSON */ }
+            const _msg = (_detail && (_detail.message || _detail.error)) ||
+                ("HTTP " + _resp.status);
+            throw new Error(_msg);
         }
-        if (accountId && row.account_id && row.account_id !== accountId) {
-            setStatus("Saved investigation not available for this account.", true);
-            return false;
-        }
+        const row = await _resp.json();
 
         const conditions_json = row.conditions_json || {};
         lastSavedInvestigationConditions = row.conditions_json || null;

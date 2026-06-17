@@ -208,3 +208,31 @@ def archive_saved_investigation(
         "archived_at": out.get("archived_at"),
         "status": "archived",
     }
+
+def get_saved_investigation_by_id(jwt_token: str, saved_search_id: str) -> dict:
+    """Fetch an active owned saved investigation for map replay."""
+    client = get_supabase_for_user(jwt_token)
+    account_id = _resolve_account_id(client, jwt_token)
+    try:
+        result = (
+            client.table("saved_searches")
+            .select("id, account_id, profile_id, title, conditions_json, viewport_json, archived_at")
+            .eq("id", saved_search_id)
+            .eq("account_id", account_id)
+            .is_("archived_at", "null")
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise SavedInvestigationsError(
+                "saved search not found", "saved_search_not_found",
+            ) from exc
+        raise
+    if not result.data:
+        raise SavedInvestigationsError(
+            "saved search not found", "saved_search_not_found",
+        )
+    return result.data[0]
+
