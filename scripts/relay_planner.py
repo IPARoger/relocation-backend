@@ -65,6 +65,17 @@ Hard rules you must obey:
   If the next sensible step needs any of these, PAUSE for the human instead.
 - You never merge, never push to main, never touch secrets. A human merges.
 
+When to PAUSE (rare — human judgement / approval only):
+- Schema, migration, credentials/secrets, backend architecture fork, renderer/math/
+  overlay work, doctrine/canon edits, or genuine product ambiguity with no safe default.
+
+When NOT to PAUSE — plan the next task instead:
+- Closeout says PARTIALLY VERIFIED, NOT VERIFIED, or blocked by missing CI tooling
+  (e.g. playwright not installed). Plan the smallest reversible task to unblock.
+- Obvious sequential follow-on from the last result (example: quarantine smokes done
+  but map/saved-investigation smokes need playwright → plan a CI playwright task).
+- Routine wiring, smoke, docs, and workflow fixes inside hard-stop boundaries.
+
 Output format (STRICT):
 - If a safe next task exists, output ONLY:
     SLUG: <kebab-case-short-slug>
