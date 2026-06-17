@@ -1,5 +1,8 @@
 name: cursor-task-trigger
 
+# Runs immediately when a new task file lands on main → launches Cursor cloud agent.
+# Email is sent ONLY when a PR is ready for your merge (human gate).
+
 on:
   workflow_dispatch:
   push:
@@ -16,21 +19,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  notify:
+  gate:
     runs-on: ubuntu-latest
     outputs:
       number: ${{ steps.task.outputs.number }}
-      file: ${{ steps.task.outputs.file }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
       - name: Extract task info
         id: task
@@ -43,34 +39,18 @@ jobs:
               | grep -E '^tasks/[0-9]+_.*\.md$' | head -1 || true)
           fi
           if [ -z "$TASK_FILE" ]; then
-            echo "file=" >> "$GITHUB_OUTPUT"
             echo "number=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          TASK_NUM=$(basename "$TASK_FILE" | grep -oE '^[0-9]+' || true)
-          echo "file=$TASK_FILE" >> "$GITHUB_OUTPUT"
-          echo "number=$TASK_NUM" >> "$GITHUB_OUTPUT"
-
-      - name: Email — task started
-        if: steps.task.outputs.number != ''
-        continue-on-error: true
-        env:
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python scripts/relay_notify_email.py started --task "${{ steps.task.outputs.number }}"
+          echo "number=$(basename "$TASK_FILE" | grep -oE '^[0-9]+')" >> "$GITHUB_OUTPUT"
 
   execute:
-    needs: notify
-    if: needs.notify.outputs.number != ''
+    needs: gate
+    if: needs.gate.outputs.number != ''
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -90,7 +70,7 @@ jobs:
           echo "$OUT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Email — approval required (merge PR)
+      - name: Email — merge PR (only ping when we need you)
         if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED')
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
@@ -98,7 +78,9 @@ jobs:
           RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/relay_notify_email.py approval --task "${{ needs.notify.outputs.number }}"
+        run: |
+          python scripts/relay_notify_email.py approval --task "${{ needs.gate.outputs.number }}" \
+            --message "Cloud agent finished. Open the PR link below. If it says Draft, click Ready for review then Merge."
 
       - name: Email — low balance
         if: failure() && contains(steps.exec.outputs.exec_out, 'LOW')

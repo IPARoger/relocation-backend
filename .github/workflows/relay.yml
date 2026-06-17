@@ -1,12 +1,8 @@
 name: two-agent-relay
 
-# SAFE BY DEFAULT:
-# - Runs ONLY when you click "Run workflow" (no automatic schedule yet).
-# - Defaults to dry_run = true: it calls NO paid APIs and changes nothing.
-# - Live runs do a cheap preflight first; if your OpenAI balance is empty it
-#   sends a Telegram "low-balance" warning and STOPS before any expensive work,
-#   so you are never charged twice for the same task.
-# - To fully automate later, uncomment the "schedule" block at the bottom.
+# Fast loop: plan next task when a closeout lands on main (results/*.md push).
+# You are only pinged by email when: PR needs merge, planner PAUSEs, or low balance.
+# Manual "Run workflow" still available. Weekly schedule is a safety net only.
 
 on:
   workflow_dispatch:
@@ -15,12 +11,20 @@ on:
         description: "Dry run (no paid API calls, no changes)"
         type: boolean
         default: false
+  push:
+    branches: [main]
+    paths:
+      - 'results/[0-9]*.md'
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 9 * * 1'   # Monday 09:00 UTC — safety net only
 
 permissions:
   contents: write
   pull-requests: read
+
+concurrency:
+  group: relay-planner
+  cancel-in-progress: false
 
 jobs:
   relay:
@@ -36,18 +40,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ---- DRY RUN PATH (free rehearsal) ----
       - name: Dry-run rehearsal
-        if: ${{ inputs.dry_run == true }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
         run: |
           python scripts/relay_preflight.py --dry-run
           python scripts/relay_planner.py --dry-run
           python scripts/relay_executor.py --dry-run
 
-      # ---- LIVE PATH ----
       - name: Preflight balance check (cheap)
         id: preflight
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run == false }}
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -56,39 +58,34 @@ jobs:
           set +e
           OUT="$(python scripts/relay_preflight.py)"; CODE=$?
           echo "$OUT"
-          echo "result=$OUT" >> "$GITHUB_OUTPUT"
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
           exit 0
 
       - name: Warn low balance and stop
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && steps.preflight.outputs.code == '5' }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && steps.preflight.outputs.code == '5' }}
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python scripts/relay_notify_email.py low-balance
-          echo "Stopping: OpenAI balance is low. Top up and re-run." >&2
           exit 1
-
-      - name: Install Cursor SDK (executor only)
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' }}
-        run: pip install cursor-sdk
 
       - name: Plan next task (GPT brain)
         id: plan
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
           OUT="$(python scripts/relay_planner.py)"; echo "$OUT"
-          echo "planner_out=$OUT" >> "$GITHUB_OUTPUT"
+          echo "planner_out<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Commit new task to branch
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && startsWith(steps.plan.outputs.planner_out, 'PLANNED') }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && startsWith(steps.plan.outputs.planner_out, 'PLANNED') }}
         run: |
           git config user.name "relay-bot"
           git config user.email "relay-bot@users.noreply.github.com"
@@ -96,39 +93,12 @@ jobs:
           git commit -m "relay: plan ${{ steps.plan.outputs.planner_out }}" || echo "nothing to commit"
           git push origin HEAD:main
 
-      - name: Execute task (Cursor cloud agent -> opens PR)
-        id: exec
-        if: ${{ false }}
-        continue-on-error: true
+      - name: Email — human decision needed (planner PAUSE)
+        if: ${{ startsWith(steps.plan.outputs.planner_out, 'PAUSE') }}
         env:
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
-          CURSOR_MODEL: ${{ secrets.CURSOR_MODEL }}
-          RELAY_BRANCH: main
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          set +e
-          OUT="$(python scripts/relay_executor.py)"; CODE=$?
-          echo "$OUT"
-          echo "exec_out=$OUT" >> "$GITHUB_OUTPUT"
-          echo "exec_code=$CODE" >> "$GITHUB_OUTPUT"
-          exit 0
-
-      - name: Warn low balance (Cursor side)
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && steps.exec.outputs.exec_code == '5' }}
-        env:
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/relay_notify_email.py low-balance
-
-      - name: Notify human — approval needed
-        if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && (startsWith(steps.plan.outputs.planner_out, 'PAUSE') || startsWith(steps.exec.outputs.exec_out, 'EXECUTED')) }}
-        env:
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/relay_notify_email.py approval
-
+          python scripts/relay_notify_email.py approval --message "Planner PAUSE: ${{ steps.plan.outputs.planner_out }}"
