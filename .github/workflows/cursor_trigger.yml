@@ -5,9 +5,16 @@ on:
     branches: [main]
     paths: ['tasks/**.md']
 
+concurrency:
+  group: relay-executor
+  cancel-in-progress: false
+
 jobs:
   notify:
     runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.task.outputs.number }}
+      file: ${{ steps.task.outputs.file }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,3 +48,24 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+  execute:
+    needs: notify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install cursor-sdk
+        run: pip install cursor-sdk
+
+      - name: Launch Cursor cloud agent
+        run: python scripts/relay_executor.py
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          RELAY_BRANCH: main
