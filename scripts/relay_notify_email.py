@@ -126,6 +126,7 @@ def send_email(subject, body, to_addr, from_addr, app_password):
 def credentials():
     user = os.environ.get("GMAIL_USER", "").strip().strip('"').strip("'")
     password = os.environ.get("GMAIL_APP_PASSWORD", "").strip().strip('"').strip("'")
+    password = password.replace(" ", "")  # Google app passwords are often pasted with spaces
     to_addr = os.environ.get("RELAY_NOTIFY_EMAIL", "").strip() or user
     if not user or not password:
         return None

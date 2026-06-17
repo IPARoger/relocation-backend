@@ -1,12 +1,10 @@
 name: email-test
 
+# Manual only — avoids GitHub failure emails on every push.
+# Run after updating GMAIL_USER + GMAIL_APP_PASSWORD secrets.
+
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/relay_notify_email.py'
-      - '.github/workflows/email_test.yml'
 
 permissions:
   contents: read
