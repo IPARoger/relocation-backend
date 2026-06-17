@@ -2388,37 +2388,40 @@ def api_get_profile(profile_id: str):
     return profile
 
 
+
+def _deprecated_legacy_write(replacement: str | None, message: str) -> None:
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "error": "deprecated",
+            "replacement": replacement,
+            "message": message,
+        },
+    )
+
+
 @app.post("/profiles")
 def api_create_profile(body: ProfileCreate):
-    from repositories.profiles_repository import create_profile
-
-    return create_profile(
-        display_name=body.display_name,
-        account_user_id=body.account_user_id,
-        profile_type=body.profile_type,
+    _deprecated_legacy_write(
+        "/profiles/create-with-birth",
+        "Use POST /profiles/create-with-birth",
     )
 
 
 @app.patch("/profiles/{profile_id}")
 def api_update_profile(profile_id: str, body: ProfileUpdate):
-    from repositories.profiles_repository import get_profile, update_profile
-
-    if get_profile(profile_id) is None:
-        raise HTTPException(status_code=404, detail="profile not found")
-    return update_profile(
-        profile_id,
-        display_name=body.display_name,
-        profile_type=body.profile_type,
+    _deprecated_legacy_write(
+        "/profiles/rename",
+        "Use POST /profiles/rename",
     )
 
 
 @app.post("/profiles/{profile_id}/archive")
 def api_archive_profile(profile_id: str):
-    from repositories.profiles_repository import archive_profile, get_profile
-
-    if get_profile(profile_id) is None:
-        raise HTTPException(status_code=404, detail="profile not found")
-    return archive_profile(profile_id)
+    _deprecated_legacy_write(
+        "/profiles/archive",
+        "Use POST /profiles/archive",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -2472,57 +2475,26 @@ def api_get_birth_record(record_id: str):
 
 @app.post("/birth-records")
 def api_create_birth_record(body: BirthRecordCreate):
-    from repositories.birth_records_repository import create_birth_record
-
-    return create_birth_record(
-        profile_id=body.profile_id,
-        birth_date=body.birth_date,
-        birth_time_mode=body.birth_time_mode,
-        birth_time_start=body.birth_time_start,
-        birth_time_end=body.birth_time_end,
-        birth_place_id=body.birth_place_id,
-        timezone_id=body.timezone_id,
-        utc_datetime_start=body.utc_datetime_start,
-        utc_datetime_end=body.utc_datetime_end,
-        confidence_notes=body.confidence_notes,
-        chart_settings_json=body.chart_settings_json,
+    _deprecated_legacy_write(
+        "/profiles/create-with-birth",
+        "Use POST /profiles/create-with-birth",
     )
 
 
 @app.patch("/birth-record/{record_id}")
 def api_update_birth_record(record_id: str, body: BirthRecordUpdate):
-    from repositories.birth_records_repository import (
-        get_birth_record,
-        update_birth_record,
-    )
-
-    if get_birth_record(record_id) is None:
-        raise HTTPException(status_code=404, detail="birth record not found")
-    return update_birth_record(
-        record_id,
-        birth_date=body.birth_date,
-        birth_time_mode=body.birth_time_mode,
-        birth_time_start=body.birth_time_start,
-        birth_time_end=body.birth_time_end,
-        birth_place_id=body.birth_place_id,
-        timezone_id=body.timezone_id,
-        utc_datetime_start=body.utc_datetime_start,
-        utc_datetime_end=body.utc_datetime_end,
-        confidence_notes=body.confidence_notes,
-        chart_settings_json=body.chart_settings_json,
+    _deprecated_legacy_write(
+        None,
+        "Birth record updates are not exposed on legacy service-role routes",
     )
 
 
 @app.post("/birth-record/{record_id}/archive")
 def api_archive_birth_record(record_id: str):
-    from repositories.birth_records_repository import (
-        archive_birth_record,
-        get_birth_record,
+    _deprecated_legacy_write(
+        None,
+        "Birth record archive is not exposed on legacy service-role routes",
     )
-
-    if get_birth_record(record_id) is None:
-        raise HTTPException(status_code=404, detail="birth record not found")
-    return archive_birth_record(record_id)
 
 
 # ---------------------------------------------------------------------------
@@ -2645,67 +2617,26 @@ def api_get_saved_search(saved_search_id: str):
 
 @app.post("/saved-searches")
 def api_create_saved_search(body: SavedSearchCreate):
-    from repositories.saved_searches_repository import create_saved_search
-
-    return create_saved_search(
-        profile_id=body.profile_id,
-        title=body.title,
-        intention_profile_id=body.intention_profile_id,
-        search_type=body.search_type,
-        conditions_json=body.conditions_json,
-        viewport_json=body.viewport_json,
-        settings_snapshot_json=body.settings_snapshot_json,
-        date_start=body.date_start,
-        date_end=body.date_end,
+    _deprecated_legacy_write(
+        "/saved-investigations/create",
+        "Use POST /saved-investigations/create",
     )
 
 
 @app.patch("/saved-search/{saved_search_id}")
 def api_update_saved_search(saved_search_id: str, body: SavedSearchUpdate):
-    from repositories.saved_searches_repository import (
-        get_saved_search,
-        update_saved_search,
-    )
-
-    try:
-        existing = get_saved_search(saved_search_id)
-    except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
-            raise HTTPException(status_code=404, detail="saved search not found") from e
-        raise
-    if existing is None:
-        raise HTTPException(status_code=404, detail="saved search not found")
-    return update_saved_search(
-        saved_search_id,
-        title=body.title,
-        intention_profile_id=body.intention_profile_id,
-        search_type=body.search_type,
-        conditions_json=body.conditions_json,
-        viewport_json=body.viewport_json,
-        settings_snapshot_json=body.settings_snapshot_json,
-        date_start=body.date_start,
-        date_end=body.date_end,
+    _deprecated_legacy_write(
+        "/saved-investigations/rename",
+        "Use POST /saved-investigations/rename",
     )
 
 
 @app.post("/saved-search/{saved_search_id}/archive")
 def api_archive_saved_search(saved_search_id: str):
-    from repositories.saved_searches_repository import (
-        archive_saved_search,
-        get_saved_search,
+    _deprecated_legacy_write(
+        "/saved-investigations/archive",
+        "Use POST /saved-investigations/archive",
     )
-
-    try:
-        existing = get_saved_search(saved_search_id)
-    except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
-            raise HTTPException(status_code=404, detail="saved search not found") from e
-        raise
-    if existing is None:
-        raise HTTPException(status_code=404, detail="saved search not found")
-    return archive_saved_search(saved_search_id)
 
 
 # ---------------------------------------------------------------------------
@@ -2761,35 +2692,26 @@ def api_get_comparison_set(comparison_set_id: str):
 
 @app.post("/comparison-sets")
 def api_create_comparison_set(body: ComparisonSetCreate):
-    from repositories.comparison_sets_repository import create_comparison_set
-
-    return create_comparison_set(
-        profile_id=body.profile_id,
-        title=body.title,
-        intention_profile_id=body.intention_profile_id,
-        settings_snapshot_json=body.settings_snapshot_json,
+    _deprecated_legacy_write(
+        "/comparison-sets/create",
+        "Use POST /comparison-sets/create",
     )
 
 
 @app.patch("/comparison-set/{comparison_set_id}")
 def api_update_comparison_set(comparison_set_id: str, body: ComparisonSetUpdate):
-    from repositories.comparison_sets_repository import update_comparison_set
-
-    _comparison_set_or_404(comparison_set_id)
-    return update_comparison_set(
-        comparison_set_id,
-        title=body.title,
-        intention_profile_id=body.intention_profile_id,
-        settings_snapshot_json=body.settings_snapshot_json,
+    _deprecated_legacy_write(
+        None,
+        "Comparison set rename is not exposed on legacy service-role routes",
     )
 
 
 @app.post("/comparison-set/{comparison_set_id}/archive")
 def api_archive_comparison_set(comparison_set_id: str):
-    from repositories.comparison_sets_repository import archive_comparison_set
-
-    _comparison_set_or_404(comparison_set_id)
-    return archive_comparison_set(comparison_set_id)
+    _deprecated_legacy_write(
+        "/comparison-sets/archive",
+        "Use POST /comparison-sets/archive",
+    )
 
 
 @app.get("/comparison-set/{comparison_set_id}/places")
@@ -2802,23 +2724,18 @@ def api_list_comparison_set_places(comparison_set_id: str):
 
 @app.post("/comparison-set/{comparison_set_id}/places")
 def api_add_place_to_comparison_set(comparison_set_id: str, body: ComparisonSetPlaceAdd):
-    from repositories.comparison_sets_repository import add_place_to_comparison_set
-
-    _comparison_set_or_404(comparison_set_id)
-    return add_place_to_comparison_set(
-        comparison_set_id=comparison_set_id,
-        place_id=body.place_id,
-        sort_order=body.sort_order,
-        role=body.role,
+    _deprecated_legacy_write(
+        None,
+        "Comparison set place membership is bundled at create time",
     )
 
 
 @app.delete("/comparison-set/{comparison_set_id}/places/{place_id}")
 def api_remove_place_from_comparison_set(comparison_set_id: str, place_id: str):
-    from repositories.comparison_sets_repository import remove_place_from_comparison_set
-
-    _comparison_set_or_404(comparison_set_id)
-    return remove_place_from_comparison_set(comparison_set_id, place_id)
+    _deprecated_legacy_write(
+        None,
+        "Comparison set place removal is not exposed on legacy service-role routes",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -2871,38 +2788,26 @@ def api_get_favorite_place(favorite_place_id: str):
 
 @app.post("/favorite-places")
 def api_create_favorite_place(body: FavoritePlaceCreate):
-    from repositories.favorite_places_repository import create_favorite_place
-
-    return create_favorite_place(
-        profile_id=body.profile_id,
-        place_id=body.place_id,
-        intention_profile_id=body.intention_profile_id,
-        label=body.label,
-        rank=body.rank,
-        starred=body.starred,
+    _deprecated_legacy_write(
+        "/favorites/save",
+        "Use POST /favorites/save",
     )
 
 
 @app.patch("/favorite-place/{favorite_place_id}")
 def api_update_favorite_place(favorite_place_id: str, body: FavoritePlaceUpdate):
-    from repositories.favorite_places_repository import update_favorite_place
-
-    _favorite_place_or_404(favorite_place_id)
-    return update_favorite_place(
-        favorite_place_id,
-        intention_profile_id=body.intention_profile_id,
-        label=body.label,
-        rank=body.rank,
-        starred=body.starred,
+    _deprecated_legacy_write(
+        None,
+        "Favorite place updates are not exposed on legacy service-role routes",
     )
 
 
 @app.post("/favorite-place/{favorite_place_id}/archive")
 def api_archive_favorite_place(favorite_place_id: str):
-    from repositories.favorite_places_repository import archive_favorite_place
-
-    _favorite_place_or_404(favorite_place_id)
-    return archive_favorite_place(favorite_place_id)
+    _deprecated_legacy_write(
+        "/favorites/archive",
+        "Use POST /favorites/archive",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -2944,14 +2849,9 @@ def api_get_visited_place(visited_place_id: str):
 
 @app.post("/visited-places")
 def api_create_visited_place(body: VisitedPlaceCreate):
-    from repositories.visited_places_repository import create_visited_place
-
-    return create_visited_place(
-        profile_id=body.profile_id,
-        place_id=body.place_id,
-        visited_at=body.visited_at,
-        source=body.source,
-        notes=body.notes,
+    _deprecated_legacy_write(
+        None,
+        "Visited places are not exposed on JWT-backed write routes",
     )
 
 
@@ -3008,41 +2908,26 @@ def api_get_note(note_id: str):
 
 @app.post("/notes")
 def api_create_note(payload: NoteCreate):
-    from repositories.notes_repository import create_note
-
-    return create_note(
-        profile_id=payload.profile_id,
-        target_type=payload.target_type,
-        body=payload.body,
-        intention_profile_id=payload.intention_profile_id,
-        target_id=payload.target_id,
-        section_key=payload.section_key,
-        title=payload.title,
+    _deprecated_legacy_write(
+        "/notes/chart-record",
+        "Use scoped POST /notes/chart-record, /notes/comparison-set, or /notes/saved-investigation",
     )
 
 
 @app.patch("/note/{note_id}")
 def api_update_note(note_id: str, payload: NoteUpdate):
-    from repositories.notes_repository import update_note
-
-    _note_or_404(note_id)
-    return update_note(
-        note_id,
-        target_type=payload.target_type,
-        body=payload.body,
-        intention_profile_id=payload.intention_profile_id,
-        target_id=payload.target_id,
-        section_key=payload.section_key,
-        title=payload.title,
+    _deprecated_legacy_write(
+        "/notes/chart-record",
+        "Use scoped POST /notes/chart-record, /notes/comparison-set, or /notes/saved-investigation",
     )
 
 
 @app.post("/note/{note_id}/archive")
 def api_archive_note(note_id: str):
-    from repositories.notes_repository import archive_note
-
-    _note_or_404(note_id)
-    return archive_note(note_id)
+    _deprecated_legacy_write(
+        "/notes/chart-record",
+        "Use scoped POST /notes/chart-record, /notes/comparison-set, or /notes/saved-investigation",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -3078,29 +2963,18 @@ def api_get_user_settings(account_user_id: str, profile_id: str = None):
 
 @app.post("/user-settings")
 def api_create_user_settings(payload: UserSettingsCreate):
-    from repositories.user_settings_repository import create_user_settings
-
-    return create_user_settings(
-        account_user_id=payload.account_user_id,
-        settings_json=payload.settings_json,
-        profile_id=payload.profile_id,
+    _deprecated_legacy_write(
+        "/settings/account",
+        "Use PATCH /settings/account",
     )
 
 
 @app.patch("/user-settings/{settings_id}")
 def api_update_user_settings(settings_id: str, payload: UserSettingsUpdate):
-    from repositories.user_settings_repository import update_user_settings
-
-    try:
-        updated = update_user_settings(settings_id, settings_json=payload.settings_json)
-    except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
-            raise HTTPException(status_code=404, detail="user settings not found") from e
-        raise
-    if updated is None:
-        raise HTTPException(status_code=404, detail="user settings not found")
-    return updated
+    _deprecated_legacy_write(
+        "/settings/account",
+        "Use PATCH /settings/account",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -3150,28 +3024,18 @@ def api_get_share_link(share_link_id: str):
 
 @app.post("/share-links")
 def api_create_share_link(payload: ShareLinkCreate):
-    from repositories.share_links_repository import create_share_link
-
-    return create_share_link(
-        profile_id=payload.profile_id,
-        target_type=payload.target_type,
-        target_id=payload.target_id,
-        slug=payload.slug,
-        visibility=payload.visibility,
-        hide_birth_data=payload.hide_birth_data,
-        include_notes=payload.include_notes,
-        include_tables=payload.include_tables,
-        include_chart_wheel=payload.include_chart_wheel,
-        expires_at=payload.expires_at,
+    _deprecated_legacy_write(
+        None,
+        "Share links are not exposed on JWT-backed write routes",
     )
 
 
 @app.post("/share-link/{share_link_id}/revoke")
 def api_revoke_share_link(share_link_id: str):
-    from repositories.share_links_repository import revoke_share_link
-
-    _share_link_or_404(share_link_id)
-    return revoke_share_link(share_link_id)
+    _deprecated_legacy_write(
+        None,
+        "Share link revoke is not exposed on JWT-backed write routes",
+    )
 
 
 # ---------------------------------------------------------------------------
