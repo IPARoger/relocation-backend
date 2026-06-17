@@ -3,7 +3,7 @@
   Application shell — clickable walkthrough of future product (Screens 0–6).
 
   Placeholder only: no astrology math, no renderer, no writes, no AI.
-  Chart Record library: read-only from Store v3 scaffold (/local-product-store.json).
+  Chart Record library: read-only via Supabase store bridge (supabase_store_bridge.js).
   Context transport: hash route + query params (see ROUTE_CONTEXT_CONTRACT).
   Traces to: docs/architecture/client_chart_data_model_v1_2026-05-29.md
 
@@ -227,7 +227,7 @@
 
 /** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"future"} Route */
 
-const STORE_JSON_URL = "/local-product-store.json";
+const STORE_LOAD_SOURCE = "supabase-store-bridge";
 const CHART_RECORDS_API_URL = "/chart-records";
 const STORE_SCHEMA_VERSION = 3;
 const RESUME_CONTEXT_STUB = "Reopens on the map \u2014 saved conditions and the map view are restored when available, then the search runs once. Not a frozen snapshot.";
@@ -684,7 +684,7 @@ function adaptStoreToView(store) {
     placeNameById: Object.fromEntries(
       Object.entries(placesById).map(([id, place]) => [id, place.display_name])
     ),
-    loadSource: STORE_JSON_URL,
+    loadSource: STORE_LOAD_SOURCE,
   };
 }
 
@@ -2238,7 +2238,7 @@ function renderLoadPending() {
   $("#screenMeta").textContent = "Loading…";
   $("#main").innerHTML = `
     <section class="screen active">
-      <div class="notice-box"><strong>Loading Chart Record library…</strong> Read-only from ${STORE_JSON_URL}</div>
+      <div class="notice-box"><strong>Loading Chart Record library…</strong> Read-only via Supabase store bridge.</div>
     </section>`;
 }
 
@@ -2250,8 +2250,8 @@ function renderLoadError(message) {
       <div class="warn-box">
         <strong>Store load failed (read-only shell)</strong><br>
         ${escapeHtml(message)}<br><br>
-        Expected GET <code>${STORE_JSON_URL}</code> (Store v3 scaffold).<br>
-        No silent demo fallback — fix the route or scaffold file.
+        Chart Record library requires <code>supabase_store_bridge.js</code> and an authenticated session.<br>
+        No silent demo fallback — fix auth, Supabase config, or bridge errors.
       </div>
     </section>`;
 }
@@ -3141,34 +3141,24 @@ async function attachEngineSummaries(vm) {
 }
 
 async function loadViewModelFromStore() {
-  let payload = null;
-
-  // Use Supabase live store if available (supabase_store_bridge.js loaded)
-  if (typeof window.SupabaseStoreReady !== "undefined") {
-    try {
-      payload = await window.SupabaseStoreReady;
-      console.log("[app_shell] Using Supabase store bridge.");
-    } catch (err) {
-      // Authenticated user with no profiles/birth records — show intake overlay,
-      // do NOT fall back to mock data (that would mislead the user).
-      if (err.message && err.message.indexOf("Intake overlay required") !== -1) {
-        throw new Error("INTAKE_REQUIRED");
-      }
-      console.warn(
-        "[app_shell] Supabase bridge unavailable, falling back to local store:",
-        err.message
-      );
-      payload = null;
-    }
+  if (typeof window.SupabaseStoreReady === "undefined") {
+    throw new Error(
+      "Supabase store bridge not loaded (supabase_store_bridge.js). Cannot load Chart Record library."
+    );
   }
 
-  // Fallback: local product store (always available, no auth required)
-  if (!payload) {
-    const resp = await fetch(STORE_JSON_URL, { cache: "no-store" });
-    if (!resp.ok) {
-      throw new Error(`GET ${STORE_JSON_URL} failed: HTTP ${resp.status}`);
+  let payload;
+  try {
+    payload = await window.SupabaseStoreReady;
+    console.log("[app_shell] Using Supabase store bridge.");
+  } catch (err) {
+    // Authenticated user with no profiles/birth records — show intake overlay,
+    // do NOT fall back to mock data (that would mislead the user).
+    if (err.message && err.message.indexOf("Intake overlay required") !== -1) {
+      throw new Error("INTAKE_REQUIRED");
     }
-    payload = await resp.json();
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(`Supabase store load failed: ${detail}`);
   }
 
   storeRaw = payload;
@@ -3479,7 +3469,7 @@ window.__rmAppShell = {
   storeLoadError: () => storeLoadError,
   loadViewModelFromStore,
   adaptStoreToView,
-  STORE_JSON_URL,
+  STORE_LOAD_SOURCE,
   CHART_RECORDS_API_URL,
   RESUME_CONTEXT_STUB,
   NAV_ROUTES,
