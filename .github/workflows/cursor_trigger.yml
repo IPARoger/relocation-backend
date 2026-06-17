@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 2
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -48,13 +48,20 @@ jobs:
           echo "file=$TASK_FILE" >> "$GITHUB_OUTPUT"
           echo "number=$TASK_NUM" >> "$GITHUB_OUTPUT"
 
-      - name: Notify Telegram — new task ready
+      - name: Verify Telegram
         if: steps.task.outputs.number != ''
-        continue-on-error: true
+        id: tg
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python scripts/relay_notify.py started \
-            --task "${{ steps.task.outputs.number }}" \
-            --message "New task ready: ${{ steps.task.outputs.file }}"
+          set +e
+          python scripts/relay_notify.py --verify
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Telegram — new task ready
+        if: steps.task.outputs.number != '' && steps.tg.outputs.code == '0'
+        run: python scripts/relay_notify.py started --task "${{ steps.task.outputs.number }}"
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -68,7 +75,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -76,32 +83,28 @@ jobs:
         run: pip install cursor-sdk
 
       - name: Launch Cursor cloud agent
-        continue-on-error: true
         id: exec
-        run: |
-          set +e
-          OUT="$(python scripts/relay_executor.py)"
-          CODE=$?
-          echo "$OUT"
-          echo "exec_out=$OUT" >> "$GITHUB_OUTPUT"
-          echo "exec_code=$CODE" >> "$GITHUB_OUTPUT"
-          exit 0
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           RELAY_BRANCH: main
+        run: |
+          set -euo pipefail
+          OUT="$(python scripts/relay_executor.py)"
+          echo "$OUT"
+          echo "exec_out<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Notify approval needed
         if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED')
-        continue-on-error: true
-        run: python scripts/relay_notify.py approval
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/relay_notify.py approval
 
       - name: Warn low balance
-        if: steps.exec.outputs.exec_code == '5'
-        continue-on-error: true
-        run: python scripts/relay_notify.py low-balance
+        if: failure() && contains(steps.exec.outputs.exec_out, 'LOW')
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/relay_notify.py low-balance || true
