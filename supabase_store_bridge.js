@@ -537,6 +537,108 @@
     return store;
   }
 
+  // ── Single-profile re-fetch ────────────────────────────────────────────────
+  //
+  // Re-fetches one profile + its newest birth_record + the associated birth
+  // place (if not already present) and merges them into window.SupabaseStore
+  // in place. Exposed as window.refreshProfile for use by app_shell.html after
+  // profile creation, avoiding a full page reload.
+  //
+  // Invariants preserved:
+  //   - Only adds; never removes or reorders existing entries.
+  //   - No-ops on duplicate ids (idempotent on repeated calls).
+  //   - Does not touch any other SupabaseStore key.
+  //   - Does not alter the init flow or SupabaseStore shape.
+
+  async function refreshProfile(profileId) {
+    if (!profileId) throw new Error("[refreshProfile] profileId is required.");
+    var store = window.SupabaseStore;
+    if (!store) throw new Error("[refreshProfile] SupabaseStore not loaded.");
+
+    var currentUser = await window.CurrentUserReady;
+    if (!currentUser || !currentUser.accountId) {
+      throw new Error("[refreshProfile] CurrentUser missing.");
+    }
+    var accountId = currentUser.accountId;
+    var client    = await window.SupabaseReady;
+
+    // Fetch profile row
+    var profResult = await client
+      .from("profiles")
+      .select("id, display_name, profile_type")
+      .eq("id", profileId)
+      .eq("account_id", accountId)
+      .single();
+    if (profResult.error) throw profResult.error;
+    var profile = profResult.data;
+
+    // Fetch newest birth_record for this profile
+    var brResult = await client
+      .from("birth_records")
+      .select("id, profile_id, birth_date, birth_time_mode, birth_time_start, birth_place_id, timezone_id")
+      .eq("profile_id", profileId)
+      .eq("account_id", accountId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (brResult.error) throw brResult.error;
+    var br = brResult.data && brResult.data[0];
+    if (!br) throw new Error("[refreshProfile] No birth record found for profile " + profileId + ".");
+
+    // Fetch birth place if not already in store
+    store.places = store.places || [];
+    if (br.birth_place_id && !store.places.some(function (p) { return p.id === br.birth_place_id; })) {
+      var plResult = await client
+        .from("places")
+        .select("id, display_name, latitude, longitude")
+        .eq("id", br.birth_place_id)
+        .single();
+      if (!plResult.error && plResult.data) {
+        store.places.push({
+          id:             plResult.data.id,
+          display_name:   plResult.data.display_name,
+          lat:            parseFloat(plResult.data.latitude),
+          lon:            parseFloat(plResult.data.longitude),
+          schema_version: 1,
+        });
+      }
+    }
+
+    // Merge birth_profile (idempotent)
+    store.birth_profiles = store.birth_profiles || [];
+    if (!store.birth_profiles.some(function (b) { return b.id === br.id; })) {
+      store.birth_profiles.push({
+        id:                  br.id,
+        birth_date:          br.birth_date,
+        birth_time:          br.birth_time_mode === "exact" ? trimTime(br.birth_time_start) : null,
+        birth_place_id:      br.birth_place_id || null,
+        timezone_id:         br.timezone_id    || null,
+        confidence_tier:     toConfidenceTier(br.birth_time_mode),
+        confidence_metadata: {},
+        representative_time: null,
+        schema_version:      1,
+        updated_at:          null,
+      });
+    }
+
+    // Merge client (idempotent)
+    store.clients = store.clients || [];
+    if (!store.clients.some(function (c) { return c.id === profileId; })) {
+      store.clients.push({
+        id:                        profile.id,
+        display_name:              profile.display_name,
+        birth_profile_id:          br.id,
+        record_type:               toRecordType(profile.profile_type),
+        current_location_place_id: null,
+        notes:                     "",
+        tags:                      [],
+        schema_version:            1,
+        updated_at:                null,
+      });
+    }
+  }
+
+  window.refreshProfile = refreshProfile;
+
   // ── Initialize ────────────────────────────────────────────────────────────
 
   var storeReady = buildSupabaseStore()
