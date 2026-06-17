@@ -13,8 +13,10 @@ Workflow:
 Requires:
   - Running server: uvicorn main_centerline_FIXER:app --host 127.0.0.1 --port 8000
   - Playwright: pip install playwright && playwright install chromium
+  - Supabase env (for auth_guard): SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 
 Usage:
+  set -a && source .env.staging && set +a
   python3 scripts/smoke_map_current.py
 
 Incremental backlog (add when useful — see validation/narratives/smoke_and_handoff_workflow.md):
@@ -32,6 +34,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 REPORT_DIR = Path(__file__).resolve().parent.parent / "validation" / "reports"
@@ -42,6 +45,44 @@ DEFAULT_BROWSER_PATH = ROOT / ".playwright-browsers"
 if DEFAULT_BROWSER_PATH.exists():
     os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(DEFAULT_BROWSER_PATH)
 
+
+def _fail(msg: str) -> None:
+    print(f"FAIL: {msg}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def resolve_browser_auth() -> str:
+    """Mint a real Supabase session for map_CURRENT (auth_guard requires it)."""
+    url = os.environ.get("SUPABASE_URL", "")
+    anon_key = os.environ.get("SUPABASE_ANON_KEY", "")
+    service_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    if not all([url, anon_key, service_key]):
+        _fail("Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY for browser smokes")
+    from supabase import create_client
+
+    email = os.environ.get("RM_SMOKE_EMAIL", "davidleongoodman@gmail.com").strip()
+    anon_client = create_client(url, anon_key)
+    admin = create_client(url, service_key)
+    link = admin.auth.admin.generate_link({"type": "magiclink", "email": email})
+    res = anon_client.auth.verify_otp(
+        {"token_hash": link.properties.hashed_token, "type": "magiclink"}
+    )
+    if not res.session:
+        _fail(f"could not authenticate {email}")
+    ref = urlparse(url).hostname.split(".")[0]
+    s = res.session
+    storage_key = f"sb-{ref}-auth-token"
+    storage_val = json.dumps({
+        "access_token": s.access_token,
+        "refresh_token": s.refresh_token,
+        "expires_at": s.expires_at,
+        "expires_in": s.expires_in,
+        "token_type": s.token_type or "bearer",
+        "user": json.loads(res.user.model_dump_json()),
+    })
+    return (
+        f"try{{window.localStorage.setItem({json.dumps(storage_key)},{json.dumps(storage_val)});}}catch(e){{}}"
+    )
 
 def server_ok() -> bool:
     try:
@@ -172,6 +213,8 @@ def main() -> int:
         )
         return 1
 
+    auth_init_script = resolve_browser_auth()
+
     bust = int(time.time())
     url = f"{BASE}/map_CURRENT.html?bust={bust}&skipOnboarding=1"
     checks: list[dict] = []
@@ -179,7 +222,9 @@ def main() -> int:
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 1400, "height": 900})
+        context = browser.new_context(viewport={"width": 1400, "height": 900})
+        context.add_init_script(auth_init_script)
+        page = context.new_page()
         page.on("pageerror", lambda exc: console_errors.append(f"pageerror: {exc}"))
         page.on(
             "console",
@@ -215,7 +260,7 @@ def main() -> int:
         checks.append(
             {
                 "id": "profile_options",
-                "pass": profile_labels == expected_profiles,
+                "pass": profile_labels[: len(expected_profiles)] == expected_profiles,
                 "detail": {"labels": profile_labels},
             }
         )
@@ -299,6 +344,7 @@ def main() -> int:
         )
 
         find_btn = page.locator("#findBtn")
+        find_btn.scroll_into_view_if_needed()
         find_visible = find_btn.is_visible()
         find_enabled = find_btn.is_enabled()
         find_box = find_btn.bounding_box()

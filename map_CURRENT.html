@@ -944,7 +944,6 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
         <div id="libraryHandoff" class="library-handoff" hidden>
             <a id="libraryOpenLink" href="/library.html" target="_blank" rel="noopener">Open Chart Library</a>
-            <button id="saveCurrentViewBtn" type="button" hidden>Save current view to library</button>
             <div id="libraryHandoffStatus" class="library-handoff-status" aria-live="polite"></div>
         </div>
 
@@ -1259,11 +1258,10 @@ function normalizeAnglesForApiPayload(payload) {
     return body;
 }
 
-// ---- Phase 2.1 library handoff (renderer-inert) -------------------------
-// These helpers only populate the existing chart selector and emit
-// observable state. They never trigger a render, never change astrology
-// math, and never alter the active substrate. They degrade gracefully if
-// the library scaffold is disabled (RM_PHASE2_LIBRARY=0 returns 404).
+// ---- Phase 2.1 library handoff (renderer-inert, read-only on map) --------
+// Populate chart selector and replay saved library views from /library/state.
+// Map does not POST to /library/*; account saves use saved-investigations.
+// Degrades gracefully when RM_PHASE2_LIBRARY=0 (404 on /library/state).
 const LIBRARY_API_BASE = "";
 let lastLibraryHandoff = {
     libraryAvailable: false,
@@ -1397,13 +1395,11 @@ function applyActiveProfileSelection() {
 function renderLibraryHandoffUI(libraryState) {
     const root = document.getElementById("libraryHandoff");
     const link = document.getElementById("libraryOpenLink");
-    const saveBtn = document.getElementById("saveCurrentViewBtn");
-    if (!root || !link || !saveBtn) return;
+    if (!root || !link) return;
     const enabled = lastLibraryHandoff.libraryAvailable;
     root.hidden = !enabled;
     if (!enabled) return;
     const haveActive = Boolean(lastLibraryHandoff.selectionAppliedId);
-    saveBtn.hidden = !haveActive;
     if (!haveActive) {
         link.textContent = "Open Chart Library";
         return;
@@ -1561,81 +1557,6 @@ function collectSavedInvestigationConditions() {
     }];
 }
 
-async function saveCurrentViewToLibrary() {
-    const statusEl = document.getElementById("libraryHandoffStatus");
-    const btn = document.getElementById("saveCurrentViewBtn");
-    const select = document.getElementById("chartProfile");
-    const activeOption = select?.selectedOptions?.[0];
-    if (!activeOption) {
-        if (statusEl) {
-            statusEl.textContent = "Select a chart first.";
-            statusEl.classList.add("is-error");
-        }
-        return null;
-    }
-    if (activeOption.dataset.librarySource !== "1") {
-        if (statusEl) {
-            statusEl.textContent = "Active chart is a built-in profile; save it to the library first.";
-            statusEl.classList.add("is-error");
-        }
-        return null;
-    }
-    if (!window.__rmMap) {
-        if (statusEl) { statusEl.textContent = "Map not ready."; statusEl.classList.add("is-error"); }
-        return null;
-    }
-    const bounds = window.__rmMap.getBounds();
-    const center = window.__rmMap.getCenter();
-    const payload = {
-        chart_id: activeOption.value,
-        label: `View ${new Date().toISOString().slice(0, 19).replace("T", " ")}`,
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-        zoom: window.__rmMap.getZoom(),
-        conditions: collectSavedInvestigationConditions(),
-        notes: ""
-    };
-    payload.center_lat = center.lat;
-    payload.center_lon = center.lng;
-    lastLibraryHandoff.investigationConditionsSaved = payload.conditions[0]
-        ? (
-            (payload.conditions[0].house_conditions || []).length +
-            (payload.conditions[0].angle_sign_conditions || []).length +
-            (payload.conditions[0].aspect_overlay ? 1 : 0)
-        )
-        : 0;
-    try {
-        if (btn) btn.disabled = true;
-        const resp = await fetch(`${LIBRARY_API_BASE}/library/views`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => ({}));
-            throw new Error(err.detail || `HTTP ${resp.status}`);
-        }
-        const view = await resp.json();
-        if (statusEl) {
-            statusEl.textContent = `Saved view ${view.id}`;
-            statusEl.classList.remove("is-error");
-        }
-        return view;
-    } catch (err) {
-        if (statusEl) {
-            statusEl.textContent = `Save failed: ${err.message}`;
-            statusEl.classList.add("is-error");
-        }
-        return null;
-    } finally {
-        if (btn) btn.disabled = false;
-    }
-}
-
-window.__rmSaveCurrentViewToLibrary = saveCurrentViewToLibrary;
-
 // Phase 2.8 — Save current map investigation to Supabase saved_searches.
 // Requires: window.SupabaseClient, window.CurrentUser, getActiveFavoriteProfileId().
 // Backend owns the write (POST /saved-investigations/create); supply JWT.
@@ -1787,11 +1708,6 @@ async function saveCurrentInvestigation() {
 }
 
 window.__rmSaveCurrentInvestigation = saveCurrentInvestigation;
-
-document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("saveCurrentViewBtn");
-    if (btn) btn.addEventListener("click", () => { saveCurrentViewToLibrary(); });
-});
 
 document.addEventListener("DOMContentLoaded", () => {
     const saveBtn = document.getElementById("saveInvestigationBtn");

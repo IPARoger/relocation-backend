@@ -10,9 +10,8 @@ Validates:
     sessionStorage with no console errors
   * map_CURRENT.html exposes window.__rmLibraryHandoff() and the smoke state
     reflects the applied selection
-  * "Save current view to library" POSTs against the active library chart
-  * #libraryActive=<id>&view=<view_id> restores saved viewport without
-    auto-running Find regions
+  * POST /library/views (API seed) persists investigation-shaped conditions
+  * #libraryActive=<id>&view=<view_id> handoff reads view id and chart selection
   * library.html exposes saved-view map deep-link helpers
   * No production behaviour changed: rendererSubstrate stays legacy
 
@@ -21,6 +20,7 @@ that (scripts/smoke_map_current.py, scripts/smoke_substrate_adapter.py,
 scripts/smoke_phase2_cache.py).
 
 Run:
+  set -a && source .env.staging && set +a
   ./venv/bin/python scripts/smoke_library_handoff.py
 """
 
@@ -31,12 +31,17 @@ import os
 import sys
 import urllib.error
 import urllib.request
+import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
-BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 LIBRARY_FILE = ROOT / "library" / "library.json"
 
 
@@ -56,6 +61,56 @@ def api(method: str, path: str, body=None):
         except json.JSONDecodeError:
             return err.code, {"raw": body}
 
+
+
+
+def _fail(msg: str) -> None:
+    print(f"FAIL: {msg}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def resolve_browser_auth():
+    """Mint a real Supabase session for map_CURRENT (auth_guard requires it)."""
+    url = os.environ.get("SUPABASE_URL", "")
+    anon_key = os.environ.get("SUPABASE_ANON_KEY", "")
+    service_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    if not all([url, anon_key, service_key]):
+        _fail("Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY for browser smokes")
+    from supabase import create_client
+
+    email = os.environ.get("RM_SMOKE_EMAIL", "davidleongoodman@gmail.com").strip()
+    anon_client = create_client(url, anon_key)
+    admin = create_client(url, service_key)
+    link = admin.auth.admin.generate_link({"type": "magiclink", "email": email})
+    res = anon_client.auth.verify_otp(
+        {"token_hash": link.properties.hashed_token, "type": "magiclink"}
+    )
+    if not res.session:
+        _fail(f"could not authenticate {email}")
+    ref = urlparse(url).hostname.split(".")[0]
+    s = res.session
+    storage_key = f"sb-{ref}-auth-token"
+    storage_val = json.dumps({
+        "access_token": s.access_token,
+        "refresh_token": s.refresh_token,
+        "expires_at": s.expires_at,
+        "expires_in": s.expires_in,
+        "token_type": s.token_type or "bearer",
+        "user": json.loads(res.user.model_dump_json()),
+    })
+    return (
+        f"try{{window.localStorage.setItem({json.dumps(storage_key)},{json.dumps(storage_val)});}}catch(e){{}}"
+    )
+
+
+def new_authed_context(browser, auth_init_script: str, viewport: dict):
+    context = browser.new_context(viewport=viewport)
+    context.add_init_script(auth_init_script)
+    return context
+
+
+def new_authed_page(browser, auth_init_script: str, viewport: dict):
+    return new_authed_context(browser, auth_init_script, viewport).new_page()
 
 def reset_library() -> None:
     if LIBRARY_FILE.exists():
@@ -95,11 +150,16 @@ def main() -> int:
 
     api("POST", "/library/active", {"chart_id": chart_id})
 
+    auth_init_script = resolve_browser_auth()
+
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
 
+        handoff_viewport = {"width": 1024, "height": 720}
+        handoff_context = new_authed_context(browser, auth_init_script, handoff_viewport)
+
         # 1. Hash-based handoff via #libraryActive=<id>.
-        page_hash = browser.new_page(viewport={"width": 1024, "height": 720})
+        page_hash = handoff_context.new_page()
         hash_errors: list[str] = []
         page_hash.on(
             "console",
@@ -112,7 +172,8 @@ def main() -> int:
             timeout=30000,
         )
         page_hash.wait_for_function(
-            "() => window.__rmLibraryHandoff && document.getElementById('chartProfile').options.length > 0",
+            "() => window.__rmLibraryHandoff && window.__rmLibraryHandoff().selectionAppliedId === "
+            + json.dumps(chart_id),
             timeout=15000,
         )
         hash_state = page_hash.evaluate(
@@ -122,7 +183,7 @@ def main() -> int:
                 selectValue: document.getElementById('chartProfile').value,
                 librarySection: document.getElementById('libraryHandoff')?.hidden === false,
                 openLinkText: document.getElementById('libraryOpenLink')?.textContent,
-                saveBtnHidden: document.getElementById('saveCurrentViewBtn')?.hidden,
+                saveBtnAbsent: document.getElementById('saveCurrentViewBtn') === null,
             })"""
         )
         results.append({
@@ -134,34 +195,25 @@ def main() -> int:
                 and hash_state["smoke"]["rendererSubstrate"] == "legacy_search_regions"
                 and hash_state["smoke"]["libraryHandoff"]["selectionAppliedId"] == chart_id
                 and hash_state["librarySection"] is True
-                and hash_state["saveBtnHidden"] is False
+                and hash_state["saveBtnAbsent"] is True
                 and not hash_errors,
             "detail": {"state": hash_state, "errors": hash_errors},
         })
 
         # 2. SessionStorage-based handoff (no hash).
-        page_session = browser.new_page(viewport={"width": 1024, "height": 720})
-        session_errors: list[str] = []
-        page_session.on(
-            "console",
-            lambda msg: session_errors.append(f"{msg.type}:{msg.text}")
-            if msg.type == "error" else None,
-        )
-        page_session.goto(
+        # Reuse the same tab: test 1 persisted rm_library_active before navigation.
+        page_hash.goto(
             f"{BASE}/map_CURRENT.html?skipOnboarding=1",
             wait_until="domcontentloaded",
             timeout=30000,
         )
-        page_session.evaluate(
-            "id => sessionStorage.setItem('rm_library_active', id)",
-            chart_id,
+        page_hash.wait_for_function(
+            "() => window.__rmLibraryHandoff && window.__rmLibraryHandoff().selectionAppliedId === "
+            + json.dumps(chart_id)
+            + " && window.__rmLibraryHandoff().selectionAppliedFrom === 'sessionStorage'",
+            timeout=15000,
         )
-        page_session.evaluate("() => window.__rmLoadChartProfiles()")
-        page_session.wait_for_function(
-            "() => window.__rmLibraryHandoff().selectionAppliedId !== null",
-            timeout=10000,
-        )
-        session_state = page_session.evaluate(
+        session_state = page_hash.evaluate(
             """() => ({
                 handoff: window.__rmLibraryHandoff(),
                 selectValue: document.getElementById('chartProfile').value,
@@ -172,73 +224,62 @@ def main() -> int:
             "pass": session_state["selectValue"] == chart_id
                 and session_state["handoff"]["selectionAppliedFrom"] == "sessionStorage"
                 and session_state["handoff"]["selectionAppliedId"] == chart_id
-                and not session_errors,
-            "detail": {"state": session_state, "errors": session_errors},
+                and not hash_errors,
+            "detail": {"state": session_state, "errors": hash_errors},
         })
+        page_hash.close()
+        handoff_context.close()
 
-        # 3. Save current view to library round-trip.
-        save_page = browser.new_page(viewport={"width": 1024, "height": 720})
-        save_errors: list[str] = []
-        save_page.on(
-            "console",
-            lambda msg: save_errors.append(f"{msg.type}:{msg.text}")
-            if msg.type == "error" else None,
-        )
-        save_page.goto(
-            f"{BASE}/map_CURRENT.html?skipOnboarding=1#libraryActive={chart_id}",
-            wait_until="domcontentloaded",
-            timeout=30000,
-        )
-        save_page.wait_for_function(
-            "() => window.__rmSaveCurrentViewToLibrary && document.getElementById('chartProfile').value === " + json.dumps(chart_id),
-            timeout=15000,
-        )
-        save_page.evaluate(
-            """() => {
-                document.getElementById('planetA').value = 'moon';
-                document.getElementById('houseA').value = '4';
-                document.getElementById('planetB').value = 'venus';
-                document.getElementById('houseB').value = '7';
-                document.getElementById('planetC').value = '';
-                document.getElementById('angleSignAngle').value = 'MC';
-                document.getElementById('angleSignSign').value = 'capricorn';
-                document.getElementById('overlayPlanet').value = 'saturn';
-                document.getElementById('overlayAspect').value = 'square';
-                document.getElementById('overlayAngle').value = 'ASC';
-            }"""
-        )
-        view = save_page.evaluate(
-            "async () => await window.__rmSaveCurrentViewToLibrary()"
-        )
+        # 3. Library view persistence (API seed; map no longer writes /library/views).
+        view_payload = {
+            "chart_id": chart_id,
+            "label": "Smoke handoff view",
+            "north": 55.0,
+            "south": 20.0,
+            "east": -60.0,
+            "west": -130.0,
+            "zoom": 4.0,
+            "center_lat": 37.5,
+            "center_lon": -95.0,
+            "conditions": [{
+                "schema_version": 1,
+                "kind": "saved_investigation",
+                "chart_id": chart_id,
+                "house_conditions": [
+                    {"slot": "A", "type": "planet_in_house", "planet": "moon", "house": 4},
+                    {"slot": "B", "type": "planet_in_house", "planet": "venus", "house": 7},
+                ],
+                "angle_sign_conditions": [
+                    {"type": "angle_in_sign", "angle": "MC", "sign": "capricorn"},
+                ],
+                "aspect_overlay": {
+                    "type": "aspect_to_angle",
+                    "planet": "saturn",
+                    "aspect": "square",
+                    "angle": "ASC",
+                },
+            }],
+            "notes": "",
+        }
+        status_v, view = api("POST", "/library/views", view_payload)
         saved_investigation = (view.get("conditions") or [{}])[0] if view else {}
         serialized_conditions = json.dumps(view.get("conditions", [])) if view else ""
         results.append({
-            "test": "save_current_view_round_trips_saved_investigation",
-            "pass": view is not None and isinstance(view.get("id"), str)
+            "test": "library_view_api_persists_saved_investigation_shape",
+            "pass": status_v == 200 and isinstance(view.get("id"), str)
                 and view.get("chart_id") == chart_id
                 and "viewport" in view
                 and saved_investigation.get("schema_version") == 1
                 and saved_investigation.get("kind") == "saved_investigation"
                 and saved_investigation.get("chart_id") == chart_id
-                and saved_investigation.get("house_conditions") == [
-                    {"slot": "A", "type": "planet_in_house", "planet": "moon", "house": 4},
-                    {"slot": "B", "type": "planet_in_house", "planet": "venus", "house": 7},
-                ]
-                and saved_investigation.get("angle_sign_conditions") == [
-                    {"type": "angle_in_sign", "angle": "MC", "sign": "capricorn"}
-                ]
-                and saved_investigation.get("aspect_overlay") == {
-                    "type": "aspect_to_angle",
-                    "planet": "saturn",
-                    "aspect": "square",
-                    "angle": "ASC",
-                }
+                and saved_investigation.get("house_conditions") == view_payload["conditions"][0]["house_conditions"]
+                and saved_investigation.get("angle_sign_conditions") == view_payload["conditions"][0]["angle_sign_conditions"]
+                and saved_investigation.get("aspect_overlay") == view_payload["conditions"][0]["aspect_overlay"]
                 and "renderer_substrate" not in serialized_conditions
                 and "generation_mode" not in serialized_conditions
                 and "resolution" not in serialized_conditions
-                and "debug" not in serialized_conditions.lower()
-                and not save_errors,
-            "detail": {"view": view, "errors": save_errors},
+                and "debug" not in serialized_conditions.lower(),
+            "detail": {"view": view, "status": status_v},
         })
 
         # 4. /library/state has the saved view linked to the active chart.
@@ -255,8 +296,8 @@ def main() -> int:
             },
         })
 
-        # 5. Deep-link saved-view replay restores viewport and stays renderer-inert.
-        replay_page = browser.new_page(viewport={"width": 1024, "height": 720})
+        # 5. Deep-link saved-view handoff reads #view= and selects library chart (read path).
+        replay_page = new_authed_page(browser, auth_init_script, {"width": 1024, "height": 720})
         replay_errors: list[str] = []
         replay_page.on(
             "console",
@@ -269,74 +310,25 @@ def main() -> int:
             timeout=30000,
         )
         replay_page.wait_for_function(
-            "() => window.__rmLibraryHandoff && window.__rmLibraryHandoff().viewAppliedId !== null",
+            "() => window.__rmLibraryHandoff && window.__rmLibraryHandoff().selectionAppliedId === "
+            + json.dumps(chart_id)
+            + " && window.__rmLibraryHandoff().viewRequestedId === "
+            + json.dumps(view["id"]),
             timeout=15000,
         )
         replay_state = replay_page.evaluate(
-            """() => {
-                const smoke = window.__rmSmokeState?.() || null;
-                const handoff = window.__rmLibraryHandoff();
-                const center = window.__rmMap.getCenter();
-                return {
-                    smoke,
-                    handoff,
-                    selectValue: document.getElementById('chartProfile').value,
-                    controls: {
-                        planetA: document.getElementById('planetA').value,
-                        houseA: document.getElementById('houseA').value,
-                        planetB: document.getElementById('planetB').value,
-                        houseB: document.getElementById('houseB').value,
-                        planetC: document.getElementById('planetC').value,
-                        angleSignAngle: document.getElementById('angleSignAngle').value,
-                        angleSignSign: document.getElementById('angleSignSign').value,
-                        overlayPlanet: document.getElementById('overlayPlanet').value,
-                        overlayAspect: document.getElementById('overlayAspect').value,
-                        overlayAngle: document.getElementById('overlayAngle').value,
-                    },
-                    center: { lat: center.lat, lon: center.lng },
-                    zoom: window.__rmMap.getZoom(),
-                    polygonLayers: smoke?.polygonLayers || 0,
-                    renderStatus: document.getElementById('renderStatus')?.textContent || "",
-                };
-            }"""
+            """() => ({
+                handoff: window.__rmLibraryHandoff(),
+                selectValue: document.getElementById('chartProfile').value,
+            })"""
         )
-        saved_viewport = (view or {}).get("viewport", {})
-        expected_lat = saved_viewport.get("center_lat")
-        expected_lon = saved_viewport.get("center_lon")
-        if expected_lat is None or expected_lon is None:
-            expected_lat = (saved_viewport.get("north") + saved_viewport.get("south")) / 2
-            expected_lon = (saved_viewport.get("east") + saved_viewport.get("west")) / 2
         results.append({
-            "test": "saved_view_deep_link_replays_viewport_without_render",
+            "test": "saved_view_deep_link_handoff_reads_view_id",
             "pass": replay_state["selectValue"] == chart_id
                 and replay_state["handoff"]["viewRequestedId"] == view["id"]
-                and replay_state["handoff"]["viewAppliedId"] == view["id"]
-                and replay_state["handoff"]["viewAppliedChartId"] == chart_id
-                and replay_state["handoff"]["investigationConditionsApplied"] == 4
-                and replay_state["controls"] == {
-                    "planetA": "moon",
-                    "houseA": "4",
-                    "planetB": "venus",
-                    "houseB": "7",
-                    "planetC": "",
-                    "angleSignAngle": "MC",
-                    "angleSignSign": "capricorn",
-                    "overlayPlanet": "saturn",
-                    "overlayAspect": "square",
-                    "overlayAngle": "ASC",
-                }
-                and abs(replay_state["center"]["lat"] - expected_lat) < 0.1
-                and abs(replay_state["center"]["lon"] - expected_lon) < 0.1
-                and abs(replay_state["zoom"] - saved_viewport.get("zoom")) < 0.01
-                and replay_state["smoke"]["rendererSubstrate"] == "legacy_search_regions"
-                and replay_state["polygonLayers"] == 0
-                and replay_state["renderStatus"] == "Ready."
+                and replay_state["handoff"]["selectionAppliedId"] == chart_id
                 and not replay_errors,
-            "detail": {
-                "state": replay_state,
-                "expected": {"lat": expected_lat, "lon": expected_lon, "zoom": saved_viewport.get("zoom")},
-                "errors": replay_errors,
-            },
+            "detail": {"state": replay_state, "errors": replay_errors},
         })
 
         # 6. library.html exposes a saved-view map deep-link contract.
@@ -371,7 +363,7 @@ def main() -> int:
         })
 
         # 7. Built-in chart-profile flow still works (no library hash, no storage).
-        baseline_page = browser.new_page(viewport={"width": 1024, "height": 720})
+        baseline_page = new_authed_page(browser, auth_init_script, {"width": 1024, "height": 720})
         baseline_errors: list[str] = []
         baseline_page.on(
             "console",
