@@ -1,5 +1,5 @@
 === RELAY CONTEXT PACK (planner API — replaces paste into Claude) ===
-Generated: 2026-06-17T18:14:00.095448+00:00
+Generated: 2026-06-17T18:05:35.179751+00:00
 
 === GOVERNANCE (relay/governance/*.md) ===
 --- docs/architecture/ARCHITECTURE_AND_BACKEND_CANON.md ---

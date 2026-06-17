@@ -39,9 +39,10 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import sys
 REPO = Path(__file__).resolve().parents[1]
-TASKS_DIR = REPO / "tasks"
-RESULTS_DIR = REPO / "results"
+sys.path.insert(0, str(REPO / "scripts"))
+from relay_paths import REPO, RESULTS_DIR, ROADMAP_QUEUE, TASKS_DIR
 GOVERNANCE = REPO / "docs" / "architecture" / "TWO_AGENT_RELAY_GOVERNANCE.md"
 TEMPLATE = TASKS_DIR / "TEMPLATE.md"
 
@@ -49,7 +50,7 @@ OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_MODEL = "gpt-4o-mini"
 DEFAULT_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
-TIMEOUT_SECONDS = 60
+TIMEOUT_SECONDS = int(os.environ.get("RELAY_PLANNER_TIMEOUT", "300"))
 
 SYSTEM_PROMPT = """You are the planning half ("ChatGPT lane") of a governed two-agent
 relay for a relocation-astrology research tool. Your ONLY job is to propose the

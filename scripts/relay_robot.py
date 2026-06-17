@@ -32,7 +32,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO / "scripts"
-HANDOFFS = REPO / "relay" / "handoffs"
+import sys
+sys.path.insert(0, str(SCRIPTS))
+from relay_paths import HANDOFFS_DIR as HANDOFFS
 
 
 def load_dotenv_files() -> None:
@@ -90,7 +92,7 @@ def git_commit(msg: str) -> None:
 def step_plan(dry_run: bool) -> str:
     """Returns: planned | pause | noop"""
     run([sys.executable, str(SCRIPTS / "relay_context.py")])
-    ctx_path = REPO / "relay" / "handoffs" / "latest_context.md"
+    ctx_path = HANDOFFS / "latest_context.md"
     ctx = ctx_path.read_text(encoding="utf-8") if ctx_path.is_file() else ""
 
     if dry_run:

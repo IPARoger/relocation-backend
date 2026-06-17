@@ -31,9 +31,10 @@ import re
 import sys
 from pathlib import Path
 
+import sys
 REPO = Path(__file__).resolve().parents[1]
-TASKS_DIR = REPO / "tasks"
-RESULTS_DIR = REPO / "results"
+sys.path.insert(0, str(REPO / "scripts"))
+from relay_paths import REPO, RESULTS_DIR, TASKS_DIR
 
 
 def numbered(d):
@@ -50,7 +51,7 @@ def next_pending_task():
     tasks = numbered(TASKS_DIR)
     results = set(numbered(RESULTS_DIR).keys())
     pending = sorted(n for n in tasks if n not in results)
-    return tasks[pending[-1]] if pending else None
+    return tasks[pending[0]] if pending else None
 
 
 def build_prompt(task_path, local: bool = False):

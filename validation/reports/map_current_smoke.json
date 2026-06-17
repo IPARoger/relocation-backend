@@ -1,7 +1,7 @@
 {
   "description": "map_CURRENT.html browser smoke test",
-  "url": "http://127.0.0.1:8004/map_CURRENT.html?bust=1781711704&skipOnboarding=1",
-  "generated_at_utc": "2026-06-17T15:55:36.849304+00:00",
+  "url": "http://127.0.0.1:8004/map_CURRENT.html?bust=1781720192&skipOnboarding=1",
+  "generated_at_utc": "2026-06-17T18:17:02.897169+00:00",
   "overall_pass": true,
   "checks": [
     {
@@ -20,7 +20,7 @@
           "Baseline Validated Chart",
           "Edge Case \u2014 High Northern Birth",
           "Edge Case \u2014 Southern Hemisphere Birth",
-          "Smoke Renamed 8c3aded4",
+          "Smoke Renamed 32225d23",
           "lisa"
         ]
       }
@@ -173,8 +173,8 @@
         "findBtnDisabled": false,
         "nonFiniteCoords": 0,
         "libraryHandoff": {
-          "libraryAvailable": true,
-          "libraryChartCount": 1,
+          "libraryAvailable": false,
+          "libraryChartCount": 0,
           "activeLibraryChartId": null,
           "activeLibraryChartSource": null,
           "selectionAppliedFrom": null,
@@ -286,8 +286,8 @@
         "findBtnDisabled": false,
         "nonFiniteCoords": 0,
         "libraryHandoff": {
-          "libraryAvailable": true,
-          "libraryChartCount": 1,
+          "libraryAvailable": false,
+          "libraryChartCount": 0,
           "activeLibraryChartId": null,
           "activeLibraryChartSource": null,
           "selectionAppliedFrom": null,
@@ -389,8 +389,8 @@
         "findBtnDisabled": false,
         "nonFiniteCoords": 0,
         "libraryHandoff": {
-          "libraryAvailable": true,
-          "libraryChartCount": 1,
+          "libraryAvailable": false,
+          "libraryChartCount": 0,
           "activeLibraryChartId": null,
           "activeLibraryChartSource": null,
           "selectionAppliedFrom": null,
@@ -460,9 +460,11 @@
       "id": "console_clean",
       "pass": true,
       "detail": {
-        "errors": [],
-        "library_disabled": false,
-        "benign_library_off": false
+        "errors": [
+          "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ],
+        "library_disabled": true,
+        "benign_library_off": true
       }
     },
     {

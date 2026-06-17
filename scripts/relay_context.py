@@ -14,9 +14,10 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+import sys
 REPO = Path(__file__).resolve().parents[1]
-GOVERNANCE_DIR = REPO / "relay" / "governance"
-ROADMAP_QUEUE = REPO / "relay" / "ROADMAP_QUEUE.md"
+sys.path.insert(0, str(REPO / "scripts"))
+from relay_paths import GOVERNANCE_DIR, HANDOFFS_DIR, REPO, RESULTS_DIR, ROADMAP_QUEUE, TASKS_DIR
 
 PER_FILE_LIMIT = int(os.environ.get("RELAY_GOVERNANCE_FILE_LIMIT", "12000"))
 LATEST_CLOSEOUT_LIMIT = int(os.environ.get("RELAY_LATEST_CLOSEOUT_LIMIT", "15000"))
@@ -50,7 +51,7 @@ def governance_files() -> list[Path]:
 
 def _numbered_results() -> list[tuple[int, Path]]:
     out: list[tuple[int, Path]] = []
-    for f in (REPO / "results").glob("[0-9][0-9]_*.md"):
+    for f in RESULTS_DIR.glob("[0-9][0-9]_*.md"):
         m = re.match(r"(\d+)_", f.name)
         if m:
             out.append((int(m.group(1)), f))
@@ -102,7 +103,7 @@ def build_context_pack() -> str:
                 "",
             ]
 
-    tasks = sorted((REPO / "tasks").glob("[0-9][0-9]_*.md"))
+    tasks = sorted(TASKS_DIR.glob("[0-9][0-9]_*.md"))
     if tasks:
         parts.append("=== TASK INDEX ===")
         parts.append("\n".join(f.name for f in tasks[-20:]))
@@ -115,7 +116,7 @@ def build_context_pack() -> str:
 
 def write_context_snapshot() -> Path:
     pack = build_context_pack()
-    out = REPO / "relay" / "handoffs" / "latest_context.md"
+    out = HANDOFFS_DIR / "latest_context.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(pack, encoding="utf-8")
     return out
@@ -127,7 +128,7 @@ def write_closeout_handoff(closeout_path: Path | None = None) -> Path | None:
     if not path or not path.is_file():
         return None
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out = REPO / "relay" / "handoffs" / f"{ts}_closeout_for_brain.md"
+    out = HANDOFFS_DIR / f"{ts}_closeout_for_brain.md"
     body = _read(path, LATEST_CLOSEOUT_LIMIT)
     text = (
         "# Closeout ingested for next Claude/GPT plan\n\n"
