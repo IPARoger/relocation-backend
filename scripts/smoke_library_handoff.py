@@ -42,7 +42,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8004").rstrip("/")
 LIBRARY_FILE = ROOT / "library" / "library.json"
 
 PYTHON = ROOT / "venv" / "bin" / "python"

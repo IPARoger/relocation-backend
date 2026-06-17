@@ -28,7 +28,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8004").rstrip("/")
 ROOT = Path(__file__).resolve().parents[1]
 
 PYTHON = ROOT / "venv" / "bin" / "python"

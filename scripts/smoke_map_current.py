@@ -36,7 +36,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8004").rstrip("/")
 REPORT_DIR = Path(__file__).resolve().parent.parent / "validation" / "reports"
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_BROWSER_PATH = ROOT / ".playwright-browsers"

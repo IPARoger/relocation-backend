@@ -977,6 +977,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 <script src="/place_resolution.js"></script>
 <script>
 const MAP_URL = new URLSearchParams(window.location.search);
+const API_BASE = '';
 
 /** Map Handoff Contract v1 — URL query params only; receive-only (no map mutations). */
 function readAppShellHandoff() {
@@ -1469,7 +1470,7 @@ async function loadChartProfiles() {
         if (!supabaseClient) throw new Error("Supabase client unavailable");
         const { data: { session: _profilesSession } } = await supabaseClient.auth.getSession();
         const _profilesToken = _profilesSession?.access_token;
-        const profilesResponse = await fetch(`http://127.0.0.1:8004/profiles`, {
+        const profilesResponse = await fetch(`${API_BASE}/profiles`, {
             headers: _profilesToken ? { Authorization: `Bearer ${_profilesToken}` } : {}
         });
         if (profilesResponse.ok) {
@@ -2269,7 +2270,7 @@ async function resolvePlaceFromMapSelection(selection) {
         admin,
         origin: providerOrigin,
         geonamesId: geonamesId || null,
-    }, { apiBase: "http://127.0.0.1:8004", coordTolerance: 0.02 });
+    }, { apiBase: API_BASE, coordTolerance: 0.02 });
 }
 
 async function favoriteMapSelectionFromButton(btn) {
@@ -2401,7 +2402,7 @@ async function applyMapFavoriteButtonState(popup) {
         }
         if (!place && displayName) {
             const searchResp = await fetch(
-                `http://127.0.0.1:8004/places/search?q=${encodeURIComponent(displayName)}`
+                `${API_BASE}/places/search?q=${encodeURIComponent(displayName)}`
             );
             if (!searchResp.ok) return;
             const matches = await searchResp.json();
@@ -4745,7 +4746,7 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
 }
 
 async function postSearchRegions(payload) {
-    const response = await fetch("http://127.0.0.1:8004/search-regions", {
+    const response = await fetch(`${API_BASE}/search-regions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(normalizeAnglesForApiPayload(payload))
