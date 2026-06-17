@@ -71,6 +71,7 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Email — merge PR (only ping when we need you)
+        continue-on-error: true
         if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED')
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
