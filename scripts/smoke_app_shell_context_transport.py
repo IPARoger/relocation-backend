@@ -70,9 +70,9 @@ def ensure_server() -> tuple[str, subprocess.Popen | None]:
         with urllib.request.urlopen(f"{base}/health", timeout=2) as resp:
             if resp.status != 200:
                 raise OSError("bad health")
-        with urllib.request.urlopen(f"{base}/local-product-store.json", timeout=2) as resp:
+        with urllib.request.urlopen(f"{base}/app_shell.html", timeout=2) as resp:
             if resp.status != 200:
-                raise OSError("store missing")
+                raise OSError("app shell missing")
     except Exception:
         alt = 8012
         if not port_free(alt):

@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
-"""Read-only smoke: GET /account-store returns Store v3 shape for authenticated user.
+"""Read-only smoke: GET /account-store is quarantined (HTTP 410 Gone).
 
 Verifies:
-  * /health and /account-store (with Bearer JWT) return 200
-  * Response top-level keys match supabase_store_bridge.js assembly
-  * Row counts match direct build_account_store() for the same JWT
-  * Unauthenticated request returns 401
+  * /health returns 200
+  * /account-store returns 410 with legacy-read quarantine body (auth or unauth)
   * No write endpoints exercised
 
-Auth:
-  * RM_SMOKE_JWT — use this Bearer token directly when set
-  * else RM_SMOKE_EMAIL (default davidleongoodman@gmail.com) + admin magic-link OTP
-    (requires SUPABASE_SERVICE_ROLE_KEY in environment)
-
 Run (server at BASE_URL, default http://127.0.0.1:8004):
-  set -a && source .env.staging && set +a
   ./venv/bin/python scripts/smoke_account_store_read.py
 """
 
@@ -35,34 +27,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8004").rstrip("/")
 PYTHON = ROOT / "venv" / "bin" / "python"
-DEFAULT_EMAIL = "davidleongoodman@gmail.com"
 
-EXPECTED_TOP_LEVEL_KEYS = {
-    "_storage",
-    "_warning",
-    "birth_profiles",
-    "chart_record_history",
-    "clients",
-    "comparison_sets",
-    "favorite_cities",
-    "notes",
-    "places",
-    "professional_account",
-    "saved_investigations",
-    "storage_schema_version",
-    "supabase_mirror_version",
-    "tags",
-    "user_settings",
-}
-
-COUNT_KEYS = (
-    "clients",
-    "birth_profiles",
-    "places",
-    "favorite_cities",
-    "comparison_sets",
-    "saved_investigations",
-)
+QUARANTINE_BODY = {"error": "Gone", "reason": "legacy read path retired"}
 
 
 def fail(msg: str) -> None:
@@ -117,30 +83,15 @@ def spawn_server(port: int, env: dict[str, str]) -> subprocess.Popen:
     )
 
 
-def resolve_jwt() -> str:
-    token = os.environ.get("RM_SMOKE_JWT", "").strip()
-    if token:
-        return token
-
-    email = os.environ.get("RM_SMOKE_EMAIL", DEFAULT_EMAIL).strip()
-    url = os.environ.get("SUPABASE_URL", "")
-    anon = os.environ.get("SUPABASE_ANON_KEY", "")
-    service = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
-    if not all([url, anon, service]):
-        fail("Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY or RM_SMOKE_JWT")
-
-    from supabase import create_client
-
-    admin = create_client(url, service)
-    anon_client = create_client(url, anon)
-    link = admin.auth.admin.generate_link({"type": "magiclink", "email": email})
-    otp = link.properties.email_otp
-    session = anon_client.auth.verify_otp(
-        {"email": email, "token": otp, "type": "email"}
-    )
-    if not session.session:
-        fail(f"Could not obtain JWT for {email}")
-    return session.session.access_token
+def assert_quarantine_410(name: str, status: int, raw_body: bytes) -> tuple[bool, str]:
+    if status != 410:
+        return False, f"status={status}"
+    try:
+        body = json.loads(raw_body.decode())
+    except json.JSONDecodeError:
+        return False, f"non-json body: {raw_body[:200]!r}"
+    ok = body == QUARANTINE_BODY
+    return ok, json.dumps(body)
 
 
 def main() -> int:
@@ -159,7 +110,7 @@ def main() -> int:
         if not wait_server(base):
             proc.terminate()
             fail(f"Could not start temp server on {base}")
-    elif status_probe == 404:
+    elif status_probe != 410:
         alt_port = 8014
         if port_free(alt_port):
             proc = spawn_server(alt_port, dict(os.environ))
@@ -167,41 +118,31 @@ def main() -> int:
             if not wait_server(base):
                 proc.terminate()
                 fail(
-                    f"/account-store missing on {BASE}; temp server failed on {base}"
+                    f"/account-store not quarantined on {BASE}; temp server failed on {base}"
                 )
         else:
             fail(
-                f"/account-store returned 404 on {base}; restart server to pick up route"
+                f"/account-store returned {status_probe} on {base} (expected 410); "
+                f"restart server to pick up quarantine"
             )
 
     results: list[tuple[str, bool, str]] = []
 
     try:
-        jwt = resolve_jwt()
-        from repositories.account_store_repository import build_account_store
+        st_health, _ = fetch_status(base, "/health")
+        results.append(("health_200", st_health == 200, f"status={st_health}"))
 
-        direct = build_account_store(jwt)
-        headers = {"Authorization": f"Bearer {jwt}"}
+        st, body = fetch_status(base, "/account-store")
+        ok, detail = assert_quarantine_410("account_store", st, body)
+        results.append(("account_store_410", ok, detail))
 
-        st, body = fetch_status(base, "/account-store", headers=headers, timeout=60)
-        ok = st == 200
-        results.append(("account_store_200", ok, f"status={st}"))
-        if st != 200:
-            fail(f"/account-store returned {st}: {body[:300]!r}")
-
-        store = json.loads(body.decode())
-        ok = set(store.keys()) == EXPECTED_TOP_LEVEL_KEYS
-        results.append(("top_level_keys", ok, str(sorted(store.keys()))))
-
-        for key in COUNT_KEYS:
-            direct_n = len(direct.get(key) or [])
-            api_n = len(store.get(key) or [])
-            ok = direct_n == api_n
-            results.append((f"count_{key}", ok, f"direct={direct_n} api={api_n}"))
-
-        st_unauth, _ = fetch_status(base, "/account-store")
-        ok = st_unauth == 401
-        results.append(("unauthenticated_401", ok, f"status={st_unauth}"))
+        st_auth, body_auth = fetch_status(
+            base,
+            "/account-store",
+            headers={"Authorization": "Bearer smoke-token"},
+        )
+        ok_auth, detail_auth = assert_quarantine_410("account_store_auth", st_auth, body_auth)
+        results.append(("account_store_auth_410", ok_auth, detail_auth))
 
         failed = [name for name, ok, _ in results if not ok]
         for name, ok, detail in results:
