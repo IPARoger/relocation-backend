@@ -11,9 +11,6 @@ one of five fixed event labels:
     verified     -> "VERIFIED"
     not-verified -> "NOT VERIFIED"
 
-There is intentionally no argument for a custom message. The only input accepted
-is the event key, which is validated against the allow-list below.
-
 Configuration (read from the environment; never hard-coded, never logged):
 
     TELEGRAM_BOT_TOKEN   Bot token from BotFather.
@@ -23,6 +20,7 @@ Usage:
     python scripts/relay_notify.py started
     python scripts/relay_notify.py verified
     python scripts/relay_notify.py approval --dry-run
+    python scripts/relay_notify.py started --task 47 --message "New task ready"
 
 Exit codes:
     0  notification sent (or printed in --dry-run)
@@ -31,6 +29,7 @@ Exit codes:
     4  delivery failure
 """
 
+import argparse
 import json
 import os
 import sys
@@ -62,19 +61,25 @@ TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
 TIMEOUT_SECONDS = 10
 
 
-def usage(stream=sys.stderr):
-    keys = " | ".join(ALLOWED_EVENTS.keys())
-    stream.write(
-        "Usage: relay_notify.py <event> [--dry-run]\n"
-        f"  event: {keys}\n"
-    )
+def parse_args(argv):
+    parser = argparse.ArgumentParser(prog="relay_notify.py")
+    parser.add_argument("event", choices=ALLOWED_EVENTS.keys())
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--task", default=None)
+    parser.add_argument("--message", default=None)
+    return parser.parse_args(argv[1:])
 
 
-def build_message(event_key):
-    """Return the exact, fixed text for an allowed event. No other text exists."""
+def build_message(event_key, task=None, extra_message=None):
+    """Return fixed event text plus optional task/context lines."""
     prefix = EVENT_PREFIX.get(event_key, "")
     body = ALLOWED_EVENTS[event_key]
-    return (prefix + " " + body).strip()
+    text = (prefix + " " + body).strip()
+    if task:
+        text += f"\nTask: {task}"
+    if extra_message:
+        text += f"\n{extra_message}"
+    return text
 
 
 def send(token, chat_id, text):
@@ -93,25 +98,14 @@ def send(token, chat_id, text):
 
 
 def main(argv):
-    args = [a for a in argv[1:]]
-    dry_run = False
-    if "--dry-run" in args:
-        dry_run = True
-        args.remove("--dry-run")
+    try:
+        args = parse_args(argv)
+    except SystemExit as exc:
+        return int(exc.code)
 
-    if len(args) != 1:
-        usage()
-        return 2
+    text = build_message(args.event, args.task, args.message)
 
-    event_key = args[0].strip().lower()
-    if event_key not in ALLOWED_EVENTS:
-        sys.stderr.write(f"Unknown event: {event_key!r}\n")
-        usage()
-        return 2
-
-    text = build_message(event_key)
-
-    if dry_run:
+    if args.dry_run:
         sys.stdout.write(text + "\n")
         return 0
 
@@ -129,7 +123,7 @@ def main(argv):
         sys.stderr.write("Notification delivery failed: " + str(exc) + "\n")
         return 4
 
-    sys.stdout.write("sent: " + event_key + "\n")
+    sys.stdout.write("sent: " + args.event + "\n")
     return 0
 
 
