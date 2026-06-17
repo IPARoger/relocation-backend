@@ -6247,16 +6247,11 @@ async function centerOnHandoffPlaceId() {
     const pid = lastAppShellHandoff && lastAppShellHandoff.placeId;
     if (!pid) return;
     if (lastAppShellHandoff && lastAppShellHandoff.explorationId) return;
-    const sbClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null) || window._supabaseClient;
-    if (!sbClient) return;
     try {
-        const { data: places } = await sbClient
-            .from("places")
-            .select("id, display_name, latitude, longitude")
-            .eq("id", pid)
-            .limit(1);
-        const pl = Array.isArray(places) && places[0];
-        if (!pl) return;
+        const resp = await fetch(`${API_BASE}/place/${encodeURIComponent(pid)}`);
+        if (!resp.ok) return;
+        const pl = await resp.json();
+        if (!pl || !pl.id) return;
         await openSavedPlace(pl.display_name, pl.latitude, pl.longitude);
     } catch (err) {
         console.error("[saved-places-handoff]", err);
