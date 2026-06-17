@@ -1902,9 +1902,9 @@ def get_chart_profiles():
 #     migration / account sync stays backwards-compatible.
 #   * No auth, no payments, no client sharing infrastructure.
 #   * Renderer behavior, astrology math, and existing smokes are not touched.
-#   * Disabled when ``RM_PHASE2_LIBRARY=0`` so smoke can confirm isolation.
+#   * Disabled by default (unset or ``RM_PHASE2_LIBRARY=0``). Opt in with ``RM_PHASE2_LIBRARY=1``.
 #
-# All endpoints under ``/library/*`` return 404 when the flag is off.
+# All endpoints under ``/library/*`` return 404 unless ``RM_PHASE2_LIBRARY=1``.
 # ---------------------------------------------------------------------------
 
 LIBRARY_DIR = APP_DIR / "library"
@@ -1913,7 +1913,7 @@ LIBRARY_SCHEMA_VERSION = 1
 
 
 def _library_enabled() -> bool:
-    return os.environ.get("RM_PHASE2_LIBRARY", "1") != "0"
+    return os.environ.get("RM_PHASE2_LIBRARY", "0") == "1"
 
 
 def _empty_library_state() -> dict:

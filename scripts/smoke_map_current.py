@@ -457,11 +457,26 @@ def main() -> int:
             }
         )
 
+        library_disabled = page.evaluate(
+            "() => window.__rmLibraryHandoff?.()?.libraryAvailable === false"
+        )
+        benign_library_off = (
+            library_disabled
+            and all(
+                "404" in err and "Failed to load resource" in err
+                for err in console_errors
+            )
+        )
+        actionable_console_errors = [] if benign_library_off else console_errors
         checks.append(
             {
                 "id": "console_clean",
-                "pass": len(console_errors) == 0,
-                "detail": {"errors": console_errors},
+                "pass": len(actionable_console_errors) == 0,
+                "detail": {
+                    "errors": console_errors,
+                    "library_disabled": library_disabled,
+                    "benign_library_off": benign_library_off,
+                },
             }
         )
 

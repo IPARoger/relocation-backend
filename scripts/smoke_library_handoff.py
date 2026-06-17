@@ -21,17 +21,18 @@ scripts/smoke_phase2_cache.py).
 
 Run:
   set -a && source .env.staging && set +a
-  ./venv/bin/python scripts/smoke_library_handoff.py
+  RM_PHASE2_LIBRARY=1 ./venv/bin/python scripts/smoke_library_handoff.py
 """
 
 from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
-import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -43,6 +44,64 @@ if str(ROOT) not in sys.path:
 
 BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 LIBRARY_FILE = ROOT / "library" / "library.json"
+
+PYTHON = ROOT / "venv" / "bin" / "python"
+LIBRARY_SMOKE_PORT = int(os.environ.get("RM_LIBRARY_SMOKE_PORT", "8005"))
+
+
+def _library_state_status(base: str) -> int:
+    try:
+        with urllib.request.urlopen(base + "/library/state", timeout=5) as resp:
+            return resp.status
+    except urllib.error.HTTPError as err:
+        return err.code
+    except Exception:
+        return 0
+
+
+def _port_free(port: int) -> bool:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex(("127.0.0.1", port)) != 0
+
+
+def _wait_health(base: str, timeout_s: float = 25.0) -> bool:
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(base + "/health", timeout=2) as r:
+                if r.status == 200:
+                    return True
+        except Exception:
+            pass
+        time.sleep(0.3)
+    return False
+
+
+def ensure_library_enabled_base(base: str) -> tuple[str, subprocess.Popen | None]:
+    os.environ["RM_PHASE2_LIBRARY"] = "1"
+    if _library_state_status(base) == 200:
+        return base, None
+    alt = f"http://127.0.0.1:{LIBRARY_SMOKE_PORT}"
+    if not _port_free(LIBRARY_SMOKE_PORT):
+        _fail(
+            f"{base}/library/state is disabled and port {LIBRARY_SMOKE_PORT} is busy; "
+            "restart server with RM_PHASE2_LIBRARY=1 or free the port"
+        )
+    proc = subprocess.Popen(
+        [str(PYTHON), "-m", "uvicorn", "main_centerline_FIXER:app",
+         "--host", "127.0.0.1", "--port", str(LIBRARY_SMOKE_PORT)],
+        cwd=str(ROOT),
+        env={**os.environ, "RM_PHASE2_LIBRARY": "1"},
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if not _wait_health(alt):
+        proc.terminate()
+        _fail(f"library smoke server did not start on {alt}")
+    return alt, proc
+
 
 
 def api(method: str, path: str, body=None):
@@ -118,8 +177,12 @@ def reset_library() -> None:
 
 
 def main() -> int:
+    global BASE
+    server_proc: subprocess.Popen | None = None
     reset_library()
     results: list[dict] = []
+
+    BASE, server_proc = ensure_library_enabled_base(BASE)
 
     status, _ = api("GET", "/library/state")
     results.append({
@@ -401,7 +464,14 @@ def main() -> int:
 
     payload = {"results": results, "all_pass": all(r["pass"] for r in results)}
     print(json.dumps(payload, indent=2))
-    return 0 if payload["all_pass"] else 1
+    rc = 0 if payload["all_pass"] else 1
+    if server_proc is not None:
+        server_proc.terminate()
+        try:
+            server_proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            server_proc.kill()
+    return rc
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ Phase 2.0 scaffold endpoints and dashboard load. Renderer smokes remain
 in scripts/smoke_map_current.py and scripts/smoke_substrate_adapter.py.
 
 Run:
-  ./venv/bin/python scripts/smoke_library_scaffold.py
+  RM_PHASE2_LIBRARY=1 ./venv/bin/python scripts/smoke_library_scaffold.py
 """
 
 from __future__ import annotations
@@ -30,6 +30,70 @@ from pathlib import Path
 
 BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 ROOT = Path(__file__).resolve().parents[1]
+
+PYTHON = ROOT / "venv" / "bin" / "python"
+LIBRARY_SMOKE_PORT = int(os.environ.get("RM_LIBRARY_SMOKE_PORT", "8005"))
+
+
+def _fail(msg: str) -> None:
+    print(f"FAIL: {msg}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def _port_free(port: int) -> bool:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex(("127.0.0.1", port)) != 0
+
+
+def _wait_health(base: str, timeout_s: float = 25.0) -> bool:
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(base + "/health", timeout=2) as r:
+                if r.status == 200:
+                    return True
+        except Exception:
+            pass
+        time.sleep(0.3)
+    return False
+
+
+def _library_state_status(base: str) -> int:
+    try:
+        with urllib.request.urlopen(base + "/library/state", timeout=5) as resp:
+            return resp.status
+    except urllib.error.HTTPError as err:
+        return err.code
+    except Exception:
+        return 0
+
+
+def ensure_library_enabled_base(base: str) -> tuple[str, subprocess.Popen | None]:
+    """Opt in to library scaffold; spawn a dedicated server if BASE has it disabled."""
+    os.environ["RM_PHASE2_LIBRARY"] = "1"
+    if _library_state_status(base) == 200:
+        return base, None
+    alt = f"http://127.0.0.1:{LIBRARY_SMOKE_PORT}"
+    if not _port_free(LIBRARY_SMOKE_PORT):
+        _fail(
+            f"{base}/library/state is disabled and port {LIBRARY_SMOKE_PORT} is busy; "
+            "restart server with RM_PHASE2_LIBRARY=1 or free the port"
+        )
+    proc = subprocess.Popen(
+        [str(PYTHON), "-m", "uvicorn", "main_centerline_FIXER:app",
+         "--host", "127.0.0.1", "--port", str(LIBRARY_SMOKE_PORT)],
+        cwd=str(ROOT),
+        env={**os.environ, "RM_PHASE2_LIBRARY": "1"},
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if not _wait_health(alt):
+        proc.terminate()
+        _fail(f"library smoke server did not start on {alt}")
+    return alt, proc
+
 LIBRARY_FILE = ROOT / "library" / "library.json"
 
 
@@ -100,8 +164,23 @@ def run_dashboard_browser_check() -> dict:
 
 def main() -> int:
     results: list[dict] = []
+    server_proc: subprocess.Popen | None = None
 
-    # 1. Feature flag — disabled path returns 404 even though endpoint exists.
+    # 1. Feature flag — default off; explicit 0 off; explicit 1 on.
+    proc_default = subprocess.run(
+        [sys.executable, "-c",
+         "import os; os.environ.pop('RM_PHASE2_LIBRARY', None); "
+         "from main_centerline_FIXER import _library_enabled; print(_library_enabled())"],
+        cwd=str(ROOT),
+        env={k: v for k, v in os.environ.items() if k != "RM_PHASE2_LIBRARY"},
+        capture_output=True, text=True, timeout=20,
+    )
+    results.append({
+        "test": "feature_flag_default_off_when_unset",
+        "pass": proc_default.returncode == 0 and "False" in proc_default.stdout,
+        "detail": {"stdout": proc_default.stdout.strip(), "stderr": proc_default.stderr.strip()},
+    })
+
     proc = subprocess.run(
         [sys.executable, "-c", "import os; os.environ['RM_PHASE2_LIBRARY']='0'; "
          "from main_centerline_FIXER import _library_enabled; "
@@ -116,7 +195,24 @@ def main() -> int:
         "detail": {"stdout": proc.stdout.strip(), "stderr": proc.stderr.strip()},
     })
 
-    # 2. Live server with flag default-on (server uses parent env).
+    proc_on = subprocess.run(
+        [sys.executable, "-c", "import os; os.environ['RM_PHASE2_LIBRARY']='1'; "
+         "from main_centerline_FIXER import _library_enabled; "
+         "print(_library_enabled())"],
+        cwd=str(ROOT),
+        env={**os.environ, "RM_PHASE2_LIBRARY": "1"},
+        capture_output=True, text=True, timeout=20,
+    )
+    results.append({
+        "test": "feature_flag_enable_path_observable",
+        "pass": proc_on.returncode == 0 and "True" in proc_on.stdout,
+        "detail": {"stdout": proc_on.stdout.strip(), "stderr": proc_on.stderr.strip()},
+    })
+
+    global BASE
+    BASE, server_proc = ensure_library_enabled_base(BASE)
+
+    # 2. Live server with RM_PHASE2_LIBRARY=1 (opt-in).
     status, state = request("GET", "/library/state")
     results.append({
         "test": "library_state_initial_shape",
@@ -294,7 +390,14 @@ def main() -> int:
 
     payload_out = {"results": results, "all_pass": all(r["pass"] for r in results)}
     print(json.dumps(payload_out, indent=2))
-    return 0 if payload_out["all_pass"] else 1
+    rc = 0 if payload_out["all_pass"] else 1
+    if server_proc is not None:
+        server_proc.terminate()
+        try:
+            server_proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            server_proc.kill()
+    return rc
 
 
 if __name__ == "__main__":
