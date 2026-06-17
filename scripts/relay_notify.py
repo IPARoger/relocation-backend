@@ -58,7 +58,7 @@ EVENT_PREFIX = {
 }
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
-TIMEOUT_SECONDS = 10
+TIMEOUT_SECONDS = 30
 
 
 def parse_args(argv):

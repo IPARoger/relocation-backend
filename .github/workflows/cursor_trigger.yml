@@ -1,9 +1,11 @@
 name: cursor-task-trigger
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-    paths: ['tasks/**.md']
+    paths:
+      - 'tasks/[0-9]*.md'
 
 concurrency:
   group: relay-executor
@@ -26,31 +28,40 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests
-        run: pip install requests
-
       - name: Extract task info
         id: task
         run: |
-          TASK_FILE=$(git diff --name-only HEAD~1 HEAD \
-            | grep "^tasks/" | head -1)
-          TASK_NUM=$(basename "$TASK_FILE" \
-            | grep -oE '^[0-9]+')
-          echo "file=$TASK_FILE" >> $GITHUB_OUTPUT
-          echo "number=$TASK_NUM" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TASK_FILE=$(ls -1 tasks/[0-9]*_*.md 2>/dev/null | sort -t/ -k2 | tail -1 || true)
+          else
+            TASK_FILE=$(git diff --name-only HEAD~1 HEAD \
+              | grep -E '^tasks/[0-9]+_.*\.md$' | head -1 || true)
+          fi
+          if [ -z "$TASK_FILE" ]; then
+            echo "No numbered task file found; skipping."
+            echo "file=" >> "$GITHUB_OUTPUT"
+            echo "number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          TASK_NUM=$(basename "$TASK_FILE" | grep -oE '^[0-9]+' || true)
+          echo "file=$TASK_FILE" >> "$GITHUB_OUTPUT"
+          echo "number=$TASK_NUM" >> "$GITHUB_OUTPUT"
 
       - name: Notify Telegram — new task ready
+        if: steps.task.outputs.number != ''
+        continue-on-error: true
         run: |
           python scripts/relay_notify.py started \
             --task "${{ steps.task.outputs.number }}" \
-            --message "New task ready: \
-              ${{ steps.task.outputs.file }}"
+            --message "New task ready: ${{ steps.task.outputs.file }}"
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
   execute:
     needs: notify
+    if: needs.notify.outputs.number != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -65,7 +76,32 @@ jobs:
         run: pip install cursor-sdk
 
       - name: Launch Cursor cloud agent
-        run: python scripts/relay_executor.py
+        continue-on-error: true
+        id: exec
+        run: |
+          set +e
+          OUT="$(python scripts/relay_executor.py)"
+          CODE=$?
+          echo "$OUT"
+          echo "exec_out=$OUT" >> "$GITHUB_OUTPUT"
+          echo "exec_code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           RELAY_BRANCH: main
+
+      - name: Notify approval needed
+        if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED')
+        continue-on-error: true
+        run: python scripts/relay_notify.py approval
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+      - name: Warn low balance
+        if: steps.exec.outputs.exec_code == '5'
+        continue-on-error: true
+        run: python scripts/relay_notify.py low-balance
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
