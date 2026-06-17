@@ -14,7 +14,7 @@ HEARTBEAT = REPO / "relay" / "handoffs" / "heartbeat"
 LOG = REPO / "relay" / "handoffs" / "session.log"
 QUEUE = REPO / "relay" / "ROADMAP_QUEUE.md"
 DEFAULT_TIMEOUT = int(os.environ.get("RELAY_CYCLE_TIMEOUT", "2700"))
-HAIKU = "claude-haiku-4-5-20251001"
+HAIKU = "claude-haiku-4-5"
 SONNET = "claude-sonnet-4-6"
 
 

@@ -3307,6 +3307,24 @@ def api_archive_favorite_owned(request: Request, body: FavoriteArchive):
         ) from err
 
 
+@app.get("/favorites")
+def api_list_favorites(request: Request, profile_id: str):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_favorites_repository import (
+        FavoritesError,
+        list_favorites,
+    )
+    try:
+        items = list_favorites(jwt_token, profile_id=profile_id)
+        return {"favorites": items}
+    except FavoritesError as err:
+        status = 404 if err.reason in ("profile_not_found", "favorite_not_found") else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
 class ComparisonSetCreateOwned(BaseModel):
     profile_id: str
     place_ids: list[str]

@@ -190,3 +190,35 @@ def archive_favorite(jwt_token: str, favorite_id: str, profile_id: str = None) -
             "archive_failed",
         )
     return _shape(result.data[0])
+
+
+def list_favorites(jwt_token: str, profile_id: str) -> list:
+    """Return active favorites with joined place data for a profile."""
+    client = get_supabase_for_user(jwt_token)
+    account_id = _resolve_account_id(client, jwt_token)
+    _require_owned_active_profile(client, account_id, profile_id)
+    result = (
+        client.table("favorite_places")
+        .select("id, profile_id, place_id, label, rank, starred, places(id, display_name, latitude, longitude)")
+        .eq("account_id", account_id)
+        .eq("profile_id", profile_id)
+        .is_("archived_at", "null")
+        .order("created_at", desc=True)
+        .execute()
+    )
+    rows = result.data or []
+    out = []
+    for row in rows:
+        place = row.get("places") or {}
+        out.append({
+            "id": row.get("id"),
+            "profile_id": row.get("profile_id"),
+            "place_id": row.get("place_id"),
+            "label": row.get("label"),
+            "rank": row.get("rank"),
+            "starred": row.get("starred"),
+            "display_name": place.get("display_name"),
+            "latitude": place.get("latitude"),
+            "longitude": place.get("longitude"),
+        })
+    return out
