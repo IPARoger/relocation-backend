@@ -2600,25 +2600,12 @@ class SavedSearchUpdate(BaseModel):
 
 @app.get("/saved-searches/{profile_id}")
 def api_list_saved_searches(profile_id: str):
-    from repositories.saved_searches_repository import list_saved_searches
-
-    return list_saved_searches(profile_id)
+    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
 
 
 @app.get("/saved-search/{saved_search_id}")
 def api_get_saved_search(saved_search_id: str):
-    from repositories.saved_searches_repository import get_saved_search
-
-    try:
-        saved_search = get_saved_search(saved_search_id)
-    except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
-            raise HTTPException(status_code=404, detail="saved search not found") from e
-        raise
-    if saved_search is None:
-        raise HTTPException(status_code=404, detail="saved search not found")
-    return saved_search
+    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
 
 
 @app.post("/saved-searches")
@@ -3051,7 +3038,7 @@ def api_revoke_share_link(share_link_id: str):
 
 @app.get("/profile-library/{profile_id}")
 def api_profile_library(profile_id: str):
-    return _quarantine_legacy_read(f"/profile-library/{profile_id}")
+    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
 
 # ---------------------------------------------------------------------------
 # Account store aggregate (read-only, JWT-scoped; mirrors supabase_store_bridge.js)
@@ -3060,7 +3047,7 @@ def api_profile_library(profile_id: str):
 
 @app.get("/account-store")
 def api_account_store(request: Request):
-    return _quarantine_legacy_read("/account-store")
+    return JSONResponse({"error": "Gone", "reason": "legacy read path retired — see C4-7 closeout"}, status_code=410)
 
 # ---------------------------------------------------------------------------
 # Current Location ownership (read-only GET + JWT-scoped POST set).
