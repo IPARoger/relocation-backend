@@ -16,6 +16,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 GOVERNANCE_DIR = REPO / "relay" / "governance"
+ROADMAP_QUEUE = REPO / "relay" / "ROADMAP_QUEUE.md"
 
 PER_FILE_LIMIT = int(os.environ.get("RELAY_GOVERNANCE_FILE_LIMIT", "12000"))
 LATEST_CLOSEOUT_LIMIT = int(os.environ.get("RELAY_LATEST_CLOSEOUT_LIMIT", "15000"))
@@ -82,6 +83,10 @@ def build_context_pack() -> str:
             except ValueError:
                 rel = path.name
             parts += [f"--- {rel} ---", body, ""]
+
+    rq = _read(ROADMAP_QUEUE, 8000)
+    if rq:
+        parts += ["=== ROADMAP QUEUE (binding task order) ===", rq, ""]
 
     results = _numbered_results()
     if results:

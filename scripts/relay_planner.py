@@ -71,6 +71,9 @@ When to PAUSE (rare — human judgement / approval only):
 - Schema, migration, credentials/secrets, backend architecture fork, renderer/math/
   overlay work, doctrine/canon edits, or genuine product ambiguity with no safe default.
 
+When planning: read relay/ROADMAP_QUEUE.md (in context). Propose the FIRST
+incomplete queue item only. Put **Roadmap ID:** T?_? in the task header.
+
 When NOT to PAUSE — plan the next task instead:
 - Closeout says PARTIALLY VERIFIED, NOT VERIFIED, or blocked by missing CI tooling
   (e.g. playwright not installed). Plan the smallest reversible task to unblock.
