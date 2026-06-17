@@ -1,7 +1,7 @@
 name: two-agent-relay
 
 # Fast loop: plan next task when a closeout lands on main (results/*.md push).
-# Auto-merges relay PRs by default. Ping only on PAUSE, low balance, or merge failure.
+# Auto-merges relay PRs. Telegram digest every 15 tasks. Ping on PAUSE, merge fail, or digest.
 # Manual "Run workflow" still available. Weekly schedule is a safety net only.
 
 on:
@@ -9,6 +9,10 @@ on:
     inputs:
       dry_run:
         description: "Dry run (no paid API calls, no changes)"
+        type: boolean
+        default: false
+      continue_after_digest:
+        description: "Clear digest pause and resume planning (after you read the summary)"
         type: boolean
         default: false
   push:
@@ -39,6 +43,33 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Continue after digest (manual ack)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.continue_after_digest == true }}
+        run: python scripts/relay_progress.py clear-ack
+
+      - name: Record closeout and send digest if due
+        if: ${{ github.event_name == 'push' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-4o-mini
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+        run: |
+          python scripts/relay_progress.py record-closeout
+          python scripts/relay_progress.py send-digest-if-due || true
+
+      - name: Commit relay progress
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          git config user.name "relay-bot"
+          git config user.email "relay-bot@users.noreply.github.com"
+          git add relay/progress.json
+          git diff --staged --quiet || git commit -m "relay: progress counter"
+          git push origin HEAD:main || true
 
       - name: Dry-run rehearsal
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
@@ -73,9 +104,19 @@ jobs:
           python scripts/relay_notify_email.py low-balance
           exit 1
 
+      - name: Pause for digest acknowledgment
+        id: digest_pause
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' }}
+        run: |
+          if [ -f relay/progress.json ] && python -c "import json; print(json.load(open('relay/progress.json')).get('awaiting_digest_ack'))" | grep -q True; then
+            echo "planner_out=PAUSE: Digest sent — read Telegram summary, then run Actions → two-agent-relay → Continue after digest." >> "$GITHUB_OUTPUT"
+          else
+            echo "planner_out=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Plan next task (GPT brain)
         id: plan
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.dry_run == false) && steps.preflight.outputs.code == '0' && steps.digest_pause.outputs.planner_out == '' }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-4o-mini
