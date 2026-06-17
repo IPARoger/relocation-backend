@@ -102,6 +102,21 @@ def main(argv):
         )
         return 0
 
+
+    if os.environ.get("RELAY_SANDBOX_MOCK", "").strip() in ("1", "true", "yes"):
+        out_path = RESULTS_DIR / f"{task.stem}.md"
+        body = (
+            f"# RESULT: {task.stem}\n\n"
+            f"**Roadmap ID:** SB-N (sandbox mock)\n"
+            f"**Author:** sandbox mock executor\n\n"
+            f"Mock closeout for loop validation. Task file: {task.name}\n\n"
+            f"**VERIFIED**\n"
+        )
+        out_path.write_text(body, encoding="utf-8")
+        sys.stdout.write(f"EXECUTED_MOCK task={task.name} closeout={out_path.relative_to(REPO)}\n")
+        return 0
+
+
     api_key = os.environ.get("CURSOR_API_KEY", "").strip()
     if not api_key:
         sys.stderr.write("Missing CURSOR_API_KEY in environment.\n")

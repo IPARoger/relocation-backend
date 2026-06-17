@@ -47,6 +47,7 @@ def sandbox_env() -> dict[str, str]:
         "RELAY_ROADMAP_QUEUE": str(SANDBOX / "ROADMAP_QUEUE.md"),
         "RELAY_RUNTIME": "local",
         "RELAY_PUSH": "0",
+            "RELAY_SANDBOX_MOCK": "1",
     })
     return env
 
