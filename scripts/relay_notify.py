@@ -132,10 +132,7 @@ def verify_credentials(token, chat_id):
         )
         sys.stdout.write(f"getChat ok: {title}\n")
     except RuntimeError as exc:
-        sys.stderr.write(
-            "getChat failed (bot may not be in this chat yet): " + str(exc) + "\n"
-        )
-        raise
+        sys.stderr.write("getChat warning: " + str(exc) + "\n")
     send_with_retries(token, chat_id, "\u2705 Relay Telegram test ping")
 
 
