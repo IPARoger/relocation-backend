@@ -14,7 +14,7 @@ on:
       dry_run:
         description: "Dry run (no paid API calls, no changes)"
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: write
