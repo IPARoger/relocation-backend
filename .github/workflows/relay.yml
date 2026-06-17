@@ -26,7 +26,7 @@ jobs:
       - name: Checkout relay branch
         uses: actions/checkout@v4
         with:
-          ref: checkpoint/pre-phase-2-3
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
