@@ -1,7 +1,11 @@
 {
-  "ok_streak": 4,
-  "target": 5,
+  "ok_streak": 0,
+  "target": 10,
+  "min_elapsed_min": 60.0,
+  "elapsed_min": 0.0,
   "last_code": 0,
-  "note": "ok",
-  "updated": "2026-06-17T19:00:43.264596+00:00"
+  "last_error": null,
+  "mock": "0",
+  "note": "soak_started",
+  "updated": "2026-06-17T19:12:06.086819+00:00"
 }
