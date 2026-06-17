@@ -2060,11 +2060,7 @@ def serve_app_shell_html():
 
 @app.get("/local-product-store.json")
 def serve_local_product_store_json():
-    """Read-only scaffold JSON for app_shell Chart Record library (Store v3)."""
-    _ensure_local_product_store_read_enabled()
-    if not LOCAL_PRODUCT_STORE_SCAFFOLD.is_file():
-        raise HTTPException(status_code=404, detail="Local product store scaffold not found")
-    return FileResponse(LOCAL_PRODUCT_STORE_SCAFFOLD, media_type="application/json")
+    return _quarantine_legacy_read("/local-product-store.json")
 
 
 @app.get("/chart-records")
