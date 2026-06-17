@@ -117,3 +117,12 @@ find . -maxdepth 4 \
 | ≤10 files opened | Yes (9) |
 
 ## **VERIFIED**
+
+## Addendum — C3-1 closeout (task 59)
+
+Saved-search backend GET routes:
+- GET /saved-searches/{profile_id}: DEAD — 0 frontend callers
+- GET /saved-search/{saved_search_id}: DEAD — 0 frontend callers
+
+Source: grep 2026-06-17 (pattern: `GET.*saved-search|saved-searches.*profile`, production JS/HTML, excludes results/tasks/smoke)
+C3-1 audit complete.
