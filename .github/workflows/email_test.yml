@@ -1,0 +1,30 @@
+name: email-test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/relay_notify_email.py'
+      - '.github/workflows/email_test.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Send test email
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/relay_notify_email.py --verify

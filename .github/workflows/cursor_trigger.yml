@@ -7,6 +7,10 @@ on:
     paths:
       - 'tasks/[0-9]*.md'
 
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: relay-executor
   cancel-in-progress: false
@@ -39,7 +43,6 @@ jobs:
               | grep -E '^tasks/[0-9]+_.*\.md$' | head -1 || true)
           fi
           if [ -z "$TASK_FILE" ]; then
-            echo "No numbered task file found; skipping."
             echo "file=" >> "$GITHUB_OUTPUT"
             echo "number=" >> "$GITHUB_OUTPUT"
             exit 0
@@ -48,23 +51,15 @@ jobs:
           echo "file=$TASK_FILE" >> "$GITHUB_OUTPUT"
           echo "number=$TASK_NUM" >> "$GITHUB_OUTPUT"
 
-      - name: Verify Telegram
+      - name: Email — task started
         if: steps.task.outputs.number != ''
-        id: tg
+        continue-on-error: true
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          set +e
-          python scripts/relay_notify.py --verify
-          echo "code=$?" >> "$GITHUB_OUTPUT"
-
-      - name: Notify Telegram — new task ready
-        if: steps.task.outputs.number != '' && steps.tg.outputs.code == '0'
-        run: python scripts/relay_notify.py started --task "${{ steps.task.outputs.number }}"
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/relay_notify_email.py started --task "${{ steps.task.outputs.number }}"
 
   execute:
     needs: notify
@@ -95,16 +90,22 @@ jobs:
           echo "$OUT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Notify approval needed
+      - name: Email — approval required (merge PR)
         if: startsWith(steps.exec.outputs.exec_out, 'EXECUTED')
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scripts/relay_notify.py approval
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/relay_notify_email.py approval --task "${{ needs.notify.outputs.number }}"
 
-      - name: Warn low balance
+      - name: Email — low balance
         if: failure() && contains(steps.exec.outputs.exec_out, 'LOW')
+        continue-on-error: true
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scripts/relay_notify.py low-balance || true
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/relay_notify_email.py low-balance

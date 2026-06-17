@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 
 jobs:
   relay:
@@ -62,10 +63,13 @@ jobs:
       - name: Warn low balance and stop
         if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && steps.preflight.outputs.code == '5' }}
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python scripts/relay_notify.py low-balance
+          python scripts/relay_notify_email.py low-balance
           echo "Stopping: OpenAI balance is low. Top up and re-run." >&2
           exit 1
 
@@ -111,14 +115,20 @@ jobs:
       - name: Warn low balance (Cursor side)
         if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && steps.exec.outputs.exec_code == '5' }}
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scripts/relay_notify.py low-balance
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/relay_notify_email.py low-balance
 
       - name: Notify human — approval needed
         if: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && (startsWith(steps.plan.outputs.planner_out, 'PAUSE') || startsWith(steps.exec.outputs.exec_out, 'EXECUTED')) }}
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scripts/relay_notify.py approval
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RELAY_NOTIFY_EMAIL: ${{ secrets.RELAY_NOTIFY_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/relay_notify_email.py approval
 
