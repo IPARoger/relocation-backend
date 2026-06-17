@@ -95,6 +95,7 @@ jobs:
 
       - name: Email — human decision needed (planner PAUSE)
         if: ${{ startsWith(steps.plan.outputs.planner_out, 'PAUSE') }}
+        continue-on-error: true
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
