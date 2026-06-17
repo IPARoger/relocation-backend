@@ -2415,18 +2415,21 @@ async function applyMapFavoriteButtonState(popup) {
         }
         if (!place || !place.id) return; // place never created => not favorited
 
-        const { data: favs } = await sbClient
-            .from("favorite_places")
-            .select("id")
-            .eq("account_id", accountId)
-            .eq("profile_id", profileId)
-            .eq("place_id", place.id)
-            .is("archived_at", null)
-            .limit(1);
-        const already = Array.isArray(favs) && favs.length > 0;
-        if (already) {
-            btn.textContent = "Favorited \u2713";
-            btn.disabled = true;
+        const { data: { session: _favSess } } = await sbClient.auth.getSession();
+        const _favToken = _favSess && _favSess.access_token;
+        if (_favToken) {
+            const favResp = await fetch(
+                `${API_BASE}/favorites?profile_id=${encodeURIComponent(profileId)}`,
+                { headers: { Authorization: `Bearer ${_favToken}` } }
+            );
+            if (favResp.ok) {
+                const favData = await favResp.json();
+                const already = (favData.favorites || []).some((f) => f.place_id === place.id);
+                if (already) {
+                    btn.textContent = "Favorited \u2713";
+                    btn.disabled = true;
+                }
+            }
         }
     } catch (e) { /* read-only; leave default label on failure */ }
 }
@@ -6172,37 +6175,27 @@ async function loadSavedPlacesForActiveProfile() {
     };
     const profileId = getActiveFavoriteProfileId();
     if (!profileId) { showEmpty("Select a profile to see its saved places."); return; }
-    const sbClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null) || window._supabaseClient;
-    if (!sbClient) { showEmpty("Saved places unavailable right now."); return; }
-    const accountId = window.CurrentUser && window.CurrentUser.accountId;
     try {
-        let favQuery = sbClient
-            .from("favorite_places")
-            .select("id, place_id, label")
-            .eq("profile_id", profileId)
-            .is("archived_at", null);
-        if (accountId) favQuery = favQuery.eq("account_id", accountId);
-        const { data: favs, error: favErr } = await favQuery;
-        if (favErr) throw favErr;
-        const rows = Array.isArray(favs) ? favs.filter((f) => f.place_id) : [];
+        const sbClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null) || window._supabaseClient;
+        const { data: { session } } = sbClient ? await sbClient.auth.getSession() : { data: {} };
+        const token = session && session.access_token;
+        if (!token) { showEmpty("Saved places unavailable right now."); return; }
+        const resp = await fetch(
+            `${API_BASE}/favorites?profile_id=${encodeURIComponent(profileId)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!resp.ok) { showEmpty("Could not load saved places."); return; }
+        const data = await resp.json();
+        const rows = (data.favorites || []).filter((f) => f.place_id);
         if (rows.length === 0) {
             select.innerHTML = '<option value="">\u2014</option>';
             if (empty) { empty.hidden = false; empty.textContent = "No saved places yet. Right-click the map and Favorite a location."; }
             return;
         }
-        const placeIds = rows.map((r) => r.place_id);
-        const { data: places, error: plErr } = await sbClient
-            .from("places")
-            .select("id, display_name, latitude, longitude")
-            .in("id", placeIds);
-        if (plErr) throw plErr;
-        const byId = {};
-        (places || []).forEach((pl) => { byId[pl.id] = pl; });
         const opts = rows.map((r) => {
-            const pl = byId[r.place_id];
-            if (!pl) return null;
-            const name = r.label || pl.display_name || "Saved place";
-            return { placeId: r.place_id, name, lat: pl.latitude, lon: pl.longitude };
+            if (!r.place_id) return null;
+            const name = r.label || r.display_name || "Saved place";
+            return { placeId: r.place_id, name, lat: r.latitude, lon: r.longitude };
         }).filter(Boolean);
         if (opts.length === 0) { showEmpty("Saved places could not be resolved."); return; }
         if (empty) empty.hidden = true;

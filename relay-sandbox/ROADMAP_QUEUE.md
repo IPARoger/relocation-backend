@@ -10,6 +10,8 @@ Do not modify application code except this sandbox tree.
 | SB-3 | S | Grep production JS (`map_CURRENT.html`, `app_shell.html`, `*.js` in repo root) for `fetch(` calls to port 8004 write methods (POST/PATCH/PUT) | closeout SB-3 |
 | SB-4 | S | List smoke scripts under `smokes/` whose names contain `ownership` or `quarantine` | closeout SB-4 |
 | SB-5 | S | Summarize SB-1..SB-4 findings in one consolidation closeout | closeout SB-5 |
+| SB-6 | S | List relay env vars (keys only) from .env.local | closeout SB-6 |
+| SB-7 | S | List files in relay-sandbox/results/ — names and sizes | closeout SB-7 |
 
 ## Rules
 1. First incomplete SB-* only.

@@ -171,6 +171,10 @@ def main() -> int:
                 touch("passed")
                 return 0
             time.sleep(SLEEP_OK)
+        elif code == 0:
+            # cycle exited 0 but no work done (NO_PENDING_TASK) — wait and retry without resetting
+            log("OK_STREAK hold (no pending task, waiting)")
+            time.sleep(30)
         else:
             ok_streak = load_streak()
             write_status(ok_streak, code, "reset")
