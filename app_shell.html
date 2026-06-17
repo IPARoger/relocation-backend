@@ -1291,35 +1291,20 @@ async function hydrateChartRecordComparisonSets(root) {
   const token = ++_crComparisonToken;
   const stillCurrent = () =>
     token === _crComparisonToken && navContext.route === "chart-record" && document.body.contains(container);
-  const accountId = window.CurrentUser && window.CurrentUser.accountId;
   try {
-    const client = await window.SupabaseReady;
-    if (!client) throw new Error("Supabase unavailable.");
-    let q = client
-      .from("comparison_sets")
-      .select("id, title, created_at, updated_at")
-      .eq("profile_id", chartRecordId)
-      .is("archived_at", null)
-      .order("updated_at", { ascending: false });
-    if (accountId) q = q.eq("account_id", accountId);
-    const { data: sets, error } = await q;
-    if (error) throw error;
+    const compSets = (window.SupabaseStore?.comparison_sets ?? []).filter(cs => cs.profile_id === chartRecordId);
     if (!stillCurrent()) return;
-    const rows = Array.isArray(sets) ? sets : [];
+    const rows = compSets.slice().sort((a, b) => {
+      const ta = a.updated_at || a.created_at || "";
+      const tb = b.updated_at || b.created_at || "";
+      return tb.localeCompare(ta);
+    });
     if (rows.length === 0) {
       container.innerHTML = `<p class="meta">No comparison sets yet. Build a comparison from saved places.</p>`;
       return;
     }
-    // Place counts (best-effort; non-fatal if it fails)
     const counts = {};
-    try {
-      const ids = rows.map((r) => r.id);
-      const { data: cspRows } = await client
-        .from("comparison_set_places")
-        .select("comparison_set_id")
-        .in("comparison_set_id", ids);
-      (cspRows || []).forEach((r) => { counts[r.comparison_set_id] = (counts[r.comparison_set_id] || 0) + 1; });
-    } catch (e) { /* counts optional */ }
+    rows.forEach((cs) => { counts[cs.id] = Array.isArray(cs.place_ids) ? cs.place_ids.length : 0; });
     if (!stillCurrent()) return;
     container.innerHTML = `<ul class="plain">${rows.map((cs) => {
       const title = cs.title || "Comparison";

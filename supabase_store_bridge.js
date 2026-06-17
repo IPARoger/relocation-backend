@@ -223,7 +223,7 @@
     // 5. comparison_sets
     var csResult = await client
       .from("comparison_sets")
-      .select("id, profile_id")
+      .select("id, profile_id, title, created_at, updated_at")
       .eq("account_id", accountId)
       .is("archived_at", null);
 
@@ -478,11 +478,14 @@
       return {
         id:                    cs.id,
         client_id:             cs.profile_id,
+        profile_id:            cs.profile_id,
+        title:                 cs.title || "",
         place_ids:             cspBySetId[cs.id] || [],
         saved_investigation_id: null,
         notes:                 comparisonSetNoteByTargetId[cs.id] || "",
         schema_version:        1,
-        updated_at:            null,
+        created_at:            cs.created_at || null,
+        updated_at:            cs.updated_at  || null,
       };
     });
 
