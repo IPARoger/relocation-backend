@@ -105,15 +105,10 @@ def main(argv):
 
         repo_url = "https://github.com/" + repo + ".git" if repo else None
         cloud = CloudAgentOptions(
-            repos=[repo_url] if repo_url else [],
+            repos=[{"url": repo_url}] if repo_url else [],
             auto_create_pr=True,
             skip_reviewer_request=True,
         )
-        if branch:
-            try:
-                cloud.ref = branch  # best-effort: pin the working branch
-            except Exception:
-                pass
 
         result = Agent.prompt(
             prompt,
