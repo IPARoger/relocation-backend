@@ -1,9 +1,39 @@
 # Roadmap Index
 
 **Last updated:** 2026-06-18  
-**Authority:** The most recent **ACTIVE** roadmap controls project direction. This index is the discovery entry point.
+**Authority:** See **ROADMAP AUTHORITY RULES** below. This index is the discovery entry point for all workstreams.
 
 ---
+
+## ROADMAP AUTHORITY RULES
+
+* Multiple ACTIVE roadmaps are allowed.
+* Each ACTIVE roadmap must belong to a clearly named workstream.
+* Only one ACTIVE roadmap may exist per workstream.
+* The most recent roadmap for a workstream is authoritative.
+* Never overwrite roadmap files.
+* Create a new dated roadmap instead.
+
+### Naming convention
+
+`<ROADMAP_NAME>__<STATUS>__<YYYY-MM-DD>.md`
+
+Examples:
+
+- `WEB2_COMPLETION__ACTIVE__2026-06-18.md`
+- `WEB2_COMPLETION__COMPLETED__2026-06-25.md`
+- `RELAY_AUTOMATION__ACTIVE__2026-06-18.md`
+- `WEB3_FOUNDATION__DRAFT__2026-07-01.md`
+
+### Roadmap lifecycle
+
+| Folder | Purpose |
+|--------|---------|
+| `active/` | Current authoritative roadmaps (one per workstream) |
+| `completed/` | Immutable historical snapshots |
+
+Completed roadmaps are immutable historical snapshots. When a workstream finishes, copy or promote the final version to `completed/` with `COMPLETED` status and a new date — do not edit the archived file.
+
 
 ## Active Roadmaps
 
@@ -45,12 +75,12 @@ Long-retired or exploratory roadmaps that are no longer referenced in planning l
 
 ## Governance Rules
 
-* **Active roadmap is source of truth** for current product direction.
+* **Active roadmap per workstream is source of truth** for that workstream's direction.
 * **Completed roadmaps are historical** — immutable once marked COMPLETED.
 * **Superseded roadmaps are preserved** — never deleted; moved to `superseded/` with a successor reference.
 * **New roadmap versions never overwrite old versions** — create a new dated file instead.
 * **Name first, date second** — use `<ROADMAP_NAME>__<STATUS>__<YYYY-MM-DD>.md`.
-* **Most recent roadmap controls project direction** — when two roadmaps conflict, the newer ACTIVE file wins.
+* **Most recent roadmap per workstream is authoritative** — when two files in the same workstream conflict, the newer dated file wins.
 
 ### Folder layout
 

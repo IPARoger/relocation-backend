@@ -5,6 +5,19 @@ Put `**Roadmap ID:** C?_?` in every task header. Reference closeout in results/.
 
 **Product track** (port 8000, city search, Notes UI, settings completion, etc.) is **CURRENT** — see `docs/architecture/ROADMAP_AND_SEQUENCE.md`.
 
+
+## ROADMAP GOVERNANCE
+
+* Multiple ACTIVE roadmaps are allowed.
+* Only one ACTIVE roadmap may exist per workstream.
+* Active roadmaps live in `docs/roadmaps/active/`
+* Completed roadmaps move to `docs/roadmaps/completed/`
+* Use naming convention: `<ROADMAP_NAME>__<STATUS>__<YYYY-MM-DD>.md`
+* Never create `roadmap_v2.md`, `roadmap_new.md`, `final.md`, `roadmap-final-final.md`, etc.
+* Most recent roadmap for a workstream is authoritative.
+
+See `docs/roadmaps/ROADMAP_INDEX.md` for the full registry.
+
 **Status (2026-06-18):** Chats 1–5 **COMPLETE**. Cleanup track **CLOSED**. Product track **CURRENT**. Chat 5 closure: `3bb5905` (C5-6), governance sync per `results/82_chat5_closure_audit.md`.
 
 ---

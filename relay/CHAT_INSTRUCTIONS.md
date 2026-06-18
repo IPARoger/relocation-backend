@@ -4,6 +4,15 @@ Paste project-specific rules above this line if needed. The relay robot sends th
 
 ---
 
+
+## Before creating a roadmap
+
+1. Check `docs/roadmaps/ROADMAP_INDEX.md`
+2. Check whether an ACTIVE roadmap already exists for that workstream
+3. Follow naming convention exactly: `<ROADMAP_NAME>__<STATUS>__<YYYY-MM-DD>.md`
+4. Never overwrite an existing roadmap
+5. Create a new dated roadmap instead
+
 ## Core workflow
 
 1. **Audit → plan → implement → validate → commit** — one roadmap slice at a time.
