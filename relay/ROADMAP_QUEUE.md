@@ -3,9 +3,9 @@
 Planner: propose the **first incomplete item** below. One objective per task.
 Put `**Roadmap ID:** C?_?` in every task header. Reference closeout in results/.
 
-**Product features** (port 8000, city search, Notes UI, etc.) are **after Chat 5** — do not plan them until this queue is done.
+**Product track** (port 8000, city search, Notes UI, settings completion, etc.) is **CURRENT** — see `docs/architecture/ROADMAP_AND_SEQUENCE.md`.
 
-**Status (2026-06-18):** Chat 4 **COMPLETE**. Chat 5 **READY** (CURRENT). Closure commits: `aeaaa6d` (C4-1), `8a934d9` (C4-2 M2). See `results/75_c4_1_*`, `results/76_c4_2_m2_*`, closure audit in `results/73_*` / `results/74_*`.
+**Status (2026-06-18):** Chats 1–5 **COMPLETE**. Cleanup track **CLOSED**. Product track **CURRENT**. Chat 5 closure: `3bb5905` (C5-6), governance sync per `results/82_chat5_closure_audit.md`.
 
 ---
 
@@ -71,27 +71,33 @@ Executed Chat 3 plan (`results/60_c3_2_read_path_plan.md`). All seven slices ver
 
 ---
 
-## Chat 5 — Dead Code Retirement & Cleanup ▶ READY (CURRENT)
+## Chat 5 — Dead Code Retirement & Cleanup ✅ COMPLETE
 
-Chat 4 complete — resume incremental cleanup per C5-1 audit. One slice per task.
+Incremental cleanup per C5-1 audit. All approved slices verified. **Cleanup track CLOSED.**
+
+**Closure commits:** `75a3443` (C5-5), `3bb5905` (C5-6). **Closure audit:** `results/82_chat5_closure_audit.md`.
 
 | ID | Status | Item | Closeout |
 |----|--------|------|----------|
 | C5-1 | ✅ | Dead code audit | `results/68_c5_1_*` |
-| C5-2 | ⏸ | Remove dead helpers — **NOT VERIFIED** (24 shim callers) | `results/69_*` |
+| C5-2 | ⏸ BLOCKED | Remove dead helpers — live shim callers (`_deprecated_legacy_write`) | `results/69_*` |
 | C5-2a | ✅ | Narrow removal — 6 dead functions | `results/69b_*` |
-| C5-3 | ⏸ | Bridge helpers — **NOT VERIFIED** (live internal callers) | `results/70_*` |
+| C5-3 | ⏸ BLOCKED | Bridge helpers — live internal callers | `results/70_*` |
 | C5-4 | ✅ | Legacy map audit (read-only) | `results/71_*` |
 | C5-4a | ✅ | Quarantine `renderBellAuraBandsAroundLine` (partial) | `results/72_*` |
 | C5-5 | ✅ | Remove `orb_defaults` legacy mirror write (`app_shell.html`) | `results/79_*` |
 | C5-6 | ✅ | Remove unused back-compat `state` proxy (`app_shell.html`) | `results/80_*` |
-| C5-7+ | **NEXT** | Further cleanup per C5-1 priority — confirmed-dead only | closeout C5-N |
 
-**Do not touch:** `_deprecated_legacy_write`, LIVE renderer (`LEGACY_SEARCH_REGIONS`), bridge helpers used by `buildSupabaseStore` / `refreshProfile`.
+**Closure notes:**
+- C5-2 blocked by live callers (25 legacy-write 410 shims) — do not retry without new approved roadmap spec.
+- C5-3 blocked by live callers (`buildSupabaseStore` / `refreshProfile`) — do not retry without new approved roadmap spec.
+- No remaining required cleanup slices. Candidate audit: `results/81_c5_7_candidate_audit.md` (read-only; no implementation slice).
+
+**Do not touch (if cleanup is ever reopened):** `_deprecated_legacy_write`, LIVE renderer (`LEGACY_SEARCH_REGIONS`), bridge helpers used by `buildSupabaseStore` / `refreshProfile`.
 
 ---
 
-## After Chat 5 → Product track
+## Product track ▶ CURRENT
 
 Settings completion, saved comparisons UX, Help/onboarding, exports, city search, port 8000 migration — see `docs/architecture/ROADMAP_AND_SEQUENCE.md`.
 
@@ -99,7 +105,7 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 
 ## Planner rules
 
-1. **Chat 5 is CURRENT.** Resume C5-5+ per C5-1 audit priority. Do not retry C5-2/C5-3 without new task spec.
+1. **Product track is CURRENT.** Architecture chats 1–5 are **COMPLETE**; cleanup track is **CLOSED**. Do not reopen C5-2 or C5-3 without a new approved roadmap specification.
 2. One slice per task — do not bundle.
 3. Always grep production UI + ownership smokes before quarantining or deleting.
 4. If active caller found → PAUSE, cite route.

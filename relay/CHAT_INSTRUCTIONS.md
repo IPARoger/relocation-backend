@@ -42,9 +42,12 @@ Paste project-specific rules above this line if needed. The relay robot sends th
 
 ## Current roadmap state (sync with ROADMAP_QUEUE.md)
 
-- Chat 1–3: **COMPLETE**
-- Chat 4: **COMPLETE** — all slices verified (`aeaaa6d` C4-1, `8a934d9` C4-2 M2); C4 blockers resolved
-- Chat 5: **ACTIVE** — resume C5-5+ per C5-1 audit; C5-2 and C5-3 remain blocked (hard stops)
+- Chat 1–4: **COMPLETE**
+- Chat 5: **COMPLETE** — closure audit `results/82_chat5_closure_audit.md`; final slice `3bb5905` (C5-6)
+- Cleanup track: **CLOSED** — no remaining required cleanup slices
+- **Product track: CURRENT** — settings, UX, city search, port 8000, etc.
+
+Do not reopen C5-2 or C5-3 without a new approved roadmap specification (both blocked by live callers).
 
 ## Closeout format
 
