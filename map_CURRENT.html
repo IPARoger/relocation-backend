@@ -4671,9 +4671,10 @@ function renderHouseFeatures(displayData) {
     });
 }
 
+// QUARANTINED C5-4a — empty disabled function, no callers. Restore if renderer regression found.
 /** Prototype aura bands disabled — see validation/narratives/map_current_qa_cleanup_pass.md */
 function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
-    if (!aspectAuraMode) return;
+    // if (!aspectAuraMode) return;
 }
 
 function renderAspectFeatures(displayData) {
