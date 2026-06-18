@@ -83,7 +83,8 @@ Chat 4 complete — resume incremental cleanup per C5-1 audit. One slice per tas
 | C5-3 | ⏸ | Bridge helpers — **NOT VERIFIED** (live internal callers) | `results/70_*` |
 | C5-4 | ✅ | Legacy map audit (read-only) | `results/71_*` |
 | C5-4a | ✅ | Quarantine `renderBellAuraBandsAroundLine` (partial) | `results/72_*` |
-| C5-5+ | **NEXT** | Further cleanup per C5-1 priority — confirmed-dead only | closeout C5-N |
+| C5-5 | ✅ | Remove `orb_defaults` legacy mirror write (`app_shell.html`) | `results/79_*` |
+| C5-6+ | **NEXT** | Further cleanup per C5-1 priority — confirmed-dead only | closeout C5-N |
 
 **Do not touch:** `_deprecated_legacy_write`, LIVE renderer (`LEGACY_SEARCH_REGIONS`), bridge helpers used by `buildSupabaseStore` / `refreshProfile`.
 

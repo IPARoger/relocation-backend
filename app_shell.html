@@ -2958,7 +2958,6 @@ function bindScreenActions(root) {
           const mo = collectAspOrbs("maj", majorAspIds);
           if (Object.keys(mo).length === majorAspIds.length) {
             settingsPatch.major_aspect_orbs = mo;
-            settingsPatch.orb_defaults = mo; // legacy mirror; single source of truth is the Aspect Registry
           }
         }
         if (document.getElementById("rm-settings-minasp-quincunx")) {
