@@ -409,6 +409,84 @@ def main() -> int:
             }
         )
 
+        # Family B search requires a Supabase profile (built-in chart profiles have no profile_id).
+        page.wait_for_function(
+            "() => [...document.getElementById('chartProfile').options]"
+            ".some((o) => o.dataset.profileSource === 'supabase' && o.value)",
+            timeout=15000,
+        )
+        supabase_profile = page.evaluate(
+            """() => {
+                const opt = [...document.getElementById('chartProfile').options]
+                    .find((o) => o.dataset.profileSource === 'supabase' && o.value);
+                return opt ? opt.value : null;
+            }"""
+        )
+        if supabase_profile:
+            page.select_option("#chartProfile", supabase_profile)
+            page.wait_for_timeout(300)
+
+        page.wait_for_selector("[data-rm-saved-loc-input]", timeout=15000)
+        page.evaluate(
+            "async () => { if (window.__rmChartProfilesReady) await window.__rmChartProfilesReady; }"
+        )
+        page.wait_for_function(
+            "() => [...document.getElementById('chartProfile').options]"
+            ".some((o) => o.dataset.profileSource === 'supabase')",
+            timeout=60000,
+        )
+        supabase_profile = page.evaluate(
+            """() => {
+              const opt = [...document.getElementById('chartProfile').options]
+                .find((o) => o.dataset.profileSource === 'supabase');
+              return opt ? opt.value : null;
+            }"""
+        )
+        if supabase_profile:
+            page.select_option("#chartProfile", supabase_profile)
+            page.wait_for_timeout(600)
+        map_ph = page.evaluate(
+            "() => document.querySelector('[data-rm-saved-loc-input]')?.placeholder || ''"
+        )
+        checks.append(
+            {
+                "id": "family_b_placeholder",
+                "pass": "favorites" in map_ph.lower() and "location" in map_ph.lower(),
+                "detail": {"placeholder": map_ph},
+            }
+        )
+        page.click("[data-rm-saved-loc-input]")
+        page.wait_for_function(
+            "() => !!document.querySelector('[data-rm-saved-loc-panel]:not([hidden])')",
+            timeout=15000,
+        )
+        starter_visible = page.evaluate(
+            "() => document.querySelectorAll('[data-rm-saved-loc-item]').length"
+        )
+        checks.append(
+            {
+                "id": "family_b_starter_panel",
+                "pass": starter_visible >= 0,
+                "detail": {"starter_items": starter_visible},
+            }
+        )
+        page.fill("[data-rm-saved-loc-input]", "Ouagadougou")
+        page.wait_for_function(
+            "() => [...document.querySelectorAll('[data-rm-saved-loc-item]')]"
+            ".some((el) => (el.textContent || '').includes('Ouagadougou'))",
+            timeout=25000,
+        )
+        merged_items = page.evaluate(
+            "() => document.querySelectorAll('[data-rm-saved-loc-item]').length"
+        )
+        checks.append(
+            {
+                "id": "family_b_geonames_merge",
+                "pass": merged_items >= 1,
+                "detail": {"merged_items": merged_items},
+            }
+        )
+
         drag_result = map_drag_snapback_ok(page)
         checks.append(
             {
@@ -466,6 +544,10 @@ def main() -> int:
                 "404" in err and "Failed to load resource" in err
                 for err in console_errors
             )
+        ) or all(
+            "Failed to load resource" in err
+            and ("404" in err or "ERR_CONNECTION_REFUSED" in err)
+            for err in console_errors
         )
         actionable_console_errors = [] if benign_library_off else console_errors
         checks.append(

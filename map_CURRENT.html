@@ -711,6 +711,8 @@ html.map-panel-show-legend #panelLegend { display: block; }
 <script src="/user_profile.js"></script>
 <script src="/supabase_store_bridge.js"></script>
     <script src="/place_search_client.js"></script>
+    <script src="/saved_location_search_service.js"></script>
+    <script src="/saved_location_search_ui.js"></script>
 <script src="/first_profile_intake.js"></script>
 </head>
 <body>
@@ -754,8 +756,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 
         <div class="panel-section">
             <div class="panel-section-title">Location</div>
-            <label for="citySearch">City (placeholder list — exact name, Enter)</label>
-            <input type="text" id="citySearch" placeholder="Exact name only…" autocomplete="off" />
+            <div id="rm-map-loc-search-mount"></div>
             <div id="citySearchFeedback" class="city-search-feedback" hidden aria-live="polite"></div>
         </div>
 
@@ -6092,37 +6093,76 @@ document.getElementById("findBtn").onclick = function() {
     debounceTimer = setTimeout(findRegions, 400);
 };
 
-document.getElementById("citySearch").addEventListener("input", clearCitySearchFeedback);
+let mapLocationSearchCtl = null;
 
-document.getElementById("citySearch").addEventListener("keydown", async function(e) {
-    if (e.key === "Escape") {
-        e.stopPropagation();
-        clearCitySearchFeedback();
-        return;
-    }
-    if (e.key !== "Enter") return;
-
-    const raw = this.value;
-    const { primary } = normalizeCitySearchQuery(raw);
-    if (!primary) {
-        clearCitySearchFeedback();
-        return;
-    }
-
-    const { matches, reason } = findCityDatasetMatches(raw);
-
-    if (!matches.length) {
-        const msg =
-            reason === "no_dataset"
-                ? "Placeholder city list not loaded."
-                : "Not in placeholder list (exact name only). Real geocoder required.";
-        showCitySearchError(msg);
-        return;
-    }
-
+async function openSavedLocationSearchResult(item) {
     clearCitySearchFeedback();
-    await openDatasetCityPopup(matches[0]);
-});
+    let lat = Number(item.latitude);
+    let lon = Number(item.longitude);
+    let name = item.display_name || item.label || "Location";
+    let meta = {
+        title: name,
+        origin: item.source === "custom" ? "map_custom" : (item.source || "search"),
+        country: item.country_code || null,
+        admin: item.admin1 || null,
+        geonamesId: item.geonames_id || null,
+    };
+    if ((!Number.isFinite(lat) || !Number.isFinite(lon)) && item.place_id) {
+        try {
+            const resp = await fetch(`${API_BASE}/place/${encodeURIComponent(item.place_id)}`);
+            if (resp.ok) {
+                const pl = await resp.json();
+                lat = Number(pl.latitude);
+                lon = Number(pl.longitude);
+                name = pl.display_name || name;
+                meta = {
+                    title: name,
+                    origin: pl.provider || meta.origin,
+                    country: pl.country_code || null,
+                    admin: pl.admin1 || null,
+                    geonamesId: pl.geonames_id || null,
+                };
+            }
+        } catch (e) { /* fall through */ }
+    }
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+        showCitySearchError("Could not resolve coordinates for that location.");
+        return;
+    }
+    map.setView([lat, lon], 6, { animate: true });
+    await openDatasetCityPopup({
+        name: name,
+        lat: lat,
+        lng: lon,
+        country: meta.country,
+        admin: meta.admin,
+        geoname_id: meta.geonamesId,
+        origin: meta.origin,
+    });
+}
+
+function mountMapLocationSearch() {
+    const mount = document.getElementById("rm-map-loc-search-mount");
+    if (!mount || !window.RMSavedLocationSearchUI) return;
+    if (mapLocationSearchCtl) {
+        mapLocationSearchCtl.destroy();
+        mapLocationSearchCtl = null;
+    }
+    mapLocationSearchCtl = window.RMSavedLocationSearchUI.mount({
+        root: mount,
+        inputId: "citySearch",
+        getProfileId: getActiveFavoriteProfileId,
+        onSelect: (item) => {
+            openSavedLocationSearchResult(item).catch((err) => {
+                console.error("[map-location-search]", err);
+                showCitySearchError("Could not open that location.");
+            });
+            if (mapLocationSearchCtl) mapLocationSearchCtl.clear();
+        },
+    });
+}
+
+mountMapLocationSearch();
 
 map.on("moveend", () => {
     renderCities();
@@ -6232,6 +6272,8 @@ async function openSavedPlace(name, lat, lon) {
     if (profileSelect) {
         profileSelect.addEventListener("change", function () {
             loadSavedPlacesForActiveProfile();
+            if (window.RMSavedLocationSearch) window.RMSavedLocationSearch.invalidateProfile(getActiveFavoriteProfileId());
+            mountMapLocationSearch();
         });
     }
 })();

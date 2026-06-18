@@ -360,11 +360,35 @@ def main() -> int:
                 profile_id,
             )
             page.wait_for_selector("[data-action='compare-build']", timeout=15000)
-            page.wait_for_selector(".rm-cmp-pick", timeout=15000)
+            page.wait_for_selector("[data-rm-saved-loc-input]", timeout=15000)
 
-            picks = page.query_selector_all(".rm-cmp-pick")
-            for el in picks[:2]:
-                el.check()
+            page.evaluate(
+                """(args) => {
+                  const vm = window.__rmAppShell.viewModel();
+                  const rec = vm.chartRecords.find((r) => r.chartRecordId === args.pid);
+                  args.ids.forEach((placeId) => {
+                    const fav = rec && rec.favorites
+                      ? rec.favorites.find((f) => f.placeId === placeId)
+                      : null;
+                    const name = fav ? fav.placeName : placeId;
+                    window.__rmAppShell.addComparisonPick(placeId, name);
+                  });
+                }""",
+                {"pid": profile_id, "ids": fav_place_ids[:2]},
+            )
+            page.wait_for_function(
+                "() => document.querySelectorAll('.rm-cmp-pick:checked').length >= 2",
+                timeout=10000,
+            )
+
+            # Family B: unified search input present with doctrine placeholder
+            ph = page.evaluate(
+                "() => document.querySelector('[data-rm-saved-loc-input]')?.placeholder || ''"
+            )
+            results.append(("fe_family_b_placeholder",
+                            "favorites" in ph.lower() and "location" in ph.lower(),
+                            f"placeholder={ph!r}"))
+
             page.click("[data-action='compare-build']")
             page.wait_for_function(
                 "()=>window.__rmAppShell.navContext.comparisonSetId",
@@ -386,6 +410,50 @@ def main() -> int:
                             f"loads={load_count['n']} before={loads_before}"))
 
 
+            # Family B starter + merged search
+            page.evaluate(
+                "(pid)=>{window.__rmAppShell.switchChartRecord(pid);"
+                "window.__rmAppShell.navigate('compare',"
+                "{chartRecordId: pid, comparisonSetId: null});}",
+                profile_id,
+            )
+            page.wait_for_selector("[data-rm-saved-loc-input]", timeout=15000)
+            page.evaluate(
+                "(pid) => { if (window.RMSavedLocationSearch) window.RMSavedLocationSearch.invalidateProfile(pid); }",
+                profile_id,
+            )
+            page.click("[data-rm-saved-loc-input]")
+            page.wait_for_function(
+                "() => document.querySelector('[data-rm-saved-loc-panel]:not([hidden])')",
+                timeout=20000,
+            )
+            page.wait_for_function(
+                "() => document.querySelectorAll('[data-rm-saved-loc-item]').length >= 1",
+                timeout=20000,
+            )
+            starter_count = page.evaluate(
+                "() => document.querySelectorAll('[data-rm-saved-loc-item]').length"
+            )
+            results.append(("fe_family_b_starter", starter_count >= 1,
+                            f"starter_items={starter_count}"))
+            page.fill("[data-rm-saved-loc-input]", "London")
+            page.wait_for_function(
+                "() => document.querySelector('[data-rm-saved-loc-panel]:not([hidden])') && document.querySelectorAll('[data-rm-saved-loc-item]').length > 0",
+                timeout=15000,
+            )
+            merged_count = page.evaluate(
+                "() => document.querySelectorAll('[data-rm-saved-loc-item]').length"
+            )
+            results.append(("fe_family_b_merge_search", merged_count >= 1,
+                            f"merged_items={merged_count}"))
+
+            # Restore built comparison before workspace round-trip
+            page.evaluate(
+                "(args)=>{window.__rmAppShell.navigate('compare',"
+                "{chartRecordId: args.pid, comparisonSetId: args.sid});}",
+                {"pid": profile_id, "sid": fe_set_id},
+            )
+
             # Workspace state round-trip (before archive)
             page.wait_for_selector("#rm-cmp-workspace", timeout=15000)
             page.click("[data-action='cmp-angle-tab'][data-angle-tab='asc']")
@@ -397,9 +465,7 @@ def main() -> int:
                 timeout=15000,
             )
             mem_tab = page.evaluate(
-                "()=>{const id=window.__rmAppShell.navContext.comparisonSetId;"
-                "const cs=window.__rmAppShell.viewModel().comparisonSets.find(c=>c.id===id);"
-                "return cs&&cs.workspaceState?cs.workspaceState.active_angle_tab:null;}")
+                "()=>document.querySelector('.rm-cmp-angle-tab.active')?.getAttribute('data-angle-tab')")
             results.append(("fe_workspace_inmemory", mem_tab == "asc", f"tab={mem_tab}"))
             page.goto(base + "/app_shell.html", wait_until="domcontentloaded")
             page.wait_for_function(

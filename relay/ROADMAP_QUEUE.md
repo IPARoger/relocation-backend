@@ -126,7 +126,7 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 |----|--------|------|----------|
 | C-UX-1 | ✅ | Comparison workflow truth audit | `results/95_comparison_workflow_truth_audit.md` |
 | C-UX-2 | ✅ | Comparison workspace state via `settings_snapshot_json` | `results/97_cux2_comparison_workspace_state.md` |
-| C-UX-3 | ⏳ | Unified saved-location search architecture | — |
+| C-UX-3 | ✅ | Unified saved-location search architecture | `results/98_cux3_unified_saved_location_search.md` |
 | C-UX-4 | ⏳ | Comparison overlay (New / Saved / unified search) | — |
 
 

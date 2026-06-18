@@ -168,6 +168,30 @@ def serve_supabase_store_bridge_js():
     )
 
 
+@app.get("/place_search_client.js")
+def serve_place_search_client_js():
+    return FileResponse(
+        APP_DIR / "place_search_client.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/saved_location_search_service.js")
+def serve_saved_location_search_service_js():
+    return FileResponse(
+        APP_DIR / "saved_location_search_service.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/saved_location_search_ui.js")
+def serve_saved_location_search_ui_js():
+    return FileResponse(
+        APP_DIR / "saved_location_search_ui.js",
+        media_type="application/javascript",
+    )
+
+
 @app.get("/first_profile_intake.js")
 def serve_first_profile_intake_js():
     return FileResponse(

@@ -262,6 +262,8 @@
 <script src="/user_profile.js"></script>
 <script src="/supabase_store_bridge.js"></script>
 <script src="/place_search_client.js"></script>
+<script src="/saved_location_search_service.js"></script>
+<script src="/saved_location_search_ui.js"></script>
 <script src="/first_profile_intake.js"></script>
 <script src="/current_location_editor.js"></script>
 <script src="/account_drawer.js"></script>
@@ -1983,6 +1985,51 @@ async function hydrateComparisonColumns(root) {
   }
 }
 
+let comparisonLocationSearchCtl = null;
+
+function comparisonPickChipHtml(placeId, placeName) {
+  return `<span class="rm-cmp-chip" data-place-id="${escapeHtml(placeId)}" style="display:inline-flex;align-items:center;gap:4px;margin:4px 6px 4px 0;padding:4px 8px;background:#eef2ff;border-radius:6px;font-size:0.9rem;">
+    ${escapeHtml(placeName)}
+    <button type="button" data-action="cmp-remove-pick" data-place-id="${escapeHtml(placeId)}" aria-label="Remove" style="border:none;background:transparent;cursor:pointer;">&times;</button>
+    <input type="checkbox" class="rm-cmp-pick" value="${escapeHtml(placeId)}" data-place-name="${escapeHtml(placeName)}" checked hidden>
+  </span>`;
+}
+
+function addComparisonPick(placeId, placeName) {
+  const host = document.getElementById("rm-cmp-selected");
+  if (!host || !placeId) return false;
+  if (host.querySelector(`.rm-cmp-pick[value="${CSS.escape(placeId)}"]`)) return false;
+  const count = host.querySelectorAll(".rm-cmp-pick").length;
+  if (count >= 5) {
+    const msg = document.getElementById("rm-cmp-build-msg");
+    if (msg) msg.textContent = "Maximum 5 places.";
+    return false;
+  }
+  host.insertAdjacentHTML("beforeend", comparisonPickChipHtml(placeId, placeName));
+  const msg = document.getElementById("rm-cmp-build-msg");
+  if (msg) msg.textContent = "";
+  return true;
+}
+
+function mountComparisonLocationSearch() {
+  const mount = document.getElementById("rm-cmp-loc-search-mount");
+  if (!mount || !window.RMSavedLocationSearchUI) return;
+  if (comparisonLocationSearchCtl) {
+    comparisonLocationSearchCtl.destroy();
+    comparisonLocationSearchCtl = null;
+  }
+  comparisonLocationSearchCtl = window.RMSavedLocationSearchUI.mount({
+    root: mount,
+    inputId: "rm-cmp-loc-search",
+    getProfileId: () => navContext.chartRecordId,
+    onSelect: (item) => {
+      const name = item.display_name || item.label || item.place_id;
+      addComparisonPick(item.place_id, name);
+      if (comparisonLocationSearchCtl) comparisonLocationSearchCtl.clear();
+    },
+  });
+}
+
 function screenCompare() {
   const origin = getChartRecord(navContext.chartRecordId);
   const favs = origin.favorites || [];
@@ -1992,18 +2039,17 @@ function screenCompare() {
     ? resolveVisibleOrderedPlaceIds(ws || extractWorkspaceStateFromSnapshot(cs.settings_snapshot_json, cs.placeIds), cs.placeIds).slice(0, 5)
     : [];
 
-  const pickerRows = favs.map((f) => {
-    const checked = selectedIds.includes(f.placeId) ? " checked" : "";
-    return `<label class="block" style="min-width:160px"><input type="checkbox" class="rm-cmp-pick" value="${escapeHtml(f.placeId)}" data-place-name="${escapeHtml(f.placeName)}"${checked}> ${escapeHtml(f.placeName)}</label>`;
+  const nameById = (viewModel && viewModel.placeNameById) || {};
+  const selectedChips = selectedIds.map((pid) => {
+    const fav = favs.find((f) => f.placeId === pid);
+    const name = (fav && fav.placeName) || nameById[pid] || pid;
+    return comparisonPickChipHtml(pid, name);
   }).join("");
 
-  const pickerPanel = favs.length < 2
-    ? `<div class="panel"><h3>Module: choose places</h3>
-        <div class="warn-box"><strong>Need at least 2 saved places.</strong><br>
-        Add favorite places to <strong>${escapeHtml(origin.displayName)}</strong> (from the map) to build a comparison.</div></div>`
-    : `<div class="panel"><h3>Module: choose places (2–5)</h3>
-        <p class="meta">Select 2–5 saved places under this Chart Record, then build the comparison.</p>
-        <div class="row" style="flex-wrap:wrap">${pickerRows}</div>
+  const pickerPanel = `<div class="panel"><h3>Module: choose places (2–5)</h3>
+        <p class="meta">Search saved locations or favorites under <strong>${escapeHtml(origin.displayName)}</strong>, then build the comparison.</p>
+        <div id="rm-cmp-loc-search-mount"></div>
+        <div id="rm-cmp-selected" class="row" style="flex-wrap:wrap;margin-top:8px;">${selectedChips}</div>
         <div class="row" style="margin-top:8px;align-items:center">
           <button type="button" data-action="compare-build">Build comparison</button>
           <span class="meta" id="rm-cmp-build-msg"></span>
@@ -2882,6 +2928,7 @@ function render() {
   const fn = SCREEN_RENDERERS[navContext.route];
   $("#main").innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
   bindScreenActions($("#main"));
+  if (navContext.route === "compare") mountComparisonLocationSearch();
   if (uiState.popupOpen) openPopup();
 }
 
@@ -3217,6 +3264,12 @@ function bindScreenActions(root) {
             window.alert("Archive failed: " + (err.message || String(err)));
           }
         })();
+      }
+      if (action === "cmp-remove-pick") {
+        const pid = btn.getAttribute("data-place-id");
+        const chip = pid && document.querySelector(`.rm-cmp-chip[data-place-id="${pid}"]`);
+        if (chip) chip.remove();
+        return;
       }
       if (action === "compare-build") {
         const msg = document.getElementById("rm-cmp-build-msg");
@@ -4112,6 +4165,7 @@ window.__rmAppShell = {
   setAccountDefaultChartRecord,
   saveAccountSettingsPatch,
   flushComparisonWorkspaceState,
+  addComparisonPick,
   savePersistedChartRecord: _savePersistedChartRecord,
   handleProfileCreated,
   selectProfile,

@@ -199,7 +199,7 @@ def list_favorites(jwt_token: str, profile_id: str) -> list:
     _require_owned_active_profile(client, account_id, profile_id)
     result = (
         client.table("favorite_places")
-        .select("id, profile_id, place_id, label, rank, starred, places(id, display_name, latitude, longitude)")
+        .select("id, profile_id, place_id, label, rank, starred, places(id, display_name, latitude, longitude, provider, geonames_id, country_code, admin1)")
         .eq("account_id", account_id)
         .eq("profile_id", profile_id)
         .is_("archived_at", "null")
@@ -220,5 +220,9 @@ def list_favorites(jwt_token: str, profile_id: str) -> list:
             "display_name": place.get("display_name"),
             "latitude": place.get("latitude"),
             "longitude": place.get("longitude"),
+            "provider": place.get("provider"),
+            "geonames_id": place.get("geonames_id"),
+            "country_code": place.get("country_code"),
+            "admin1": place.get("admin1"),
         })
     return out
