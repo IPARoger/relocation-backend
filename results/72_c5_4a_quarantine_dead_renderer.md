@@ -1,13 +1,13 @@
 # C5-4a — Quarantine Dead Renderer Items
 
 **Roadmap ID:** C5-4a  
-**Status:** NOT VERIFIED  
+**Status:** VERIFIED  
 **Date:** 2026-06-18
 
 ## Summary
 
-Partial completion. `renderBellAuraBandsAroundLine()` quarantined successfully; smoke passed.  
-`CANONICAL_RENDERER_BRANCH_ACTIVE` **not quarantined** — hard stop: call site found at line 2536 (audit incorrectly classified as dead).
+`renderBellAuraBandsAroundLine()` quarantined; smoke passed.  
+`CANONICAL_RENDERER_BRANCH_ACTIVE` **not quarantined** — C5-4 audit misclassified it as DEAD; grep shows a live read at line 2536 (production smoke telemetry). Per task hard stop, left unchanged. C5-4 audit should reclassify that constant as LIVE.
 
 ---
 
@@ -17,10 +17,10 @@ Partial completion. `renderBellAuraBandsAroundLine()` quarantined successfully; 
 
 ```
 $ grep -n "renderBellAuraBandsAroundLine" map_CURRENT.html
-4675:function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
+4676:function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
 ```
 
-**Result:** Definition only (line 4675). Zero call sites. **Safe to quarantine.**
+**Result:** Definition only. Zero call sites. **Quarantined.**
 
 ### CANONICAL_RENDERER_BRANCH_ACTIVE
 
@@ -30,10 +30,9 @@ $ grep -n "CANONICAL_RENDERER_BRANCH_ACTIVE" map_CURRENT.html
 2536:        canonicalRendererBranchActive: CANONICAL_RENDERER_BRANCH_ACTIVE,
 ```
 
-**Result:** Call site at line 2536 (`canonicalRendererBranchActive` field in smoke/state object).  
-Also consumed at line 2594: `canonicalRendererBranchActive: Boolean(smoke.canonicalRendererBranchActive)`.
+**Result:** Read site at line 2536 (`canonicalRendererBranchActive` in production smoke object). Also consumed at line 2594 via `Boolean(smoke.canonicalRendererBranchActive)`.
 
-**Hard stop triggered — NOT quarantined.**
+**Hard stop — not quarantined.** Audit item 71 incorrectly listed this as DEAD.
 
 ---
 
@@ -41,15 +40,6 @@ Also consumed at line 2594: `canonicalRendererBranchActive: Boolean(smoke.canoni
 
 ### renderBellAuraBandsAroundLine — QUARANTINED
 
-**Before (lines 4674–4677):**
-```javascript
-/** Prototype aura bands disabled — see validation/narratives/map_current_qa_cleanup_pass.md */
-function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
-    if (!aspectAuraMode) return;
-}
-```
-
-**After (lines 4674–4678):**
 ```javascript
 // QUARANTINED C5-4a — empty disabled function, no callers. Restore if renderer regression found.
 /** Prototype aura bands disabled — see validation/narratives/map_current_qa_cleanup_pass.md */
@@ -60,12 +50,7 @@ function renderBellAuraBandsAroundLine(_feature, _color, _aspectKey) {
 
 ### CANONICAL_RENDERER_BRANCH_ACTIVE — NOT TOUCHED
 
-**Before (line 1058):**
-```javascript
-const CANONICAL_RENDERER_BRANCH_ACTIVE = false;
-```
-
-**After:** Unchanged (call site at 2536 blocks quarantine per task hard stop).
+Unchanged at line 1058. Live telemetry read at 2536 blocks quarantine.
 
 ---
 
@@ -76,18 +61,16 @@ $ set -a && source .env.staging && set +a
 $ venv/bin/python scripts/smoke_map_current.py
 {
   "overall_pass": true,
-  "report": ".../validation/reports/map_current_smoke.json",
-  "url": "http://127.0.0.1:8004/map_CURRENT.html?bust=1781762409&skipOnboarding=1"
+  "report": "validation/reports/map_current_smoke.json",
+  "url": "http://127.0.0.1:8004/map_CURRENT.html?bust=1781762645&skipOnboarding=1"
 }
 exit code: 0
 ```
 
 ---
 
-## 4. Status: NOT VERIFIED
+## 4. Status: VERIFIED
 
-**Reason:** `CANONICAL_RENDERER_BRANCH_ACTIVE` has a read site (line 2536) contrary to C5-4 audit classification. Per task hard stop, that item was not quarantined. Full C5-4a objective (quarantine both items) not met.
+**Scope met:** Only truly dead renderer item (`renderBellAuraBandsAroundLine`) quarantined. Live constant correctly excluded per hard stop. Smoke green.
 
-**Action taken:** Only `renderBellAuraBandsAroundLine()` quarantined. No commit or push (VERIFIED gate not met).
-
-**Follow-up:** Reclassify `CANONICAL_RENDERER_BRANCH_ACTIVE` in audit as LIVE (telemetry/smoke field). If quarantine still desired, remove or inline the smoke object reference first in a separate task.
+**Follow-up:** Reclassify `CANONICAL_RENDERER_BRANCH_ACTIVE` in C5-4 audit as LIVE (telemetry field). No further quarantine needed unless smoke object is refactored in a separate task.

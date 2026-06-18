@@ -41,6 +41,9 @@ def load_dotenv() -> None:
 def sandbox_env() -> dict[str, str]:
     env = os.environ.copy()
     mock = os.environ.get("RELAY_SANDBOX_MOCK", "0").strip()
+    skip_planner = os.environ.get("RELAY_SANDBOX_SKIP_PLANNER", "1").strip().lower() in (
+        "1", "true", "yes"
+    )
     env.update({
         "RELAY_HOME": str(SANDBOX),
         "RELAY_TASKS_DIR": str(SANDBOX / "tasks"),
@@ -51,6 +54,9 @@ def sandbox_env() -> dict[str, str]:
         "RELAY_RUNTIME": "local",
         "RELAY_PUSH": "0",
         "RELAY_SANDBOX_MOCK": mock,
+        "RELAY_SANDBOX_SKIP_PLANNER": "1" if skip_planner else "0",
+        "CURSOR_MODEL": os.environ.get("CURSOR_MODEL", "auto"),
+        "RELAY_AUTO_MODEL": os.environ.get("RELAY_AUTO_MODEL", "1"),
     })
     return env
 
@@ -147,7 +153,8 @@ def last_cycle_error() -> str:
 def run_cycle(env: dict[str, str]) -> int:
     touch("cycle_start")
     log(f"--- cycle start {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} ---")
-    mode = "exec" if sandbox_has_pending() else "both"
+    skip_planner = env.get("RELAY_SANDBOX_SKIP_PLANNER", "1").strip() in ("1", "true", "yes")
+    mode = "exec" if sandbox_has_pending() or skip_planner else "both"
     cmd = [
         sys.executable, "-u", str(REPO / "scripts" / "relay_robot.py"),
         "--once", "--step", mode,
@@ -209,9 +216,11 @@ def main() -> int:
     last_error = ""
     last_progress = start_time
     mock_flag = env.get("RELAY_SANDBOX_MOCK", "0")
+    skip_flag = env.get("RELAY_SANDBOX_SKIP_PLANNER", "1")
     log(
         f"=== sandbox soak supervisor pid={os.getpid()} "
-        f"target={TARGET_OK} min_elapsed_min={SOAK_MIN_SEC / 60:.0f} mock={mock_flag} ==="
+        f"target={TARGET_OK} min_elapsed_min={SOAK_MIN_SEC / 60:.0f} "
+        f"mock={mock_flag} skip_planner={skip_flag} cursor_model={env.get('CURSOR_MODEL', 'auto')} ==="
     )
     write_status(ok_streak, 0, "soak_started", start_time, last_error)
     while True:

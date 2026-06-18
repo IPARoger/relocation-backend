@@ -1,5 +1,7 @@
 #!/bin/bash
 cd "$(dirname "$0")/.."
+# shellcheck source=env.sh
+. "$(dirname "$0")/env.sh"
 export RELAY_SANDBOX_TARGET="${RELAY_SANDBOX_TARGET:-10}"
 export RELAY_SANDBOX_MIN_ELAPSED_SEC="${RELAY_SANDBOX_MIN_ELAPSED_SEC:-3600}"
 export RELAY_SANDBOX_MOCK="${RELAY_SANDBOX_MOCK:-0}"
