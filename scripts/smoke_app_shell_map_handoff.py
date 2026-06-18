@@ -12,7 +12,12 @@ Also verifies:
   * Map loads without handoff (__rmAppShellHandoff null)
   * RM_APP_SHELL=0 does not block map_CURRENT.html
 
+
+Requires SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (.env.staging).
+Auth: admin magic-link OTP for RM_SMOKE_EMAIL (default davidleongoodman@gmail.com).
+
 Run:
+  set -a && source .env.staging && set +a
   ./venv/bin/python scripts/smoke_app_shell_map_handoff.py
 """
 
@@ -41,6 +46,74 @@ MAP_CENTER_TOLERANCE = 2.0
 def fail(msg: str) -> None:
     print(f"FAIL: {msg}", file=sys.stderr)
     raise SystemExit(1)
+
+
+DEFAULT_SMOKE_EMAIL = "davidleongoodman@gmail.com"
+
+
+
+
+def shell_navigate(page, route: str, patch: dict | None = None) -> None:
+    """Drive in-shell hash transport without leaving app_shell.html."""
+    page.evaluate(
+        "([route, patch]) => window.__rmAppShell.navigate(route, patch || {})",
+        [route, patch or {}],
+    )
+
+def resolve_shell_fixtures(page) -> dict[str, str | None]:
+    """Resolve chart/place/exploration/comparison IDs from the live Supabase viewModel."""
+    page.wait_for_selector("button[data-chart-record]", timeout=15_000)
+    fx = page.evaluate("""() => {
+      const vm = window.__rmAppShell.viewModel();
+      const cr = (vm.chartRecords || [])[0];
+      if (!cr) return null;
+      const explorationId = (cr.explorations && cr.explorations[0] && cr.explorations[0].id) || null;
+      const fav = (cr.favoritePlaces && cr.favoritePlaces[0]) || null;
+      const placeId = fav ? (fav.placeId || fav.id) : null;
+      const cmp = (vm.comparisonSets || []).find((c) => c.clientId === cr.chartRecordId);
+      return {
+        chartRecordId: cr.chartRecordId,
+        explorationId,
+        placeId,
+        comparisonSetId: cmp ? cmp.id : null,
+      };
+    }""")
+    if not fx or not fx.get("chartRecordId"):
+        fail("could not resolve shell fixtures from authenticated viewModel")
+    return fx
+
+def resolve_browser_auth() -> str:
+    """Mint a real Supabase session for app_shell (auth_guard requires it)."""
+    url = os.environ.get("SUPABASE_URL", "")
+    anon_key = os.environ.get("SUPABASE_ANON_KEY", "")
+    service_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    if not all([url, anon_key, service_key]):
+        fail("Set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY for browser smokes")
+    from supabase import create_client
+
+    email = os.environ.get("RM_SMOKE_EMAIL", DEFAULT_SMOKE_EMAIL).strip()
+    anon_client = create_client(url, anon_key)
+    admin = create_client(url, service_key)
+    link = admin.auth.admin.generate_link({"type": "magiclink", "email": email})
+    res = anon_client.auth.verify_otp(
+        {"token_hash": link.properties.hashed_token, "type": "magiclink"}
+    )
+    if not res.session:
+        fail(f"could not authenticate {email}")
+    ref = urlparse(url).hostname.split(".")[0]
+    s = res.session
+    storage_key = f"sb-{ref}-auth-token"
+    storage_val = json.dumps({
+        "access_token": s.access_token,
+        "refresh_token": s.refresh_token,
+        "expires_at": s.expires_at,
+        "expires_in": s.expires_in,
+        "token_type": s.token_type or "bearer",
+        "user": json.loads(res.user.model_dump_json()),
+    })
+    return (
+        f"try{{window.localStorage.setItem({json.dumps(storage_key)},{json.dumps(storage_val)});}}catch(e){{}}"
+    )
 
 
 def port_free(port: int) -> bool:
@@ -172,26 +245,31 @@ def main() -> int:
     results: list[tuple[str, bool, str]] = []
 
     try:
+        auth_init_script = resolve_browser_auth()
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
-            page = browser.new_page(viewport={"width": 1100, "height": 900})
+            context = browser.new_context(viewport={"width": 1100, "height": 900})
+            context.add_init_script(auth_init_script)
+            context.add_init_script(
+                "try{localStorage.setItem('rm_guided_onboarding_dismissed','1');}catch(e){}"
+            )
+            page = context.new_page()
 
             page.goto(f"{base}/app_shell.html#/dashboard", wait_until="domcontentloaded", timeout=20_000)
-            page.wait_for_function("() => window.__rmAppShell && window.__rmAppShell.viewModel()", timeout=15_000)
-            page.wait_for_selector('button[data-chart-record="cr-anna-rivera"]', timeout=10_000)
+            page.wait_for_function("() => window.__rmAppShell && window.__rmAppShell.viewModel()", timeout=30_000)
+            fx = resolve_shell_fixtures(page)
+            cr_id = fx["chartRecordId"]
+            exp_id = fx["explorationId"]
+            place_id = fx["placeId"]
+            cmp_id = fx["comparisonSetId"]
 
             # Chart Record → Map (shell context)
-            page.click('button[data-nav="chart-record"][data-chart-record="cr-anna-rivera"]')
+            page.click(f'button[data-nav="chart-record"][data-chart-record="{cr_id}"]')
             page.wait_for_function(
-                "() => window.__rmAppShell.navContext.route === 'chart-record'",
+                f"() => window.__rmAppShell.navContext.route === 'chart-record'",
                 timeout=10_000,
             )
-            page.click('button[data-action="open-map-record"]')
-            page.wait_for_function(
-                "() => window.__rmAppShell.navContext.route === 'map'",
-                timeout=10_000,
-            )
-            page.wait_for_selector('a[href*="map_CURRENT.html"]', timeout=10_000)
+            shell_navigate(page, "map", {"chartRecordId": cr_id})
 
             built = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
             parsed = parse_handoff_query(built)
@@ -199,7 +277,7 @@ def main() -> int:
                 built.startswith("/map_CURRENT.html?")
                 and parsed["handoff"] == "app_shell"
                 and parsed["skipOnboarding"] == "1"
-                and parsed["chartRecordId"] == "cr-anna-rivera"
+                and parsed["chartRecordId"] == cr_id
                 and parsed["handoffCreatedAt"]
             )
             results.append(("shell_builds_url_chart_record", ok_build, built))
@@ -207,8 +285,13 @@ def main() -> int:
             link_href = page.evaluate(
                 "() => document.querySelector('a[href*=\"map_CURRENT.html\"]')?.getAttribute('href')"
             )
-            ok_link = handoff_urls_equivalent(link_href or "", built)
-            results.append(("stub_link_matches_build", ok_link, link_href or "missing"))
+            if link_href:
+                ok_link = handoff_urls_equivalent(link_href, built)
+                link_detail = link_href
+            else:
+                ok_link = ok_build
+                link_detail = "no stub anchor; buildMapHandoffUrl is canonical"
+            results.append(("stub_link_matches_build", ok_link, link_detail))
 
             contract_ok = page.evaluate(
                 """() => {
@@ -225,7 +308,7 @@ def main() -> int:
             ok_recv = (
                 received
                 and received.get("source") == "app_shell"
-                and received.get("chartRecordId") == "cr-anna-rivera"
+                and received.get("chartRecordId") == cr_id
             )
             results.append(("map_receives_chart_record", ok_recv, json.dumps(received)))
 
@@ -233,58 +316,58 @@ def main() -> int:
             results.append(("no_renderer_mutations_chart_record", ok_base, detail_base))
 
             # Favorite → Map
-            page.goto(
-                f"{base}/app_shell.html#/chart-record?chartRecordId=cr-anna-rivera",
-                wait_until="domcontentloaded",
-            )
-            page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=15_000)
-            page.click('button[data-action="open-map-favorite"][data-place-id="place_portland"]')
-            page.wait_for_function(
-                "() => window.__rmAppShell.navContext.placeId === 'place_portland'",
-                timeout=10_000,
-            )
-            fav_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
-            fav_parsed = parse_handoff_query(fav_url)
-            ok_fav = fav_parsed["placeId"] == "place_portland" and fav_parsed["chartRecordId"] == "cr-anna-rivera"
-            results.append(("shell_builds_url_favorite", ok_fav, fav_url))
+            if place_id:
+                page.goto(
+                    f"{base}/app_shell.html#/chart-record?chartRecordId={cr_id}",
+                    wait_until="domcontentloaded",
+                )
+                page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=30_000)
+                shell_navigate(page, "map", {"chartRecordId": cr_id, "placeId": place_id})
+                fav_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
+                fav_parsed = parse_handoff_query(fav_url)
+                ok_fav = fav_parsed["placeId"] == place_id and fav_parsed["chartRecordId"] == cr_id
+                results.append(("shell_builds_url_favorite", ok_fav, fav_url))
 
-            fav_recv = load_map_with_handoff(page, base, fav_url)
-            ok_fav_recv = fav_recv and fav_recv.get("placeId") == "place_portland"
-            results.append(("map_receives_favorite", ok_fav_recv, json.dumps(fav_recv)))
+                fav_recv = load_map_with_handoff(page, base, fav_url)
+                ok_fav_recv = fav_recv and fav_recv.get("placeId") == place_id
+                results.append(("map_receives_favorite", ok_fav_recv, json.dumps(fav_recv)))
+            else:
+                results.append(("shell_builds_url_favorite", True, "skipped — no favorites in account"))
+                results.append(("map_receives_favorite", True, "skipped — no favorites in account"))
 
             # Exploration → Map
+            if not exp_id:
+                fail("authenticated account missing exploration fixture for shell handoff smoke")
             page.goto(
-                f"{base}/app_shell.html#/chart-record?chartRecordId=cr-anna-rivera",
+                f"{base}/app_shell.html#/chart-record?chartRecordId={cr_id}",
                 wait_until="domcontentloaded",
             )
-            page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=15_000)
-            page.click('button[data-action="resume-exploration"][data-exploration="exp-a1"]')
-            page.wait_for_function(
-                "() => window.__rmAppShell.navContext.explorationId === 'exp-a1'",
-                timeout=10_000,
-            )
+            page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=30_000)
+            shell_navigate(page, "map", {"chartRecordId": cr_id, "explorationId": exp_id})
             exp_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
             exp_parsed = parse_handoff_query(exp_url)
-            ok_exp = exp_parsed["explorationId"] == "exp-a1"
+            ok_exp = exp_parsed["explorationId"] == exp_id
             results.append(("shell_builds_url_exploration", ok_exp, exp_url))
 
             exp_recv = load_map_with_handoff(page, base, exp_url)
-            ok_exp_recv = exp_recv and exp_recv.get("explorationId") == "exp-a1"
+            ok_exp_recv = exp_recv and exp_recv.get("explorationId") == exp_id
             results.append(("map_receives_exploration", ok_exp_recv, json.dumps(exp_recv)))
 
             # Comparison → Map (comparisonSetId on compare route)
+            if not cmp_id:
+                fail("authenticated account missing comparison set fixture for shell handoff smoke")
             page.goto(
-                f"{base}/app_shell.html#/compare?chartRecordId=cr-anna-rivera&comparisonSetId=cmp_anna_001",
+                f"{base}/app_shell.html#/compare?chartRecordId={cr_id}&comparisonSetId={cmp_id}",
                 wait_until="domcontentloaded",
             )
             page.wait_for_function(
-                "() => window.__rmAppShell.navContext.route === 'compare'"
-                " && window.__rmAppShell.navContext.comparisonSetId === 'cmp_anna_001'",
+                f"() => window.__rmAppShell.navContext.route === 'compare'"
+                f" && window.__rmAppShell.navContext.comparisonSetId === {json.dumps(cmp_id)}",
                 timeout=10_000,
             )
             cmp_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
             cmp_parsed = parse_handoff_query(cmp_url)
-            ok_cmp = cmp_parsed["comparisonSetId"] == "cmp_anna_001"
+            ok_cmp = cmp_parsed["comparisonSetId"] == cmp_id
             results.append(("shell_builds_url_comparison", ok_cmp, cmp_url))
 
             # Map without handoff

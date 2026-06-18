@@ -388,30 +388,6 @@ const uiState = {
   mapEntrySource: null,
 };
 
-/** Back-compat test surface — mirrors navContext field names used by earlier shell smokes. */
-const state = {
-  get route() { return navContext.route; },
-  set route(v) { navContext.route = v; },
-  get activeChartRecordId() { return navContext.chartRecordId; },
-  set activeChartRecordId(v) { navContext.chartRecordId = v; },
-  get activeSavedExplorationId() { return navContext.explorationId; },
-  set activeSavedExplorationId(v) { navContext.explorationId = v; },
-  get activePlaceName() { return resolvePlaceName(navContext.placeId); },
-  set activePlaceName(displayName) {
-    navContext.placeId = resolvePlaceIdFromDisplayName(displayName);
-  },
-  get originatingChartRecordId() { return navContext.route === "compare" ? navContext.chartRecordId : null; },
-  get comparisonPlaceNames() { return comparisonPlaceNamesFromContext(); },
-  get drawerOpen() { return uiState.drawerOpen; },
-  set drawerOpen(v) { uiState.drawerOpen = v; },
-  get popupOpen() { return uiState.popupOpen; },
-  set popupOpen(v) { uiState.popupOpen = v; },
-  get switchNotice() { return uiState.switchNotice; },
-  set switchNotice(v) { uiState.switchNotice = v; },
-  get mapEntrySource() { return uiState.mapEntrySource; },
-  set mapEntrySource(v) { uiState.mapEntrySource = v; },
-};
-
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -3345,7 +3321,6 @@ window.__rmAppShell = {
   navigate,
   openMap,
   switchChartRecord,
-  state,
   get navContext() { return navContext; },
   get uiState() { return uiState; },
   ROUTE_CONTEXT_CONTRACT,
