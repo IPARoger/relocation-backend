@@ -372,6 +372,13 @@ def main() -> int:
             results.append(("fe_map_no_console_errors", len(app_errors) == 0,
                             "; ".join(app_errors[:5]) or "none"))
 
+            # Let in-flight map favorites fetches finish; shell gets a clean console buffer.
+            try:
+                page.wait_for_load_state("networkidle", timeout=5000)
+            except Exception:
+                page.wait_for_timeout(1000)
+            console_errors.clear()
+
             # ---------- SHELL (archive) ----------
             # Ensure exactly one active favorite to archive.
             rows = fav_rows(admin, profile_id, place_id)

@@ -386,7 +386,7 @@ def main() -> int:
                 "c=>c.id===cs); return cs && !fn;}"
             )
             results.append(("fe_compare_recovery",
-                            broken is False,
+                            not broken,
                             f"stale_broken={broken}"))
 
             app_errors = [e for e in console_errors

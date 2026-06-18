@@ -5,68 +5,85 @@ Put `**Roadmap ID:** C?_?` in every task header. Reference closeout in results/.
 
 **Product features** (port 8000, city search, Notes UI, etc.) are **after Chat 5** — do not plan them until this queue is done.
 
+**Recovery status (2026-06-18):** Chat 4 has two open slices (C4-1, C4-2 M2). Chat 5 is **PAUSED** until those close. See `results/73_full_roadmap_completion_audit.md` and `results/74_roadmap_recovery_plan.md`.
+
 ---
 
 ## Chat 1 — Backend Ownership Migration ✅ COMPLETE
 
 JWT write routes live. Browser → JWT → Repository → RLS.
 
-Done: profiles CRUD/archive, favorites, comparison sets, saved investigations, places resolve-or-create, GET /profiles hardening, POST /places → 410.
+Done: profiles CRUD/archive, favorites, comparison sets, saved investigations, places resolve-or-create, GET /profiles hardening, POST /places → 410, library scaffold default-off.
 
 **No new Chat 1 tasks** unless regression found.
 
 ---
 
-## Chat 2 — Legacy Route Retirement (CURRENT)
+## Chat 2 — Legacy Route Retirement ✅ COMPLETE (process gaps noted)
 
-**Goal:** 410-quarantine remaining legacy **service-role write** routes the production UI no longer uses.
+**Goal:** 410-quarantine legacy **service-role write** routes the production UI no longer uses.
 
-**Already done (do not repeat):**
-- POST /places → 410 (Chat 1)
-- GET /account-store, GET /profile-library → 410 (task 46)
-- GET /local-product-store.json → 410 (task 49)
-- Quarantine smokes updated (tasks 50–55)
+**Verified:** C2-7 smoke gate — 25/25 legacy writes return 410; ownership smokes pass (`results/57_c5_2_*` / C2-7 closeout).
 
-| ID | Size | Item | Done when |
-|----|------|------|-----------|
-| C2-1 | M | **Audit** remaining legacy write routes — grep callers, list safe-to-quarantine vs active | closeout C2-1 |
-| C2-2 | M | 410 quarantine **profiles** legacy writes: POST /profiles, PATCH /profiles/{id}, POST /profiles/{id}/archive | closeout C2-2 |
-| C2-3 | M | 410 quarantine **saved-searches** legacy writes: POST /saved-searches, PATCH /saved-search/{id}, POST …/archive | closeout C2-3 |
-| C2-4 | M | 410 quarantine **comparison-sets** legacy writes (POST/PATCH/archive paths superseded by JWT routes) | closeout C2-4 |
-| C2-5 | M | 410 quarantine **favorite-places** legacy writes: POST /favorite-places, PATCH, archive | closeout C2-5 |
-| C2-6 | M | 410 quarantine **notes** legacy writes: POST /notes, PATCH /note/{id} (if superseded) | closeout C2-6 |
-| C2-7 | S | Update smokes to expect 410 on newly quarantined **write** routes; verify ownership smokes still pass | closeout C2-7 |
+**Process debt (non-blocking):** Per-family closeouts C2-3..C2-6 were bundled into C2-7 rather than individual closeout files. Functionally complete.
+
+| ID | Status | Item |
+|----|--------|------|
+| C2-1 | ✅ | Audit legacy write routes |
+| C2-2 | ✅ | 410 quarantine profiles legacy writes |
+| C2-3 | ✅ | 410 quarantine saved-searches legacy writes (bundled) |
+| C2-4 | ✅ | 410 quarantine comparison-sets legacy writes (bundled) |
+| C2-5 | ✅ | 410 quarantine favorite-places legacy writes (bundled) |
+| C2-6 | ✅ | 410 quarantine notes legacy writes (bundled) |
+| C2-7 | ✅ | Smoke gate — all legacy writes 410 |
 
 ---
 
-## Chat 3 — Read Path Consolidation Audit
+## Chat 3 — Read Path Consolidation Audit ✅ COMPLETE
 
-| ID | Size | Item | Done when |
-|----|------|------|-----------|
-| C3-1 | L | Audit all read paths: account-store, supabase_store_bridge, direct Supabase, profile-library, saved-search reads | closeout C3-1 |
-| C3-2 | M | Deliverable: read-path architecture plan (canonical read source, what retires) | closeout C3-2 |
+| ID | Status | Item | Closeout |
+|----|--------|------|----------|
+| C3-1 | ✅ | Read path inventory | `results/59_c3_1_closeout.md` |
+| C3-2 | ✅ | Read-path architecture plan | `results/60_c3_2_read_path_plan.md` |
 
-**Audit only — no implementation.**
-
----
-
-## Chat 4 — Read Path Simplification
-
-Execute Chat 3 plan. Examples: JWT GET saved investigation, account-store improvements, retire profile-library reads, bridge simplification.
-
-| ID | Size | Item | Done when |
-|----|------|------|-----------|
-| C4-1 | L | First implementation slice from C3-2 plan (planner picks one slice only) | closeout C4-1 |
-| C4-2+ | L | Further slices — one per task until plan complete | closeout C4-N |
+**Audit only — implementation is Chat 4.**
 
 ---
 
-## Chat 5 — Dead Code Retirement & Cleanup
+## Chat 4 — Read Path Simplification ⚠️ PARTIAL (CURRENT)
 
-| ID | Size | Item | Done when |
-|----|------|------|-----------|
-| C5-1 | L | Audit: dead repositories, routes, smokes, bridge code, compatibility layers | closeout C5-1 |
-| C5-2+ | M | Remove dead code per audit — one slice per task, reversible commits | closeout C5-N |
+Execute Chat 3 plan (`results/60_c3_2_read_path_plan.md`). **Two slices remain.**
+
+| ID | Status | Item | Closeout |
+|----|--------|------|----------|
+| C4-1 | **OPEN** | `planProfileArchive` — use `SupabaseStore.clients` + `SupabaseStoreReady` | `results/61_*` NOT VERIFIED |
+| C4-2 M2 | **OPEN** | Geonames place lookup → `GET /places/search?geonames_id=` | `results/62_*` PARTIAL |
+| C4-2 M5 | ✅ | Handoff centering → `GET /place/{id}` | `results/62_*` |
+| C4-3 | ✅ | `GET /favorites` + map M3/M4 migration | `results/63_c4_3_*` |
+| C4-4 | ✅ | `GET /saved-investigations/{id}` + map M1 | `results/64_c4_4_*` |
+| C4-5 | ✅ | `refreshProfile()` in bridge + app_shell A2 | `results/65_c4_5_*` |
+| C4-6 | ✅ | `comparison_sets` in bridge + app_shell A1 | `results/66_c4_6_*` |
+| C4-7 | ✅ | 410 dead GET routes (4 routes) | `results/67_c4_7_*` |
+
+**Next:** C4-1, then C4-2 M2. Do not start Chat 5 until both VERIFIED.
+
+---
+
+## Chat 5 — Dead Code Retirement & Cleanup ⏸ PAUSED
+
+Paused until Chat 4 debt (C4-1, C4-2 M2) is VERIFIED.
+
+| ID | Status | Item | Closeout |
+|----|--------|------|----------|
+| C5-1 | ✅ | Dead code audit | `results/68_c5_1_*` |
+| C5-2 | ⏸ | Remove dead helpers — **NOT VERIFIED** (24 shim callers) | `results/69_*` |
+| C5-2a | ✅ | Narrow removal — 6 dead functions | `results/69b_*` |
+| C5-3 | ⏸ | Bridge helpers — **NOT VERIFIED** (live internal callers) | `results/70_*` |
+| C5-4 | ✅ | Legacy map audit (read-only) | `results/71_*` |
+| C5-4a | ✅ | Quarantine `renderBellAuraBandsAroundLine` (partial) | `results/72_*` |
+| C5-5+ | ⏸ | Further cleanup per C5-1 audit — **not started** |
+
+**Do not touch:** `_deprecated_legacy_write`, LIVE renderer (`LEGACY_SEARCH_REGIONS`), bridge helpers used by `buildSupabaseStore` / `refreshProfile`.
 
 ---
 
@@ -78,8 +95,9 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 
 ## Planner rules
 
-1. Chat 2 before Chat 3. Chat 3 before Chat 4. No skipping.
-2. One route family per task (C2-2 … C2-6) — do not bundle.
-3. Always grep production UI + ownership smokes before quarantining.
+1. **Chat 4 open items before Chat 5.** C4-1 and C4-2 M2 are blocking.
+2. One slice per task — do not bundle.
+3. Always grep production UI + ownership smokes before quarantining or deleting.
 4. If active caller found → PAUSE, cite route.
-5. Size S → Haiku; M/L → Sonnet (via RELAY_AUTO_MODEL).
+5. Honest VERIFIED / NOT VERIFIED in every closeout.
+6. Size S → Haiku; M/L → Sonnet (via RELAY_AUTO_MODEL) when planner API is used.
