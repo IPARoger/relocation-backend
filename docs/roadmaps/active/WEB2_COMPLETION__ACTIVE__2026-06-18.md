@@ -86,7 +86,7 @@
 
 | Item | Scope | Notes |
 |------|-------|-------|
-| **Comparison Intake UX** | Real comparison facts; intake flow polish | Comparison screen uses mocked placeholder text |
+| **Comparison Intake UX** | Overlay, unified search, reading-state restore | See `COMPARISON_UX__ACTIVE__2026-06-18.md`; facts live; UX/snapshot gaps remain |
 | **Map Intake UX** | First-profile and return-user intake refinement | Handoff works; UX pass needed |
 | **Export System** | Chart/data export paths | Not implemented |
 | **Share System** | Share links, revocation, recipient experience | Backend scaffold exists; product incomplete |

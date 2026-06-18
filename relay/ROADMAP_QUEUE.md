@@ -120,6 +120,15 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 | S-UX-1C | ✅ | Settings subpage router (`#/settings/{sub}`) | `results/94_sux1c_settings_subpage_router.md` |
 | S-UX-2 | ✅ | Guided onboarding overlay — 7-slide app tour (`app_shell.html`) | `results/92_sux2_onboarding_overlay.md` |
 
+### Comparison UX (workstream: `COMPARISON_UX__ACTIVE__2026-06-18.md`)
+
+| ID | Status | Item | Closeout |
+|----|--------|------|----------|
+| C-UX-1 | ✅ | Comparison workflow truth audit | `results/95_comparison_workflow_truth_audit.md` |
+| C-UX-2 | ⏳ | Comparison persistence foundation (`settings_snapshot_json`) | — |
+| C-UX-3 | ⏳ | Unified saved-location search architecture | — |
+| C-UX-4 | ⏳ | Comparison overlay (New / Saved / unified search) | — |
+
 
 
 ---

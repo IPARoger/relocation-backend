@@ -38,6 +38,7 @@ Completed roadmaps are immutable historical snapshots. When a workstream finishe
 ## Active Roadmaps
 
 | Roadmap | File | Status | Date |
+| Comparison UX | `active/COMPARISON_UX__ACTIVE__2026-06-18.md` | ACTIVE | 2026-06-18 |
 |---------|------|--------|------|
 | Web2 Completion | [`active/WEB2_COMPLETION__ACTIVE__2026-06-18.md`](active/WEB2_COMPLETION__ACTIVE__2026-06-18.md) | ACTIVE | 2026-06-18 |
 
