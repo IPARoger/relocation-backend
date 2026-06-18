@@ -22,3 +22,11 @@ Do not modify application code except this sandbox tree.
 | SB-10 | S | Grep `smokes/` for files referencing `port 8004` | closeout SB-10 |
 | SB-11 | S | Count lines in `relay/CHAT_INSTRUCTIONS.md` | closeout SB-11 |
 | SB-12 | S | List `validation/reports/*.json` filenames | closeout SB-12 |
+| SB-13 | S | Count `.py` files in `scripts/` | closeout SB-13 |
+| SB-14 | S | List all files in `relay-sandbox/tasks/` (names only) | closeout SB-14 |
+| SB-15 | S | Count lines in `relay-sandbox/supervisor.py` | closeout SB-15 |
+| SB-16 | S | List `.md` files in `relay/governance/` | closeout SB-16 |
+| SB-17 | S | Count lines in `scripts/relay_planner.py` | closeout SB-17 |
+| SB-18 | S | List `relay-sandbox/results/` files with line counts | closeout SB-18 |
+| SB-19 | S | Count lines in `scripts/relay_executor.py` | closeout SB-19 |
+| SB-20 | S | Summarize SB-13..SB-19 findings in one consolidation closeout | closeout SB-20 |
