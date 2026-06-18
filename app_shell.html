@@ -2762,6 +2762,7 @@ function bindScreenActions(root) {
         const accountId = window.CurrentUser && window.CurrentUser.accountId;
         (async () => {
           try {
+            await window.SupabaseStoreReady;
             const client = await window.SupabaseReady;
             if (!client) throw new Error("Supabase unavailable.");
             const plan = await planProfileArchive(profileId);
@@ -3305,18 +3306,15 @@ async function renameProfile(profileId, displayName) {
 }
 
 async function planProfileArchive(profileId) {
-  const client = await window.SupabaseReady;
-  if (!client) throw new Error("Supabase unavailable.");
-  const accountId = window.CurrentUser && window.CurrentUser.accountId;
-  let q = client
-    .from("profiles")
-    .select("id, display_name")
-    .is("archived_at", null)
-    .order("created_at", { ascending: true });
-  if (accountId) q = q.eq("account_id", accountId);
-  const { data: activeProfiles, error: loadErr } = await q;
-  if (loadErr) throw loadErr;
-  const active = activeProfiles || [];
+  const store = window.SupabaseStore;
+  if (!store || !Array.isArray(store.clients)) {
+    throw new Error("Profile store unavailable. Reload and try again.");
+  }
+  // Bridge loads clients in created_at order (profiles query); birth-record filter only.
+  const active = store.clients.map((c) => ({
+    id: c.id,
+    display_name: c.display_name,
+  }));
   if (active.length <= 1) {
     return { blocked: "only-profile" };
   }
