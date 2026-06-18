@@ -115,6 +115,10 @@
   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
   .hint-swatch.pos { background: #86efac; }
   .hint-swatch.neg { background: #fdba74; }
+  .rm-cmp-section-body.collapsed { display: none; }
+  .rm-cmp-angle-tab.active { font-weight: 600; color: var(--accent); }
+  .rm-cmp-city-chip.hidden-place { opacity: 0.45; text-decoration: line-through; }
+
   .map-placeholder {
     min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
     display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted);
@@ -679,15 +683,20 @@ function adaptStoreToView(store) {
     };
   });
 
-  const comparisonSets = (store.comparison_sets || []).map((cs) => ({
-    id: cs.id,
-    clientId: cs.client_id,
-    placeIds: cs.place_ids || [],
-    placeNames: (cs.place_ids || [])
-      .map((pid) => placesById[pid]?.display_name)
-      .filter(Boolean),
-    notes: cs.notes || "",
-  }));
+  const comparisonSets = (store.comparison_sets || []).map((cs) => {
+    const placeIds = cs.place_ids || [];
+    const settings_snapshot_json = cs.settings_snapshot_json || {};
+    const workspaceState = extractWorkspaceStateFromSnapshot(settings_snapshot_json, placeIds);
+    return {
+      id: cs.id,
+      clientId: cs.client_id,
+      placeIds,
+      placeNames: placeIds.map((pid) => placesById[pid]?.display_name).filter(Boolean),
+      notes: cs.notes || "",
+      settings_snapshot_json,
+      workspaceState,
+    };
+  });
 
   if (chartRecords.length === 0) {
     throw new Error("Store contains no Chart Records (clients[])");
@@ -1635,6 +1644,289 @@ function renderComparisonTableHtml(cols) {
     ${errNote}`;
 }
 
+// Comparison workspace reading-state (C-UX-2): persisted via settings_snapshot_json.
+const CMP_WS_SECTIONS = ["ais", "pih", "a2a", "city_intelligence", "notes"];
+const CMP_WS_ANGLE_TABS = ["all", "asc", "mc", "dsc", "ic"];
+const CMP_WS_SECTION_LABELS = {
+  ais: "Angles in Signs (AIS)",
+  pih: "Planets in Houses (PIH)",
+  a2a: "Aspects to Angles (A2A)",
+  city_intelligence: "City Intelligence",
+  notes: "Notes",
+};
+
+function defaultComparisonWorkspaceState(placeIds) {
+  const ids = Array.isArray(placeIds) ? placeIds.slice() : [];
+  return {
+    schema_version: 1,
+    collapsed_sections: Object.fromEntries(CMP_WS_SECTIONS.map((s) => [s, false])),
+    visible_sections: Object.fromEntries(CMP_WS_SECTIONS.map((s) => [s, true])),
+    active_angle_tab: "all",
+    diffs_enabled: false,
+    dignities_enabled: false,
+    interpretive_hints_enabled: false,
+    hidden_place_ids: [],
+    column_order_place_ids: ids.slice(),
+  };
+}
+
+function normalizeComparisonWorkspaceState(raw, placeIds) {
+  const base = defaultComparisonWorkspaceState(placeIds);
+  if (!raw || typeof raw !== "object") return base;
+  const ws = raw.comparison_workspace_state && typeof raw.comparison_workspace_state === "object"
+    ? raw.comparison_workspace_state
+    : raw;
+  if (ws.schema_version != null && ws.schema_version !== 1) return base;
+  const out = { ...base, ...ws };
+  CMP_WS_SECTIONS.forEach((s) => {
+    if (typeof out.collapsed_sections[s] !== "boolean") out.collapsed_sections[s] = base.collapsed_sections[s];
+    if (typeof out.visible_sections[s] !== "boolean") out.visible_sections[s] = base.visible_sections[s];
+  });
+  if (!CMP_WS_ANGLE_TABS.includes(out.active_angle_tab)) out.active_angle_tab = "all";
+  out.hidden_place_ids = Array.isArray(out.hidden_place_ids)
+    ? out.hidden_place_ids.filter((id) => placeIds.includes(id)) : [];
+  const order = Array.isArray(out.column_order_place_ids)
+    ? out.column_order_place_ids.filter((id) => placeIds.includes(id)) : [];
+  const missing = placeIds.filter((id) => !order.includes(id));
+  out.column_order_place_ids = order.concat(missing);
+  return out;
+}
+
+function extractWorkspaceStateFromSnapshot(snapshot, placeIds) {
+  return normalizeComparisonWorkspaceState(snapshot || {}, placeIds);
+}
+
+function buildSettingsSnapshotFromWorkspace(ws) {
+  return { comparison_workspace_state: ws };
+}
+
+let _cmpWorkspaceSession = null;
+let _cmpWsSaveTimer = null;
+
+function initComparisonWorkspaceSession(cs) {
+  if (!cs) { _cmpWorkspaceSession = null; return null; }
+  const ws = cs.workspaceState
+    ? normalizeComparisonWorkspaceState({ comparison_workspace_state: cs.workspaceState }, cs.placeIds)
+    : extractWorkspaceStateFromSnapshot(cs.settings_snapshot_json, cs.placeIds);
+  _cmpWorkspaceSession = { comparisonSetId: cs.id, profileId: cs.clientId, state: ws };
+  return ws;
+}
+
+function resolveColumnOrderPlaceIds(ws, placeIds) {
+  if (!ws) return placeIds.slice();
+  const order = (ws.column_order_place_ids || []).filter((id) => placeIds.includes(id));
+  const missing = placeIds.filter((id) => !order.includes(id));
+  return order.concat(missing);
+}
+
+function resolveVisibleOrderedPlaceIds(ws, placeIds) {
+  const ordered = resolveColumnOrderPlaceIds(ws, placeIds);
+  const hidden = new Set(ws && Array.isArray(ws.hidden_place_ids) ? ws.hidden_place_ids : []);
+  return ordered.filter((id) => !hidden.has(id));
+}
+
+function comparisonWorkspacePanelHtml(cs, ws) {
+  const order = resolveColumnOrderPlaceIds(ws, cs.placeIds);
+  const hidden = new Set(ws.hidden_place_ids || []);
+  const angleTabs = CMP_WS_ANGLE_TABS.map((tab) =>
+    `<button type="button" class="linkish rm-cmp-angle-tab${ws.active_angle_tab === tab ? " active" : ""}" data-action="cmp-angle-tab" data-angle-tab="${tab}">${tab.toUpperCase()}</button>`
+  ).join(" ");
+  const sections = CMP_WS_SECTIONS.map((sec) => {
+    const collapsed = !!ws.collapsed_sections[sec];
+    const visible = ws.visible_sections[sec] !== false;
+    return `<div class="rm-cmp-section panel" data-cmp-section="${sec}" style="${visible ? "" : "opacity:0.55;"}">
+      <div class="row" style="align-items:center;justify-content:space-between;">
+        <button type="button" class="linkish" data-action="cmp-toggle-section" data-cmp-section="${sec}">
+          ${collapsed ? "\u25b6" : "\u25bc"} ${CMP_WS_SECTION_LABELS[sec]}
+        </button>
+        <label class="meta" style="display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" data-action="cmp-visible-section" data-cmp-section="${sec}"${visible ? " checked" : ""} style="width:auto;margin:0;" />
+          Visible
+        </label>
+      </div>
+      <div class="rm-cmp-section-body${collapsed ? " collapsed" : ""}" id="rm-cmp-sec-${sec}">
+        <p class="meta">${sec === "notes" ? "Use the notepad below." : "Reading-state bookmark \u2014 full section content ships in a later layout slice."}</p>
+      </div>
+    </div>`;
+  }).join("");
+  const chips = order.map((pid) => {
+    const name = resolvePlaceName(pid) || pid;
+    const isHidden = hidden.has(pid);
+    return `<button type="button" class="linkish rm-cmp-city-chip${isHidden ? " hidden-place" : ""}" data-action="cmp-toggle-place" data-place-id="${escapeHtml(pid)}" title="Toggle column visibility">${escapeHtml(name)}</button>`;
+  }).join(" ");
+  return `
+    <div class="panel" id="rm-cmp-workspace" data-cs-id="${escapeHtml(cs.id)}">
+      <h3>Module: comparison-workspace-state</h3>
+      <p class="meta">Bookmark-style reading state \u2014 saved automatically. Diffs/dignities/hints keys reserved; not rendered.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <span class="meta">Angle tab:</span>${angleTabs}
+      </div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
+        <span class="meta">Places:</span>${chips || "<span class=\"meta\">—</span>"}
+      </div>
+      ${sections}
+      <p class="meta" id="rm-cmp-ws-msg" style="min-height:1.2em;"></p>
+    </div>`;
+}
+
+function collectComparisonWorkspaceFromDom() {
+  if (!_cmpWorkspaceSession) return null;
+  const ws = defaultComparisonWorkspaceState(_cmpWorkspaceSession.state.column_order_place_ids);
+  Object.assign(ws, _cmpWorkspaceSession.state);
+  const activeBtn = document.querySelector(".rm-cmp-angle-tab.active");
+  ws.active_angle_tab = activeBtn ? activeBtn.getAttribute("data-angle-tab") : ws.active_angle_tab;
+  CMP_WS_SECTIONS.forEach((sec) => {
+    const body = document.getElementById("rm-cmp-sec-" + sec);
+    ws.collapsed_sections[sec] = body ? body.classList.contains("collapsed") : ws.collapsed_sections[sec];
+    const vis = document.querySelector(`input[data-action="cmp-visible-section"][data-cmp-section="${sec}"]`);
+    ws.visible_sections[sec] = vis ? !!vis.checked : ws.visible_sections[sec];
+  });
+  ws.hidden_place_ids = Array.from(document.querySelectorAll(".rm-cmp-city-chip.hidden-place"))
+    .map((el) => el.getAttribute("data-place-id")).filter(Boolean);
+  return ws;
+}
+
+function applyComparisonWorkspaceToDom(ws) {
+  if (!ws) return;
+  document.querySelectorAll(".rm-cmp-angle-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-angle-tab") === ws.active_angle_tab);
+  });
+  CMP_WS_SECTIONS.forEach((sec) => {
+    const body = document.getElementById("rm-cmp-sec-" + sec);
+    if (body) body.classList.toggle("collapsed", !!ws.collapsed_sections[sec]);
+    const wrap = document.querySelector(`.rm-cmp-section[data-cmp-section="${sec}"]`);
+    if (wrap) wrap.style.opacity = ws.visible_sections[sec] === false ? "0.55" : "";
+    const vis = document.querySelector(`input[data-action="cmp-visible-section"][data-cmp-section="${sec}"]`);
+    if (vis) vis.checked = ws.visible_sections[sec] !== false;
+  });
+  const hidden = new Set(ws.hidden_place_ids || []);
+  document.querySelectorAll(".rm-cmp-city-chip").forEach((chip) => {
+    const pid = chip.getAttribute("data-place-id");
+    chip.classList.toggle("hidden-place", hidden.has(pid));
+  });
+  applyComparisonAngleTabFilter(document);
+}
+
+function applyComparisonAngleTabFilter(root) {
+  const ws = _cmpWorkspaceSession && _cmpWorkspaceSession.state;
+  const tab = ws ? ws.active_angle_tab : "all";
+  const table = (root || document).querySelector("#rm-screen5-columns table.simple");
+  if (!table) return;
+  table.querySelectorAll("tbody tr, tr").forEach((tr) => {
+    const label = (tr.querySelector("td") && tr.querySelector("td").textContent || "").trim().toUpperCase();
+    if (!label || label === "FACT") return;
+    if (tab === "all") { tr.style.display = ""; return; }
+    const show = (tab === "asc" && label === "ASC")
+      || (tab === "mc" && label === "MC")
+      || (tab === "dsc" && label === "DSC")
+      || (tab === "ic" && label === "IC");
+    tr.style.display = show ? "" : "none";
+  });
+}
+
+function scheduleComparisonWorkspaceSave() {
+  if (!_cmpWorkspaceSession) return;
+  clearTimeout(_cmpWsSaveTimer);
+  _cmpWsSaveTimer = setTimeout(() => { flushComparisonWorkspaceState().catch(() => {}); }, 700);
+}
+
+async function flushComparisonWorkspaceState() {
+  if (!_cmpWorkspaceSession) return;
+  const ws = collectComparisonWorkspaceFromDom();
+  if (!ws) return;
+  _cmpWorkspaceSession.state = ws;
+  const msg = document.getElementById("rm-cmp-ws-msg");
+  if (msg) msg.textContent = "Saving workspace\u2026";
+  const client = await window.SupabaseReady;
+  const token = client && (await client.auth.getSession()).data.session?.access_token;
+  if (!token) throw new Error("Session unavailable");
+  const snapshot = buildSettingsSnapshotFromWorkspace(ws);
+  const resp = await fetch("/comparison-sets/state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({
+      profile_id: _cmpWorkspaceSession.profileId,
+      comparison_set_id: _cmpWorkspaceSession.comparisonSetId,
+      settings_snapshot_json: snapshot,
+    }),
+  });
+  if (!resp.ok) {
+    let detail;
+    try { detail = (await resp.json()).detail; } catch (e) { /* ignore */ }
+    throw new Error((detail && detail.message) || ("HTTP " + resp.status));
+  }
+  const out = await resp.json();
+  const csId = _cmpWorkspaceSession.comparisonSetId;
+  if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+    const raw = storeRaw.comparison_sets.find((c) => c.id === csId);
+    if (raw) raw.settings_snapshot_json = out.settings_snapshot_json || snapshot;
+  }
+  if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+    const vmCs = viewModel.comparisonSets.find((c) => c.id === csId);
+    if (vmCs) {
+      vmCs.settings_snapshot_json = out.settings_snapshot_json || snapshot;
+      vmCs.workspaceState = ws;
+    }
+  }
+  if (msg) msg.textContent = "Workspace saved.";
+}
+
+function initComparisonWorkspace(root) {
+  if (navContext.route !== "compare" || !navContext.comparisonSetId) return;
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!cs) return;
+  const ws = initComparisonWorkspaceSession(cs);
+  applyComparisonWorkspaceToDom(ws);
+  const scope = root || document;
+  scope.querySelectorAll("[data-action='cmp-angle-tab']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      _cmpWorkspaceSession.state.active_angle_tab = btn.getAttribute("data-angle-tab") || "all";
+      applyComparisonWorkspaceToDom(_cmpWorkspaceSession.state);
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-section']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const sec = btn.getAttribute("data-cmp-section");
+      const body = document.getElementById("rm-cmp-sec-" + sec);
+      if (!body || !_cmpWorkspaceSession) return;
+      const collapsed = !body.classList.contains("collapsed");
+      _cmpWorkspaceSession.state.collapsed_sections[sec] = collapsed;
+      body.classList.toggle("collapsed", collapsed);
+      btn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS[sec] || sec);
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-visible-section']").forEach((el) => {
+    el.addEventListener("change", () => {
+      const sec = el.getAttribute("data-cmp-section");
+      if (!_cmpWorkspaceSession) return;
+      _cmpWorkspaceSession.state.visible_sections[sec] = !!el.checked;
+      const wrap = scope.querySelector(`.rm-cmp-section[data-cmp-section="${sec}"]`);
+      if (wrap) wrap.style.opacity = el.checked ? "" : "0.55";
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-place']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const pid = btn.getAttribute("data-place-id");
+      const hidden = new Set(_cmpWorkspaceSession.state.hidden_place_ids || []);
+      if (hidden.has(pid)) hidden.delete(pid); else hidden.add(pid);
+      _cmpWorkspaceSession.state.hidden_place_ids = [...hidden];
+      btn.classList.toggle("hidden-place", hidden.has(pid));
+      const cols = document.getElementById("rm-screen5-columns");
+      if (cols && cs) {
+        const visible = resolveVisibleOrderedPlaceIds(_cmpWorkspaceSession.state, cs.placeIds);
+        cols.setAttribute("data-place-ids", visible.join(","));
+        hydrateComparisonColumns(scope);
+      }
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+}
+
 let _screen5Token = 0;
 // Hydrate Screen 5 with real relocated facts per selected place (existing endpoints only).
 async function hydrateComparisonColumns(root) {
@@ -1683,6 +1975,7 @@ async function hydrateComparisonColumns(root) {
         navigate("chart", { chartRecordId, placeId: btn.getAttribute("data-cmp-open") });
       });
     });
+    applyComparisonAngleTabFilter(container);
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Comparison request failed.</strong><br>
@@ -1694,7 +1987,10 @@ function screenCompare() {
   const origin = getChartRecord(navContext.chartRecordId);
   const favs = origin.favorites || [];
   const cs = getComparisonSet(navContext.comparisonSetId);
-  const selectedIds = cs ? cs.placeIds.slice(0, 5) : [];
+  const ws = cs ? initComparisonWorkspaceSession(cs) : null;
+  const selectedIds = cs
+    ? resolveVisibleOrderedPlaceIds(ws || extractWorkspaceStateFromSnapshot(cs.settings_snapshot_json, cs.placeIds), cs.placeIds).slice(0, 5)
+    : [];
 
   const pickerRows = favs.map((f) => {
     const checked = selectedIds.includes(f.placeId) ? " checked" : "";
@@ -1712,6 +2008,8 @@ function screenCompare() {
           <button type="button" data-action="compare-build">Build comparison</button>
           <span class="meta" id="rm-cmp-build-msg"></span>
         </div></div>`;
+
+  const workspacePanel = cs && ws ? comparisonWorkspacePanelHtml(cs, ws) : "";
 
   const columnsPanel = cs
     ? `<div class="panel"><h3>Module: comparison-columns (places · facts only)</h3>
@@ -1734,6 +2032,7 @@ function screenCompare() {
       ${timeUncertaintyWarning(origin)}
     </div>
     ${pickerPanel}
+    ${workspacePanel}
     ${columnsPanel}
     <div class="panel">
       <h3>Module: comparison-notepad</h3>
@@ -2958,6 +3257,8 @@ function bindScreenActions(root) {
             }
             const created = await resp.json();
             const setId = created.id;
+            const wsDefault = defaultComparisonWorkspaceState(placeIds);
+            const snap = buildSettingsSnapshotFromWorkspace(wsDefault);
             // Add the new comparison set to in-memory state (storeRaw +
             // viewModel) so the comparison page renders it without a reload.
             if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
@@ -2965,6 +3266,7 @@ function bindScreenActions(root) {
                 id: setId,
                 client_id: chartRecordId,
                 place_ids: placeIds.slice(),
+                settings_snapshot_json: snap,
                 saved_investigation_id: null,
                 notes: "",
                 schema_version: 1,
@@ -2979,6 +3281,8 @@ function bindScreenActions(root) {
                 placeIds: placeIds.slice(),
                 placeNames: placeIds.map((pid) => nameById[pid]).filter(Boolean),
                 notes: "",
+                settings_snapshot_json: snap,
+                workspaceState: wsDefault,
               });
             }
             // Navigate directly to the new comparison set (no reload, no detour).
@@ -3361,6 +3665,7 @@ function bindScreenActions(root) {
   mountGenieDrawer(root);
   hydrateRelocatedChart(root);
   hydrateComparisonColumns(root);
+  initComparisonWorkspace(root);
   hydrateChartRecordComparisonSets(root);
 }
 
@@ -3806,6 +4111,7 @@ window.__rmAppShell = {
   getAccountDefaultChartRecordId: () => (viewModel ? viewModel.accountDefaultChartRecordId : null),
   setAccountDefaultChartRecord,
   saveAccountSettingsPatch,
+  flushComparisonWorkspaceState,
   savePersistedChartRecord: _savePersistedChartRecord,
   handleProfileCreated,
   selectProfile,

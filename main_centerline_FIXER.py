@@ -3340,6 +3340,37 @@ def api_create_comparison_set_owned(request: Request, body: ComparisonSetCreateO
         ) from err
 
 
+class ComparisonSetStateOwned(BaseModel):
+    profile_id: str
+    comparison_set_id: str
+    settings_snapshot_json: dict
+
+
+@app.post("/comparison-sets/state")
+def api_update_comparison_set_state_owned(request: Request, body: ComparisonSetStateOwned):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_comparison_sets_repository import (
+        ComparisonSetsError,
+        update_comparison_set_state,
+    )
+
+    try:
+        return update_comparison_set_state(
+            jwt_token,
+            profile_id=body.profile_id,
+            comparison_set_id=body.comparison_set_id,
+            settings_snapshot_json=body.settings_snapshot_json,
+        )
+    except ComparisonSetsError as err:
+        status = 404 if err.reason in (
+            "profile_not_found", "place_not_found", "comparison_set_not_found",
+        ) else 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
 @app.post("/comparison-sets/archive")
 def api_archive_comparison_set_owned(request: Request, body: ComparisonSetArchiveOwned):
     jwt_token = _jwt_from_request(request)

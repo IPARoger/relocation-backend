@@ -60,6 +60,15 @@ def fetch(base, path, headers=None, method="GET", body=None, timeout=60):
         return err.code, err.read()
 
 
+def state_route_present(base):
+    try:
+        st, _ = fetch(base, "/comparison-sets/state", method="POST",
+                      body={"profile_id": "x", "comparison_set_id": "y", "settings_snapshot_json": {}}, timeout=3)
+    except Exception:
+        return False
+    return st == 401
+
+
 def route_present(base):
     try:
         st, _ = fetch(base, "/comparison-sets/create", method="POST",
@@ -157,17 +166,21 @@ def main() -> int:
     from supabase import create_client
     admin = create_client(url, service_key)
 
-    base = f"http://127.0.0.1:{PORT}"
     proc = None
+    base = f"http://127.0.0.1:{PORT}"
     present = route_present(base)
-    if present is not True:
+    state_ok = state_route_present(base) if present is True else False
+    need_temp = present is not True or not state_ok
+    if need_temp:
         if present is False:
             fail(f"port {PORT} serving build without /comparison-sets/create")
-        if not port_free(PORT):
-            fail(f"port {PORT} occupied but route missing")
+        port = PORT if port_free(PORT) else next((p for p in (8041, 8042, 8043) if port_free(p)), None)
+        if port is None:
+            fail("no free port for temp server")
+        base = f"http://127.0.0.1:{port}"
         proc = subprocess.Popen(
             [str(PYTHON), "-m", "uvicorn", "main_centerline_FIXER:app",
-             "--host", "127.0.0.1", "--port", str(PORT)],
+             "--host", "127.0.0.1", "--port", str(port)],
             cwd=str(ROOT), env=dict(os.environ),
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
@@ -218,6 +231,37 @@ def main() -> int:
                         st == 200 and created.get("status") == "created"
                         and created.get("place_ids") == [p1, p2] and len(rows) == 2,
                         f"status={st} id={set_id} places={len(rows)}"))
+
+
+
+        # workspace state save
+        sample_snapshot = {
+            "comparison_workspace_state": {
+                "schema_version": 1,
+                "collapsed_sections": {"ais": True, "pih": False, "a2a": False, "city_intelligence": False, "notes": False},
+                "visible_sections": {"ais": True, "pih": True, "a2a": True, "city_intelligence": True, "notes": True},
+                "active_angle_tab": "mc",
+                "diffs_enabled": False,
+                "dignities_enabled": False,
+                "interpretive_hints_enabled": False,
+                "hidden_place_ids": [],
+                "column_order_place_ids": [],
+            }
+        }
+        st, b = fetch(base, "/comparison-sets/state", headers=headers, method="POST",
+                      body={"profile_id": profile_id, "comparison_set_id": set_id,
+                            "settings_snapshot_json": sample_snapshot})
+        db_snap = (
+            admin.table("comparison_sets").select("settings_snapshot_json")
+            .eq("id", set_id).single().execute()
+        ).data if set_id else None
+        inner = ((db_snap or {}).get("settings_snapshot_json") or {}).get("comparison_workspace_state") or {}
+        results.append(("be_state_200", st == 200 and inner.get("active_angle_tab") == "mc",
+                        f"status={st} tab={inner.get('active_angle_tab')}"))
+        st, _ = fetch(base, "/comparison-sets/state", method="POST",
+                      body={"profile_id": profile_id, "comparison_set_id": set_id,
+                            "settings_snapshot_json": sample_snapshot})
+        results.append(("be_state_unauth_401", st == 401, f"status={st}"))
 
         # archive
         st, b = fetch(base, "/comparison-sets/archive", headers=headers, method="POST",
@@ -340,6 +384,50 @@ def main() -> int:
             results.append(("fe_create_no_reload",
                             load_count["n"] == loads_before,
                             f"loads={load_count['n']} before={loads_before}"))
+
+
+            # Workspace state round-trip (before archive)
+            page.wait_for_selector("#rm-cmp-workspace", timeout=15000)
+            page.click("[data-action='cmp-angle-tab'][data-angle-tab='asc']")
+            page.click("[data-action='cmp-toggle-section'][data-cmp-section='ais']")
+            page.evaluate("async ()=>{ await window.__rmAppShell.flushComparisonWorkspaceState(); }")
+            page.wait_for_function(
+                "()=>{const m=document.getElementById('rm-cmp-ws-msg');"
+                "return m && m.textContent.indexOf('saved') !== -1;}",
+                timeout=15000,
+            )
+            mem_tab = page.evaluate(
+                "()=>{const id=window.__rmAppShell.navContext.comparisonSetId;"
+                "const cs=window.__rmAppShell.viewModel().comparisonSets.find(c=>c.id===id);"
+                "return cs&&cs.workspaceState?cs.workspaceState.active_angle_tab:null;}")
+            results.append(("fe_workspace_inmemory", mem_tab == "asc", f"tab={mem_tab}"))
+            page.goto(base + "/app_shell.html", wait_until="domcontentloaded")
+            page.wait_for_function(
+                "() => !!window.__rmAppShell && typeof window.__rmAppShell.navigate === 'function'",
+                timeout=30000,
+            )
+            page.evaluate(
+                "()=>{const m=document.getElementById('guidedOnboardingModal');if(m){m.remove();}}"
+            )
+            page.evaluate(
+                "(args)=>{window.__rmAppShell.navigate('compare',"
+                "{chartRecordId: args.pid, comparisonSetId: args.sid});}",
+                {"pid": profile_id, "sid": fe_set_id},
+            )
+            page.wait_for_selector("#rm-cmp-workspace", timeout=15000)
+            rl_tab = page.evaluate(
+                "()=>document.querySelector('.rm-cmp-angle-tab.active')?.getAttribute('data-angle-tab')")
+            rl_collapsed = page.evaluate(
+                "()=>document.getElementById('rm-cmp-sec-ais')?.classList.contains('collapsed')")
+            db_row = (
+                admin.table("comparison_sets").select("settings_snapshot_json")
+                .eq("id", fe_set_id).single().execute()
+            ).data
+            db_ws = ((db_row or {}).get("settings_snapshot_json") or {}).get("comparison_workspace_state") or {}
+            results.append(("fe_workspace_reload_tab", rl_tab == "asc", f"tab={rl_tab}"))
+            results.append(("fe_workspace_reload_collapsed", rl_collapsed is True, f"collapsed={rl_collapsed}"))
+            results.append(("fe_workspace_db_tab", db_ws.get("active_angle_tab") == "asc",
+                            f"db_tab={db_ws.get('active_angle_tab')}"))
 
             # Archive from chart-record module
             page.evaluate(

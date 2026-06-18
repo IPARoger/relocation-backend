@@ -223,7 +223,7 @@
     // 5. comparison_sets
     var csResult = await client
       .from("comparison_sets")
-      .select("id, profile_id, title, created_at, updated_at")
+      .select("id, profile_id, title, settings_snapshot_json, created_at, updated_at")
       .eq("account_id", accountId)
       .is("archived_at", null);
 
@@ -481,6 +481,7 @@
         profile_id:            cs.profile_id,
         title:                 cs.title || "",
         place_ids:             cspBySetId[cs.id] || [],
+        settings_snapshot_json: cs.settings_snapshot_json || {},
         saved_investigation_id: null,
         notes:                 comparisonSetNoteByTargetId[cs.id] || "",
         schema_version:        1,

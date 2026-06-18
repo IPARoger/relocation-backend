@@ -209,3 +209,69 @@ def archive_comparison_set(
         "archived_at": out.get("archived_at"),
         "status": "archived",
     }
+
+def update_comparison_set_state(
+    jwt_token: str,
+    profile_id: str,
+    comparison_set_id: str,
+    settings_snapshot_json: dict,
+) -> dict:
+    """Update comparison workspace reading state (settings_snapshot_json only)."""
+    if not isinstance(settings_snapshot_json, dict):
+        raise ComparisonSetsError(
+            "settings_snapshot_json must be an object", "invalid_snapshot",
+        )
+    client = get_supabase_for_user(jwt_token)
+    account_id = _resolve_account_id(client, jwt_token)
+    _require_owned_active_profile(client, account_id, profile_id)
+
+    try:
+        existing = (
+            client.table("comparison_sets")
+            .select("id, profile_id, archived_at")
+            .eq("id", comparison_set_id)
+            .eq("account_id", account_id)
+            .limit(1)
+            .execute()
+        ).data or []
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise ComparisonSetsError(
+                "comparison set not found", "comparison_set_not_found",
+            ) from exc
+        raise
+    if not existing:
+        raise ComparisonSetsError(
+            "comparison set not found", "comparison_set_not_found",
+        )
+    row = existing[0]
+    if row.get("profile_id") != profile_id:
+        raise ComparisonSetsError(
+            "comparison set not found", "comparison_set_not_found",
+        )
+    if row.get("archived_at") is not None:
+        raise ComparisonSetsError(
+            "comparison set is archived", "comparison_set_not_found",
+        )
+
+    now = _utc_now_iso()
+    result = (
+        client.table("comparison_sets")
+        .update({"settings_snapshot_json": settings_snapshot_json, "updated_at": now})
+        .eq("id", comparison_set_id)
+        .execute()
+    )
+    if getattr(result, "error", None) or not result.data:
+        raise ComparisonSetsError(
+            f"could not update comparison set state: {getattr(result, 'error', 'no data')}",
+            "state_update_failed",
+        )
+    out = result.data[0]
+    return {
+        "id": out.get("id"),
+        "profile_id": out.get("profile_id"),
+        "settings_snapshot_json": out.get("settings_snapshot_json") or {},
+        "updated_at": out.get("updated_at"),
+        "status": "updated",
+    }
