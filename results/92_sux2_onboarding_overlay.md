@@ -49,6 +49,16 @@ venv/bin/python scripts/smoke_onboarding.py
 - Opacity slider for layers — not in production Genie; slide 5 uses Mute/Solo/Exploration Mode
 - Per-account onboarding state in `user_settings` — future production requirement
 
+## Validation Results
+
+| Smoke | Result |
+|-------|--------|
+| `smoke_map_current.py` | PASS |
+| `smoke_saved_investigations.py` | PASS (retry after transient auth 403) |
+| `smoke_onboarding.py` | PASS |
+
+**Commit:** `2a9ca9e`
+
 ## Verdict
 
 **PASS** — Placeholder onboarding replaced with 7-slide app-usage tour. Dismissal persists via localStorage; replay wired through Help. Scope limited to `app_shell.html` + smoke; no renderer/backend changes.
