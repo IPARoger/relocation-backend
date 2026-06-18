@@ -94,6 +94,23 @@
   @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
   .module { border-left: 3px solid var(--line); padding-left: 10px; margin-bottom: 12px; }
   .module h4 { margin: 0 0 6px; font-size: 13px; }
+  .settings-layout { display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 760px) { .settings-layout { grid-template-columns: 1fr; } }
+  .settings-nav { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 2px; max-height: calc(100vh - 80px); overflow: auto; }
+  .settings-nav a { text-decoration: none; color: var(--muted); font-size: 12px; padding: 6px 10px; border-radius: 6px; display: block; }
+  .settings-nav a:hover { background: #f3f4f6; color: var(--fg); }
+  .settings-nav a.active { background: #eff6ff; color: var(--accent); font-weight: 600; }
+  .settings-sections { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .settings-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; scroll-margin-top: 12px; }
+  .settings-card h3.settings-sec-title { margin: 0 0 4px; font-size: 17px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--fg); }
+  .settings-card .settings-sec-sub { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  .settings-subhead { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 16px 0 8px; }
+  .settings-subhead:first-child { margin-top: 0; }
+  .settings-save-bar { position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); padding: 12px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+  .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
+  .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
+  .hint-swatch.pos { background: #86efac; }
+  .hint-swatch.neg { background: #fdba74; }
   .map-placeholder {
     min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
     display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted);
@@ -1730,7 +1747,7 @@ function effectiveConfigPanelHtml() {
   if (!RM || typeof RM.getEffectiveSettings !== "function") {
     return `
     <div class="panel">
-      <h3>Module: current-astrology-configuration</h3>
+      <h3 class="settings-subhead-inner">Effective configuration (read-only)</h3>
       <p class="meta">Effective settings helper unavailable.</p>
     </div>`;
   }
@@ -1742,7 +1759,7 @@ function effectiveConfigPanelHtml() {
   const snapVer = (RM.SNAPSHOT_VERSION != null) ? RM.SNAPSHOT_VERSION : "\u2014";
   return `
     <div class="panel">
-      <h3>Module: current-astrology-configuration</h3>
+      <h3 class="settings-subhead-inner">Effective configuration (read-only)</h3>
       <p class="meta">Read-only. The effective runtime configuration currently in use. Editable controls are not available yet.</p>
       <table class="simple">
         <tr><th>Current Astrology Configuration</th><th></th></tr>
@@ -1786,7 +1803,7 @@ function advancedSettingsHtml() {
   const oos = eff ? !!eff.out_of_sign_aspects : false;
   return `
     <div class="panel">
-      <h3>Module: advanced-astrology-settings</h3>
+      <h3 class="settings-subhead-inner">Aspect display options</h3>
       <p class="meta"><strong>Advanced / professional.</strong> These controls change interpretation defaults. They are not yet wired into the calculation engine.</p>
       <label class="block" style="display:flex;align-items:center;gap:8px;">
         <input type="checkbox" id="rm-settings-minor-aspects"${minor ? " checked" : ""} style="width:auto;margin:0;" />
@@ -1798,7 +1815,7 @@ function advancedSettingsHtml() {
         Allow out-of-sign aspects
       </label>
       <p class="meta">Out-of-sign aspects are off by default.</p>
-      <p class="meta">Major aspect orbs are edited in the Aspect Registry below.</p>
+      <p class="meta">Per-aspect visibility and orbs are grouped under Charts below.</p>
     </div>`;
 }
 
@@ -1829,7 +1846,7 @@ function planetsBodiesHtml() {
       </label>`;
   return `
     <div class="panel">
-      <h3>Module: planets-and-bodies</h3>
+      <h3 class="settings-subhead-inner">Astral Bodies &amp; Points</h3>
       <p class="meta"><strong>Advanced / professional.</strong> Planet and body visibility. Not yet wired into the calculation engine or renderer.</p>
       <h4 style="margin:8px 0 4px;">Core Planets</h4>
       ${CORE.map(([id, label]) => chk("planet", id, label, planets.indexOf(id) !== -1, false)).join("")}
@@ -1846,45 +1863,66 @@ function planetsBodiesHtml() {
 // saveAccountSettingsPatch. NOT wired into the aspect engine/renderer yet.
 // Prefilled from effective settings so reloads reflect saves. Ontology packs
 // may later override these through the effective layer.
-function aspectRegistryHtml() {
+function _aspectRegistryContext() {
   const RM = window.RMSettings;
   const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
   const eff = (RM && typeof RM.getEffectiveSettings === "function")
     ? RM.getEffectiveSettings(raw.user_settings || null, null)
     : null;
-  const majVis = (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : [];
-  const minVis = (eff && Array.isArray(eff.visible_minor_aspects_list)) ? eff.visible_minor_aspects_list : [];
-  const majOrb = (eff && eff.major_aspect_orbs) || {};
-  const minOrb = (eff && eff.minor_aspect_orbs) || {};
-  const num = (v, d) => (v == null ? d : v);
-  const MAJOR = [
-    ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
-    ["trine", "Trine", 8], ["sextile", "Sextile", 6],
-  ];
-  const MINOR = [
-    ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
-    ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
-  ];
-  const row = (kind, id, label, checked, orbVal) =>
-    `<div class="block" style="display:flex;align-items:center;gap:8px;">
-        <label style="display:flex;align-items:center;gap:8px;flex:1;">
-          <input type="checkbox" id="rm-settings-${kind}asp-${id}"${checked ? " checked" : ""} style="width:auto;margin:0;" />
-          ${label}
-        </label>
-        <input type="number" id="rm-settings-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}" style="width:80px;" title="${label} orb (degrees)" />
-      </div>`;
+  return {
+    majVis: (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : [],
+    minVis: (eff && Array.isArray(eff.visible_minor_aspects_list)) ? eff.visible_minor_aspects_list : [],
+    majOrb: (eff && eff.major_aspect_orbs) || {},
+    minOrb: (eff && eff.minor_aspect_orbs) || {},
+    num: (v, d) => (v == null ? d : v),
+    MAJOR: [
+      ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
+      ["trine", "Trine", 8], ["sextile", "Sextile", 6],
+    ],
+    MINOR: [
+      ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
+      ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
+    ],
+  };
+}
+
+function aspectRegistryVisibilityHtml() {
+  const { majVis, minVis, MAJOR, MINOR } = _aspectRegistryContext();
+  const visRow = (kind, id, label, checked) =>
+    `<label class="block" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rm-settings-${kind}asp-${id}"${checked ? " checked" : ""} style="width:auto;margin:0;" />
+        ${label}
+      </label>`;
   return `
     <div class="panel">
-      <h3>Module: aspect-registry</h3>
-      <p class="meta"><strong>Advanced / professional.</strong> Per-aspect visibility and orbs. Not yet wired into the aspect engine or renderer.</p>
+      <p class="meta"><strong>Aspect display.</strong> Per-aspect visibility. Orbs are configured under Orbs &amp; House Boundaries. Not yet wired into the renderer.</p>
       <h4 style="margin:8px 0 4px;">Major Aspects</h4>
-      ${MAJOR.map(([id, label, d]) => row("maj", id, label, majVis.indexOf(id) !== -1, num(majOrb[id], d))).join("")}
+      ${MAJOR.map(([id, label]) => visRow("maj", id, label, majVis.indexOf(id) !== -1)).join("")}
       <h4 style="margin:12px 0 4px;">Minor Aspects</h4>
-      ${MINOR.map(([id, label, d]) => row("min", id, label, minVis.indexOf(id) !== -1, num(minOrb[id], d))).join("")}
-      <p class="meta">Minor aspects are advanced features and are disabled by default.</p>
-      <p class="meta">Aspect settings affect future searches and saved settings snapshots.</p>
+      ${MINOR.map(([id, label]) => visRow("min", id, label, minVis.indexOf(id) !== -1)).join("")}
     </div>`;
 }
+
+function aspectRegistryOrbsHtml() {
+  const { majOrb, minOrb, num, MAJOR, MINOR } = _aspectRegistryContext();
+  const orbRow = (kind, id, label, orbVal) =>
+    `<label class="block">${label} orb (degrees)
+        <input type="number" id="rm-settings-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}" />
+      </label>`;
+  return `
+    <div class="panel">
+      <p class="meta"><strong>Planet-to-planet orbs.</strong> Separate from aspect-to-angle (A2A) orbs below. Not yet applied to calculations.</p>
+      <h4 style="margin:8px 0 4px;">Major aspect orbs</h4>
+      ${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}
+      <h4 style="margin:12px 0 4px;">Minor aspect orbs</h4>
+      ${MINOR.map(([id, label, d]) => orbRow("min", id, label, num(minOrb[id], d))).join("")}
+    </div>`;
+}
+
+function aspectRegistryHtml() {
+  return aspectRegistryVisibilityHtml() + aspectRegistryOrbsHtml();
+}
+
 
 // Human-readable label for subsequent_house_policy values.
 function houseProximityPolicyLabel(policy) {
@@ -1913,8 +1951,8 @@ function houseProximityHtml() {
     `<option value="${val}"${policy === val ? " selected" : ""}>${label}</option>`;
   return `
     <div class="panel">
-      <h3>Module: house-proximity</h3>
-      <p class="meta"><strong>Advanced / professional.</strong> House proximity settings do not change house membership. They only affect transitional display/interpretive cues.</p>
+      <h3 class="settings-subhead-inner">Late-in-house boundaries</h3>
+      <p class="meta"><strong>Orbs &amp; house boundaries.</strong> Late-in-house settings control transitional cues near house cusps. They do <em>not</em> change Layer 1 house membership. Not yet applied to the renderer.</p>
       <label class="block">House proximity orb (degrees)
         <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
       </label>
@@ -1953,92 +1991,369 @@ function aspectToAngleHtml() {
       </label>`;
   return `
     <div class="panel">
-      <h3>Module: aspect-to-angle-orbs</h3>
-      <p class="meta"><strong>Advanced / professional.</strong> Aspect-to-angle orbs control proximity settings for planets to ASC/MC angle relationships.</p>
+      <h3 class="settings-subhead-inner">Aspect-to-angle (A2A) orbs</h3>
+      <p class="meta"><strong>Aspect-to-angle (A2A).</strong> Proximity orbs for planet-to-angle relationships (ASC/MC). A 30% house-span rule for angle-to-angle boundaries is planned; not yet configurable. Not yet applied to calculations.</p>
       <p class="meta">These settings are separate from planet-to-planet aspect orbs.</p>
       ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
       <p class="meta">Changing these settings affects future searches and saved settings snapshots, but does not change existing saved investigations.</p>
     </div>`;
 }
 
-function screenSettings() {
-  const vm = requireViewModel();
-  // House system is display-only for now: the calculation engine uses Placidus
-  // for all charts, so the Settings control below is shown disabled and honest.
-  // Previously saved house_system values are preserved (see save-settings).
+// Settings IA (S-UX-1): prototype-aligned sidebar + section cards.
+const SETTINGS_NAV = [
+  ["account", "My Account"],
+  ["profiles", "My Profiles"],
+  ["charts", "Charts"],
+  ["map", "My Map"],
+  ["appearance", "Appearance"],
+  ["location", "Location"],
+  ["language", "Language & Regional"],
+  ["sharing", "Sharing & Exports"],
+  ["data", "My Data"],
+  ["technical", "Technical"],
+  ["personalization", "Personalization"],
+  ["about", "About & Data Sources"],
+];
+
+function settingsNavHtml() {
+  return SETTINGS_NAV.map(([id, label]) =>
+    `<a href="#sec-${id}" data-settings-nav="${id}">${label}</a>`
+  ).join("");
+}
+
+function settingsSoonBadge() {
+  return '<span class="badge-soon">Coming soon</span>';
+}
+
+function settingsStubRow(label, desc) {
+  const d = desc ? `<span class="meta">${desc}</span>` : "";
+  return `<div class="loc-row" style="margin-bottom:10px;opacity:0.88;">
+    <div class="loc-row-text"><strong>${label}</strong>${d}</div>
+    ${settingsSoonBadge()}
+  </div>`;
+}
+
+function initSettingsNav() {
+  const nav = document.getElementById("rm-settings-nav");
+  if (!nav) return;
+  const links = nav.querySelectorAll("a[data-settings-nav]");
+  links.forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = a.getAttribute("href").slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      links.forEach((x) => x.classList.remove("active"));
+      a.classList.add("active");
+    });
+  });
+  if (links.length && !nav.querySelector("a.active")) links[0].classList.add("active");
+}
+
+function settingsAccountSectionHtml() {
+  const user = window.CurrentUser || {};
+  const name = user.accountName || "\u2014";
+  const role = user.role || user.accountType || "\u2014";
   return `
-    <h2>S5 — Settings</h2>
-    <p class="purpose">Layer 2 defaults · not a journey destination.</p>
+    <section class="settings-card" id="sec-account">
+      <h3 class="settings-sec-title">My Account</h3>
+      <p class="settings-sec-sub">Account identity. Full controls are in the account drawer (top bar).</p>
+      <div class="panel">
+        <label class="block">Account name
+          <input type="text" value="${escapeHtml(name)}" disabled />
+        </label>
+        <label class="block">Role / plan
+          <input type="text" value="${escapeHtml(String(role))}" disabled />
+        </label>
+        <p class="meta">Billing, sign-in, and plan management \u2014 coming soon.</p>
+      </div>
+    </section>`;
+}
+
+function settingsProfilesSectionHtml() {
+  const vm = requireViewModel();
+  return `
+    <section class="settings-card" id="sec-profiles">
+      <h3 class="settings-sec-title">My Profiles</h3>
+      <p class="settings-sec-sub">Default profile and profile management.</p>
+      <div class="panel">
+        <label class="block">Default Chart Record (Dashboard \u2192 Map)
+          <select id="rm-settings-default-cr">
+            ${vm.chartRecords.map((r) =>
+              `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+            ).join("")}
+          </select>
+        </label>
+        <p class="meta">Opens on Dashboard and Map when no profile is selected.</p>
+        <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
+      </div>
+    </section>`;
+}
+
+function chartAppearanceStubHtml() {
+  return `
     <div class="panel">
-      <h3>Module: account-defaults</h3>
-      <label class="block">Default Chart Record (Dashboard → Map)
-        <select id="rm-settings-default-cr">
-          ${vm.chartRecords.map((r) =>
-            `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
-          ).join("")}
-        </select>
-      </label>
+      <p class="meta">Wheel style, glyph families, and chart surface options. ${settingsSoonBadge()} No persistence in this slice.</p>
+    </div>`;
+}
+
+function chartsHouseSystemHtml() {
+  return `
+    <div class="panel">
+      <p class="meta">Placidus is the only active house system. Previously saved values are preserved but not editable until more systems ship.</p>
       <label class="block">House system
         <select id="rm-settings-house" disabled aria-disabled="true" title="Placidus only for now">
           <option value="placidus" selected>Placidus (active)</option>
-          <option value="whole_sign" disabled>Whole Sign — coming soon</option>
-          <option value="equal" disabled>Equal — coming soon</option>
-          <option value="koch" disabled>Koch — coming soon</option>
+          <option value="whole_sign" disabled>Whole Sign \u2014 coming soon</option>
+          <option value="equal" disabled>Equal \u2014 coming soon</option>
+          <option value="koch" disabled>Koch \u2014 coming soon</option>
         </select>
-        <span class="meta">Placidus only for now. Other house systems are planned but not yet active.</span>
       </label>
-    </div>
-    ${effectiveConfigPanelHtml()}
-    ${advancedSettingsHtml()}
-    ${planetsBodiesHtml()}
-    ${aspectRegistryHtml()}
-    ${houseProximityHtml()}
-    ${aspectToAngleHtml()}
+    </div>`;
+}
+
+function chartsZodiacHtml() {
+  const RM = window.RMSettings;
+  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
+  const eff = (RM && typeof RM.getEffectiveSettings === "function")
+    ? RM.getEffectiveSettings(raw.user_settings || null, null)
+    : null;
+  const mode = eff && eff.zodiac_mode ? capitalize(eff.zodiac_mode) : "Tropical";
+  return `
     <div class="panel">
-      <h3>Module: history (per Chart Record)</h3>
-      <button type="button" disabled>Clear this Chart Record's history (placeholder)</button>
-      <button type="button" disabled>Clear all history — separate control (placeholder)</button>
-    </div>
+      <p class="meta">Tropical zodiac only for now. Sidereal and other modes are planned.</p>
+      <label class="block">Zodiac mode (read-only)
+        <input type="text" value="${escapeHtml(mode)}" disabled />
+      </label>
+    </div>`;
+}
+
+function dignitiesShellHtml() {
+  return `
     <div class="panel">
-      <h3>Module: profiles</h3>
-      <p class="meta">Manage your profiles — open, set locations, add new.</p>
-      <button type="button" data-nav="profiles">Manage Profiles →</button>
-    </div>
+      <p class="meta"><strong>Not yet applied.</strong> Essential dignity scoring is not wired into the renderer or calculations.</p>
+      <label class="block">Dignity preset
+        <select disabled aria-disabled="true">
+          <option>Traditional</option>
+          <option>Modern</option>
+          <option>Hybrid</option>
+        </select>
+        ${settingsSoonBadge()}
+      </label>
+      <p class="meta">Advanced per-planet dignity overrides \u2014 coming soon.</p>
+    </div>`;
+}
+
+function interpretiveHintsShellHtml() {
+  return `
     <div class="panel">
-      <h3>Module: location</h3>
-      <div class="loc-row">
-        <div class="loc-row-text">
-          <strong>Current location</strong>
-          <span class="meta">Set manually per profile via Location Search. Each profile carries its own current location for relocation comparisons.</span>
-        </div>
-        <button type="button" data-nav="profiles">Manage Profiles →</button>
+      <p class="meta">
+        <strong>Interpretive hints</strong>
+        <span title="Interpretive hints are optional subjective nudges for beginners. They are not essential dignities and are off by default." style="cursor:help;margin-left:4px;">?</span>
+        \u2014 optional Layer 2 plugin-style feature; default off; not persisted yet.
+      </p>
+      <label class="block" style="display:flex;align-items:center;gap:8px;opacity:0.75;">
+        <input type="checkbox" disabled style="width:auto;margin:0;" />
+        Show interpretive hints
+      </label>
+      <p class="meta">Preview swatches: supportive <span class="hint-swatch pos"></span> cautionary <span class="hint-swatch neg"></span></p>
+    </div>`;
+}
+
+function settingsChartsSectionHtml() {
+  return `
+    <section class="settings-card" id="sec-charts">
+      <h3 class="settings-sec-title">Charts</h3>
+      <p class="settings-sec-sub">Layer 2 chart display and interpretation defaults. Saved to your account; not all keys are engine-wired yet.</p>
+      <div class="settings-subhead">Astral Bodies &amp; Points</div>
+      ${planetsBodiesHtml()}
+      <div class="settings-subhead">Chart Appearance</div>
+      ${chartAppearanceStubHtml()}
+      <div class="settings-subhead">Aspect Display</div>
+      ${advancedSettingsHtml()}
+      ${aspectRegistryVisibilityHtml()}
+      <div class="settings-subhead">Orbs &amp; House Boundaries</div>
+      ${aspectRegistryOrbsHtml()}
+      ${houseProximityHtml()}
+      ${aspectToAngleHtml()}
+      <div class="settings-subhead">Dignities</div>
+      ${dignitiesShellHtml()}
+      <div class="settings-subhead">House System</div>
+      ${chartsHouseSystemHtml()}
+      <div class="settings-subhead">Zodiac</div>
+      ${chartsZodiacHtml()}
+      <div class="settings-subhead">Advanced</div>
+      ${interpretiveHintsShellHtml()}
+      ${effectiveConfigPanelHtml()}
+    </section>`;
+}
+
+function settingsMapStubHtml() {
+  return `
+    <section class="settings-card" id="sec-map">
+      <h3 class="settings-sec-title">My Map</h3>
+      <p class="settings-sec-sub">Map layer behavior and overlays (prototype-aligned; not launch-wired).</p>
+      <div class="panel">
+        ${settingsStubRow("Aspect bands", "Relocation map overlay bands.")}
+        ${settingsStubRow("Exact aspect lines", "Centerline display on map.")}
+        ${settingsStubRow("Exclusion style", "How excluded areas appear.")}
+        ${settingsStubRow("City labels", "Label density and click behavior.")}
       </div>
-      <p class="meta" style="margin-top:8px;">Open Profile Management to set current location per profile.</p>
-      <div class="loc-future">
-        <div class="loc-future-head">Experimental · not yet available</div>
-        <div class="loc-row loc-future-row">
-          <div class="loc-row-text"><strong>Road Trip Mode</strong><span class="meta">Continuous route-based location.</span></div>
-          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+    </section>`;
+}
+
+function settingsAppearanceStubHtml() {
+  return `
+    <section class="settings-card" id="sec-appearance">
+      <h3 class="settings-sec-title">Appearance</h3>
+      <p class="settings-sec-sub">Colors, glyphs, and visual themes.</p>
+      <div class="panel">
+        ${settingsStubRow("Color themes", "App atmosphere and map overlay palettes.")}
+        ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
+        ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
+      </div>
+    </section>`;
+}
+
+function settingsLocationSectionHtml() {
+  return `
+    <section class="settings-card" id="sec-location">
+      <h3 class="settings-sec-title">Location</h3>
+      <p class="settings-sec-sub">Current location per profile via Location Search.</p>
+      <div class="panel">
+        <div class="loc-row">
+          <div class="loc-row-text">
+            <strong>Current location</strong>
+            <span class="meta">Set manually per profile. Each profile carries its own current location for relocation comparisons.</span>
+          </div>
+          <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
         </div>
-        <div class="loc-row loc-future-row">
-          <div class="loc-row-text"><strong>GPS / device location</strong><span class="meta">Use device location instead of manual search.</span></div>
-          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+        <div class="loc-future" style="margin-top:12px;">
+          <div class="loc-future-head">Experimental \u00b7 not yet available</div>
+          ${settingsStubRow("Road Trip Mode", "Continuous route-based location.")}
+          ${settingsStubRow("GPS / device location", "Use device location instead of manual search.")}
+          ${settingsStubRow("Notifications", "Location-aware alerts.")}
+          ${settingsStubRow("Offline / Airplane mode", "Saved location without a connection.")}
         </div>
-        <div class="loc-row loc-future-row">
-          <div class="loc-row-text"><strong>Notifications</strong><span class="meta">Location-aware alerts.</span></div>
-          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
-        </div>
-        <div class="loc-row loc-future-row">
-          <div class="loc-row-text"><strong>Offline / Airplane mode</strong><span class="meta">Use saved location data without a connection.</span></div>
-          <button type="button" class="loc-soon" disabled aria-disabled="true" tabindex="-1">Soon</button>
+      </div>
+    </section>`;
+}
+
+function settingsLanguageStubHtml() {
+  return `
+    <section class="settings-card" id="sec-language">
+      <h3 class="settings-sec-title">Language &amp; Regional</h3>
+      <p class="settings-sec-sub">Interface language and regional formats.</p>
+      <div class="panel">
+        ${settingsStubRow("Interface language", "App UI language.")}
+        ${settingsStubRow("Date format", "How dates appear across the app.")}
+        ${settingsStubRow("Time format", "12-hour vs 24-hour clock.")}
+      </div>
+    </section>`;
+}
+
+function settingsSharingStubHtml() {
+  return `
+    <section class="settings-card" id="sec-sharing">
+      <h3 class="settings-sec-title">Sharing &amp; Exports</h3>
+      <p class="settings-sec-sub">Share links and export defaults.</p>
+      <div class="panel">
+        ${settingsStubRow("Default share link", "Quick sharing options.")}
+        ${settingsStubRow("Export defaults", "Report and file export presets.")}
+        <button type="button" data-nav="export" disabled>Export / share status</button>
+      </div>
+    </section>`;
+}
+
+function settingsDataSectionHtml() {
+  return `
+    <section class="settings-card" id="sec-data">
+      <h3 class="settings-sec-title">My Data</h3>
+      <p class="settings-sec-sub">Saved work and data management.</p>
+      <div class="panel">
+        ${settingsStubRow("Saved searches", "Manage investigation history.")}
+        ${settingsStubRow("Comparisons & favorites", "Bulk management.")}
+        ${settingsStubRow("Export my data", "Account data export.")}
+        <h4 style="margin:16px 0 8px;">History (per Chart Record)</h4>
+        <button type="button" disabled>Clear this Chart Record\u2019s history (placeholder)</button>
+        <button type="button" disabled style="margin-left:8px;">Clear all history (placeholder)</button>
+      </div>
+    </section>`;
+}
+
+function settingsTechnicalStubHtml() {
+  return `
+    <section class="settings-card" id="sec-technical">
+      <h3 class="settings-sec-title">Technical</h3>
+      <p class="settings-sec-sub">Diagnostics and developer options.</p>
+      <div class="panel">
+        ${settingsStubRow("Debug mode", "Verbose client logging.")}
+        ${settingsStubRow("Calculation metadata", "Show engine metadata in UI.")}
+        ${settingsStubRow("Cache reset", "Clear local caches.")}
+      </div>
+    </section>`;
+}
+
+function settingsPersonalizationStubHtml() {
+  return `
+    <section class="settings-card" id="sec-personalization">
+      <h3 class="settings-sec-title">Personalization</h3>
+      <p class="settings-sec-sub">Creator tools planned for later releases.</p>
+      <div class="panel">
+        <ul class="meta" style="margin:0;padding-left:18px;">
+          <li>Custom glyph packs (private)</li>
+          <li>Definitions library and interpretation cookbook</li>
+          <li>Guided helper for undefined terms</li>
+        </ul>
+        <p class="meta" style="margin-top:10px;">${settingsSoonBadge()}</p>
+      </div>
+    </section>`;
+}
+
+function aboutDataSourcesHtml() {
+  return `
+    <section class="settings-card" id="sec-about">
+      <h3 class="settings-sec-title">About &amp; Data Sources</h3>
+      <p class="settings-sec-sub">Third-party libraries and datasets used for calculations, places, and maps.</p>
+      <ul class="meta" style="margin:0;padding-left:18px;line-height:1.7;">
+        <li><strong>Astronomical calculations</strong> \u2014 Swiss Ephemeris</li>
+        <li><strong>Location database</strong> \u2014 GeoNames</li>
+        <li><strong>Time zone identifiers</strong> \u2014 IANA Time Zone Database</li>
+        <li><strong>Maps</strong> \u2014 Leaflet / OpenStreetMap</li>
+      </ul>
+      <p class="meta" style="margin-top:10px;">Attribution is collected here rather than on map and chart surfaces.</p>
+    </section>`;
+}
+
+function screenSettings() {
+  // House system is display-only: engine uses Placidus. Saved values preserved on merge save.
+  return `
+    <h2>S5 \u2014 Settings</h2>
+    <p class="purpose">Layer 2 defaults \u00b7 prototype-aligned navigation \u00b7 persistence unchanged.</p>
+    <div class="settings-layout">
+      <nav class="settings-nav" id="rm-settings-nav" aria-label="Settings sections">
+        ${settingsNavHtml()}
+      </nav>
+      <div class="settings-sections">
+        ${settingsAccountSectionHtml()}
+        ${settingsProfilesSectionHtml()}
+        ${settingsChartsSectionHtml()}
+        ${settingsMapStubHtml()}
+        ${settingsAppearanceStubHtml()}
+        ${settingsLocationSectionHtml()}
+        ${settingsLanguageStubHtml()}
+        ${settingsSharingStubHtml()}
+        ${settingsDataSectionHtml()}
+        ${settingsTechnicalStubHtml()}
+        ${settingsPersonalizationStubHtml()}
+        ${aboutDataSourcesHtml()}
+        <div class="settings-save-bar row">
+          <button type="button" class="primary" data-action="save-settings">Save Settings</button>
+          <button type="button" data-nav="dashboard">Back to dashboard</button>
+          <span id="rm-settings-msg" class="meta" style="margin-left:12px;min-height:1.4em;"></span>
         </div>
       </div>
     </div>
-    <div class="row">
-      <button type="button" class="primary" data-action="save-settings">Save Settings</button>
-      <button type="button" data-nav="dashboard">Back to dashboard</button>
-    </div>
-    <p id="rm-settings-msg" style="font-size:0.85rem;min-height:1.4em;"></p>
   `;
 }
 

@@ -114,6 +114,12 @@ Incremental cleanup per C5-1 audit. All approved slices verified. **Cleanup trac
 
 Settings completion, saved comparisons UX, Help/onboarding, exports, city search, port 8000 migration — see `docs/architecture/ROADMAP_AND_SEQUENCE.md`.
 
+| ID | Status | Item | Closeout |
+|----|--------|------|----------|
+| S-UX-1 | ✅ | Settings IA shell + Charts regroup + About & Data Sources (`app_shell.html`) | `results/91_sux1_settings_ia_shell.md` |
+
+
+
 ---
 
 ## Planner rules

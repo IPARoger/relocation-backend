@@ -44,6 +44,11 @@ PYTHON = ROOT / "venv" / "bin" / "python"
 DEFAULT_EMAIL = "davidleongoodman@gmail.com"
 
 
+def is_benign_console_error(text: str) -> bool:
+    """Chromium logs missing static assets as console errors on the dev server."""
+    return "Failed to load resource" in text and "404" in text
+
+
 def fail(msg: str) -> None:
     print(f"FAIL: {msg}", file=sys.stderr)
     raise SystemExit(1)
@@ -221,6 +226,7 @@ def main() -> int:
         if sess is None:
             results.append(("fe_skipped", True, "RM_SMOKE_JWT set; frontend needs fresh session"))
         else:
+            want_orb = None
             from playwright.sync_api import sync_playwright
             s = sess.session
             ref = urlparse(url).hostname.split(".")[0]
@@ -237,7 +243,7 @@ def main() -> int:
                 page = browser.new_page()
                 console_errors = []
                 load_count = {"n": 0}
-                page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
+                page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" and not is_benign_console_error(m.text) else None)
                 page.on("pageerror", lambda e: console_errors.append("pageerror: " + str(e)))
                 page.on("load", lambda _f: load_count.__setitem__("n", load_count["n"] + 1))
                 page.add_init_script(
@@ -260,6 +266,11 @@ def main() -> int:
                 page.evaluate("()=>window.__rmAppShell.navigate('settings')")
                 page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
                 page.wait_for_selector("[data-action='save-settings']", timeout=15000)
+
+                results.append(("fe_settings_ia_about",
+                                page.query_selector("#sec-about") is not None
+                                and "GeoNames" in (page.inner_text("#sec-about") or ""),
+                                "about data sources section"))
 
                 opts = page.eval_on_selector_all(
                     "#rm-settings-default-cr option", "els=>els.map(e=>e.value)")
@@ -306,6 +317,31 @@ def main() -> int:
                     results.append(("fe_reload_minor", rl_minor == want_minor,
                                     f"minor={rl_minor} want={want_minor}"))
 
+                # major_aspect_orbs persistence (S-UX-1): toggle conjunction orb
+                maj_orb_sel = "#rm-settings-majorb-conjunction"
+                if page.query_selector(maj_orb_sel):
+                    cur_orb = float(page.eval_on_selector(maj_orb_sel, "el=>parseFloat(el.value)"))
+                    want_orb = 7.5 if cur_orb != 7.5 else 8.5
+                    page.eval_on_selector(maj_orb_sel, "(el,v)=>{el.value=String(v);}", want_orb)
+                    page.click("[data-action='save-settings']")
+                    page.wait_for_function(
+                        "()=>{const m=document.getElementById('rm-settings-msg');"
+                        "return m && m.textContent.indexOf('Saved') !== -1;}",
+                        timeout=15000,
+                    )
+                    mem_orb = page.evaluate(
+                        "()=>{const r=window.__rmAppShell.storeRaw();"
+                        "const o=r&&r.user_settings&&r.user_settings.major_aspect_orbs;"
+                        "return o&&o.conjunction!=null?o.conjunction:null;}")
+                    results.append(("fe_inmemory_major_orb", mem_orb == want_orb,
+                                    f"mem={mem_orb} want={want_orb}"))
+                    load()
+                    page.evaluate("()=>window.__rmAppShell.navigate('settings')")
+                    page.wait_for_selector(maj_orb_sel, timeout=15000)
+                    rl_orb = float(page.eval_on_selector(maj_orb_sel, "el=>parseFloat(el.value)"))
+                    results.append(("fe_reload_major_orb", rl_orb == want_orb,
+                                    f"orb={rl_orb} want={want_orb}"))
+
                 results.append(("fe_no_console_errors", len(console_errors) == 0,
                                 "; ".join(console_errors[:5]) or "none"))
                 browser.close()
@@ -315,6 +351,9 @@ def main() -> int:
             db_sj = (db_row or {}).get("settings_json") or {}
             results.append(("fe_db_default", db_sj.get("default_chart_record_id") == target_default,
                             f"db_default={db_sj.get('default_chart_record_id')}"))
+            if want_orb is not None:
+                maj_db = (db_sj.get("major_aspect_orbs") or {}).get("conjunction")
+                results.append(("fe_db_major_orb", maj_db == want_orb, f"db_conj={maj_db} want={want_orb}"))
 
     finally:
         # Restore the original account-level row exactly.
