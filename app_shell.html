@@ -202,6 +202,12 @@
   .loc-future-row { opacity:.55; }
   .loc-soon { font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #cbd5e1;background:#f1f5f9;color:#94a3b8;cursor:not-allowed; }
   .loc-soon:disabled { pointer-events:none; }
+  .comparison-overlay-modal { max-width: min(560px, 96vw); max-height: min(88vh, 900px); overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .comparison-overlay-section { border-top: 1px solid #e2e8f0; padding-top: 12px; }
+  .comparison-overlay-section h4 { margin: 0 0 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; }
+  .comparison-overlay-saved-list { margin: 0; padding: 0; list-style: none; }
+  .comparison-overlay-saved-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  #rm-cmp-overlay-compare-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -253,6 +259,29 @@
         <button type="button" data-action="guided-onboarding-next" class="primary">Next</button>
         <button type="button" data-action="guided-onboarding-launch" class="primary" hidden>Launch Map</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="comparisonOverlayModal" aria-hidden="true">
+  <div class="modal comparison-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="comparisonOverlayTitle">
+    <h3 id="comparisonOverlayTitle">Compare locations</h3>
+    <p class="meta" id="comparisonOverlayProfile"></p>
+    <div class="comparison-overlay-section">
+      <h4>Saved comparisons</h4>
+      <div id="comparisonOverlaySaved"><p class="meta">Loading…</p></div>
+    </div>
+    <div class="comparison-overlay-section">
+      <h4>New comparison</h4>
+      <div id="rm-cmp-overlay-search-mount"></div>
+      <div id="rm-cmp-overlay-selected" class="row" style="flex-wrap:wrap;margin-top:8px;"></div>
+      <div class="row" style="margin-top:8px;align-items:center;">
+        <button type="button" id="rm-cmp-overlay-compare-btn" data-action="cmp-overlay-compare" disabled>Compare</button>
+        <span class="meta" id="rm-cmp-overlay-msg"></span>
+      </div>
+    </div>
+    <div class="row" style="margin-top:4px;">
+      <button type="button" data-action="cmp-overlay-close">Cancel</button>
     </div>
   </div>
 </div>
@@ -376,7 +405,7 @@ const ROUTE_CONTEXT_CONTRACT = {
     chartRecordId: "required",
     placeId: "optional",
     explorationId: "optional",
-    comparisonSetId: "required",
+    comparisonSetId: "optional",
   },
   export: {
     chartRecordId: "required",
@@ -431,6 +460,7 @@ let navContext = {
 const uiState = {
   drawerOpen: true,
   popupOpen: false,
+  comparisonOverlayOpen: false,
   switchNotice: null,
   mapEntrySource: null,
 };
@@ -692,6 +722,8 @@ function adaptStoreToView(store) {
     return {
       id: cs.id,
       clientId: cs.client_id,
+      title: cs.title || "",
+      updated_at: cs.updated_at || cs.created_at || null,
       placeIds,
       placeNames: placeIds.map((pid) => placesById[pid]?.display_name).filter(Boolean),
       notes: cs.notes || "",
@@ -909,11 +941,6 @@ function normalizeNavContext(partial) {
   if (contract.chartRecordId === "required" && !out.chartRecordId && viewModel) {
     out.chartRecordId = viewModel.selectedChartRecordId || viewModel.defaultChartRecordId;
   }
-  if (contract.comparisonSetId === "required" && !out.comparisonSetId && viewModel && out.chartRecordId) {
-    const cs = viewModel.comparisonSets.find((c) => c.clientId === out.chartRecordId);
-    if (cs) out.comparisonSetId = cs.id;
-  }
-
   for (const key of NAV_CONTEXT_KEYS) {
     if (contract[key] === "none") out[key] = null;
   }
@@ -1109,6 +1136,7 @@ function navigate(route, patch = {}, options = {}) {
   }
   navContext = next;
   uiState.popupOpen = false;
+  uiState._skipComparisonOverlay = !!options.skipComparisonOverlay;
   const hash = buildLocationHash(navContext);
   if (location.hash !== hash) {
     location.hash = hash;
@@ -1158,10 +1186,13 @@ function renderNav() {
           explorationId: null,
           source: "primary nav → production map",
         });
+      } else if (r.id === "compare") {
+        openComparisonOverlayFromChrome();
       } else {
         navigate(/** @type {Route} */ (r.id));
       }
     });
+    a.setAttribute("data-nav-route", r.id);
     nav.appendChild(a);
   });
 }
@@ -1334,86 +1365,15 @@ async function hydrateChartRecordComparisonSets(root) {
   const stillCurrent = () =>
     token === _crComparisonToken && navContext.route === "chart-record" && document.body.contains(container);
   try {
-    const compSets = (window.SupabaseStore?.comparison_sets ?? []).filter(cs => cs.profile_id === chartRecordId);
+    const rows = comparisonSetsForProfile(chartRecordId);
     if (!stillCurrent()) return;
-    const rows = compSets.slice().sort((a, b) => {
-      const ta = a.updated_at || a.created_at || "";
-      const tb = b.updated_at || b.created_at || "";
-      return tb.localeCompare(ta);
-    });
     if (rows.length === 0) {
       container.innerHTML = `<p class="meta">No comparison sets yet. Build a comparison from saved places.</p>`;
       return;
     }
-    const counts = {};
-    rows.forEach((cs) => { counts[cs.id] = Array.isArray(cs.place_ids) ? cs.place_ids.length : 0; });
     if (!stillCurrent()) return;
-    container.innerHTML = `<ul class="plain">${rows.map((cs) => {
-      const title = cs.title || "Comparison";
-      const when = formatSavedLabel(cs.updated_at || cs.created_at);
-      const n = counts[cs.id];
-      const countLabel = (n != null) ? ` · ${n} place${n === 1 ? "" : "s"}` : "";
-      return `<li>
-        <strong>${escapeHtml(title)}</strong>
-        <span class="meta">${escapeHtml(when)}${countLabel}</span>
-        <button type="button" class="rm-cr-cmp-open" data-cmp-id="${escapeHtml(cs.id)}">Open comparison</button>
-        <button type="button" class="rm-cr-cmp-archive" data-cmp-id="${escapeHtml(cs.id)}" data-cmp-title="${escapeHtml(title)}">Archive</button>
-      </li>`;
-    }).join("")}</ul>`;
-    container.querySelectorAll(".rm-cr-cmp-open").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        navigate("compare", { chartRecordId, comparisonSetId: btn.getAttribute("data-cmp-id") }, { pushReturn: true });
-      });
-    });
-    container.querySelectorAll(".rm-cr-cmp-archive").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const setId = btn.getAttribute("data-cmp-id");
-        const title = btn.getAttribute("data-cmp-title") || "this comparison";
-        if (!setId) return;
-        if (!window.confirm(`Archive ${title}? It will be removed from this Chart Record's active list.`)) return;
-        (async () => {
-          try {
-            const c = await window.SupabaseReady;
-            if (!c) throw new Error("Supabase unavailable.");
-            // Backend owns the write (POST /comparison-sets/archive); supply the caller JWT.
-            const sessionResult = await c.auth.getSession();
-            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
-            const token = session && session.access_token;
-            if (!token) throw new Error("Session unavailable. Reload and try again.");
-            const resp = await fetch("/comparison-sets/archive", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-              body: JSON.stringify({ comparison_set_id: setId, profile_id: chartRecordId || null }),
-            });
-            if (!resp.ok) {
-              let detail;
-              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
-              const msg = (detail && (detail.message || detail.error)) ||
-                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
-              throw new Error(msg);
-            }
-            // Drop the archived set from in-memory collections so derived
-            // comparison counts/lists (Profile Management, dashboard, compare
-            // screen) stay consistent without a reload.
-            if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
-              storeRaw.comparison_sets = storeRaw.comparison_sets.filter((x) => x.id !== setId);
-            }
-            if (viewModel && Array.isArray(viewModel.comparisonSets)) {
-              viewModel.comparisonSets = viewModel.comparisonSets.filter((x) => x.id !== setId);
-            }
-            // Edge case: if the archived set is the one currently open on the
-            // compare screen, leave to a safe landing so no broken page renders.
-            if (navContext.route === "compare" && navContext.comparisonSetId === setId) {
-              navigate("compare", { chartRecordId, comparisonSetId: null, placeId: null, explorationId: null });
-            } else {
-              hydrateChartRecordComparisonSets(document);
-            }
-          } catch (err) {
-            window.alert("Archive failed: " + (err.message || String(err)));
-          }
-        })();
-      });
-    });
+    container.innerHTML = renderComparisonSetsListHtml(rows, chartRecordId, "chart-record");
+    wireComparisonSetListActions(container, chartRecordId, "chart-record");
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<p class="meta">Could not load comparison sets: ${escapeHtml(err && err.message ? err.message : String(err))}</p>`;
@@ -1985,6 +1945,248 @@ async function hydrateComparisonColumns(root) {
   }
 }
 
+
+let comparisonOverlaySearchCtl = null;
+
+function comparisonSetsForProfile(chartRecordId) {
+  const storeRows = (window.SupabaseStore && window.SupabaseStore.comparison_sets) || [];
+  return storeRows
+    .filter((cs) => cs.profile_id === chartRecordId || cs.client_id === chartRecordId)
+    .slice()
+    .sort((a, b) => String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || "")));
+}
+
+function comparisonSetRowMeta(cs) {
+  const title = cs.title || "Comparison";
+  const when = formatSavedLabel(cs.updated_at || cs.created_at);
+  const n = Array.isArray(cs.place_ids) ? cs.place_ids.length : 0;
+  const countLabel = n ? ` · ${n} location${n === 1 ? "" : "s"}` : "";
+  return { title, when, countLabel, n };
+}
+
+function renderComparisonSetsListHtml(rows, chartRecordId, context) {
+  if (!rows.length) {
+    return `<p class="meta">No saved comparisons yet. Start a new comparison below.</p>`;
+  }
+  const listClass = context === "overlay" ? "comparison-overlay-saved-list" : "plain";
+  const openClass = context === "overlay" ? "rm-cmp-overlay-open" : "rm-cr-cmp-open";
+  const archClass = context === "overlay" ? "rm-cmp-overlay-archive" : "rm-cr-cmp-archive";
+  return `<ul class="${listClass}">${rows.map((cs) => {
+    const meta = comparisonSetRowMeta(cs);
+    return `<li>
+      <strong>${escapeHtml(meta.title)}</strong>
+      <span class="meta">${escapeHtml(meta.when)}${escapeHtml(meta.countLabel)}</span>
+      <button type="button" class="${openClass}" data-cmp-id="${escapeHtml(cs.id)}" data-chart-record="${escapeHtml(chartRecordId)}">Open</button>
+      <button type="button" class="${archClass}" data-cmp-id="${escapeHtml(cs.id)}" data-chart-record="${escapeHtml(chartRecordId)}" data-cmp-title="${escapeHtml(meta.title)}">Archive</button>
+    </li>`;
+  }).join("")}</ul>`;
+}
+
+function syncOverlayCompareButton() {
+  const btn = document.getElementById("rm-cmp-overlay-compare-btn");
+  const host = document.getElementById("rm-cmp-overlay-selected");
+  if (!btn || !host) return;
+  const count = host.querySelectorAll(".rm-cmp-pick").length;
+  btn.disabled = count < 2 || count > 5;
+}
+
+async function archiveComparisonSet(setId, chartRecordId, title) {
+  const label = title || "this comparison";
+  if (!window.confirm(`Archive ${label}? It will be removed from your active list.`)) return false;
+  const c = await window.SupabaseReady;
+  if (!c) throw new Error("Supabase unavailable.");
+  const sessionResult = await c.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  const token = session && session.access_token;
+  if (!token) throw new Error("Session unavailable. Reload and try again.");
+  const resp = await fetch("/comparison-sets/archive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ comparison_set_id: setId, profile_id: chartRecordId || null }),
+  });
+  if (!resp.ok) {
+    let detail;
+    try { detail = (await resp.json()).detail; } catch (e) { /* ignore */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error(msg);
+  }
+  if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+    storeRaw.comparison_sets = storeRaw.comparison_sets.filter((x) => x.id !== setId);
+  }
+  if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+    viewModel.comparisonSets = viewModel.comparisonSets.filter((x) => x.id !== setId);
+  }
+  if (navContext.route === "compare" && navContext.comparisonSetId === setId) {
+    navigate("compare", { chartRecordId, comparisonSetId: null, placeId: null, explorationId: null }, { skipComparisonOverlay: true });
+  }
+  return true;
+}
+
+async function createComparisonSetFromPlaceIds(chartRecordId, placeIds) {
+  const accountId = window.CurrentUser && window.CurrentUser.accountId;
+  if (!chartRecordId || !accountId) throw new Error("Missing chart record or account.");
+  if (placeIds.length < 2 || placeIds.length > 5) throw new Error("Choose between 2 and 5 places.");
+  const client = await window.SupabaseReady;
+  if (!client) throw new Error("Supabase unavailable.");
+  const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
+  const sessionResult = await client.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  const token = session && session.access_token;
+  if (!token) throw new Error("Session unavailable. Reload and try again.");
+  const resp = await fetch("/comparison-sets/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ profile_id: chartRecordId, place_ids: placeIds, title }),
+  });
+  if (!resp.ok) {
+    let detail;
+    try { detail = (await resp.json()).detail; } catch (e) { /* ignore */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error(msg);
+  }
+  const created = await resp.json();
+  const setId = created.id;
+  const wsDefault = defaultComparisonWorkspaceState(placeIds);
+  const snap = buildSettingsSnapshotFromWorkspace(wsDefault);
+  if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+    storeRaw.comparison_sets.push({
+      id: setId,
+      client_id: chartRecordId,
+      profile_id: chartRecordId,
+      title,
+      place_ids: placeIds.slice(),
+      settings_snapshot_json: snap,
+      saved_investigation_id: null,
+      notes: "",
+      schema_version: 1,
+      updated_at: null,
+      created_at: null,
+    });
+  }
+  if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+    const nameById = viewModel.placeNameById || {};
+    viewModel.comparisonSets.push({
+      id: setId,
+      clientId: chartRecordId,
+      title,
+      updated_at: null,
+      placeIds: placeIds.slice(),
+      placeNames: placeIds.map((pid) => nameById[pid]).filter(Boolean),
+      notes: "",
+      settings_snapshot_json: snap,
+      workspaceState: wsDefault,
+    });
+  }
+  return setId;
+}
+
+function wireComparisonSetListActions(container, chartRecordId, context) {
+  if (!container) return;
+  const openClass = context === "overlay" ? ".rm-cmp-overlay-open" : ".rm-cr-cmp-open";
+  const archClass = context === "overlay" ? ".rm-cmp-overlay-archive" : ".rm-cr-cmp-archive";
+  container.querySelectorAll(openClass).forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const setId = btn.getAttribute("data-cmp-id");
+      const crId = btn.getAttribute("data-chart-record") || chartRecordId;
+      if (!setId || !crId) return;
+      closeComparisonOverlay();
+      navigate("compare", { chartRecordId: crId, comparisonSetId: setId, placeId: null, explorationId: null }, { pushReturn: true, skipComparisonOverlay: true });
+    });
+  });
+  container.querySelectorAll(archClass).forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const setId = btn.getAttribute("data-cmp-id");
+      const crId = btn.getAttribute("data-chart-record") || chartRecordId;
+      const title = btn.getAttribute("data-cmp-title") || "this comparison";
+      if (!setId) return;
+      (async () => {
+        try {
+          await archiveComparisonSet(setId, crId, title);
+          if (context === "overlay") hydrateComparisonOverlaySaved();
+          else hydrateChartRecordComparisonSets(document);
+        } catch (err) {
+          window.alert("Archive failed: " + (err.message || String(err)));
+        }
+      })();
+    });
+  });
+}
+
+function hydrateComparisonOverlaySaved() {
+  const host = document.getElementById("comparisonOverlaySaved");
+  if (!host || !viewModel) return;
+  const chartRecordId = viewModel.selectedChartRecordId || viewModel.defaultChartRecordId;
+  const rows = comparisonSetsForProfile(chartRecordId);
+  host.innerHTML = renderComparisonSetsListHtml(rows, chartRecordId, "overlay");
+  wireComparisonSetListActions(host, chartRecordId, "overlay");
+}
+
+function mountComparisonOverlaySearch() {
+  const mount = document.getElementById("rm-cmp-overlay-search-mount");
+  if (!mount || !window.RMSavedLocationSearchUI) return;
+  if (comparisonOverlaySearchCtl) {
+    comparisonOverlaySearchCtl.destroy();
+    comparisonOverlaySearchCtl = null;
+  }
+  comparisonOverlaySearchCtl = window.RMSavedLocationSearchUI.mount({
+    root: mount,
+    inputId: "rm-cmp-overlay-loc-search",
+    getProfileId: () => (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId)) || null,
+    searchOptions: { includeTeaching: true },
+    formatSourceBadge: function (source) {
+      if (source === "favorite") return "\u2605 Favorite";
+      if (source === "custom") return "Saved";
+      if (source === "teaching") return "Location";
+      return "Location";
+    },
+    onSelect: (item) => {
+      addComparisonPick(item.place_id, item.display_name || item.label || item.place_id, {
+        hostId: "rm-cmp-overlay-selected",
+        msgId: "rm-cmp-overlay-msg",
+      });
+      syncOverlayCompareButton();
+      if (comparisonOverlaySearchCtl) comparisonOverlaySearchCtl.clear();
+    },
+  });
+}
+
+function openComparisonOverlayFromChrome() {
+  if (!viewModel) return;
+  uiState.comparisonOverlayOpen = true;
+  const chartRecordId = viewModel.selectedChartRecordId || viewModel.defaultChartRecordId;
+  const modal = document.getElementById("comparisonOverlayModal");
+  const profileEl = document.getElementById("comparisonOverlayProfile");
+  if (profileEl && chartRecordId) {
+    profileEl.textContent = `Profile: ${getChartRecord(chartRecordId).displayName}`;
+  }
+  const selectedHost = document.getElementById("rm-cmp-overlay-selected");
+  if (selectedHost) selectedHost.innerHTML = "";
+  const msg = document.getElementById("rm-cmp-overlay-msg");
+  if (msg) msg.textContent = "";
+  syncOverlayCompareButton();
+  hydrateComparisonOverlaySaved();
+  mountComparisonOverlaySearch();
+  if (modal) {
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+}
+
+function closeComparisonOverlay() {
+  uiState.comparisonOverlayOpen = false;
+  const modal = document.getElementById("comparisonOverlayModal");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  if (comparisonOverlaySearchCtl) {
+    comparisonOverlaySearchCtl.destroy();
+    comparisonOverlaySearchCtl = null;
+  }
+}
+
 let comparisonLocationSearchCtl = null;
 
 function comparisonPickChipHtml(placeId, placeName) {
@@ -1995,19 +2197,21 @@ function comparisonPickChipHtml(placeId, placeName) {
   </span>`;
 }
 
-function addComparisonPick(placeId, placeName) {
-  const host = document.getElementById("rm-cmp-selected");
+function addComparisonPick(placeId, placeName, opts) {
+  opts = opts || {};
+  const host = document.getElementById(opts.hostId || "rm-cmp-selected");
   if (!host || !placeId) return false;
   if (host.querySelector(`.rm-cmp-pick[value="${CSS.escape(placeId)}"]`)) return false;
   const count = host.querySelectorAll(".rm-cmp-pick").length;
   if (count >= 5) {
-    const msg = document.getElementById("rm-cmp-build-msg");
-    if (msg) msg.textContent = "Maximum 5 places.";
+    const msgEl = document.getElementById(opts.msgId || "rm-cmp-build-msg");
+    if (msgEl) msgEl.textContent = "Maximum 5 locations";
     return false;
   }
   host.insertAdjacentHTML("beforeend", comparisonPickChipHtml(placeId, placeName));
-  const msg = document.getElementById("rm-cmp-build-msg");
-  if (msg) msg.textContent = "";
+  const msgEl = document.getElementById(opts.msgId || "rm-cmp-build-msg");
+  if (msgEl) msgEl.textContent = "";
+  if ((opts.hostId || "rm-cmp-selected") === "rm-cmp-overlay-selected") syncOverlayCompareButton();
   return true;
 }
 
@@ -3064,7 +3268,7 @@ function bindScreenActions(root) {
       else if (place) patch.placeId = resolvePlaceIdFromDisplayName(place);
       if (route === "settings") patch.settingsSubpage = null;
       if (route === "compare") {
-        navigate(/** @type {Route} */ (route), patch, { pushReturn: true });
+        navigate(/** @type {Route} */ (route), patch, { pushReturn: true, skipComparisonOverlay: true });
       } else if (route) {
         navigate(/** @type {Route} */ (route), patch);
       }
@@ -3269,80 +3473,61 @@ function bindScreenActions(root) {
         const pid = btn.getAttribute("data-place-id");
         const chip = pid && document.querySelector(`.rm-cmp-chip[data-place-id="${pid}"]`);
         if (chip) chip.remove();
+        syncOverlayCompareButton();
+        const msg = document.getElementById("rm-cmp-overlay-msg");
+        if (msg) msg.textContent = "";
+        return;
+      }
+      if (action === "cmp-overlay-close") {
+        closeComparisonOverlay();
+        return;
+      }
+      if (action === "cmp-overlay-compare") {
+        const msg = document.getElementById("rm-cmp-overlay-msg");
+        const host = document.getElementById("rm-cmp-overlay-selected");
+        const picks = host ? Array.from(host.querySelectorAll(".rm-cmp-pick:checked")) : [];
+        if (picks.length < 2 || picks.length > 5) {
+          if (msg) msg.textContent = "Choose between 2 and 5 locations.";
+          return;
+        }
+        const chartRecordId = (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId)) || navContext.chartRecordId;
+        const placeIds = picks.map((el) => el.value);
+        if (msg) msg.textContent = "Saving…";
+        (async () => {
+          try {
+            const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
+            closeComparisonOverlay();
+            navigate("compare", {
+              chartRecordId,
+              comparisonSetId: setId,
+              placeId: null,
+              explorationId: null,
+              returnTo: null,
+            }, { skipComparisonOverlay: true });
+          } catch (err) {
+            if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+          }
+        })();
         return;
       }
       if (action === "compare-build") {
         const msg = document.getElementById("rm-cmp-build-msg");
-        const picks = Array.from(document.querySelectorAll(".rm-cmp-pick:checked"));
+        const host = document.getElementById("rm-cmp-selected");
+        const picks = host ? Array.from(host.querySelectorAll(".rm-cmp-pick:checked")) : [];
         if (picks.length < 2 || picks.length > 5) {
           if (msg) msg.textContent = "Choose between 2 and 5 places.";
           return;
         }
         const chartRecordId = navContext.chartRecordId;
-        const accountId = window.CurrentUser && window.CurrentUser.accountId;
-        if (!chartRecordId || !accountId) {
-          if (msg) msg.textContent = "Missing chart record or account.";
-          return;
-        }
         const placeIds = picks.map((el) => el.value);
         if (msg) msg.textContent = "Saving…";
         (async () => {
           try {
-            const client = await window.SupabaseReady;
-            if (!client) throw new Error("Supabase unavailable.");
-            const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
-            // Backend owns the write (POST /comparison-sets/create); supply the caller JWT.
-            const sessionResult = await client.auth.getSession();
-            const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
-            const token = session && session.access_token;
-            if (!token) throw new Error("Session unavailable. Reload and try again.");
-            const resp = await fetch("/comparison-sets/create", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-              body: JSON.stringify({ profile_id: chartRecordId, place_ids: placeIds, title }),
-            });
-            if (!resp.ok) {
-              let detail;
-              try { detail = (await resp.json()).detail; } catch (e) { /* non-JSON */ }
-              const msg = (detail && (detail.message || detail.error)) ||
-                (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
-              throw new Error(msg);
-            }
-            const created = await resp.json();
-            const setId = created.id;
-            const wsDefault = defaultComparisonWorkspaceState(placeIds);
-            const snap = buildSettingsSnapshotFromWorkspace(wsDefault);
-            // Add the new comparison set to in-memory state (storeRaw +
-            // viewModel) so the comparison page renders it without a reload.
-            if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
-              storeRaw.comparison_sets.push({
-                id: setId,
-                client_id: chartRecordId,
-                place_ids: placeIds.slice(),
-                settings_snapshot_json: snap,
-                saved_investigation_id: null,
-                notes: "",
-                schema_version: 1,
-                updated_at: null,
-              });
-            }
-            if (viewModel && Array.isArray(viewModel.comparisonSets)) {
-              const nameById = viewModel.placeNameById || {};
-              viewModel.comparisonSets.push({
-                id: setId,
-                clientId: chartRecordId,
-                placeIds: placeIds.slice(),
-                placeNames: placeIds.map((pid) => nameById[pid]).filter(Boolean),
-                notes: "",
-                settings_snapshot_json: snap,
-                workspaceState: wsDefault,
-              });
-            }
-            // Navigate directly to the new comparison set (no reload, no detour).
+            const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
             navigate("compare", {
               chartRecordId, comparisonSetId: setId,
               placeId: null, explorationId: null, returnTo: null,
-            });
+            }, { skipComparisonOverlay: true });
           } catch (err) {
             if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
           }
@@ -4182,6 +4367,9 @@ window.__rmAppShell = {
   applyCurrentLocationUpdate,
   openPopup,
   closePopup,
+  openComparisonOverlayFromChrome,
+  closeComparisonOverlay,
+  createComparisonSetFromPlaceIds,
 };
 
 bootstrap();

@@ -66,6 +66,7 @@
     var inputId = options.inputId || ("rm-sls-input-" + Math.random().toString(36).slice(2, 8));
     var getProfileId = options.getProfileId || function () { return options.profileId || null; };
     var onSelect = options.onSelect || function () {};
+    var formatSourceBadge = options.formatSourceBadge || sourceBadge;
     var placeholder = options.placeholder || (window.RMSavedLocationSearch && window.RMSavedLocationSearch.PLACEHOLDER) || "Search locations or favorites";
     var inputLabel = options.inputLabel || "Search locations or favorites";
 
@@ -123,10 +124,12 @@
           row.setAttribute("data-place-id", item.place_id || "");
           row.setAttribute("data-index", String(idx));
           row.innerHTML = '<span>' + esc(item.display_name || item.label) + '</span>'
-            + '<span class="rm-sls-item-meta">' + esc(sourceBadge(item.source)) + '</span>';
+            + '<span class="rm-sls-item-meta">' + esc(formatSourceBadge(item.source)) + '</span>';
           row.addEventListener("mousedown", function (ev) {
             ev.preventDefault();
-            pickItem(item);
+            pickItem(item).catch(function (err) {
+              setStatus(err && err.message ? err.message : "Selection failed.", true);
+            });
           });
           panel.appendChild(row);
         });
@@ -165,7 +168,29 @@
       }
     }
 
-    function pickItem(item) {
+    async function pickItem(item) {
+      if (item && item.source === "teaching" && item.teaching_query) {
+        setStatus("Looking up location…");
+        try {
+          var searchSvc = window.RMSavedLocationSearch;
+          if (!searchSvc || typeof searchSvc.search !== "function") {
+            setStatus("Saved location search unavailable.", true);
+            return;
+          }
+          var profileId = getProfileId();
+          var resolved = await searchSvc.search(profileId, item.teaching_query, Object.assign({}, options.searchOptions || {}, { includeTeaching: false, limit: 8 }));
+          var hits = (resolved && resolved.items) || [];
+          var hit = hits.find(function (h) { return h.source === "geonames"; }) || hits[0];
+          if (!hit || !hit.place_id) {
+            setStatus("Could not resolve that location.", true);
+            return;
+          }
+          item = hit;
+        } catch (err) {
+          setStatus(err && err.message ? err.message : "Lookup failed.", true);
+          return;
+        }
+      }
       hidePanel();
       input.value = item.display_name || item.label || "";
       setStatus("");
@@ -194,7 +219,7 @@
       if (ev.key === "Enter") {
         ev.preventDefault();
         var items = (lastPayload && lastPayload.items) || [];
-        if (items.length) pickItem(items[Math.max(0, activeIdx)]);
+        if (items.length) pickItem(items[Math.max(0, activeIdx)]).catch(function () {});
         return;
       }
       if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {

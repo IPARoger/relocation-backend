@@ -8,6 +8,12 @@
   var SOURCE_FAVORITE = "favorite";
   var SOURCE_CUSTOM = "custom";
   var SOURCE_GEONAMES = "geonames";
+  var SOURCE_TEACHING = "teaching";
+
+  var TEACHING_LOCATIONS = [
+    { display_name: "Rome, Italy", teaching_query: "Rome, Italy" },
+    { display_name: "Bali, Indonesia", teaching_query: "Bali, Indonesia" },
+  ];
 
   var RANK = {
     exact_favorite: 10,
@@ -229,12 +235,23 @@
     var payload = await loadProfileSaved(profileId, options);
 
     if (!q) {
+      var locationItems = payload.starter.customs.slice();
+      if (options.includeTeaching) {
+        TEACHING_LOCATIONS.forEach(function (t) {
+          locationItems.push({
+            display_name: t.display_name,
+            label: t.display_name,
+            teaching_query: t.teaching_query,
+            source: SOURCE_TEACHING,
+          });
+        });
+      }
       return {
         mode: "starter",
         query: "",
         sections: [
           { id: "favorites", title: "Favorites", items: payload.starter.favorites.slice() },
-          { id: "locations", title: "Locations", items: payload.starter.customs.slice() },
+          { id: "locations", title: "Locations", items: locationItems },
         ],
         items: payload.savedRows.slice(),
       };
@@ -264,6 +281,8 @@
     SOURCE_FAVORITE: SOURCE_FAVORITE,
     SOURCE_CUSTOM: SOURCE_CUSTOM,
     SOURCE_GEONAMES: SOURCE_GEONAMES,
+    SOURCE_TEACHING: SOURCE_TEACHING,
+    TEACHING_LOCATIONS: TEACHING_LOCATIONS,
     PLACEHOLDER: "Search locations or favorites",
     loadProfileSaved: loadProfileSaved,
     invalidateProfile: invalidateProfile,

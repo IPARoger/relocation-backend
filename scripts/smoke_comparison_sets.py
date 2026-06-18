@@ -352,11 +352,81 @@ def main() -> int:
                 arg=profile_id, timeout=30000,
             )
 
+
+            # C-UX-4: Chrome Compare → overlay workflow
+            page.evaluate("() => window.__rmAppShell.closeComparisonOverlay()")
+            page.click('[data-nav-route="compare"]')
+            page.wait_for_function(
+                "() => document.getElementById('comparisonOverlayModal')?.classList.contains('open')",
+                timeout=15000,
+            )
+            results.append(("fe_overlay_chrome_open", True, "overlay open"))
+
+            overlay_ph = page.evaluate(
+                "() => document.querySelector('#rm-cmp-overlay-search-mount [data-rm-saved-loc-input]')?.placeholder || ''"
+            )
+            results.append(("fe_overlay_family_b_placeholder",
+                            "favorites" in overlay_ph.lower() and "location" in overlay_ph.lower(),
+                            f"placeholder={overlay_ph!r}"))
+
+            page.click('#rm-cmp-overlay-search-mount [data-rm-saved-loc-input]')
+            page.wait_for_function(
+                "() => document.querySelector('#rm-cmp-overlay-search-mount [data-rm-saved-loc-panel]:not([hidden])')",
+                timeout=20000,
+            )
+            starter_overlay = page.evaluate(
+                "() => document.querySelectorAll('#rm-cmp-overlay-search-mount [data-rm-saved-loc-item]').length"
+            )
+            results.append(("fe_overlay_starter", starter_overlay >= 1, f"items={starter_overlay}"))
+
+            page.fill('#rm-cmp-overlay-search-mount [data-rm-saved-loc-input]', 'Ouagadougou')
+            page.wait_for_function(
+                "() => [...document.querySelectorAll('#rm-cmp-overlay-search-mount [data-rm-saved-loc-item]')]"
+                ".some((el) => (el.textContent || '').includes('Ouagadougou'))",
+                timeout=25000,
+            )
+            page.click('#rm-cmp-overlay-search-mount [data-rm-saved-loc-item]')
+            page.wait_for_timeout(400)
+
+            page.evaluate(
+                """(args) => {
+                  window.__rmAppShell.addComparisonPick(args.id1, args.n1, { hostId: 'rm-cmp-overlay-selected', msgId: 'rm-cmp-overlay-msg' });
+                  window.__rmAppShell.addComparisonPick(args.id2, args.n2, { hostId: 'rm-cmp-overlay-selected', msgId: 'rm-cmp-overlay-msg' });
+                }""",
+                {"id1": fav_place_ids[0], "n1": "fav-a", "id2": fav_place_ids[1], "n2": "fav-b"},
+            )
+            compare_enabled = page.evaluate(
+                "() => !document.getElementById('rm-cmp-overlay-compare-btn')?.disabled"
+            )
+            results.append(("fe_overlay_compare_enabled", compare_enabled, f"enabled={compare_enabled}"))
+
+            blocked = page.evaluate(
+                """() => {
+                  const app = window.__rmAppShell;
+                  const host = document.getElementById('rm-cmp-overlay-selected');
+                  let n = host ? host.querySelectorAll('.rm-cmp-pick').length : 0;
+                  while (n < 6) {
+                    const ok = app.addComparisonPick('block-test-' + n, 'Extra ' + n, {
+                      hostId: 'rm-cmp-overlay-selected', msgId: 'rm-cmp-overlay-msg',
+                    });
+                    if (!ok) {
+                      const msg = document.getElementById('rm-cmp-overlay-msg')?.textContent || '';
+                      return msg.indexOf('Maximum 5') !== -1;
+                    }
+                    n++;
+                  }
+                  return false;
+                }"""
+            )
+            results.append(("fe_overlay_max_five", blocked, f"blocked={blocked}"))
+
+            page.evaluate("() => window.__rmAppShell.closeComparisonOverlay()")
+
             # Build comparison from compare screen
             loads_before = load_count["n"]
             page.evaluate(
                 "(pid)=>{window.__rmAppShell.switchChartRecord(pid);"
-                "window.__rmAppShell.navigate('compare', {chartRecordId: pid, comparisonSetId: null});}",
+                "window.__rmAppShell.navigate('compare', {chartRecordId: pid, comparisonSetId: null}, { skipComparisonOverlay: true });}",
                 profile_id,
             )
             page.wait_for_selector("[data-action='compare-build']", timeout=15000)
@@ -405,6 +475,16 @@ def main() -> int:
             results.append(("fe_create_compare_opens",
                             bool(fe_set_id) and mem_has,
                             f"setId={fe_set_id} mem={mem_has}"))
+
+            # Overlay: open saved comparison restores workspace
+            page.evaluate("() => window.__rmAppShell.closeComparisonOverlay()")
+            page.click('[data-nav-route="compare"]')
+            page.wait_for_selector(f'.rm-cmp-overlay-open[data-cmp-id="{fe_set_id}"]', timeout=15000)
+            page.click(f'.rm-cmp-overlay-open[data-cmp-id="{fe_set_id}"]')
+            page.wait_for_selector("#rm-cmp-workspace", timeout=15000)
+            overlay_ws = page.evaluate("() => !!document.getElementById('rm-cmp-workspace')")
+            results.append(("fe_overlay_open_saved", overlay_ws, f"workspace={overlay_ws}"))
+
             results.append(("fe_create_no_reload",
                             load_count["n"] == loads_before,
                             f"loads={load_count['n']} before={loads_before}"))
@@ -414,7 +494,7 @@ def main() -> int:
             page.evaluate(
                 "(pid)=>{window.__rmAppShell.switchChartRecord(pid);"
                 "window.__rmAppShell.navigate('compare',"
-                "{chartRecordId: pid, comparisonSetId: null});}",
+                "{chartRecordId: pid, comparisonSetId: null}, { skipComparisonOverlay: true });}",
                 profile_id,
             )
             page.wait_for_selector("[data-rm-saved-loc-input]", timeout=15000)
@@ -538,7 +618,7 @@ def main() -> int:
             # Compare screen recovery: reopen compare — should not error with stale set
             page.evaluate(
                 "(pid)=>{window.__rmAppShell.navigate('compare',"
-                "{chartRecordId: pid, comparisonSetId: null, placeId: null});}",
+                "{chartRecordId: pid, comparisonSetId: null, placeId: null}, { skipComparisonOverlay: true });}",
                 profile_id,
             )
             page.wait_for_selector("[data-action='compare-build']", timeout=15000)
