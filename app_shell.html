@@ -106,6 +106,10 @@
   .settings-card .settings-sec-sub { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
   .settings-subhead { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 16px 0 8px; }
   .settings-subhead:first-child { margin-top: 0; }
+  .settings-landing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .settings-landing-card { display: flex; flex-direction: column; gap: 8px; }
+  .settings-landing-card h3 { margin: 0; font-size: 15px; font-weight: 600; }
+  .settings-subpage { max-width: 720px; }
   .settings-save-bar { position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); padding: 12px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
   .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
@@ -410,6 +414,7 @@ const NAV_CONTEXT_KEYS = /** @type {const} */ ([
 /** @type {NavContext} */
 let navContext = {
   route: "dashboard",
+  settingsSubpage: null,
   chartRecordId: null,
   placeId: null,
   explorationId: null,
@@ -770,8 +775,18 @@ function parseLocation() {
     ? /** @type {Route} */ (routeSegment)
     : "dashboard";
   const params = new URLSearchParams(queryPart);
+  const pathSegments = path.split("/").filter(Boolean);
+  const VALID_SETTINGS_SUB = new Set([
+    "account", "charts", "map-location", "appearance-regional",
+    "sharing-data", "technical", "about",
+  ]);
+  let settingsSubpage = null;
+  if (route === "settings" && pathSegments[1] && VALID_SETTINGS_SUB.has(pathSegments[1])) {
+    settingsSubpage = pathSegments[1];
+  }
   return {
     route,
+    settingsSubpage,
     chartRecordId: params.get("chartRecordId"),
     placeId: params.get("placeId"),
     explorationId: params.get("explorationId"),
@@ -788,7 +803,8 @@ function buildLocationHash(ctx) {
   const returnEnc = encodeReturnTo(ctx.returnTo);
   if (returnEnc) params.set("returnTo", returnEnc);
   const qs = params.toString();
-  return `#/${ctx.route}${qs ? `?${qs}` : ""}`;
+  const sub = ctx.route === "settings" && ctx.settingsSubpage ? `/${ctx.settingsSubpage}` : "";
+  return `#/${ctx.route}${sub}${qs ? `?${qs}` : ""}`;
 }
 
 /**
@@ -869,6 +885,9 @@ function normalizeNavContext(partial) {
   /** @type {NavContext} */
   const out = {
     route,
+    settingsSubpage: route === "settings"
+      ? (partial.settingsSubpage !== undefined ? partial.settingsSubpage : null)
+      : null,
     chartRecordId: partial.chartRecordId || null,
     placeId: partial.placeId || null,
     explorationId: partial.explorationId || null,
@@ -2017,27 +2036,16 @@ function aspectToAngleHtml() {
     </div>`;
 }
 
-// Settings IA (S-UX-1): prototype-aligned sidebar + section cards.
-const SETTINGS_NAV = [
-  ["account", "My Account"],
-  ["profiles", "My Profiles"],
-  ["charts", "Charts"],
-  ["map", "My Map"],
-  ["appearance", "Appearance"],
-  ["location", "Location"],
-  ["language", "Language & Regional"],
-  ["sharing", "Sharing & Exports"],
-  ["data", "My Data"],
-  ["technical", "Technical"],
-  ["personalization", "Personalization"],
-  ["about", "About & Data Sources"],
+// Settings router (S-UX-1C): landing cards + focused subpages; persistence IDs unchanged.
+const SETTINGS_LANDING_CARDS = [
+  { id: "account", title: "Account & Profiles", desc: "Account identity, default profile, and profile management." },
+  { id: "charts", title: "Charts", desc: "Bodies, aspects, orbs, dignities, house system, and advanced chart defaults." },
+  { id: "map-location", title: "Map & Location", desc: "Map layer preferences and per-profile location settings." },
+  { id: "appearance-regional", title: "Appearance & Regional", desc: "Visual themes, glyphs, language, and date/time formats." },
+  { id: "sharing-data", title: "Sharing & Data", desc: "Exports, sharing defaults, and saved work management." },
+  { id: "technical", title: "Technical & Personalization", desc: "Diagnostics, developer options, and creator tools." },
+  { id: "about", title: "About & Data Sources", desc: "Attribution for ephemeris, places, time zones, and maps." },
 ];
-
-function settingsNavHtml() {
-  return SETTINGS_NAV.map(([id, label]) =>
-    `<a href="#sec-${id}" data-settings-nav="${id}">${label}</a>`
-  ).join("");
-}
 
 function settingsSoonBadge() {
   return '<span class="badge-soon">Coming soon</span>';
@@ -2051,61 +2059,80 @@ function settingsStubRow(label, desc) {
   </div>`;
 }
 
-function initSettingsNav() {
-  const nav = document.getElementById("rm-settings-nav");
-  if (!nav) return;
-  const links = nav.querySelectorAll("a[data-settings-nav]");
-  links.forEach((a) => {
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      const id = a.getAttribute("href").slice(1);
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      links.forEach((x) => x.classList.remove("active"));
-      a.classList.add("active");
-    });
-  });
-  if (links.length && !nav.querySelector("a.active")) links[0].classList.add("active");
+function settingsSaveBarHtml() {
+  return `
+    <div class="settings-save-bar row">
+      <button type="button" class="primary" data-action="save-settings">Save Settings</button>
+      <span id="rm-settings-msg" class="meta" style="margin-left:12px;min-height:1.4em;"></span>
+    </div>`;
 }
 
-function settingsAccountSectionHtml() {
+function settingsSubpageShell(title, subtitle, bodyHtml, opts) {
+  const o = opts || {};
+  const showSave = o.showSave !== false;
+  return `
+    <h2>S5 \u2014 Settings</h2>
+    <div class="settings-subpage">
+      <div class="row" style="margin-bottom:12px;align-items:center;">
+        <button type="button" data-action="settings-back">\u2190 Back to Settings</button>
+      </div>
+      <h3 class="settings-sec-title">${title}</h3>
+      <p class="settings-sec-sub">${subtitle}</p>
+      ${bodyHtml}
+      ${showSave ? settingsSaveBarHtml() : ""}
+    </div>`;
+}
+
+function settingsLandingHtml() {
+  return `
+    <h2>S5 \u2014 Settings</h2>
+    <p class="purpose">Choose a category. Each section opens on its own page.</p>
+    <div class="settings-landing-grid">
+      ${SETTINGS_LANDING_CARDS.map((card) => `
+        <div class="panel settings-landing-card">
+          <h3>${card.title}</h3>
+          <p class="meta">${card.desc}</p>
+          <button type="button" data-settings-sub="${card.id}">Open</button>
+        </div>`).join("")}
+    </div>
+    <div class="row" style="margin-top:16px;">
+      <button type="button" data-nav="dashboard">Back to app</button>
+    </div>`;
+}
+
+function settingsAccountPanelHtml() {
   const user = window.CurrentUser || {};
   const name = user.accountName || "\u2014";
   const role = user.role || user.accountType || "\u2014";
   return `
-    <section class="settings-card" id="sec-account">
-      <h3 class="settings-sec-title">My Account</h3>
-      <p class="settings-sec-sub">Account identity. Full controls are in the account drawer (top bar).</p>
-      <div class="panel">
-        <label class="block">Account name
-          <input type="text" value="${escapeHtml(name)}" disabled />
-        </label>
-        <label class="block">Role / plan
-          <input type="text" value="${escapeHtml(String(role))}" disabled />
-        </label>
-        <p class="meta">Billing, sign-in, and plan management \u2014 coming soon.</p>
-      </div>
-    </section>`;
+    <div class="settings-subhead">My Account</div>
+    <div class="panel">
+      <p class="meta">Full account controls are in the account drawer (top bar).</p>
+      <label class="block">Account name
+        <input type="text" value="${escapeHtml(name)}" disabled />
+      </label>
+      <label class="block">Role / plan
+        <input type="text" value="${escapeHtml(String(role))}" disabled />
+      </label>
+      <p class="meta">Billing, sign-in, and plan management \u2014 coming soon.</p>
+    </div>`;
 }
 
-function settingsProfilesSectionHtml() {
+function settingsProfilesPanelHtml() {
   const vm = requireViewModel();
   return `
-    <section class="settings-card" id="sec-profiles">
-      <h3 class="settings-sec-title">My Profiles</h3>
-      <p class="settings-sec-sub">Default profile and profile management.</p>
-      <div class="panel">
-        <label class="block">Default Chart Record (Dashboard \u2192 Map)
-          <select id="rm-settings-default-cr">
-            ${vm.chartRecords.map((r) =>
-              `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
-            ).join("")}
-          </select>
-        </label>
-        <p class="meta">Opens on Dashboard and Map when no profile is selected.</p>
-        <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
-      </div>
-    </section>`;
+    <div class="settings-subhead">My Profiles</div>
+    <div class="panel">
+      <label class="block">Default profile (Map &amp; app)
+        <select id="rm-settings-default-cr">
+          ${vm.chartRecords.map((r) =>
+            `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+          ).join("")}
+        </select>
+      </label>
+      <p class="meta">Used when opening Map without a specific profile selected.</p>
+      <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
+    </div>`;
 }
 
 function chartAppearanceStubHtml() {
@@ -2178,11 +2205,8 @@ function interpretiveHintsShellHtml() {
     </div>`;
 }
 
-function settingsChartsSectionHtml() {
+function settingsChartsBodyHtml() {
   return `
-    <section class="settings-card" id="sec-charts">
-      <h3 class="settings-sec-title">Charts</h3>
-      <p class="settings-sec-sub">Layer 2 chart display and interpretation defaults. Saved to your account; not all keys are engine-wired yet.</p>
       <div class="settings-subhead">Astral Bodies &amp; Points</div>
       ${planetsBodiesHtml()}
       <div class="settings-subhead">Chart Appearance</div>
@@ -2202,137 +2226,94 @@ function settingsChartsSectionHtml() {
       ${chartsZodiacHtml()}
       <div class="settings-subhead">Advanced</div>
       ${interpretiveHintsShellHtml()}
-      ${effectiveConfigPanelHtml()}
-    </section>`;
+      ${effectiveConfigPanelHtml()}`;
 }
 
-function settingsMapStubHtml() {
+function settingsMapBodyHtml() {
   return `
-    <section class="settings-card" id="sec-map">
-      <h3 class="settings-sec-title">My Map</h3>
-      <p class="settings-sec-sub">Map layer behavior and overlays (prototype-aligned; not launch-wired).</p>
-      <div class="panel">
-        ${settingsStubRow("Aspect bands", "Relocation map overlay bands.")}
-        ${settingsStubRow("Exact aspect lines", "Centerline display on map.")}
-        ${settingsStubRow("Exclusion style", "How excluded areas appear.")}
-        ${settingsStubRow("City labels", "Label density and click behavior.")}
-      </div>
-    </section>`;
-}
-
-function settingsAppearanceStubHtml() {
-  return `
-    <section class="settings-card" id="sec-appearance">
-      <h3 class="settings-sec-title">Appearance</h3>
-      <p class="settings-sec-sub">Colors, glyphs, and visual themes.</p>
-      <div class="panel">
-        ${settingsStubRow("Color themes", "App atmosphere and map overlay palettes.")}
-        ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
-        ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
-      </div>
-    </section>`;
-}
-
-function settingsLocationSectionHtml() {
-  return `
-    <section class="settings-card" id="sec-location">
-      <h3 class="settings-sec-title">Location</h3>
-      <p class="settings-sec-sub">Current location per profile via Location Search.</p>
-      <div class="panel">
-        <div class="loc-row">
-          <div class="loc-row-text">
-            <strong>Current location</strong>
-            <span class="meta">Set manually per profile. Each profile carries its own current location for relocation comparisons.</span>
-          </div>
-          <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
+    <div class="settings-subhead">My Map</div>
+    <div class="panel">
+      ${settingsStubRow("Aspect bands", "Relocation map overlay bands.")}
+      ${settingsStubRow("Exact aspect lines", "Centerline display on map.")}
+      ${settingsStubRow("Exclusion style", "How excluded areas appear.")}
+      ${settingsStubRow("City labels", "Label density and click behavior.")}
+    </div>
+    <div class="settings-subhead">Location</div>
+    <div class="panel">
+      <div class="loc-row">
+        <div class="loc-row-text">
+          <strong>Current location</strong>
+          <span class="meta">Set manually per profile. Each profile carries its own current location for relocation comparisons.</span>
         </div>
-        <div class="loc-future" style="margin-top:12px;">
-          <div class="loc-future-head">Experimental \u00b7 not yet available</div>
-          ${settingsStubRow("Road Trip Mode", "Continuous route-based location.")}
-          ${settingsStubRow("GPS / device location", "Use device location instead of manual search.")}
-          ${settingsStubRow("Notifications", "Location-aware alerts.")}
-          ${settingsStubRow("Offline / Airplane mode", "Saved location without a connection.")}
-        </div>
+        <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
       </div>
-    </section>`;
+      <div class="loc-future" style="margin-top:12px;">
+        <div class="loc-future-head">Experimental \u00b7 not yet available</div>
+        ${settingsStubRow("Road Trip Mode", "Continuous route-based location.")}
+        ${settingsStubRow("GPS / device location", "Use device location instead of manual search.")}
+        ${settingsStubRow("Offline / Airplane mode", "Saved location without a connection.")}
+      </div>
+    </div>`;
 }
 
-function settingsLanguageStubHtml() {
+function settingsAppearanceRegionalBodyHtml() {
   return `
-    <section class="settings-card" id="sec-language">
-      <h3 class="settings-sec-title">Language &amp; Regional</h3>
-      <p class="settings-sec-sub">Interface language and regional formats.</p>
-      <div class="panel">
-        ${settingsStubRow("Interface language", "App UI language.")}
-        ${settingsStubRow("Date format", "How dates appear across the app.")}
-        ${settingsStubRow("Time format", "12-hour vs 24-hour clock.")}
-      </div>
-    </section>`;
+    <div class="settings-subhead">Appearance</div>
+    <div class="panel">
+      ${settingsStubRow("Color themes", "App atmosphere and map overlay palettes.")}
+      ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
+      ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
+      ${settingsStubRow("Glyph appearance", "Capricorn, Uranus, Pluto, and aspect notation.")}
+    </div>
+    <div class="settings-subhead">Language &amp; Regional</div>
+    <div class="panel">
+      ${settingsStubRow("Interface language", "App UI language.")}
+      ${settingsStubRow("Date format", "How dates appear across the app.")}
+      ${settingsStubRow("Time format", "12-hour vs 24-hour clock.")}
+    </div>`;
 }
 
-function settingsSharingStubHtml() {
+function settingsSharingDataBodyHtml() {
   return `
-    <section class="settings-card" id="sec-sharing">
-      <h3 class="settings-sec-title">Sharing &amp; Exports</h3>
-      <p class="settings-sec-sub">Share links and export defaults.</p>
-      <div class="panel">
-        ${settingsStubRow("Default share link", "Quick sharing options.")}
-        ${settingsStubRow("Export defaults", "Report and file export presets.")}
-        <button type="button" data-nav="export" disabled>Export / share status</button>
-      </div>
-    </section>`;
+    <div class="settings-subhead">Sharing &amp; Exports</div>
+    <div class="panel">
+      ${settingsStubRow("Default share link", "Quick sharing options.")}
+      ${settingsStubRow("Export defaults", "Report and file export presets.")}
+      <button type="button" data-nav="export" disabled>Export / share status</button>
+    </div>
+    <div class="settings-subhead">My Data</div>
+    <div class="panel">
+      ${settingsStubRow("Saved searches", "Manage investigation history.")}
+      ${settingsStubRow("Favorites bulk management", "Manage favorites across profiles.")}
+      ${settingsStubRow("Export my data", "Account data export.")}
+      <h4 style="margin:16px 0 8px;">History (per Chart Record)</h4>
+      <button type="button" disabled>Clear this Chart Record\u2019s history (placeholder)</button>
+      <button type="button" disabled style="margin-left:8px;">Clear all history (placeholder)</button>
+    </div>`;
 }
 
-function settingsDataSectionHtml() {
+function settingsTechnicalBodyHtml() {
   return `
-    <section class="settings-card" id="sec-data">
-      <h3 class="settings-sec-title">My Data</h3>
-      <p class="settings-sec-sub">Saved work and data management.</p>
-      <div class="panel">
-        ${settingsStubRow("Saved searches", "Manage investigation history.")}
-        ${settingsStubRow("Comparisons & favorites", "Bulk management.")}
-        ${settingsStubRow("Export my data", "Account data export.")}
-        <h4 style="margin:16px 0 8px;">History (per Chart Record)</h4>
-        <button type="button" disabled>Clear this Chart Record\u2019s history (placeholder)</button>
-        <button type="button" disabled style="margin-left:8px;">Clear all history (placeholder)</button>
-      </div>
-    </section>`;
+    <div class="settings-subhead">Technical</div>
+    <div class="panel">
+      ${settingsStubRow("Debug mode", "Verbose client logging.")}
+      ${settingsStubRow("Calculation metadata", "Show engine metadata in UI.")}
+      ${settingsStubRow("Cache reset", "Clear local caches.")}
+    </div>
+    <div class="settings-subhead">Personalization</div>
+    <div class="panel">
+      <ul class="meta" style="margin:0;padding-left:18px;">
+        <li>Custom glyph packs (private)</li>
+        <li>Definitions library and interpretation cookbook</li>
+        <li>Guided helper for undefined terms</li>
+      </ul>
+      <p class="meta" style="margin-top:10px;">${settingsSoonBadge()}</p>
+    </div>`;
 }
 
-function settingsTechnicalStubHtml() {
+function settingsAboutBodyHtml() {
   return `
-    <section class="settings-card" id="sec-technical">
-      <h3 class="settings-sec-title">Technical</h3>
-      <p class="settings-sec-sub">Diagnostics and developer options.</p>
-      <div class="panel">
-        ${settingsStubRow("Debug mode", "Verbose client logging.")}
-        ${settingsStubRow("Calculation metadata", "Show engine metadata in UI.")}
-        ${settingsStubRow("Cache reset", "Clear local caches.")}
-      </div>
-    </section>`;
-}
-
-function settingsPersonalizationStubHtml() {
-  return `
-    <section class="settings-card" id="sec-personalization">
-      <h3 class="settings-sec-title">Personalization</h3>
-      <p class="settings-sec-sub">Creator tools planned for later releases.</p>
-      <div class="panel">
-        <ul class="meta" style="margin:0;padding-left:18px;">
-          <li>Custom glyph packs (private)</li>
-          <li>Definitions library and interpretation cookbook</li>
-          <li>Guided helper for undefined terms</li>
-        </ul>
-        <p class="meta" style="margin-top:10px;">${settingsSoonBadge()}</p>
-      </div>
-    </section>`;
-}
-
-function aboutDataSourcesHtml() {
-  return `
-    <section class="settings-card" id="sec-about">
-      <h3 class="settings-sec-title">About &amp; Data Sources</h3>
-      <p class="settings-sec-sub">Third-party libraries and datasets used for calculations, places, and maps.</p>
+    <div class="settings-card" id="sec-about" style="border:none;padding:0;">
       <ul class="meta" style="margin:0;padding-left:18px;line-height:1.7;">
         <li><strong>Astronomical calculations</strong> \u2014 Swiss Ephemeris</li>
         <li><strong>Location database</strong> \u2014 GeoNames</li>
@@ -2340,39 +2321,73 @@ function aboutDataSourcesHtml() {
         <li><strong>Maps</strong> \u2014 Leaflet / OpenStreetMap</li>
       </ul>
       <p class="meta" style="margin-top:10px;">Attribution is collected here rather than on map and chart surfaces.</p>
-    </section>`;
+    </div>`;
 }
 
+const SETTINGS_SUBPAGE_RENDERERS = {
+  account() {
+    return settingsSubpageShell(
+      "Account &amp; Profiles",
+      "Default profile and account identity.",
+      settingsAccountPanelHtml() + settingsProfilesPanelHtml(),
+      { showSave: true }
+    );
+  },
+  charts() {
+    return settingsSubpageShell(
+      "Charts",
+      "Layer 2 chart display and interpretation defaults. Saved to your account; not all keys are engine-wired yet.",
+      settingsChartsBodyHtml(),
+      { showSave: true }
+    );
+  },
+  "map-location"() {
+    return settingsSubpageShell(
+      "Map &amp; Location",
+      "Map preferences and per-profile location (coming soon for most map controls).",
+      settingsMapBodyHtml(),
+      { showSave: false }
+    );
+  },
+  "appearance-regional"() {
+    return settingsSubpageShell(
+      "Appearance &amp; Regional",
+      "Visual themes and regional formats (coming soon).",
+      settingsAppearanceRegionalBodyHtml(),
+      { showSave: false }
+    );
+  },
+  "sharing-data"() {
+    return settingsSubpageShell(
+      "Sharing &amp; Data",
+      "Export defaults and saved-work management (coming soon).",
+      settingsSharingDataBodyHtml(),
+      { showSave: false }
+    );
+  },
+  technical() {
+    return settingsSubpageShell(
+      "Technical &amp; Personalization",
+      "Diagnostics and creator tools (coming soon).",
+      settingsTechnicalBodyHtml(),
+      { showSave: false }
+    );
+  },
+  about() {
+    return settingsSubpageShell(
+      "About &amp; Data Sources",
+      "Third-party libraries and datasets used for calculations, places, and maps.",
+      settingsAboutBodyHtml(),
+      { showSave: false }
+    );
+  },
+};
+
 function screenSettings() {
-  // House system is display-only: engine uses Placidus. Saved values preserved on merge save.
-  return `
-    <h2>S5 \u2014 Settings</h2>
-    <p class="purpose">Layer 2 defaults \u00b7 prototype-aligned navigation \u00b7 persistence unchanged.</p>
-    <div class="settings-layout">
-      <nav class="settings-nav" id="rm-settings-nav" aria-label="Settings sections">
-        ${settingsNavHtml()}
-      </nav>
-      <div class="settings-sections">
-        ${settingsAccountSectionHtml()}
-        ${settingsProfilesSectionHtml()}
-        ${settingsChartsSectionHtml()}
-        ${settingsMapStubHtml()}
-        ${settingsAppearanceStubHtml()}
-        ${settingsLocationSectionHtml()}
-        ${settingsLanguageStubHtml()}
-        ${settingsSharingStubHtml()}
-        ${settingsDataSectionHtml()}
-        ${settingsTechnicalStubHtml()}
-        ${settingsPersonalizationStubHtml()}
-        ${aboutDataSourcesHtml()}
-        <div class="settings-save-bar row">
-          <button type="button" class="primary" data-action="save-settings">Save Settings</button>
-          <button type="button" data-nav="dashboard">Back to dashboard</button>
-          <span id="rm-settings-msg" class="meta" style="margin-left:12px;min-height:1.4em;"></span>
-        </div>
-      </div>
-    </div>
-  `;
+  const sub = navContext.settingsSubpage;
+  if (!sub) return settingsLandingHtml();
+  const renderSub = SETTINGS_SUBPAGE_RENDERERS[sub];
+  return renderSub ? renderSub() : settingsLandingHtml();
 }
 
 
@@ -2701,11 +2716,19 @@ function bindScreenActions(root) {
       if (chartRecordId) patch.chartRecordId = chartRecordId;
       if (placeId) patch.placeId = placeId;
       else if (place) patch.placeId = resolvePlaceIdFromDisplayName(place);
+      if (route === "settings") patch.settingsSubpage = null;
       if (route === "compare") {
         navigate(/** @type {Route} */ (route), patch, { pushReturn: true });
       } else if (route) {
         navigate(/** @type {Route} */ (route), patch);
       }
+    });
+  });
+
+  root.querySelectorAll("[data-settings-sub]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const sub = btn.getAttribute("data-settings-sub");
+      if (sub) navigate("settings", { settingsSubpage: sub });
     });
   });
 
@@ -3230,14 +3253,19 @@ function bindScreenActions(root) {
           }
         });
       }
+      if (action === "settings-back") {
+        navigate("settings", { settingsSubpage: null });
+        return;
+      }
       if (action === "save-settings") {
         const msgEl = document.getElementById("rm-settings-msg");
         const defCrEl = document.getElementById("rm-settings-default-cr");
-        if (!defCrEl) return;
         if (msgEl) msgEl.textContent = "Saving…";
+        /** @type {Record<string, unknown>} */
+        const settingsPatch = {};
+        if (defCrEl) settingsPatch.default_chart_record_id = defCrEl.value;
         // house_system intentionally omitted: engine uses Placidus only, and the
         // control is display-only. Merge-based save preserves any stored value.
-        const settingsPatch = { default_chart_record_id: defCrEl.value };
         const minorEl = document.getElementById("rm-settings-minor-aspects");
         const oosEl = document.getElementById("rm-settings-oos-aspects");
         if (minorEl) settingsPatch.visible_minor_aspects = !!minorEl.checked;

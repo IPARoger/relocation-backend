@@ -264,13 +264,25 @@ def main() -> int:
 
                 load()
                 page.evaluate("()=>window.__rmAppShell.navigate('settings')")
-                page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
-                page.wait_for_selector("[data-action='save-settings']", timeout=15000)
+                page.wait_for_selector(".settings-landing-grid", timeout=15000)
+                results.append(("fe_settings_landing", page.query_selector(".settings-landing-grid") is not None,
+                                "settings landing grid"))
 
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'about' })")
+                page.wait_for_selector("#sec-about", timeout=15000)
                 results.append(("fe_settings_ia_about",
                                 page.query_selector("#sec-about") is not None
                                 and "GeoNames" in (page.inner_text("#sec-about") or ""),
                                 "about data sources section"))
+
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
+                page.wait_for_selector("#rm-settings-majorb-conjunction", timeout=15000)
+                results.append(("fe_settings_charts_sub", True, "charts subpage"))
+
+                # Account subpage: default profile persistence
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'account' })")
+                page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
+                page.wait_for_selector("[data-action='save-settings']", timeout=15000)
 
                 opts = page.eval_on_selector_all(
                     "#rm-settings-default-cr option", "els=>els.map(e=>e.value)")
@@ -279,12 +291,6 @@ def main() -> int:
                 page.eval_on_selector(
                     "#rm-settings-default-cr",
                     "(el,v)=>{el.value=v;}", target_default)
-                cur_minor = page.eval_on_selector(
-                    "#rm-settings-minor-aspects", "el=>el.checked") if page.query_selector("#rm-settings-minor-aspects") else False
-                want_minor = not cur_minor
-                if page.query_selector("#rm-settings-minor-aspects"):
-                    page.eval_on_selector("#rm-settings-minor-aspects",
-                                          "(el,v)=>{el.checked=v;}", want_minor)
 
                 loads_before = load_count["n"]
                 page.click("[data-action='save-settings']")
@@ -297,27 +303,43 @@ def main() -> int:
                 results.append(("fe_no_reload", load_count["n"] == loads_before,
                                 f"loads_before={loads_before} after={load_count['n']}"))
 
-                mem_minor = page.evaluate(
-                    "()=>{const r=window.__rmAppShell.storeRaw();return r&&r.user_settings?r.user_settings.visible_minor_aspects:null;}")
-                results.append(("fe_inmemory_update", mem_minor == want_minor,
-                                f"mem={mem_minor} want={want_minor}"))
                 mem_default = page.evaluate("()=>window.__rmAppShell.getAccountDefaultChartRecordId()")
                 results.append(("fe_default_update", mem_default == target_default,
                                 f"default={mem_default} want={target_default}"))
 
-                # reload persistence
                 load()
-                page.evaluate("()=>window.__rmAppShell.navigate('settings')")
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'account' })")
                 page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
                 rl_default = page.eval_on_selector("#rm-settings-default-cr", "el=>el.value")
                 results.append(("fe_reload_default", rl_default == target_default,
                                 f"default={rl_default} want={target_default}"))
-                if page.query_selector("#rm-settings-minor-aspects"):
-                    rl_minor = page.eval_on_selector("#rm-settings-minor-aspects", "el=>el.checked")
-                    results.append(("fe_reload_minor", rl_minor == want_minor,
-                                    f"minor={rl_minor} want={want_minor}"))
 
-                # major_aspect_orbs persistence (S-UX-1): toggle conjunction orb
+                # Charts subpage: visible_minor_aspects persistence
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
+                page.wait_for_selector("#rm-settings-minor-aspects", timeout=15000)
+                cur_minor = page.eval_on_selector("#rm-settings-minor-aspects", "el=>el.checked")
+                want_minor = not cur_minor
+                page.eval_on_selector("#rm-settings-minor-aspects", "(el,v)=>{el.checked=v;}", want_minor)
+                page.click("[data-action='save-settings']")
+                page.wait_for_function(
+                    "()=>{const m=document.getElementById('rm-settings-msg');"
+                    "return m && m.textContent.indexOf('Saved') !== -1;}",
+                    timeout=15000,
+                )
+                mem_minor = page.evaluate(
+                    "()=>{const r=window.__rmAppShell.storeRaw();return r&&r.user_settings?r.user_settings.visible_minor_aspects:null;}")
+                results.append(("fe_inmemory_update", mem_minor == want_minor,
+                                f"mem={mem_minor} want={want_minor}"))
+                load()
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
+                page.wait_for_selector("#rm-settings-minor-aspects", timeout=15000)
+                rl_minor = page.eval_on_selector("#rm-settings-minor-aspects", "el=>el.checked")
+                results.append(("fe_reload_minor", rl_minor == want_minor,
+                                f"minor={rl_minor} want={want_minor}"))
+
+                # major_aspect_orbs persistence: toggle conjunction orb on Charts subpage
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
+                page.wait_for_selector("#rm-settings-majorb-conjunction", timeout=15000)
                 maj_orb_sel = "#rm-settings-majorb-conjunction"
                 if page.query_selector(maj_orb_sel):
                     cur_orb = float(page.eval_on_selector(maj_orb_sel, "el=>parseFloat(el.value)"))
@@ -336,7 +358,7 @@ def main() -> int:
                     results.append(("fe_inmemory_major_orb", mem_orb == want_orb,
                                     f"mem={mem_orb} want={want_orb}"))
                     load()
-                    page.evaluate("()=>window.__rmAppShell.navigate('settings')")
+                    page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
                     page.wait_for_selector(maj_orb_sel, timeout=15000)
                     rl_orb = float(page.eval_on_selector(maj_orb_sel, "el=>parseFloat(el.value)"))
                     results.append(("fe_reload_major_orb", rl_orb == want_orb,

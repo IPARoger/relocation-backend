@@ -117,6 +117,7 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 | ID | Status | Item | Closeout |
 |----|--------|------|----------|
 | S-UX-1 | ✅ | Settings IA shell + Charts regroup + About & Data Sources (`app_shell.html`) | `results/91_sux1_settings_ia_shell.md` |
+| S-UX-1C | ✅ | Settings subpage router (`#/settings/{sub}`) | `results/94_sux1c_settings_subpage_router.md` |
 | S-UX-2 | ✅ | Guided onboarding overlay — 7-slide app tour (`app_shell.html`) | `results/92_sux2_onboarding_overlay.md` |
 
 
