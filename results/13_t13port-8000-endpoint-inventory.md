@@ -9,8 +9,8 @@
 
 | File | Action |
 |------|--------|
-| `relay/T13_port8000_inventory.md` | Created — full inventory table and archaeology sweep |
-| `results/13_t13port-8000-endpoint-inventory.md` | Created — this closeout |
+| `relay/T13_port8000_inventory.md` | Created/updated — full inventory table and archaeology sweep |
+| `results/13_t13port-8000-endpoint-inventory.md` | Created/updated — this closeout |
 
 No production code, backend routes, schema, or HTML/JS modified.
 
@@ -20,17 +20,18 @@ No production code, backend routes, schema, or HTML/JS modified.
 - `app_shell.html`
 - `main_centerline_FIXER.py`
 - `docs/architecture/FEATURE_STATUS_BOARD.md` (§4 B-2)
-- `docs/architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md` (§3.3, §3.4, §11.3)
+- `docs/architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md` (§3.3, §3.4, §3.5, §11.3)
 - Sandbox/archaeology HTML and `sampling_cache_fetch_bridge_dev.js` (grep sweep)
 - `archives/validation_2026-05-15/html_snapshots/map_CURRENT.html` (historical comparison)
+- `backups/*/map_CURRENT.html` (historical comparison)
 
 ## Findings summary
 
-1. **Active production UI is already rewired off port 8000.** `map_CURRENT.html` sets `API_BASE = ''` and `LIBRARY_API_BASE = ""`; aura, relocated chart, aspect orb, screen-pixel-truth, library, and search-regions calls use **same-origin relative paths**. `app_shell.html` calls `/relocated-chart` relatively for Screen 4 and Screen 5.
+1. **Active production UI is already rewired off port 8000.** `map_CURRENT.html` sets `API_BASE = ''` (line 980) and `LIBRARY_API_BASE = ""` (line 1266); aura, relocated chart, aspect orb, screen-pixel-truth, library, and search-regions calls use **same-origin relative paths**. `app_shell.html` calls `/relocated-chart` relatively for Screen 4 (line 1555) and Screen 5 (line 1642).
 
 2. **All B-2 endpoints exist on `main_centerline_FIXER.py`** (the 8004 Web2 server): `/aura-field`, `/aura-raster`, `/aura-raster-adaptive`, `/aspect-orb-at-point`, `/relocated-chart`, `/screen-pixel-truth`, `/chart-profiles`, `/library/state`.
 
-3. **Hardcoded `127.0.0.1:8000` persists only in archaeology:** sandbox HTML (7 files), validation sandboxes (5), `Old File/` maps (4), one dev JS bridge, and archived May-2026 `map_CURRENT.html` snapshot. None are active production UI.
+3. **Hardcoded `127.0.0.1:8000` persists only in archaeology:** sandbox HTML (7 files), validation sandboxes (5), `Old File/` maps (4), backups (2), one dev JS bridge, archived May-2026 `map_CURRENT.html` snapshot, and one prototype. None are active production UI.
 
 4. **B-2 register is stale.** Docs still claim five hardcoded port-8000 calls block aura and popup charts. Live code contradicts this; migration appears **frontend-complete** with backend routes colocated on 8004.
 
@@ -41,7 +42,7 @@ No production code, backend routes, schema, or HTML/JS modified.
 | Check | Result |
 |-------|--------|
 | `grep -rn "127.0.0.1:8000" map_CURRENT.html app_shell.html` | **0 matches** |
-| Repo-wide HTML/JS hardcoded 8000 (excl. node_modules, backups, archives, tmp) | **17 matches** — all sandbox/archaeology/dev |
+| Repo-wide HTML/JS hardcoded 8000 (excl. node_modules) | **25 matches** — all sandbox/archaeology/dev/backups |
 | Backend route grep for aura/relocated/aspect-orb/screen-pixel/library | **All present** on `main_centerline_FIXER.py` |
 | Every grep match represented in inventory table | **Yes** — see archaeology section in `relay/T13_port8000_inventory.md` |
 | B-2 cross-check | **Documented drift** — code migrated; blocker text not updated |
@@ -65,9 +66,10 @@ rm -f relay/T13_port8000_inventory.md results/13_t13port-8000-endpoint-inventory
 ## Recommended next actions (for follow-on tasks, not executed here)
 
 1. Human review: confirm 8004-only smoke for aura + popup chart paths.
-2. Update B-2 and PRODUCTION_ACCEPTANCE_CHECKLIST §3.3–3.4 to reflect same-origin wiring.
+2. Update B-2 and PRODUCTION_ACCEPTANCE_CHECKLIST §3.3–3.5 to reflect same-origin wiring.
 3. Optional: user-visible error when aura POST fails (UX, not port migration).
 4. Optional: quarantine or annotate sandbox files still pointing at 8000.
+5. Remove stale "port 8000" comment at `map_CURRENT.html:1416`.
 
 ## Result
 
