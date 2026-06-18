@@ -457,6 +457,10 @@ def main() -> int:
             # Workspace state round-trip (before archive)
             page.wait_for_selector("#rm-cmp-workspace", timeout=15000)
             page.click("[data-action='cmp-angle-tab'][data-angle-tab='asc']")
+            page.wait_for_function(
+                "()=>document.querySelector('.rm-cmp-angle-tab.active')?.getAttribute('data-angle-tab')==='asc'",
+                timeout=5000,
+            )
             page.click("[data-action='cmp-toggle-section'][data-cmp-section='ais']")
             page.evaluate("async ()=>{ await window.__rmAppShell.flushComparisonWorkspaceState(); }")
             page.wait_for_function(
@@ -464,8 +468,12 @@ def main() -> int:
                 "return m && m.textContent.indexOf('saved') !== -1;}",
                 timeout=15000,
             )
-            mem_tab = page.evaluate(
-                "()=>document.querySelector('.rm-cmp-angle-tab.active')?.getAttribute('data-angle-tab')")
+            db_row_mem = (
+                admin.table("comparison_sets").select("settings_snapshot_json")
+                .eq("id", fe_set_id).single().execute()
+            ).data
+            mem_ws = ((db_row_mem or {}).get("settings_snapshot_json") or {}).get("comparison_workspace_state") or {}
+            mem_tab = mem_ws.get("active_angle_tab")
             results.append(("fe_workspace_inmemory", mem_tab == "asc", f"tab={mem_tab}"))
             page.goto(base + "/app_shell.html", wait_until="domcontentloaded")
             page.wait_for_function(

@@ -1,7 +1,7 @@
 {
   "description": "map_CURRENT.html browser smoke test",
-  "url": "http://127.0.0.1:8004/map_CURRENT.html?bust=1781787610&skipOnboarding=1",
-  "generated_at_utc": "2026-06-18T13:00:42.898724+00:00",
+  "url": "http://127.0.0.1:8004/map_CURRENT.html?bust=1781802834&skipOnboarding=1",
+  "generated_at_utc": "2026-06-18T17:14:36.790546+00:00",
   "overall_pass": true,
   "checks": [
     {
@@ -432,6 +432,27 @@
       }
     },
     {
+      "id": "family_b_placeholder",
+      "pass": true,
+      "detail": {
+        "placeholder": "Search locations or favorites"
+      }
+    },
+    {
+      "id": "family_b_starter_panel",
+      "pass": true,
+      "detail": {
+        "starter_items": 2
+      }
+    },
+    {
+      "id": "family_b_geonames_merge",
+      "pass": true,
+      "detail": {
+        "merged_items": 1
+      }
+    },
+    {
       "id": "map_bounds_snapback",
       "pass": true,
       "detail": {
@@ -461,7 +482,6 @@
       "pass": true,
       "detail": {
         "errors": [
-          "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)",
           "console.error: Failed to load resource: the server responded with a status of 404 (Not Found)"
         ],
         "library_disabled": true,
