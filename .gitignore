@@ -23,3 +23,8 @@ library/library.*.json
 *API_KEY*
 *.token
 *.pdf
+
+# GeoNames dumps (local only — download via import scripts)
+data/geonames/alternateNamesV2.txt
+data/geonames/alternateNamesV2.zip
+data/geonames/*.txt

@@ -91,15 +91,11 @@
     state.searching = true;
     renderSearching(true);
     try {
-      var client = await window.SupabaseReady;
-      var result = await client
-        .from("places")
-        .select("id, display_name, timezone_id, admin1, country_code")
-        .ilike("display_name", query + "%")
-        .order("display_name", { ascending: true })
-        .limit(10);
-      if (result.error) throw result.error;
-      state.placeResults = result.data || [];
+      var searchApi = window.RMPlaceSearch;
+      if (!searchApi || typeof searchApi.searchPlaces !== "function") {
+        throw new Error("RMPlaceSearch unavailable");
+      }
+      state.placeResults = await searchApi.searchPlaces(query, 10);
     } catch (err) {
       state.placeResults = [];
       console.warn("[cl-editor] place search error:", err.message);

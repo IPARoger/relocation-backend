@@ -460,7 +460,24 @@
     return c;
   }
 
-  /* ---------- 10. Technical ---------- */
+  /* ---------- 10. Data sources / attribution ---------- */
+  function secDataSources(){
+    var c=el('<section class="card" id="sec-data-sources"></section>');
+    c.innerHTML =
+      head("Data Sources")+
+      '<div class="sec-sub">Third-party data and libraries used for calculations, places, and maps.</div>'+
+      '<ul class="future-list">'+
+        '<li><b>Astronomical calculations</b> — Swiss Ephemeris.</li>'+
+        '<li><b>Location database</b> — GeoNames (CC BY 4.0), including alternate and historical place names.</li>'+
+        '<li><b>Time zone identifiers</b> — IANA Time Zone Database.</li>'+
+        '<li><b>Leaflet</b> — interactive map display.</li>'+
+        '<li><b>OpenStreetMap</b> — map tiles and geographic context.</li>'+
+      '</ul>'+
+      '<div class="help">Attribution is provided here rather than on the main map or chart surfaces.</div>';
+    return c;
+  }
+
+  /* ---------- 11. Technical ---------- */
   function secTechnical(){
     var c=el('<section class="card" id="sec-technical"></section>');
     c.innerHTML =
@@ -477,7 +494,7 @@
     return c;
   }
 
-  /* ---------- 11. Personalization (future) ---------- */
+  /* ---------- 12. Personalization (future) ---------- */
   function secPersonalization(){
     var c=el('<section class="card" id="sec-personalization"></section>');
     c.innerHTML =

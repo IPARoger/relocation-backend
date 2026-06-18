@@ -1,4 +1,36 @@
 from services.supabase_client import get_supabase
+from utils.place_alias_normalize import normalize_place_alias
+
+_PLACE_FIELDS = (
+    "id",
+    "provider",
+    "provider_place_id",
+    "geonames_id",
+    "display_name",
+    "canonical_name",
+    "admin1",
+    "admin2",
+    "country_code",
+    "country_name",
+    "latitude",
+    "longitude",
+    "timezone_id",
+    "population",
+    "importance_rank",
+    "language_code",
+    "alternate_names_json",
+    "source_json",
+    "created_at",
+    "updated_at",
+)
+
+
+def _strip_search_meta(row: dict) -> dict:
+  out = {k: row[k] for k in _PLACE_FIELDS if k in row}
+  matched = row.get("matched_alias")
+  if matched:
+      out["matched_alias"] = matched
+  return out
 
 
 def list_places(limit: int = 50):
@@ -77,7 +109,8 @@ def create_place(
     return result.data[0] if result.data else None
 
 
-def search_places(query: str, limit: int = 20):
+def _search_places_fallback(query: str, limit: int):
+    """Legacy display_name ILIKE when ranked RPC is unavailable."""
     client = get_supabase()
     pattern = f"%{query}%"
     result = (
@@ -88,10 +121,30 @@ def search_places(query: str, limit: int = 20):
         .limit(limit)
         .execute()
     )
-    return result.data
+    return result.data or []
+
+
+def search_places(query: str, limit: int = 20):
+    q = str(query or "").strip()
+    if not q:
+        return []
+    q_norm = normalize_place_alias(q)
+    lim = max(1, min(int(limit or 20), 50))
+    client = get_supabase()
+    try:
+        result = client.rpc(
+            "search_places_ranked",
+            {"p_query": q, "p_norm": q_norm, "p_limit": lim},
+        ).execute()
+        rows = result.data or []
+        if rows:
+            return [_strip_search_meta(row) for row in rows]
+    except Exception:
+        pass
+    return _search_places_fallback(q, lim)
+
 
 def search_places_by_geonames(geonames_id: str):
-    # Return places matching geonames_id (0 or 1 row as list).
     client = get_supabase()
     gid = str(geonames_id or "").strip()
     if not gid:
@@ -107,4 +160,3 @@ def search_places_by_geonames(geonames_id: str):
     except Exception:  # noqa: BLE001
         return []
     return result.data or []
-
