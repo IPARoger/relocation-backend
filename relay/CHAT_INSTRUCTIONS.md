@@ -43,8 +43,8 @@ Paste project-specific rules above this line if needed. The relay robot sends th
 ## Current roadmap state (sync with ROADMAP_QUEUE.md)
 
 - Chat 1–3: **COMPLETE**
-- Chat 4: **PARTIAL** — C4-1 and C4-2 M2 **OPEN**; C4-2 M5, C4-3..C4-7 **COMPLETE**
-- Chat 5: **PAUSED** until Chat 4 debt closed
+- Chat 4: **COMPLETE** — all slices verified (`aeaaa6d` C4-1, `8a934d9` C4-2 M2); C4 blockers resolved
+- Chat 5: **ACTIVE** — resume C5-5+ per C5-1 audit; C5-2 and C5-3 remain blocked (hard stops)
 
 ## Closeout format
 
