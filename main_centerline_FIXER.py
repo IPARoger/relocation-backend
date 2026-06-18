@@ -2529,10 +2529,17 @@ def api_list_places(limit: int = 50):
 
 
 @app.get("/places/search")
-def api_search_places(q: str, limit: int = 20):
-    from repositories.places_repository import search_places
+def api_search_places(q: str | None = None, geonames_id: str | None = None, limit: int = 20):
+    from repositories.places_repository import search_places, search_places_by_geonames
 
-    return search_places(q, limit)
+    if geonames_id is not None and str(geonames_id).strip():
+        return search_places_by_geonames(str(geonames_id).strip())
+    if q is not None and str(q).strip():
+        return search_places(str(q).strip(), limit)
+    raise HTTPException(
+        status_code=422,
+        detail={"error": "missing_query", "message": "Provide q or geonames_id"},
+    )
 
 
 @app.get("/place/{place_id}")

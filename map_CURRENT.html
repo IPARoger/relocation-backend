@@ -2388,15 +2388,15 @@ async function applyMapFavoriteButtonState(popup) {
         // Prefer deterministic geonames_id linkage; fall back to name + coordinate
         // search against 8004. Read-only — does not create places.
         let place = null;
-        if (geonamesId && typeof sbClient.from === "function") {
+        if (geonamesId) {
             try {
-                const { data: gidRows } = await sbClient
-                    .from("places")
-                    .select("id")
-                    .eq("geonames_id", geonamesId)
-                    .limit(1);
-                if (Array.isArray(gidRows) && gidRows.length && gidRows[0].id) {
-                    place = gidRows[0];
+                const gidResp = await fetch(
+                    `${API_BASE}/places/search?geonames_id=${encodeURIComponent(geonamesId)}`
+                );
+                if (gidResp.ok) {
+                    const gidMatches = await gidResp.json();
+                    const row = Array.isArray(gidMatches) && gidMatches[0];
+                    if (row && row.id) place = row;
                 }
             } catch (e) { /* fall through to name search */ }
         }

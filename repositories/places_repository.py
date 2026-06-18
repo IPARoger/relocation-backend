@@ -89,3 +89,22 @@ def search_places(query: str, limit: int = 20):
         .execute()
     )
     return result.data
+
+def search_places_by_geonames(geonames_id: str):
+    # Return places matching geonames_id (0 or 1 row as list).
+    client = get_supabase()
+    gid = str(geonames_id or "").strip()
+    if not gid:
+        return []
+    try:
+        result = (
+            client.table("places")
+            .select("*")
+            .eq("geonames_id", gid)
+            .limit(1)
+            .execute()
+        )
+    except Exception:  # noqa: BLE001
+        return []
+    return result.data or []
+
