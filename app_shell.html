@@ -133,6 +133,19 @@
     padding: 16px; border: 1px solid var(--line);
   }
   .modal h3 { margin: 0 0 8px; }
+  .guided-onboarding-modal { max-width: min(480px, 100%); display: flex; flex-direction: column; gap: 12px; }
+  .guided-onboarding-progress { font-size: 12px; color: var(--muted); margin: 0; }
+  .guided-onboarding-body { margin: 0; line-height: 1.5; }
+  .guided-onboarding-body ul { margin: 8px 0 0; padding-left: 1.25rem; }
+  .guided-onboarding-body li { margin-bottom: 6px; }
+  .guided-onboarding-dots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .guided-onboarding-dots button {
+    width: 8px; height: 8px; padding: 0; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--panel); margin: 0;
+  }
+  .guided-onboarding-dots button[aria-current="step"] { background: var(--accent); border-color: var(--accent); }
+  .guided-onboarding-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+  .guided-onboarding-actions .guided-onboarding-nav { display: flex; flex-wrap: wrap; gap: 8px; }
   table.simple { width: 100%; border-collapse: collapse; font-size: 13px; }
   table.simple th, table.simple td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
   table.simple th { background: #f3f4f6; font-weight: 600; }
@@ -220,13 +233,18 @@
 </div>
 
 <div class="modal-backdrop" id="guidedOnboardingModal" aria-hidden="true">
-  <div class="modal" role="dialog" aria-labelledby="guidedOnboardingTitle">
-    <h3 id="guidedOnboardingTitle">Welcome to Relocation App</h3>
-    <p class="purpose">A quick start before you explore the map.</p>
-    <p>Pick a profile, open the map, and right-click any city to see your relocated chart there. Your birth data stays fixed — the map shows how your chart shifts across the planet.</p>
-    <div class="row">
-      <button type="button" class="primary" data-action="guided-onboarding-start">Start here</button>
-      <button type="button" data-action="guided-onboarding-skip">Skip</button>
+  <div class="modal guided-onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="guidedOnboardingTitle" aria-describedby="guidedOnboardingBody">
+    <p class="guided-onboarding-progress" id="guidedOnboardingProgress" aria-live="polite"></p>
+    <h3 id="guidedOnboardingTitle"></h3>
+    <div class="guided-onboarding-body" id="guidedOnboardingBody"></div>
+    <div class="guided-onboarding-dots" id="guidedOnboardingDots" role="tablist" aria-label="Onboarding steps"></div>
+    <div class="guided-onboarding-actions">
+      <button type="button" data-action="guided-onboarding-dismiss">Dismiss</button>
+      <div class="guided-onboarding-nav">
+        <button type="button" data-action="guided-onboarding-prev" hidden>Back</button>
+        <button type="button" data-action="guided-onboarding-next" class="primary">Next</button>
+        <button type="button" data-action="guided-onboarding-launch" class="primary" hidden>Launch Map</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2445,6 +2463,7 @@ function screenHelp() {
       <h3>Start Here</h3>
       <p>This instrument maps astrological chart structure onto geography. Select a birth profile, open the map, and right-click any city to see your relocated chart for that location.</p>
       <p>Your birth data stays fixed. The map shows how your chart angles and house cusps shift as you move around the planet.</p>
+      <button type="button" class="primary" data-action="replay-guided-onboarding">Replay app tour</button>
     </div>
     <div class="panel">
       <h3>How to Use the Map</h3>
@@ -2972,6 +2991,10 @@ function bindScreenActions(root) {
       }
       if (action === "inspect") openPopup();
       if (action === "toggle-drawer") { uiState.drawerOpen = !uiState.drawerOpen; render(); }
+      if (action === "replay-guided-onboarding") {
+        try { localStorage.removeItem(GUIDED_ONBOARDING_KEY); } catch (e) { /* ignore */ }
+        showGuidedOnboarding();
+      }
       if (action === "close-popup") closePopup();
       if (action === "add-chart-record") {
         if (typeof window.__showFirstProfileIntake === "function") {
@@ -3402,6 +3425,53 @@ async function bootstrap() {
 
 var GUIDED_ONBOARDING_KEY = "rm_guided_onboarding_dismissed";
 
+/** App-usage tutorial slides — edit copy here only. */
+var ONBOARDING_SLIDES = [
+  {
+    id: "welcome",
+    title: "Welcome",
+    html: "<p>Relocation Astrology maps your chart onto the world. Explore visually, save locations and investigations, and compare places to narrow your search.</p>",
+  },
+  {
+    id: "genie",
+    title: "Meet Genie",
+    html: "<p>Genie builds your searches. Try a condition like <strong>ASC in Aries</strong>, then tap <strong>Search Map</strong>. Results become map overlays you can reopen from your saved investigations.</p>",
+  },
+  {
+    id: "map-controls",
+    title: "Map Controls",
+    html: "<p>On the production map, use the side panel to work efficiently:</p><ul><li><strong>Find regions</strong> — run your search on the map</li><li><strong>Save Investigation</strong> — store a named search to reopen later</li><li><strong>City search</strong> — jump to a location</li><li><strong>Chart Library</strong> — reopen saved investigations</li><li><strong>Profile</strong> — switch the active chart record</li></ul>",
+  },
+  {
+    id: "ghost-tools",
+    title: "Ghost Tools",
+    html: "<p>Each Genie variable has layer controls (enable <strong>Preview Exploration Mode</strong> for compact chips):</p><ul><li><strong>Mute</strong> — hide a layer without deleting it</li><li><strong>Solo</strong> — show only that layer</li><li><strong>Not</strong> — exclude a condition</li><li><strong>Color chip</strong> — track color for each variable</li></ul>",
+  },
+  {
+    id: "layer-visibility",
+    title: "Layer Visibility",
+    html: "<p>Reduce clutter when overlays stack: use <strong>Mute</strong> and <strong>Solo</strong> to focus one condition at a time, and toggle <strong>Preview Exploration Mode</strong> for compact layer chips. Re-run <strong>Search Map</strong> after changes.</p>",
+  },
+  {
+    id: "save-compare",
+    title: "Save & Compare",
+    html: "<p>Star favorites on your Chart Record, save investigations from the map, and use <strong>Compare places</strong> to evaluate multiple cities side by side — all tied to your active profile.</p>",
+  },
+  {
+    id: "ready",
+    title: "You're Ready",
+    html: "<p>You can dismiss this tour anytime. It won't appear again unless you replay it from Help &amp; Learn.</p>",
+  },
+];
+window.ONBOARDING_SLIDES = ONBOARDING_SLIDES;
+
+var guidedOnboardingIndex = 0;
+var guidedOnboardingWired = false;
+
+function isGuidedOnboardingDismissed() {
+  try { return localStorage.getItem(GUIDED_ONBOARDING_KEY) === "1"; } catch (e) { return false; }
+}
+
 function dismissGuidedOnboarding() {
   var modal = document.getElementById("guidedOnboardingModal");
   if (modal) {
@@ -3411,24 +3481,72 @@ function dismissGuidedOnboarding() {
   try { localStorage.setItem(GUIDED_ONBOARDING_KEY, "1"); } catch (e) { /* storage unavailable */ }
 }
 
-function maybeShowGuidedOnboarding() {
-  var dismissed = false;
-  try { dismissed = localStorage.getItem(GUIDED_ONBOARDING_KEY) === "1"; } catch (e) { dismissed = false; }
-  if (dismissed) return;
+function renderGuidedOnboardingSlide(index) {
+  var slides = ONBOARDING_SLIDES;
+  if (!slides.length) return;
+  guidedOnboardingIndex = Math.max(0, Math.min(index, slides.length - 1));
+  var slide = slides[guidedOnboardingIndex];
   var modal = document.getElementById("guidedOnboardingModal");
   if (!modal) return;
-  modal.classList.add("open");
-  modal.setAttribute("aria-hidden", "false");
-  var startBtn = modal.querySelector("[data-action=guided-onboarding-start]");
-  var skipBtn = modal.querySelector("[data-action=guided-onboarding-skip]");
-  if (startBtn) startBtn.addEventListener("click", function () {
+  var titleEl = document.getElementById("guidedOnboardingTitle");
+  var bodyEl = document.getElementById("guidedOnboardingBody");
+  var progressEl = document.getElementById("guidedOnboardingProgress");
+  var dotsEl = document.getElementById("guidedOnboardingDots");
+  var prevBtn = modal.querySelector("[data-action=guided-onboarding-prev]");
+  var nextBtn = modal.querySelector("[data-action=guided-onboarding-next]");
+  var launchBtn = modal.querySelector("[data-action=guided-onboarding-launch]");
+  if (titleEl) titleEl.textContent = slide.title;
+  if (bodyEl) bodyEl.innerHTML = slide.html;
+  if (progressEl) progressEl.textContent = "Step " + (guidedOnboardingIndex + 1) + " of " + slides.length;
+  if (dotsEl) {
+    dotsEl.innerHTML = slides.map(function (s, i) {
+      return '<button type="button" role="tab" aria-label="' + s.title + '" aria-current="' + (i === guidedOnboardingIndex ? "step" : "false") + '" data-onboarding-dot="' + i + '"></button>';
+    }).join("");
+    dotsEl.querySelectorAll("[data-onboarding-dot]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        renderGuidedOnboardingSlide(Number(btn.getAttribute("data-onboarding-dot")));
+      });
+    });
+  }
+  var isLast = guidedOnboardingIndex === slides.length - 1;
+  if (prevBtn) prevBtn.hidden = guidedOnboardingIndex === 0;
+  if (nextBtn) nextBtn.hidden = isLast;
+  if (launchBtn) launchBtn.hidden = !isLast;
+}
+
+function wireGuidedOnboardingOnce() {
+  if (guidedOnboardingWired) return;
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (!modal) return;
+  guidedOnboardingWired = true;
+  var prevBtn = modal.querySelector("[data-action=guided-onboarding-prev]");
+  var nextBtn = modal.querySelector("[data-action=guided-onboarding-next]");
+  var launchBtn = modal.querySelector("[data-action=guided-onboarding-launch]");
+  var dismissBtn = modal.querySelector("[data-action=guided-onboarding-dismiss]");
+  if (prevBtn) prevBtn.addEventListener("click", function () { renderGuidedOnboardingSlide(guidedOnboardingIndex - 1); });
+  if (nextBtn) nextBtn.addEventListener("click", function () { renderGuidedOnboardingSlide(guidedOnboardingIndex + 1); });
+  if (launchBtn) launchBtn.addEventListener("click", function () {
     dismissGuidedOnboarding();
-    navigate("help");
+    openMap({ source: "guided onboarding launch" });
   });
-  if (skipBtn) skipBtn.addEventListener("click", dismissGuidedOnboarding);
+  if (dismissBtn) dismissBtn.addEventListener("click", dismissGuidedOnboarding);
   modal.addEventListener("click", function (e) {
     if (e.target === modal) dismissGuidedOnboarding();
   });
+}
+
+function showGuidedOnboarding() {
+  wireGuidedOnboardingOnce();
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (!modal) return;
+  renderGuidedOnboardingSlide(0);
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function maybeShowGuidedOnboarding() {
+  if (isGuidedOnboardingDismissed()) return;
+  showGuidedOnboarding();
 }
 
 /**
@@ -3647,6 +3765,8 @@ window.__rmAppShell = {
   storeGenieRenderPayload,
   prepareGenieRenderHandoff,
   buildMapHandoffUrl,
+  showGuidedOnboarding,
+  dismissGuidedOnboarding,
   parseLocation,
   buildLocationHash,
   normalizeNavContext,
