@@ -35,7 +35,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:8004").rstrip("/")
 PYTHON = ROOT / "venv" / "bin" / "python"
 MAP_DEFAULT_CENTER_LAT = 20
 MAP_DEFAULT_CENTER_LNG = 0
@@ -51,6 +51,14 @@ def fail(msg: str) -> None:
 DEFAULT_SMOKE_EMAIL = "davidleongoodman@gmail.com"
 
 
+
+
+def shell_build_map_url(page, patch: dict | None = None) -> str:
+    """Build production map handoff URL without leaving app_shell.html."""
+    return page.evaluate(
+        "([patch]) => window.__rmAppShell.buildMapHandoffFromPatch(patch || {})",
+        [patch or {}],
+    )
 
 
 def shell_navigate(page, route: str, patch: dict | None = None) -> None:
@@ -269,9 +277,7 @@ def main() -> int:
                 f"() => window.__rmAppShell.navContext.route === 'chart-record'",
                 timeout=10_000,
             )
-            shell_navigate(page, "map", {"chartRecordId": cr_id})
-
-            built = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
+            built = shell_build_map_url(page, {"chartRecordId": cr_id})
             parsed = parse_handoff_query(built)
             ok_build = (
                 built.startswith("/map_CURRENT.html?")
@@ -322,8 +328,7 @@ def main() -> int:
                     wait_until="domcontentloaded",
                 )
                 page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=30_000)
-                shell_navigate(page, "map", {"chartRecordId": cr_id, "placeId": place_id})
-                fav_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
+                fav_url = shell_build_map_url(page, {"chartRecordId": cr_id, "placeId": place_id})
                 fav_parsed = parse_handoff_query(fav_url)
                 ok_fav = fav_parsed["placeId"] == place_id and fav_parsed["chartRecordId"] == cr_id
                 results.append(("shell_builds_url_favorite", ok_fav, fav_url))
@@ -343,8 +348,7 @@ def main() -> int:
                 wait_until="domcontentloaded",
             )
             page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=30_000)
-            shell_navigate(page, "map", {"chartRecordId": cr_id, "explorationId": exp_id})
-            exp_url = page.evaluate("() => window.__rmAppShell.buildMapHandoffUrl()")
+            exp_url = shell_build_map_url(page, {"chartRecordId": cr_id, "explorationId": exp_id})
             exp_parsed = parse_handoff_query(exp_url)
             ok_exp = exp_parsed["explorationId"] == exp_id
             results.append(("shell_builds_url_exploration", ok_exp, exp_url))
@@ -369,6 +373,25 @@ def main() -> int:
             cmp_parsed = parse_handoff_query(cmp_url)
             ok_cmp = cmp_parsed["comparisonSetId"] == cmp_id
             results.append(("shell_builds_url_comparison", ok_cmp, cmp_url))
+
+            # navigate("map") redirects to production map (no in-shell placeholder)
+            page.goto(
+                f"{base}/app_shell.html#/chart-record?chartRecordId={cr_id}",
+                wait_until="domcontentloaded",
+            )
+            page.wait_for_function("() => window.__rmAppShell.viewModel()", timeout=30_000)
+            page.evaluate(
+                "([id]) => window.__rmAppShell.navigate('map', { chartRecordId: id })",
+                [cr_id],
+            )
+            page.wait_for_url("**/map_CURRENT.html**", timeout=15_000)
+            nav_parsed = parse_handoff_query(page.url)
+            ok_nav_map = (
+                nav_parsed["handoff"] == "app_shell"
+                and nav_parsed["chartRecordId"] == cr_id
+                and nav_parsed["skipOnboarding"] == "1"
+            )
+            results.append(("navigate_map_redirects_production", ok_nav_map, page.url))
 
             # Map without handoff
             page.goto(f"{base}/map_CURRENT.html?skipOnboarding=1", wait_until="domcontentloaded", timeout=20_000)
