@@ -205,6 +205,12 @@
   .comparison-overlay-modal { max-width: min(560px, 96vw); max-height: min(88vh, 900px); overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
   .comparison-overlay-section { border-top: 1px solid #e2e8f0; padding-top: 12px; }
   .comparison-overlay-section h4 { margin: 0 0 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; }
+  .comparison-overlay-section--picker { overflow: visible; }
+  .comparison-overlay-fav-list { margin: 0 0 10px; padding: 0; list-style: none; }
+  .comparison-overlay-fav-list li { padding: 4px 0; }
+  .comparison-overlay-fav-list button { font-size: 0.92rem; }
+  #comparisonOverlayModal { z-index: 120; }
+  #comparisonOverlayModal .rm-sls-panel { z-index: 1300; }
   .comparison-overlay-saved-list { margin: 0; padding: 0; list-style: none; }
   .comparison-overlay-saved-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
   #rm-cmp-overlay-compare-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -271,8 +277,9 @@
       <h4>Saved comparisons</h4>
       <div id="comparisonOverlaySaved"><p class="meta">Loading…</p></div>
     </div>
-    <div class="comparison-overlay-section">
+    <div class="comparison-overlay-section comparison-overlay-section--picker">
       <h4>New comparison</h4>
+      <div id="comparisonOverlayFavorites"></div>
       <div id="rm-cmp-overlay-search-mount"></div>
       <div id="rm-cmp-overlay-selected" class="row" style="flex-wrap:wrap;margin-top:8px;"></div>
       <div class="row" style="margin-top:8px;align-items:center;">
@@ -336,7 +343,7 @@ function _savePersistedChartRecord(id) {
 const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
   { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
-  { id: "map", label: "2 Map", screen: "Screen 2 — Map Launcher" },
+  { id: "map", label: "2 Map", screen: "Screen 2 — Map (production)" },
   { id: "chart", label: "4 Chart", screen: "Screen 4 — View Chart" },
   { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
   { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
@@ -1105,6 +1112,21 @@ storeLoadSource: ${vm.loadSource}
 mapEntrySource: ${uiState.mapEntrySource || "null"}</div>`;
 }
 
+
+function buildMapHandoffFromPatch(patch) {
+  const p = patch || {};
+  const vm = viewModel;
+  const ctx = {
+    chartRecordId: p.chartRecordId || navContext.chartRecordId
+      || (vm && (vm.selectedChartRecordId || vm.defaultChartRecordId)) || null,
+    explorationId: p.explorationId !== undefined ? p.explorationId : null,
+    placeId: p.placeId !== undefined ? p.placeId : null,
+    comparisonSetId: p.comparisonSetId !== undefined ? p.comparisonSetId : null,
+    returnTo: p.returnTo !== undefined ? p.returnTo : null,
+  };
+  return buildMapHandoffUrl(ctx);
+}
+
 function openMap(opts) {
   const o = opts || {};
   const placeId = o.placeId !== undefined
@@ -1114,17 +1136,35 @@ function openMap(opts) {
   // but now we navigate directly to map_CURRENT.html (same tab) instead
   // of the in-shell placeholder. buildMapHandoffUrl() is the existing
   // contract; no new parameters introduced here.
+  const vm = viewModel;
+  const chartRecordId = o.chartRecordId || navContext.chartRecordId
+    || (vm && (vm.selectedChartRecordId || vm.defaultChartRecordId)) || null;
   const mapCtx = {
-    chartRecordId: o.chartRecordId || navContext.chartRecordId,
-    explorationId: o.explorationId !== undefined ? o.explorationId : null,
+    chartRecordId,
+    explorationId: o.explorationId !== undefined ? o.explorationId : (navContext.explorationId || null),
     placeId: placeId || null,
-    comparisonSetId: null,
+    comparisonSetId: o.comparisonSetId !== undefined ? o.comparisonSetId : null,
     returnTo: o.clearReturn ? null : navContext.returnTo,
   };
+  if (o.source) uiState.mapEntrySource = o.source;
+  if (o.notice) uiState.switchNotice = o.notice;
   window.location.assign(buildMapHandoffUrl(mapCtx));
 }
 
 function navigate(route, patch = {}, options = {}) {
+  if (route === "map") {
+    const merged = normalizeNavContext({ ...navContext, ...patch, route: "map" });
+    navContext = merged;
+    openMap({
+      chartRecordId: merged.chartRecordId,
+      explorationId: merged.explorationId,
+      placeId: merged.placeId,
+      comparisonSetId: merged.comparisonSetId,
+      clearReturn: options.clearReturn,
+      source: patch.source || "navigate → production map",
+    });
+    return;
+  }
   const returnSnapshot = options.pushReturn ? snapshotNavContext() : null;
   const next = normalizeNavContext({
     ...navContext,
@@ -1187,7 +1227,16 @@ function renderNav() {
           source: "primary nav → production map",
         });
       } else if (r.id === "compare") {
-        openComparisonOverlayFromChrome();
+        const cmpCr = navContext.chartRecordId
+          || (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId))
+          || null;
+        navigate("compare", {
+          chartRecordId: cmpCr,
+          comparisonSetId: null,
+          placeId: null,
+          explorationId: null,
+        }, { skipComparisonOverlay: true });
+        queueMicrotask(() => openComparisonOverlayFromChrome());
       } else {
         navigate(/** @type {Route} */ (r.id));
       }
@@ -1381,43 +1430,17 @@ async function hydrateChartRecordComparisonSets(root) {
 }
 
 function screenMap() {
+  // Quarantined: #/map should redirect via render() → openMap(). Fallback if JS hash race.
   const r = activeRecord();
   return `
-    <div class="breadcrumb">${r.displayName} · Map discovery</div>
-    <h2>Screen 2 — Map Launcher</h2>
-    <p class="purpose">Use the production map for exploration. This shell page preserves context and handoff controls.</p>
-    ${uiState.switchNotice ? `<div class="notice-box">${uiState.switchNotice}</div>` : ""}
-    ${timeUncertaintyWarning(r)}
-    ${navContext.explorationId ? `<div class="stub">${RESUME_CONTEXT_STUB}</div>` : ""}
-    <div class="panel">
-      <h3>Module: production-map</h3>
-      <p>Production map opens in the main map tool.</p>
-      ${resolvePlaceName(navContext.placeId) ? `<p class="meta">Context place: <strong>${resolvePlaceName(navContext.placeId)}</strong></p>` : ""}
-      <div class="row" style="margin-top:8px">
-        <button type="button" class="primary" data-action="open-map-record">Open production map</button>
-      </div>
+    <div class="breadcrumb">${r.displayName} · Map</div>
+    <h2>Opening map…</h2>
+    <p class="purpose">The production map tool opens in place of this shell placeholder.</p>
+    <div class="notice-box">If you are not redirected automatically, use <strong>Open map</strong> below.</div>
+    <div class="row" style="margin-top:12px">
+      <button type="button" class="primary" data-action="open-map-record">Open map</button>
+      <button type="button" data-nav="chart-record">Back to Chart Record</button>
     </div>
-    <div class="grid-2">
-      <div class="drawer-placeholder">
-        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3 style="margin:0">Genie ${uiState.drawerOpen ? "(expanded)" : "(collapsed)"}</h3>
-          <button type="button" data-action="toggle-drawer">${uiState.drawerOpen ? "Collapse" : "Expand drawer"}</button>
-        </div>
-        ${uiState.drawerOpen
-          ? `<div id="genieDrawerMount" aria-label="Genie variable builder"></div>`
-          : `<p class="meta">Genie chip · ${r.displayName} · expand to configure variables</p>`}
-      </div>
-      <div class="panel">
-        <h3>Module: map-actions</h3>
-        <button type="button" data-nav="chart">Full chart (Screen 4)</button>
-        <button type="button" data-nav="compare">Compare places (Screen 5)</button>
-        <button type="button" data-nav="export">Export / share status</button>
-        <button type="button" disabled>Save exploration (auto-save stub)</button>
-        <button type="button" data-nav="chart-record">Back to Chart Record page</button>
-      </div>
-    </div>
-    ${stateDebugBlock()}
-    <p class="must-not">Must not appear: multi-chart selector under one record, transit as active condition, silent chart switch.</p>
   `;
 }
 
@@ -1443,7 +1466,7 @@ function screenChart() {
     <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
     <div class="warn-box"><strong>Cannot show relocated chart.</strong><br>
       This screen needs both a Chart Record and a place. Open it from a Chart Record favorite (View chart).</div>
-    <div class="row"><button type="button" data-nav="map">Back to shell map</button></div>
+    <div class="row"><button type="button" data-nav="map">Back to map</button></div>
     `;
   }
   const r = getChartRecord(chartRecordId);
@@ -1475,7 +1498,7 @@ function screenChart() {
       <button type="button" disabled>Favorite this place (not available yet)</button>
     </div>
     <div class="row">
-      <button type="button" data-nav="map">Back to shell map</button>
+      <button type="button" data-nav="map">Back to map</button>
       <button type="button" data-nav="compare">Open comparison workspace</button>
       <button type="button" data-nav="export">Export / share status</button>
     </div>
@@ -2133,7 +2156,7 @@ function mountComparisonOverlaySearch() {
   comparisonOverlaySearchCtl = window.RMSavedLocationSearchUI.mount({
     root: mount,
     inputId: "rm-cmp-overlay-loc-search",
-    getProfileId: () => (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId)) || null,
+    getProfileId: () => overlayChartRecordId(),
     searchOptions: { includeTeaching: true },
     formatSourceBadge: function (source) {
       if (source === "favorite") return "\u2605 Favorite";
@@ -2152,14 +2175,42 @@ function mountComparisonOverlaySearch() {
   });
 }
 
+function overlayChartRecordId() {
+  return navContext.chartRecordId
+    || (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId))
+    || null;
+}
+
+function hydrateComparisonOverlayFavorites() {
+  const host = document.getElementById("comparisonOverlayFavorites");
+  if (!host || !viewModel) return;
+  const chartRecordId = overlayChartRecordId();
+  if (!chartRecordId) {
+    host.innerHTML = '<p class="meta">Select a profile to compare places.</p>';
+    return;
+  }
+  const rec = getChartRecord(chartRecordId);
+  const favs = rec.favorites || [];
+  if (!favs.length) {
+    host.innerHTML = '<p class="meta">No saved places yet. Open the map and favorite locations to compare them.</p>';
+    return;
+  }
+  host.innerHTML = `<ul class="comparison-overlay-fav-list">${favs.map((f) => `
+    <li><button type="button" class="linkish" data-action="cmp-overlay-fav-pick"
+      data-place-id="${escapeHtml(f.placeId)}" data-place-name="${escapeHtml(f.placeName)}">${escapeHtml(f.placeName)}</button></li>
+  `).join("")}</ul>`;
+}
+
 function openComparisonOverlayFromChrome() {
   if (!viewModel) return;
   uiState.comparisonOverlayOpen = true;
-  const chartRecordId = viewModel.selectedChartRecordId || viewModel.defaultChartRecordId;
+  const chartRecordId = overlayChartRecordId();
   const modal = document.getElementById("comparisonOverlayModal");
   const profileEl = document.getElementById("comparisonOverlayProfile");
   if (profileEl && chartRecordId) {
     profileEl.textContent = `Profile: ${getChartRecord(chartRecordId).displayName}`;
+  } else if (profileEl) {
+    profileEl.textContent = "";
   }
   const selectedHost = document.getElementById("rm-cmp-overlay-selected");
   if (selectedHost) selectedHost.innerHTML = "";
@@ -2167,10 +2218,64 @@ function openComparisonOverlayFromChrome() {
   if (msg) msg.textContent = "";
   syncOverlayCompareButton();
   hydrateComparisonOverlaySaved();
+  hydrateComparisonOverlayFavorites();
   mountComparisonOverlaySearch();
   if (modal) {
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
+  }
+}
+
+function handleComparisonOverlayAction(action, btn) {
+  if (action === "cmp-overlay-close") {
+    closeComparisonOverlay();
+    return;
+  }
+  if (action === "cmp-overlay-fav-pick") {
+    const placeId = btn.getAttribute("data-place-id");
+    const placeName = btn.getAttribute("data-place-name") || "Place";
+    if (!placeId) return;
+    addComparisonPick(placeId, placeName, {
+      hostId: "rm-cmp-overlay-selected",
+      msgId: "rm-cmp-overlay-msg",
+    });
+    syncOverlayCompareButton();
+    return;
+  }
+  if (action === "cmp-remove-pick") {
+    const chip = btn.closest(".rm-cmp-chip");
+    if (chip) chip.remove();
+    syncOverlayCompareButton();
+    const msg = document.getElementById("rm-cmp-overlay-msg");
+    if (msg) msg.textContent = "";
+    return;
+  }
+  if (action === "cmp-overlay-compare") {
+    const msg = document.getElementById("rm-cmp-overlay-msg");
+    const host = document.getElementById("rm-cmp-overlay-selected");
+    const picks = host ? Array.from(host.querySelectorAll(".rm-cmp-pick:checked")) : [];
+    if (picks.length < 2 || picks.length > 5) {
+      if (msg) msg.textContent = "Choose between 2 and 5 locations.";
+      return;
+    }
+    const chartRecordId = overlayChartRecordId();
+    const placeIds = picks.map((el) => el.value);
+    if (msg) msg.textContent = "Saving…";
+    (async () => {
+      try {
+        const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
+        closeComparisonOverlay();
+        navigate("compare", {
+          chartRecordId,
+          comparisonSetId: setId,
+          placeId: null,
+          explorationId: null,
+          returnTo: null,
+        }, { skipComparisonOverlay: true });
+      } catch (err) {
+        if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+      }
+    })();
   }
 }
 
@@ -3126,6 +3231,16 @@ function render() {
     return;
   }
   syncNavContextFromLocation();
+  if (navContext.route === "map") {
+    openMap({
+      chartRecordId: navContext.chartRecordId,
+      explorationId: navContext.explorationId,
+      placeId: navContext.placeId,
+      comparisonSetId: navContext.comparisonSetId,
+      source: "hash #/map → production map",
+    });
+    return;
+  }
   renderNav();
   const meta = ALL_ROUTES.find((r) => r.id === navContext.route);
   $("#screenMeta").textContent = meta ? meta.screen : navContext.route;
@@ -3470,44 +3585,14 @@ function bindScreenActions(root) {
         })();
       }
       if (action === "cmp-remove-pick") {
-        const pid = btn.getAttribute("data-place-id");
-        const chip = pid && document.querySelector(`.rm-cmp-chip[data-place-id="${pid}"]`);
+        const chip = btn.closest(".rm-cmp-chip");
         if (chip) chip.remove();
-        syncOverlayCompareButton();
-        const msg = document.getElementById("rm-cmp-overlay-msg");
-        if (msg) msg.textContent = "";
-        return;
-      }
-      if (action === "cmp-overlay-close") {
-        closeComparisonOverlay();
-        return;
-      }
-      if (action === "cmp-overlay-compare") {
-        const msg = document.getElementById("rm-cmp-overlay-msg");
-        const host = document.getElementById("rm-cmp-overlay-selected");
-        const picks = host ? Array.from(host.querySelectorAll(".rm-cmp-pick:checked")) : [];
-        if (picks.length < 2 || picks.length > 5) {
-          if (msg) msg.textContent = "Choose between 2 and 5 locations.";
-          return;
+        const overlayHost = document.getElementById("rm-cmp-overlay-selected");
+        if (chip && overlayHost && overlayHost.contains(chip)) {
+          syncOverlayCompareButton();
+          const msg = document.getElementById("rm-cmp-overlay-msg");
+          if (msg) msg.textContent = "";
         }
-        const chartRecordId = (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId)) || navContext.chartRecordId;
-        const placeIds = picks.map((el) => el.value);
-        if (msg) msg.textContent = "Saving…";
-        (async () => {
-          try {
-            const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
-            closeComparisonOverlay();
-            navigate("compare", {
-              chartRecordId,
-              comparisonSetId: setId,
-              placeId: null,
-              explorationId: null,
-              returnTo: null,
-            }, { skipComparisonOverlay: true });
-          } catch (err) {
-            if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
-          }
-        })();
         return;
       }
       if (action === "compare-build") {
@@ -3536,15 +3621,26 @@ function bindScreenActions(root) {
       if (action === "compare-back-map") {
         const rt = navContext.returnTo;
         if (rt) {
-          navigate(rt.route, {
-            chartRecordId: rt.chartRecordId,
-            placeId: rt.placeId,
-            explorationId: rt.explorationId,
-            comparisonSetId: rt.comparisonSetId,
-            returnTo: null,
-          });
-          uiState.mapEntrySource = "comparison → map (returnTo contract)";
-          uiState.switchNotice = `Returned via returnTo · Chart Record: ${getChartRecord(rt.chartRecordId || navContext.chartRecordId).displayName}`;
+          if (rt.route === "map") {
+            navContext.returnTo = null;
+            openMap({
+              chartRecordId: rt.chartRecordId || navContext.chartRecordId,
+              placeId: rt.placeId,
+              explorationId: rt.explorationId,
+              source: "comparison → map (returnTo contract)",
+              notice: `Returned to map · Chart Record: ${getChartRecord(rt.chartRecordId || navContext.chartRecordId).displayName}`,
+            });
+          } else {
+            navigate(rt.route, {
+              chartRecordId: rt.chartRecordId,
+              placeId: rt.placeId,
+              explorationId: rt.explorationId,
+              comparisonSetId: rt.comparisonSetId,
+              returnTo: null,
+            });
+            uiState.mapEntrySource = "comparison → map (returnTo contract)";
+            uiState.switchNotice = `Returned via returnTo · Chart Record: ${getChartRecord(rt.chartRecordId || navContext.chartRecordId).displayName}`;
+          }
         } else {
           openMap({
             chartRecordId: navContext.chartRecordId,
@@ -3914,6 +4010,20 @@ document.getElementById("popupModal").addEventListener("click", (e) => {
   if (t.getAttribute("data-action") === "close-popup") closePopup();
   const nav = t.getAttribute("data-nav");
   if (nav) { closePopup(); navigate(/** @type {Route} */ (nav)); }
+});
+
+document.getElementById("comparisonOverlayModal").addEventListener("click", (e) => {
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  if (t.id === "comparisonOverlayModal") { closeComparisonOverlay(); return; }
+  const btn = t.closest("[data-action]");
+  if (!btn || !(btn instanceof HTMLElement)) return;
+  const action = btn.getAttribute("data-action");
+  if (!action) return;
+  if (action === "cmp-overlay-close" || action === "cmp-overlay-compare" || action === "cmp-remove-pick" || action === "cmp-overlay-fav-pick") {
+    e.preventDefault();
+    handleComparisonOverlayAction(action, btn);
+  }
 });
 
 window.addEventListener("hashchange", render);
@@ -4336,6 +4446,7 @@ window.__rmAppShell = {
   storeGenieRenderPayload,
   prepareGenieRenderHandoff,
   buildMapHandoffUrl,
+  buildMapHandoffFromPatch,
   showGuidedOnboarding,
   dismissGuidedOnboarding,
   parseLocation,
@@ -4369,6 +4480,8 @@ window.__rmAppShell = {
   closePopup,
   openComparisonOverlayFromChrome,
   closeComparisonOverlay,
+  hydrateComparisonOverlayFavorites,
+
   createComparisonSetFromPlaceIds,
 };
 

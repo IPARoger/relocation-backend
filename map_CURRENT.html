@@ -2187,7 +2187,8 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
                 <tbody>${planetHouseHtml}</tbody>
             </table>
             <div class="popup-actions">
-                <button type="button" disabled aria-disabled="true" title="Full chart coming soon">Full chart coming soon</button>
+                ${openChartButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
+                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
                 ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
             </div>
             <div class="popup-action-status" aria-live="polite" hidden></div>
@@ -2205,6 +2206,71 @@ function escapeAttr(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+}
+
+function openChartButtonHtml(name, lat, lon, country, admin, origin, geonamesId) {
+    return `<button type="button" class="popup-action-open-chart"`
+        + ` data-fav-name="${escapeAttr(name)}"`
+        + ` data-fav-lat="${lat}"`
+        + ` data-fav-lon="${lon}"`
+        + ` data-fav-country="${escapeAttr(country || "")}"`
+        + ` data-fav-admin="${escapeAttr(admin || "")}"`
+        + ` data-fav-geonames="${escapeAttr(geonamesId || "")}"`
+        + ` data-fav-origin="${escapeAttr(origin || "map_custom")}">View relocated chart</button>`;
+}
+
+function promptCustomLocationName(lat, lon) {
+    const fallback = `Custom location near ${Number(lat).toFixed(2)}, ${Number(lon).toFixed(2)}`;
+    const entered = window.prompt("Name this location:", fallback);
+    if (entered === null) return null;
+    const trimmed = String(entered).trim();
+    return trimmed || fallback;
+}
+
+function resolveChartRecordIdForShellNavigation() {
+    return getActiveFavoriteProfileId()
+        || (lastAppShellHandoff && lastAppShellHandoff.chartRecordId)
+        || MAP_URL.get("chartRecordId")
+        || null;
+}
+
+async function openChartFromMapButton(btn) {
+    const shell = btn.closest(".popup-chart");
+    const statusEl = shell ? shell.querySelector(".popup-action-status") : null;
+    const setStatus = (msg, isError) => {
+        if (!statusEl) return;
+        statusEl.hidden = false;
+        statusEl.textContent = msg;
+        statusEl.classList.toggle("is-error", Boolean(isError));
+    };
+    const chartRecordId = resolveChartRecordIdForShellNavigation();
+    if (!chartRecordId) {
+        setStatus("Select a saved profile to open the chart.", true);
+        return;
+    }
+    const lat = Number(btn.dataset.favLat);
+    const lon = Number(btn.dataset.favLon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+        setStatus("Missing coordinates for this place.", true);
+        return;
+    }
+    setStatus("Opening chart…");
+    try {
+        const place = await resolvePlaceFromMapSelection({
+            displayName: btn.dataset.favName || "Location",
+            lat,
+            lon,
+            country: btn.dataset.favCountry || "",
+            admin: btn.dataset.favAdmin || "",
+            origin: btn.dataset.favOrigin || "map_custom",
+            geonamesId: btn.dataset.favGeonames || "",
+        });
+        const q = new URLSearchParams({ chartRecordId, placeId: place.id });
+        window.location.assign(`/app_shell.html#/chart?${q.toString()}`);
+    } catch (err) {
+        console.error("[open-chart]", err);
+        setStatus("Could not open chart.", true);
+    }
 }
 
 function favoriteButtonHtml(name, lat, lon, country, admin, origin, geonamesId) {
@@ -2233,24 +2299,24 @@ function buildPlaceFallbackPopupHtml(meta, lat, lon, message) {
             <p class="popup-coords">Lat ${lat.toFixed(4)} \u00b7 Lon ${lon.toFixed(4)}${coordsMid}</p>
             <p class="popup-policy-note">${escapeAttr(message)}</p>
             <div class="popup-actions">
+                ${openChartButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
                 ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
             </div>
             <div class="popup-action-status" aria-live="polite" hidden></div>
         </div>`;
 }
 
-// Active *profile* UUID (Supabase profile) or null. Prefers the selected
-// #chartProfile Supabase option, then the Phase 2.5 url/sessionStorage
-// handoff. Built-in chart profiles (baseline_validated, ...) are not
-// profiles and yield null.
+// Active saved profile UUID for favorites/saved places, or null when a
+// built-in demo chart profile (baseline_validated, ...) is selected.
 function getActiveFavoriteProfileId() {
     const select = document.getElementById("chartProfile");
     const opt = select && select.selectedOptions[0];
-    if (opt && opt.dataset.profileSource === "supabase" && opt.value) {
+    if (!opt || !opt.value) return null;
+    if (opt.dataset.profileSource === "supabase") return opt.value;
+    if (typeof SUPABASE_UUID_PATTERN !== "undefined" && SUPABASE_UUID_PATTERN.test(opt.value)) {
         return opt.value;
     }
-    const handoff = readActiveProfileIdFromUrlOrSession();
-    return handoff ? handoff.id : null;
+    return null;
 }
 
 // Resolve an existing place by name + coordinate proximity, else create one.
@@ -2291,13 +2357,24 @@ async function favoriteMapSelectionFromButton(btn) {
         return;
     }
 
+    let displayName = btn.dataset.favName || "Custom location";
+    const origin = btn.dataset.favOrigin || "map_custom";
+    if (origin === "map_custom" && (!displayName || displayName === "Custom location")) {
+        const named = promptCustomLocationName(Number(btn.dataset.favLat), Number(btn.dataset.favLon));
+        if (named === null) {
+            setStatus("Favorite cancelled.", false);
+            btn.disabled = false;
+            return;
+        }
+        displayName = named;
+    }
     const selection = {
-        displayName: btn.dataset.favName || "Custom location",
+        displayName,
         lat: Number(btn.dataset.favLat),
         lon: Number(btn.dataset.favLon),
         country: btn.dataset.favCountry || null,
         admin: btn.dataset.favAdmin || null,
-        origin: btn.dataset.favOrigin || "map_custom",
+        origin,
         geonamesId: btn.dataset.favGeonames || null,
     };
 
@@ -2337,6 +2414,7 @@ async function favoriteMapSelectionFromButton(btn) {
 
         // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
         try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
+        try { sessionStorage.setItem("rm_active_profile_id", profileId); } catch (e) { /* ignore */ }
         btn.textContent = "Favorited \u2713";
         // Honest feedback: already-active favorite vs. a new/reactivated save.
         const _wasActive = saved && saved.status === "exists";
@@ -2353,6 +2431,13 @@ async function favoriteMapSelectionFromButton(btn) {
 
 // One delegated listener: Leaflet re-creates popups, so per-popup binding is brittle.
 document.addEventListener("click", function(ev) {
+    const openBtn = ev.target.closest && ev.target.closest(".popup-action-open-chart");
+    if (openBtn) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openChartFromMapButton(openBtn);
+        return;
+    }
     const btn = ev.target.closest && ev.target.closest(".popup-action-favorite");
     if (!btn) return;
     ev.preventDefault();
@@ -2452,6 +2537,9 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
         return;
     }
 
+    const customTitle = promptCustomLocationName(lat, lon);
+    if (customTitle === null) return;
+
     const popup = L.popup(CHART_POPUP_OPTS)
         .setLatLng(latlng)
         .setContent('<div class="popup-chart"><p class="popup-coords">Loading chart…</p></div>')
@@ -2479,12 +2567,12 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
             }
         }
         popup.setContent(
-            buildRelocatedPopupHtml(data, lat, lon, { title: "Custom location" }) + extra
+            buildRelocatedPopupHtml(data, lat, lon, { title: customTitle, origin: "map_custom" }) + extra
         );
         applyMapFavoriteButtonState(popup);
     } catch (err) {
         console.error("relocated-chart", err);
-        popup.setContent(buildPlaceFallbackPopupHtml({ title: "Custom location" }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
+        popup.setContent(buildPlaceFallbackPopupHtml({ title: customTitle, origin: "map_custom" }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
         applyMapFavoriteButtonState(popup);
     }
 });
@@ -6226,7 +6314,12 @@ async function loadSavedPlacesForActiveProfile() {
             `${API_BASE}/favorites?profile_id=${encodeURIComponent(profileId)}`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        if (!resp.ok) { showEmpty("Could not load saved places."); return; }
+        if (!resp.ok) {
+            if (resp.status === 401) showEmpty("Sign in again to load saved places.");
+            else if (resp.status === 404) showEmpty("No saved places for this profile.");
+            else showEmpty("Could not load saved places.");
+            return;
+        }
         const data = await resp.json();
         const rows = (data.favorites || []).filter((f) => f.place_id);
         if (rows.length === 0) {

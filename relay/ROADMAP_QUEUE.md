@@ -141,3 +141,20 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 4. If active caller found → PAUSE, cite route.
 5. Honest VERIFIED / NOT VERIFIED in every closeout.
 6. Size S → Haiku; M/L → Sonnet (via RELAY_AUTO_MODEL) when planner API is used.
+
+---
+
+## W2-WIRE User QA Recovery (2026-06-19)
+
+**Verified complete:**
+- **W2-WIRE-2A** — Compare overlay: nav → Compare screen first; overlay search/favorites/Cancel/Compare wiring (`fe_overlay_on_compare_screen`, `fe_overlay_cancel_closes` in smoke_comparison_sets.py).
+
+**Audited (no handoff switch):**
+- **W2-WIRE-2B** — Map version truth: handoff stays `map_CURRENT.html`; ghost/explore UI remains sandbox-only (`map_SANDBOX_genie_v7.html`).
+
+**Verified complete:**
+- **W2-WIRE-2C** — Favorite save/load honesty (`smoke_favorites.py` pass).
+- **W2-WIRE-2D** — Map popup **View relocated chart** → `app_shell.html#/chart`.
+- **W2-WIRE-2E** — Custom location naming prompt on right-click + unnamed custom favorite.
+
+Closeout: `results/106_w2_wire2_user_qa_recovery.md`

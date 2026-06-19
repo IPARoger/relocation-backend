@@ -362,6 +362,11 @@ def main() -> int:
             )
             results.append(("fe_overlay_chrome_open", True, "overlay open"))
 
+            on_compare_route = page.evaluate(
+                "() => window.__rmAppShell.navContext.route === 'compare'"
+            )
+            results.append(("fe_overlay_on_compare_screen", on_compare_route, f"route={on_compare_route}"))
+
             overlay_ph = page.evaluate(
                 "() => document.querySelector('#rm-cmp-overlay-search-mount [data-rm-saved-loc-input]')?.placeholder || ''"
             )
@@ -419,6 +424,16 @@ def main() -> int:
                 }"""
             )
             results.append(("fe_overlay_max_five", blocked, f"blocked={blocked}"))
+
+            page.click('[data-action="cmp-overlay-close"]')
+            page.wait_for_function(
+                "() => !document.getElementById('comparisonOverlayModal')?.classList.contains('open')",
+                timeout=10000,
+            )
+            cancel_closed = page.evaluate(
+                "() => document.getElementById('comparisonOverlayModal')?.getAttribute('aria-hidden') === 'true'"
+            )
+            results.append(("fe_overlay_cancel_closes", cancel_closed, f"closed={cancel_closed}"))
 
             page.evaluate("() => window.__rmAppShell.closeComparisonOverlay()")
 

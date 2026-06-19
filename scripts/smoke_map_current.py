@@ -225,6 +225,7 @@ def main() -> int:
         context = browser.new_context(viewport={"width": 1400, "height": 900})
         context.add_init_script(auth_init_script)
         page = context.new_page()
+        page.on("dialog", lambda d: d.accept("Smoke custom location"))
         page.on("pageerror", lambda exc: console_errors.append(f"pageerror: {exc}"))
         page.on(
             "console",
