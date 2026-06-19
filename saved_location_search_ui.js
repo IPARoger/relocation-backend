@@ -137,9 +137,16 @@
       if (!any) {
         var empty = document.createElement("div");
         empty.className = "rm-sls-empty";
-        empty.textContent = payload && payload.mode === "typing"
-          ? "Type at least 2 characters to search."
-          : "No saved locations yet.";
+        var mode = payload && payload.mode;
+        if (mode === "typing") {
+          empty.textContent = "Type at least 2 characters to search locations or favorites.";
+        } else if (mode === "starter") {
+          empty.textContent = "No saved favorites yet. Type to search locations.";
+        } else if (mode === "results") {
+          empty.textContent = "No matching locations or favorites.";
+        } else {
+          empty.textContent = "No results.";
+        }
         panel.appendChild(empty);
       }
       showPanel();
@@ -158,9 +165,17 @@
         hidePanel();
         return;
       }
-      setStatus("");
+      var q = String(input.value || "").trim();
+      if (q.length >= 2) setStatus("Searching locations…");
+      else setStatus("");
       try {
         var payload = await svc.search(profileId, input.value, options.searchOptions || {});
+        if (payload && payload.mode === "results") {
+          var n = (payload.items || []).length;
+          setStatus(n ? "" : "No matching locations or favorites.");
+        } else {
+          setStatus("");
+        }
         renderPayload(payload);
       } catch (err) {
         setStatus(err && err.message ? err.message : "Search failed.", true);

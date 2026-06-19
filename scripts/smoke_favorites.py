@@ -294,9 +294,25 @@ def main() -> int:
             # ---------- MAP ----------
             page.goto(base + f"/map_CURRENT.html#profileId={profile_id}",
                       wait_until="domcontentloaded")
+            page.evaluate(
+                "async () => { if (window.__rmChartProfilesReady) await window.__rmChartProfilesReady; }"
+            )
             page.wait_for_function(
-                "(pid) => !!(window.SupabaseClient||window._supabaseClient) "
-                "&& typeof window.__rmGetActiveFavoriteProfileId === 'function' "
+                "(pid) => [...document.getElementById('chartProfile').options]"
+                ".some((o) => o.value === pid)",
+                arg=profile_id, timeout=60000,
+            )
+            page.evaluate(
+                """(pid) => {
+                    const sel = document.getElementById('chartProfile');
+                    if (!sel) return;
+                    sel.value = pid;
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                }""",
+                profile_id,
+            )
+            page.wait_for_function(
+                "(pid) => typeof window.__rmGetActiveFavoriteProfileId === 'function' "
                 "&& window.__rmGetActiveFavoriteProfileId() === pid",
                 arg=profile_id, timeout=30000,
             )
@@ -322,13 +338,18 @@ def main() -> int:
                     [btn_id, place_name, lat, lon],
                 )
                 page.wait_for_function(
-                    "(id)=>{const b=document.getElementById(id);"
+                    "(id)=>{const wrap=document.getElementById(id)?.parentElement;"
+                    "if(!wrap) return false;"
+                    "if(wrap.querySelector('.popup-action-favorited')) return true;"
+                    "const st=wrap.querySelector('.popup-action-status');"
+                    "if(st && !st.hidden && /favorite/i.test(st.textContent||'')) return true;"
+                    "const b=document.getElementById(id);"
                     "return b && b.textContent.indexOf('Favorited')!==-1;}",
-                    arg=btn_id, timeout=20000,
+                    arg=btn_id, timeout=45000,
                 )
                 return page.evaluate(
-                    "(id)=>{const b=document.getElementById(id);"
-                    "const st=b.parentElement.querySelector('.popup-action-status');"
+                    "(id)=>{const wrap=document.getElementById(id)?.parentElement;"
+                    "const st=wrap?wrap.querySelector('.popup-action-status'):null;"
                     "return st?st.textContent:'';}",
                     btn_id,
                 )

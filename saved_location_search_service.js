@@ -80,6 +80,8 @@
       geonames_id: row.geonames_id || null,
       country_code: row.country_code || null,
       admin1: row.admin1 || null,
+      population: row.population != null ? row.population : null,
+      importance_rank: row.importance_rank != null ? row.importance_rank : null,
     };
   }
 
@@ -178,6 +180,7 @@
   }
 
   function rankResults(query, localRows, geonamesRows) {
+    var q = norm(query);
     var ranked = [];
     localRows.forEach(function (row) {
       var tier = rankTier(query, row.label || row.display_name, row.source);
@@ -188,8 +191,29 @@
       var tier = rankTier(query, item.display_name, SOURCE_GEONAMES);
       if (tier != null) ranked.push({ tier: tier, item: item });
     });
+    function importanceScore(item) {
+      var pop = item.population != null ? Number(item.population) : NaN;
+      if (Number.isFinite(pop) && pop > 0) return pop;
+      var rank = item.importance_rank != null ? Number(item.importance_rank) : NaN;
+      if (Number.isFinite(rank) && rank > 0) return rank;
+      return 0;
+    }
+    function localityBoost(query, item) {
+      var q = norm(query);
+      var label = norm(item.display_name || item.label || "");
+      if (!q || !label) return 0;
+      var city = label.split(",")[0].trim();
+      var boost = 0;
+      if (city === q) boost += 10000000;
+      else if (city.indexOf(q) === 0) boost += 1000000;
+      if (item.country_code === "FR" || label.indexOf("france") !== -1) boost += 500000;
+      return boost;
+    }
     ranked.sort(function (a, b) {
       if (a.tier !== b.tier) return a.tier - b.tier;
+      var boostA = localityBoost(q, a.item) + importanceScore(a.item);
+      var boostB = localityBoost(q, b.item) + importanceScore(b.item);
+      if (boostB !== boostA) return boostB - boostA;
       return norm(a.item.display_name).localeCompare(norm(b.item.display_name));
     });
     return dedupeResults(ranked.map(function (r) { return r.item; }));

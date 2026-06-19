@@ -680,7 +680,7 @@ function adaptStoreToView(store) {
       .map((fav) => ({
         id: fav.id,
         placeId: fav.place_id,
-        placeName: placesById[fav.place_id]?.display_name || fav.place_id,
+        placeName: (fav.notes && fav.notes.trim()) || placesById[fav.place_id]?.display_name || "Saved place",
         notes: fav.notes || "",
       }));
 
@@ -748,9 +748,16 @@ function adaptStoreToView(store) {
     accountDefaultChartRecordId: defaultChartRecordId,
     chartRecords,
     comparisonSets,
-    placeNameById: Object.fromEntries(
-      Object.entries(placesById).map(([id, place]) => [id, place.display_name])
-    ),
+    placeNameById: (function () {
+      const names = Object.fromEntries(
+        Object.entries(placesById).map(([id, place]) => [id, place.display_name])
+      );
+      (store.favorite_cities || []).forEach((fav) => {
+        const label = (fav.notes && fav.notes.trim()) || placesById[fav.place_id]?.display_name;
+        if (fav.place_id && label) names[fav.place_id] = label;
+      });
+      return names;
+    })(),
     loadSource: STORE_LOAD_SOURCE,
   };
 }
@@ -776,9 +783,21 @@ function comparisonPlaceNamesFromContext() {
   return cs ? cs.placeNames.slice(0, 5) : [];
 }
 
+function humanPlaceLabel(placeId) {
+  const name = resolvePlaceName(placeId);
+  if (name) return name;
+  if (placeId && /^[0-9a-f-]{36}$/i.test(placeId)) return "Saved place";
+  return placeId || "Saved place";
+}
+
 function resolvePlaceName(placeId) {
   if (!placeId || !viewModel) return null;
-  return viewModel.placeNameById[placeId] || null;
+  if (viewModel.placeNameById[placeId]) return viewModel.placeNameById[placeId];
+  for (const rec of viewModel.chartRecords) {
+    const fav = (rec.favorites || []).find((f) => f.placeId === placeId);
+    if (fav && fav.placeName) return fav.placeName;
+  }
+  return null;
 }
 
 function resolvePlaceIdFromDisplayName(displayName) {
@@ -812,6 +831,74 @@ function decodeReturnTo(raw) {
     comparisonSetId: comparisonSetId || null,
     returnTo: null,
   });
+}
+
+
+function repairChartHashFromHandoff() {
+  const parsed = parseLocation();
+  if (parsed.route !== "chart" || parsed.placeId) return false;
+  try {
+    const raw = sessionStorage.getItem("rm_shell_chart_handoff");
+    if (!raw) return false;
+    const h = JSON.parse(raw);
+    if (!h || !h.placeId) return false;
+    if (h.ts && Date.now() - h.ts > 120000) return false;
+    const next = normalizeNavContext({
+      route: "chart",
+      chartRecordId: parsed.chartRecordId || h.chartRecordId || null,
+      placeId: h.placeId,
+      explorationId: parsed.explorationId,
+      comparisonSetId: parsed.comparisonSetId,
+      returnTo: parsed.returnTo,
+    });
+    const hash = buildLocationHash(next);
+    if (location.hash !== hash) {
+      location.replace(location.pathname + location.search + hash);
+      return true;
+    }
+  } catch (e) { /* ignore */ }
+  return false;
+}
+
+function registerHandoffPlaceInMemory(h) {
+  if (!h || !h.placeId) return;
+  const place = h.place || {};
+  const display = place.display_name || h.placeName || null;
+  const lat = place.latitude != null ? place.latitude : (place.lat != null ? place.lat : h.lat);
+  const lon = place.longitude != null ? place.longitude : (place.lon != null ? place.lon : h.lon);
+  if (storeRaw && Array.isArray(storeRaw.places) && !storeRaw.places.some((p) => p.id === h.placeId)) {
+    storeRaw.places.push({
+      id: h.placeId,
+      display_name: display || "Saved place",
+      latitude: lat,
+      longitude: lon,
+      lat,
+      lon,
+      schema_version: 1,
+    });
+  }
+  if (viewModel && viewModel.placeNameById && display) {
+    viewModel.placeNameById[h.placeId] = display;
+  }
+}
+
+function consumeMapChartHandoff(partial) {
+  if (!partial || partial.route !== "chart" || partial.placeId) return partial;
+  try {
+    const raw = sessionStorage.getItem("rm_shell_chart_handoff");
+    if (!raw) return partial;
+    const h = JSON.parse(raw);
+    if (!h || !h.placeId) return partial;
+    if (h.ts && Date.now() - h.ts > 120000) return partial;
+    sessionStorage.removeItem("rm_shell_chart_handoff");
+    registerHandoffPlaceInMemory(h);
+    return Object.assign({}, partial, {
+      chartRecordId: partial.chartRecordId || h.chartRecordId || null,
+      placeId: h.placeId,
+    });
+  } catch (e) {
+    return partial;
+  }
 }
 
 function parseLocation() {
@@ -956,7 +1043,7 @@ function normalizeNavContext(partial) {
 
 function syncNavContextFromLocation() {
   if (!viewModel) return;
-  navContext = normalizeNavContext(parseLocation());
+  navContext = normalizeNavContext(consumeMapChartHandoff(parseLocation()));
 }
 
 function snapshotNavContext() {
@@ -1328,6 +1415,23 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;");
 }
 
+
+function wireChartRecordFavoriteCompare(root) {
+  const scope = root || document;
+  const boxes = scope.querySelectorAll("[data-action='cr-fav-cmp-toggle']");
+  const btn = scope.querySelector("#rm-cr-compare-selected-btn");
+  const msg = scope.querySelector("#rm-cr-compare-selected-msg");
+  const sync = () => {
+    const n = Array.from(boxes).filter((b) => b.checked).length;
+    if (btn) btn.disabled = n < 2 || n > 5;
+    if (msg && !msg.textContent.startsWith("Save") && !msg.textContent.startsWith("Choose")) {
+      msg.textContent = n ? (n + " selected") : "";
+    }
+  };
+  boxes.forEach((b) => b.addEventListener("change", sync));
+  sync();
+}
+
 function screenChartRecord() {
   const r = activeRecord();
   return `
@@ -1361,14 +1465,25 @@ function screenChartRecord() {
         <h3>Module: favorites (this Chart Record)</h3>
         ${r.favorites.length === 0
           ? `<p class="meta">No favorite places saved yet.<br>Open the map and save a location to begin building comparisons.</p>`
-          : `<ul class="plain">${r.favorites.map((f) => `
+          : `<ul class="plain rm-cr-favorites-list">${r.favorites.map((f) => `
           <li>
-            ${f.placeName}
-            <span class="meta">owned by ${r.chartRecordId}</span>
-            <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
-            <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View chart</button>
-            <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
-          </li>`).join("")}</ul>`}
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+              <input type="checkbox" data-action="cr-fav-cmp-toggle" data-place-id="${f.placeId}" data-place-name="${escapeHtml(f.placeName).replace(/"/g, '&quot;')}" />
+              <span>
+                <strong>${escapeHtml(f.placeName)}</strong>
+                <span class="meta" style="display:block;">Favorite place</span>
+              </span>
+            </label>
+            <div class="row" style="margin-top:4px;margin-left:24px;">
+              <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
+              <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View chart</button>
+              <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
+            </div>
+          </li>`).join("")}</ul>
+          <div class="row" style="margin-top:8px;align-items:center;">
+            <button type="button" id="rm-cr-compare-selected-btn" data-action="compare-selected-favorites" disabled>Compare selected</button>
+            <span id="rm-cr-compare-selected-msg" class="meta"></span>
+          </div>`}
       </div>
       <div class="panel">
         <h3>Module: saved-explorations (this Chart Record)</h3>
@@ -1735,7 +1850,7 @@ function comparisonWorkspacePanelHtml(cs, ws) {
     </div>`;
   }).join("");
   const chips = order.map((pid) => {
-    const name = resolvePlaceName(pid) || pid;
+    const name = humanPlaceLabel(pid);
     const isHidden = hidden.has(pid);
     return `<button type="button" class="linkish rm-cmp-city-chip${isHidden ? " hidden-place" : ""}" data-action="cmp-toggle-place" data-place-id="${escapeHtml(pid)}" title="Toggle column visibility">${escapeHtml(name)}</button>`;
   }).join(" ");
@@ -1939,7 +2054,7 @@ async function hydrateComparisonColumns(root) {
     }
     setStatus("Calculating relocated charts…");
     const cols = await Promise.all(placeIds.map(async (pid) => {
-      const name = resolvePlaceName(pid) || pid;
+      const name = humanPlaceLabel(pid);
       const coords = resolvePlaceLatLon(pid);
       if (!coords) return { placeId: pid, name, error: "no coordinates" };
       const q = new URLSearchParams({
@@ -2096,7 +2211,7 @@ async function createComparisonSetFromPlaceIds(chartRecordId, placeIds) {
       title,
       updated_at: null,
       placeIds: placeIds.slice(),
-      placeNames: placeIds.map((pid) => nameById[pid]).filter(Boolean),
+      placeNames: placeIds.map((pid) => humanPlaceLabel(pid)),
       notes: "",
       settings_snapshot_json: snap,
       workspaceState: wsDefault,
@@ -2165,7 +2280,7 @@ function mountComparisonOverlaySearch() {
       return "Location";
     },
     onSelect: (item) => {
-      addComparisonPick(item.place_id, item.display_name || item.label || item.place_id, {
+      addComparisonPick(item.place_id, item.display_name || item.label || "Saved place", {
         hostId: "rm-cmp-overlay-selected",
         msgId: "rm-cmp-overlay-msg",
       });
@@ -2235,7 +2350,7 @@ function handleComparisonOverlayAction(action, btn) {
     const placeId = btn.getAttribute("data-place-id");
     const placeName = btn.getAttribute("data-place-name") || "Place";
     if (!placeId) return;
-    addComparisonPick(placeId, placeName, {
+    addComparisonPick(placeId, placeName || humanPlaceLabel(placeId), {
       hostId: "rm-cmp-overlay-selected",
       msgId: "rm-cmp-overlay-msg",
     });
@@ -2351,7 +2466,7 @@ function screenCompare() {
   const nameById = (viewModel && viewModel.placeNameById) || {};
   const selectedChips = selectedIds.map((pid) => {
     const fav = favs.find((f) => f.placeId === pid);
-    const name = (fav && fav.placeName) || nameById[pid] || pid;
+    const name = (fav && fav.placeName) || nameById[pid] || humanPlaceLabel(pid);
     return comparisonPickChipHtml(pid, name);
   }).join("");
 
@@ -3247,6 +3362,7 @@ function render() {
   const fn = SCREEN_RENDERERS[navContext.route];
   $("#main").innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
   bindScreenActions($("#main"));
+  if (navContext.route === "chart-record") wireChartRecordFavoriteCompare($("#main"));
   if (navContext.route === "compare") mountComparisonLocationSearch();
   if (uiState.popupOpen) openPopup();
 }
@@ -3594,6 +3710,28 @@ function bindScreenActions(root) {
           if (msg) msg.textContent = "";
         }
         return;
+      }
+      if (action === "compare-selected-favorites") {
+        const chartRecordId = navContext.chartRecordId;
+        const picks = Array.from(document.querySelectorAll("[data-action='cr-fav-cmp-toggle']:checked"));
+        const msgEl = document.getElementById("rm-cr-compare-selected-msg");
+        if (picks.length < 2 || picks.length > 5) {
+          if (msgEl) msgEl.textContent = "Choose between 2 and 5 favorites.";
+          return;
+        }
+        const placeIds = picks.map((el) => el.getAttribute("data-place-id")).filter(Boolean);
+        if (msgEl) msgEl.textContent = "Saving…";
+        (async () => {
+          try {
+            const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
+            navigate("compare", {
+              chartRecordId, comparisonSetId: setId,
+              placeId: null, explorationId: null, returnTo: null,
+            }, { skipComparisonOverlay: true });
+          } catch (err) {
+            if (msgEl) msgEl.textContent = "Save failed: " + (err.message || String(err));
+          }
+        })();
       }
       if (action === "compare-build") {
         const msg = document.getElementById("rm-cmp-build-msg");
@@ -4026,7 +4164,7 @@ document.getElementById("comparisonOverlayModal").addEventListener("click", (e) 
   }
 });
 
-window.addEventListener("hashchange", render);
+window.addEventListener("hashchange", () => { repairChartHashFromHandoff(); render(); });
 document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
 
 async function attachEngineSummaries(vm) {
@@ -4083,6 +4221,7 @@ async function loadViewModelFromStore() {
 
 async function bootstrap() {
   renderLoadPending();
+  repairChartHashFromHandoff();
   try {
     await loadViewModelFromStore();
     render();

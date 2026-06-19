@@ -2189,7 +2189,6 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
             <div class="popup-actions">
                 ${openChartButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
                 ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
-                ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
             </div>
             <div class="popup-action-status" aria-live="polite" hidden></div>
         </div>`;
@@ -2199,6 +2198,42 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
 // Resolve/create: POST /places/resolve-or-create (JWT). Save: POST /favorites/save.
 // Read-only favorite-state check: GET /places/search + Supabase SELECT.
 // No comparison, no new entities, no schema changes.
+
+function popupActionsRoot(root) {
+    if (!root) return null;
+    if (root.querySelector) return root;
+    if (root.getElement) return root.getElement();
+    return null;
+}
+
+/** Web2: exactly one favorite control in the map popup. */
+function dedupePopupFavoriteButtons(root) {
+    const el = popupActionsRoot(root);
+    if (!el) return;
+    const actions = el.querySelector(".popup-actions");
+    if (!actions) return;
+    const favs = actions.querySelectorAll(".popup-action-favorite");
+    for (let i = 1; i < favs.length; i += 1) favs[i].remove();
+    if (actions.querySelector(".popup-action-favorited")) {
+        actions.querySelectorAll(".popup-action-favorite").forEach((btn) => btn.remove());
+    }
+}
+
+function markPopupFavoriteSaved(root) {
+    const el = popupActionsRoot(root);
+    if (!el) return;
+    dedupePopupFavoriteButtons(el);
+    const actions = el.querySelector(".popup-actions");
+    if (!actions || actions.querySelector(".popup-action-favorited")) return;
+    const btn = actions.querySelector(".popup-action-favorite");
+    if (!btn) return;
+    const done = document.createElement("span");
+    done.className = "popup-action-favorited";
+    done.setAttribute("aria-live", "polite");
+    done.textContent = "Favorited \u2713";
+    btn.replaceWith(done);
+}
+
 function escapeAttr(value) {
     return String(value == null ? "" : value)
         .replace(/&/g, "&amp;")
@@ -2265,7 +2300,27 @@ async function openChartFromMapButton(btn) {
             origin: btn.dataset.favOrigin || "map_custom",
             geonamesId: btn.dataset.favGeonames || "",
         });
-        const q = new URLSearchParams({ chartRecordId, placeId: place.id });
+        const placeId = place && (place.id || place.place_id);
+        if (!placeId) throw new Error("place_unresolved");
+        const displayName = btn.dataset.favName || "Location";
+        const q = new URLSearchParams({
+            chartRecordId,
+            placeId,
+            placeLat: String(lat),
+            placeLon: String(lon),
+            placeName: displayName,
+        });
+        try {
+            sessionStorage.setItem("rm_shell_chart_handoff", JSON.stringify({
+                chartRecordId,
+                placeId,
+                placeName: place.display_name || displayName,
+                lat,
+                lon,
+                place,
+                ts: Date.now(),
+            }));
+        } catch (e) { /* ignore */ }
         window.location.assign(`/app_shell.html#/chart?${q.toString()}`);
     } catch (err) {
         console.error("[open-chart]", err);
@@ -2273,6 +2328,7 @@ async function openChartFromMapButton(btn) {
     }
 }
 
+// Single favorite control for Web2 map popup (not saved -> Favorite; saved -> Favorited span).
 function favoriteButtonHtml(name, lat, lon, country, admin, origin, geonamesId) {
     return `<button type="button" class="popup-action-favorite"`
         + ` data-fav-name="${escapeAttr(name)}"`
@@ -2415,7 +2471,7 @@ async function favoriteMapSelectionFromButton(btn) {
         // Phase 2.7A handoff: flag this place so the Profile page highlights it once.
         try { sessionStorage.setItem("rm_recent_favorite_place_id", place.id); } catch (e) { /* ignore */ }
         try { sessionStorage.setItem("rm_active_profile_id", profileId); } catch (e) { /* ignore */ }
-        btn.textContent = "Favorited \u2713";
+        markPopupFavoriteSaved(shell);
         // Honest feedback: already-active favorite vs. a new/reactivated save.
         const _wasActive = saved && saved.status === "exists";
         setStatus(_wasActive ? "Already in favorites." : "Saved to favorites.", false);
@@ -2455,7 +2511,9 @@ window.__rmGetActiveFavoriteProfileId = getActiveFavoriteProfileId;
 // as "Favorite". Any failure leaves the default label untouched.
 async function applyMapFavoriteButtonState(popup) {
     const root = popup && popup.getElement ? popup.getElement() : null;
-    const btn = root ? root.querySelector(".popup-action-favorite") : null;
+    if (!root) return;
+    dedupePopupFavoriteButtons(root);
+    const btn = root.querySelector(".popup-action-favorite");
     if (!btn) return;
     const profileId = getActiveFavoriteProfileId();
     if (!profileId) return;
@@ -2513,8 +2571,7 @@ async function applyMapFavoriteButtonState(popup) {
                 const favData = await favResp.json();
                 const already = (favData.favorites || []).some((f) => f.place_id === place.id);
                 if (already) {
-                    btn.textContent = "Favorited \u2713";
-                    btn.disabled = true;
+                    markPopupFavoriteSaved(root);
                 }
             }
         }
@@ -2569,10 +2626,12 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
         popup.setContent(
             buildRelocatedPopupHtml(data, lat, lon, { title: customTitle, origin: "map_custom" }) + extra
         );
+        dedupePopupFavoriteButtons(popup.getElement());
         applyMapFavoriteButtonState(popup);
     } catch (err) {
         console.error("relocated-chart", err);
         popup.setContent(buildPlaceFallbackPopupHtml({ title: customTitle, origin: "map_custom" }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
+        dedupePopupFavoriteButtons(popup.getElement());
         applyMapFavoriteButtonState(popup);
     }
 });
@@ -6343,13 +6402,15 @@ async function loadSavedPlacesForActiveProfile() {
     }
 }
 
-// Recenter (fixed zoom) and open the existing relocated-chart popup. Does not
-// touch Genie variables, overlays, or search state.
-async function openSavedPlace(name, lat, lon) {
+// Recenter (fixed zoom) without opening the relocated-chart popup.
+function recenterMapOnPlace(lat, lon, zoom) {
     const la = Number(lat), lo = Number(lon);
     if (!Number.isFinite(la) || !Number.isFinite(lo)) return;
-    map.setView([la, lo], SAVED_PLACE_ZOOM, { animate: true });
-    await openDatasetCityPopup({ name: name || "Saved place", lat: la, lng: lo });
+    map.setView([la, lo], zoom != null ? zoom : SAVED_PLACE_ZOOM, { animate: true });
+}
+
+async function openSavedPlace(name, lat, lon) {
+    recenterMapOnPlace(lat, lon, SAVED_PLACE_ZOOM);
 }
 
 (function wireSavedPlaces() {
