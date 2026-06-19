@@ -2,6 +2,7 @@
 
 **Status:** Authoritative product doctrine (capture only)  
 **Date:** 2026-06-16  
+**Amended:** 2026-06-16 — house-cell color-only styling (DIGNITIES-1A feedback)  
 **Type:** Display / ontology doctrine — no implementation authorized by this document  
 **Ticket:** DIGNITIES-0 (capture)
 
@@ -85,6 +86,13 @@ Group into two **families**, not four unrelated colors:
 
 Do **not** use four unrelated colors by default.
 
+### Styling target (authoritative)
+
+- Dignity styling applies to **PIH house-result cells** (the cells showing where a planet falls in the house grid) — **not** planet name labels.
+- Supportive vs challenging is conveyed through **color only**.
+- **No `+` / `−` indicators**, badges, or dignity-type glyphs in the UI.
+- Planet label column remains neutral typography when Dignities are ON.
+
 ### Advanced Settings (future)
 
 Settings may later allow **separate colors/shades** for rulership, exaltation, detriment, and fall individually (per `results/114_settings_doctrine_capture_v1.md` dignities presets).
@@ -107,9 +115,9 @@ If mutual reception is supported:
 
 Only when **both** mutual-reception setting **and** Dignities toggle are **ON**:
 
-- Mutual reception appears **quietly inside** the PIH dignity display
-- e.g. small parentheses, subtle signal marker, or tooltip
-- **No extra clutter** on the table page
+- Mutual reception may add a **minimal neutral marker** (e.g. parentheses) on or beside the relevant **house-result cell** — separate from dignity color
+- Dignity state itself remains **color-driven**; MR is additive, not a second color system
+- Tooltip may elaborate; **no extra clutter** on the table page
 
 ---
 
@@ -173,7 +181,7 @@ Doctrine-aligned implementation means:
 5. **Map popup remains uncluttered** — dignity context via relocated chart / PIH only.
 6. **Mutual reception is settings-gated**, not a page-level toggle; quiet inline display when enabled.
 7. **Dignity logic is data-driven**, not hard-coded across surfaces.
-8. **Default dignity colors** use supportive vs challenging families — not four unrelated colors.
+8. **Default dignity colors** use supportive vs challenging families on **house-result cells** — not four unrelated colors; no +/- UI indicators.
 9. **Interpretive Hints remain separate** from Dignities.
 
 ---

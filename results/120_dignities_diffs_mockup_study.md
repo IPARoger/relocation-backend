@@ -2,6 +2,7 @@
 
 **Status:** Design study only — no implementation authorized  
 **Date:** 2026-06-16  
+**Amended:** 2026-06-16 — house-cell color-only dignity; no +/- indicators  
 **Sources:**
 
 - `results/119_dignities_diffs_display_doctrine_v1.md`
@@ -13,19 +14,17 @@
 
 ## Study Conventions
 
-Mockups use ASCII wireframes with **token labels** where color would apply in UI:
+Mockups use ASCII wireframes. **Dignity is color on house-result cells only** — no `+`/`−` in real UI.
 
 | Token | Meaning | Suggested CSS (study only) |
 |-------|---------|----------------------------|
-| `·` | Neutral (no dignity) | default text |
-| `+` | Supportive family | `#1a5c4a` on `#eef7f3` (teal wash) |
-| `++` | Supportive, stronger shade (rulership) | `#0f4a3a` on `#e3f2ec` |
-| `+°` | Supportive, lighter shade (exaltation) | `#2d6b5a` on `#f0f8f5` |
-| `−` | Challenging family | `#7a4a12` on `#faf3e8` (warm amber wash) |
-| `−−` | Challenging, stronger (detriment) | `#6b3d0f` on `#f5ebe0` |
-| `−°` | Challenging, lighter (fall) | `#8a5a20` on `#faf6ef` |
-| `░░` | Diff: identical across places (recede) | `#c8cdd4` text / 38% opacity |
-| `MR` | Mutual reception marker | parentheses or 6px dot + tooltip |
+| `·` | Neutral house cell (no dignity) | default cell |
+| `[S]` | Supportive dignity cell | `#eef7f3` fill / `#1a5c4a` dot or degree text |
+| `[C]` | Challenging dignity cell | `#faf3e8` fill / `#7a4a12` dot or degree text |
+| `[S′]` | Supportive, subtler shade (exaltation — optional v2) | lighter teal wash |
+| `[C′]` | Challenging, subtler shade (fall — optional v2) | lighter amber wash |
+| `░░` | Diff: identical across places (recede) | `#a8b0bb` text |
+| `( )` | Mutual reception — neutral, not dignity color | `#8899aa` parentheses only |
 
 Sample data: **Anna Rivera** comparison — **Tokyo** vs **Singapore** vs **Portland** (3-place PIH slice).
 
@@ -63,58 +62,46 @@ Sample data: **Anna Rivera** comparison — **Tokyo** vs **Singapore** vs **Port
 
 Same Tokyo PIH. Footer: `☑ Dignities`
 
-Planet rows show **sign placement** (abbreviated) with dignity family applied to the **planet label** or trailing marker — not a second table.
+**Rule:** Color applies to the **house-result cell** (● placement), not the planet name column.
 
-### Variant 1 — Positive / Negative only (two families)
+### Variant 1 — Two-family color only (recommended)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Planet-in-House · Tokyo, Japan                                  │
 ├──────────┬────────┬────────┬────────┬────────┬────────┬─────────┤
-│ Sun +    │        │  H2 ●  │        │        │        │         │  Leo · supportive
-│ Moon ·   │  H1 ●  │        │        │        │        │         │
-│ Mercury −│        │        │  H3 ●  │        │        │         │  Pisces · challenging
-│ Venus +  │        │        │        │        │  H5 ●  │         │  Taurus · supportive
-│ Mars −   │        │        │        │        │        │  H6 ●   │  Cancer · challenging
-│ Jupiter +│        │  H2 ●  │        │        │        │         │  Cancer · supportive (exalt)
-│ Saturn − │        │        │        │  H4 ●  │        │         │  Aries · challenging
+│ Planet   │  H1    │  H2    │  H3    │  H4    │  H5    │  H6     │
+├──────────┼────────┼────────┼────────┼────────┼────────┼─────────┤
+│ Sun      │        │ [S]●   │        │        │        │         │  supportive cell
+│ Moon     │   ●    │        │        │        │        │         │  neutral
+│ Mercury  │        │        │ [C]●   │        │        │         │  challenging cell
+│ Venus    │        │        │        │        │ [S]●   │         │
+│ Mars     │        │        │        │        │        │ [C]●    │
+│ Jupiter  │        │ [S]●   │        │        │        │         │
+│ Saturn   │        │        │        │ [C]●   │        │         │
 └──────────┴────────┴────────┴────────┴────────┴────────┴─────────┘
-│  ☑ Dignities                                                     │
+│  ☑ Dignities     Legend: teal wash = supportive  amber wash = challenging │
 └─────────────────────────────────────────────────────────────────┘
-
-Legend (footer, collapsed by default):
-  + supportive (rulership & exaltation)    − challenging (detriment & fall)
 ```
 
-**Visual:** One teal wash for all `+`, one warm amber wash for all `−`. Sign name in muted meta on hover/tooltip only.
+**No +/- symbols.** User learns families from footer legend + optional tooltip on cell hover (rulership vs exaltation detail).
 
-### Variant 2 — Subtle within-family distinction
+### Variant 2 — Subtle within-family cell shades (optional later)
 
-```
-│ Sun ++       │  Leo      rulership
-│ Jupiter +°   │  Cancer   exaltation
-│ Mercury −−   │  Pisces   detriment
-│ Mars −°      │  Cancer   fall
-```
-
-Same two hue families; **rulership/detriment** slightly deeper saturation; **exaltation/fall** slightly lighter + optional thin underline vs dotted underline (not a third color).
-
-```
-│  ☑ Dignities     + ruler/exalt   − detriment/fall   (i tooltip)
-```
+Same as V1, but `[S]` vs `[S′]` differ only in wash depth (rulership vs exaltation); `[C]` vs `[C′]` for detriment vs fall. Still **no text indicators**.
 
 ### Variant comparison (study opinion)
 
-| Criterion | V1 two-tone | V2 within-family |
-|-----------|-------------|------------------|
-| Scan speed | Faster | Slightly slower |
-| Beginner | Clearer | Needs legend once |
-| Clutter | Lower | Low if shade delta ≤15% |
-| Pro appearance | Clean | Acceptable for advanced users |
+| Criterion | V1 two-tone cells | V2 within-family shades |
+|-----------|-------------------|-------------------------|
+| Scan speed | Fast | Medium |
+| Beginner | Clear | Needs legend once |
+| Clutter | Lowest | Low if Δ shade ≤15% |
+| Pro appearance | Clean | Acceptable for advanced |
 
 ---
 
-## Mockup C — Comparison (Diffs OFF)
+## Mockup C## Mockup C — Comparison (Diffs OFF)
 
 **State:** 3-place comparison · AIS table first · Diffs **OFF**
 
@@ -200,9 +187,9 @@ Same data. **Diffs ON** (global — applies to AIS, PIH, A2A, etc.)
 ├──────────┬─────────────┬─────────────┬─────────────┬─────────────────────────┤
 │          │ Tokyo       │ Singapore   │ Portland    │                         │
 ├──────────┼─────────────┼─────────────┼─────────────┼─────────────────────────┤
-│ Jupiter +│ ░░ H2 ● ░░  │ ░░ H2 ● ░░  │  H4 ●       │  dignity on label only  │
-│ Mercury −│  H3 ●       │ ░░ H3 ● ░░  │ ░░ H3 ● ░░  │  diffs on cells         │
-│ Mars −   │ ░░ H6 ● ░░  │  H8 ●       │ ░░ H6 ● ░░  │                         │
+│ Jupiter  │ ░░[S]●░░    │ ░░[S]●░░    │ [C]●        │  dignity = cell color   │
+│ Mercury  │ [C]●        │ ░░[C]●░░    │ ░░[C]●░░    │  diffs = muted text     │
+│ Mars     │ ░░[C]●░░    │ [S]●        │ ░░[C]●░░    │                         │
 └──────────┴─────────────┴─────────────┴─────────────┴─────────────────────────┘
 │  ☑ Dignities                                                               │
 └────────────────────────────────────────────────────────────────────────────┘
@@ -210,8 +197,9 @@ Same data. **Diffs ON** (global — applies to AIS, PIH, A2A, etc.)
 
 **Clutter assessment:** Acceptable when:
 
-1. Dignity affects **planet name column only** (one column), not every house cell
-2. Diffs grey **data cells** only, not planet labels
+1. Dignity **colors house-result cells** only; planet labels stay neutral
+2. Diffs grey **identical comparison values** in data cells; independent from dignity color
+3. No `+`/`−` dignity glyphs — color carries supportive/challenging
 3. Footer toggles remain separated (see below)
 
 **Risk:** Combining both on dense 5-place PIH — recommend max 5 places unchanged; if cluttered, Diffs already reduces noise by hiding identical cells.
@@ -256,19 +244,13 @@ Same data. **Diffs ON** (global — applies to AIS, PIH, A2A, etc.)
 **Assume:** Settings → Show Mutual Reception = **ON** · PIH Dignities = **ON**
 
 ```
-│ Venus + (MR↔Mars)  │  H5 ●  │  H5 ●  │  H4 ●  │
-       ↑
-       └── "(MR↔Mars)" in #8899aa, 0.85em, OR 6px interlocked dot with tooltip:
-           "Mutual reception: Venus in Taurus, Mars in Libra"
-```
+│ Venus    │ ( [S]● )  │  [S]●   │  H4 ●   │
+                    ↑
+                    └── neutral parentheses around house cell only; color still = dignity
+                        tooltip: "Mutual reception: Venus in Taurus, Mars in Libra"
 
-**Alternative (cleanest):**
-
-```
-│ Venus +*  │  …   │   * = single subtle asterisk, tooltip only, no inline prose
-```
-
-**Clutter verdict:** Acceptable **at most one marker per planet row**; reject extra MR column or badge chips.
+**Clutter verdict:** Parentheses are **neutral** (grey), separate from teal/amber dignity fill.
+Reject MR on planet label or dedicated MR column.
 
 ---
 
@@ -292,7 +274,7 @@ Same data. **Diffs ON** (global — applies to AIS, PIH, A2A, etc.)
 
 **Yes for DIGNITIES-1 default.**
 
-Two families match doctrine, minimize beginner cognitive load, and keep PIH scannable. Ship Variant 1 first.
+Two families on **house cells**, color-only, match doctrine. Ship Variant 1 first. No +/- UI.
 
 ### Question 2 — Does separate Ruler/Exalt/Fall/Detriment add value?
 
@@ -306,7 +288,7 @@ Variant 2 adds value for **intermediate** users who already know dignity types; 
 
 ### Question 4 — Does Mutual Reception create noise?
 
-**No**, if limited to a **single subtle marker** (parentheses, asterisk, or dot) on the planet label with tooltip — and only when Settings gate is ON. Reject dedicated MR column.
+**No**, if limited to **neutral parentheses** (or similar) beside the **house-result cell** with tooltip — and only when Settings gate is ON. Reject dedicated MR column.
 
 ### Question 5 — What should DIGNITIES-1 actually implement?
 
@@ -329,16 +311,23 @@ Variant 2 adds value for **intermediate** users who already know dignity types; 
 ## Suggested Implementation Tokens (Reference for DIGNITIES-1)
 
 ```css
-/* Dignities — two families */
-.dignity-supportive { color: var(--dignity-support-fg, #1a5c4a); }
-.dignity-challenging { color: var(--dignity-challenge-fg, #7a4a12); }
+/* Dignities — house-result cells, two families, color only */
+.pih-cell.dignity-supportive { background: var(--dignity-support-bg, #eef7f3); }
+.pih-cell.dignity-challenging { background: var(--dignity-challenge-bg, #faf3e8); }
+/* planet label column: no dignity class */
 
-/* Diffs — identical cells */
+/* Diffs — identical values in comparison cells */
 .diff-same { color: var(--diff-muted, #a8b0bb); }
 
-/* Mutual reception — future */
-.dignity-mr-hint { opacity: 0.75; font-size: 0.85em; }
+/* Mutual reception — future, neutral marker */
+.pih-cell-mr-hint { color: var(--mr-neutral, #8899aa); }
 ```
+
+---
+
+## Amendment (house-cell styling)
+
+Per DIGNITIES-1A feedback: dignity styling targets **PIH house-result cells**, not planet labels. Supportive/challenging is **color only** — no `+`/`−` in UI. Mutual reception, if enabled, uses a **minimal neutral marker** (e.g. parentheses); dignity state remains color-driven.
 
 ---
 
