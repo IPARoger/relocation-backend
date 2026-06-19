@@ -1102,6 +1102,8 @@ function parseLocation() {
   const pathSegments = path.split("/").filter(Boolean);
   const SETTINGS_SUB_ALIASES = {
     charts: "astrology",
+    appearance: "display",
+    "my-data": "data",
     "map-location": "display",
     "appearance-regional": "display",
     "sharing-data": "exports",
@@ -1109,6 +1111,7 @@ function parseLocation() {
   };
   const VALID_SETTINGS_SUB = new Set([
     "account", "astrology", "display", "notifications", "exports", "data", "about",
+    "appearance", "my-data",
     ...Object.keys(SETTINGS_SUB_ALIASES),
   ]);
   let settingsSubpage = null;
@@ -3108,12 +3111,12 @@ function aspectToAngleHtml() {
 
 // Settings navigation framework (W2-SETTINGS-1): seven canonical subpages + legacy URL aliases.
 const SETTINGS_SECTIONS = [
-  { id: "account", label: "Account", title: "Account", desc: "Identity, default profile, and profile management." },
+  { id: "account", label: "Account", title: "Account", desc: "Sign-in, subscription, and account identity." },
+  { id: "data", label: "My Data", title: "My Data", desc: "Saved searches, favorites, comparisons, archives, and history." },
   { id: "astrology", label: "Astrology", title: "Astrology", desc: "Chart calculation defaults, bodies, aspects, orbs, and dignities." },
-  { id: "display", label: "Display", title: "Display", desc: "Visual themes, map presentation, glyphs, and regional formats." },
+  { id: "display", label: "Appearance", title: "Appearance", desc: "Visual themes, map presentation, glyphs, and regional formats." },
   { id: "notifications", label: "Notifications", title: "Notifications", desc: "Email and in-app alerts (coming soon)." },
   { id: "exports", label: "Exports", title: "Exports", desc: "Share links and export presets." },
-  { id: "data", label: "Data", title: "Data", desc: "Saved work, diagnostics, and account data tools." },
   { id: "about", label: "About", title: "About", desc: "Attribution for ephemeris, places, time zones, and maps." },
 ];
 
@@ -3121,6 +3124,8 @@ function normalizeSettingsSubpage(sub) {
   if (!sub) return null;
   const aliases = {
     charts: "astrology",
+    appearance: "display",
+    "my-data": "data",
     "map-location": "display",
     "appearance-regional": "display",
     "sharing-data": "exports",
@@ -3141,7 +3146,7 @@ function settingsPageLayout(activeSub, title, subtitle, bodyHtml, opts) {
   const showSave = o.showSave === true;
   return `
     <h2>S5 \u2014 Settings</h2>
-    <p class="purpose">Choose a section. Controls are placeholders unless marked as saved to your account.</p>
+    <p class="purpose">Choose a section. Saved settings apply to your account where indicated.</p>
     <div class="settings-layout" data-settings-framework>
       <nav class="settings-nav" aria-label="Settings sections">
         ${settingsNavHtml(activeSub)}
@@ -3230,7 +3235,7 @@ function settingsProfilesPanelHtml() {
   return `
     <div class="settings-subhead">My Profiles</div>
     <div class="panel">
-      <label class="block">Default profile (Map &amp; app)
+      <label class="block">Default profile
         <select id="rm-settings-default-cr">
           ${vm.chartRecords.map((r) =>
             `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
@@ -3245,7 +3250,7 @@ function settingsProfilesPanelHtml() {
 function chartAppearanceStubHtml() {
   return `
     <div class="panel">
-      <p class="meta">Wheel style, glyph families, and chart surface options. ${settingsSoonBadge()} No persistence in this slice.</p>
+      <p class="meta">Wheel style, glyph families, and chart surface options. ${settingsSoonBadge()}</p>
     </div>`;
 }
 
@@ -3397,25 +3402,13 @@ function settingsDataBodyHtml() {
     <div class="panel" id="sec-data-saved" data-settings-future="saved-work">
       ${settingsStubRow("Saved searches", "Manage investigation history.")}
       ${settingsStubRow("Favorites bulk management", "Manage favorites across profiles.")}
-      ${settingsStubRow("Export my data", "Account data export.")}
-      <h4 style="margin:16px 0 8px;">History (per Chart Record)</h4>
-      <button type="button" disabled>Clear this Chart Record\u2019s history (placeholder)</button>
-      <button type="button" disabled style="margin-left:8px;">Clear all history (placeholder)</button>
-    </div>
-    <div class="settings-subhead">Technical</div>
-    <div class="panel" id="sec-data-technical" data-settings-future="technical">
-      ${settingsStubRow("Debug mode", "Verbose client logging.")}
-      ${settingsStubRow("Calculation metadata", "Show engine metadata in UI.")}
-      ${settingsStubRow("Cache reset", "Clear local caches.")}
-    </div>
-    <div class="settings-subhead">Personalization</div>
-    <div class="panel" data-settings-future="personalization">
-      <ul class="meta" style="margin:0;padding-left:18px;">
-        <li>Custom glyph packs (private)</li>
-        <li>Definitions library and interpretation cookbook</li>
-        <li>Guided helper for undefined terms</li>
-      </ul>
-      <p class="meta" style="margin-top:10px;">${settingsSoonBadge()}</p>
+      ${settingsStubRow("Saved comparisons", "Manage comparison sets.")}
+      ${settingsStubRow("Archives", "Restore archived searches and comparisons.")}
+      ${settingsStubRow("Export my data", "Download your account data.")}
+      <h4 style="margin:16px 0 8px;">History</h4>
+      <button type="button" disabled>Clear Chart Record history</button>
+      <button type="button" disabled style="margin-left:8px;">Clear all history</button>
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
     </div>`;
 }
 
@@ -3476,7 +3469,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "account",
       "Account",
-      "Default profile and account identity.",
+      "Sign-in, subscription, and account identity.",
       settingsAccountPanelHtml() + settingsProfilesPanelHtml(),
       { showSave: true }
     );
@@ -3493,8 +3486,8 @@ const SETTINGS_SUBPAGE_RENDERERS = {
   display() {
     return settingsSubpageShell(
       "display",
-      "Display",
-      "Visual themes, map presentation, and regional formats (most controls coming soon).",
+      "Appearance",
+      "Visual themes, map presentation, and regional formats.",
       settingsDisplayBodyHtml(),
       { showSave: false }
     );
@@ -3520,8 +3513,8 @@ const SETTINGS_SUBPAGE_RENDERERS = {
   data() {
     return settingsSubpageShell(
       "data",
-      "Data",
-      "Saved work, diagnostics, and account data tools (coming soon).",
+      "My Data",
+      "Saved searches, favorites, comparisons, archives, and history.",
       settingsDataBodyHtml(),
       { showSave: false }
     );

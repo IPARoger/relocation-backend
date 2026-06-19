@@ -160,6 +160,33 @@ def main():
         results.append(("fe_settings_landing", nav_count == 7 and page.query_selector(".settings-landing-grid"),
                         f"nav_items={nav_count}"))
 
+
+        labels = page.evaluate(
+            """() => Array.from(document.querySelectorAll('.settings-nav-item'))
+              .map(el => el.textContent.trim())"""
+        )
+        results.append(("fe_nav_labels",
+                        labels == ["Account", "My Data", "Astrology", "Appearance",
+                                   "Notifications", "Exports", "About"],
+                        f"labels={labels}"))
+
+        disp_label = page.eval_on_selector(
+            ".settings-nav-item[data-settings-sub='display']", "el => el.textContent.trim()")
+        data_label = page.eval_on_selector(
+            ".settings-nav-item[data-settings-sub='data']", "el => el.textContent.trim()")
+        results.append(("fe_label_display", disp_label == "Appearance", f"display={disp_label}"))
+        results.append(("fe_label_data", data_label == "My Data", f"data={data_label}"))
+
+        # Legacy URL aliases: appearance / my-data
+        page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'appearance' })")
+        page.wait_for_selector("#sec-display", timeout=15000)
+        alias_app = page.evaluate("()=>window.__rmAppShell.navContext.settingsSubpage")
+        results.append(("fe_legacy_appearance_alias", alias_app == "display", f"ctx={alias_app}"))
+        page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'my-data' })")
+        page.wait_for_selector("#sec-data-saved", timeout=15000)
+        alias_data = page.evaluate("()=>window.__rmAppShell.navContext.settingsSubpage")
+        results.append(("fe_legacy_my_data_alias", alias_data == "data", f"ctx={alias_data}"))
+
         for sub, marker in CANONICAL_SUBPAGES:
             page.evaluate(
                 "(sub)=>window.__rmAppShell.navigate('settings', { settingsSubpage: sub })",
