@@ -2,8 +2,19 @@
 
 **Status:** Authoritative product doctrine (correction)  
 **Date:** 2026-06-19  
+**Amended:** 2026-06-19 — remove night mode; clarify map-only purpose  
 **Type:** Onboarding doctrine — supersedes conflicting plan language  
 **Supersedes:** Onboarding plan language in `results/122_onboarding1_audit_implementation_plan.md` that centered Favorite, Profile, or Compare teaching in the main walkthrough
+
+---
+
+## Purpose
+
+**Teach the map.**
+
+Not **teach the application.**
+
+The walkthrough teaches only **novel map interactions** — controls and patterns that are not self-evident from the map chrome alone.
 
 ---
 
@@ -11,7 +22,14 @@
 
 **The onboarding walkthrough is MAP ONLY.**
 
-Do not teach Favorite, Profile, or Compare in the main walkthrough. Those flows are obvious enough or are taught contextually when the user reaches them.
+It does **not** teach:
+
+- Favorites
+- Profile management
+- Comparisons
+- Settings navigation
+
+Those are either self-evident or taught contextually when the user reaches them.
 
 ---
 
@@ -29,7 +47,7 @@ Do not teach Favorite, Profile, or Compare in the main walkthrough. Those flows 
 
 - Use **peep-hole overlays** (spotlight cutouts) on the live map — short, focused steps.
 - **Dismissible** at any time; **replayable** from Help (or equivalent).
-- Target **5–7 overlays** total — keep it short.
+- Target **7 core overlays**; **Map Notes** is an optional 8th if scope allows — keep it short.
 - **Mobile adaptation** is a later phase; desktop map first.
 
 ---
@@ -42,10 +60,12 @@ Do not teach Favorite, Profile, or Compare in the main walkthrough. Those flows 
 | 2 | Right-click / current-location popup |
 | 3 | Mute / Solo / Not ghost tools |
 | 4 | Location search |
-| 5 | Pin and <> history controls |
-| 6 | Night mode |
-| 7 | Save search |
-| 8 | Map notes *(optional — include only if scope stays within 5–7 overlays with grouping)* |
+| 5 | Pin |
+| 6 | History (`<>`) |
+| 7 | Save Search |
+| 8 | Map Notes *(optional)* |
+
+**Not in curriculum:** Night mode — not a product feature.
 
 ---
 
@@ -55,6 +75,7 @@ Do not teach Favorite, Profile, or Compare in the main walkthrough. Those flows 
 - Profile management / switching
 - Comparison workspace
 - Shell Settings navigation
+- Night mode or other non-existent / aspirational features
 - Multi-slide modal app tour as the primary onboarding surface
 
 ---
