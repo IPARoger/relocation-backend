@@ -86,7 +86,9 @@
     var timer = null;
     var activeIdx = -1;
     var lastPayload = null;
+    var searchSeq = 0;
     var destroyed = false;
+    var onDocPointer = null;
 
     function setStatus(msg, isError) {
       if (!status) return;
@@ -101,6 +103,14 @@
 
     function showPanel() {
       if (panel) panel.hidden = false;
+    }
+
+    function payloadHasItems(payload) {
+      var sections = (payload && payload.sections) || [];
+      for (var i = 0; i < sections.length; i++) {
+        if ((sections[i].items || []).length) return true;
+      }
+      return Boolean(payload && (payload.items || []).length);
     }
 
     function renderPayload(payload) {
@@ -165,11 +175,18 @@
         hidePanel();
         return;
       }
-      var q = String(input.value || "").trim();
-      if (q.length >= 2) setStatus("Searching locations…");
+      var qAtStart = String(input.value || "").trim();
+      var seq = ++searchSeq;
+      if (qAtStart.length >= 2) setStatus("Searching locations…");
       else setStatus("");
       try {
         var payload = await svc.search(profileId, input.value, options.searchOptions || {});
+        if (destroyed || seq !== searchSeq) return;
+        if (String(input.value || "").trim() !== qAtStart) return;
+        if (payload && payload.mode === "results" && !payloadHasItems(payload)
+            && lastPayload && lastPayload.query === qAtStart && payloadHasItems(lastPayload)) {
+          return;
+        }
         if (payload && payload.mode === "results") {
           var n = (payload.items || []).length;
           setStatus(n ? "" : "No matching locations or favorites.");
@@ -178,6 +195,7 @@
         }
         renderPayload(payload);
       } catch (err) {
+        if (destroyed || seq !== searchSeq) return;
         setStatus(err && err.message ? err.message : "Search failed.", true);
         hidePanel();
       }
@@ -218,6 +236,11 @@
     }
 
     input.addEventListener("focus", function () {
+      var q = String(input.value || "").trim();
+      if (lastPayload && lastPayload.query === q && payloadHasItems(lastPayload)) {
+        renderPayload(lastPayload);
+        return;
+      }
       scheduleSearch();
     });
 
@@ -249,9 +272,11 @@
       }
     });
 
-    document.addEventListener("click", function onDoc(ev) {
+    onDocPointer = function (ev) {
+      if (destroyed) return;
       if (!root.contains(ev.target)) hidePanel();
-    });
+    };
+    document.addEventListener("mousedown", onDocPointer);
 
     return {
       input: input,
@@ -259,6 +284,8 @@
       destroy: function () {
         destroyed = true;
         clearTimeout(timer);
+        if (onDocPointer) document.removeEventListener("mousedown", onDocPointer);
+        onDocPointer = null;
         root.innerHTML = "";
       },
       clear: function () {

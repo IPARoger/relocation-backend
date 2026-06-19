@@ -298,6 +298,7 @@
 <script src="/user_profile.js"></script>
 <script src="/supabase_store_bridge.js"></script>
 <script src="/place_search_client.js"></script>
+<script src="/place_resolution.js"></script>
 <script src="/saved_location_search_service.js"></script>
 <script src="/saved_location_search_ui.js"></script>
 <script src="/first_profile_intake.js"></script>
@@ -834,29 +835,48 @@ function decodeReturnTo(raw) {
 }
 
 
+function readChartHandoffPayload() {
+  try {
+    const raw = sessionStorage.getItem("rm_shell_chart_handoff");
+    if (!raw) return null;
+    const h = JSON.parse(raw);
+    if (!h) return null;
+    if (h.ts && Date.now() - h.ts > 120000) return null;
+    return h;
+  } catch (e) {
+    return null;
+  }
+}
+
+function chartHandoffCoords(handoff, parsed) {
+  const lat = Number(
+    handoff && handoff.lat != null ? handoff.lat : (parsed && parsed.placeLat)
+  );
+  const lon = Number(
+    handoff && handoff.lon != null ? handoff.lon : (parsed && parsed.placeLon)
+  );
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return { lat, lon };
+}
+
 function repairChartHashFromHandoff() {
   const parsed = parseLocation();
   if (parsed.route !== "chart" || parsed.placeId) return false;
-  try {
-    const raw = sessionStorage.getItem("rm_shell_chart_handoff");
-    if (!raw) return false;
-    const h = JSON.parse(raw);
-    if (!h || !h.placeId) return false;
-    if (h.ts && Date.now() - h.ts > 120000) return false;
-    const next = normalizeNavContext({
-      route: "chart",
-      chartRecordId: parsed.chartRecordId || h.chartRecordId || null,
-      placeId: h.placeId,
-      explorationId: parsed.explorationId,
-      comparisonSetId: parsed.comparisonSetId,
-      returnTo: parsed.returnTo,
-    });
-    const hash = buildLocationHash(next);
-    if (location.hash !== hash) {
-      location.replace(location.pathname + location.search + hash);
-      return true;
-    }
-  } catch (e) { /* ignore */ }
+  const h = readChartHandoffPayload();
+  if (!h || !h.placeId) return false;
+  const next = normalizeNavContext({
+    route: "chart",
+    chartRecordId: parsed.chartRecordId || h.chartRecordId || null,
+    placeId: h.placeId,
+    explorationId: parsed.explorationId,
+    comparisonSetId: parsed.comparisonSetId,
+    returnTo: parsed.returnTo,
+  });
+  const hash = buildLocationHash(next);
+  if (location.hash !== hash) {
+    location.replace(location.pathname + location.search + hash);
+    return true;
+  }
   return false;
 }
 
@@ -884,21 +904,67 @@ function registerHandoffPlaceInMemory(h) {
 
 function consumeMapChartHandoff(partial) {
   if (!partial || partial.route !== "chart" || partial.placeId) return partial;
-  try {
-    const raw = sessionStorage.getItem("rm_shell_chart_handoff");
-    if (!raw) return partial;
-    const h = JSON.parse(raw);
-    if (!h || !h.placeId) return partial;
-    if (h.ts && Date.now() - h.ts > 120000) return partial;
-    sessionStorage.removeItem("rm_shell_chart_handoff");
-    registerHandoffPlaceInMemory(h);
-    return Object.assign({}, partial, {
-      chartRecordId: partial.chartRecordId || h.chartRecordId || null,
-      placeId: h.placeId,
-    });
-  } catch (e) {
-    return partial;
+  const h = readChartHandoffPayload();
+  if (!h || !h.placeId) return partial;
+  registerHandoffPlaceInMemory(h);
+  return Object.assign({}, partial, {
+    chartRecordId: partial.chartRecordId || h.chartRecordId || null,
+    placeId: h.placeId,
+  });
+}
+
+async function applyChartPlaceHandoff() {
+  const parsed = parseLocation();
+  if (parsed.route !== "chart") return false;
+  let placeId = parsed.placeId;
+  const handoff = readChartHandoffPayload();
+  if (!placeId && handoff && handoff.placeId) {
+    placeId = handoff.placeId;
+    registerHandoffPlaceInMemory(handoff);
   }
+  if (!placeId) {
+    const coords = chartHandoffCoords(handoff, parsed);
+    const displayName = (handoff && handoff.placeName) || parsed.placeName || "Location";
+    if (coords && window.RMPlaceResolution && window.RMPlaceResolution.resolvePlaceFromCitySelection) {
+      try {
+        const place = await window.RMPlaceResolution.resolvePlaceFromCitySelection({
+          displayName,
+          latitude: coords.lat,
+          longitude: coords.lon,
+          origin: "map_custom",
+        });
+        placeId = place && (place.id || place.place_id);
+        if (placeId) {
+          registerHandoffPlaceInMemory({
+            placeId,
+            place,
+            placeName: place.display_name || displayName,
+            lat: coords.lat,
+            lon: coords.lon,
+          });
+        }
+      } catch (err) {
+        console.warn("[chart-handoff] place resolve failed", err);
+      }
+    }
+  } else if (handoff) {
+    registerHandoffPlaceInMemory(handoff);
+  }
+  if (!placeId) return false;
+  navContext = normalizeNavContext({
+    route: "chart",
+    chartRecordId: parsed.chartRecordId || (handoff && handoff.chartRecordId) || navContext.chartRecordId,
+    placeId,
+    explorationId: parsed.explorationId,
+    comparisonSetId: parsed.comparisonSetId,
+    returnTo: parsed.returnTo,
+  });
+  const hash = buildLocationHash(navContext);
+  if (location.hash !== hash) {
+    location.replace(location.pathname + location.search + hash);
+  }
+  try { sessionStorage.removeItem("rm_shell_chart_handoff"); } catch (e) { /* ignore */ }
+  return true;
 }
 
 function parseLocation() {
@@ -929,6 +995,9 @@ function parseLocation() {
     explorationId: params.get("explorationId"),
     comparisonSetId: params.get("comparisonSetId"),
     returnTo: decodeReturnTo(params.get("returnTo")),
+    placeLat: params.get("placeLat"),
+    placeLon: params.get("placeLon"),
+    placeName: params.get("placeName"),
   };
 }
 
@@ -1465,7 +1534,8 @@ function screenChartRecord() {
         <h3>Module: favorites (this Chart Record)</h3>
         ${r.favorites.length === 0
           ? `<p class="meta">No favorite places saved yet.<br>Open the map and save a location to begin building comparisons.</p>`
-          : `<ul class="plain rm-cr-favorites-list">${r.favorites.map((f) => `
+          : `<p class="meta">Check favorites below, then use <strong>Compare selected</strong> (2–5 places) to create a new comparison.</p>
+          <ul class="plain rm-cr-favorites-list">${r.favorites.map((f) => `
           <li>
             <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
               <input type="checkbox" data-action="cr-fav-cmp-toggle" data-place-id="${f.placeId}" data-place-name="${escapeHtml(f.placeName).replace(/"/g, '&quot;')}" />
@@ -1532,7 +1602,7 @@ async function hydrateChartRecordComparisonSets(root) {
     const rows = comparisonSetsForProfile(chartRecordId);
     if (!stillCurrent()) return;
     if (rows.length === 0) {
-      container.innerHTML = `<p class="meta">No comparison sets yet. Build a comparison from saved places.</p>`;
+      container.innerHTML = `<p class="meta">No comparison sets yet. In <strong>Favorites</strong> above, check 2–5 places and click <strong>Compare selected</strong>.</p>`;
       return;
     }
     if (!stillCurrent()) return;
@@ -1574,19 +1644,25 @@ function resolvePlaceLatLon(placeId) {
 function screenChart() {
   const chartRecordId = navContext.chartRecordId;
   const placeId = navContext.placeId;
-  if (!chartRecordId || !placeId) {
+  const parsed = parseLocation();
+  const handoff = readChartHandoffPayload();
+  const fallbackCoords = chartHandoffCoords(handoff, parsed);
+  const coords = (placeId && resolvePlaceLatLon(placeId)) || fallbackCoords;
+  if (!chartRecordId || (!placeId && !coords)) {
     return `
     <div class="breadcrumb">View Chart</div>
     <h2>Screen 4 — View Chart</h2>
     <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
     <div class="warn-box"><strong>Cannot show relocated chart.</strong><br>
-      This screen needs both a Chart Record and a place. Open it from a Chart Record favorite (View chart).</div>
+      This screen needs both a Chart Record and a place. Open it from the map popup (View relocated chart) or a Chart Record favorite.</div>
     <div class="row"><button type="button" data-nav="map">Back to map</button></div>
     `;
   }
   const r = getChartRecord(chartRecordId);
-  const placeName = resolvePlaceName(placeId) || placeId;
-  const coords = resolvePlaceLatLon(placeId);
+  const placeName = (placeId && (resolvePlaceName(placeId) || placeId))
+    || (handoff && handoff.placeName)
+    || parsed.placeName
+    || "Selected place";
   const factsInner = coords
     ? `<p class="meta" id="rm-screen4-status">Loading relocated chart…</p>`
     : `<div class="warn-box"><strong>Cannot resolve this place's coordinates.</strong><br>
@@ -1600,7 +1676,7 @@ function screenChart() {
       <h3>Module: relocated-chart-table</h3>
       <div id="rm-screen4-facts"
            data-chart-record="${escapeHtml(chartRecordId)}"
-           data-place-id="${escapeHtml(placeId)}"
+           data-place-id="${escapeHtml(placeId || "")}"
            data-place-name="${escapeHtml(placeName)}"
            data-record-name="${escapeHtml(r.displayName)}"
            ${coords ? `data-lat="${coords.lat}" data-lon="${coords.lon}"` : ""}>
@@ -1669,7 +1745,7 @@ async function hydrateRelocatedChart(root) {
     token === _screen4Token &&
     navContext.route === "chart" &&
     navContext.chartRecordId === chartRecordId &&
-    navContext.placeId === placeId &&
+    (navContext.placeId || "") === (placeId || "") &&
     document.body.contains(container);
   try {
     setStatus("Resolving birth data…");
@@ -4164,7 +4240,7 @@ document.getElementById("comparisonOverlayModal").addEventListener("click", (e) 
   }
 });
 
-window.addEventListener("hashchange", () => { repairChartHashFromHandoff(); render(); });
+window.addEventListener("hashchange", () => { repairChartHashFromHandoff(); applyChartPlaceHandoff().then(() => render()); });
 document.getElementById("footerFutureLink").addEventListener("click", () => navigate("future"));
 
 async function attachEngineSummaries(vm) {
@@ -4224,6 +4300,7 @@ async function bootstrap() {
   repairChartHashFromHandoff();
   try {
     await loadViewModelFromStore();
+    await applyChartPlaceHandoff();
     render();
     maybeShowGuidedOnboarding();
   } catch (err) {

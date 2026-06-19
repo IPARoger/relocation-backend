@@ -2289,43 +2289,46 @@ async function openChartFromMapButton(btn) {
         setStatus("Missing coordinates for this place.", true);
         return;
     }
+    const displayName = btn.dataset.favName || "Location";
+    const selection = {
+        displayName,
+        lat,
+        lon,
+        country: btn.dataset.favCountry || "",
+        admin: btn.dataset.favAdmin || "",
+        origin: btn.dataset.favOrigin || "map_custom",
+        geonamesId: btn.dataset.favGeonames || "",
+    };
+    const handoff = {
+        chartRecordId,
+        placeName: displayName,
+        lat,
+        lon,
+        ts: Date.now(),
+    };
+    const q = new URLSearchParams({
+        chartRecordId,
+        placeLat: String(lat),
+        placeLon: String(lon),
+        placeName: displayName,
+    });
     setStatus("Opening chart…");
     try {
-        const place = await resolvePlaceFromMapSelection({
-            displayName: btn.dataset.favName || "Location",
-            lat,
-            lon,
-            country: btn.dataset.favCountry || "",
-            admin: btn.dataset.favAdmin || "",
-            origin: btn.dataset.favOrigin || "map_custom",
-            geonamesId: btn.dataset.favGeonames || "",
-        });
+        const place = await resolvePlaceFromMapSelection(selection);
         const placeId = place && (place.id || place.place_id);
-        if (!placeId) throw new Error("place_unresolved");
-        const displayName = btn.dataset.favName || "Location";
-        const q = new URLSearchParams({
-            chartRecordId,
-            placeId,
-            placeLat: String(lat),
-            placeLon: String(lon),
-            placeName: displayName,
-        });
-        try {
-            sessionStorage.setItem("rm_shell_chart_handoff", JSON.stringify({
-                chartRecordId,
-                placeId,
-                placeName: place.display_name || displayName,
-                lat,
-                lon,
-                place,
-                ts: Date.now(),
-            }));
-        } catch (e) { /* ignore */ }
-        window.location.assign(`/app_shell.html#/chart?${q.toString()}`);
+        if (placeId) {
+            q.set("placeId", placeId);
+            handoff.placeId = placeId;
+            handoff.placeName = place.display_name || displayName;
+            handoff.place = place;
+        }
     } catch (err) {
-        console.error("[open-chart]", err);
-        setStatus("Could not open chart.", true);
+        console.warn("[open-chart] place resolve deferred to shell", err);
     }
+    try {
+        sessionStorage.setItem("rm_shell_chart_handoff", JSON.stringify(handoff));
+    } catch (e) { /* ignore */ }
+    window.location.assign(`/app_shell.html#/chart?${q.toString()}`);
 }
 
 // Single favorite control for Web2 map popup (not saved -> Favorite; saved -> Favorited span).
