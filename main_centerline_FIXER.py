@@ -224,6 +224,22 @@ def serve_user_profile_js():
     )
 
 
+
+@app.get("/human_place_label.js")
+def serve_human_place_label_js():
+    return FileResponse(
+        APP_DIR / "human_place_label.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/dignity_ontology.js")
+def serve_dignity_ontology_js():
+    return FileResponse(
+        APP_DIR / "dignity_ontology.js",
+        media_type="application/javascript",
+    )
+
 @app.get("/auth_guard.js")
 def serve_auth_guard_js():
     return FileResponse(
