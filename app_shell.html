@@ -3067,7 +3067,7 @@ function outOfSignAspectsHtml() {
 function dignitiesDisplayHtml() {
   return `
     <div class="panel">
-      <p class="meta">Dignity colors on Planet-in-House tables are toggled from the <strong>Dignities</strong> footer on each PIH view. Preset styles: ${settingsSoonBadge()}</p>
+      <p class="meta">Dignity display on Planet-in-House tables is toggled from the <strong>Dignities</strong> footer on each PIH view. Ontology presets: ${settingsSoonBadge()}</p>
     </div>`;
 }
 
@@ -3209,10 +3209,30 @@ function settingsProfilesPanelHtml() {
     </div>`;
 }
 
-function chartAppearanceStubHtml() {
+function chartAppearanceHtml() {
   return `
-    <div class="panel">
-      <p class="meta">Wheel style, glyph families, and chart surface options. ${settingsSoonBadge()}</p>
+    <div class="panel" id="sec-appearance-chart">
+      ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
+      ${settingsStubRow("Chart surface", "Background, rings, and table framing.")}
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    </div>`;
+}
+
+function glyphAppearanceHtml() {
+  return `
+    <div class="panel" id="sec-appearance-glyphs">
+      ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
+      ${settingsStubRow("Glyph variants", "Mars, Capricorn, Uranus, Pluto, and aspect notation.")}
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    </div>`;
+}
+
+function aspectBandAppearanceHtml() {
+  return `
+    <div class="panel" id="sec-appearance-aspect-bands">
+      ${settingsStubRow("Aspect band style", "Relocation map overlay band rendering.")}
+      ${settingsStubRow("Aspect band topology", "How bands connect and layer on the map.")}
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
     </div>`;
 }
 
@@ -3247,32 +3267,6 @@ function chartsZodiacHtml() {
     </div>`;
 }
 
-function dignitiesShellHtml() {
-  return `
-    <div class="panel">
-      <label class="block">Dignity preset
-        <select disabled aria-disabled="true">
-          <option>Traditional</option>
-          <option>Modern</option>
-          <option>Hybrid</option>
-        </select>
-        ${settingsSoonBadge()}
-      </label>
-    </div>`;
-}
-
-function interpretiveHintsShellHtml() {
-  return `
-    <div class="panel">
-      <p class="meta">Optional subjective nudges for beginners. Off by default. These are not objective astrological facts.</p>
-      <label class="block" style="display:flex;align-items:center;gap:8px;opacity:0.75;">
-        <input type="checkbox" disabled style="width:auto;margin:0;" />
-        Show interpretive hints
-      </label>
-      ${settingsSoonBadge()}
-    </div>`;
-}
-
 function settingsChartsBodyHtml() {
   return `
       <div class="settings-subhead">Bodies</div>
@@ -3298,7 +3292,6 @@ function settingsMapBodyHtml() {
   return `
     <div class="settings-subhead">My Map</div>
     <div class="panel">
-      ${settingsStubRow("Aspect bands", "Relocation map overlay bands.")}
       ${settingsStubRow("Exact aspect lines", "Centerline display on map.")}
       ${settingsStubRow("Exclusion style", "How excluded areas appear.")}
       ${settingsStubRow("City labels", "Label density and click behavior.")}
@@ -3323,12 +3316,10 @@ function settingsMapBodyHtml() {
 
 function settingsAppearanceRegionalBodyHtml() {
   return `
-    <div class="settings-subhead">Appearance</div>
-    <div class="panel">
+    <div class="settings-subhead">Themes</div>
+    <div class="panel" id="sec-appearance-themes">
       ${settingsStubRow("Color themes", "App atmosphere and map overlay palettes.")}
-      ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
-      ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
-      ${settingsStubRow("Glyph appearance", "Capricorn, Uranus, Pluto, and aspect notation.")}
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
     </div>
     <div class="settings-subhead">Language &amp; Regional</div>
     <div class="panel">
@@ -3378,6 +3369,12 @@ function settingsDataBodyHtml() {
 function settingsDisplayBodyHtml() {
   return `
     <div id="sec-display" data-settings-future="display">
+      <div class="settings-subhead">Chart appearance</div>
+      ${chartAppearanceHtml()}
+      <div class="settings-subhead">Glyph appearance</div>
+      ${glyphAppearanceHtml()}
+      <div class="settings-subhead">Aspect-band appearance</div>
+      ${aspectBandAppearanceHtml()}
       ${settingsAppearanceRegionalBodyHtml()}
       <div class="settings-subhead">Map &amp; location</div>
       ${settingsMapBodyHtml()}
@@ -3422,7 +3419,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "astrology",
       "Astrology",
-      "Chart display and interpretation defaults. Saved to your account.",
+      "Chart calculation defaults, bodies, aspects, orbs, and dignities. Saved to your account.",
       settingsChartsBodyHtml(),
       { showSave: true }
     );
