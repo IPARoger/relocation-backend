@@ -183,17 +183,17 @@
         var payload = await svc.search(profileId, input.value, options.searchOptions || {});
         if (destroyed || seq !== searchSeq) return;
         if (String(input.value || "").trim() !== qAtStart) return;
-        if (payload && payload.mode === "results" && !payloadHasItems(payload)
-            && lastPayload && lastPayload.query === qAtStart && payloadHasItems(lastPayload)) {
-          return;
-        }
         if (payload && payload.mode === "results") {
           var n = (payload.items || []).length;
           setStatus(n ? "" : "No matching locations or favorites.");
+          renderPayload(payload);
+        } else if (payload && payload.mode === "typing") {
+          setStatus("");
+          renderPayload(payload);
         } else {
           setStatus("");
+          renderPayload(payload);
         }
-        renderPayload(payload);
       } catch (err) {
         if (destroyed || seq !== searchSeq) return;
         setStatus(err && err.message ? err.message : "Search failed.", true);
@@ -237,15 +237,30 @@
 
     input.addEventListener("focus", function () {
       var q = String(input.value || "").trim();
-      if (lastPayload && lastPayload.query === q && payloadHasItems(lastPayload)) {
-        renderPayload(lastPayload);
-        return;
+      if (q.length >= 2) {
+        if (lastPayload && lastPayload.query === q && payloadHasItems(lastPayload)) {
+          renderPayload(lastPayload);
+          return;
+        }
+        setStatus("Searching locations…");
       }
       scheduleSearch();
     });
 
     input.addEventListener("input", function () {
-      setStatus("");
+      var q = String(input.value || "").trim();
+      clearTimeout(timer);
+      activeIdx = -1;
+      if (q.length >= 2) {
+        setStatus("Searching locations…");
+        if (panel) panel.innerHTML = "";
+        showPanel();
+      } else {
+        setStatus("");
+        hidePanel();
+        if (panel) panel.innerHTML = "";
+        lastPayload = null;
+      }
       scheduleSearch();
     });
 

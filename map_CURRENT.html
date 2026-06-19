@@ -745,15 +745,6 @@ html.map-panel-show-legend #panelLegend { display: block; }
             </select>
         </div>
 
-        <div class="panel-section" id="savedPlacesSection">
-            <div class="panel-section-title">Saved places</div>
-            <label for="savedPlaces">Recenter a saved favorite (this profile)</label>
-            <select id="savedPlaces">
-                <option value="">Loading…</option>
-            </select>
-            <div id="savedPlacesEmpty" class="city-search-feedback" hidden aria-live="polite"></div>
-        </div>
-
         <div class="panel-section">
             <div class="panel-section-title">Location</div>
             <div id="rm-map-loc-search-mount"></div>
@@ -2478,9 +2469,15 @@ async function favoriteMapSelectionFromButton(btn) {
         // Honest feedback: already-active favorite vs. a new/reactivated save.
         const _wasActive = saved && saved.status === "exists";
         setStatus(_wasActive ? "Already in favorites." : "Saved to favorites.", false);
-        // Refresh the saved-places dropdown in place so the new favorite appears
-        // immediately (no reload, no profile switch). Non-fatal; self-handles errors.
-        try { await loadSavedPlacesForActiveProfile(); } catch (e) { /* non-fatal */ }
+        // Refresh Family B search so the new favorite appears immediately.
+        try {
+            if (window.RMSavedLocationSearch) {
+                window.RMSavedLocationSearch.invalidateProfile(profileId);
+            }
+            if (mapLocationSearchCtl && typeof mapLocationSearchCtl.refresh === "function") {
+                mapLocationSearchCtl.refresh();
+            }
+        } catch (e) { /* non-fatal */ }
     } catch (err) {
         console.error("[favorite]", err);
         btn.disabled = false;
@@ -6357,54 +6354,6 @@ scheduleGenieRenderHandoff().catch((err) => {
 // ---- MAP-SAVED-PLACES-1: profile-scoped Saved Places recall (map_CURRENT.html only) ----
 const SAVED_PLACE_ZOOM = 6;
 
-async function loadSavedPlacesForActiveProfile() {
-    const select = document.getElementById("savedPlaces");
-    const empty = document.getElementById("savedPlacesEmpty");
-    if (!select) return;
-    const showEmpty = (msg) => {
-        select.innerHTML = '<option value="">\u2014</option>';
-        if (empty) { empty.hidden = false; empty.textContent = msg; }
-    };
-    const profileId = getActiveFavoriteProfileId();
-    if (!profileId) { showEmpty("Select a profile to see its saved places."); return; }
-    try {
-        const sbClient = window.SupabaseClient || (window.SupabaseReady ? await window.SupabaseReady : null) || window._supabaseClient;
-        const { data: { session } } = sbClient ? await sbClient.auth.getSession() : { data: {} };
-        const token = session && session.access_token;
-        if (!token) { showEmpty("Saved places unavailable right now."); return; }
-        const resp = await fetch(
-            `${API_BASE}/favorites?profile_id=${encodeURIComponent(profileId)}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!resp.ok) {
-            if (resp.status === 401) showEmpty("Sign in again to load saved places.");
-            else if (resp.status === 404) showEmpty("No saved places for this profile.");
-            else showEmpty("Could not load saved places.");
-            return;
-        }
-        const data = await resp.json();
-        const rows = (data.favorites || []).filter((f) => f.place_id);
-        if (rows.length === 0) {
-            select.innerHTML = '<option value="">\u2014</option>';
-            if (empty) { empty.hidden = false; empty.textContent = "No saved places yet. Right-click the map and Favorite a location."; }
-            return;
-        }
-        const opts = rows.map((r) => {
-            if (!r.place_id) return null;
-            const name = r.label || r.display_name || "Saved place";
-            return { placeId: r.place_id, name, lat: r.latitude, lon: r.longitude };
-        }).filter(Boolean);
-        if (opts.length === 0) { showEmpty("Saved places could not be resolved."); return; }
-        if (empty) empty.hidden = true;
-        const esc = (v) => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-        select.innerHTML = '<option value="">Select a saved place\u2026</option>' +
-            opts.map((o) => `<option value="${esc(o.placeId)}" data-lat="${esc(o.lat)}" data-lon="${esc(o.lon)}" data-name="${esc(o.name)}">${esc(o.name)}</option>`).join("");
-    } catch (err) {
-        console.error("[saved-places]", err);
-        showEmpty("Could not load saved places.");
-    }
-}
-
 // Recenter (fixed zoom) without opening the relocated-chart popup.
 function recenterMapOnPlace(lat, lon, zoom) {
     const la = Number(lat), lo = Number(lon);
@@ -6416,20 +6365,13 @@ async function openSavedPlace(name, lat, lon) {
     recenterMapOnPlace(lat, lon, SAVED_PLACE_ZOOM);
 }
 
-(function wireSavedPlaces() {
-    const select = document.getElementById("savedPlaces");
-    if (select) {
-        select.addEventListener("change", function () {
-            const opt = this.selectedOptions[0];
-            if (!opt || !opt.value) return;
-            openSavedPlace(opt.dataset.name, opt.dataset.lat, opt.dataset.lon);
-        });
-    }
+(function wireProfileSearchRefresh() {
     const profileSelect = document.getElementById("chartProfile");
     if (profileSelect) {
         profileSelect.addEventListener("change", function () {
-            loadSavedPlacesForActiveProfile();
-            if (window.RMSavedLocationSearch) window.RMSavedLocationSearch.invalidateProfile(getActiveFavoriteProfileId());
+            if (window.RMSavedLocationSearch) {
+                window.RMSavedLocationSearch.invalidateProfile(getActiveFavoriteProfileId());
+            }
             mountMapLocationSearch();
         });
     }
@@ -6452,12 +6394,11 @@ async function centerOnHandoffPlaceId() {
     }
 }
 
-async function scheduleSavedPlacesInit() {
+async function scheduleMapHandoffCenter() {
     await chartProfilesReady;
-    await loadSavedPlacesForActiveProfile();
     await centerOnHandoffPlaceId();
 }
-scheduleSavedPlacesInit().catch((err) => console.error("[saved-places-init]", err));
+scheduleMapHandoffCenter().catch((err) => console.error("[map-handoff-center]", err));
 
 setRenderStatus("Ready.");
 </script>

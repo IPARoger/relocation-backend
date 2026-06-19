@@ -12,7 +12,7 @@ Backend:
   * unauthenticated -> 401
 
 Frontend (map_CURRENT.html favorite save):
-  * save favorite (button -> "Favorited"), DB row active, dropdown refresh
+  * save favorite (button -> "Favorited"), DB row active, Family B search refresh
   * save already-active favorite -> "Already in favorites.", single row
   * archive (admin) + re-save -> reactivation, single row
   * no app console errors
@@ -362,13 +362,29 @@ def main() -> int:
                             and "Saved to favorites." in msg1,
                             f"rows={len(rows)} msg={msg1!r}"))
 
-            # dropdown refresh -> option with the new place_id appears
+            # Family B search refresh -> favorite appears when searching by label
             page.wait_for_function(
-                "(pid)=>{const s=document.getElementById('savedPlaces');"
-                "return s && Array.from(s.options).some(o=>o.value===pid);}",
-                arg=place_id, timeout=15000,
+                """async (args) => {
+                  const pid = args.pid;
+                  const q = args.q;
+                  if (window.RMSavedLocationSearch) {
+                    window.RMSavedLocationSearch.invalidateProfile(
+                      window.__rmGetActiveFavoriteProfileId && window.__rmGetActiveFavoriteProfileId()
+                    );
+                  }
+                  const inp = document.getElementById('citySearch');
+                  if (!inp) return false;
+                  inp.focus();
+                  inp.value = q;
+                  inp.dispatchEvent(new Event('input', { bubbles: true }));
+                  await new Promise((r) => setTimeout(r, 1500));
+                  const rows = document.querySelectorAll('[data-rm-saved-loc-item]');
+                  return Array.from(rows).some((r) => r.getAttribute('data-place-id') === pid);
+                }""",
+                arg={"pid": place_id, "q": "Smoke Fav"},
+                timeout=20000,
             )
-            results.append(("fe_map_dropdown_refresh", True, "place present in #savedPlaces"))
+            results.append(("fe_map_search_refresh", True, "favorite in Family B search"))
 
             # save already-active favorite -> "Already in favorites.", single row
             msg2 = inject_and_save("smokeFav2")
