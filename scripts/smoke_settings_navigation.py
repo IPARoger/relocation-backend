@@ -30,12 +30,12 @@ DEFAULT_EMAIL = "davidleongoodman@gmail.com"
 PORT = 8004
 
 CANONICAL_SUBPAGES = [
-    ("account", "#rm-settings-default-cr"),
+    ("account", "#sec-account-identity"),
     ("astrology", "#rm-settings-minor-aspects"),
     ("display", "#sec-display"),
     ("notifications", "#sec-notifications"),
     ("exports", "#sec-exports"),
-    ("data", "#sec-data-saved"),
+    ("data", "#sec-data-profiles"),
     ("about", "#sec-about"),
 ]
 
@@ -183,7 +183,7 @@ def main():
         alias_app = page.evaluate("()=>window.__rmAppShell.navContext.settingsSubpage")
         results.append(("fe_legacy_appearance_alias", alias_app == "display", f"ctx={alias_app}"))
         page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'my-data' })")
-        page.wait_for_selector("#sec-data-saved", timeout=15000)
+        page.wait_for_selector("#sec-data-profiles", timeout=15000)
         alias_data = page.evaluate("()=>window.__rmAppShell.navContext.settingsSubpage")
         results.append(("fe_legacy_my_data_alias", alias_data == "data", f"ctx={alias_data}"))
 
@@ -212,7 +212,7 @@ def main():
 
         # Nav click: notifications via sidebar
         page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'account' })")
-        page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
+        page.wait_for_selector("#sec-account-identity", timeout=15000)
         page.click(".settings-nav-item[data-settings-sub='notifications']")
         page.wait_for_selector("#sec-notifications", timeout=15000)
         results.append(("fe_nav_click_notifications", True, "sidebar navigation"))

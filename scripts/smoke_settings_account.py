@@ -279,8 +279,8 @@ def main() -> int:
                 page.wait_for_selector("#rm-settings-majorb-conjunction", timeout=15000)
                 results.append(("fe_settings_charts_sub", True, "charts subpage"))
 
-                # Account subpage: default profile persistence
-                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'account' })")
+                # My Data subpage: default profile persistence
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'data' })")
                 page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
                 page.wait_for_selector("[data-action='save-settings']", timeout=15000)
 
@@ -308,7 +308,7 @@ def main() -> int:
                                 f"default={mem_default} want={target_default}"))
 
                 load()
-                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'account' })")
+                page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'data' })")
                 page.wait_for_selector("#rm-settings-default-cr", timeout=15000)
                 rl_default = page.eval_on_selector("#rm-settings-default-cr", "el=>el.value")
                 results.append(("fe_reload_default", rl_default == target_default,

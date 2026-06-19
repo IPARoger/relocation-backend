@@ -3112,7 +3112,7 @@ function aspectToAngleHtml() {
 // Settings navigation framework (W2-SETTINGS-1): seven canonical subpages + legacy URL aliases.
 const SETTINGS_SECTIONS = [
   { id: "account", label: "Account", title: "Account", desc: "Sign-in, subscription, and account identity." },
-  { id: "data", label: "My Data", title: "My Data", desc: "Saved searches, favorites, comparisons, archives, and history." },
+  { id: "data", label: "My Data", title: "My Data", desc: "Profiles, saved searches, comparisons, archives, and history." },
   { id: "astrology", label: "Astrology", title: "Astrology", desc: "Chart calculation defaults, bodies, aspects, orbs, and dignities." },
   { id: "display", label: "Appearance", title: "Appearance", desc: "Visual themes, map presentation, glyphs, and regional formats." },
   { id: "notifications", label: "Notifications", title: "Notifications", desc: "Email and in-app alerts (coming soon)." },
@@ -3217,9 +3217,9 @@ function settingsAccountPanelHtml() {
   const name = user.accountName || "\u2014";
   const role = user.role || user.accountType || "\u2014";
   return `
-    <div class="settings-subhead">My Account</div>
-    <div class="panel">
-      <p class="meta">Full account controls are in the account drawer (top bar).</p>
+    <div class="settings-subhead">Identity</div>
+    <div class="panel" id="sec-account-identity">
+      <p class="meta">Sign-in and billing controls are in the account drawer (top bar).</p>
       <label class="block">Account name
         <input type="text" value="${escapeHtml(name)}" disabled />
       </label>
@@ -3233,8 +3233,8 @@ function settingsAccountPanelHtml() {
 function settingsProfilesPanelHtml() {
   const vm = requireViewModel();
   return `
-    <div class="settings-subhead">My Profiles</div>
-    <div class="panel">
+    <div class="settings-subhead">Profiles</div>
+    <div class="panel" id="sec-data-profiles">
       <label class="block">Default profile
         <select id="rm-settings-default-cr">
           ${vm.chartRecords.map((r) =>
@@ -3397,18 +3397,28 @@ function settingsExportsBodyHtml() {
 }
 
 function settingsDataBodyHtml() {
-  return `
-    <div class="settings-subhead">Saved work</div>
-    <div class="panel" id="sec-data-saved" data-settings-future="saved-work">
-      ${settingsStubRow("Saved searches", "Manage investigation history.")}
-      ${settingsStubRow("Favorites bulk management", "Manage favorites across profiles.")}
-      ${settingsStubRow("Saved comparisons", "Manage comparison sets.")}
+  return settingsProfilesPanelHtml() + `
+    <div class="settings-subhead">Saved Searches</div>
+    <div class="panel" id="sec-data-saved">
+      ${settingsStubRow("Saved Searches", "Manage investigation history.")}
+    </div>
+    <div class="settings-subhead">Saved Comparisons</div>
+    <div class="panel" id="sec-data-comparisons">
+      ${settingsStubRow("Saved Comparisons", "Manage comparison sets.")}
+    </div>
+    <div class="settings-subhead">Archives</div>
+    <div class="panel" id="sec-data-archives">
       ${settingsStubRow("Archives", "Restore archived searches and comparisons.")}
-      ${settingsStubRow("Export my data", "Download your account data.")}
-      <h4 style="margin:16px 0 8px;">History</h4>
+    </div>
+    <div class="settings-subhead">History</div>
+    <div class="panel" id="sec-data-history">
       <button type="button" disabled>Clear Chart Record history</button>
       <button type="button" disabled style="margin-left:8px;">Clear all history</button>
       <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    </div>
+    <div class="settings-subhead">Export My Data</div>
+    <div class="panel" id="sec-data-export">
+      ${settingsStubRow("Export My Data", "Download your account data.")}
     </div>`;
 }
 
@@ -3469,9 +3479,9 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "account",
       "Account",
-      "Sign-in, subscription, and account identity.",
-      settingsAccountPanelHtml() + settingsProfilesPanelHtml(),
-      { showSave: true }
+      "Sign-in, email, subscription, billing, and identity.",
+      settingsAccountPanelHtml(),
+      { showSave: false }
     );
   },
   astrology() {
@@ -3514,9 +3524,9 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "data",
       "My Data",
-      "Saved searches, favorites, comparisons, archives, and history.",
+      "Profiles, saved searches, comparisons, archives, and history.",
       settingsDataBodyHtml(),
-      { showSave: false }
+      { showSave: true }
     );
   },
   about() {
