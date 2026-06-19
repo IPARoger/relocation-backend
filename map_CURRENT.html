@@ -711,6 +711,7 @@ html.map-panel-show-legend #panelLegend { display: block; }
 <script src="/user_profile.js"></script>
 <script src="/supabase_store_bridge.js"></script>
     <script src="/place_search_client.js"></script>
+    <script src="/human_place_label.js"></script>
     <script src="/saved_location_search_service.js"></script>
     <script src="/saved_location_search_ui.js"></script>
 <script src="/first_profile_intake.js"></script>
@@ -2150,13 +2151,23 @@ function buildPlanetHouseRowsFromData(data) {
         .join("");
 }
 
+
+function mapHumanPlaceLabel(metaOrPlace) {
+    if (window.RMHumanPlaceLabel && window.RMHumanPlaceLabel.humanPlaceLabel) {
+        return window.RMHumanPlaceLabel.humanPlaceLabel(metaOrPlace);
+    }
+    const m = metaOrPlace || {};
+    return m.title || m.display_name || m.name || "Location";
+}
+
 /** meta: { title, country?, admin?, origin?: "city_dataset"|"custom" } */
 function buildRelocatedPopupHtml(data, lat, lon, meta) {
-    const title = meta && meta.title ? meta.title : "Custom location";
-    const placeBits = [];
-    if (meta && meta.admin) placeBits.push(meta.admin);
-    if (meta && meta.country) placeBits.push(meta.country);
-    const coordsMid = placeBits.length ? ` · ${placeBits.join(", ")}` : "";
+    const title = mapHumanPlaceLabel(Object.assign({}, meta || {}, {
+        display_name: (meta && meta.title) || "Custom location",
+        latitude: lat,
+        longitude: lon,
+    }));
+    const coordsMid = "";
     const planetHouseHtml = buildPlanetHouseRowsFromData(data);
     return `
         <div class="popup-chart">
@@ -2338,11 +2349,12 @@ function favoriteButtonHtml(name, lat, lon, country, admin, origin, geonamesId) 
 // profile has no birth math yet). Place identity + Favorite stay available so
 // the city -> favorite slice still works. The chart-success popup is unchanged.
 function buildPlaceFallbackPopupHtml(meta, lat, lon, message) {
-    const title = meta && meta.title ? meta.title : "Custom location";
-    const placeBits = [];
-    if (meta && meta.admin) placeBits.push(meta.admin);
-    if (meta && meta.country) placeBits.push(meta.country);
-    const coordsMid = placeBits.length ? ` \u00b7 ${placeBits.join(", ")}` : "";
+    const title = mapHumanPlaceLabel(Object.assign({}, meta || {}, {
+        display_name: (meta && meta.title) || "Custom location",
+        latitude: lat,
+        longitude: lon,
+    }));
+    const coordsMid = "";
     return `
         <div class="popup-chart">
             <div class="popup-title">${escapeAttr(title)}</div>
@@ -3572,9 +3584,13 @@ async function openDatasetCityPopup(city) {
         popup.setContent(
             buildRelocatedPopupHtml(data, lat, lon, {
                 title: city.name,
+                name: city.name,
+                display_name: city.name,
                 origin: "city_dataset",
                 country: city.country || null,
+                country_name: city.country || null,
                 admin: city.admin || city.state || null,
+                admin1: city.admin || city.state || null,
                 geonamesId: city.geoname_id || null
             })
         );
@@ -3583,9 +3599,13 @@ async function openDatasetCityPopup(city) {
         console.error("relocated-chart (city)", err);
         popup.setContent(buildPlaceFallbackPopupHtml({
             title: city.name,
+            name: city.name,
+            display_name: city.name,
             origin: "city_dataset",
             country: city.country || null,
+            country_name: city.country || null,
             admin: city.admin || city.state || null,
+            admin1: city.admin || city.state || null,
             geonamesId: city.geoname_id || null
         }, lat, lon, "Chart unavailable for the active profile. You can still favorite this place."));
         applyMapFavoriteButtonState(popup);
@@ -6246,13 +6266,22 @@ async function openSavedLocationSearchResult(item) {
     clearCitySearchFeedback();
     let lat = Number(item.latitude);
     let lon = Number(item.longitude);
-    let name = item.display_name || item.label || "Location";
+    let name = mapHumanPlaceLabel(Object.assign({}, item, {
+        provider: item.source === "custom" ? "map_custom" : (item.provider || null),
+    })) || item.display_name || item.label || "Location";
     let meta = {
         title: name,
+        display_name: name,
         origin: item.source === "custom" ? "map_custom" : (item.source || "search"),
-        country: item.country_code || null,
+        provider: item.source === "custom" ? "map_custom" : (item.provider || null),
+        country: item.country_name || item.country_code || null,
+        country_name: item.country_name || null,
+        country_code: item.country_code || null,
         admin: item.admin1 || null,
+        admin1: item.admin1 || null,
         geonamesId: item.geonames_id || null,
+        latitude: item.latitude,
+        longitude: item.longitude,
     };
     if ((!Number.isFinite(lat) || !Number.isFinite(lon)) && item.place_id) {
         try {
@@ -6261,13 +6290,23 @@ async function openSavedLocationSearchResult(item) {
                 const pl = await resp.json();
                 lat = Number(pl.latitude);
                 lon = Number(pl.longitude);
-                name = pl.display_name || name;
+                name = mapHumanPlaceLabel(Object.assign({}, pl, {
+                    display_name: pl.display_name || name,
+                    provider: pl.provider || meta.origin,
+                })) || name;
                 meta = {
                     title: name,
+                    display_name: name,
                     origin: pl.provider || meta.origin,
-                    country: pl.country_code || null,
+                    provider: pl.provider || meta.origin,
+                    country: pl.country_name || pl.country_code || null,
+                    country_name: pl.country_name || null,
+                    country_code: pl.country_code || null,
                     admin: pl.admin1 || null,
+                    admin1: pl.admin1 || null,
                     geonamesId: pl.geonames_id || null,
+                    latitude: pl.latitude,
+                    longitude: pl.longitude,
                 };
             }
         } catch (e) { /* fall through */ }

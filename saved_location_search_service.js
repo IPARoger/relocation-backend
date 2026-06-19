@@ -91,6 +91,11 @@
   }
 
   function formatPlaceDisplayName(row, source) {
+    if (window.RMHumanPlaceLabel && window.RMHumanPlaceLabel.humanPlaceLabel) {
+      var payload = Object.assign({}, row, { source: source });
+      if (source === SOURCE_CUSTOM) payload.provider = payload.provider || "map_custom";
+      return window.RMHumanPlaceLabel.humanPlaceLabel(payload);
+    }
     var label = displayLabel(row);
     var dn = String(row.display_name || label || "").trim();
     if (source !== SOURCE_CUSTOM && source !== SOURCE_FAVORITE) return dn || label;

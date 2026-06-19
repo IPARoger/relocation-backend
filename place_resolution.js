@@ -105,6 +105,15 @@
   }
 
   window.RMPlaceResolution = {
-    resolvePlaceFromCitySelection: resolvePlaceFromCitySelection
+    resolvePlaceFromCitySelection: resolvePlaceFromCitySelection,
+    humanPlaceLabel: function (placeOrFavorite) {
+      if (window.RMHumanPlaceLabel && window.RMHumanPlaceLabel.humanPlaceLabel) {
+        return window.RMHumanPlaceLabel.humanPlaceLabel(placeOrFavorite);
+      }
+      var p = placeOrFavorite;
+      if (p == null) return "Saved place";
+      if (typeof p === "string") return p;
+      return String(p.display_name || p.label || "Saved place").trim() || "Saved place";
+    },
   };
 })();

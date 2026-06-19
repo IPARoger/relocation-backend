@@ -302,7 +302,7 @@
     if (placeIds.length > 0) {
       var placesResult = await client
         .from("places")
-        .select("id, display_name, latitude, longitude")
+        .select("id, display_name, latitude, longitude, admin1, country_code, country_name, canonical_name, provider")
         .in("id", placeIds);
 
       if (placesResult.error) {
@@ -381,6 +381,11 @@
         display_name:   p.display_name,
         lat:            parseFloat(p.latitude),
         lon:            parseFloat(p.longitude),
+        admin1:         p.admin1 || null,
+        country_code:   p.country_code || null,
+        country_name:   p.country_name || null,
+        canonical_name: p.canonical_name || null,
+        provider:       p.provider || null,
         schema_version: 1,
       };
     });
@@ -593,7 +598,7 @@
     if (br.birth_place_id && !store.places.some(function (p) { return p.id === br.birth_place_id; })) {
       var plResult = await client
         .from("places")
-        .select("id, display_name, latitude, longitude")
+        .select("id, display_name, latitude, longitude, admin1, country_code, country_name, canonical_name, provider")
         .eq("id", br.birth_place_id)
         .single();
       if (!plResult.error && plResult.data) {

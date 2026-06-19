@@ -99,7 +99,8 @@
   .settings-nav { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 2px; max-height: calc(100vh - 80px); overflow: auto; }
   .settings-nav a { text-decoration: none; color: var(--muted); font-size: 12px; padding: 6px 10px; border-radius: 6px; display: block; }
   .settings-nav a:hover { background: #f3f4f6; color: var(--fg); }
-  .settings-nav a.active { background: #eff6ff; color: var(--accent); font-weight: 600; }
+  .settings-nav a.active, .settings-nav button.settings-nav-item.active { background: #eff6ff; color: var(--accent); font-weight: 600; }
+  .settings-nav button.settings-nav-item { border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; font: inherit; }
   .settings-sections { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   .settings-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; scroll-margin-top: 12px; }
   .settings-card h3.settings-sec-title { margin: 0 0 4px; font-size: 17px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--fg); }
@@ -298,6 +299,7 @@
 <script src="/user_profile.js"></script>
 <script src="/supabase_store_bridge.js"></script>
 <script src="/place_search_client.js"></script>
+<script src="/human_place_label.js"></script>
 <script src="/place_resolution.js"></script>
 <script src="/saved_location_search_service.js"></script>
 <script src="/saved_location_search_ui.js"></script>
@@ -678,12 +680,20 @@ function adaptStoreToView(store) {
     const favorites = (store.favorite_cities || [])
       .filter((fav) => fav.client_id === client.id)
       .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      .map((fav) => ({
-        id: fav.id,
-        placeId: fav.place_id,
-        placeName: (fav.notes && fav.notes.trim()) || placesById[fav.place_id]?.display_name || "Saved place",
-        notes: fav.notes || "",
-      }));
+      .map((fav) => {
+        const placeRow = placesById[fav.place_id] || null;
+        const favPayload = Object.assign(
+          {},
+          placeRow || { display_name: "Saved place", place_id: fav.place_id },
+          placeRow && placeRow.provider === "map_custom" ? { label: fav.notes || "" } : {}
+        );
+        return {
+          id: fav.id,
+          placeId: fav.place_id,
+          placeName: formatPlaceLabel(favPayload, placesById),
+          notes: fav.notes || "",
+        };
+      });;
 
     const explorations = (store.saved_investigations || [])
       .filter((inv) => inv.client_id === client.id)
@@ -733,7 +743,7 @@ function adaptStoreToView(store) {
       title: cs.title || "",
       updated_at: cs.updated_at || cs.created_at || null,
       placeIds,
-      placeNames: placeIds.map((pid) => placesById[pid]?.display_name).filter(Boolean),
+      placeNames: placeIds.map((pid) => formatPlaceLabel(placesById[pid] || pid, placesById)).filter(Boolean),
       notes: cs.notes || "",
       settings_snapshot_json,
       workspaceState,
@@ -749,13 +759,16 @@ function adaptStoreToView(store) {
     accountDefaultChartRecordId: defaultChartRecordId,
     chartRecords,
     comparisonSets,
+    placesById,
     placeNameById: (function () {
       const names = Object.fromEntries(
-        Object.entries(placesById).map(([id, place]) => [id, place.display_name])
+        Object.entries(placesById).map(([id, place]) => [id, formatPlaceLabel(place, placesById)])
       );
       (store.favorite_cities || []).forEach((fav) => {
-        const label = (fav.notes && fav.notes.trim()) || placesById[fav.place_id]?.display_name;
-        if (fav.place_id && label) names[fav.place_id] = label;
+        const row = placesById[fav.place_id];
+        if (!fav.place_id || !row || row.provider !== "map_custom") return;
+        const label = fav.notes && fav.notes.trim();
+        if (label) names[fav.place_id] = formatPlaceLabel(Object.assign({}, row, { label }), placesById);
       });
       return names;
     })(),
@@ -784,11 +797,34 @@ function comparisonPlaceNamesFromContext() {
   return cs ? cs.placeNames.slice(0, 5) : [];
 }
 
-function humanPlaceLabel(placeId) {
-  const name = resolvePlaceName(placeId);
-  if (name) return name;
-  if (placeId && /^[0-9a-f-]{36}$/i.test(placeId)) return "Saved place";
-  return placeId || "Saved place";
+
+function formatPlaceLabel(placeOrId, placesById, extra) {
+  const fn = (window.RMPlaceResolution && window.RMPlaceResolution.humanPlaceLabel)
+    || (window.RMHumanPlaceLabel && window.RMHumanPlaceLabel.humanPlaceLabel);
+  if (!fn) {
+    if (typeof placeOrId === "string") return placeOrId || "Saved place";
+    return String(placeOrId?.display_name || placeOrId?.label || "Saved place");
+  }
+  if (typeof placeOrId === "string") {
+    const pid = placeOrId;
+    if (/^[0-9a-f-]{36}$/i.test(pid)) {
+      const row = (placesById && placesById[pid])
+        || (viewModel && viewModel.placesById && viewModel.placesById[pid])
+        || null;
+      if (!row) return resolvePlaceName(pid) || "Saved place";
+      return fn(Object.assign({}, row, extra || {}));
+    }
+    return placeOrId;
+  }
+  return fn(Object.assign({}, placeOrId, extra || {}));
+}
+
+function shellHumanPlaceLabel(placeOrId, extra) {
+  return formatPlaceLabel(placeOrId, viewModel && viewModel.placesById, extra);
+}
+
+function humanPlaceLabel(placeOrId, extra) {
+  return shellHumanPlaceLabel(placeOrId, extra);
 }
 
 function resolvePlaceName(placeId) {
@@ -883,7 +919,7 @@ function repairChartHashFromHandoff() {
 function registerHandoffPlaceInMemory(h) {
   if (!h || !h.placeId) return;
   const place = h.place || {};
-  const display = place.display_name || h.placeName || null;
+  const display = shellHumanPlaceLabel(place || { display_name: h.placeName, latitude: h.lat, longitude: h.lon }) || h.placeName || null;
   const lat = place.latitude != null ? place.latitude : (place.lat != null ? place.lat : h.lat);
   const lon = place.longitude != null ? place.longitude : (place.lon != null ? place.lon : h.lon);
   if (storeRaw && Array.isArray(storeRaw.places) && !storeRaw.places.some((p) => p.id === h.placeId)) {
@@ -979,13 +1015,21 @@ function parseLocation() {
     : "dashboard";
   const params = new URLSearchParams(queryPart);
   const pathSegments = path.split("/").filter(Boolean);
+  const SETTINGS_SUB_ALIASES = {
+    charts: "astrology",
+    "map-location": "display",
+    "appearance-regional": "display",
+    "sharing-data": "exports",
+    technical: "data",
+  };
   const VALID_SETTINGS_SUB = new Set([
-    "account", "charts", "map-location", "appearance-regional",
-    "sharing-data", "technical", "about",
+    "account", "astrology", "display", "notifications", "exports", "data", "about",
+    ...Object.keys(SETTINGS_SUB_ALIASES),
   ]);
   let settingsSubpage = null;
   if (route === "settings" && pathSegments[1] && VALID_SETTINGS_SUB.has(pathSegments[1])) {
-    settingsSubpage = pathSegments[1];
+    const rawSub = pathSegments[1];
+    settingsSubpage = SETTINGS_SUB_ALIASES[rawSub] || rawSub;
   }
   return {
     route,
@@ -1092,7 +1136,9 @@ function normalizeNavContext(partial) {
   const out = {
     route,
     settingsSubpage: route === "settings"
-      ? (partial.settingsSubpage !== undefined ? partial.settingsSubpage : null)
+      ? (partial.settingsSubpage !== undefined
+        ? normalizeSettingsSubpage(partial.settingsSubpage)
+        : null)
       : null,
     chartRecordId: partial.chartRecordId || null,
     placeId: partial.placeId || null,
@@ -2356,7 +2402,7 @@ function mountComparisonOverlaySearch() {
       return "Location";
     },
     onSelect: (item) => {
-      addComparisonPick(item.place_id, item.display_name || item.label || "Saved place", {
+      addComparisonPick(item.place_id, shellHumanPlaceLabel(Object.assign({}, item, { provider: item.source === "custom" ? "map_custom" : (item.provider || null) })) || "Saved place", {
         hostId: "rm-cmp-overlay-selected",
         msgId: "rm-cmp-overlay-msg",
       });
@@ -2523,7 +2569,7 @@ function mountComparisonLocationSearch() {
     inputId: "rm-cmp-loc-search",
     getProfileId: () => navContext.chartRecordId,
     onSelect: (item) => {
-      const name = item.display_name || item.label || item.place_id;
+      const name = shellHumanPlaceLabel(Object.assign({}, item, { provider: item.source === "custom" ? "map_custom" : (item.provider || null) }));
       addComparisonPick(item.place_id, name);
       if (comparisonLocationSearchCtl) comparisonLocationSearchCtl.clear();
     },
@@ -2881,16 +2927,57 @@ function aspectToAngleHtml() {
     </div>`;
 }
 
-// Settings router (S-UX-1C): landing cards + focused subpages; persistence IDs unchanged.
-const SETTINGS_LANDING_CARDS = [
-  { id: "account", title: "Account & Profiles", desc: "Account identity, default profile, and profile management." },
-  { id: "charts", title: "Charts", desc: "Bodies, aspects, orbs, dignities, house system, and advanced chart defaults." },
-  { id: "map-location", title: "Map & Location", desc: "Map layer preferences and per-profile location settings." },
-  { id: "appearance-regional", title: "Appearance & Regional", desc: "Visual themes, glyphs, language, and date/time formats." },
-  { id: "sharing-data", title: "Sharing & Data", desc: "Exports, sharing defaults, and saved work management." },
-  { id: "technical", title: "Technical & Personalization", desc: "Diagnostics, developer options, and creator tools." },
-  { id: "about", title: "About & Data Sources", desc: "Attribution for ephemeris, places, time zones, and maps." },
+// Settings navigation framework (W2-SETTINGS-1): seven canonical subpages + legacy URL aliases.
+const SETTINGS_SECTIONS = [
+  { id: "account", label: "Account", title: "Account", desc: "Identity, default profile, and profile management." },
+  { id: "astrology", label: "Astrology", title: "Astrology", desc: "Chart calculation defaults, bodies, aspects, orbs, and dignities." },
+  { id: "display", label: "Display", title: "Display", desc: "Visual themes, map presentation, glyphs, and regional formats." },
+  { id: "notifications", label: "Notifications", title: "Notifications", desc: "Email and in-app alerts (coming soon)." },
+  { id: "exports", label: "Exports", title: "Exports", desc: "Share links and export presets." },
+  { id: "data", label: "Data", title: "Data", desc: "Saved work, diagnostics, and account data tools." },
+  { id: "about", label: "About", title: "About", desc: "Attribution for ephemeris, places, time zones, and maps." },
 ];
+
+function normalizeSettingsSubpage(sub) {
+  if (!sub) return null;
+  const aliases = {
+    charts: "astrology",
+    "map-location": "display",
+    "appearance-regional": "display",
+    "sharing-data": "exports",
+    technical: "data",
+  };
+  return aliases[sub] || sub;
+}
+
+function settingsNavHtml(activeId) {
+  return SETTINGS_SECTIONS.map((s) => {
+    const active = activeId === s.id ? " active" : "";
+    return `<button type="button" class="linkish settings-nav-item${active}" data-settings-sub="${s.id}">${escapeHtml(s.label)}</button>`;
+  }).join("");
+}
+
+function settingsPageLayout(activeSub, title, subtitle, bodyHtml, opts) {
+  const o = opts || {};
+  const showSave = o.showSave === true;
+  return `
+    <h2>S5 \u2014 Settings</h2>
+    <p class="purpose">Choose a section. Controls are placeholders unless marked as saved to your account.</p>
+    <div class="settings-layout" data-settings-framework>
+      <nav class="settings-nav" aria-label="Settings sections">
+        ${settingsNavHtml(activeSub)}
+      </nav>
+      <div class="settings-sections settings-subpage">
+        <h3 class="settings-sec-title">${title}</h3>
+        <p class="settings-sec-sub">${subtitle}</p>
+        ${bodyHtml}
+        ${showSave ? settingsSaveBarHtml() : ""}
+        <div class="row" style="margin-top:16px;">
+          <button type="button" data-nav="dashboard">Back to app</button>
+        </div>
+      </div>
+    </div>`;
+}
 
 function settingsSoonBadge() {
   return '<span class="badge-soon">Coming soon</span>';
@@ -2912,36 +2999,32 @@ function settingsSaveBarHtml() {
     </div>`;
 }
 
-function settingsSubpageShell(title, subtitle, bodyHtml, opts) {
+function settingsSubpageShell(subId, title, subtitle, bodyHtml, opts) {
   const o = opts || {};
-  const showSave = o.showSave !== false;
-  return `
-    <h2>S5 \u2014 Settings</h2>
-    <div class="settings-subpage">
-      <div class="row" style="margin-bottom:12px;align-items:center;">
-        <button type="button" data-action="settings-back">\u2190 Back to Settings</button>
-      </div>
-      <h3 class="settings-sec-title">${title}</h3>
-      <p class="settings-sec-sub">${subtitle}</p>
-      ${bodyHtml}
-      ${showSave ? settingsSaveBarHtml() : ""}
-    </div>`;
+  return settingsPageLayout(subId, title, subtitle, bodyHtml, { showSave: o.showSave === true });
 }
 
 function settingsLandingHtml() {
   return `
     <h2>S5 \u2014 Settings</h2>
-    <p class="purpose">Choose a category. Each section opens on its own page.</p>
-    <div class="settings-landing-grid">
-      ${SETTINGS_LANDING_CARDS.map((card) => `
-        <div class="panel settings-landing-card">
-          <h3>${card.title}</h3>
-          <p class="meta">${card.desc}</p>
-          <button type="button" data-settings-sub="${card.id}">Open</button>
-        </div>`).join("")}
-    </div>
-    <div class="row" style="margin-top:16px;">
-      <button type="button" data-nav="dashboard">Back to app</button>
+    <p class="purpose">Choose a section from the navigation or cards below.</p>
+    <div class="settings-layout" data-settings-framework>
+      <nav class="settings-nav" aria-label="Settings sections">
+        ${settingsNavHtml(null)}
+      </nav>
+      <div class="settings-sections">
+        <div class="settings-landing-grid">
+          ${SETTINGS_SECTIONS.map((card) => `
+          <div class="panel settings-landing-card">
+            <h3>${card.title}</h3>
+            <p class="meta">${card.desc}</p>
+            <button type="button" data-settings-sub="${card.id}">Open</button>
+          </div>`).join("")}
+        </div>
+        <div class="row" style="margin-top:16px;">
+          <button type="button" data-nav="dashboard">Back to app</button>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -3118,22 +3201,62 @@ function settingsAppearanceRegionalBodyHtml() {
     </div>`;
 }
 
-function settingsSharingDataBodyHtml() {
+function settingsExportsBodyHtml() {
   return `
-    <div class="settings-subhead">Sharing &amp; Exports</div>
-    <div class="panel">
+    <div class="settings-subhead">Sharing &amp; export defaults</div>
+    <div class="panel" id="sec-exports" data-settings-future="export-defaults">
       ${settingsStubRow("Default share link", "Quick sharing options.")}
       ${settingsStubRow("Export defaults", "Report and file export presets.")}
+      ${settingsStubRow("PNG / PDF presets", "Viewport and table export options.")}
       <button type="button" data-nav="export" disabled>Export / share status</button>
-    </div>
-    <div class="settings-subhead">My Data</div>
-    <div class="panel">
+    </div>`;
+}
+
+function settingsDataBodyHtml() {
+  return `
+    <div class="settings-subhead">Saved work</div>
+    <div class="panel" id="sec-data-saved" data-settings-future="saved-work">
       ${settingsStubRow("Saved searches", "Manage investigation history.")}
       ${settingsStubRow("Favorites bulk management", "Manage favorites across profiles.")}
       ${settingsStubRow("Export my data", "Account data export.")}
       <h4 style="margin:16px 0 8px;">History (per Chart Record)</h4>
       <button type="button" disabled>Clear this Chart Record\u2019s history (placeholder)</button>
       <button type="button" disabled style="margin-left:8px;">Clear all history (placeholder)</button>
+    </div>
+    <div class="settings-subhead">Technical</div>
+    <div class="panel" id="sec-data-technical" data-settings-future="technical">
+      ${settingsStubRow("Debug mode", "Verbose client logging.")}
+      ${settingsStubRow("Calculation metadata", "Show engine metadata in UI.")}
+      ${settingsStubRow("Cache reset", "Clear local caches.")}
+    </div>
+    <div class="settings-subhead">Personalization</div>
+    <div class="panel" data-settings-future="personalization">
+      <ul class="meta" style="margin:0;padding-left:18px;">
+        <li>Custom glyph packs (private)</li>
+        <li>Definitions library and interpretation cookbook</li>
+        <li>Guided helper for undefined terms</li>
+      </ul>
+      <p class="meta" style="margin-top:10px;">${settingsSoonBadge()}</p>
+    </div>`;
+}
+
+function settingsDisplayBodyHtml() {
+  return `
+    <div id="sec-display" data-settings-future="display">
+      ${settingsAppearanceRegionalBodyHtml()}
+      <div class="settings-subhead">Map &amp; location</div>
+      ${settingsMapBodyHtml()}
+    </div>`;
+}
+
+function settingsNotificationsBodyHtml() {
+  return `
+    <div class="settings-subhead">Alerts</div>
+    <div class="panel" id="sec-notifications" data-settings-future="notifications">
+      ${settingsStubRow("Email digests", "Weekly summary of saved work.")}
+      ${settingsStubRow("Comparison reminders", "Notify when comparisons are ready.")}
+      ${settingsStubRow("Product updates", "Feature announcements.")}
+      <p class="meta">Notification delivery is not configured yet.</p>
     </div>`;
 }
 
@@ -3172,64 +3295,77 @@ function settingsAboutBodyHtml() {
 const SETTINGS_SUBPAGE_RENDERERS = {
   account() {
     return settingsSubpageShell(
-      "Account &amp; Profiles",
+      "account",
+      "Account",
       "Default profile and account identity.",
       settingsAccountPanelHtml() + settingsProfilesPanelHtml(),
       { showSave: true }
     );
   },
-  charts() {
+  astrology() {
     return settingsSubpageShell(
-      "Charts",
+      "astrology",
+      "Astrology",
       "Layer 2 chart display and interpretation defaults. Saved to your account; not all keys are engine-wired yet.",
       settingsChartsBodyHtml(),
       { showSave: true }
     );
   },
-  "map-location"() {
+  display() {
     return settingsSubpageShell(
-      "Map &amp; Location",
-      "Map preferences and per-profile location (coming soon for most map controls).",
-      settingsMapBodyHtml(),
+      "display",
+      "Display",
+      "Visual themes, map presentation, and regional formats (most controls coming soon).",
+      settingsDisplayBodyHtml(),
       { showSave: false }
     );
   },
-  "appearance-regional"() {
+  notifications() {
     return settingsSubpageShell(
-      "Appearance &amp; Regional",
-      "Visual themes and regional formats (coming soon).",
-      settingsAppearanceRegionalBodyHtml(),
+      "notifications",
+      "Notifications",
+      "Email and in-app alerts (coming soon).",
+      settingsNotificationsBodyHtml(),
       { showSave: false }
     );
   },
-  "sharing-data"() {
+  exports() {
     return settingsSubpageShell(
-      "Sharing &amp; Data",
-      "Export defaults and saved-work management (coming soon).",
-      settingsSharingDataBodyHtml(),
+      "exports",
+      "Exports",
+      "Share links and export presets (coming soon).",
+      settingsExportsBodyHtml(),
       { showSave: false }
     );
   },
-  technical() {
+  data() {
     return settingsSubpageShell(
-      "Technical &amp; Personalization",
-      "Diagnostics and creator tools (coming soon).",
-      settingsTechnicalBodyHtml(),
+      "data",
+      "Data",
+      "Saved work, diagnostics, and account data tools (coming soon).",
+      settingsDataBodyHtml(),
       { showSave: false }
     );
   },
   about() {
     return settingsSubpageShell(
-      "About &amp; Data Sources",
+      "about",
+      "About",
       "Third-party libraries and datasets used for calculations, places, and maps.",
       settingsAboutBodyHtml(),
       { showSave: false }
     );
   },
+  // Legacy URL aliases (render same content; hash normalization prefers canonical ids).
+  charts() { return SETTINGS_SUBPAGE_RENDERERS.astrology(); },
+  "map-location"() { return SETTINGS_SUBPAGE_RENDERERS.display(); },
+  "appearance-regional"() { return SETTINGS_SUBPAGE_RENDERERS.display(); },
+  "sharing-data"() { return SETTINGS_SUBPAGE_RENDERERS.exports(); },
+  technical() { return SETTINGS_SUBPAGE_RENDERERS.data(); },
 };
 
 function screenSettings() {
-  const sub = navContext.settingsSubpage;
+  const sub = normalizeSettingsSubpage(navContext.settingsSubpage);
   if (!sub) return settingsLandingHtml();
   const renderSub = SETTINGS_SUBPAGE_RENDERERS[sub];
   return renderSub ? renderSub() : settingsLandingHtml();
@@ -3585,7 +3721,7 @@ function bindScreenActions(root) {
   root.querySelectorAll("[data-settings-sub]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const sub = btn.getAttribute("data-settings-sub");
-      if (sub) navigate("settings", { settingsSubpage: sub });
+      if (sub) navigate("settings", { settingsSubpage: normalizeSettingsSubpage(sub) });
     });
   });
 
