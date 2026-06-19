@@ -2914,7 +2914,6 @@ function advancedSettingsHtml() {
   return `
     <div class="panel">
       <h3 class="settings-subhead-inner">Aspect display options</h3>
-      <p class="meta"><strong>Advanced / professional.</strong> These controls change interpretation defaults. They are not yet wired into the calculation engine.</p>
       <label class="block" style="display:flex;align-items:center;gap:8px;">
         <input type="checkbox" id="rm-settings-minor-aspects"${minor ? " checked" : ""} style="width:auto;margin:0;" />
         Show minor aspects
@@ -2957,12 +2956,11 @@ function planetsBodiesHtml() {
   return `
     <div class="panel">
       <h3 class="settings-subhead-inner">Astral Bodies &amp; Points</h3>
-      <p class="meta"><strong>Advanced / professional.</strong> Planet and body visibility. Not yet wired into the calculation engine or renderer.</p>
       <h4 style="margin:8px 0 4px;">Core Planets</h4>
       ${CORE.map(([id, label]) => chk("planet", id, label, planets.indexOf(id) !== -1, false)).join("")}
       <h4 style="margin:12px 0 4px;">Additional Bodies</h4>
       ${BODIES.map(([id, label]) => chk("body", id, label, bodies.indexOf(id) !== -1, false)).join("")}
-      <h4 style="margin:12px 0 4px;">Future Bodies</h4>
+      <h4 style="margin:12px 0 4px;">More points</h4>
       ${FUTURE.map(([id, label]) => chk("future", id, label, false, true)).join("")}
       <p class="meta">Additional bodies are advanced features and may not be available in all tools.</p>
     </div>`;
@@ -3005,7 +3003,7 @@ function aspectRegistryVisibilityHtml() {
       </label>`;
   return `
     <div class="panel">
-      <p class="meta"><strong>Aspect display.</strong> Per-aspect visibility. Orbs are configured under Orbs &amp; House Boundaries. Not yet wired into the renderer.</p>
+      <p class="meta">Choose which aspects appear on charts and in search.</p>
       <h4 style="margin:8px 0 4px;">Major Aspects</h4>
       ${MAJOR.map(([id, label]) => visRow("maj", id, label, majVis.indexOf(id) !== -1)).join("")}
       <h4 style="margin:12px 0 4px;">Minor Aspects</h4>
@@ -3021,7 +3019,7 @@ function aspectRegistryOrbsHtml() {
       </label>`;
   return `
     <div class="panel">
-      <p class="meta"><strong>Planet-to-planet orbs.</strong> Separate from aspect-to-angle (A2A) orbs below. Not yet applied to calculations.</p>
+      <p class="meta">Planet-to-planet orbs. Separate from aspect-to-angle orbs below.</p>
       <h4 style="margin:8px 0 4px;">Major aspect orbs</h4>
       ${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}
       <h4 style="margin:12px 0 4px;">Minor aspect orbs</h4>
@@ -3037,10 +3035,10 @@ function aspectRegistryHtml() {
 // Human-readable label for subsequent_house_policy values.
 function houseProximityPolicyLabel(policy) {
   switch (policy) {
-    case "display_only": return "Display-only transitional cue";
+    case "display_only": return "Highlight near-cusp placements";
     case "disabled":     return "Disabled";
     case "interpretive": return "Interpretive note only";
-    default:             return policy ? String(policy) : "Display-only transitional cue";
+    default:             return policy ? String(policy) : "Highlight near-cusp placements";
   }
 }
 
@@ -3062,13 +3060,13 @@ function houseProximityHtml() {
   return `
     <div class="panel">
       <h3 class="settings-subhead-inner">Late-in-house boundaries</h3>
-      <p class="meta"><strong>Orbs &amp; house boundaries.</strong> Late-in-house settings control transitional cues near house cusps. They do <em>not</em> change Layer 1 house membership. Not yet applied to the renderer.</p>
+      <p class="meta">Control how placements near house cusps are highlighted.</p>
       <label class="block">House proximity orb (degrees)
         <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
       </label>
       <label class="block">Subsequent-house policy
         <select id="rm-settings-subsequent-house-policy">
-          ${opt("display_only", "Display-only transitional cue")}
+          ${opt("display_only", "Highlight near-cusp placements")}
           ${opt("disabled", "Disabled")}
           ${opt("interpretive", "Interpretive note only")}
         </select>
@@ -3102,10 +3100,8 @@ function aspectToAngleHtml() {
   return `
     <div class="panel">
       <h3 class="settings-subhead-inner">Aspect-to-angle (A2A) orbs</h3>
-      <p class="meta"><strong>Aspect-to-angle (A2A).</strong> Proximity orbs for planet-to-angle relationships (ASC/MC). A 30% house-span rule for angle-to-angle boundaries is planned; not yet configurable. Not yet applied to calculations.</p>
-      <p class="meta">These settings are separate from planet-to-planet aspect orbs.</p>
+      <p class="meta">Orbs for planet-to-angle relationships (ASC/MC). Separate from planet-to-planet aspect orbs.</p>
       ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
-      <p class="meta">Changing these settings affects future searches and saved settings snapshots, but does not change existing saved investigations.</p>
     </div>`;
 }
 
@@ -3145,7 +3141,7 @@ function settingsPageLayout(activeSub, title, subtitle, bodyHtml, opts) {
   const o = opts || {};
   const showSave = o.showSave === true;
   return `
-    <h2>S5 \u2014 Settings</h2>
+    <h2>Settings</h2>
     <p class="purpose">Choose a section. Saved settings apply to your account where indicated.</p>
     <div class="settings-layout" data-settings-framework>
       <nav class="settings-nav" aria-label="Settings sections">
@@ -3190,7 +3186,7 @@ function settingsSubpageShell(subId, title, subtitle, bodyHtml, opts) {
 
 function settingsLandingHtml() {
   return `
-    <h2>S5 \u2014 Settings</h2>
+    <h2>Settings</h2>
     <p class="purpose">Choose a section from the navigation or cards below.</p>
     <div class="settings-layout" data-settings-framework>
       <nav class="settings-nav" aria-label="Settings sections">
@@ -3257,7 +3253,7 @@ function chartAppearanceStubHtml() {
 function chartsHouseSystemHtml() {
   return `
     <div class="panel">
-      <p class="meta">Placidus is the only active house system. Previously saved values are preserved but not editable until more systems ship.</p>
+      <p class="meta">Placidus is the active house system.</p>
       <label class="block">House system
         <select id="rm-settings-house" disabled aria-disabled="true" title="Placidus only for now">
           <option value="placidus" selected>Placidus (active)</option>
@@ -3278,7 +3274,7 @@ function chartsZodiacHtml() {
   const mode = eff && eff.zodiac_mode ? capitalize(eff.zodiac_mode) : "Tropical";
   return `
     <div class="panel">
-      <p class="meta">Tropical zodiac only for now. Sidereal and other modes are planned.</p>
+      <p class="meta">Tropical zodiac is active.</p>
       <label class="block">Zodiac mode (read-only)
         <input type="text" value="${escapeHtml(mode)}" disabled />
       </label>
@@ -3288,7 +3284,6 @@ function chartsZodiacHtml() {
 function dignitiesShellHtml() {
   return `
     <div class="panel">
-      <p class="meta"><strong>Not yet applied.</strong> Essential dignity scoring is not wired into the renderer or calculations.</p>
       <label class="block">Dignity preset
         <select disabled aria-disabled="true">
           <option>Traditional</option>
@@ -3297,23 +3292,18 @@ function dignitiesShellHtml() {
         </select>
         ${settingsSoonBadge()}
       </label>
-      <p class="meta">Advanced per-planet dignity overrides \u2014 coming soon.</p>
     </div>`;
 }
 
 function interpretiveHintsShellHtml() {
   return `
     <div class="panel">
-      <p class="meta">
-        <strong>Interpretive hints</strong>
-        <span title="Interpretive hints are optional subjective nudges for beginners. They are not essential dignities and are off by default." style="cursor:help;margin-left:4px;">?</span>
-        \u2014 optional Layer 2 plugin-style feature; default off; not persisted yet.
-      </p>
+      <p class="meta">Optional subjective nudges for beginners. Off by default. These are not objective astrological facts.</p>
       <label class="block" style="display:flex;align-items:center;gap:8px;opacity:0.75;">
         <input type="checkbox" disabled style="width:auto;margin:0;" />
         Show interpretive hints
       </label>
-      <p class="meta">Preview swatches: supportive <span class="hint-swatch pos"></span> cautionary <span class="hint-swatch neg"></span></p>
+      ${settingsSoonBadge()}
     </div>`;
 }
 
@@ -3336,9 +3326,8 @@ function settingsChartsBodyHtml() {
       ${chartsHouseSystemHtml()}
       <div class="settings-subhead">Zodiac</div>
       ${chartsZodiacHtml()}
-      <div class="settings-subhead">Advanced</div>
-      ${interpretiveHintsShellHtml()}
-      ${effectiveConfigPanelHtml()}`;
+      <div class="settings-subhead">Interpretive hints</div>
+      ${interpretiveHintsShellHtml()}`;
 }
 
 function settingsMapBodyHtml() {
@@ -3360,7 +3349,7 @@ function settingsMapBodyHtml() {
         <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
       </div>
       <div class="loc-future" style="margin-top:12px;">
-        <div class="loc-future-head">Experimental \u00b7 not yet available</div>
+        <div class="loc-future-head">${settingsSoonBadge()}</div>
         ${settingsStubRow("Road Trip Mode", "Continuous route-based location.")}
         ${settingsStubRow("GPS / device location", "Use device location instead of manual search.")}
         ${settingsStubRow("Offline / Airplane mode", "Saved location without a connection.")}
@@ -3436,30 +3425,11 @@ function settingsNotificationsBodyHtml() {
     <div class="settings-subhead">Alerts</div>
     <div class="panel" id="sec-notifications" data-settings-future="notifications">
       ${settingsStubRow("Email digests", "Weekly summary of saved work.")}
-      ${settingsStubRow("Comparison reminders", "Notify when comparisons are ready.")}
       ${settingsStubRow("Product updates", "Feature announcements.")}
-      <p class="meta">Notification delivery is not configured yet.</p>
+
     </div>`;
 }
 
-function settingsTechnicalBodyHtml() {
-  return `
-    <div class="settings-subhead">Technical</div>
-    <div class="panel">
-      ${settingsStubRow("Debug mode", "Verbose client logging.")}
-      ${settingsStubRow("Calculation metadata", "Show engine metadata in UI.")}
-      ${settingsStubRow("Cache reset", "Clear local caches.")}
-    </div>
-    <div class="settings-subhead">Personalization</div>
-    <div class="panel">
-      <ul class="meta" style="margin:0;padding-left:18px;">
-        <li>Custom glyph packs (private)</li>
-        <li>Definitions library and interpretation cookbook</li>
-        <li>Guided helper for undefined terms</li>
-      </ul>
-      <p class="meta" style="margin-top:10px;">${settingsSoonBadge()}</p>
-    </div>`;
-}
 
 function settingsAboutBodyHtml() {
   return `
@@ -3488,7 +3458,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "astrology",
       "Astrology",
-      "Layer 2 chart display and interpretation defaults. Saved to your account; not all keys are engine-wired yet.",
+      "Chart display and interpretation defaults. Saved to your account.",
       settingsChartsBodyHtml(),
       { showSave: true }
     );
@@ -3515,7 +3485,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "exports",
       "Exports",
-      "Share links and export presets (coming soon).",
+      "Share links and export presets.",
       settingsExportsBodyHtml(),
       { showSave: false }
     );
