@@ -111,6 +111,8 @@
   .settings-landing-card { display: flex; flex-direction: column; gap: 8px; }
   .settings-landing-card h3 { margin: 0; font-size: 15px; font-weight: 600; }
   .settings-subpage { max-width: 720px; }
+  details.rm-settings-more-points { margin-top: 8px; }
+  details.rm-settings-more-points > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
   .settings-save-bar { position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); padding: 12px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
   .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
@@ -2899,84 +2901,63 @@ function effectiveConfigPanelHtml() {
     </div>`;
 }
 
-// Advanced / professional astrology settings (Settings Phase 3).
-// Editable but contained: persisted to user_settings.settings_json via
-// saveAccountSettingsPatch. NOT yet wired into the calculation engine.
-// Controls are prefilled from the effective settings so reloads reflect saves.
-function advancedSettingsHtml() {
+// Astrology settings sections (SETTINGS-2D doctrine order).
+function _settingsEff() {
   const RM = window.RMSettings;
   const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const eff = (RM && typeof RM.getEffectiveSettings === "function")
+  return (RM && typeof RM.getEffectiveSettings === "function")
     ? RM.getEffectiveSettings(raw.user_settings || null, null)
     : null;
-  const minor = eff ? !!eff.visible_minor_aspects : false;
-  const oos = eff ? !!eff.out_of_sign_aspects : false;
-  return `
-    <div class="panel">
-      <h3 class="settings-subhead-inner">Aspect display options</h3>
-      <label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-minor-aspects"${minor ? " checked" : ""} style="width:auto;margin:0;" />
-        Show minor aspects
-      </label>
-      <p class="meta">Minor aspects are advanced and off by default.</p>
-      <label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} style="width:auto;margin:0;" />
-        Allow out-of-sign aspects
-      </label>
-      <p class="meta">Out-of-sign aspects are off by default.</p>
-      <p class="meta">Per-aspect visibility and orbs are grouped under Charts below.</p>
-    </div>`;
 }
 
-// Planet & body visibility registry (Settings Phase 4).
-// Editable but contained: persisted to user_settings.settings_json via
-// saveAccountSettingsPatch. NOT wired into renderer/calculations yet.
-// Prefilled from effective settings so reloads reflect saves. Ontology packs
-// may later override visible_planets/visible_bodies through the effective layer.
 function planetsBodiesHtml() {
-  const RM = window.RMSettings;
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const eff = (RM && typeof RM.getEffectiveSettings === "function")
-    ? RM.getEffectiveSettings(raw.user_settings || null, null)
-    : null;
+  const eff = _settingsEff();
   const planets = (eff && Array.isArray(eff.visible_planets)) ? eff.visible_planets : [];
   const bodies = (eff && Array.isArray(eff.visible_bodies)) ? eff.visible_bodies : [];
   const CORE = [
     ["sun", "Sun"], ["moon", "Moon"], ["mercury", "Mercury"], ["venus", "Venus"],
-    ["mars", "Mars"], ["jupiter", "Jupiter"], ["saturn", "Saturn"], ["uranus", "Uranus"],
-    ["neptune", "Neptune"], ["pluto", "Pluto"],
+    ["mars", "Mars"], ["jupiter", "Jupiter"], ["saturn", "Saturn"],
+    ["uranus", "Uranus"], ["neptune", "Neptune"], ["pluto", "Pluto"],
   ];
-  const BODIES = [["chiron", "Chiron"]];
-  const FUTURE = [["north_node", "North Node"], ["south_node", "South Node"], ["part_of_fortune", "Part of Fortune"]];
+  const ADDITIONAL = [
+    ["chiron", "Chiron", bodies.indexOf("chiron") !== -1 || bodies.length === 0],
+    ["north_node", "North Node", bodies.indexOf("north_node") !== -1],
+    ["south_node", "South Node", bodies.indexOf("south_node") !== -1],
+  ];
+  const MORE = [["part_of_fortune", "Part of Fortune"]];
   const chk = (kind, id, label, checked, disabled) =>
-    `<label class="block" style="display:flex;align-items:center;gap:8px;${disabled ? "opacity:0.6;" : ""}">
+    `<label class="block" style="display:flex;align-items:center;gap:8px;${disabled ? "opacity:0.55;" : ""}">
         <input type="checkbox" id="rm-settings-${kind}-${id}"${checked ? " checked" : ""}${disabled ? " disabled aria-disabled=\"true\"" : ""} style="width:auto;margin:0;" />
         ${label}
       </label>`;
+  const coreRows = CORE.map(([id, label]) =>
+    chk("planet", id, label, true, true)
+  ).join("");
+  const addRows = ADDITIONAL.map(([id, label, on]) =>
+    chk("body", id, label, on, false)
+  ).join("");
+  const moreRows = MORE.map(([id, label]) =>
+    chk("future", id, label, false, true)
+  ).join("");
   return `
     <div class="panel">
-      <h3 class="settings-subhead-inner">Astral Bodies &amp; Points</h3>
-      <h4 style="margin:8px 0 4px;">Core Planets</h4>
-      ${CORE.map(([id, label]) => chk("planet", id, label, planets.indexOf(id) !== -1, false)).join("")}
-      <h4 style="margin:12px 0 4px;">Additional Bodies</h4>
-      ${BODIES.map(([id, label]) => chk("body", id, label, bodies.indexOf(id) !== -1, false)).join("")}
-      <h4 style="margin:12px 0 4px;">More points</h4>
-      ${FUTURE.map(([id, label]) => chk("future", id, label, false, true)).join("")}
-      <p class="meta">Additional bodies are advanced features and may not be available in all tools.</p>
+      <h4 style="margin:0 0 8px;">Core planets</h4>
+      <p class="meta" style="margin:0 0 8px;">Always included in charts.</p>
+      ${coreRows}
+      <h4 style="margin:16px 0 8px;">Additional bodies</h4>
+      ${addRows}
+      <details class="rm-settings-more-points">
+        <summary>More points</summary>
+        <div style="margin-top:8px;">
+          ${moreRows}
+          <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+        </div>
+      </details>
     </div>`;
 }
 
-// Aspect registry: per-aspect visibility + orbs (Settings Phase 5).
-// Editable but contained: persisted to user_settings.settings_json via
-// saveAccountSettingsPatch. NOT wired into the aspect engine/renderer yet.
-// Prefilled from effective settings so reloads reflect saves. Ontology packs
-// may later override these through the effective layer.
 function _aspectRegistryContext() {
-  const RM = window.RMSettings;
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const eff = (RM && typeof RM.getEffectiveSettings === "function")
-    ? RM.getEffectiveSettings(raw.user_settings || null, null)
-    : null;
+  const eff = _settingsEff();
   return {
     majVis: (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : [],
     minVis: (eff && Array.isArray(eff.visible_minor_aspects_list)) ? eff.visible_minor_aspects_list : [],
@@ -2994,7 +2975,9 @@ function _aspectRegistryContext() {
   };
 }
 
-function aspectRegistryVisibilityHtml() {
+function aspectsSettingsHtml() {
+  const eff = _settingsEff();
+  const minorMaster = eff ? !!eff.visible_minor_aspects : false;
   const { majVis, minVis, MAJOR, MINOR } = _aspectRegistryContext();
   const visRow = (kind, id, label, checked) =>
     `<label class="block" style="display:flex;align-items:center;gap:8px;">
@@ -3003,15 +2986,18 @@ function aspectRegistryVisibilityHtml() {
       </label>`;
   return `
     <div class="panel">
-      <p class="meta">Choose which aspects appear on charts and in search.</p>
-      <h4 style="margin:8px 0 4px;">Major Aspects</h4>
+      <h4 style="margin:0 0 8px;">Major aspects</h4>
       ${MAJOR.map(([id, label]) => visRow("maj", id, label, majVis.indexOf(id) !== -1)).join("")}
-      <h4 style="margin:12px 0 4px;">Minor Aspects</h4>
+      <h4 style="margin:16px 0 8px;">Minor aspects</h4>
       ${MINOR.map(([id, label]) => visRow("min", id, label, minVis.indexOf(id) !== -1)).join("")}
+      <label class="block" style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+        <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} style="width:auto;margin:0;" />
+        Show minor aspects
+      </label>
     </div>`;
 }
 
-function aspectRegistryOrbsHtml() {
+function chartDisplayOrbsHtml() {
   const { majOrb, minOrb, num, MAJOR, MINOR } = _aspectRegistryContext();
   const orbRow = (kind, id, label, orbVal) =>
     `<label class="block">${label} orb (degrees)
@@ -3019,74 +3005,17 @@ function aspectRegistryOrbsHtml() {
       </label>`;
   return `
     <div class="panel">
-      <p class="meta">Planet-to-planet orbs. Separate from aspect-to-angle orbs below.</p>
-      <h4 style="margin:8px 0 4px;">Major aspect orbs</h4>
+      <h4 style="margin:0 0 8px;">Chart display</h4>
+      <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs.</p>
+      <h4 style="margin:8px 0 4px;font-size:12px;">Major</h4>
       ${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}
-      <h4 style="margin:12px 0 4px;">Minor aspect orbs</h4>
+      <h4 style="margin:12px 0 4px;font-size:12px;">Minor</h4>
       ${MINOR.map(([id, label, d]) => orbRow("min", id, label, num(minOrb[id], d))).join("")}
     </div>`;
 }
 
-function aspectRegistryHtml() {
-  return aspectRegistryVisibilityHtml() + aspectRegistryOrbsHtml();
-}
-
-
-// Human-readable label for subsequent_house_policy values.
-function houseProximityPolicyLabel(policy) {
-  switch (policy) {
-    case "display_only": return "Highlight near-cusp placements";
-    case "disabled":     return "Disabled";
-    case "interpretive": return "Interpretive note only";
-    default:             return policy ? String(policy) : "Highlight near-cusp placements";
-  }
-}
-
-// House proximity / transitional house interpretation (Settings Phase 6).
-// Editable but contained: persisted to user_settings.settings_json via
-// saveAccountSettingsPatch. Does NOT change house membership (Layer 1 truth)
-// and is not wired into the house engine/renderer yet. Prefilled from the
-// effective settings so reloads reflect saves; ontology packs may override.
-function houseProximityHtml() {
-  const RM = window.RMSettings;
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const eff = (RM && typeof RM.getEffectiveSettings === "function")
-    ? RM.getEffectiveSettings(raw.user_settings || null, null)
-    : null;
-  const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
-  const policy = (eff && eff.subsequent_house_policy) ? eff.subsequent_house_policy : "display_only";
-  const opt = (val, label) =>
-    `<option value="${val}"${policy === val ? " selected" : ""}>${label}</option>`;
-  return `
-    <div class="panel">
-      <h3 class="settings-subhead-inner">Late-in-house boundaries</h3>
-      <p class="meta">Control how placements near house cusps are highlighted.</p>
-      <label class="block">House proximity orb (degrees)
-        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
-      </label>
-      <label class="block">Subsequent-house policy
-        <select id="rm-settings-subsequent-house-policy">
-          ${opt("display_only", "Highlight near-cusp placements")}
-          ${opt("disabled", "Disabled")}
-          ${opt("interpretive", "Interpretive note only")}
-        </select>
-      </label>
-      <p class="meta">Default: 2\u00b0 near the end of a house.</p>
-    </div>`;
-}
-
-// Aspect-to-Angle orbs (Settings Phase 7). Proximity orbs for planet-to-angle
-// (ASC/MC) relationships. Separate from planet-to-planet aspect orbs. Editable
-// but contained: persisted to user_settings.settings_json via
-// saveAccountSettingsPatch. NOT wired into the aspect engine/renderer yet.
-// Prefilled from effective settings so reloads reflect saves; ontology packs
-// may override.
-function aspectToAngleHtml() {
-  const RM = window.RMSettings;
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const eff = (RM && typeof RM.getEffectiveSettings === "function")
-    ? RM.getEffectiveSettings(raw.user_settings || null, null)
-    : null;
+function aspectToAngleOrbsHtml() {
+  const eff = _settingsEff();
   const a2a = (eff && eff.aspect_to_angle_orbs) || {};
   const num = (v, d) => (v == null ? d : v);
   const A2A = [
@@ -3099,9 +3028,46 @@ function aspectToAngleHtml() {
       </label>`;
   return `
     <div class="panel">
-      <h3 class="settings-subhead-inner">Aspect-to-angle (A2A) orbs</h3>
-      <p class="meta">Orbs for planet-to-angle relationships (ASC/MC). Separate from planet-to-planet aspect orbs.</p>
+      <h4 style="margin:0 0 8px;">Aspect-to-angle / search</h4>
+      <p class="meta" style="margin:0 0 8px;">Orbs for planet-to-angle relationships (ASC/MC).</p>
       ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
+    </div>`;
+}
+
+function subsequentHouseRuleHtml() {
+  const eff = _settingsEff();
+  const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
+  const policy = (eff && eff.subsequent_house_policy) ? eff.subsequent_house_policy : "display_only";
+  const enabled = policy !== "disabled";
+  return `
+    <div class="panel">
+      <label class="block" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rm-settings-subsequent-house-enabled"${enabled ? " checked" : ""} style="width:auto;margin:0;"
+          onchange="var o=document.getElementById('rm-settings-house-proximity-orb');if(o)o.disabled=!this.checked;" />
+        Treat late sign placements as subsequent house
+      </label>
+      <label class="block" style="margin-top:12px;">Orb (degrees)
+        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}"${enabled ? "" : " disabled"} />
+      </label>
+    </div>`;
+}
+
+function outOfSignAspectsHtml() {
+  const eff = _settingsEff();
+  const oos = eff ? !!eff.out_of_sign_aspects : false;
+  return `
+    <div class="panel">
+      <label class="block" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} style="width:auto;margin:0;" />
+        Allow out-of-sign aspects
+      </label>
+    </div>`;
+}
+
+function dignitiesDisplayHtml() {
+  return `
+    <div class="panel">
+      <p class="meta">Dignity colors on Planet-in-House tables are toggled from the <strong>Dignities</strong> footer on each PIH view. Preset styles: ${settingsSoonBadge()}</p>
     </div>`;
 }
 
@@ -3309,25 +3275,23 @@ function interpretiveHintsShellHtml() {
 
 function settingsChartsBodyHtml() {
   return `
-      <div class="settings-subhead">Astral Bodies &amp; Points</div>
+      <div class="settings-subhead">Bodies</div>
       ${planetsBodiesHtml()}
-      <div class="settings-subhead">Chart Appearance</div>
-      ${chartAppearanceStubHtml()}
-      <div class="settings-subhead">Aspect Display</div>
-      ${advancedSettingsHtml()}
-      ${aspectRegistryVisibilityHtml()}
-      <div class="settings-subhead">Orbs &amp; House Boundaries</div>
-      ${aspectRegistryOrbsHtml()}
-      ${houseProximityHtml()}
-      ${aspectToAngleHtml()}
-      <div class="settings-subhead">Dignities</div>
-      ${dignitiesShellHtml()}
+      <div class="settings-subhead">Aspects</div>
+      ${aspectsSettingsHtml()}
+      <div class="settings-subhead">Orbs</div>
+      ${chartDisplayOrbsHtml()}
+      ${aspectToAngleOrbsHtml()}
+      <div class="settings-subhead">Subsequent House Rule</div>
+      ${subsequentHouseRuleHtml()}
+      <div class="settings-subhead">Out-of-Sign Aspects</div>
+      ${outOfSignAspectsHtml()}
       <div class="settings-subhead">House System</div>
       ${chartsHouseSystemHtml()}
       <div class="settings-subhead">Zodiac</div>
       ${chartsZodiacHtml()}
-      <div class="settings-subhead">Interpretive hints</div>
-      ${interpretiveHintsShellHtml()}`;
+      <div class="settings-subhead">Dignities</div>
+      ${dignitiesDisplayHtml()}`;
 }
 
 function settingsMapBodyHtml() {
@@ -4804,7 +4768,7 @@ if (action === "save-comparison-note") {
         if (minorEl) settingsPatch.visible_minor_aspects = !!minorEl.checked;
         if (oosEl) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
         const planetIds = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
-        const bodyIds = ["chiron"];
+        const bodyIds = ["chiron", "north_node", "south_node"];
         const collectChecked = (kind, ids) => ids.filter((id) => {
           const el = document.getElementById("rm-settings-" + kind + "-" + id);
           return el ? !!el.checked : false;
@@ -4843,8 +4807,13 @@ if (action === "save-comparison-note") {
         }
         const hpOrbEl = document.getElementById("rm-settings-house-proximity-orb");
         if (hpOrbEl) { const n = parseFloat(hpOrbEl.value); if (!isNaN(n)) settingsPatch.house_proximity_orb_degrees = n; }
-        const hpPolicyEl = document.getElementById("rm-settings-subsequent-house-policy");
-        if (hpPolicyEl) settingsPatch.subsequent_house_policy = hpPolicyEl.value;
+        const shEnEl = document.getElementById("rm-settings-subsequent-house-enabled");
+        if (shEnEl) {
+          settingsPatch.subsequent_house_policy = shEnEl.checked ? "display_only" : "disabled";
+        } else {
+          const hpPolicyEl = document.getElementById("rm-settings-subsequent-house-policy");
+          if (hpPolicyEl) settingsPatch.subsequent_house_policy = hpPolicyEl.value;
+        }
         const a2aIds = ["conjunction", "opposition", "square", "trine", "sextile"];
         if (document.getElementById("rm-settings-a2aorb-conjunction")) {
           const a2aPatch = {};
