@@ -82,6 +82,8 @@ def resolve_browser_auth() -> str:
     })
     return (
         f"try{{window.localStorage.setItem({json.dumps(storage_key)},{json.dumps(storage_val)});}}catch(e){{}}"
+        + "try{window.localStorage.setItem('rm_map_walkthrough_dismissed','1');}catch(e){}"
+        + "try{window.localStorage.setItem('rm_map_onboarding_dismissed','1');}catch(e){}"
     )
 
 def server_ok() -> bool:

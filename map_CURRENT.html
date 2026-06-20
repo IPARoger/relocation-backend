@@ -779,6 +779,62 @@ html.map-panel-show-legend #panelLegend { display: block; }
 .rm-wt-next:hover { background: #2563eb; }
 /* ── end walkthrough CSS ─────────────────────────────────────────────────── */
 
+
+/* ── Profile nameplate overlay (MAP-UX-1) ────────────────────────────────── */
+#rm-map-nameplate {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    max-width: 280px;
+    pointer-events: auto;
+    background: rgba(251,253,255,0.93);
+    border: 1px solid #cfdde6;
+    border-radius: 10px;
+    padding: 8px 11px;
+    box-shadow: 0 2px 12px rgba(15,23,42,0.10);
+    backdrop-filter: blur(4px);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: opacity 0.3s ease;
+}
+#rm-map-nameplate.rm-np-loading { opacity: 0.5; }
+.rm-np-name-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.2;
+}
+.rm-np-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+.rm-np-caret {
+    font-size: 11px;
+    color: #64748b;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.rm-np-caret:hover { background: #e2ecf1; color: #1e293b; }
+.rm-np-meta {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* ── end nameplate CSS ───────────────────────────────────────────────────── */
+
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -807,6 +863,18 @@ html.map-panel-show-legend #panelLegend { display: block; }
                 <button type="button" data-dismiss-onboarding>Got it</button>
             </div>
         </div>
+    <!-- Profile nameplate overlay (MAP-UX-1) -->
+    <div id="rm-map-nameplate"
+         data-role="map-profile-selector"
+         class="rm-np-loading"
+         title="Active profile">
+      <div class="rm-np-name-row">
+        <span class="rm-np-name" id="rm-np-name">Loading…</span>
+        <button type="button" class="rm-np-caret" id="rm-np-caret"
+                title="Switch profile — opens profile selector in side panel">▾</button>
+      </div>
+      <div class="rm-np-meta" id="rm-np-meta"></div>
+    </div>
     </div>
 
     <div id="panel">
@@ -6540,7 +6608,7 @@ setRenderStatus("Ready.");
             id: 'profile-selector',
             label: 'Step 1 of 7',
             instruction: 'Choose a profile — your chart determines what the map shows.',
-            selector: '#chartProfile'
+            selector: '[data-role="map-profile-selector"]'
         },
         {
             id: 'genie',
@@ -6715,6 +6783,74 @@ setRenderStatus("Ready.");
     });
 })();
 /* ── end walkthrough controller ──────────────────────────────────────────── */
+
+/* ── Profile nameplate controller (MAP-UX-1) ─────────────────────────────── */
+(function initNameplate() {
+    var nameEl  = document.getElementById('rm-np-name');
+    var metaEl  = document.getElementById('rm-np-meta');
+    var caretEl = document.getElementById('rm-np-caret');
+    var plate   = document.getElementById('rm-map-nameplate');
+    if (!plate) return;
+
+    function fmtDate(iso) {
+        try {
+            var p = iso.split('-');
+            var d = new Date(Date.UTC(+p[0], +p[1]-1, +p[2]));
+            return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric', timeZone:'UTC' });
+        } catch(e) { return iso; }
+    }
+
+    function renderNameplate() {
+        var select = document.getElementById('chartProfile');
+        if (!select) return;
+        var opt = select.selectedOptions && select.selectedOptions[0];
+        if (!opt || !opt.value) {
+            if (nameEl) nameEl.textContent = 'No profile';
+            if (metaEl) { metaEl.textContent = ''; metaEl.style.display = 'none'; }
+            plate.classList.add('rm-np-loading');
+            return;
+        }
+        plate.classList.remove('rm-np-loading');
+        var displayName = opt.textContent.replace(/^\[library\]\s*/, '') || opt.value;
+        if (nameEl) nameEl.textContent = displayName;
+
+        var meta = '';
+        try {
+            if (opt.dataset && opt.dataset.profile) {
+                var prof = JSON.parse(opt.dataset.profile);
+                if (prof.date) meta = fmtDate(prof.date);
+                if (prof.place) meta += (meta ? ' \u00b7 ' : '') + prof.place;
+            }
+        } catch(e) { /* ignore */ }
+        if (metaEl) {
+            metaEl.textContent = meta;
+            metaEl.style.display = meta ? '' : 'none';
+        }
+    }
+
+    function openProfileSelector() {
+        var select = document.getElementById('chartProfile');
+        if (!select) return;
+        select.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        setTimeout(function() {
+            select.focus();
+            select.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        }, 120);
+    }
+
+    if (caretEl) caretEl.addEventListener('click', openProfileSelector);
+
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'chartProfile') renderNameplate();
+    });
+
+    if (window.__rmChartProfilesReady) {
+        window.__rmChartProfilesReady.then(renderNameplate).catch(function() { renderNameplate(); });
+    } else {
+        window.addEventListener('load', renderNameplate);
+    }
+})();
+/* ── end nameplate controller ────────────────────────────────────────────── */
 
 </script>
 
