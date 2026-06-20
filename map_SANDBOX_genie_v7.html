@@ -66,34 +66,50 @@
   svg { display:block; }
 
   /* ---------- header ---------- */
-  .topbar { position:fixed; top:0; left:0; right:0; z-index:1200; display:flex; align-items:center; gap:12px;
+  .topbar { position:fixed; top:0; left:0; right:0; z-index:1200; display:flex; align-items:center;
     height:48px; padding:0 18px; background:rgba(251,253,255,.82); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
     transition:background .8s ease, border-color .8s ease, backdrop-filter .8s ease; }
+  .topbar .brand { margin-right:auto; }
+  .topbar .topright { margin-left:auto; }
+  /* mainmenu floats centered over the topbar */
+  .mainmenu { position:absolute; left:50%; transform:translateX(-50%); }
   /* explore: dissolve the white bar for max map; only logo+hamburger (left) and Share+owner (right) float */
   body.explore .topbar { background:transparent; border-color:transparent; backdrop-filter:none; }
   /* MAX MAP: map slides up behind the dissolved bar; only logo/hamburger + share/owner float */
   #map { transition:top .8s ease; }
   body.explore #map { top:0; }
   .brand { font-family:var(--serif); font-size:18px; font-weight:600; color:var(--accent-deep); }
-  .menu-handle { display:none; border:none; background:transparent; color:var(--ink-soft); font-size:19px; width:30px; height:30px; border-radius:8px; }
+  .menu-handle { display:none; border:none; background:transparent; color:var(--ink-soft); font-size:19px; width:30px; height:30px; border-radius:8px; transition:opacity 0.5s ease, transform 0.5s ease; }
   .menu-handle:hover { background:var(--line-soft); color:var(--ink); }
-  body.explore .menu-handle { display:inline-flex; align-items:center; justify-content:center; }
+  body.explore .menu-handle { display:inline-flex; align-items:center; justify-content:center;
+    animation:menuHandleIn 0.9s cubic-bezier(.2,0,.4,1) both; }
+  @keyframes menuHandleIn { from{ transform:scale(.55); opacity:0; } to{ transform:scale(1); opacity:1; } }
   /* opening: width expands, THEN text fades in. closing must mirror: text fades, THEN width collapses (no mid-fade squeeze) */
   .mainmenu { display:flex; gap:2px; overflow:hidden; max-width:600px; opacity:1;
-    transition:opacity .45s ease .45s, max-width 1.0s cubic-bezier(.4,0,.2,1); }
+    transform:translateX(-50%) translateY(0); clip-path:inset(0 round 8px);
+    transition:opacity .45s ease .45s, max-width 1.0s cubic-bezier(.4,0,.2,1),
+      transform 1.0s cubic-bezier(.4,0,.2,1), clip-path 1.0s ease; }
+  /* explore: mainmenu rolls up toward hamburger position (hamburger is at top-left) */
   body.explore .mainmenu { max-width:0; opacity:0; pointer-events:none;
-    transition:opacity .35s ease, max-width .9s cubic-bezier(.4,0,.2,1) .3s; }
-  body.explore.menu-open .mainmenu { max-width:600px; opacity:1; pointer-events:auto; }
+    transform:translateX(-50%) translateY(-100%); clip-path:inset(50% round 8px);
+    transition:opacity .4s ease, max-width 1.0s cubic-bezier(.4,0,.2,1) .25s,
+      transform 0.9s cubic-bezier(.4,0,.2,1), clip-path 0.9s ease; }
+  /* menu-open in explore: mainmenu unrolls downward from hamburger */
+  body.explore.menu-open .mainmenu { 
+    max-width:600px; opacity:1; pointer-events:auto;
+    transform:translateX(-50%) translateY(0); clip-path:inset(0 round 8px);
+    transition:opacity .45s ease .35s, max-width 1.0s cubic-bezier(.4,0,.2,1),
+      transform 1.0s cubic-bezier(.2,0,.4,1) .1s, clip-path 1.0s ease .1s; }
   .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 11px; border-radius:8px; white-space:nowrap; }
   .mainmenu a.on { background:var(--card); color:var(--accent-deep); font-weight:600; box-shadow:0 1px 2px rgba(31,45,56,.1); }
   .mainmenu a:hover { background:rgba(47,111,159,.12); color:var(--ink); }
   .topright { margin-left:auto; display:flex; align-items:center; gap:12px; transition:opacity .6s ease; }
   /* marketing ROI: Share stays prominent. Setup = icon + label; explore = bold square glyph button. */
   .share { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft); background:transparent; border:1px solid var(--line); border-radius:9px; padding:5px 11px;
-    transition:width .6s ease, padding .6s ease, background .4s ease, color .4s ease, border-color .4s ease, box-shadow .4s ease; }
+    transition:width 2.2s cubic-bezier(.4,0,.2,1), padding 2.2s cubic-bezier(.4,0,.2,1), background 2.0s ease, color 2.0s ease, border-color 2.0s ease, box-shadow 2.0s ease; }
   .share:hover { border-color:var(--accent); color:var(--accent); }
-  .share svg { width:14px; height:14px; }
-  .share-txt { max-width:60px; opacity:1; overflow:hidden; white-space:nowrap; transition:max-width .5s ease, opacity .4s ease, margin .5s ease; }
+  .share svg { width:14px; height:14px; transition:width 2.0s ease, height 2.0s ease; }
+  .share-txt { max-width:60px; opacity:1; overflow:hidden; white-space:nowrap; transition:max-width 2.0s cubic-bezier(.4,0,.2,1), opacity 1.8s ease, margin 2.0s ease; }
   body.explore .share { opacity:1; pointer-events:auto; width:40px; height:40px; padding:0; gap:0; justify-content:center;
     background:var(--card); color:var(--accent); border-color:var(--accent);
     box-shadow:0 1px 2px rgba(31,45,56,.12), 0 14px 26px -16px rgba(47,111,159,.5); }
@@ -126,16 +142,34 @@
   .navbtn .full { opacity:1; font-size:13px; }
   /* width eases both ways; labels cross-fade gently (no jump/skip on close) */
   /* deliberately the SLOWEST beat — lags far behind the rest for organic contrast */
+  /* navbtn: entering explore = box shrinks first (2.4s) then mini fades in (1.2s, 1.1s delay) */
+  /* exiting explore = mini fades out first (.6s), box expands (2.4s), then full fades in (1.0s, 1.8s delay) */
   .navbtn { transition:padding 2.4s cubic-bezier(.4,0,.2,1), width 2.4s cubic-bezier(.4,0,.2,1); }
   body.explore .navbtn { padding:0; width:34px; }
-  body.explore .navbtn .full { opacity:0; transition:opacity 1.0s ease; }
-  body.explore .navbtn .mini { opacity:1; transition:opacity 1.2s ease 1.1s; }
+  /* entering explore: full fades quickly so box can take over */
+  body.explore .navbtn .full { opacity:0; transition:opacity 0.8s ease; }
+  /* mini fades in after box has mostly shrunk */
+  body.explore .navbtn .mini { opacity:1; transition:opacity 1.0s ease 1.3s; }
+  /* exiting explore: full waits for box to re-expand before appearing */
+  body:not(.explore) .navbtn .full { opacity:1; transition:opacity 1.0s ease 1.8s; }
+  body:not(.explore) .navbtn .mini { opacity:0; transition:opacity 0.5s ease; }
 
   /* ---------- centered city search (clickable handle in explore) ---------- */
   .citysearch { left:50%; top:60px; transform:translateX(-50%); display:flex; align-items:center; background:var(--card);
     border:1px solid var(--line); border-radius:10px; box-shadow:0 1px 2px rgba(31,45,56,.07), 0 10px 24px -16px rgba(31,45,56,.45);
     overflow:hidden; pointer-events:auto; width:300px; height:38px;
     transition:width 1.0s cubic-bezier(.4,0,.2,1), opacity .8s ease, background .8s ease; }
+
+  /* city search dropdown */
+  .cs-drop { position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--card); border:1px solid var(--line);
+    border-radius:10px; box-shadow:0 4px 16px -8px rgba(31,45,56,.35); overflow:hidden; display:none; z-index:10; }
+  .citysearch.cs-active .cs-drop { display:block; }
+  .cs-section { padding:7px 0; }
+  .cs-section-label { padding:4px 14px 2px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); opacity:.7; }
+  .cs-row { display:flex; align-items:center; gap:9px; padding:8px 14px; cursor:pointer; font-size:13px; color:var(--ink); }
+  .cs-row:hover { background:var(--line-soft); }
+  .cs-row svg { width:14px; height:14px; flex:0 0 auto; color:var(--ink-soft); }
+  .cs-divider { height:1px; background:var(--line); margin:3px 0; }
   .cs-ico { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; color:var(--ink-faint); }
   .cs-ico svg { width:15px; height:15px; }
   .cs-input { flex:1 1 auto; min-width:0; font:inherit; font-size:13px; color:var(--ink); background:transparent; border:none; padding:9px 13px 9px 0; transition:opacity .4s ease; }
@@ -154,22 +188,25 @@
     border: none;
     border-radius: 12px;
     padding: 0;
-    transition: opacity 1.0s ease, transform 1.0s ease, background 1.0s ease,
-      border-color 1.0s ease, box-shadow 1.0s ease, backdrop-filter 1.0s ease;
+    transition: opacity 3.5s ease, transform 3.5s ease, background 3.5s ease,
+      border-color 3.5s ease, box-shadow 3.5s ease, backdrop-filter 3.5s ease;
   }
   .zb-name .nm {
     -webkit-text-fill-color: #14222c;
     -webkit-text-stroke: .4px rgba(70,84,94,.55);
     text-shadow: 0 1px 2px rgba(255,255,255,.9);
+    transition: -webkit-text-fill-color 3.5s ease, -webkit-text-stroke 3.5s ease,
+      text-shadow 3.5s ease, color 3.5s ease;
   }
   .zb-primary {
     text-shadow: 0 1px 2px rgba(255,255,255,.85);
+    transition: color 3.0s ease, opacity 3.0s ease, text-shadow 3.0s ease;
   }
   .zb-meta {
     overflow: hidden;
     max-height: 40px;
     opacity: .85;
-    transition: max-height .8s ease, opacity .6s ease;
+    transition: max-height 3.8s ease 2.0s, opacity 2.8s ease 1.0s, margin-top 3.0s ease 1.5s;
   }
   /* explore: ghost outline on map */
   body.explore .identity-stamp {
@@ -181,22 +218,24 @@
     backdrop-filter: none;
   }
   body.explore .zb-name .nm {
-    color: #14222c;
-    -webkit-text-fill-color: #14222c;
-    text-shadow: 0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff,
-      1px -1px 1px #fff, -1px -1px 1px #fff, 0 0 6px rgba(255,255,255,.9);
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.8px rgba(30,45,58,.26);
+    text-shadow: none;
   }
   body.explore .zb-primary {
-    color: #1a2a36;
-    -webkit-text-fill-color: #1a2a36;
-    text-shadow: 0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff,
-      1px -1px 1px #fff, -1px -1px 1px #fff;
+    color: rgba(30,45,58,.20);
+    -webkit-text-fill-color: rgba(30,45,58,.20);
+    text-shadow: none;
   }
-  body.explore .identity-stamp .tools,
+  body.explore .identity-stamp .tools {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2.5s ease;
+  }
   body.explore .zb-meta {
     max-height: 0;
     opacity: 0;
-    overflow: hidden;
     margin-top: 0;
   }
 
@@ -205,8 +244,9 @@
   .rail { right:16px; top:62px; width:332px; max-width:calc(100% - 32px); pointer-events:none; }
   .builder { pointer-events:auto; position:relative; background:var(--card); border:3px double var(--line); border-radius:16px; padding:15px;
     box-shadow:inset 0 0 28px rgba(47,111,159,.04), 0 1px 2px rgba(31,45,56,.07), 0 26px 50px -24px rgba(31,45,56,.5);
-    transform-origin:top right; transition:opacity .55s ease .15s, transform 1.2s cubic-bezier(.5,0,.2,1); }
-  body.explore .builder { opacity:0; transform:scale(.16) translate(150px,-30px); pointer-events:none; transition:opacity .35s ease 1.0s, transform 1.25s cubic-bezier(.5,0,.2,1); }
+    transform-origin:top right; transition:opacity 0.8s ease, transform 1.6s cubic-bezier(.2,0,.4,1) 0.1s; }
+  /* builder converges toward bottle (top-right corner = bottle position); no translate */
+  body.explore .builder { opacity:0; transform:scale(.06); transform-origin:top right; pointer-events:none; transition:opacity 0.6s ease 1.2s, transform 1.8s cubic-bezier(.65,0,.2,1) 0.1s; }
   .builder.redacting { background:linear-gradient(0deg, rgba(38,48,58,.13), rgba(38,48,58,.13)), var(--card); border-color:rgba(38,48,58,.4); }
 
   .builder-top { display:flex; justify-content:flex-end; align-items:center; margin-bottom:9px; min-height:20px; }
@@ -243,7 +283,7 @@
   .g-dd { width:100%; display:flex; align-items:center; justify-content:space-between; gap:6px; font:inherit; font-size:13.5px; color:var(--ink);
     background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; cursor:pointer; text-align:left;
     box-shadow:inset 0 0 16px rgba(47,111,159,.03); overflow:hidden; transition:border-color .2s ease, box-shadow .2s ease; }
-  .g-dd.ph { color:var(--ink-faint); }
+  .g-dd.ph { color:var(--ink-soft); border-style:dashed; }
   .g-dd:hover { border-color:var(--ink-faint); }
   .g-dd.open { border-color:var(--accent); box-shadow:inset 0 0 16px rgba(47,111,159,.05), 0 0 0 2px rgba(47,111,159,.12); }
   .g-dd .g-dd-lbl { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -276,6 +316,14 @@
   .row-x:hover { color:var(--gold-deep); }
 
   .actions { display:flex; flex-direction:column; gap:10px; margin-top:14px; align-items:center; }
+
+  /* genie empty-state instruction */
+  .genie-hint { padding:13px 4px 10px; display:none; }
+  .genie-hint.visible { display:block; animation:fadeUp .45s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .gh-lead { font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:6px; }
+  .gh-lead em { font-style:normal; font-weight:700; color:var(--ink); }
+  .gh-sub { font-size:11.5px; color:var(--ink-faint); line-height:1.4; }
   .btn-add { width:72%; font-size:14px; font-weight:700; color:#4a3a10; border-radius:12px; padding:12px;
     display:flex; align-items:center; justify-content:center; gap:7px; letter-spacing:.01em;
     background:linear-gradient(180deg,#f3d887,#eccb6b 55%,var(--gold)); border:1px solid var(--gold-deep);
@@ -313,14 +361,14 @@
   .ghoststrip { right:18px; top:46%; transform:translateY(-50%); display:none; flex-direction:column; gap:11px; align-items:stretch; pointer-events:none;
     padding:13px 14px; border-radius:14px; }
   /* ghost controls fade into place on a subtle profile-DNA card so they read clearly without shouting */
-  body.explore .ghoststrip { display:flex; background:rgba(251,253,255,.58); border:1px solid var(--line);
-    box-shadow:inset 0 0 26px rgba(47,111,159,.05), 0 1px 2px rgba(31,45,56,.08), 0 16px 34px -22px rgba(31,45,56,.45);
-    backdrop-filter:blur(5px); opacity:.72; transition:opacity .3s ease;
-    animation:ghostStripIn 1.15s cubic-bezier(.25,.1,.25,1) .35s both; }
+  body.explore .ghoststrip { display:flex; background:rgba(248,252,255,.18); border:1px solid rgba(207,221,230,.38);
+    box-shadow:inset 0 0 20px rgba(47,111,159,.03), 0 1px 2px rgba(31,45,56,.05), 0 12px 28px -18px rgba(31,45,56,.28);
+    backdrop-filter:blur(3px); opacity:.62; transition:opacity .4s ease;
+    animation:ghostStripIn 1.4s cubic-bezier(.25,.1,.25,1) .5s both; }
   body.explore .ghoststrip:hover { opacity:1; }
   @keyframes ghostStripIn { from{ opacity:0; filter:blur(2px); transform:translate(10px,-50%); } to{ opacity:1; filter:blur(0); transform:translate(0,-50%); } }
   /* each token is its own grid with identical columns, so rows line up */
-  .gtok { pointer-events:auto; display:grid; grid-template-columns:96px 30px 30px 30px 20px; column-gap:7px; align-items:center;
+  .gtok { pointer-events:auto; display:grid; grid-template-columns:18px 1fr 30px 30px 30px; column-gap:7px; align-items:center;
     animation:ghostIn .6s ease both; transition:opacity .25s ease; }
   @keyframes ghostIn { from{ opacity:0; transform:translateX(14px);} to{ opacity:1; transform:none;} }
   .gtok.muted { opacity:.32; }
@@ -328,9 +376,10 @@
   .gtok .glbl { justify-self:start; font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     color:var(--ink); -webkit-text-fill-color:currentColor; -webkit-text-stroke:0; text-shadow:none; }
   .gtok.notc .glbl { color:var(--not); }
-  .gtok .gb { width:30px; height:30px; border-radius:9px; border:1px solid rgba(31,45,56,.18); background:rgba(251,253,255,.72);
-    color:var(--ink-soft); font-size:12px; font-weight:800; display:inline-flex; align-items:center; justify-content:center;
-    box-shadow:0 4px 12px -8px rgba(31,45,56,.6); }
+  .gtok .gb { width:30px; height:30px; border-radius:9px; border:1px solid rgba(31,45,56,.15); background:rgba(251,253,255,.68);
+    color:var(--ink-soft); font-size:11px; font-weight:500; font-family:var(--sans); letter-spacing:.04em;
+    display:inline-flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px -6px rgba(31,45,56,.5); }
   .gtok .gb:hover { background:#fff; color:var(--ink); }
   .gtok .gb.on { background:var(--accent); color:#fff; border-color:var(--accent-deep); }
   .gtok .gb.notb.on { background:var(--not); color:#eef2f6; border-color:var(--not); }
@@ -350,13 +399,13 @@
   .save-disk { right:46px; bottom:34px; width:48px; height:48px; border-radius:14px; background:var(--card); border:1px solid var(--accent);
     color:var(--accent); display:inline-flex; align-items:center; justify-content:center; padding:0; pointer-events:none;
     box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(47,111,159,.5);
-    opacity:0; transform:translate(34px,-230px) scale(.55);
-    transition:transform 1.2s cubic-bezier(.4,0,.2,1), opacity .55s ease; }
-  body.explore .save-disk { opacity:1; transform:none; pointer-events:auto; }
+    opacity:0; transform:scale(0.4);
+    transition:opacity 0.5s ease, transform 0.5s ease; }
+  body.explore .save-disk { opacity:1; transform:none; pointer-events:auto; transition:none; }
   body.explore .save-disk.flying { opacity:0; pointer-events:none; }
   .save-disk:hover { color:#fff; background:var(--accent); }
   .save-disk svg { width:22px; height:22px; flex:0 0 auto; }
-  .sd-label { display:none; }
+  .sd-label { font-size:12.5px; font-weight:600; color:var(--ink-soft); white-space:nowrap; max-width:0; opacity:0; overflow:hidden; transition:max-width 0.6s ease, opacity 0.5s ease; }
 
   /* save popover (fast) */
   .savepop { position:fixed; z-index:1400; width:288px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px;
@@ -392,6 +441,52 @@
   .popmenu button:hover { background:var(--line-soft); color:var(--ink); }
   .popmenu button.danger:hover { background:rgba(216,80,74,.12); color:#c0433d; }
   .popmenu .pm-head { font-size:11px; color:var(--ink-faint); padding:5px 10px 6px; border-bottom:1px solid var(--line-soft); margin-bottom:4px; }
+
+  /* ── Notepad widget ─────────────────────────────────────────────────── */
+  /* stub: 1.5" square word-processor pad visible in setup mode */
+  .np-stub { position:fixed; z-index:950; right:82px; bottom:34px;
+    width:144px; height:144px; border-radius:13px;
+    background:rgba(254,253,248,.92); border:1px solid var(--line);
+    box-shadow:0 1px 2px rgba(31,45,56,.08), 0 12px 28px -14px rgba(31,45,56,.4);
+    display:flex; flex-direction:column; overflow:hidden; pointer-events:auto;
+    transition:opacity 1.4s ease, transform 1.4s ease, width 1.4s cubic-bezier(.4,0,.2,1),
+      height 1.4s cubic-bezier(.4,0,.2,1), border-radius 1.4s ease, right 1.4s ease, bottom 1.4s ease; }
+  /* In explore mode: shrink to small icon (36x36) */
+  body.explore .np-stub { width:36px; height:36px; border-radius:10px;
+    right:18px; bottom:96px; opacity:.82;
+    background:rgba(254,253,248,.88); }
+  body.explore .np-stub .np-toolbar,
+  body.explore .np-stub .np-area { opacity:0; pointer-events:none; transition:opacity 0.5s ease; }
+  body.explore .np-stub .np-icon { display:flex !important; }
+  /* expanded: full notepad overlay */
+  .np-stub.np-open { width:min(420px, 90vw); height:min(520px, 80vh);
+    right:82px; bottom:34px; border-radius:16px; }
+  body.explore .np-stub.np-open { width:min(420px, 90vw); height:min(520px, 80vh);
+    right:18px; bottom:96px; border-radius:16px; opacity:1; }
+  .np-icon { display:none; position:absolute; inset:0; align-items:center; justify-content:center;
+    color:var(--ink-soft); font-size:16px; pointer-events:none; }
+  /* toolbar: B I U bullet */
+  .np-toolbar { display:flex; align-items:center; gap:4px; padding:6px 8px 5px; border-bottom:1px solid var(--line); flex:0 0 auto; }
+  .np-toolbar button { width:24px; height:24px; border-radius:6px; border:1px solid transparent;
+    background:transparent; font-size:12px; font-weight:700; color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .np-toolbar button:hover { background:var(--line-soft); color:var(--ink); border-color:var(--line); }
+  .np-toolbar button.on { background:var(--line); color:var(--ink); border-color:var(--ink-faint); }
+  .np-toolbar .np-sep { width:1px; height:16px; background:var(--line); margin:0 2px; }
+  .np-toolbar .np-expand { margin-left:auto; }
+  /* text area */
+  .np-area { flex:1; width:100%; resize:none; border:none; outline:none; padding:8px 10px;
+    font-family:var(--sans); font-size:13px; color:var(--ink); background:transparent;
+    line-height:1.6; overflow:auto; }
+  /* footer when open */
+  .np-footer { display:none; padding:7px 10px 8px; border-top:1px solid var(--line); flex:0 0 auto;
+    display:flex; gap:6px; justify-content:flex-end; align-items:center; }
+  .np-stub.np-open .np-footer { display:flex; }
+  .np-name-input { flex:1; border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:12.5px; color:var(--ink); background:var(--card); outline:none; }
+  .np-name-input:focus { border-color:var(--accent); }
+  .np-btn-save, .np-btn-close { padding:5px 12px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; border:1px solid var(--line); }
+  .np-btn-save { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .np-btn-save:hover { filter:brightness(1.08); }
+  .np-btn-close { background:var(--card); color:var(--ink-soft); }
 </style>
 </head>
 <body>
@@ -431,7 +526,22 @@
   <!-- centered city search -->
   <div class="ov citysearch" id="citysearch" data-act="cs-handle">
     <span class="cs-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
-    <input class="cs-input" type="text" placeholder="Search a city…" autocomplete="off" />
+    <input class="cs-input" id="csInput" type="text" placeholder="Search locations…" autocomplete="off" />
+    <div class="cs-drop" id="csDrop">
+      <div class="cs-section">
+        <div class="cs-section-label">Favorites</div>
+        <div class="cs-row" data-city="Portland, OR, USA" data-lat="45.5231" data-lng="-122.6765">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/></svg>Portland, OR, USA</div>
+        <div class="cs-row" data-city="New York, NY, USA" data-lat="40.7128" data-lng="-74.0060">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/></svg>New York, NY, USA</div>
+        <div class="cs-row" data-city="London, UK" data-lat="51.5074" data-lng="-0.1278">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/></svg>London, UK</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-section" id="csSuggestions" style="display:none">
+        <div class="cs-section-label">Suggestions</div>
+      </div>
+    </div>
   </div>
 
   <!-- identity stamp (zone-b — matches beta v14 profile_standard) -->
@@ -444,6 +554,10 @@
         <button class="btn-clear" data-act="clearmap" title="Clear map — remove all variables">Clear</button>
       </div>
       <div class="chips" id="chips"></div>
+      <div class="genie-hint" id="genieHint">
+        <p class="gh-lead">Choose a variable type below, then configure it and click <em>Add Variable</em> to build your search.</p>
+        <p class="gh-sub">Try: Planet in House, Angle, or Aspect — you can stack up to 4 variables.</p>
+      </div>
       <div class="buildrow" id="buildrow"></div>
       <div class="actions">
         <button class="btn-add" id="addBtn" data-act="add"><span>+</span> Add Variable</button>
@@ -473,6 +587,7 @@
 
   <!-- save pill -> disk -->
   <button class="ov save-disk" id="saveDisk" data-act="opensave" title="Save this search">
+    <span class="sd-label">Save search</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
     <span class="sd-label">Save search</span>
   </button>
@@ -642,13 +757,13 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
   function renderBuildRow(){
     els.buildrow.innerHTML =
       '<div class="br-master">'+
-        selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Select Variable")+
+        selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"▸ Choose variable type…")+
         '<label class="not-box'+(build.not?' on':'')+'" title="Redact — exclude these placements (NOT)">'+NOT_ICON+
           '<input type="checkbox" data-role="notcheck"'+(build.not?' checked':'')+'></label>'+
       '</div>'+
       '<div class="subs" id="subs"></div>'+
       '<div class="br-foot" id="brFoot"></div>';
-    renderSubs(); applyRedactPreview();
+    renderSubs(); applyRedactPreview(); updateGenieHint();
   }
   function renderSubs(){
     var subs=document.getElementById("subs"), foot=document.getElementById("brFoot");
@@ -658,6 +773,14 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
     }).join("");
     foot.innerHTML = '<button class="row-x" data-act="cancel" title="Discard this variable">✕</button>';
     updateAddState();
+  }
+
+  function updateGenieHint(){
+    var hint=document.getElementById('genieHint');
+    if(!hint) return;
+    // show hint when there are no chips AND no category selected
+    var empty=variables.length===0 && !build.category;
+    hint.classList.toggle('visible', empty);
   }
   function updateAddState(){
     var complete=buildComplete();
@@ -673,11 +796,11 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
     els.bottleBadge.textContent = variables.length;
     els.ghost.innerHTML = variables.map(function(v){
       return '<span class="gtok" data-id="'+v.id+'">'+
+        '<span class="gsw"></span>'+
         '<span class="glbl">'+esc(catById(v.category).mini(v.values))+'</span>'+
-        '<button class="gb notb" data-mini="not" data-id="'+v.id+'" title="NOT (redact)">'+NOT_ICON+'</button>'+
-        '<button class="gb mb" data-mini="mute" data-id="'+v.id+'" title="Mute">M</button>'+
-        '<button class="gb sb" data-mini="solo" data-id="'+v.id+'" title="Solo">S</button>'+
-        '<span class="gsw"></span></span>';
+        '<button class="gb notb" data-mini="not" data-id="'+v.id+'" title="NOT — redact this variable">'+NOT_ICON+'</button>'+
+        '<button class="gb mb" data-mini="mute" data-id="'+v.id+'" title="Mute — hide from map">M</button>'+
+        '<button class="gb sb" data-mini="solo" data-id="'+v.id+'" title="Solo — show only this variable">S</button></span>';
     }).join("");
     syncGhost();
   }
@@ -715,34 +838,111 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
     variables.push({id:uid(),not:v.not,category:v.category,values:Object.assign({},v.values),colorIdx:colorTick++%12,mute:false}); renderAll(); }
 
   function flySave(toDisk, onDone){
-    var fromBtn=document.getElementById("saveInline");
+    var pill=document.getElementById("saveInline");
     var disk=document.getElementById("saveDisk");
-    if(!fromBtn||!disk){ if(onDone) onDone(); return; }
-    var start=toDisk?fromBtn.getBoundingClientRect():disk.getBoundingClientRect();
-    var ghost=fromBtn.cloneNode(true);
-    ghost.id=""; ghost.removeAttribute("data-act");
-    ghost.style.cssText="position:fixed;left:"+start.left+"px;top:"+start.top+"px;width:"+start.width+"px;height:"+start.height+
-      "px;z-index:2000;pointer-events:none;margin:0;transition:left 1.15s cubic-bezier(.4,0,.2,1),top 1.15s cubic-bezier(.4,0,.2,1),width 1.15s cubic-bezier(.4,0,.2,1),height 1.15s cubic-bezier(.4,0,.2,1),border-radius 1.15s cubic-bezier(.4,0,.2,1),padding 1.15s cubic-bezier(.4,0,.2,1);";
-    document.body.appendChild(ghost);
-    if(toDisk){ fromBtn.style.visibility="hidden"; disk.classList.add("flying"); }
-    else { disk.classList.add("flying"); }
-    if(!toDisk) els.body.classList.remove("explore","menu-open","cs-open");
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        var end=toDisk?disk.getBoundingClientRect():fromBtn.getBoundingClientRect();
-        ghost.style.left=end.left+"px"; ghost.style.top=end.top+"px";
-        ghost.style.width=end.width+"px"; ghost.style.height=end.height+"px";
-        ghost.style.borderRadius=toDisk?"14px":"10px";
-        if(toDisk){
-          ghost.style.padding="0"; ghost.style.justifyContent="center";
-          var svg=disk.querySelector("svg"); if(svg) ghost.innerHTML=svg.outerHTML;
-        }
-      });
-    });
-    setTimeout(function(){
-      ghost.remove(); fromBtn.style.visibility=""; disk.classList.remove("flying");
-      if(onDone) onDone();
-    }, 1180);
+    if(!pill||!disk){ if(onDone) onDone(); return; }
+    var DUR=1600; // ms — human paced
+    var easing='cubic-bezier(.4,0,.2,1)';
+    var dur=DUR/1000+'s';
+
+    if(toDisk){
+      /* pill morphs into disk: ghost clone travels from pill → disk position while
+         cross-fading from pill content to disk icon — no innerHTML switcheroo */
+      var src=pill.getBoundingClientRect();
+      // Read disk position: it's already at its final place but invisible (opacity:0)
+      disk.style.opacity='0'; disk.style.transform='none'; disk.style.transition='none';
+      var dst=disk.getBoundingClientRect();
+
+      var ghost=document.createElement('div');
+      var pillSvgEl=pill.querySelector('svg');
+      var diskSvgEl=disk.querySelector('svg');
+      var pillSvg=pillSvgEl?pillSvgEl.outerHTML:'';
+      var diskSvg=diskSvgEl?diskSvgEl.outerHTML:'';
+      ghost.innerHTML=
+        '<span class="gf-pill" style="display:inline-flex;align-items:center;gap:7px;transition:opacity '+(DUR*0.45/1000)+'s ease">'+
+          pillSvg+'<span style="font-size:12.5px;font-weight:600;color:var(--ink-soft)">Save search</span></span>'+
+        '<span class="gf-disk" style="opacity:0;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity '+(DUR*0.45/1000)+'s ease '+(DUR*0.42/1000)+'s">'+diskSvg+'</span>';
+      ghost.style.cssText=[
+        'position:fixed','left:'+src.left+'px','top:'+src.top+'px',
+        'width:'+src.width+'px','height:'+src.height+'px',
+        'border-radius:10px','background:var(--paper)',
+        'border:1px solid var(--line)','box-shadow:0 1px 2px rgba(31,45,56,.06)',
+        'display:inline-flex','align-items:center','justify-content:center',
+        'gap:7px','padding:7px 14px','z-index:2000','pointer-events:none','overflow:hidden',
+        'transition:left '+dur+' '+easing+',top '+dur+' '+easing+
+          ',width '+dur+' '+easing+',height '+dur+' '+easing+
+          ',border-radius '+dur+' '+easing+',padding '+dur+' '+easing+
+          ',background 0.9s ease 0.5s,color '+dur+' ease,border-color 0.9s ease 0.5s'
+      ].join(';');
+      document.body.appendChild(ghost);
+      pill.style.visibility='hidden';
+      disk.style.opacity='0'; disk.style.transform='none';
+
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        ghost.style.left=dst.left+'px'; ghost.style.top=dst.top+'px';
+        ghost.style.width=dst.width+'px'; ghost.style.height=dst.height+'px';
+        ghost.style.borderRadius='14px'; ghost.style.padding='0';
+        ghost.style.background='var(--card)'; ghost.style.borderColor='var(--accent)';
+        // cross-fade
+        setTimeout(function(){ var p=ghost.querySelector('.gf-pill'); if(p) p.style.opacity='0'; }, 80);
+        setTimeout(function(){ var d=ghost.querySelector('.gf-disk'); if(d) d.style.opacity='1'; }, DUR*0.42);
+      });});
+
+      setTimeout(function(){
+        ghost.remove(); pill.style.visibility='';
+        disk.style.transition=''; // restore
+        if(onDone) onDone();
+      }, DUR+60);
+
+    } else {
+      /* disk morphs back into pill — reverse journey */
+      if(els.body.classList.contains('explore')) els.body.classList.remove('explore','menu-open','cs-open');
+      var src2=disk.getBoundingClientRect();
+
+      // pill position: it's hidden but rendered so we can measure
+      pill.style.visibility='hidden'; pill.style.display='';
+      var dst2=pill.getBoundingClientRect();
+      pill.style.visibility='';
+
+      var diskSvgEl2=disk.querySelector('svg');
+      var pillSvgEl2=pill.querySelector('svg');
+      var diskSvg2=diskSvgEl2?diskSvgEl2.outerHTML:'';
+      var pillSvg2=pillSvgEl2?pillSvgEl2.outerHTML:'';
+
+      var ghost2=document.createElement('div');
+      ghost2.innerHTML=
+        '<span class="gf-disk2" style="display:flex;align-items:center;justify-content:center;transition:opacity '+(DUR*0.45/1000)+'s ease">'+diskSvg2+'</span>'+
+        '<span class="gf-pill2" style="opacity:0;position:absolute;inset:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:opacity '+(DUR*0.45/1000)+'s ease '+(DUR*0.42/1000)+'s">'+
+          pillSvg2+'<span style="font-size:12.5px;font-weight:600;color:var(--ink-soft)">Save search</span></span>';
+      ghost2.style.cssText=[
+        'position:fixed','left:'+src2.left+'px','top:'+src2.top+'px',
+        'width:'+src2.width+'px','height:'+src2.height+'px',
+        'border-radius:14px','background:var(--card)',
+        'border:1px solid var(--accent)','color:var(--accent)',
+        'display:inline-flex','align-items:center','justify-content:center',
+        'z-index:2000','pointer-events:none','overflow:hidden',
+        'transition:left '+dur+' '+easing+',top '+dur+' '+easing+
+          ',width '+dur+' '+easing+',height '+dur+' '+easing+
+          ',border-radius '+dur+' '+easing+',padding '+dur+' '+easing+
+          ',background 0.9s ease 0.5s,border-color 0.9s ease 0.5s'
+      ].join(';');
+      document.body.appendChild(ghost2);
+      disk.style.opacity='0';
+
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        ghost2.style.left=dst2.left+'px'; ghost2.style.top=dst2.top+'px';
+        ghost2.style.width=dst2.width+'px'; ghost2.style.height=dst2.height+'px';
+        ghost2.style.borderRadius='10px'; ghost2.style.padding='7px 14px';
+        ghost2.style.background='var(--paper)'; ghost2.style.borderColor='var(--line)';
+        setTimeout(function(){ var d=ghost2.querySelector('.gf-disk2'); if(d) d.style.opacity='0'; }, 80);
+        setTimeout(function(){ var p=ghost2.querySelector('.gf-pill2'); if(p) p.style.opacity='1'; }, DUR*0.42);
+      });});
+
+      setTimeout(function(){
+        ghost2.remove(); disk.style.opacity='';
+        if(onDone) onDone();
+      }, DUR+60);
+    }
   }
   function doSearch(){ commitVariable(); renderAll(); els.body.classList.add("explore"); fixSize(); drawOverlays(); flySave(true); }
   function toSetup(){ closeSavePop(); flySave(false, function(){ renderAll(); fixSize(); }); }
@@ -874,6 +1074,128 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
   renderPlate(); renderAll();
   window.__sandbox = { get variables(){return variables;}, drawOverlays:drawOverlays };
 })();
+
+  // City search dropdown — favorites + predictive
+  (function(){
+    var cs=document.getElementById('citysearch');
+    var inp=document.getElementById('csInput');
+    if(!cs||!inp) return;
+    function openDrop(){ cs.classList.add('cs-active'); }
+    function closeDrop(){ cs.classList.remove('cs-active'); }
+    inp.addEventListener('focus', openDrop);
+    inp.addEventListener('input', function(){
+      var q=inp.value.trim().toLowerCase();
+      var sug=document.getElementById('csSuggestions');
+      if(q.length<2){ if(sug) sug.style.display='none'; return; }
+      // Synthetic predictive rows (placeholder — real GeoNames lookup deferred)
+      if(sug){
+        sug.style.display='';
+        var rows=sug.querySelectorAll('.cs-row[data-predict]');
+        rows.forEach(function(r){ r.remove(); });
+        ['Berlin, Germany','Buenos Aires, Argentina','Bangkok, Thailand'].filter(function(c){ return c.toLowerCase().indexOf(q)>-1; }).forEach(function(c){
+          var row=document.createElement('div');
+          row.className='cs-row'; row.setAttribute('data-predict','1');
+          row.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'+c;
+          row.addEventListener('click', function(){ inp.value=c; closeDrop(); });
+          sug.appendChild(row);
+        });
+      }
+    });
+    document.addEventListener('click', function(e){ if(!cs.contains(e.target)) closeDrop(); });
+    // Favorite clicks
+    cs.querySelectorAll('.cs-row:not([data-predict])').forEach(function(row){
+      row.addEventListener('click', function(){
+        var city=row.getAttribute('data-city');
+        if(city) inp.value=city;
+        closeDrop();
+      });
+    });
+  })();
+
+  // Notepad widget
+  (function(){
+    var stub=document.getElementById('npStub');
+    var area=document.getElementById('npArea');
+    var toolbar=document.getElementById('npToolbar');
+    var expandBtn=document.getElementById('npExpand');
+    var closeBtn=document.getElementById('npClose');
+    var saveBtn=document.getElementById('npSave');
+    if(!stub||!area) return;
+
+    // Open/close expand
+    function openPad(){ stub.classList.add('np-open'); area.focus(); expandBtn.textContent='⤡'; }
+    function closePad(){ stub.classList.remove('np-open'); expandBtn.textContent='⤢'; }
+
+    // Clicking stub when collapsed opens it
+    stub.addEventListener('click', function(e){
+      if(stub.classList.contains('np-open')) return; // already open — ignore bubble
+      // ignore if clicking a toolbar button or expand
+      if(e.target.closest('.np-toolbar,.np-footer')) return;
+      openPad();
+    });
+    expandBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      stub.classList.contains('np-open') ? closePad() : openPad();
+    });
+    closeBtn.addEventListener('click', function(e){ e.stopPropagation(); closePad(); });
+
+    // Save: stores note in localStorage with a name
+    saveBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var nameEl=document.getElementById('npNameInput');
+      var noteName=nameEl&&nameEl.value.trim() ? nameEl.value.trim() : 'Note '+new Date().toLocaleDateString();
+      var notes=JSON.parse(localStorage.getItem('rm-notes')||'[]');
+      notes.unshift({name:noteName, content:area.innerHTML, ts:Date.now()});
+      localStorage.setItem('rm-notes', JSON.stringify(notes.slice(0,20)));
+      closePad();
+    });
+
+    // Toolbar formatting
+    toolbar.addEventListener('click', function(e){
+      var btn=e.target.closest('[data-np]');
+      if(!btn) return;
+      e.preventDefault();
+      var cmd=btn.getAttribute('data-np');
+      if(cmd==='bullet'){
+        document.execCommand('insertUnorderedList');
+      } else {
+        document.execCommand(cmd);
+      }
+      area.focus();
+      // toggle "on" class to show active state
+      setTimeout(function(){
+        var sel=window.getSelection();
+        btn.classList.toggle('on', document.queryCommandState(cmd));
+      }, 0);
+    });
+
+    // Keep toolbar buttons in sync with cursor state
+    area.addEventListener('keyup mouseup', function(){
+      toolbar.querySelectorAll('[data-np]').forEach(function(btn){
+        var cmd=btn.getAttribute('data-np');
+        if(cmd!=='bullet') btn.classList.toggle('on', document.queryCommandState(cmd));
+      });
+    });
+  })();
 </script>
+
+  <!-- ── Notepad widget ──────────────────────────────────────────────────── -->
+  <div class="np-stub" id="npStub" title="Open notepad">
+    <span class="np-icon">📝</span>
+    <div class="np-toolbar" id="npToolbar">
+      <button title="Bold" data-np="bold"><b>B</b></button>
+      <button title="Italic" data-np="italic"><i>I</i></button>
+      <button title="Underline" data-np="underline"><u>U</u></button>
+      <span class="np-sep"></span>
+      <button title="Bullet list" data-np="bullet">≡</button>
+      <button class="np-expand" title="Expand notepad" id="npExpand">⤢</button>
+    </div>
+    <div class="np-area" id="npArea" contenteditable="true" spellcheck="true" placeholder="Notes…"></div>
+    <div class="np-footer">
+      <input class="np-name-input" id="npNameInput" type="text" placeholder="Name this note…" />
+      <button class="np-btn-close" id="npClose">Close</button>
+      <button class="np-btn-save" id="npSave">Save</button>
+    </div>
+  </div>
 </body>
 </html>
