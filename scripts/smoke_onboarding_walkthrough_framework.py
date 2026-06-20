@@ -172,14 +172,12 @@ def main() -> None:
         # ── 1. overlay appears on first load (no dismiss/completed key) ──────
         ctx, page = make_page(pw)
         page.goto(MAP_URL, wait_until="domcontentloaded")
-        page.wait_for_timeout(1800)  # wait for 800ms setTimeout + render
         try:
-            overlay_visible = page.evaluate(
-                "() => {"
-                "  const el = document.getElementById('rm-walkthrough');"
-                "  return el && el.classList.contains('rm-wt-active');"
-                "}"
+            page.wait_for_function(
+                "() => document.getElementById('rm-walkthrough')?.classList.contains('rm-wt-active')",
+                timeout=8000
             )
+            overlay_visible = True
         except Exception as e:
             overlay_visible = False
             console_errors.append(f"eval error (ow_trigger): {e}")
@@ -205,7 +203,14 @@ def main() -> None:
         # ── 3–5. dismiss hides overlay + writes key; next advances ───────────
         ctx, page = make_page(pw)
         page.goto(MAP_URL, wait_until="domcontentloaded")
-        page.wait_for_timeout(1800)
+        # wait for walkthrough to activate (load event + 800ms setTimeout can exceed domcontentloaded+1800ms)
+        try:
+            page.wait_for_function(
+                "() => document.getElementById('rm-walkthrough')?.classList.contains('rm-wt-active')",
+                timeout=8000
+            )
+        except Exception:
+            page.wait_for_timeout(500)
         dismiss_old_tooltip(page)
 
         # 3. verify step label contains "Step 1"

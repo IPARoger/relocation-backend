@@ -835,6 +835,44 @@ html.map-panel-show-legend #panelLegend { display: block; }
 }
 /* ── end nameplate CSS ───────────────────────────────────────────────────── */
 
+/* ── Map history & pin controls (MAP-UX-2) ──────────────────────────────── */
+#rm-map-controls {
+    position: absolute;
+    top: 90px;
+    left: 12px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    pointer-events: auto;
+    background: rgba(251,253,255,0.93);
+    border: 1px solid #cfdde6;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(15,23,42,0.10);
+    backdrop-filter: blur(4px);
+}
+.rm-ctrl-btn {
+    border: none;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    padding: 6px 11px;
+    font-size: 15px;
+    line-height: 1;
+    border-right: 1px solid #e2eaf0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: background 0.12s, color 0.12s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.rm-ctrl-btn:last-child { border-right: none; }
+.rm-ctrl-btn:hover:not(:disabled) { background: #e8f0f5; color: #0f172a; }
+.rm-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
+.rm-ctrl-btn.rm-ctrl-pinned { color: #2563eb; }
+/* ── end controls CSS ───────────────────────────────────────────────────── */
+
+
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -863,6 +901,29 @@ html.map-panel-show-legend #panelLegend { display: block; }
                 <button type="button" data-dismiss-onboarding>Got it</button>
             </div>
         </div>
+    <!-- History & pin controls (MAP-UX-2) -->
+    <div id="rm-map-controls"
+         data-role="history-controls"
+         aria-label="Map search history and pin">
+      <button id="rm-ctrl-back"
+              class="rm-ctrl-btn"
+              data-role="map-history-back"
+              disabled
+              title="Previous search state (no history yet)">&#8249;</button>
+      <button id="rm-ctrl-fwd"
+              class="rm-ctrl-btn"
+              data-role="map-history-forward"
+              disabled
+              title="Next search state">&#8250;</button>
+      <button id="rm-ctrl-pin"
+              class="rm-ctrl-btn"
+              data-role="map-pin"
+              title="Pin this search state for comparison">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true">
+          <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.766 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
+        </svg>
+      </button>
+    </div>
     <!-- Profile nameplate overlay (MAP-UX-1) -->
     <div id="rm-map-nameplate"
          data-role="map-profile-selector"
@@ -6590,7 +6651,7 @@ setRenderStatus("Ready.");
  *   2  Genie                 (.condition-block)
  *   3  Current-location popup (#map)
  *   4  Mute / Solo / Not     ([data-role="ghost-tools"])
- *   5  Pin                   ([data-role="pin-control"])
+ *   5  Pin                   ([data-role="map-pin"])
  *   6  History               ([data-role="history-controls"])
  *   7  Save Search           (#saveInvestigationBtn)
  *   8  Map Notes             ([data-role="map-notes"], optional)
@@ -6632,7 +6693,7 @@ setRenderStatus("Ready.");
             id: 'pin',
             label: 'Step 5 of 7',
             instruction: 'Pin a location to keep it visible while you keep exploring.',
-            selector: '[data-role="pin-control"]'
+            selector: '[data-role="map-pin"]'
         },
         {
             id: 'history',
@@ -6851,6 +6912,140 @@ setRenderStatus("Ready.");
     }
 })();
 /* ── end nameplate controller ────────────────────────────────────────────── */
+
+/* ── Map history & pin controller (MAP-UX-2) ─────────────────────────────── */
+(function initMapControls() {
+    var backBtn  = document.getElementById('rm-ctrl-back');
+    var fwdBtn   = document.getElementById('rm-ctrl-fwd');
+    var pinBtn   = document.getElementById('rm-ctrl-pin');
+    if (!backBtn || !fwdBtn || !pinBtn) return;
+
+    /* ── History stack ─────────────────────────────────────────── */
+    /* Each entry: { plan, label }  — plan is the full executeSearchPlan argument */
+    var _stack   = [];
+    var _cursor  = -1;
+    var MAX_HIST = 20;
+    var _replaying = false;   /* guard against re-pushing during replay */
+
+    function syncButtons() {
+        backBtn.disabled = _cursor <= 0;
+        fwdBtn.disabled  = _cursor >= _stack.length - 1;
+        backBtn.title = _cursor > 0
+            ? 'Previous search state (' + _cursor + ' back available)'
+            : 'Previous search state (none yet)';
+        fwdBtn.title = _cursor < _stack.length - 1
+            ? 'Next search state'
+            : 'Next search state (none)';
+    }
+
+    function pushState(plan) {
+        if (_replaying) return;
+        /* truncate forward stack on new branch */
+        _stack = _stack.slice(0, _cursor + 1);
+        _stack.push({ plan: plan });
+        if (_stack.length > MAX_HIST) _stack.shift();
+        _cursor = _stack.length - 1;
+        syncButtons();
+    }
+
+    function replayAt(idx) {
+        if (idx < 0 || idx >= _stack.length) return;
+        var entry = _stack[idx];
+        if (!entry || !entry.plan) return;
+        _cursor = idx;
+        syncButtons();
+        _replaying = true;
+        try {
+            if (typeof window.executeSearchPlan === 'function') {
+                window.executeSearchPlan(entry.plan, { source: 'history_replay' });
+            }
+        } finally {
+            _replaying = false;
+        }
+    }
+
+    backBtn.addEventListener('click', function() { replayAt(_cursor - 1); });
+    fwdBtn.addEventListener('click',  function() { replayAt(_cursor + 1); });
+
+    /* ── Wrap executeSearchPlan to capture snapshots ──────────────
+     *
+     * Future integration path:
+     *   When genie_map_engine_adapter.js gains its own plan-completion
+     *   event/promise, listen to that instead of wrapping here.
+     *   The adapter could expose:
+     *     window.rmGenieAdapter.on('searchComplete', fn)
+     *   and this wrapper can be removed in favour of that listener.
+     */
+    var _origExecuteSearchPlan = window.executeSearchPlan;
+    if (typeof _origExecuteSearchPlan === 'function') {
+        window.executeSearchPlan = async function(plan, meta) {
+            var result = await _origExecuteSearchPlan.call(this, plan, meta);
+            /* capture after successful search */
+            if (plan && (meta || {}).source !== 'history_replay') {
+                pushState(plan);
+            }
+            return result;
+        };
+    }
+
+    syncButtons();
+
+    /* ── Pin ───────────────────────────────────────────────────────
+     *
+     * v1: pins the current plan snapshot into sessionStorage so it
+     * survives navigation within the same session. A visual pinned
+     * indicator appears on the button.
+     *
+     * Future integration path:
+     *   When the comparison workspace ships (COMPARE-1 or similar),
+     *   the pinned plan should be offered as a "load pinned search"
+     *   entry point in the comparison panel.
+     *   The pinned slot could also be exposed via:
+     *     window.rmGetPinnedPlan() — returns the current pinned plan
+     *   so the comparison workspace can read it without DOM coupling.
+     */
+    var PIN_KEY = 'rm_map_pinned_plan';
+    var _pinned = false;
+
+    function setPinned(active) {
+        _pinned = active;
+        pinBtn.classList.toggle('rm-ctrl-pinned', active);
+        pinBtn.title = active
+            ? 'Pinned — click to unpin this search state'
+            : 'Pin this search state for comparison';
+    }
+
+    /* restore pinned state across reload */
+    try {
+        if (sessionStorage.getItem(PIN_KEY)) setPinned(true);
+    } catch(e) { /* ignore */ }
+
+    pinBtn.addEventListener('click', function() {
+        if (_pinned) {
+            /* unpin */
+            try { sessionStorage.removeItem(PIN_KEY); } catch(e) {}
+            setPinned(false);
+            return;
+        }
+        /* pin current plan (latest in history stack, or null) */
+        var plan = _cursor >= 0 ? _stack[_cursor] && _stack[_cursor].plan : null;
+        try {
+            sessionStorage.setItem(PIN_KEY, JSON.stringify(plan || null));
+        } catch(e) {}
+        setPinned(true);
+    });
+
+    /* expose for future comparison workspace */
+    window.rmGetPinnedPlan = function() {
+        try {
+            var raw = sessionStorage.getItem(PIN_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch(e) { return null; }
+    };
+    window.rmHistoryStack = { get stack() { return _stack.slice(); }, get cursor() { return _cursor; } };
+})();
+/* ── end controls controller ─────────────────────────────────────────────── */
+
 
 </script>
 
