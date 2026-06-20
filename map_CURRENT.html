@@ -816,6 +816,171 @@ html.map-panel-show-legend #panelLegend { display: block; }
   transition: max-height .8s ease, opacity .6s ease;
 }
 /* ── end nameplate CSS ───────────────────────────────────────────────────── */
+/* ── MAP-UX-4: Explore mode / Ghost strip / Bottle ──────────────────────── */
+
+/* extra tokens needed by ghost strip */
+:root {
+  --line: #cfdde6;
+  --line-soft: #e2ecf1;
+  --card: #fbfdff;
+  --not: #26303a;
+  --accent-deep: #235a83;
+}
+
+/* Panel collapses when exploring */
+#panel {
+    transition: width 0.8s cubic-bezier(.4,0,.2,1),
+                opacity 0.5s ease,
+                padding 0.8s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+}
+body.rm-explore #panel {
+    width: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    pointer-events: none;
+    border-left: none;
+}
+
+/* Bottle — reopen Genie (hidden until explore) */
+#rm-bottle {
+    display: none;
+    position: absolute;
+    top: 62px;
+    right: 18px;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: var(--card);
+    border: 1.5px solid rgba(47,111,159,.5);
+    color: var(--accent);
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5);
+    z-index: 1000;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+#rm-bottle svg { width: 22px; height: 22px; display: block; }
+body.rm-explore #rm-bottle {
+    display: flex;
+    animation: rmBottleIn 1.0s ease both;
+}
+@keyframes rmBottleIn {
+    from { opacity: 0; transform: scale(.4); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes rmBreathe {
+    0%,100% { box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 0 rgba(47,111,159,.45); }
+    50%     { box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 9px rgba(47,111,159,0); }
+}
+body.rm-explore #rm-bottle { animation: rmBottleIn 1.0s ease both, rmBreathe 2.6s ease 2.1s infinite; }
+
+/* Ghost strip — variable tokens (hidden until explore) */
+#rm-ghost-strip {
+    display: none;
+    position: absolute;
+    right: 18px;
+    top: 46%;
+    transform: translateY(-50%);
+    flex-direction: column;
+    gap: 11px;
+    align-items: stretch;
+    pointer-events: none;
+    padding: 13px 14px;
+    border-radius: 14px;
+    z-index: 1000;
+    max-width: 240px;
+}
+body.rm-explore #rm-ghost-strip {
+    display: flex;
+    background: rgba(251,253,255,.58);
+    border: 1px solid var(--line);
+    box-shadow: inset 0 0 26px rgba(47,111,159,.05),
+                0 1px 2px rgba(31,45,56,.08),
+                0 16px 34px -22px rgba(31,45,56,.45);
+    backdrop-filter: blur(5px);
+    opacity: .72;
+    transition: opacity .3s ease;
+    animation: rmGhostStripIn 1.15s cubic-bezier(.25,.1,.25,1) .35s both;
+}
+body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
+@keyframes rmGhostStripIn {
+    from { opacity: 0; filter: blur(2px); transform: translate(10px,-50%); }
+    to   { opacity: 1; filter: blur(0);   transform: translate(0,-50%); }
+}
+
+/* Ghost token row — grid keeps Mute/Solo/Not columns aligned */
+.rm-gtok {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: 1fr 30px 30px 30px 16px;
+    column-gap: 7px;
+    align-items: center;
+    animation: rmGhostIn .6s ease both;
+    transition: opacity .25s ease;
+}
+@keyframes rmGhostIn {
+    from { opacity: 0; transform: translateX(14px); }
+    to   { opacity: 1; transform: none; }
+}
+.rm-gtok.rm-muted { opacity: .32; }
+.rm-gtok.rm-dim   { opacity: .2; }
+.rm-gtok.rm-notc  .rm-glbl { color: var(--not); }
+
+.rm-glbl {
+    justify-self: start;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink);
+    text-shadow: none;
+    font-family: var(--serif);
+}
+
+/* Mute / Solo / Not buttons */
+.rm-gb {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    border: 1px solid rgba(31,45,56,.18);
+    background: rgba(251,253,255,.72);
+    color: var(--ink-soft);
+    font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px -8px rgba(31,45,56,.6);
+    cursor: pointer;
+}
+.rm-gb:hover { background: #fff; color: var(--ink); }
+.rm-gb.on     { background: var(--accent); color: #fff; border-color: var(--accent-deep); }
+.rm-gb.rm-notb.on { background: var(--not); color: #eef2f6; border-color: var(--not); }
+
+/* Color swatch dot */
+.rm-gsw {
+    justify-self: center;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid #14181c;
+    background-clip: padding-box;
+    box-shadow: 0 2px 6px -2px rgba(0,0,0,.5);
+    flex-shrink: 0;
+}
+.rm-gtok.rm-notc .rm-gsw { border-radius: 3px; }
+
+/* Empty state */
+#rm-ghost-strip:empty::after {
+    content: "No variables active";
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+    pointer-events: none;
+}
+
+/* ── end MAP-UX-4 CSS ────────────────────────────────────────────────────── */
+
 
 /* ── Map history & pin controls (MAP-UX-2) ──────────────────────────────── */
 #rm-map-controls {
@@ -956,6 +1121,28 @@ html.map-panel-show-legend #panelLegend { display: block; }
       </svg>
       Save Search
     </button>
+    <!-- Ghost variable strip (MAP-UX-4) — explore mode only -->
+    <div id="rm-ghost-strip"
+         data-role="map-ghost-strip"
+         aria-label="Active search variables"
+         role="list"
+         aria-live="polite">
+    </div>
+
+    <!-- Bottle: reopen Genie builder (MAP-UX-4) — explore mode only -->
+    <button id="rm-bottle"
+            type="button"
+            data-role="map-reopen-genie"
+            title="Reopen variable builder"
+            aria-label="Reopen variable builder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h10M18 7h2M4 17h2M10 17h10"/>
+        <circle cx="16" cy="7" r="2.4"/>
+        <circle cx="8" cy="17" r="2.4"/>
+      </svg>
+    </button>
+
     <!-- Profile nameplate overlay (MAP-UX-1 / MAP-UX-2.6 zone-b) -->
     <div id="rm-map-nameplate"
          data-role="map-profile-selector"
@@ -7176,6 +7363,227 @@ setRenderStatus("Ready.");
     </div>
   </div>
 </div>
+
+
+<script>
+/* ── MAP-UX-4: Ghost Strip / Explore Mode ────────────────────────────────── */
+(function initGhostStrip() {
+    "use strict";
+
+    var ghostEl  = document.getElementById('rm-ghost-strip');
+    var bottleEl = document.getElementById('rm-bottle');
+    if (!ghostEl || !bottleEl) return;
+
+    /* ── colour palette (matches sandbox 12-color rotation) ── */
+    var PALETTE = [
+        '#3d6b86','#5f8a90','#4a9468','#7a68a0',
+        '#b89a55','#a8392c','#3a6bb0','#2f6f9f',
+        '#8a5a3a','#5a6b8a','#7a8a4a','#9a5a5a'
+    ];
+    var colorTick = 0;
+    function nextColor() { return PALETTE[(colorTick++) % PALETTE.length]; }
+
+    /* ── planet / angle abbreviations ── */
+    var PLANET_ABBR = {
+        sun:'Su', moon:'Mo', mercury:'Me', venus:'Ve', mars:'Ma',
+        jupiter:'Ju', saturn:'Sa', uranus:'Ur', neptune:'Ne',
+        pluto:'Pl', chiron:'Ch'
+    };
+    var ASP_ABBR = {
+        conjunction:'Cnj', opposition:'Opp', square:'Sqr',
+        trine:'Tri', sextile:'Sxt', hard:'Hard', soft:'Soft', any:'Maj'
+    };
+    function ordinal(n) {
+        n = parseInt(n, 10);
+        var s = ['th','st','nd','rd'];
+        var v = n % 100;
+        return n + (s[(v-20)%10] || s[v] || s[0]);
+    }
+    function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+    /* ── read active conditions from panel DOM ── */
+    function snapshotConditions() {
+        var conds = [];
+
+        /* Planet – House (conditions A / B / C) */
+        [['planetA','houseA'],['planetB','houseB'],['planetC','houseC']].forEach(function(pair, idx) {
+            var pEl = document.getElementById(pair[0]);
+            var hEl = document.getElementById(pair[1]);
+            if (!pEl || !pEl.value || !hEl || !hEl.value) return;
+            var planet = cap(pEl.value);
+            var house  = hEl.value;
+            conds.push({
+                id: 'ph-' + idx,
+                label: planet + ' – ' + ordinal(house) + ' House',
+                mini:  (PLANET_ABBR[pEl.value] || planet) + ' · ' + house,
+                color: nextColor(),
+                mute: false, solo: false, not: false,
+            });
+        });
+
+        /* Angle – Sign */
+        var aEl = document.getElementById('angleSignAngle');
+        var sEl = document.getElementById('angleSignSign');
+        if (aEl && aEl.value && sEl && sEl.value) {
+            conds.push({
+                id: 'as-0',
+                label: aEl.value + ' – ' + cap(sEl.value),
+                mini:  aEl.value + ' · ' + cap(sEl.value).slice(0,3),
+                color: nextColor(),
+                mute: false, solo: false, not: false,
+            });
+        }
+
+        /* Aspect – Angle */
+        var opEl  = document.getElementById('overlayPlanet');
+        var oaEl  = document.getElementById('overlayAspect');
+        var oanEl = document.getElementById('overlayAngle');
+        if (opEl && opEl.value && oaEl && oaEl.value && oanEl && oanEl.value) {
+            var aspLabel = oaEl.options[oaEl.selectedIndex] ?
+                oaEl.options[oaEl.selectedIndex].text : cap(oaEl.value);
+            conds.push({
+                id: 'aa-0',
+                label: cap(opEl.value) + ' ' + aspLabel + ' ' + oanEl.value,
+                mini:  (PLANET_ABBR[opEl.value] || cap(opEl.value)) +
+                       ' ' + (ASP_ABBR[oaEl.value] || oaEl.value) +
+                       ' ' + oanEl.value,
+                color: nextColor(),
+                mute: false, solo: false, not: false,
+            });
+        }
+
+        return conds.slice(0, 4); /* max 4 tokens per spec */
+    }
+
+    /* active conditions snapshot — populated on each search */
+    var activeConditions = [];
+    var soloId = null;
+
+    /* ── render ghost tokens ── */
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    var NOT_SVG = '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>';
+
+    function renderGhost() {
+        if (!activeConditions.length) {
+            ghostEl.innerHTML = '';
+            return;
+        }
+        ghostEl.innerHTML = activeConditions.map(function(v) {
+            return '<div class="rm-gtok" data-id="' + esc(v.id) + '" role="listitem">' +
+                '<span class="rm-glbl" title="' + esc(v.label) + '">' + esc(v.mini) + '</span>' +
+                '<button class="rm-gb rm-notb" data-gmini="not" data-id="' + esc(v.id) + '" title="NOT — redact this variable from map" aria-pressed="false">' + NOT_SVG + '</button>' +
+                '<button class="rm-gb rm-mb"   data-gmini="mute" data-id="' + esc(v.id) + '" title="Mute — hide overlays for this variable" aria-pressed="false">M</button>' +
+                '<button class="rm-gb rm-sb"   data-gmini="solo" data-id="' + esc(v.id) + '" title="Solo — show only this variable" aria-pressed="false">S</button>' +
+                '<span class="rm-gsw" style="background:' + esc(v.color) + '" aria-hidden="true"></span>' +
+            '</div>';
+        }).join('');
+        syncGhost();
+    }
+
+    /* STABLE sync — update classes in place, no innerHTML rebuild */
+    function syncGhost() {
+        Array.prototype.forEach.call(ghostEl.querySelectorAll('.rm-gtok'), function(node) {
+            var v = activeConditions.find(function(x) { return x.id === node.getAttribute('data-id'); });
+            if (!v) return;
+            node.classList.toggle('rm-notc',  !!v.not);
+            node.classList.toggle('rm-muted', !!v.mute);
+            node.classList.toggle('rm-dim',   !!(soloId && soloId !== v.id));
+            var notBtn  = node.querySelector('.rm-notb');
+            var muteBtn = node.querySelector('.rm-mb');
+            var soloBtn = node.querySelector('.rm-sb');
+            if (notBtn)  { notBtn.classList.toggle('on', !!v.not);   notBtn.setAttribute('aria-pressed', String(!!v.not)); }
+            if (muteBtn) { muteBtn.classList.toggle('on', !!v.mute);  muteBtn.setAttribute('aria-pressed', String(!!v.mute)); }
+            if (soloBtn) { soloBtn.classList.toggle('on', soloId === v.id); soloBtn.setAttribute('aria-pressed', String(soloId === v.id)); }
+            var sw = node.querySelector('.rm-gsw');
+            if (sw) sw.style.background = v.not ? '#26303a' : v.color;
+        });
+    }
+
+    /* ── mode transitions ── */
+    function enterExplore() {
+        colorTick = 0;
+        activeConditions = snapshotConditions();
+        renderGhost();
+        document.body.classList.add('rm-explore');
+        /* NOTE (future integration): when genie_map_engine_adapter exposes a
+         * variableChange event, subscribe here and call syncGhost() on each
+         * change so Mute/Solo/Not buttons reflect real overlay state.
+         * e.g. window.rmGenieAdapter.on('variableChange', syncGhost) */
+    }
+
+    function exitExplore() {
+        document.body.classList.remove('rm-explore');
+        soloId = null;
+        /* keep activeConditions so the snapshot is available on re-enter */
+    }
+
+    /* ── wrap executeSearchPlan to trigger explore mode ── */
+    /* NOTE: MAP-UX-2 wraps executeSearchPlan first; this wraps on top.
+     * Order of execution when plan fires:
+     *   MAP-UX-4 outer → MAP-UX-2 middle → original genie adapter
+     * After the real search completes, explore mode is entered. */
+    var _prevSearch = window.executeSearchPlan;
+    if (typeof _prevSearch === 'function') {
+        window.executeSearchPlan = async function(plan, meta) {
+            var result = await _prevSearch.apply(this, arguments);
+            /* don't enter explore on history replays — stay in explore if already there */
+            if ((meta || {}).source !== 'history_replay') {
+                enterExplore();
+            }
+            return result;
+        };
+    } else {
+        /* executeSearchPlan not yet defined — wait for it */
+        var _origDefine = Object.getOwnPropertyDescriptor(window, 'executeSearchPlan');
+        var _pollCount = 0;
+        var _poll = setInterval(function() {
+            if (typeof window.executeSearchPlan === 'function' && window.executeSearchPlan !== window.executeSearchPlan._rmGhostWrapped) {
+                clearInterval(_poll);
+                var _base = window.executeSearchPlan;
+                window.executeSearchPlan = async function(plan, meta) {
+                    var result = await _base.apply(this, arguments);
+                    if ((meta || {}).source !== 'history_replay') enterExplore();
+                    return result;
+                };
+            }
+            if (++_pollCount > 60) clearInterval(_poll);
+        }, 500);
+    }
+
+    /* ── bottle: click to exit explore and restore panel ── */
+    bottleEl.addEventListener('click', function() {
+        exitExplore();
+    });
+
+    /* ── ghost token button clicks ── */
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest && e.target.closest('[data-gmini]');
+        if (!btn) return;
+        var mini = btn.getAttribute('data-gmini');
+        var id   = btn.getAttribute('data-id');
+        var v    = activeConditions.find(function(x) { return x.id === id; });
+        if (!v) return;
+        if (mini === 'not')  v.not  = !v.not;
+        if (mini === 'mute') v.mute = !v.mute;
+        if (mini === 'solo') soloId = (soloId === v.id ? null : v.id);
+        syncGhost();
+        /* NOTE (future integration): call drawOverlays() here once genie adapter
+         * exposes a method to redraw with filtered variable set:
+         *   window.rmGenieAdapter.redrawWithFilters(activeConditions, soloId) */
+    });
+
+    /* expose for onboarding walkthrough step 4 */
+    window.__rmGhostStrip = {
+        get conditions() { return activeConditions; },
+        enterExplore: enterExplore,
+        exitExplore:  exitExplore,
+        syncGhost:    syncGhost,
+    };
+
+})();
+/* ── end MAP-UX-4 ────────────────────────────────────────────────────────── */
+</script>
 
 </body>
 </html>
