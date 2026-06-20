@@ -79,6 +79,11 @@
   #map { transition:top .8s ease; }
   body.explore #map { top:0; }
   .brand { font-family:var(--serif); font-size:18px; font-weight:600; color:var(--accent-deep); }
+
+  .menu-close { display:none; border:none; background:transparent; font-size:18px; color:var(--ink-soft);
+    padding:8px 0; cursor:pointer; align-self:flex-end; }
+  body.explore.menu-open .menu-close { display:block; }
+  .menu-close:hover { color:var(--ink); }
   .menu-handle { display:none; border:none; background:transparent; color:var(--ink-soft); font-size:19px; width:30px; height:30px; border-radius:8px; transition:opacity 0.5s ease, transform 0.5s ease; }
   .menu-handle:hover { background:var(--line-soft); color:var(--ink); }
   body.explore .menu-handle { display:inline-flex; align-items:center; justify-content:center;
@@ -89,28 +94,34 @@
     transform:translateX(-50%) translateY(0); clip-path:inset(0 round 8px);
     transition:opacity .45s ease .45s, max-width 1.0s cubic-bezier(.4,0,.2,1),
       transform 1.0s cubic-bezier(.4,0,.2,1), clip-path 1.0s ease; }
-  /* explore: mainmenu rolls up toward hamburger position (hamburger is at top-left) */
+  /* explore: mainmenu collapses left toward the hamburger */
   body.explore .mainmenu { max-width:0; opacity:0; pointer-events:none;
-    transform:translateX(-50%) translateY(-100%); clip-path:inset(50% round 8px);
-    transition:opacity .4s ease, max-width 1.0s cubic-bezier(.4,0,.2,1) .25s,
-      transform 0.9s cubic-bezier(.4,0,.2,1), clip-path 0.9s ease; }
-  /* menu-open in explore: mainmenu unrolls downward from hamburger */
-  body.explore.menu-open .mainmenu { 
-    max-width:600px; opacity:1; pointer-events:auto;
-    transform:translateX(-50%) translateY(0); clip-path:inset(0 round 8px);
-    transition:opacity .45s ease .35s, max-width 1.0s cubic-bezier(.4,0,.2,1),
-      transform 1.0s cubic-bezier(.2,0,.4,1) .1s, clip-path 1.0s ease .1s; }
+    transform:translateX(-50%) translateY(-8px); clip-path:inset(0 100% 0 0 round 8px);
+    transition:opacity .35s ease, max-width 1.1s cubic-bezier(.4,0,.2,1) .2s,
+      clip-path 1.0s cubic-bezier(.4,0,.2,1) .1s, transform 0.8s ease; }
+  /* menu-open: dropdown panel slides down from hamburger */
+  body.explore.menu-open .mainmenu {
+    position:fixed; left:0; top:48px; right:0;
+    flex-direction:column; align-items:flex-start; gap:0;
+    background:rgba(251,253,255,.97); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding:8px 20px 14px; max-width:none; opacity:1; pointer-events:auto;
+    transform:none; clip-path:inset(0 round 0);
+    transition:opacity .3s ease, clip-path .4s cubic-bezier(.2,0,.4,1), transform .4s ease; }
+  body.explore.menu-open .mainmenu a { padding:10px 0; font-size:15px; border-bottom:1px solid var(--line-soft); width:100%; }
+  body.explore.menu-open .mainmenu a:last-child { border-bottom:none; }
   .mainmenu a { font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:6px 11px; border-radius:8px; white-space:nowrap; }
   .mainmenu a.on { background:var(--card); color:var(--accent-deep); font-weight:600; box-shadow:0 1px 2px rgba(31,45,56,.1); }
   .mainmenu a:hover { background:rgba(47,111,159,.12); color:var(--ink); }
   .topright { margin-left:auto; display:flex; align-items:center; gap:12px; transition:opacity .6s ease; }
   /* marketing ROI: Share stays prominent. Setup = icon + label; explore = bold square glyph button. */
   .share { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft); background:transparent; border:1px solid var(--line); border-radius:9px; padding:5px 11px;
-    transition:width 2.2s cubic-bezier(.4,0,.2,1), padding 2.2s cubic-bezier(.4,0,.2,1), background 2.0s ease, color 2.0s ease, border-color 2.0s ease, box-shadow 2.0s ease; }
+    max-width:200px; overflow:hidden;
+    transition:max-width 2.2s cubic-bezier(.4,0,.2,1), padding 2.2s cubic-bezier(.4,0,.2,1), height 2.0s ease, background 2.0s ease, color 2.0s ease, border-color 2.0s ease, box-shadow 2.0s ease; }
   .share:hover { border-color:var(--accent); color:var(--accent); }
   .share svg { width:14px; height:14px; transition:width 2.0s ease, height 2.0s ease; }
   .share-txt { max-width:60px; opacity:1; overflow:hidden; white-space:nowrap; transition:max-width 2.0s cubic-bezier(.4,0,.2,1), opacity 1.8s ease, margin 2.0s ease; }
-  body.explore .share { opacity:1; pointer-events:auto; width:40px; height:40px; padding:0; gap:0; justify-content:center;
+  body.explore .share { opacity:1; pointer-events:auto; max-width:40px; height:40px; padding:0; justify-content:center;
     background:var(--card); color:var(--accent); border-color:var(--accent);
     box-shadow:0 1px 2px rgba(31,45,56,.12), 0 14px 26px -16px rgba(47,111,159,.5); }
   /* morph the label closed instead of display:none popping */
@@ -134,7 +145,8 @@
   .navgrp { display:flex; }
   .navbtn { position:relative; border:none; background:transparent; color:var(--ink-soft); border-right:1px solid var(--line-soft);
     height:36px; display:inline-flex; align-items:center; justify-content:center; padding:0 13px; overflow:hidden;
-    transition:padding .8s ease, width .8s ease; }
+    max-width:200px;
+    transition:max-width 2.4s cubic-bezier(.4,0,.2,1), padding 2.4s cubic-bezier(.4,0,.2,1); }
   .navbtn:last-child { border-right:none; }
   .navbtn:hover { background:var(--line-soft); color:var(--ink); }
   .navbtn .full, .navbtn .mini { display:inline-flex; align-items:center; gap:5px; transition:opacity .55s ease; }
@@ -142,16 +154,13 @@
   .navbtn .full { opacity:1; font-size:13px; }
   /* width eases both ways; labels cross-fade gently (no jump/skip on close) */
   /* deliberately the SLOWEST beat — lags far behind the rest for organic contrast */
-  /* navbtn: entering explore = box shrinks first (2.4s) then mini fades in (1.2s, 1.1s delay) */
-  /* exiting explore = mini fades out first (.6s), box expands (2.4s), then full fades in (1.0s, 1.8s delay) */
-  .navbtn { transition:padding 2.4s cubic-bezier(.4,0,.2,1), width 2.4s cubic-bezier(.4,0,.2,1); }
-  body.explore .navbtn { padding:0; width:34px; }
-  /* entering explore: full fades quickly so box can take over */
-  body.explore .navbtn .full { opacity:0; transition:opacity 0.8s ease; }
-  /* mini fades in after box has mostly shrunk */
-  body.explore .navbtn .mini { opacity:1; transition:opacity 1.0s ease 1.3s; }
-  /* exiting explore: full waits for box to re-expand before appearing */
-  body:not(.explore) .navbtn .full { opacity:1; transition:opacity 1.0s ease 1.8s; }
+  /* navbtn: max-width collapses (box shrinks), labels cross-fade */
+  body.explore .navbtn { padding:0; max-width:34px; }
+  /* entering explore: full fades quickly, mini fades in after box mostly shrunk */
+  body.explore .navbtn .full { opacity:0; transition:opacity 0.7s ease; }
+  body.explore .navbtn .mini { opacity:1; transition:opacity 1.0s ease 1.6s; }
+  /* exiting explore: mini fades first, box expands, full waits for box */
+  body:not(.explore) .navbtn .full { opacity:1; transition:opacity 1.0s ease 2.0s; }
   body:not(.explore) .navbtn .mini { opacity:0; transition:opacity 0.5s ease; }
 
   /* ---------- centered city search (clickable handle in explore) ---------- */
@@ -244,9 +253,9 @@
   .rail { right:16px; top:62px; width:332px; max-width:calc(100% - 32px); pointer-events:none; }
   .builder { pointer-events:auto; position:relative; background:var(--card); border:3px double var(--line); border-radius:16px; padding:15px;
     box-shadow:inset 0 0 28px rgba(47,111,159,.04), 0 1px 2px rgba(31,45,56,.07), 0 26px 50px -24px rgba(31,45,56,.5);
-    transform-origin:top right; transition:opacity 0.8s ease, transform 1.6s cubic-bezier(.2,0,.4,1) 0.1s; }
-  /* builder converges toward bottle (top-right corner = bottle position); no translate */
-  body.explore .builder { opacity:0; transform:scale(.06); transform-origin:top right; pointer-events:none; transition:opacity 0.6s ease 1.2s, transform 1.8s cubic-bezier(.65,0,.2,1) 0.1s; }
+    transition:opacity 0.4s ease; }
+  /* builder: JS FLIP handles transform; CSS only manages opacity after FLIP completes */
+  body.explore .builder { opacity:0; pointer-events:none; }
   .builder.redacting { background:linear-gradient(0deg, rgba(38,48,58,.13), rgba(38,48,58,.13)), var(--card); border-color:rgba(38,48,58,.4); }
 
   .builder-top { display:flex; justify-content:flex-end; align-items:center; margin-bottom:9px; min-height:20px; }
@@ -309,7 +318,9 @@
   .not-box svg { width:18px; height:18px; }
 
   /* subs: keep on ONE line; native dropdown shows full text on open */
-  .subs { display:flex; flex-wrap:nowrap; gap:6px; margin-top:8px; }
+  .subs { display:flex; flex-wrap:nowrap; gap:6px; margin-top:0; max-height:0; opacity:0; overflow:hidden;
+    transition:max-height 0.45s cubic-bezier(.4,0,.2,1), opacity 0.35s ease, margin-top 0.35s ease; }
+  .subs.open { max-height:120px; opacity:1; margin-top:8px; }
   .subs .g-select { flex:1 1 0; min-width:0; }
   .br-foot { display:flex; justify-content:flex-end; }
   .row-x { background:transparent; border:none; color:var(--ink-faint); font-size:15px; line-height:1; padding:6px 2px 0; }
@@ -321,9 +332,7 @@
   .genie-hint { padding:13px 4px 10px; display:none; }
   .genie-hint.visible { display:block; animation:fadeUp .45s ease both; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-  .gh-lead { font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:6px; }
-  .gh-lead em { font-style:normal; font-weight:700; color:var(--ink); }
-  .gh-sub { font-size:11.5px; color:var(--ink-faint); line-height:1.4; }
+  .gh-hint { font-size:12px; color:var(--ink-faint); text-align:center; padding:6px 0 2px; }
   .btn-add { width:72%; font-size:14px; font-weight:700; color:#4a3a10; border-radius:12px; padding:12px;
     display:flex; align-items:center; justify-content:center; gap:7px; letter-spacing:.01em;
     background:linear-gradient(180deg,#f3d887,#eccb6b 55%,var(--gold)); border:1px solid var(--gold-deep);
@@ -348,7 +357,7 @@
   .bottle { right:18px; top:62px; width:54px; height:54px; border-radius:15px; background:var(--card);
     border:1px solid rgba(47,111,159,.5); color:var(--accent); display:none; align-items:center; justify-content:center;
     pointer-events:auto; box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5); }
-  body.explore .bottle { display:flex; animation:bottleIn 1.0s ease both; }
+  body.explore .bottle { display:flex; opacity:0; }  /* JS reveals at FLIP end */
   @keyframes bottleIn { from{ opacity:0; transform:scale(.4); } to{ opacity:1; transform:none; } }
   @keyframes breathe { 0%,100%{ box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 0 rgba(47,111,159,.5);}
     50%{ box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 9px rgba(47,111,159,0);} }
@@ -384,14 +393,16 @@
   .gtok .gb.on { background:var(--accent); color:#fff; border-color:var(--accent-deep); }
   .gtok .gb.notb.on { background:var(--not); color:#eef2f6; border-color:var(--not); }
   .gtok .gb svg { width:14px; height:14px; }
-  .gtok .gsw { justify-self:center; width:16px; height:16px; border-radius:50%; border:2px solid #14181c; background-clip:padding-box; box-shadow:0 2px 6px -2px rgba(0,0,0,.5); }
-  .gtok.notc .gsw { border-radius:4px; }
+  .gtok .gsw { justify-self:center; width:16px; height:16px; border-radius:50%; border:2px solid #14181c; background-clip:padding-box; box-shadow:0 2px 6px -2px rgba(0,0,0,.5); transition:border-color .3s ease, box-shadow .3s ease; }
+  .gtok.notc .gsw { border-color:var(--not); box-shadow:0 0 0 3px rgba(180,60,60,.18), 0 2px 6px -2px rgba(0,0,0,.5); }
+  /* .gtok.notc: swatch stays circular; border color signals NOT state */
 
   /* depth slider — right, beneath ghost */
   .lab { right:26px; top:72%; pointer-events:auto; background:rgba(251,253,255,.85); border:1px solid var(--line); border-radius:999px; padding:8px 14px;
     box-shadow:0 12px 26px -18px rgba(31,45,56,.5); display:none; opacity:.6; transition:opacity .3s ease; }
-  body.explore .lab { display:flex; align-items:center; }
-  body.explore .lab:hover { opacity:1; }
+  body.explore .lab { display:flex; visibility:visible; opacity:.22; pointer-events:auto;
+    align-items:center; transition:opacity 1.6s ease 0.7s, visibility 0s; }
+  body.explore .lab:hover { opacity:.85; transition:opacity .3s ease; }
   .lab input[type=range] { width:150px; accent-color:var(--accent); }
 
   /* the in-builder "Save search" button flies down to this floating disk on search,
@@ -399,9 +410,8 @@
   .save-disk { right:46px; bottom:34px; width:48px; height:48px; border-radius:14px; background:var(--card); border:1px solid var(--accent);
     color:var(--accent); display:inline-flex; align-items:center; justify-content:center; padding:0; pointer-events:none;
     box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(47,111,159,.5);
-    opacity:0; transform:scale(0.4);
-    transition:opacity 0.5s ease, transform 0.5s ease; }
-  body.explore .save-disk { opacity:1; transform:none; pointer-events:auto; transition:none; }
+    opacity:0; pointer-events:none; }
+  body.explore .save-disk { opacity:1; pointer-events:auto; transition:opacity 0.4s ease 0.2s; }
   body.explore .save-disk.flying { opacity:0; pointer-events:none; }
   .save-disk:hover { color:#fff; background:var(--accent); }
   .save-disk svg { width:22px; height:22px; flex:0 0 auto; }
@@ -444,7 +454,7 @@
 
   /* ── Notepad widget ─────────────────────────────────────────────────── */
   /* stub: 1.5" square word-processor pad visible in setup mode */
-  .np-stub { position:fixed; z-index:950; right:82px; bottom:34px;
+  .np-stub { position:fixed; z-index:950; left:16px; bottom:34px;
     width:144px; height:144px; border-radius:13px;
     background:rgba(254,253,248,.92); border:1px solid var(--line);
     box-shadow:0 1px 2px rgba(31,45,56,.08), 0 12px 28px -14px rgba(31,45,56,.4);
@@ -453,18 +463,22 @@
       height 1.4s cubic-bezier(.4,0,.2,1), border-radius 1.4s ease, right 1.4s ease, bottom 1.4s ease; }
   /* In explore mode: shrink to small icon (36x36) */
   body.explore .np-stub { width:36px; height:36px; border-radius:10px;
-    right:18px; bottom:96px; opacity:.82;
+    left:16px; bottom:96px; opacity:.75;
     background:rgba(254,253,248,.88); }
   body.explore .np-stub .np-toolbar,
   body.explore .np-stub .np-area { opacity:0; pointer-events:none; transition:opacity 0.5s ease; }
   body.explore .np-stub .np-icon { display:flex !important; }
   /* expanded: full notepad overlay */
-  .np-stub.np-open { width:min(420px, 90vw); height:min(520px, 80vh);
-    right:82px; bottom:34px; border-radius:16px; }
-  body.explore .np-stub.np-open { width:min(420px, 90vw); height:min(520px, 80vh);
-    right:18px; bottom:96px; border-radius:16px; opacity:1; }
-  .np-icon { display:none; position:absolute; inset:0; align-items:center; justify-content:center;
-    color:var(--ink-soft); font-size:16px; pointer-events:none; }
+  .np-stub.np-open { width:min(360px, 90vw); height:min(460px, 80vh);
+    left:16px; bottom:34px; border-radius:16px; }
+  body.explore .np-stub.np-open { width:min(360px, 90vw); height:min(460px, 80vh);
+    left:16px; bottom:96px; border-radius:16px; opacity:1; }
+  .np-icon { display:flex; position:absolute; inset:0; align-items:flex-start; justify-content:flex-end;
+    padding:6px 7px; color:var(--ink-faint); font-size:12px; pointer-events:none; }
+  .np-stub.np-open .np-icon { display:none; }
+  /* toolbar: hidden until expanded */
+  .np-stub:not(.np-open) .np-toolbar { display:none; }
+  .np-stub:not(.np-open) .np-footer { display:none; }
   /* toolbar: B I U bullet */
   .np-toolbar { display:flex; align-items:center; gap:4px; padding:6px 8px 5px; border-bottom:1px solid var(--line); flex:0 0 auto; }
   .np-toolbar button { width:24px; height:24px; border-radius:6px; border:1px solid transparent;
@@ -474,18 +488,17 @@
   .np-toolbar .np-sep { width:1px; height:16px; background:var(--line); margin:0 2px; }
   .np-toolbar .np-expand { margin-left:auto; }
   /* text area */
-  .np-area { flex:1; width:100%; resize:none; border:none; outline:none; padding:8px 10px;
+  .np-area { flex:1 1 auto; min-height:0; width:100%; resize:none; border:none; outline:none; padding:8px 10px;
     font-family:var(--sans); font-size:13px; color:var(--ink); background:transparent;
     line-height:1.6; overflow:auto; }
   /* footer when open */
-  .np-footer { display:none; padding:7px 10px 8px; border-top:1px solid var(--line); flex:0 0 auto;
+  .np-footer { padding:7px 10px 8px; border-top:1px solid var(--line); flex:0 0 auto;
     display:flex; gap:6px; justify-content:flex-end; align-items:center; }
-  .np-stub.np-open .np-footer { display:flex; }
   .np-name-input { flex:1; border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:12.5px; color:var(--ink); background:var(--card); outline:none; }
   .np-name-input:focus { border-color:var(--accent); }
   .np-btn-save, .np-btn-close { padding:5px 12px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; border:1px solid var(--line); }
-  .np-btn-save { background:var(--accent); color:#fff; border-color:var(--accent); }
-  .np-btn-save:hover { filter:brightness(1.08); }
+  .np-btn-save { background:var(--card); color:var(--ink-soft); border-color:var(--line); }
+  .np-btn-save:hover { border-color:var(--ink-faint); color:var(--ink); }
   .np-btn-close { background:var(--card); color:var(--ink-soft); }
 </style>
 </head>
@@ -494,7 +507,8 @@
   <header class="topbar">
     <div class="brand">Relocation</div>
     <button class="menu-handle" data-act="menu-handle" title="Menu">≡</button>
-    <nav class="mainmenu">
+    <nav class="mainmenu" id="mainmenu">
+      <button class="menu-close" data-act="menu-close" title="Close menu">✕</button>
       <a href="#" class="on">Map</a><a href="#">Profile</a><a href="#">Comparison</a>
       <a href="#">Help</a><a href="#">Settings</a>
     </nav>
@@ -555,8 +569,7 @@
       </div>
       <div class="chips" id="chips"></div>
       <div class="genie-hint" id="genieHint">
-        <p class="gh-lead">Choose a variable type below, then configure it and click <em>Add Variable</em> to build your search.</p>
-        <p class="gh-sub">Try: Planet in House, Angle, or Aspect — you can stack up to 4 variables.</p>
+        <p class="gh-hint">Select a variable type to begin.</p>
       </div>
       <div class="buildrow" id="buildrow"></div>
       <div class="actions">
@@ -757,7 +770,7 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
   function renderBuildRow(){
     els.buildrow.innerHTML =
       '<div class="br-master">'+
-        selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"▸ Choose variable type…")+
+        selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Select variable")+
         '<label class="not-box'+(build.not?' on':'')+'" title="Redact — exclude these placements (NOT)">'+NOT_ICON+
           '<input type="checkbox" data-role="notcheck"'+(build.not?' checked':'')+'></label>'+
       '</div>'+
@@ -768,10 +781,12 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
   function renderSubs(){
     var subs=document.getElementById("subs"), foot=document.getElementById("brFoot");
     if(!build.category){ subs.innerHTML=""; foot.innerHTML=""; updateAddState(); return; }
+    subs.classList.remove('open');
     subs.innerHTML = catById(build.category).fields.map(function(f){
       return selectHtml("field:"+f.key, SOURCES(f.src), build.values[f.key], f.label);
     }).join("");
     foot.innerHTML = '<button class="row-x" data-act="cancel" title="Discard this variable">✕</button>';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ subs.classList.add('open'); }); });
     updateAddState();
   }
 
@@ -896,8 +911,9 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
 
     } else {
       /* disk morphs back into pill — reverse journey */
-      if(els.body.classList.contains('explore')) els.body.classList.remove('explore','menu-open','cs-open');
+      /* IMPORTANT: measure disk position BEFORE toSetup removes explore class */
       var src2=disk.getBoundingClientRect();
+      /* explore class removal is now handled by toSetup FLIP; just ensure disk is measurable */
 
       // pill position: it's hidden but rendered so we can measure
       pill.style.visibility='hidden'; pill.style.display='';
@@ -944,8 +960,88 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
       }, DUR+60);
     }
   }
-  function doSearch(){ commitVariable(); renderAll(); els.body.classList.add("explore"); fixSize(); drawOverlays(); flySave(true); }
-  function toSetup(){ closeSavePop(); flySave(false, function(){ renderAll(); fixSize(); }); }
+  function doSearch(){
+    commitVariable(); renderAll(); fixSize();
+    var builder=els.builder, bottle=document.getElementById('bottle');
+
+    /* ── FLIP: measure builder (visible) and bottle (will be at fixed pos) ── */
+    var bR=builder.getBoundingClientRect();
+    /* temporarily force bottle to be measurable at its CSS position */
+    var oldBS=bottle.getAttribute('style')||'';
+    bottle.style.cssText='position:fixed;display:flex;right:18px;top:62px;width:54px;height:54px;opacity:0;pointer-events:none;';
+    var dR=bottle.getBoundingClientRect();
+    bottle.setAttribute('style', oldBS);
+
+    var tx=(dR.left+dR.width/2)-(bR.left+bR.width/2);
+    var ty=(dR.top+dR.height/2)-(bR.top+bR.height/2);
+    var sc=Math.min(dR.width/bR.width, dR.height/bR.height);
+
+    /* add explore class (share, navbtn, nameplate, mainmenu all start transitioning) */
+    els.body.classList.add('explore');
+
+    /* override builder: stay opaque, travel toward bottle */
+    builder.style.cssText='opacity:1;pointer-events:none;transform-origin:center;'
+      +'transition:transform 1.85s cubic-bezier(.65,0,.15,1);'
+      +'transform:translate('+tx+'px,'+ty+'px) scale('+sc+')';
+
+    /* when builder lands: reveal bottle in-place, then fade builder out */
+    setTimeout(function(){
+      bottle.style.cssText='opacity:1;transition:none;animation:none;';
+      builder.style.transition='opacity 0.18s ease';
+      builder.style.opacity='0';
+      setTimeout(function(){
+        builder.removeAttribute('style');
+        bottle.removeAttribute('style');
+        drawOverlays();
+        flySave(true);
+      }, 200);
+    }, 1880);
+  }
+
+  function toSetup(){
+    var builder=els.builder, bottle=document.getElementById('bottle');
+    closeSavePop();
+
+    /* reverse FLIP: place builder at bottle position, then expand */
+    var dR=bottle.getBoundingClientRect();
+
+    /* show builder (opacity:1) immediately but transformed to bottle position */
+    var bR=(function(){
+      /* measure builder's natural rect — it's opacity:0 but still in layout */
+      var tmp=builder.style.cssText;
+      builder.style.cssText='opacity:0;transform:none;';
+      var r=builder.getBoundingClientRect();
+      builder.style.cssText=tmp;
+      return r;
+    })();
+
+    var tx=(dR.left+dR.width/2)-(bR.left+bR.width/2);
+    var ty=(dR.top+dR.height/2)-(bR.top+bR.height/2);
+    var sc=Math.min(dR.width/bR.width, dR.height/bR.height);
+
+    /* snap builder to bottle position (no transition), make visible */
+    builder.style.cssText='opacity:1;pointer-events:none;transform-origin:center;'
+      +'transform:translate('+tx+'px,'+ty+'px) scale('+sc+');transition:none;';
+
+    /* hide bottle (it and builder are now coincident) */
+    bottle.style.cssText='opacity:0;transition:opacity 0.18s ease;';
+
+    /* start expanding builder back to natural size */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      builder.style.transition='transform 1.7s cubic-bezier(.2,0,.35,1)';
+      builder.style.transform='none';
+
+      setTimeout(function(){
+        /* remove explore class (all CSS transitions reverse: share, navbtn, nameplate…) */
+        els.body.classList.remove('explore','menu-open','cs-open');
+        builder.removeAttribute('style');
+        bottle.removeAttribute('style');
+        renderAll(); fixSize();
+        /* reverse fly: disk morphs back into pill */
+        flySave(false);
+      }, 500);  /* remove explore early so chrome starts rolling back during expansion */
+    }); });
+  }
 
   /* ===== MOCK overlays ===== */
   function seededZones(seed, n){
@@ -1033,6 +1129,7 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
       case "reopen": toSetup(); break;
       case "clearmap": variables=[]; soloId=null; resetBuild(); renderAll(); overlayLayer.clearLayers(); break;
       case "menu-handle": els.body.classList.toggle("menu-open"); break;
+      case "menu-close": els.body.classList.remove("menu-open"); break;
       case "cs-handle": if(els.body.classList.contains("explore")) els.body.classList.toggle("cs-open"); break;
       case "opensave": e.stopPropagation(); if(els.savePop.classList.contains("show")) closeSavePop(); else openSavePop(b); break;
       case "closesave": closeSavePop(); break;
@@ -1123,19 +1220,17 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
     if(!stub||!area) return;
 
     // Open/close expand
-    function openPad(){ stub.classList.add('np-open'); area.focus(); expandBtn.textContent='⤡'; }
-    function closePad(){ stub.classList.remove('np-open'); expandBtn.textContent='⤢'; }
+    function openPad(){ stub.classList.add('np-open'); area.focus(); }
+    function closePad(){ stub.classList.remove('np-open'); }
 
     // Clicking stub when collapsed opens it
     stub.addEventListener('click', function(e){
-      if(stub.classList.contains('np-open')) return; // already open — ignore bubble
-      // ignore if clicking a toolbar button or expand
-      if(e.target.closest('.np-toolbar,.np-footer')) return;
+      if(stub.classList.contains('np-open')) return;
       openPad();
     });
     expandBtn.addEventListener('click', function(e){
       e.stopPropagation();
-      stub.classList.contains('np-open') ? closePad() : openPad();
+      closePad();
     });
     closeBtn.addEventListener('click', function(e){ e.stopPropagation(); closePad(); });
 
@@ -1177,21 +1272,27 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
       });
     });
   })();
+
+  // Close hamburger dropdown when clicking outside
+  document.addEventListener('click', function(e){
+    if(els.body.classList.contains('menu-open') && !e.target.closest('.mainmenu') && !e.target.closest('[data-act="menu-handle"]'))
+      els.body.classList.remove('menu-open');
+  });
 </script>
 
   <!-- ── Notepad widget ──────────────────────────────────────────────────── -->
-  <div class="np-stub" id="npStub" title="Open notepad">
+  <div class="np-stub" id="npStub" title="Click to open notepad">
     <span class="np-icon">📝</span>
+    <div class="np-area" id="npArea" contenteditable="true" spellcheck="true" placeholder="Notes…"></div>
     <div class="np-toolbar" id="npToolbar">
       <button title="Bold" data-np="bold"><b>B</b></button>
       <button title="Italic" data-np="italic"><i>I</i></button>
       <button title="Underline" data-np="underline"><u>U</u></button>
       <span class="np-sep"></span>
       <button title="Bullet list" data-np="bullet">≡</button>
-      <button class="np-expand" title="Expand notepad" id="npExpand">⤢</button>
+      <button class="np-expand" title="Collapse" id="npExpand">⤡</button>
     </div>
-    <div class="np-area" id="npArea" contenteditable="true" spellcheck="true" placeholder="Notes…"></div>
-    <div class="np-footer">
+    <div class="np-footer" id="npFooter">
       <input class="np-name-input" id="npNameInput" type="text" placeholder="Name this note…" />
       <button class="np-btn-close" id="npClose">Close</button>
       <button class="np-btn-save" id="npSave">Save</button>
