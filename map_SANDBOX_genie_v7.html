@@ -254,8 +254,9 @@
   .builder { pointer-events:auto; position:relative; background:var(--card); border:3px double var(--line); border-radius:16px; padding:15px;
     box-shadow:inset 0 0 28px rgba(47,111,159,.04), 0 1px 2px rgba(31,45,56,.07), 0 26px 50px -24px rgba(31,45,56,.5);
     transition:opacity 0.4s ease; }
-  /* builder: JS FLIP handles transform; CSS only manages opacity after FLIP completes */
-  body.explore .builder { opacity:0; pointer-events:none; }
+  /* builder: CSS sets only pointer-events in explore; JS manages opacity via .builder--flip-hidden */
+  body.explore .builder { pointer-events:none; }
+  .builder--flip-hidden { opacity:0 !important; }
   .builder.redacting { background:linear-gradient(0deg, rgba(38,48,58,.13), rgba(38,48,58,.13)), var(--card); border-color:rgba(38,48,58,.4); }
 
   .builder-top { display:flex; justify-content:flex-end; align-items:center; margin-bottom:9px; min-height:20px; }
@@ -354,10 +355,15 @@
   .save-inline svg { width:14px; height:14px; }
 
   /* ---------- collapsed: bottle + ghost grid + descending save pill ---------- */
+  /* bottle: always in DOM (position:fixed = no layout cost); JS manages opacity */
   .bottle { right:18px; top:62px; width:54px; height:54px; border-radius:15px; background:var(--card);
-    border:1px solid rgba(47,111,159,.5); color:var(--accent); display:none; align-items:center; justify-content:center;
-    pointer-events:auto; box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5); }
-  body.explore .bottle { display:flex; opacity:0; }  /* JS reveals at FLIP end */
+    border:1px solid rgba(47,111,159,.5); color:var(--accent); display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5);
+    /* NO transition here — JS applies transition only during FLIP */ }
+  /* body.explore .bottle: no CSS rule; JS class .bottle--revealed controls visibility */
+  .bottle--revealed { opacity:1; pointer-events:auto; }
+  .bottle--revealed:hover { animation:breathe 2.4s ease-in-out 1s infinite; }
   @keyframes bottleIn { from{ opacity:0; transform:scale(.4); } to{ opacity:1; transform:none; } }
   @keyframes breathe { 0%,100%{ box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 0 rgba(47,111,159,.5);}
     50%{ box-shadow:0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 9px rgba(47,111,159,0);} }
@@ -960,87 +966,136 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
       }, DUR+60);
     }
   }
+  /* ── MAP-MOTION-1: Genie ↔ bottle object-continuous FLIP ────────────────────
+   Doctrine: the builder must remain fully opaque throughout its entire
+   journey to the bottle position. The bottle must not appear before the
+   builder has ARRIVED. No CSS class may change display during the animation.
+   
+   Key fix over prior attempt: the two-rAF pattern establishes a "from" state
+   (identity transform, no transition) before declaring the "to" state in the
+   next rendering cycle. Without two rAFs, setting transition + transform in
+   the same style flush = teleport (browser sees no from-state to interpolate).
+   ─────────────────────────────────────────────────────────────────────────── */
   function doSearch(){
     commitVariable(); renderAll(); fixSize();
     var builder=els.builder, bottle=document.getElementById('bottle');
 
-    /* ── FLIP: measure builder (visible) and bottle (will be at fixed pos) ── */
+    /* Step 1: measure both elements.
+       Builder is visible; bottle is display:flex opacity:0 (always in DOM),
+       so getBoundingClientRect() returns its actual position without any hackery. */
     var bR=builder.getBoundingClientRect();
-    /* temporarily force bottle to be measurable at its CSS position */
-    var oldBS=bottle.getAttribute('style')||'';
-    bottle.style.cssText='position:fixed;display:flex;right:18px;top:62px;width:54px;height:54px;opacity:0;pointer-events:none;';
     var dR=bottle.getBoundingClientRect();
-    bottle.setAttribute('style', oldBS);
 
+    /* Step 2: compute FLIP vector — translate builder center to bottle center */
     var tx=(dR.left+dR.width/2)-(bR.left+bR.width/2);
     var ty=(dR.top+dR.height/2)-(bR.top+bR.height/2);
     var sc=Math.min(dR.width/bR.width, dR.height/bR.height);
 
-    /* add explore class (share, navbtn, nameplate, mainmenu all start transitioning) */
+    /* Step 3: add explore class — chrome/share/navbtn/nameplate all begin their
+       CSS transitions. Builder CSS sets only pointer-events:none, not opacity.
+       Our inline styles below override any CSS that would touch opacity/transform. */
     els.body.classList.add('explore');
 
-    /* override builder: stay opaque, travel toward bottle */
-    builder.style.cssText='opacity:1;pointer-events:none;transform-origin:center;'
-      +'transition:transform 1.85s cubic-bezier(.65,0,.15,1);'
-      +'transform:translate('+tx+'px,'+ty+'px) scale('+sc+')';
+    /* Step 4 (FROM state): set builder to identity transform with NO transition.
+       This anchors the starting position the browser will interpolate FROM.
+       Must be done BEFORE the rAF that sets the destination. */
+    builder.style.cssText=[
+      'opacity:1',           /* stays opaque throughout journey — doctrine requirement */
+      'pointer-events:none',
+      'transform-origin:center',
+      'transform:translate(0,0) scale(1)',  /* explicit identity = unambiguous FROM state */
+      'transition:none',     /* no transition yet — we're establishing FROM position */
+      'will-change:transform'
+    ].join(';');
 
-    /* when builder lands: reveal bottle in-place, then fade builder out */
+    /* Step 5 (TO state): two rAFs ensure browser has flushed the FROM style above
+       before we declare the destination. Without both rAFs the browser batches
+       from+to into one frame and produces a teleport. */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      builder.style.transition='transform 1.9s cubic-bezier(.6,0,.15,1)';
+      builder.style.transform='translate('+tx+'px,'+ty+'px) scale('+sc+')';
+      /* builder is now traveling. It remains at opacity:1 the entire journey. */
+    });});
+
+    /* Step 6: when builder ARRIVES (t≈1950ms), reveal bottle.
+       At this moment builder and bottle are pixel-coincident (same center, same size).
+       Adding .bottle--revealed is instantaneous — no visual event because the builder
+       covers the bottle exactly. Then we fade builder in 120ms — invisible because
+       bottle already covers it. The user perceives one continuous object. */
     setTimeout(function(){
-      bottle.style.cssText='opacity:1;transition:none;animation:none;';
-      builder.style.transition='opacity 0.18s ease';
+      bottle.classList.add('bottle--revealed');   /* reveal in-place, no animation */
+      builder.style.transition='opacity 0.12s ease';
       builder.style.opacity='0';
+
       setTimeout(function(){
+        /* cleanup: remove inline styles; CSS body.explore .builder { pointer-events:none }
+           takes over. Builder becomes invisible via .builder--flip-hidden */
         builder.removeAttribute('style');
-        bottle.removeAttribute('style');
-        drawOverlays();
-        flySave(true);
-      }, 200);
-    }, 1880);
+        builder.classList.add('builder--flip-hidden');
+        drawOverlays(); flySave(true);
+      }, 130);
+    }, 1950);
   }
 
+  /* ── Reverse: bottle → Genie panel (toSetup) ─────────────────────────────
+     Mirror of doSearch: builder snaps to bottle's rect (no transition),
+     instantly overlays bottle, then expands back to full size.
+     Bottle fades over 120ms — invisible because builder covers it exactly.
+     ───────────────────────────────────────────────────────────────────────── */
   function toSetup(){
     var builder=els.builder, bottle=document.getElementById('bottle');
     closeSavePop();
 
-    /* reverse FLIP: place builder at bottle position, then expand */
+    /* Step 1: measure both.
+       Bottle is visible (.bottle--revealed); builder is .builder--flip-hidden
+       (opacity:0, no transform) so its natural rect is valid. */
     var dR=bottle.getBoundingClientRect();
+    var bR=builder.getBoundingClientRect();
 
-    /* show builder (opacity:1) immediately but transformed to bottle position */
-    var bR=(function(){
-      /* measure builder's natural rect — it's opacity:0 but still in layout */
-      var tmp=builder.style.cssText;
-      builder.style.cssText='opacity:0;transform:none;';
-      var r=builder.getBoundingClientRect();
-      builder.style.cssText=tmp;
-      return r;
-    })();
-
+    /* Step 2: compute reverse FLIP vector */
     var tx=(dR.left+dR.width/2)-(bR.left+bR.width/2);
     var ty=(dR.top+dR.height/2)-(bR.top+bR.height/2);
     var sc=Math.min(dR.width/bR.width, dR.height/bR.height);
 
-    /* snap builder to bottle position (no transition), make visible */
-    builder.style.cssText='opacity:1;pointer-events:none;transform-origin:center;'
-      +'transform:translate('+tx+'px,'+ty+'px) scale('+sc+');transition:none;';
+    /* Step 3: snap builder to bottle position (FROM state for reverse FLIP).
+       No transition — instant positioning so builder is coincident with bottle.
+       Make builder visible (opacity:1). */
+    builder.classList.remove('builder--flip-hidden');
+    builder.style.cssText=[
+      'opacity:1',
+      'pointer-events:none',
+      'transform-origin:center',
+      'transform:translate('+tx+'px,'+ty+'px) scale('+sc+')',
+      'transition:none',
+      'will-change:transform'
+    ].join(';');
 
-    /* hide bottle (it and builder are now coincident) */
-    bottle.style.cssText='opacity:0;transition:opacity 0.18s ease;';
+    /* Step 4: fade bottle over 120ms.
+       Builder now perfectly covers bottle — the fade is invisible. */
+    bottle.classList.remove('bottle--revealed'); /* remove before cleanup to avoid false-reveal */
+    bottle.style.cssText='transition:opacity 0.12s ease;opacity:0;';
 
-    /* start expanding builder back to natural size */
+    /* Step 5: two rAFs then start expansion — builder travels from bottle rect
+       back to its full natural size (translate(0,0) scale(1)). */
     requestAnimationFrame(function(){ requestAnimationFrame(function(){
       builder.style.transition='transform 1.7s cubic-bezier(.2,0,.35,1)';
       builder.style.transform='none';
+    });});
 
-      setTimeout(function(){
-        /* remove explore class (all CSS transitions reverse: share, navbtn, nameplate…) */
-        els.body.classList.remove('explore','menu-open','cs-open');
-        builder.removeAttribute('style');
-        bottle.removeAttribute('style');
-        renderAll(); fixSize();
-        /* reverse fly: disk morphs back into pill */
-        flySave(false);
-      }, 500);  /* remove explore early so chrome starts rolling back during expansion */
-    }); });
+    /* Step 6: remove explore class at 500ms — chrome/share/navbtn begin
+       returning while builder is still mid-expansion. This makes the whole
+       sequence feel unified rather than sequential. */
+    setTimeout(function(){
+      els.body.classList.remove('explore','menu-open','cs-open');
+    }, 500);
+
+    /* Step 7: cleanup after expansion completes (~1700ms from start) */
+    setTimeout(function(){
+      builder.removeAttribute('style');
+      bottle.classList.remove('bottle--revealed');
+      bottle.removeAttribute('style');
+      renderAll(); fixSize(); flySave(false);
+    }, 1800);
   }
 
   /* ===== MOCK overlays ===== */
@@ -1169,7 +1224,7 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
 
   /* ===== init ===== */
   renderPlate(); renderAll();
-  window.__sandbox = { get variables(){return variables;}, drawOverlays:drawOverlays };
+  window.__sandbox = { get variables(){return variables;}, drawOverlays:drawOverlays, doSearch:doSearch, toSetup:toSetup };
 })();
 
   // City search dropdown — favorites + predictive

@@ -1,0 +1,117 @@
+{
+  "script": "smoke_map_motion_object_persistence",
+  "timestamp": "2026-06-20T15:20:56.694365+00:00",
+  "summary": {
+    "passed": 21,
+    "failed": 0,
+    "total": 21
+  },
+  "results": [
+    {
+      "check": "Builder visible",
+      "status": "PASS",
+      "detail": "op=1 w=332"
+    },
+    {
+      "check": "Bottle hidden",
+      "status": "PASS",
+      "detail": "op=0"
+    },
+    {
+      "check": "Search triggered via JS",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Explore active",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Builder opaque mid-travel (>=0.9)",
+      "status": "PASS",
+      "detail": "op=1"
+    },
+    {
+      "check": "Builder has transform (travelling)",
+      "status": "PASS",
+      "detail": "tx=translate(137px, -151.625px) scale(0.151155)"
+    },
+    {
+      "check": "Bottle not yet revealed at 1s",
+      "status": "PASS",
+      "detail": "botOp=0"
+    },
+    {
+      "check": "Builder flip-hidden after arrival",
+      "status": "PASS",
+      "detail": "op=0"
+    },
+    {
+      "check": "Bottle revealed after arrival",
+      "status": "PASS",
+      "detail": "op=1"
+    },
+    {
+      "check": "Bottle at CSS position (top~62, right~18)",
+      "status": "PASS",
+      "detail": "top=62 right=18"
+    },
+    {
+      "check": "No residual inline transform on builder",
+      "status": "PASS",
+      "detail": "tx=''"
+    },
+    {
+      "check": "Bottle clicked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Builder opaque mid-reopen (>=0.9)",
+      "status": "PASS",
+      "detail": "op=1"
+    },
+    {
+      "check": "Builder expanding (has transform)",
+      "status": "PASS",
+      "detail": "tx=matrix(0.672842, 0, 0, 0.672842, 52.8019, -58.4386"
+    },
+    {
+      "check": "Bottle not revealed mid-reopen",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Builder visible post-reopen (>=0.9)",
+      "status": "PASS",
+      "detail": "op=1"
+    },
+    {
+      "check": "No flip-hidden on builder post-reopen",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "No residual inline styles post-reopen",
+      "status": "PASS",
+      "detail": "style=''"
+    },
+    {
+      "check": "Bottle hidden post-reopen",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Explore class removed",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "No JS errors",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "console_errors": []
+}
