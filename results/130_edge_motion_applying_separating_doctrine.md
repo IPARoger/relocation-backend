@@ -13,6 +13,8 @@ Capture authoritative doctrine for **Layer-1 chart motion facts** and **directio
 
 This document does **not** authorize changes to `app_shell.html`, backend services, or persisted settings beyond recording future intent.
 
+**Canonical anchor:** `docs/doctrine/ASTROLOGY_CALCULATION_DOCTRINE.md`
+
 **Related doctrine:**
 
 - `results/114_settings_doctrine_capture_v1.md` — Subsequent House Rule toggle + orb (currently framed as late-in-house; this document refines direction-aware behavior)
