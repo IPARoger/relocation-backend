@@ -3077,7 +3077,7 @@ const SETTINGS_SECTIONS = [
   { id: "data", label: "My Data", title: "My Data", desc: "Profiles, saved searches, comparisons, archives, and history." },
   { id: "astrology", label: "Astrology", title: "Astrology", desc: "Chart calculation defaults, bodies, aspects, orbs, and dignities." },
   { id: "display", label: "Appearance", title: "Appearance", desc: "Visual themes, map presentation, glyphs, and regional formats." },
-  { id: "notifications", label: "Notifications", title: "Notifications", desc: "Email and in-app alerts (coming soon)." },
+  { id: "notifications", label: "Notifications", title: "Notifications", desc: "Road Trip, Airplane Mode, and location-change alerts." },
   { id: "exports", label: "Exports", title: "Exports", desc: "Share links and export presets." },
   { id: "about", label: "About", title: "About", desc: "Attribution for ephemeris, places, time zones, and maps." },
 ];
@@ -3383,11 +3383,11 @@ function settingsDisplayBodyHtml() {
 
 function settingsNotificationsBodyHtml() {
   return `
-    <div class="settings-subhead">Alerts</div>
+    <div class="settings-subhead">Travel &amp; location</div>
     <div class="panel" id="sec-notifications" data-settings-future="notifications">
-      ${settingsStubRow("Email digests", "Weekly summary of saved work.")}
-      ${settingsStubRow("Product updates", "Feature announcements.")}
-
+      ${settingsStubRow("Road Trip Mode", "Continuous route-based location alerts.")}
+      ${settingsStubRow("Airplane Mode", "Offline or saved-location travel alerts.")}
+      ${settingsStubRow("Location change alerts", "When your effective relocation context changes.")}
     </div>`;
 }
 
@@ -3437,7 +3437,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "notifications",
       "Notifications",
-      "Email and in-app alerts (coming soon).",
+      "Travel modes and location-change alerts.",
       settingsNotificationsBodyHtml(),
       { showSave: false }
     );
