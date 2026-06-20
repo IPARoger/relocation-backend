@@ -27,7 +27,7 @@
    - City search is clickable in explore (icon handle reveals the box).
    - "Clear Map" reduced to a trash symbol.
    - Top menu is visible at launch and rolls up to logo + hamburger on search.
-   - Plate widened (long names fit), centered under the name, darker + grey outline
+   - Identity stamp (zone-b) matches beta v14 profile_standard — centered under name, subtle caret
      in setup, lat/lon and UTC on their own lines, slower return.
    - Save: a "Save search" pill descends off Genie and morphs into the disk.
    - Genie reopen icon swapped for a clearer controls/sliders glyph.
@@ -47,6 +47,7 @@
      prototype_settings_v1.html re-themes this map live via the storage event. -->
 <link rel="stylesheet" href="theme/relocation_themes.css" />
 <script src="theme/relocation_theme.js"></script>
+<link rel="stylesheet" href="validation/mockups/beta/identity_stamp.css">
 <style>
   :root {
     /* mapped to theme tokens; original sandbox values kept as fallbacks */
@@ -146,38 +147,59 @@
   body.explore .citysearch:hover, body.explore .citysearch:focus-within, body.explore.cs-open .citysearch { opacity:1; background:var(--card); }
   body.explore .citysearch .cs-input { opacity:.85; }
 
-  /* ---------- profile plate (top-left authority, like the profile pages) ---------- */
-  .plate { left:16px; top:188px; right:auto; width:auto; max-width:340px; text-align:left; pointer-events:auto;
-    border:1px solid transparent; border-radius:12px; padding:6px 10px;
-    transition:opacity 1.0s ease, transform 1.0s ease, background 1.0s ease, border-color 1.0s ease, box-shadow 1.0s ease, backdrop-filter 1.0s ease; }
-  .plate .name-row { display:flex; align-items:baseline; justify-content:flex-start; gap:6px; }
-  .plate .nmwrap { position:relative; display:inline-block; }
-  .pname { font-family:var(--serif); font-size:25px; font-weight:600; color:var(--ink); background:transparent; border:none; padding:0;
-    line-height:1.2; -webkit-text-fill-color:#14222c; -webkit-text-stroke:.4px rgba(70,84,94,.55); text-shadow:0 1px 2px rgba(255,255,255,.9); }
-  .plate .tools { position:absolute; left:calc(100% + 9px); top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:6px; white-space:nowrap; }
-  .pname .caret, .plate .pcaret { font-size:12px; color:var(--ink-faint); background:none; border:none; padding:0 2px; cursor:pointer; -webkit-text-fill-color:var(--ink-faint); -webkit-text-stroke:0; }
-  .plate .ptool { font-size:12.5px; color:var(--ink-faint); background:none; border:none; cursor:pointer; padding:0 2px; }
-  .plate .ptool:hover { color:var(--accent); }
-  .plate .ptool.plus { font-size:17px; line-height:1; }
-  .pstrong { font-size:14px; font-weight:700; color:#243441; margin-top:3px; text-shadow:0 1px 2px rgba(255,255,255,.85); }
-  .pplace { font-size:13.5px; color:#2c3a45; margin-top:1px; text-shadow:0 1px 2px rgba(255,255,255,.85); }
-  .ptools { margin-top:4px; display:flex; gap:8px; justify-content:flex-start; }
-  .ptools button { background:transparent; border:none; color:var(--ink-faint); font-size:11.5px; padding:1px 4px; border-radius:5px; }
-  .ptools button:hover { color:var(--accent); background:rgba(47,111,159,.1); }
-  .plate-tech { overflow:hidden; max-height:40px; opacity:.85; transition:max-height .8s ease, opacity .6s ease; margin-top:3px; }
-  .plate-tech .t { font-size:11px; color:var(--ink-faint); line-height:1.5; }
-  /* explore: plate stays put, becomes a ghost reference card — name/date/place outlined & legible, tech metadata fades al niente */
-  /* ghost = NO plate box; the letters themselves are outlined so they read over any map */
-  body.explore .plate { opacity:1; transform:none; background:transparent; border-color:transparent; box-shadow:none; backdrop-filter:none; }
-  /* outlined LETTERS (white halo around dark glyphs) so the name reads over any map color */
-  body.explore .pname { color:#14222c; -webkit-text-fill-color:#14222c;
-    text-shadow:0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, -1px -1px 1px #fff, 0 0 6px rgba(255,255,255,.9); }
-  body.explore .pname .caret { -webkit-text-fill-color:rgba(70,84,94,.9); }
-  body.explore .pstrong { color:#1a2a36; -webkit-text-fill-color:#1a2a36;
-    text-shadow:0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, -1px -1px 1px #fff; }
-  body.explore .pplace { color:#243441; -webkit-text-fill-color:#243441;
-    text-shadow:0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, -1px -1px 1px #fff; }
-  body.explore .plate .tools, body.explore .plate-tech { max-height:0; opacity:0; overflow:hidden; }
+  /* ---------- identity stamp — map overlay (shared zone-b in identity_stamp.css) ---------- */
+  .identity-stamp {
+    width: var(--authority-col-width);
+    pointer-events: auto;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    transition: opacity 1.0s ease, transform 1.0s ease, background 1.0s ease,
+      border-color 1.0s ease, box-shadow 1.0s ease, backdrop-filter 1.0s ease;
+  }
+  .zb-name .nm {
+    -webkit-text-fill-color: #14222c;
+    -webkit-text-stroke: .4px rgba(70,84,94,.55);
+    text-shadow: 0 1px 2px rgba(255,255,255,.9);
+  }
+  .zb-primary {
+    text-shadow: 0 1px 2px rgba(255,255,255,.85);
+  }
+  .zb-meta {
+    overflow: hidden;
+    max-height: 40px;
+    opacity: .85;
+    transition: max-height .8s ease, opacity .6s ease;
+  }
+  /* explore: ghost outline on map */
+  body.explore .identity-stamp {
+    opacity: 1;
+    transform: none;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  body.explore .zb-name .nm {
+    color: #14222c;
+    -webkit-text-fill-color: #14222c;
+    text-shadow: 0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff,
+      1px -1px 1px #fff, -1px -1px 1px #fff, 0 0 6px rgba(255,255,255,.9);
+  }
+  body.explore .zb-primary {
+    color: #1a2a36;
+    -webkit-text-fill-color: #1a2a36;
+    text-shadow: 0 0 2px #fff, 1px 1px 1px #fff, -1px 1px 1px #fff,
+      1px -1px 1px #fff, -1px -1px 1px #fff;
+  }
+  body.explore .identity-stamp .tools,
+  body.explore .zb-meta {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-top: 0;
+  }
+
 
   /* ---------- right rail / builder ---------- */
   .rail { right:16px; top:62px; width:332px; max-width:calc(100% - 32px); pointer-events:none; }
@@ -412,8 +434,8 @@
     <input class="cs-input" type="text" placeholder="Search a city…" autocomplete="off" />
   </div>
 
-  <!-- profile plate -->
-  <div class="ov plate" id="plate"></div>
+  <!-- identity stamp (zone-b — matches beta v14 profile_standard) -->
+  <div class="ov identity-stamp authority-col-x authority-block-y" id="plate"></div>
 
   <!-- right rail / builder -->
   <div class="ov rail">
@@ -524,8 +546,9 @@
   var notColor = (getComputedStyle(document.documentElement).getPropertyValue("--not")||"#26303a").trim();
   var overlayOpacity = 0.40;
 
-  var PROFILE = { name:"Avery Rhodes", date:"14 March 1989", time24:"07:42", offset:"+00:00",
-    place:"Lisbon, Portugal", lat:"38.72° N", lon:"9.14° W", zodiac:"Tropical", houses:"Placidus" };
+  /* Profile data — swap name/fields to test; positioning rule is name-length independent */
+var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset:"+00:00",
+    place:"Portland, OR, USA", lat:"38.72° N", lon:"9.14° W", zodiac:"Tropical", houses:"Placidus" };
 
   /* ===== Leaflet map ===== */
   var map = L.map('map', { zoomControl:false, attributionControl:false, worldCopyJump:true, minZoom:2 }).setView([28,6], 3);
@@ -550,13 +573,15 @@
   function renderPlate(){
     var p=PROFILE;
     els.plate.innerHTML =
-      '<div class="name-row"><span class="nmwrap"><button class="pname">'+esc(p.name)+'</button>'+
-        '<span class="tools"><button class="pcaret" title="Switch profile">▾</button>'+
-        '<button class="ptool">Edit</button><button class="ptool plus" title="Add profile">+</button></span></span></div>'+
-      '<div class="pstrong">'+esc(p.date)+' · '+esc(to12h(p.time24))+'</div>'+
-      '<div class="pplace">'+esc(p.place)+'</div>'+
-      '<div class="plate-tech"><div class="t">'+esc(p.lat)+', '+esc(p.lon)+'</div>'+
-        '<div class="t">UTC '+esc(p.offset)+' · '+esc(p.zodiac)+' · '+esc(p.houses)+'</div></div>';
+      '<div class="zone-b">'+
+        '<div class="zb-name"><span class="nmwrap"><span class="nm">'+esc(p.name)+'</span>'+
+          '<span class="tools"><button class="zb-caret" title="Switch profile">▾</button>'+
+          '<button class="zb-tool">Edit</button><button class="zb-tool plus" title="Add profile">+</button></span></span></div>'+
+        '<div class="zb-primary">'+esc(p.date)+' · '+esc(p.time24)+' <span class="glyph">♂</span></div>'+
+        '<div class="zb-primary">'+esc(p.place)+'</div>'+
+        '<div class="zb-meta">'+esc(p.lat)+', '+esc(p.lon)+' · UTC'+esc(p.offset)+'</div>'+
+        '<div class="zb-meta">'+esc(p.zodiac)+' · '+esc(p.houses)+'</div>'+
+      '</div>';
   }
 
   /* ===== build/render ===== */

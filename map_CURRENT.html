@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <title>Relocation Mapper</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="validation/mockups/beta/identity_stamp.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="cities.js"></script>
 <style>
@@ -780,58 +781,39 @@ html.map-panel-show-legend #panelLegend { display: block; }
 /* ── end walkthrough CSS ─────────────────────────────────────────────────── */
 
 
-/* ── Profile nameplate overlay (MAP-UX-1) ────────────────────────────────── */
-#rm-map-nameplate {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 1000;
-    max-width: 280px;
-    pointer-events: auto;
-    background: rgba(251,253,255,0.93);
-    border: 1px solid #cfdde6;
-    border-radius: 10px;
-    padding: 8px 11px;
-    box-shadow: 0 2px 12px rgba(15,23,42,0.10);
-    backdrop-filter: blur(4px);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    transition: opacity 0.3s ease;
+/* ── Profile nameplate overlay (MAP-UX-2.6) ── zone-b stamp, shared rule ──── */
+/* CSS vars required by identity_stamp.css (serif + ink tokens) */
+:root {
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --ink: #1f2d38;
+  --ink-soft: #485a66;
+  --ink-faint: #7d8f9a;
+  --accent: #2f6f9f;
 }
-#rm-map-nameplate.rm-np-loading { opacity: 0.5; }
-.rm-np-name-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    line-height: 1.2;
+/* position: fixed makes authority-col-x / authority-block-y viewport-anchored */
+.identity-stamp {
+  position: fixed;
+  z-index: 1000;
+  width: var(--authority-col-width);
+  pointer-events: auto;
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+  transition: opacity 0.3s ease;
 }
-.rm-np-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
+.identity-stamp.rm-np-loading { opacity: 0.5; }
+/* map-specific text treatments — legible over tile backgrounds */
+.zb-name .nm {
+  -webkit-text-fill-color: #14222c;
+  -webkit-text-stroke: .4px rgba(70,84,94,.55);
+  text-shadow: 0 1px 2px rgba(255,255,255,.9);
 }
-.rm-np-caret {
-    font-size: 11px;
-    color: #64748b;
-    background: none;
-    border: none;
-    padding: 2px 4px;
-    cursor: pointer;
-    border-radius: 4px;
-    flex-shrink: 0;
-    line-height: 1;
-}
-.rm-np-caret:hover { background: #e2ecf1; color: #1e293b; }
-.rm-np-meta {
-    font-size: 11px;
-    color: #64748b;
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.zb-primary { text-shadow: 0 1px 2px rgba(255,255,255,.85); }
+.zb-meta {
+  overflow: hidden;
+  max-height: 40px;
+  opacity: .85;
+  transition: max-height .8s ease, opacity .6s ease;
 }
 /* ── end nameplate CSS ───────────────────────────────────────────────────── */
 
@@ -974,17 +956,23 @@ html.map-panel-show-legend #panelLegend { display: block; }
       </svg>
       Save Search
     </button>
-    <!-- Profile nameplate overlay (MAP-UX-1) -->
+    <!-- Profile nameplate overlay (MAP-UX-1 / MAP-UX-2.6 zone-b) -->
     <div id="rm-map-nameplate"
          data-role="map-profile-selector"
-         class="rm-np-loading"
+         class="identity-stamp authority-col-x authority-block-y rm-np-loading"
          title="Active profile">
-      <div class="rm-np-name-row">
-        <span class="rm-np-name" id="rm-np-name">Loading…</span>
-        <button type="button" class="rm-np-caret" id="rm-np-caret"
-                title="Switch profile — opens profile selector in side panel">▾</button>
+      <div class="zone-b">
+        <div class="zb-name"><span class="nmwrap">
+          <span class="nm" id="rm-np-name">Loading…</span>
+          <span class="tools">
+            <button type="button" class="zb-caret" id="rm-np-caret"
+                    title="Switch profile — opens profile selector in side panel">▾</button>
+          </span>
+        </span></div>
+        <div class="zb-primary" id="rm-np-date"  style="display:none"></div>
+        <div class="zb-primary" id="rm-np-place" style="display:none"></div>
+        <div class="zb-meta"    id="rm-np-meta"  style="display:none"></div>
       </div>
-      <div class="rm-np-meta" id="rm-np-meta"></div>
     </div>
     </div>
 
@@ -6898,6 +6886,8 @@ setRenderStatus("Ready.");
 /* ── Profile nameplate controller (MAP-UX-1) ─────────────────────────────── */
 (function initNameplate() {
     var nameEl  = document.getElementById('rm-np-name');
+    var dateEl  = document.getElementById('rm-np-date');
+    var placeEl = document.getElementById('rm-np-place');
     var metaEl  = document.getElementById('rm-np-meta');
     var caretEl = document.getElementById('rm-np-caret');
     var plate   = document.getElementById('rm-map-nameplate');
@@ -6911,13 +6901,19 @@ setRenderStatus("Ready.");
         } catch(e) { return iso; }
     }
 
+    function setLine(el, txt) {
+        if (!el) return;
+        el.textContent = txt;
+        el.style.display = txt ? '' : 'none';
+    }
+
     function renderNameplate() {
         var select = document.getElementById('chartProfile');
         if (!select) return;
         var opt = select.selectedOptions && select.selectedOptions[0];
         if (!opt || !opt.value) {
             if (nameEl) nameEl.textContent = 'No profile';
-            if (metaEl) { metaEl.textContent = ''; metaEl.style.display = 'none'; }
+            [dateEl, placeEl, metaEl].forEach(function(el){ setLine(el, ''); });
             plate.classList.add('rm-np-loading');
             return;
         }
@@ -6925,18 +6921,19 @@ setRenderStatus("Ready.");
         var displayName = opt.textContent.replace(/^\[library\]\s*/, '') || opt.value;
         if (nameEl) nameEl.textContent = displayName;
 
-        var meta = '';
         try {
             if (opt.dataset && opt.dataset.profile) {
                 var prof = JSON.parse(opt.dataset.profile);
-                if (prof.date) meta = fmtDate(prof.date);
-                if (prof.place) meta += (meta ? ' \u00b7 ' : '') + prof.place;
+                var datePart  = prof.date   ? fmtDate(prof.date) : '';
+                var timePart  = prof.time24 || prof.time || '';
+                setLine(dateEl,  datePart + (timePart ? ' \u00b7 ' + timePart : ''));
+                setLine(placeEl, prof.place || '');
+                var metaParts = [];
+                if (prof.lat && prof.lon) metaParts.push(prof.lat + ', ' + prof.lon);
+                if (prof.offset !== undefined) metaParts.push('UTC' + (prof.offset >= 0 ? '+' : '') + prof.offset);
+                setLine(metaEl, metaParts.join(' \u00b7 '));
             }
         } catch(e) { /* ignore */ }
-        if (metaEl) {
-            metaEl.textContent = meta;
-            metaEl.style.display = meta ? '' : 'none';
-        }
     }
 
     function openProfileSelector() {

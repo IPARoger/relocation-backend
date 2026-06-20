@@ -1,5 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Beta · Profile</title>
+<link rel="stylesheet" href="identity_stamp.css">
 <style>
   :root {
     --ink:#33291f; --ink-soft:#6a5f4f; --ink-faint:#9b9080;
@@ -20,8 +21,6 @@
       radial-gradient(70% 60% at 86% 96%, rgba(120,160,185,.09), transparent 62%),
       radial-gradient(120% 90% at 40% 110%, rgba(214,176,108,.08), transparent 60%),
       var(--paper); background-attachment:fixed; }
-  .wrap { max-width:1280px; margin:0 auto; padding:0 28px 80px; }
-
   .topbar { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:18px 0 12px; }
   .brand { font-family:var(--serif); font-size:20px; font-weight:600; flex:0 0 auto; }
   .mainmenu { display:flex; gap:2px; flex:1 1 auto; justify-content:center; flex-wrap:wrap; }
@@ -210,7 +209,6 @@
   .modal-head .mh-sub { font-size:13px; color:var(--ink-soft); margin-top:3px; }
   .modal-head .mh-reloc { font-size:12.5px; color:var(--gold); text-transform:uppercase; letter-spacing:.09em; margin-top:6px; }
 </style><style>
-.wrap{max-width:1320px;margin:0 auto;padding:0 32px 70px}
 .hdr{display:flex;justify-content:space-between;align-items:center;padding:18px 0 6px}
 .hdr .nav{display:flex;gap:8px;font-size:14px;color:var(--ink-soft)}
 .hdr .nav b{color:var(--ink)}
@@ -222,26 +220,6 @@
 .acct.open .acct-menu{display:block}
 .acct-menu a{display:block;padding:8px 10px;font-size:13px;color:var(--ink-soft);text-decoration:none;border-radius:6px}
 .acct-menu a:hover{background:var(--line-soft)}
-/* centered wheel stage; name budget fixed */
-.chart-stage{display:grid;grid-template-columns:250px minmax(520px,600px) 250px;justify-content:center;
-  align-items:center;gap:10px;margin:10px 0 0}
-@media(max-width:1000px){.chart-stage{grid-template-columns:1fr}.wheel-slot{order:-1}}
-.identity-stack{grid-column:1;display:flex;flex-direction:column;gap:18px;min-height:440px}
-.wheel-slot{grid-column:2;display:flex;justify-content:center;align-items:center}
-.balance-col{grid-column:3}
-.zone-b{text-align:center}
-/* name truly centered; caret/Edit/+ hang off the side (absolute, do not affect centering) */
-.zb-name{font-family:var(--serif);font-size:25px;font-weight:600;color:var(--ink);line-height:1.2;text-align:center}
-.zb-name .nmwrap{position:relative;display:inline-block}
-.zb-name .tools{position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);
-  display:flex;align-items:center;gap:6px;white-space:nowrap}
-.zb-name .glyph{font-size:16px;color:var(--ink-faint)}
-.zb-name .zb-caret{font-size:12px;color:var(--ink-faint);background:none;border:none;padding:0 2px;cursor:pointer}
-.zb-name .zb-tool{font-size:12.5px;color:var(--ink-faint);background:none;border:none;cursor:pointer;padding:0 2px}
-.zb-name .zb-tool:hover{color:var(--accent)}
-.zb-name .zb-tool.plus{font-size:17px;line-height:1}
-.zb-primary{font-size:14.5px;font-weight:500;color:var(--ink);margin-top:4px}
-.zb-meta{font-size:12px;font-weight:400;color:var(--ink-faint);margin-top:4px;line-height:1.45}
 /* zone C bordered box, slightly stronger than B on relocated */
 .zone-c-box{border:1px solid var(--line);border-radius:11px;padding:15px 16px;background:rgba(253,248,238,.55);
   text-align:center;margin-top:auto}

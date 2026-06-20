@@ -1,0 +1,160 @@
+/**
+ * Identity stamp (zone-b) — shared layout rule
+ * Used by: profile_standard, relocated_standard, map_SANDBOX_genie_v7
+ *
+ * RULE (not per-page hardcoding):
+ * 1. Authority column is always --authority-col-width (250px).
+ * 2. Horizontal origin = left edge of column 1 in the centered chart-stage grid
+ *    (same shell max-width, padding, and 250|600|250 grid as profile pages).
+ * 3. zone-b text is centered; name uses inline-block nmwrap; tools are absolute
+ *    beside the name so caret/Edit/+ never shift the centered anchor.
+ * 4. Name length changes only grow the nmwrap inline box — column origin stays fixed.
+ */
+
+:root {
+  --authority-col-width: 250px;
+  --stage-col-center-max: 600px;
+  --chart-stage-gap: 10px;
+  /* track widths + inter-column gaps (must match .chart-stage gap) */
+  --stage-grid-width: calc(
+    var(--authority-col-width) + var(--chart-stage-gap)
+    + var(--stage-col-center-max) + var(--chart-stage-gap)
+    + var(--authority-col-width)
+  );
+  --app-shell-max: 1280px;
+  --app-shell-pad-x: 28px;
+  /* Shared vertical anchor — profile chart-stage zone-b top (viewport coords) */
+  --app-header-height: 62px; /* hdr: 18px pad + 38px row + 6px pad */
+  --chart-stage-margin-top: 10px;
+  --wheel-size: 560px;
+  --identity-stack-min-height: 440px;
+  --authority-block-top: calc(
+    var(--app-header-height)
+    + var(--chart-stage-margin-top)
+    + max(0px, (var(--wheel-size) - var(--identity-stack-min-height)) / 2)
+  );
+}
+/* ── App shell (profile/relocated wrap — same grid origin as map overlay) ── */
+.app-shell,
+.wrap {
+  max-width: var(--app-shell-max);
+  margin: 0 auto;
+  padding: 0 var(--app-shell-pad-x) 70px;
+}
+
+
+
+/* ── Horizontal: left edge of authority column (profile grid col 1) ── */
+.authority-block-y {
+  top: var(--authority-block-top);
+}
+
+.authority-col-x {
+  left: calc(
+    (100vw - min(var(--app-shell-max), 100vw)) / 2
+    + var(--app-shell-pad-x)
+    + max(0px, (min(var(--app-shell-max), 100vw) - 2 * var(--app-shell-pad-x) - var(--stage-grid-width)) / 2)
+  );
+}
+
+/* ── zone-b stamp typography (shared across pages) ── */
+.zone-b { text-align: center; }
+
+.zb-name {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.zb-name .nmwrap { position: relative; display: inline-block; }
+
+/* caret/Edit/+ hang off the side — do not affect centering */
+.zb-name .tools {
+  position: absolute;
+  left: calc(100% + 9px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.zb-name .glyph { font-size: 16px; color: var(--ink-faint); }
+
+.zb-caret,
+.zb-name .zb-caret {
+  font-size: 12px;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.zb-tool,
+.zb-name .zb-tool {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.zb-tool:hover,
+.zb-name .zb-tool:hover { color: var(--accent); }
+
+.zb-tool.plus,
+.zb-name .zb-tool.plus { font-size: 17px; line-height: 1; }
+
+.zb-primary {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: 4px;
+}
+
+.zb-meta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-faint);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+/* Profile/relocated grid — same column widths as positioning rule */
+.chart-stage {
+  display: grid;
+  grid-template-columns: var(--authority-col-width) minmax(520px, 600px) var(--authority-col-width);
+  justify-content: center;
+  align-items: center;
+  gap: var(--chart-stage-gap);
+  margin: var(--chart-stage-margin-top) 0 0;
+}
+
+.identity-stack {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 440px;
+  width: var(--authority-col-width);
+}
+
+.wheel-slot {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.balance-col { grid-column: 3; }
+
+@media (max-width: 1000px) {
+  .chart-stage { grid-template-columns: 1fr; }
+  .wheel-slot { order: -1; }
+}
