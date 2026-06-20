@@ -873,6 +873,46 @@ html.map-panel-show-legend #panelLegend { display: block; }
 /* ── end controls CSS ───────────────────────────────────────────────────── */
 
 
+/* ── Save Search pill (MAP-UX-3) ─────────────────────────────────────────── */
+#rm-save-pill {
+    position: absolute;
+    top: 136px;
+    left: 12px;
+    z-index: 1000;
+    pointer-events: auto;
+    background: rgba(251,253,255,0.93);
+    border: 1px solid #cfdde6;
+    border-radius: 10px;
+    padding: 6px 13px;
+    box-shadow: 0 2px 12px rgba(15,23,42,0.10);
+    backdrop-filter: blur(4px);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+    white-space: nowrap;
+}
+#rm-save-pill:hover:not(:disabled) { background: #e8f0f5; color: #0f172a; }
+#rm-save-pill:disabled { opacity: 0.55; cursor: not-allowed; }
+#rm-save-pill.rm-save-saved {
+    color: #16a34a;
+    border-color: #bbf7d0;
+    background: rgba(240,253,244,0.95);
+}
+#rm-save-pill.rm-save-error {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: rgba(254,242,242,0.95);
+}
+/* ── end save pill CSS ───────────────────────────────────────────────────── */
+
+
+
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -924,6 +964,16 @@ html.map-panel-show-legend #panelLegend { display: block; }
         </svg>
       </button>
     </div>
+    <!-- Save Search pill (MAP-UX-3) -->
+    <button id="rm-save-pill"
+            type="button"
+            data-role="map-save-search"
+            title="Save this search state to your investigations">
+      <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
+        <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707L11.293.293A1 1 0 0 0 10.586 0H2zm5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 2.5V5H5V2h5.586L11 2.5z"/>
+      </svg>
+      Save Search
+    </button>
     <!-- Profile nameplate overlay (MAP-UX-1) -->
     <div id="rm-map-nameplate"
          data-role="map-profile-selector"
@@ -6653,7 +6703,7 @@ setRenderStatus("Ready.");
  *   4  Mute / Solo / Not     ([data-role="ghost-tools"])
  *   5  Pin                   ([data-role="map-pin"])
  *   6  History               ([data-role="history-controls"])
- *   7  Save Search           (#saveInvestigationBtn)
+ *   7  Save Search           ([data-role="map-save-search"])
  *   8  Map Notes             ([data-role="map-notes"], optional)
  *
  * Framework ships with steps 1-2 fully wired; steps 3-8 are stub selectors
@@ -6705,7 +6755,7 @@ setRenderStatus("Ready.");
             id: 'save-search',
             label: 'Step 7 of 7',
             instruction: 'Save this search to return to it from Chart Record.',
-            selector: '#saveInvestigationBtn'
+            selector: '[data-role="map-save-search"]'
         },
         {
             id: 'map-notes',
@@ -7045,6 +7095,65 @@ setRenderStatus("Ready.");
     window.rmHistoryStack = { get stack() { return _stack.slice(); }, get cursor() { return _cursor; } };
 })();
 /* ── end controls controller ─────────────────────────────────────────────── */
+
+/* ── Save Search pill controller (MAP-UX-3) ─────────────────────────────── */
+(function initSavePill() {
+    var pill = document.getElementById('rm-save-pill');
+    if (!pill) return;
+
+    var _saveTimer = null;
+
+    function setPillState(state, msg) {
+        pill.disabled = (state === 'saving');
+        pill.className = state === 'saved'  ? 'rm-save-saved'
+                       : state === 'error'  ? 'rm-save-error'
+                       : '';
+        if (msg) {
+            pill.innerHTML = msg;
+        } else {
+            pill.innerHTML = '<svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">'
+                + '<path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707L11.293.293A1 1 0 0 0 10.586 0H2zm5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 2.5V5H5V2h5.586L11 2.5z"/>'
+                + '</svg> Save Search';
+        }
+    }
+
+    pill.addEventListener('click', async function () {
+        if (pill.disabled) return;
+        clearTimeout(_saveTimer);
+        setPillState('saving', '\u23F3 Saving\u2026');
+        try {
+            /* Delegate to the fully-wired production function. */
+            if (typeof window.__rmSaveCurrentInvestigation === 'function') {
+                await window.__rmSaveCurrentInvestigation();
+                /* Check the panel status element to detect errors written there. */
+                var statusEl = document.getElementById('saveInvestigationStatus');
+                var isErr = statusEl && statusEl.classList.contains('is-error');
+                if (isErr) {
+                    setPillState('error', '\u26A0 ' + (statusEl.textContent || 'Save failed'));
+                    _saveTimer = setTimeout(function() { setPillState('idle'); }, 3500);
+                } else {
+                    setPillState('saved', '\u2713 Saved');
+                    _saveTimer = setTimeout(function() { setPillState('idle'); }, 2500);
+                }
+            } else {
+                /* Future integration path:
+                 * When the Save Search flow is decoupled from the panel form,
+                 * replace this fallback with a direct call to the new save API.
+                 */
+                setPillState('error', '\u26A0 Save not available');
+                _saveTimer = setTimeout(function() { setPillState('idle'); }, 2500);
+            }
+        } catch (err) {
+            setPillState('error', '\u26A0 Error — see panel');
+            _saveTimer = setTimeout(function() { setPillState('idle'); }, 3500);
+        }
+    });
+
+    /* Expose reset for testing */
+    window.__rmSavePillReset = function() { clearTimeout(_saveTimer); setPillState('idle'); };
+})();
+/* ── end save pill controller ────────────────────────────────────────────── */
+
 
 
 </script>
