@@ -1978,12 +1978,14 @@ let _screen4PihDignities = false;
 let _comparisonColsCache = null;
 
 
-const PIH_DIGNITIES_HELP_COPY = 'Traditional dignities apply to signs. In relocation work, signs do not change, but houses do. This option applies those traditional sign correspondences to the matching natural-zodiac house: Moon in the 2nd house corresponds to Moon in Taurus; Sun in the 7th house corresponds to Sun in Libra. It is a subtle traditional-reference overlay, not a score. Leave it off for strict interpretive neutrality.';
+const PIH_DIGNITIES_HELP_COPY = 'Traditional dignities apply to signs. In relocation work, signs do not change, but houses do. This option applies those traditional sign correspondences to the matching natural-zodiac house: Moon in the 2nd house corresponds to Moon in Taurus; Sun in the 7th house corresponds to Sun in Libra. We simplify the four traditional relationships into two overlay colors: one for Rulership and Exaltation (generally positive), and one for Detriment and Fall (generally difficult), rather than four separate colors. It is a subtle traditional-reference overlay, not a score. Leave it off for strict interpretive neutrality.';
 
 function pihDignitiesHelpHtml() {
   return `<details class="rm-pih-dignities-help">
     <summary title="About house-correspondence dignities">?</summary>
     <p class="rm-pih-dignities-help-body">${escapeHtml(PIH_DIGNITIES_HELP_COPY)}</p>
+    <p class="rm-pih-dignities-help-body meta">Which relationships count as dignities can be customized in <button type="button" class="linkish" data-settings-sub="astrology">Astrology settings</button>: Modern, Ancient, Hybrid (default), or Advanced to define your own system.</p>
+    <p class="rm-pih-dignities-help-body meta">Optional separate colors for Exaltation and Fall can be changed in <button type="button" class="linkish" data-settings-sub="display">Appearance settings</button>.</p>
   </details>`;
 }
 
@@ -3998,7 +4000,9 @@ function outOfSignAspectsHtml() {
 function dignitiesDisplayHtml() {
   return `
     <div class="panel">
-      <p class="meta"><strong>Dignities</strong> on Planet-in-House tables applies traditional sign relationships to the matching natural-zodiac <em>house</em> (relocation-relevant). Toggle from each PIH footer; default off. Ontology presets: ${settingsSoonBadge()}</p>
+      <p class="meta"><strong>Dignities</strong> on Planet-in-House tables applies traditional sign relationships to the matching natural-zodiac <em>house</em> (relocation-relevant). Toggle from each PIH footer; default off.</p>
+      <p class="meta" style="margin-top:8px;">We use two colors, not four: Rulership and Exaltation share one overlay (generally positive); Detriment and Fall share one (generally difficult). This keeps PIH readable. Optional separate colors for Exaltation and Fall are under <button type="button" class="linkish" data-settings-sub="display">Appearance</button>.</p>
+      <p class="meta" style="margin-top:8px;"><strong>Ontology preset</strong> — choose which dignity relationships apply: Modern, Ancient, Hybrid (default), or Advanced (custom system). ${settingsSoonBadge()}</p>
     </div>`;
 }
 
@@ -4367,6 +4371,16 @@ function settingsDataBodyHtml() {
     </div>`;
 }
 
+function dignityAppearanceHtml() {
+  return `
+    <div class="panel" id="sec-appearance-dignities">
+      <p class="meta">Planet-in-House dignities use two overlay colors by default: Rulership and Exaltation (generally positive), and Detriment and Fall (generally difficult).</p>
+      ${settingsStubRow("Exaltation color", "Optional distinct color when only Exaltation applies (otherwise uses the positive overlay).")}
+      ${settingsStubRow("Fall color", "Optional distinct color when only Fall applies (otherwise uses the difficult overlay).")}
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    </div>`;
+}
+
 function settingsDisplayBodyHtml() {
   return `
     <div id="sec-display" data-settings-future="display">
@@ -4376,6 +4390,8 @@ function settingsDisplayBodyHtml() {
       ${glyphAppearanceHtml()}
       <div class="settings-subhead">Aspect-band appearance</div>
       ${aspectBandAppearanceHtml()}
+      <div class="settings-subhead">Dignity colors</div>
+      ${dignityAppearanceHtml()}
       ${settingsAppearanceRegionalBodyHtml()}
       <div class="settings-subhead">Map &amp; location</div>
       ${settingsMapBodyHtml()}
