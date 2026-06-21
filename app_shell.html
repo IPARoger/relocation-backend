@@ -75,6 +75,10 @@
     font-size: 12px; color: #065f46; margin-bottom: 8px;
   }
   .rm-wheel-wrap { max-width: 420px; margin: 8px 0; }
+  .rm-wheel-disc {
+    position: relative; border-radius: 50%; overflow: hidden;
+    box-shadow: 0 0 28px 2px rgba(184,154,85,.18), 0 3px 12px rgba(51,41,31,.12), inset 0 0 0 1px rgba(51,41,31,.05);
+  }
   .rm-wheel-wrap .rm-wheel-svg { display: block; width: 100%; height: auto; }
   ul.plain { list-style: none; margin: 0; padding: 0; }
   ul.plain li { padding: 8px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px; }
@@ -2150,6 +2154,11 @@ const WHEEL_BODY_GLYPH = {
   Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
   Chiron: "\u26b7",
 };
+// WHEEL-VISUAL-1: beta warm-grey palette (relocated_standard.html)
+const WHEEL_GREY = { ink: "#2b2926", cusp: "#8a857a", divider: "#9b968b", tick5: "#c4bfb2", innerSoft: "#9a9485" };
+const WHEEL_VISUAL = {
+  base: "#eae8e3", band: "#f1ece0", glowColor: "#b89a55", glowAlpha: 0.16, glowReach: 0.20, paperOpacity: 0.05,
+};
 // WHEEL-v2: P2P spoke colors — major harmonious blue, major challenging red, minor green.
 const WHEEL_P2P_MAJOR_HARMONIOUS = new Set(["trine", "sextile"]);
 const WHEEL_P2P_MAJOR_CHALLENGING = new Set(["conjunction", "opposition", "square"]);
@@ -2212,6 +2221,43 @@ function wheelSvgChord(cx, cy, radius, canvasDegA, canvasDegB, rotDeg, stroke, s
   return `<line x1="${p1[0].toFixed(2)}" y1="${p1[1].toFixed(2)}" x2="${p2[0].toFixed(2)}" y2="${p2[1].toFixed(2)}" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round"${dashAttr}/>`;
 }
 
+function wheelSvgCircle(cx, cy, r, stroke, sw, fill) {
+  const fillAttr = fill != null ? ` fill="${fill}"` : ' fill="none"';
+  return `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(2)}"${fillAttr} stroke="${stroke}" stroke-width="${sw}"/>`;
+}
+
+function wheelSvgWedgeCanvas(cx, cy, canvasA1, canvasA2, rOut, rIn, rotDeg, fill) {
+  const aa2 = (canvasA2 < canvasA1) ? canvasA2 : canvasA2 - 360;
+  const pts = [];
+  for (let a = canvasA1; a >= aa2; a -= 3) {
+    const p = wheelPolarXY(cx, cy, rOut, a, rotDeg);
+    pts.push(`${p[0].toFixed(1)},${p[1].toFixed(1)}`);
+  }
+  for (let a = aa2; a <= canvasA1; a += 3) {
+    const p = wheelPolarXY(cx, cy, rIn, a, rotDeg);
+    pts.push(`${p[0].toFixed(1)},${p[1].toFixed(1)}`);
+  }
+  return `<polygon points="${pts.join(" ")}" fill="${fill}" stroke="none"/>`;
+}
+
+function wheelZodiacSignSvg(signIndex) {
+  switch (signIndex) {
+    case 0: return '<path d="M-3,2.5 C-3,-3 -0.6,-3 0,0 C0.6,-3 3,-3 3,2.5"/>';
+    case 1: return '<circle cx="0" cy="1.4" r="2.4"/><path d="M-3.4,-3.2 A3 3 0 0 0 3.4,-3.2"/>';
+    case 2: return '<line x1="-2.6" y1="-3" x2="2.6" y2="-3"/><line x1="-2.6" y1="3" x2="2.6" y2="3"/><line x1="-1.4" y1="-3" x2="-1.4" y2="3"/><line x1="1.4" y1="-3" x2="1.4" y2="3"/>';
+    case 3: return '<circle cx="-1.4" cy="-1.2" r="1.3"/><circle cx="1.4" cy="1.2" r="1.3"/><path d="M-2.7,-1.2 A3 3 0 0 1 1.4,-2.6"/><path d="M2.7,1.2 A3 3 0 0 1 -1.4,2.6"/>';
+    case 4: return '<circle cx="-1.2" cy="1.4" r="1.8"/><path d="M0.4,2 C0.4,-2 -1,-3.5 1.4,-3.5 C3,-3.5 3,-1.4 2.2,-0.6"/>';
+    case 5: return '<path d="M-3.4,-2.5 L-3.4,2.5 M-3.4,-2.5 C-2,-3.4 -1,-2.6 -1,-1 L-1,2.5 M-1,-1 C-1,-3 0.6,-3.4 1.2,-1 L1.2,2.5 M1.2,1 C1.2,3.2 3,3 3.2,1.4"/>';
+    case 6: return '<path d="M-3.4,2.4 L3.4,2.4 M-2.6,0 A2.6 2.6 0 0 1 2.6,0 L-2.6,0"/>';
+    case 7: return '<path d="M-3.4,-2.5 L-3.4,2.5 M-3.4,-2.5 C-2,-3.4 -1,-2.6 -1,-1 L-1,2.5 M-1,-1 C-1,-3 0.6,-3.4 1.2,-1 L1.2,3.4"/><path d="M1.2,1 L3.4,3.4 M3.4,1.2 L3.4,3.4 L1.6,3.4"/>';
+    case 8: return '<line x1="-3" y1="3" x2="3" y2="-3"/><line x1="3" y1="-3" x2="0.6" y2="-3"/><line x1="3" y1="-3" x2="3" y2="-0.6"/><line x1="-1.6" y1="0.4" x2="0.6" y2="2.6"/>';
+    case 9: return '<path d="M-3,-3 C-2,-3.4 -1,-2.6 -1,-1 L-1,3 M-1,-1 C-1,-3 1,-3 1.4,-0.6 C2,2 -0.2,3.4 -1.6,2"/>';
+    case 10: return '<path d="M-3.4,-1.4 L-1.8,-2.6 L-0.2,-1.4 L1.4,-2.6 L3,-1.4 M-3.4,1.4 L-1.8,0.2 L-0.2,1.4 L1.4,0.2 L3,1.4"/>';
+    case 11: return '<path d="M-2.6,-3 C-4,-1 -4,1 -2.6,3 M2.6,-3 C4,-1 4,1 2.6,3 M-3.2,0 L3.2,0"/>';
+    default: return "";
+  }
+}
+
 function renderRelocatedWheelSvg(canonicalChart) {
   const houses = canonicalChart && canonicalChart.houses;
   const cusps = houses && Array.isArray(houses.cusps_deg) ? houses.cusps_deg.slice(0, 12) : null;
@@ -2223,36 +2269,84 @@ function renderRelocatedWheelSvg(canonicalChart) {
   const S = 360;
   const cx = S / 2;
   const cy = S / 2;
-  const Rout = 0.42 * S;
-  const Rin = 0.12 * S;
-  const Rlabel = 0.33 * S;
-  const Rhouse = 0.24 * S;
-  let svg = `<svg class="rm-wheel-svg" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Relocated chart wheel">`;
-  svg += `<circle cx="${cx}" cy="${cy}" r="${Rout.toFixed(1)}" fill="#fafafa" stroke="#374151" stroke-width="1.5"/>`;
-  svg += `<circle cx="${cx}" cy="${cy}" r="${Rin.toFixed(1)}" fill="#ffffff" stroke="#d1d5db" stroke-width="1"/>`;
+  const k = S / 480;
+  const uid = `rmw${Math.random().toString(36).slice(2, 9)}`;
+  const Rclip = 0.5 * S;
+  const Rout = 0.41 * S;
+  const Rzod = 0.345 * S;
+  const Rsg = 0.378 * S;
+  const Rplanet = 0.308 * S;
+  const Raring = 0.27 * S;
+  const Rcore = 0.072 * S;
+  const Rnum = 0.135 * S;
+  const glowMid = (glowAlpha) => (glowAlpha * 0.35).toFixed(3);
+  const va = WHEEL_VISUAL;
+  let svg = `<svg class="rm-wheel-svg" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" role="img" aria-label="Relocated chart wheel">`;
+  svg += `<defs><clipPath id="clip${uid}"><circle cx="${cx}" cy="${cy}" r="${Rclip.toFixed(1)}"/></clipPath>`;
+  svg += `<filter id="paper${uid}"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="n"/>`;
+  svg += `<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.30  0 0 0 0 0.29  0 0 0 0 0.26  0 0 0 0.7 0"/></filter>`;
+  svg += `<radialGradient id="glow${uid}" cx="50%" cy="50%" r="50%">`;
+  svg += `<stop offset="0%" stop-color="${va.glowColor}" stop-opacity="${va.glowAlpha}"/>`;
+  svg += `<stop offset="55%" stop-color="${va.glowColor}" stop-opacity="${glowMid(va.glowAlpha)}"/>`;
+  svg += `<stop offset="100%" stop-color="${va.glowColor}" stop-opacity="0"/></radialGradient></defs>`;
+  svg += `<g clip-path="url(#clip${uid})">`;
+  svg += `<rect width="${S}" height="${S}" fill="${va.base}"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${((Rzod + Rout) / 2).toFixed(1)}" fill="none" stroke="${va.band}" stroke-width="${(Rout - Rzod).toFixed(1)}"/>`;
+  svg += `<rect width="${S}" height="${S}" filter="url(#paper${uid})" opacity="${va.paperOpacity}"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${(va.glowReach * S).toFixed(1)}" fill="url(#glow${uid})"/>`;
+  for (let sg = 0; sg < 12; sg++) {
+    if (sg % 2 !== 0) continue;
+    const lon1 = sg * 30;
+    const lon2 = (sg + 1) * 30;
+    const a1 = wheelEclipticToCanvasDeg(lon1, ascLon);
+    const a2 = wheelEclipticToCanvasDeg(lon2, ascLon);
+    svg += wheelSvgWedgeCanvas(cx, cy, a1, a2, Rout, Rzod, rot, "rgba(43,41,38,0.022)");
+  }
+  for (let h = 0; h < 12; h++) {
+    if (h % 2 !== 0) continue;
+    const c1 = cusps[h];
+    const c2 = cusps[(h + 1) % 12];
+    if (c1 == null || c2 == null) continue;
+    const a1 = wheelEclipticToCanvasDeg(c1, ascLon);
+    const a2 = wheelEclipticToCanvasDeg(c2, ascLon);
+    svg += wheelSvgWedgeCanvas(cx, cy, a1, a2, Rzod, Raring, rot, "rgba(43,41,38,0.040)");
+  }
+  svg += wheelSvgCircle(cx, cy, Rout, WHEEL_GREY.ink, (2.8 * k).toFixed(2));
+  svg += wheelSvgCircle(cx, cy, Rzod, WHEEL_GREY.ink, (1.0 * k).toFixed(2));
+  svg += wheelSvgCircle(cx, cy, Raring, "#9a9487", (1.0 * k).toFixed(2));
+  svg += wheelSvgCircle(cx, cy, Rcore, WHEEL_GREY.innerSoft, (1.2 * k).toFixed(2));
+  for (let sd = 0; sd < 360; sd += 30) {
+    const a = wheelEclipticToCanvasDeg(sd, ascLon);
+    svg += wheelSvgLine(cx, cy, Rzod, Rout, a, rot, WHEEL_GREY.divider, (1.1 * k).toFixed(2));
+  }
+  for (let t5 = 0; t5 < 360; t5 += 5) {
+    if (t5 % 30 === 0) continue;
+    const a = wheelEclipticToCanvasDeg(t5, ascLon);
+    svg += wheelSvgLine(cx, cy, Rzod, Rzod + 0.018 * S, a, rot, WHEEL_GREY.tick5, (0.9 * k).toFixed(2));
+  }
+  const signScale = (0.0046 * S).toFixed(2);
+  for (let sgi = 0; sgi < 12; sgi++) {
+    const signCenterLon = sgi * 30 + 15;
+    const a = wheelEclipticToCanvasDeg(signCenterLon, ascLon);
+    const gp = wheelPolarXY(cx, cy, Rsg, a, rot);
+    svg += `<g transform="translate(${gp[0].toFixed(1)},${gp[1].toFixed(1)}) scale(${signScale})" stroke="${WHEEL_GREY.cusp}" stroke-width="0.7" fill="none" stroke-linecap="round" stroke-linejoin="round">${wheelZodiacSignSvg(sgi)}</g>`;
+  }
   for (let i = 0; i < 12; i++) {
+    if (i === 0 || i === 3 || i === 6 || i === 9) continue;
     const cuspLon = cusps[i];
     if (cuspLon == null) continue;
     const a = wheelEclipticToCanvasDeg(cuspLon, ascLon);
-    const isAngle = (i === 0 || i === 3 || i === 6 || i === 9);
-    svg += wheelSvgLine(cx, cy, Rin, Rout, a, rot, isAngle ? "#111827" : "#9ca3af", isAngle ? 2 : 1);
+    svg += wheelSvgLine(cx, cy, Rzod, Rcore, a, rot, WHEEL_GREY.cusp, (1.0 * k).toFixed(2));
   }
-  [["ASC", angles.ASC], ["MC", angles.MC], ["DSC", angles.DSC], ["IC", angles.IC]].forEach(([label, entry]) => {
-    if (!entry || entry.longitude_deg == null) return;
-    const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
-    const p = wheelPolarXY(cx, cy, Rout + 14, a, rot);
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="600" fill="#1d4ed8">${label}</text>`;
-  });
   for (let i = 0; i < 12; i++) {
     const a1 = wheelEclipticToCanvasDeg(cusps[i], ascLon);
     const a2 = wheelEclipticToCanvasDeg(cusps[(i + 1) % 12], ascLon);
     const mid = a1 + (((a2 - a1 + 540) % 360) - 180) / 2;
-    const p = wheelPolarXY(cx, cy, Rhouse, mid, rot);
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="10" fill="#4b5563" font-weight="500">${i + 1}</text>`;
+    const p = wheelPolarXY(cx, cy, Rnum, mid, rot);
+    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 3 * k).toFixed(1)}" text-anchor="middle" font-size="${(9 * k).toFixed(1)}" fill="#3f3b34" font-weight="600" font-family="Helvetica,Arial,sans-serif">${i + 1}</text>`;
   }
   const visible = getVisibleBodyNamesSet();
   const planets = canonicalChart.planets || {};
-  const Rspoke = 0.2 * S;
   const p2pRows = Array.isArray(canonicalChart.aspects_planet_to_planet)
     ? canonicalChart.aspects_planet_to_planet
     : [];
@@ -2267,7 +2361,7 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const aspectId = String(row.aspect).toLowerCase();
     const stroke = wheelP2pSpokeStroke(aspectId);
     const isMinor = WHEEL_P2P_MINOR_ASPECTS.has(aspectId);
-    svg += wheelSvgChord(cx, cy, Rspoke, aA, aB, rot, stroke, isMinor ? 0.9 : 1.1, isMinor ? "3 3" : "");
+    svg += wheelSvgChord(cx, cy, Raring, aA, aB, rot, stroke, isMinor ? (1.0 * k).toFixed(2) : (1.6 * k).toFixed(2), isMinor ? `${(3 * k).toFixed(1)} ${(3 * k).toFixed(1)}` : "");
   });
   const bodyOrder = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
   bodyOrder.forEach((name) => {
@@ -2275,14 +2369,35 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const entry = planets[name];
     if (!entry || entry.longitude_deg == null) return;
     const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
-    const p = wheelPolarXY(cx, cy, Rlabel, a, rot);
+    svg += wheelSvgLine(cx, cy, Raring, Raring + 0.014 * S, a, rot, "#8f897c", (0.9 * k).toFixed(2));
+  });
+  bodyOrder.forEach((name) => {
+    if (!visible.has(name)) return;
+    const entry = planets[name];
+    if (!entry || entry.longitude_deg == null) return;
+    const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
+    svg += wheelSvgLine(cx, cy, Rzod, Rzod + 0.018 * S, a, rot, WHEEL_GREY.ink, (1.1 * k).toFixed(2));
+    const p = wheelPolarXY(cx, cy, Rplanet, a, rot);
     const glyph = WHEEL_BODY_GLYPH[name] || name.slice(0, 2);
     const motion = entry.motion_state || (entry.retrograde ? "retrograde" : "direct");
     const tip = `${name} ${entry.sign || ""}${entry.house != null ? " H" + entry.house : ""}${wheelMotionTooltipSuffix(motion)}`;
     const motionMark = wheelMotionMarkerTspans(motion);
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="14" fill="#111827"><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
+    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="${(14 * k).toFixed(1)}" fill="${WHEEL_GREY.ink}"><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
   });
-  svg += `</svg>`;
+  [0, 9, 6, 3].forEach((ci) => {
+    const cuspLon = cusps[ci];
+    if (cuspLon == null) return;
+    const a = wheelEclipticToCanvasDeg(cuspLon, ascLon);
+    svg += wheelSvgLine(cx, cy, Rzod, Rcore, a, rot, WHEEL_GREY.ink, (2.2 * k).toFixed(2));
+    svg += wheelSvgLine(cx, cy, Rout - 1, Rout + 0.012 * S, a, rot, WHEEL_GREY.ink, (2.2 * k).toFixed(2));
+  });
+  [["ASC", angles.ASC], ["MC", angles.MC], ["DSC", angles.DSC], ["IC", angles.IC]].forEach(([label, entry]) => {
+    if (!entry || entry.longitude_deg == null) return;
+    const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
+    const p = wheelPolarXY(cx, cy, Rout + 10, a, rot);
+    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 3 * k).toFixed(1)}" text-anchor="middle" font-size="${(10 * k).toFixed(1)}" font-weight="600" fill="#3d6b86" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
+  });
+  svg += `</g></svg>`;
   return svg;
 }
 
@@ -2301,7 +2416,7 @@ function renderRelocatedWheelHtml(canonicalChart) {
   const zodiac = (canonicalChart.metadata && canonicalChart.metadata.zodiac_mode) || "tropical";
   return `<div class="rm-wheel-wrap" data-wheel-source="canonical_chart">
     <p class="meta" style="margin:0 0 8px">${escapeHtml(caption)} \u00b7 ${escapeHtml(kind)} \u00b7 ${escapeHtml(houseSys)} \u00b7 ${escapeHtml(zodiac)}</p>
-    ${svg}
+    <div class="rm-wheel-disc">${svg}</div>
   </div>`;
 }
 
