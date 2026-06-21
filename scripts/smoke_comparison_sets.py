@@ -41,6 +41,28 @@ PYTHON = ROOT / "venv" / "bin" / "python"
 DEFAULT_EMAIL = "davidleongoodman@gmail.com"
 PORT = 8004
 
+# PIH-QA-FIX-1: scoped Screen 4 row extractors — never use unscoped table.simple for PIH.
+PIH_ROW_EXTRACT_JS = """(planet) => {
+  const root = document.getElementById('rm-screen4-facts');
+  const table = root && root.querySelector('.rm-pih-table[data-pih-source="canonical_chart"]');
+  if (!table) return null;
+  const row = Array.from(table.querySelectorAll('tr')).find(
+    (tr) => tr.cells[0] && tr.cells[0].textContent.trim() === planet
+  );
+  if (!row) return null;
+  return Array.from(row.cells).map((td) => td.textContent.trim());
+}"""
+
+A2A_ROWS_FOR_PLANET_JS = """(planet) => {
+  const root = document.getElementById('rm-screen4-facts');
+  const table = root && root.querySelector('.rm-a2a-table[data-a2a-source="canonical_chart"]');
+  if (!table) return [];
+  return Array.from(table.querySelectorAll('tr'))
+    .filter((tr) => tr.cells[0] && tr.cells[0].textContent.trim() === planet)
+    .map((tr) => Array.from(tr.cells).map((td) => td.textContent.trim()));
+}"""
+
+
 
 def fail(msg: str) -> None:
     print(f"FAIL: {msg}", file=sys.stderr)
@@ -160,6 +182,31 @@ def ensure_two_favorites(admin, account_id, profile_id, stamp):
 
 
 
+
+
+
+def static_pih_qa_selector_checks(script_path: Path) -> list[tuple[str, bool, str]]:
+    """PIH-QA-FIX-1: forbid unscoped table.simple PIH reads in smoke scripts."""
+    text = script_path.read_text(encoding="utf-8")
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_pih_qa_scoped_extractors",
+                "PIH_ROW_EXTRACT_JS" in text
+                and "rm-pih-table" in text
+                and 'data-pih-source="canonical_chart"' in text,
+                "PIH_ROW_EXTRACT_JS scopes to rm-pih-table"))
+    out.append(("static_pih_qa_a2a_scoped_extractors",
+                "A2A_ROWS_FOR_PLANET_JS" in text
+                and "rm-a2a-table" in text,
+                "A2A_ROWS_FOR_PLANET_JS scopes to rm-a2a-table"))
+    unscoped_pih = (
+        "querySelectorAll('table.simple tr')" in text
+        and "PIH_ROW_EXTRACT_JS" not in text.split("querySelectorAll('table.simple tr')")[0][-800:]
+    )
+    out.append(("static_pih_qa_no_unscoped_simple",
+                "querySelectorAll('table.simple tr')" not in text
+                or ("PIH_ROW_EXTRACT_JS" in text and not unscoped_pih),
+                "no unscoped table.simple PIH row reads in smoke script"))
+    return out
 
 
 def static_pih_checks(shell_path: Path, map_path: Path) -> list[tuple[str, bool, str]]:
@@ -317,6 +364,51 @@ def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
                 "no client settings drift filter on A2A rows"))
     return out
 
+
+def wheel_v2_pih_crosscheck(page, profile_id: str, locations: list[tuple[str, dict]], expected: dict[str, int]) -> list[tuple[str, bool, str]]:
+    """Playwright: Sun house from .rm-pih-table only (PIH-QA-FIX-1)."""
+    out: list[tuple[str, bool, str]] = []
+    for key, place in locations:
+        page.evaluate(
+            "(args)=>window.__rmAppShell.navigate('chart',{chartRecordId:args.pid,placeId:args.placeId})",
+            {"pid": profile_id, "placeId": place["id"]},
+        )
+        page.wait_for_selector(
+            '#rm-screen4-facts .rm-pih-table[data-pih-source="canonical_chart"]',
+            timeout=120000,
+        )
+        page.wait_for_timeout(1500)
+        row = page.evaluate(PIH_ROW_EXTRACT_JS, "Sun")
+        house = row[1] if row and len(row) > 1 else None
+        exp = expected.get(key)
+        ok = str(house) == str(exp)
+        out.append((f"fe_pih_sun_house_{key}", ok, f"displayed={house} expected={exp} row={row}"))
+        a2a = page.evaluate(A2A_ROWS_FOR_PLANET_JS, "Sun")
+        out.append((f"fe_pih_not_a2a_contamination_{key}",
+                    not row or (len(row) == 3 and house not in ("Conjunction", "Opposition", "Square", "Trine", "Sextile")),
+                    f"pih_cols={len(row) if row else 0} a2a_sun_rows={len(a2a)}"))
+    return out
+
+
+def resolve_wheel_v2_qa_locations(admin, account_id: str, profile_id: str) -> list[tuple[str, dict]]:
+    """Kansas City (current), favorite custom, comparison city — same fixtures as WHEEL-v2 QA."""
+    def place_row(pid):
+        return admin.table("places").select("id,display_name,latitude,longitude").eq("id", pid).single().execute().data
+
+    fav_rows = admin.table("favorite_places").select("place_id").eq("account_id", account_id).is_("archived_at", "null").order("rank").execute().data or []
+    current_row = admin.table("current_location_history").select("place_id").eq("profile_id", profile_id).eq("is_current", True).limit(1).execute().data
+    current = place_row(current_row[0]["place_id"])
+    fav = place_row(next((f["place_id"] for f in fav_rows if f["place_id"] != current["id"]), fav_rows[0]["place_id"]))
+    cs = admin.table("comparison_sets").select("id").eq("account_id", account_id).is_("archived_at", "null").limit(1).execute().data
+    cmp_places = admin.table("comparison_set_places").select("place_id").eq("comparison_set_id", cs[0]["id"]).order("sort_order").execute().data
+    cmp = place_row(next((r["place_id"] for r in cmp_places if r["place_id"] not in {current["id"], fav["id"]}), cmp_places[0]["place_id"]))
+    return [
+        ("current_kansas_city", current),
+        ("favorite_city", fav),
+        ("comparison_city", cmp),
+    ]
+
+
 def main() -> int:
     url = os.environ.get("SUPABASE_URL", "")
     anon_key = os.environ.get("SUPABASE_ANON_KEY", "")
@@ -350,6 +442,7 @@ def main() -> int:
             fail(f"temp server did not start on {base}")
 
     results = []
+    results.extend(static_pih_qa_selector_checks(ROOT / "scripts" / "smoke_comparison_sets.py"))
     results.extend(static_pih_checks(ROOT / "app_shell.html", ROOT / "map_CURRENT.html"))
     results.extend(static_wheel_checks(ROOT / "app_shell.html"))
     results.extend(static_p2p_checks(ROOT / "app_shell.html"))
@@ -921,6 +1014,18 @@ def main() -> int:
             results.append(("fe_a2a_screen4_canonical",
                             s4_a2a.get("hasTable") or s4_a2a.get("emptyMsg"),
                             f"hasTable={s4_a2a.get('hasTable')} empty={s4_a2a.get('emptyMsg')}"))
+
+            # PIH-QA-FIX-1: Sun house cross-check via scoped .rm-pih-table (WHEEL-v2 fixtures)
+            try:
+                qa_locs = resolve_wheel_v2_qa_locations(admin, account_id, profile_id)
+                qa_expected = {
+                    "current_kansas_city": 1,
+                    "favorite_city": 12,
+                    "comparison_city": 7,
+                }
+                results.extend(wheel_v2_pih_crosscheck(page, profile_id, qa_locs, qa_expected))
+            except Exception as exc:
+                results.append(("fe_pih_wheel_v2_crosscheck", False, str(exc)[:120]))
 
             # SETTINGS-WIRE-3: A2A display angle defaults via app shell helper
             a2a_defaults = page.evaluate(

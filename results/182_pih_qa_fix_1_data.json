@@ -1,0 +1,34 @@
+{
+  "crosscheck_results": [
+    {
+      "name": "fe_pih_sun_house_current_kansas_city",
+      "ok": true,
+      "detail": "displayed=1 expected=1 row=['Sun', '1', '22\u00b027\u2032 Capricorn']"
+    },
+    {
+      "name": "fe_pih_not_a2a_contamination_current_kansas_city",
+      "ok": true,
+      "detail": "pih_cols=3 a2a_sun_rows=0"
+    },
+    {
+      "name": "fe_pih_sun_house_favorite_city",
+      "ok": true,
+      "detail": "displayed=12 expected=12 row=['Sun', '12', '22\u00b027\u2032 Capricorn']"
+    },
+    {
+      "name": "fe_pih_not_a2a_contamination_favorite_city",
+      "ok": true,
+      "detail": "pih_cols=3 a2a_sun_rows=2"
+    },
+    {
+      "name": "fe_pih_sun_house_comparison_city",
+      "ok": true,
+      "detail": "displayed=7 expected=7 row=['Sun', '7', '22\u00b027\u2032 Capricorn']"
+    },
+    {
+      "name": "fe_pih_not_a2a_contamination_comparison_city",
+      "ok": true,
+      "detail": "pih_cols=3 a2a_sun_rows=1"
+    }
+  ]
+}
