@@ -3617,9 +3617,7 @@ function _aspectRegistryContext() {
 // Controls which relocated angles (ASC/MC/DSC/IC) are shown in A2A tables,
 // comparison A2A columns, and (future) chart wheel A2A overlays.
 // Default: ASC and MC on; DSC and IC off — mirrors conventional relocation focus.
-// NOTE: The A2A chart table consumer reads these at render time; chart wheel
-// renderer is not yet live — these settings are wired for persistence now,
-// display consumer integration follows.
+// SETTINGS-FINAL-WIRE-1: consumers include AIS, comparison angle rows, A2A tables, map Genie.
 function a2aDisplayAnglesHtml() {
   const eff = _settingsEff();
   const a2ad = (eff && typeof eff.display_aspects_to_angles === "object" && eff.display_aspects_to_angles)
@@ -3635,7 +3633,7 @@ function a2aDisplayAnglesHtml() {
   return `
     <div class="panel">
       <h4 style="margin:0 0 4px;">Angles in A2A display</h4>
-      <p class="meta" style="margin:0 0 8px;">Choose which relocated angles appear in map aspect searches and angle lists. ASC and MC are shown by default. Full aspect-to-angle tables ship in a later slice.</p>
+      <p class="meta" style="margin:0 0 8px;">Choose which relocated angles appear in AIS, comparison angle rows, A2A tables, and the map Genie angle selector. ASC and MC are shown by default.</p>
       ${row("asc", "ASC (Ascendant)", true)}
       ${row("mc",  "MC (Midheaven)",  true)}
       ${row("dsc", "DSC (Descendant)", false)}
@@ -3662,6 +3660,7 @@ function aspectsSettingsHtml() {
         <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} style="width:auto;margin:0;" />
         Show minor aspects
       </label>
+      <p class="meta" style="margin:8px 0 0;font-size:11px;">Major and minor visibility affect server-computed planet-to-planet aspects (wheel spokes), A2A major aspects, and map Genie overlay aspect options.</p>
     </div>`;
 }
 
@@ -3674,7 +3673,7 @@ function chartDisplayOrbsHtml() {
   return `
     <div class="panel">
       <h4 style="margin:0 0 8px;">Chart display</h4>
-      <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs. Stored and persisted. These will control aspect visibility in the chart wheel and aspect tables when those renderers are live. They do not affect PIH or map region calculations.</p>
+      <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs. Affect wheel spokes and server-computed <code>aspects_planet_to_planet</code>. They do not change PIH house assignment or map region geometry.</p>
       <h4 style="margin:8px 0 4px;font-size:12px;">Major</h4>
       ${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}
       <h4 style="margin:12px 0 4px;font-size:12px;">Minor</h4>
@@ -3697,7 +3696,7 @@ function aspectToAngleOrbsHtml() {
   return `
     <div class="panel">
       <h4 style="margin:0 0 8px;">Aspect-to-angle / search</h4>
-      <p class="meta" style="margin:0 0 8px;">Orbs for planet-to-angle relationships (ASC/MC).</p>
+      <p class="meta" style="margin:0 0 8px;">Orbs for aspect-to-angle contacts in relocated A2A tables and map search metadata. Map overlay lines remain exact aspect crossings; orbs filter which contacts are computed.</p>
       ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
     </div>`;
 }
@@ -3705,36 +3704,34 @@ function aspectToAngleOrbsHtml() {
 function subsequentHouseRuleHtml() {
   const eff = _settingsEff();
   const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
-  const policy = (eff && eff.subsequent_house_policy) ? eff.subsequent_house_policy : "display_only";
-  const enabled = policy !== "disabled";
-  // SETTINGS-WIRE-2: house proximity orb is now live (wired to /relocated-chart).
-  // Subsequent-house DIRECTION LOGIC (retrograde-aware edge reassignment) is stored
-  // but not yet calculated. The orb controls the near_cusp threshold only.
+  // SETTINGS-FINAL-WIRE-1: orb is live on /relocated-chart near_cusp. Direction-aware
+  // subsequent-house reassignment remains future work — do not expose a live toggle.
   return `
     <div class="panel">
-      <label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-subsequent-house-enabled"${enabled ? " checked" : ""} style="width:auto;margin:0;"
-          onchange="var o=document.getElementById('rm-settings-house-proximity-orb');if(o)o.disabled=!this.checked;" />
-        Treat late sign placements as subsequent house
+      <label class="block">Near-cusp orb (degrees)
+        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
       </label>
-      <label class="block" style="margin-top:12px;">Orb (degrees)
-        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}"${enabled ? "" : " disabled"} />
-      </label>
-      <p class="meta" style="margin:8px 0 0;font-size:11px;">The orb controls how close a planet must be to a cusp to flag it as near-cusp. Direction-aware house-edge reassignment (retrograde/applying) is stored and coming soon.</p>
+      <p class="meta" style="margin:8px 0 0;font-size:11px;">Controls how close a planet must be to a house cusp to flag it as near-cusp on PIH tables and chart data.</p>
+      <div class="loc-row" style="margin-top:12px;opacity:0.88;">
+        <div class="loc-row-text">
+          <strong>Direction-aware subsequent house</strong>
+          <span class="meta">Retrograde/applying house-edge reassignment.</span>
+        </div>
+        ${settingsSoonBadge()}
+      </div>
     </div>`;
 }
 
 function outOfSignAspectsHtml() {
-  // SETTINGS-WIRE-3: stored preference only — no engine sign-gate yet.
   const eff = _settingsEff();
   const oos = eff ? !!eff.out_of_sign_aspects : false;
   return `
     <div class="panel">
       <label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} disabled aria-disabled="true" style="width:auto;margin:0;" title="Coming soon" />
+        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} style="width:auto;margin:0;" />
         Allow out-of-sign aspects
       </label>
-      <p class="meta" style="margin:8px 0 0;font-size:11px;">Out-of-sign filtering is stored for future aspect tables and is not active yet.</p>
+      <p class="meta" style="margin:8px 0 0;font-size:11px;">When enabled, cross-sign planet-to-planet and aspect-to-angle contacts are included in wheel spokes, A2A tables, and server aspect compute.</p>
     </div>`;
 }
 
@@ -3791,12 +3788,75 @@ function settingsPageLayout(activeSub, title, subtitle, bodyHtml, opts) {
         <h3 class="settings-sec-title">${title}</h3>
         <p class="settings-sec-sub">${subtitle}</p>
         ${bodyHtml}
-        ${showSave ? settingsSaveBarHtml() : ""}
+        ${showSave ? settingsSaveBarHtml(o) : ""}
         <div class="row" style="margin-top:16px;">
           <button type="button" data-nav="dashboard">Back to app</button>
         </div>
       </div>
     </div>`;
+}
+
+function mirrorUserSettingsPatch(patch) {
+  if (!patch || typeof patch !== "object") return;
+  if (storeRaw) {
+    storeRaw.user_settings = Object.assign({}, storeRaw.user_settings || {}, patch);
+  }
+  if (window.SupabaseStore) {
+    window.SupabaseStore.user_settings = Object.assign(
+      {}, window.SupabaseStore.user_settings || {}, patch
+    );
+  }
+}
+
+function buildAstrologyDefaultsRestorePatch() {
+  const RM = window.RMSettings;
+  const defs = RM && RM.DEFAULTS;
+  if (!defs) throw new Error("Astrology defaults not loaded. Reload and try again.");
+  return {
+    settings_version: defs.settings_version,
+    visible_minor_aspects: !!defs.visible_minor_aspects,
+    out_of_sign_aspects: !!defs.out_of_sign_aspects,
+    visible_planets: Array.isArray(defs.visible_planets) ? defs.visible_planets.slice() : [],
+    visible_bodies: Array.isArray(defs.visible_bodies) ? defs.visible_bodies.slice() : [],
+    visible_major_aspects: Array.isArray(defs.visible_major_aspects) ? defs.visible_major_aspects.slice() : [],
+    visible_minor_aspects_list: Array.isArray(defs.visible_minor_aspects_list) ? defs.visible_minor_aspects_list.slice() : [],
+    major_aspect_orbs: Object.assign({}, defs.major_aspect_orbs || {}),
+    minor_aspect_orbs: Object.assign({}, defs.minor_aspect_orbs || {}),
+    house_proximity_orb_degrees: defs.house_proximity_orb_degrees,
+    subsequent_house_policy: defs.subsequent_house_policy || "display_only",
+    aspect_to_angle_orbs: Object.assign({}, defs.aspect_to_angle_orbs || {}),
+    display_aspects_to_angles: Object.assign({}, defs.display_aspects_to_angles || {}),
+  };
+}
+
+// SETTINGS-FINAL-WIRE-1: re-fetch chart/compare data and sync map Genie selectors.
+function rehydrateSettingsConsumers() {
+  _screen4ChartCache = null;
+  _comparisonColsCache = null;
+  if (navContext.route === "chart") {
+    hydrateRelocatedChart();
+  }
+  if (navContext.route === "compare") {
+    hydrateComparisonColumns();
+  } else {
+    refreshAisWorkbookSection();
+    refreshA2aWorkbookSection();
+  }
+  if (typeof window.__rmSyncGenieSelectors === "function") {
+    try { window.__rmSyncGenieSelectors(); } catch (e) { /* map may be another tab */ }
+  }
+}
+
+function applyAccountSettingsPatch(settingsPatch, viewModelPatch) {
+  return saveAccountSettingsPatch(settingsPatch).then(() => {
+    mirrorUserSettingsPatch(settingsPatch);
+    if (viewModel && viewModelPatch && viewModelPatch.default_chart_record_id) {
+      viewModel.accountDefaultChartRecordId = viewModelPatch.default_chart_record_id;
+      viewModel.defaultChartRecordId = viewModelPatch.default_chart_record_id;
+    }
+    render();
+    rehydrateSettingsConsumers();
+  });
 }
 
 function settingsSoonBadge() {
@@ -3811,10 +3871,15 @@ function settingsStubRow(label, desc) {
   </div>`;
 }
 
-function settingsSaveBarHtml() {
+function settingsSaveBarHtml(opts) {
+  const o = opts || {};
+  const restoreBtn = o.showRestoreAstrology
+    ? `<button type="button" data-action="restore-astrology-defaults" style="margin-left:8px;">Restore Default Astrology Settings</button>`
+    : "";
   return `
     <div class="settings-save-bar row">
       <button type="button" class="primary" data-action="save-settings">Save Settings</button>
+      ${restoreBtn}
       <span id="rm-settings-msg" class="meta" style="margin-left:12px;min-height:1.4em;"></span>
     </div>`;
 }
@@ -4097,7 +4162,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
       "Astrology",
       "Chart calculation defaults, bodies, aspects, orbs, and dignities. Saved to your account.",
       settingsChartsBodyHtml(),
-      { showSave: true }
+      { showSave: true, showRestoreAstrology: true }
     );
   },
   display() {
@@ -5439,8 +5504,7 @@ if (action === "save-comparison-note") {
         const minorEl = document.getElementById("rm-settings-minor-aspects");
         const oosEl = document.getElementById("rm-settings-oos-aspects");
         if (minorEl) settingsPatch.visible_minor_aspects = !!minorEl.checked;
-        // SETTINGS-WIRE-3: out-of-sign is disclosed/disabled until engine sign-gate exists.
-        if (oosEl && !oosEl.disabled) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
+        if (oosEl) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
         const planetIds = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
         // north_node / south_node are permanently disabled (CHART-TRUTH-FIX-1/FIX-3).
         // Never save them as enabled — the engine does not support Nodes.
@@ -5483,13 +5547,7 @@ if (action === "save-comparison-note") {
         }
         const hpOrbEl = document.getElementById("rm-settings-house-proximity-orb");
         if (hpOrbEl) { const n = parseFloat(hpOrbEl.value); if (!isNaN(n)) settingsPatch.house_proximity_orb_degrees = n; }
-        const shEnEl = document.getElementById("rm-settings-subsequent-house-enabled");
-        if (shEnEl) {
-          settingsPatch.subsequent_house_policy = shEnEl.checked ? "display_only" : "disabled";
-        } else {
-          const hpPolicyEl = document.getElementById("rm-settings-subsequent-house-policy");
-          if (hpPolicyEl) settingsPatch.subsequent_house_policy = hpPolicyEl.value;
-        }
+        // subsequent_house_policy omitted: direction-aware reassignment is not live yet.
         const a2aIds = ["conjunction", "opposition", "square", "trine", "sextile"];
         if (document.getElementById("rm-settings-a2aorb-conjunction")) {
           const a2aPatch = {};
@@ -5508,28 +5566,27 @@ if (action === "save-comparison-note") {
             ic:  !!(document.getElementById("rm-settings-a2d-ic")  || {}).checked,
           };
         }
-        saveAccountSettingsPatch(settingsPatch).then(() => {
-          // Mirror the saved patch into in-memory state so the shell reflects the
-          // new configuration without a full page reload. settings_json is the
-          // same flat shape as storeRaw.user_settings, so a shallow merge matches
-          // what was just written to the DB.
-          if (storeRaw) {
-            storeRaw.user_settings = Object.assign({}, storeRaw.user_settings || {}, settingsPatch);
-          }
-          // Keep the account-default chart record fields aligned with the saved
-          // value so the default selector and dashboard default behavior stay
-          // correct after the in-place re-render.
-          if (viewModel && settingsPatch.default_chart_record_id) {
-            viewModel.accountDefaultChartRecordId = settingsPatch.default_chart_record_id;
-            viewModel.defaultChartRecordId = settingsPatch.default_chart_record_id;
-          }
-          // Re-render the current screen in place (no reload, no navigation).
-          // render() replaces #main, so re-acquire the message element after.
-          render();
+        applyAccountSettingsPatch(settingsPatch, settingsPatch).then(() => {
           const savedMsg = document.getElementById("rm-settings-msg");
           if (savedMsg) savedMsg.textContent = "\u2713 Saved.";
-          if (navContext.route === "chart") hydrateRelocatedChart();
-          if (navContext.route === "compare") hydrateComparisonColumns();
+        }).catch((err) => {
+          if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
+        });
+      }
+      if (action === "restore-astrology-defaults") {
+        const msgEl = document.getElementById("rm-settings-msg");
+        if (!window.confirm("Restore default astrology settings? This replaces your saved astrology preferences.")) return;
+        if (msgEl) msgEl.textContent = "Restoring…";
+        let patch;
+        try {
+          patch = buildAstrologyDefaultsRestorePatch();
+        } catch (err) {
+          if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
+          return;
+        }
+        applyAccountSettingsPatch(patch, null).then(() => {
+          const savedMsg = document.getElementById("rm-settings-msg");
+          if (savedMsg) savedMsg.textContent = "\u2713 Restored defaults.";
         }).catch((err) => {
           if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
         });

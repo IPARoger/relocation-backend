@@ -365,6 +365,31 @@ def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     return out
 
 
+def static_settings_final_wire_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
+    """SETTINGS-FINAL-WIRE-1 static honesty + rehydrate assertions."""
+    shell = shell_path.read_text(encoding="utf-8")
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_final_wire_rehydrate",
+                "rehydrateSettingsConsumers" in shell and "applyAccountSettingsPatch" in shell,
+                "settings save rehydrates consumers"))
+    out.append(("static_final_wire_restore",
+                "restore-astrology-defaults" in shell and "buildAstrologyDefaultsRestorePatch" in shell,
+                "restore defaults control"))
+    oos_chunk = shell.split('id="rm-settings-oos-aspects"', 1)
+    oos_enabled = len(oos_chunk) > 1 and "disabled aria-disabled" not in oos_chunk[1][:220]
+    out.append(("static_final_wire_oos_live", oos_enabled, "out-of-sign is an active control"))
+    out.append(("static_final_wire_subsequent_disabled",
+                "rm-settings-subsequent-house-enabled" not in shell,
+                "subsequent-house misleading checkbox removed"))
+    out.append(("static_final_wire_orbs_copy",
+                "when those renderers are live" not in shell,
+                "chart display orb copy updated"))
+    out.append(("static_final_wire_a2a_copy",
+                "ship in a later slice" not in shell,
+                "A2A angle copy updated"))
+    return out
+
+
 def wheel_v2_pih_crosscheck(page, profile_id: str, locations: list[tuple[str, dict]], expected: dict[str, int]) -> list[tuple[str, bool, str]]:
     """Playwright: Sun house from .rm-pih-table only (PIH-QA-FIX-1)."""
     out: list[tuple[str, bool, str]] = []
@@ -448,6 +473,7 @@ def main() -> int:
     results.extend(static_p2p_checks(ROOT / "app_shell.html"))
     results.extend(static_motion_checks(ROOT / "app_shell.html"))
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
+    results.extend(static_settings_final_wire_checks(ROOT / "app_shell.html"))
 
     created_set_ids = []
     created_place_ids = []
