@@ -168,6 +168,12 @@ def serve_supabase_store_bridge_js():
     )
 
 
+@app.get("/settings/astrology-defaults")
+def serve_astrology_settings_defaults():
+    from services.account_settings_resolver import load_astrology_settings_defaults
+    return JSONResponse(load_astrology_settings_defaults())
+
+
 @app.get("/place_search_client.js")
 def serve_place_search_client_js():
     return FileResponse(
@@ -766,14 +772,14 @@ def search_regions(req: SearchRequest):
         selected_aspect = req.aspect_overlay.get("aspect", "conjunction").lower()
         # SETTINGS-WIRE-2: client may pass max_orb per aspect from aspect_to_angle_orbs settings.
         # Stored in output feature properties for display consumers. Default: major=8, minor=3.
-        _a2a_orb_defaults = {
-            "conjunction": 8.0, "opposition": 8.0, "square": 8.0, "trine": 8.0, "sextile": 6.0,
-            "quincunx": 3.0, "semisextile": 2.0, "semisquare": 2.0, "sesquiquadrate": 2.0,
-            "quintile": 2.0, "biquintile": 2.0, "septile": 2.0, "novile": 2.0,
-        }
+        from services.account_settings_resolver import (
+            RM_SETTINGS_DEFAULTS,
+            aspect_to_angle_orb_limit,
+        )
+        _overlay_eff = {"aspect_to_angle_orbs": RM_SETTINGS_DEFAULTS["aspect_to_angle_orbs"]}
         overlay_max_orb = float(req.aspect_overlay.get(
             "max_orb",
-            _a2a_orb_defaults.get(selected_aspect, 6.0)
+            aspect_to_angle_orb_limit(_overlay_eff, selected_aspect),
         ))
         aspect_resolution = req.aspect_resolution if req.aspect_resolution > 0 else 0.5
         overlay_stage = req.overlay_stage or "final"
@@ -1913,6 +1919,8 @@ def _compute_aspects_to_angles(
     angle_longitudes: dict[str, float],
     effective_settings: dict,
 ) -> list[dict]:
+    from services.account_settings_resolver import aspect_to_angle_orb_limit
+
     a2a_orbs = effective_settings.get("aspect_to_angle_orbs") or {}
     major_aspects = effective_settings.get("visible_major_aspects") or list(_ASPECT_TARGET_DEG.keys())
     display_angles = effective_settings.get("display_aspects_to_angles") or {
@@ -1932,7 +1940,7 @@ def _compute_aspects_to_angles(
                 if aspect not in _ASPECT_TARGET_DEG:
                     continue
                 delta = _aspect_delta_from_exact(planet_lon, angle_lon, aspect)
-                orb_limit = float(a2a_orbs.get(aspect, 6.0))
+                orb_limit = aspect_to_angle_orb_limit(effective_settings, aspect)
                 in_orb = delta <= orb_limit
                 if not in_orb:
                     continue
@@ -2120,17 +2128,26 @@ def build_canonical_chart_v1(
 
 @app.get("/relocated-chart")
 def relocated_chart(
+    request: Request,
     lat: float,
     lon: float,
     birth_year: int,
     birth_month: int,
     birth_day: int,
     birth_hour_utc: float,
-    house_proximity_orb: float = 2.0,  # SETTINGS-WIRE-2: persisted orb, default 2.0
+    house_proximity_orb: float = 2.0,  # SETTINGS-WIRE-2: unauthenticated override only
     chart_record_id: str | None = None,
     place_name: str | None = None,
     location_kind: str | None = None,
 ):
+    from services.chart_effective_settings import resolve_chart_effective_settings
+
+    eff = resolve_chart_effective_settings(
+        request,
+        house_proximity_orb_query=house_proximity_orb,
+    )
+    hpo = float(eff["house_proximity_orb_degrees"])
+
     jd = swe.julday(birth_year, birth_month, birth_day, birth_hour_utc)
 
     cusps_raw, ascmc = swe.houses(jd, lat, lon, b'P')
@@ -2181,7 +2198,7 @@ def relocated_chart(
                 "longitude_formatted": format_zodiac(planet_lon),
                 "house": house_num,
                 "cusp_separation_deg": round(sep, 3),
-                "near_cusp": bool(sep < house_proximity_orb),
+                "near_cusp": bool(sep < hpo),
             }
         except Exception as e:
             print(f"Error calculating {name}: {e}")
@@ -2211,7 +2228,7 @@ def relocated_chart(
         "desc_deg": desc,
         "dc_deg": desc,
         "ic_deg": ic,
-        "cusp_transition_visual_deg": house_proximity_orb,
+        "cusp_transition_visual_deg": hpo,
         "planet_houses": planet_houses,
     }
     canonical_chart = build_canonical_chart_v1(
@@ -2221,7 +2238,7 @@ def relocated_chart(
         birth_month=birth_month,
         birth_day=birth_day,
         birth_hour_utc=birth_hour_utc,
-        house_proximity_orb=house_proximity_orb,
+        house_proximity_orb=hpo,
         asc=asc,
         mc=mc,
         desc=desc,
@@ -2231,6 +2248,7 @@ def relocated_chart(
         chart_record_id=chart_record_id,
         place_name=place_name,
         location_kind=location_kind,
+        effective_settings=eff,
     )
     return {**legacy, "canonical_chart": canonical_chart}
 @app.get("/health/supabase")

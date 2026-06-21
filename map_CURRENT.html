@@ -2739,8 +2739,12 @@ async function fetchRelocatedChart(lat, lon) {
     const _mapHpo = (_mapHpoEff && _mapHpoEff.house_proximity_orb_degrees != null)
         ? _mapHpoEff.house_proximity_orb_degrees
         : 2.0;
+    const _mapHeaders = (typeof window.__rmRelocatedChartRequestHeaders === "function")
+        ? await window.__rmRelocatedChartRequestHeaders()
+        : {};
     const response = await fetch(
-        `/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}&house_proximity_orb=${_mapHpo}`
+        `/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}&house_proximity_orb=${_mapHpo}`,
+        { headers: _mapHeaders }
     );
     if (!response.ok) throw new Error("relocated_failed");
     return response.json();

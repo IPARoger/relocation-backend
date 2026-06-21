@@ -1,74 +1,37 @@
-"""Layer-2 settings resolver mirrored from supabase_store_bridge.js."""
+"""Layer-2 settings resolver — defaults from settings/astrology_settings_defaults.json."""
 
-RM_SETTINGS_DEFAULTS = {
-    "settings_version": 1,
-    "house_system": "placidus",
-    "zodiac_mode": "tropical",
-    "orb_defaults": {
-        "conjunction": 8,
-        "square": 8,
-        "opposition": 8,
-        "trine": 8,
-        "sextile": 6,
-    },
-    "visible_minor_aspects": False,
-    "out_of_sign_aspects": False,
-    "visible_planets": [
-        "sun",
-        "moon",
-        "mercury",
-        "venus",
-        "mars",
-        "jupiter",
-        "saturn",
-        "uranus",
-        "neptune",
-        "pluto",
-    ],
-    "visible_bodies": ["chiron"],
-    "visible_major_aspects": [
-        "conjunction",
-        "opposition",
-        "square",
-        "trine",
-        "sextile",
-    ],
-    "visible_minor_aspects_list": [],
-    "major_aspect_orbs": {
-        "conjunction": 8,
-        "square": 8,
-        "opposition": 8,
-        "trine": 8,
-        "sextile": 6,
-    },
-    "minor_aspect_orbs": {
-        "quincunx": 3,
-        "semisextile": 2,
-        "semisquare": 2,
-        "sesquiquadrate": 2,
-        "quintile": 2,
-        "biquintile": 2,
-    },
-    "house_proximity_orb_degrees": 2,
-    "subsequent_house_policy": "display_only",
-    "aspect_to_angle_orbs": {
-        "conjunction": 8,
-        "opposition": 8,
-        "square": 8,
-        "trine": 8,
-        "sextile": 6,
-    },
-    "helper_layers": {},
-    "ontology_pack_id": None,
-    # SETTINGS-WIRE-1A: which relocated angles to show in A2A tables and comparisons.
-    # ASC/MC default ON; DSC/IC default OFF — conventional relocation focus.
-    "display_aspects_to_angles": {
-        "asc": True,
-        "mc":  True,
-        "dsc": False,
-        "ic":  False,
-    },
-}
+from __future__ import annotations
+
+import json
+from copy import deepcopy
+from pathlib import Path
+
+_DEFAULTS_PATH = Path(__file__).resolve().parent.parent / "settings" / "astrology_settings_defaults.json"
+
+
+def load_astrology_settings_defaults() -> dict:
+    with open(_DEFAULTS_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+RM_SETTINGS_DEFAULTS: dict = load_astrology_settings_defaults()
+
+
+def aspect_to_angle_orb_limit(effective_settings: dict, aspect: str) -> float:
+    """Orb limit for A2A compute — settings registry only, no hidden literals."""
+    a2a_orbs = effective_settings.get("aspect_to_angle_orbs")
+    if not isinstance(a2a_orbs, dict):
+        a2a_orbs = RM_SETTINGS_DEFAULTS["aspect_to_angle_orbs"]
+    if aspect in a2a_orbs:
+        return float(a2a_orbs[aspect])
+    major_orbs = effective_settings.get("major_aspect_orbs") or RM_SETTINGS_DEFAULTS["major_aspect_orbs"]
+    if aspect in major_orbs:
+        return float(major_orbs[aspect])
+    default_a2a = RM_SETTINGS_DEFAULTS["aspect_to_angle_orbs"]
+    if aspect in default_a2a:
+        return float(default_a2a[aspect])
+    default_major = RM_SETTINGS_DEFAULTS["major_aspect_orbs"]
+    return float(default_major.get(aspect, default_major.get("conjunction", 8)))
 
 
 def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
@@ -100,24 +63,23 @@ def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
         "settings_version": pick("settings_version"),
         "house_system": pick("house_system"),
         "zodiac_mode": pick("zodiac_mode"),
-        "orb_defaults": effective_major_orbs,
+        "orb_defaults": deepcopy(effective_major_orbs),
         "visible_minor_aspects": pick("visible_minor_aspects"),
         "out_of_sign_aspects": pick("out_of_sign_aspects"),
         "visible_planets": pick("visible_planets"),
         "visible_bodies": pick("visible_bodies"),
         "visible_major_aspects": pick("visible_major_aspects"),
         "visible_minor_aspects_list": pick("visible_minor_aspects_list"),
-        "major_aspect_orbs": effective_major_orbs,
+        "major_aspect_orbs": deepcopy(effective_major_orbs),
         "minor_aspect_orbs": pick("minor_aspect_orbs"),
         "house_proximity_orb_degrees": house_prox,
         "subsequent_house_policy": pick("subsequent_house_policy"),
         "aspect_to_angle_orbs": pick("aspect_to_angle_orbs"),
         "helper_layers": pick("helper_layers"),
         "ontology_pack_id": pick("ontology_pack_id"),
-        # SETTINGS-WIRE-1A
         "display_aspects_to_angles": (
             stored.get("display_aspects_to_angles")
             or onto.get("display_aspects_to_angles")
-            or RM_SETTINGS_DEFAULTS["display_aspects_to_angles"]
+            or deepcopy(RM_SETTINGS_DEFAULTS["display_aspects_to_angles"])
         ),
     }

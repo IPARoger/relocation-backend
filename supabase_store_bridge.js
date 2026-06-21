@@ -53,30 +53,19 @@
   // ontology packs, and it does not touch calculations. It only resolves and
   // shapes values that already exist.
 
-  // Hardcoded Layer 2 defaults. The seam for future ontology-pack defaults sits
-  // BETWEEN these hardcoded defaults and stored user settings (see precedence in
-  // getEffectiveSettings). Do not add renderer/debug/UI/cache keys here.
-  var RM_SETTINGS_DEFAULTS = {
-    settings_version:      1,
-    house_system:          "placidus",
-    zodiac_mode:           "tropical",
-    orb_defaults:          { conjunction: 8, square: 8, opposition: 8, trine: 8, sextile: 6 },
-    visible_minor_aspects: false,
-    out_of_sign_aspects:   false,
-    visible_planets:       ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"],
-    visible_bodies:        ["chiron"],
-    visible_major_aspects: ["conjunction", "opposition", "square", "trine", "sextile"],
-    visible_minor_aspects_list: [],
-    major_aspect_orbs:     { conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6 },
-    minor_aspect_orbs:     { quincunx: 3, semisextile: 2, semisquare: 2, sesquiquadrate: 2, quintile: 2, biquintile: 2 },
-    house_proximity_orb_degrees: 2,
-    subsequent_house_policy:     "display_only",
-    aspect_to_angle_orbs:  { conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6 },
-    helper_layers:         {},
-    ontology_pack_id:      null,
-    // SETTINGS-WIRE-1A: which relocated angles to include in A2A display
-    display_aspects_to_angles: { asc: true, mc: true, dsc: false, ic: false },
-  };
+  // SETTINGS-SOURCE-1: defaults loaded from /settings/astrology-defaults (JSON registry).
+  // Populated before store assembly; see loadAstrologySettingsDefaults().
+  var RM_SETTINGS_DEFAULTS = null;
+
+  async function loadAstrologySettingsDefaults() {
+    if (RM_SETTINGS_DEFAULTS) return RM_SETTINGS_DEFAULTS;
+    var resp = await fetch("/settings/astrology-defaults");
+    if (!resp.ok) {
+      throw new Error("[supabase_store_bridge] astrology defaults: HTTP " + resp.status);
+    }
+    RM_SETTINGS_DEFAULTS = await resp.json();
+    return RM_SETTINGS_DEFAULTS;
+  }
 
   var RM_SETTINGS_SNAPSHOT_VERSION = 1;
 
@@ -85,6 +74,9 @@
   // `ontologyDefaults` is accepted now to reserve the future layering seam;
   // callers may pass null until ontology packs exist.
   function getEffectiveSettings(storedUserSettings, ontologyDefaults) {
+    if (!RM_SETTINGS_DEFAULTS) {
+      throw new Error("[RMSettings] defaults not loaded; await loadAstrologySettingsDefaults()");
+    }
     var stored = (storedUserSettings && typeof storedUserSettings === "object") ? storedUserSettings : {};
     var onto   = (ontologyDefaults && typeof ontologyDefaults === "object") ? ontologyDefaults : {};
     function pick(key) {
@@ -157,15 +149,22 @@
   // Synchronous export — available as soon as this script loads, independent of
   // the async store build below.
   window.RMSettings = {
-    DEFAULTS:             RM_SETTINGS_DEFAULTS,
+    get DEFAULTS() { return RM_SETTINGS_DEFAULTS; },
     SNAPSHOT_VERSION:     RM_SETTINGS_SNAPSHOT_VERSION,
     getEffectiveSettings: getEffectiveSettings,
     buildSettingsSnapshot: buildSettingsSnapshot,
+    loadAstrologySettingsDefaults: loadAstrologySettingsDefaults,
   };
+
+  // Begin loading defaults immediately (store build also awaits this).
+  loadAstrologySettingsDefaults().catch(function (err) {
+    console.warn("[supabase_store_bridge] astrology defaults preload failed:", err.message);
+  });
 
   // ── Main builder ──────────────────────────────────────────────────────────
 
   async function buildSupabaseStore() {
+    await loadAstrologySettingsDefaults();
 
     // 1. Resolve identity
     var currentUser = await window.CurrentUserReady;
@@ -461,6 +460,7 @@
       house_proximity_orb_degrees: effectiveSettings.house_proximity_orb_degrees,
       subsequent_house_policy: effectiveSettings.subsequent_house_policy,
       aspect_to_angle_orbs:    effectiveSettings.aspect_to_angle_orbs,
+      display_aspects_to_angles: effectiveSettings.display_aspects_to_angles,
       helper_layers:           effectiveSettings.helper_layers,
       ontology_pack_id:        effectiveSettings.ontology_pack_id,
       default_chart_record_id: defaultChartRecordId,

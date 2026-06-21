@@ -261,6 +261,10 @@ def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     out.append(("static_a2a_no_longitude_math",
                 "longitude_deg" not in block and "swe." not in block,
                 "no client longitude aspect math in A2A block"))
+    out.append(("static_a2a_no_settings_refilter",
+                "filterA2aRowsForLocalSettings" not in block
+                and "aspectsToAnglesForDisplay" in block,
+                "no client settings drift filter on A2A rows"))
     return out
 
 def main() -> int:

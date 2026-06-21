@@ -222,6 +222,66 @@ def main() -> int:
                       body={"settings_patch": {"visible_minor_aspects": True}})
         results.append(("be_unauth_401", st == 401, f"status={st}"))
 
+        # SETTINGS-SOURCE-1: registry endpoint
+        _def_st, _def_b = fetch(base, "/settings/astrology-defaults")
+        _def_ok = _def_st == 200 and isinstance(json.loads(_def_b).get("aspect_to_angle_orbs"), dict)
+        results.append(("be_astrology_defaults_endpoint", _def_ok, f"st={_def_st}"))
+
+        # SETTINGS-SOURCE-1: authenticated /relocated-chart honors aspect_to_angle_orbs
+        _rc_fixture = (
+            "/relocated-chart?lat=40.7128&lon=-74.0060"
+            "&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0"
+        )
+        _tight_patch = {"settings_patch": {"aspect_to_angle_orbs": {
+            "conjunction": 8, "opposition": 8, "square": 0.01, "trine": 8, "sextile": 6,
+        }}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_tight_patch)
+        _st_tight, _b_tight = fetch(base, _rc_fixture, headers=headers)
+        _cc_tight = json.loads(_b_tight).get("canonical_chart", {}) if _st_tight == 200 else {}
+        _a2a_tight = _cc_tight.get("aspects_to_angles") or []
+        _square_tight = [r for r in _a2a_tight if r.get("aspect") == "square"]
+
+        _wide_patch = {"settings_patch": {"aspect_to_angle_orbs": {
+            "conjunction": 8, "opposition": 8, "square": 15, "trine": 8, "sextile": 6,
+        }}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_wide_patch)
+        _st_wide, _b_wide = fetch(base, _rc_fixture, headers=headers)
+        _cc_wide = json.loads(_b_wide).get("canonical_chart", {}) if _st_wide == 200 else {}
+        _a2a_wide = _cc_wide.get("aspects_to_angles") or []
+        _square_wide = [r for r in _a2a_wide if r.get("aspect") == "square"]
+
+        results.append(("be_settings_source_a2a_orb",
+                        _st_tight == 200 and _st_wide == 200 and len(_square_wide) >= len(_square_tight),
+                        f"square_tight={len(_square_tight)} square_wide={len(_square_wide)}"))
+
+        # SETTINGS-SOURCE-1: display_aspects_to_angles affects A2A rows (authenticated)
+        _ang_off = {"settings_patch": {"display_aspects_to_angles": {
+            "asc": True, "mc": True, "dsc": False, "ic": False,
+        }}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_ang_off)
+        _st_off, _b_off = fetch(base, _rc_fixture, headers=headers)
+        _angles_off = {r.get("angle") for r in (json.loads(_b_off).get("canonical_chart", {}).get("aspects_to_angles") or [])} if _st_off == 200 else set()
+
+        _ang_on = {"settings_patch": {"display_aspects_to_angles": {
+            "asc": True, "mc": True, "dsc": True, "ic": True,
+        }}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_ang_on)
+        _st_on, _b_on = fetch(base, _rc_fixture, headers=headers)
+        _angles_on = {r.get("angle") for r in (json.loads(_b_on).get("canonical_chart", {}).get("aspects_to_angles") or [])} if _st_on == 200 else set()
+
+        results.append(("be_settings_source_display_angles",
+                        _st_off == 200 and _st_on == 200 and "DSC" not in _angles_off and "DSC" in _angles_on,
+                        f"off={sorted(_angles_off)} on_has_dsc={'DSC' in _angles_on}"))
+
+        # SETTINGS-SOURCE-1: metadata.effective_settings echoes compute inputs
+        _meta_eff = (_cc_wide.get("metadata") or {}).get("effective_settings") or {}
+        _echo_orbs = (_meta_eff.get("aspect_to_angle_orbs") or {}).get("square")
+        results.append(("be_settings_source_metadata_echo",
+                        _echo_orbs == 15,
+                        f"square_orb={_echo_orbs}"))
+
+
+
         # ================= FRONTEND =================
         if sess is None:
             results.append(("fe_skipped", True, "RM_SMOKE_JWT set; frontend needs fresh session"))
@@ -395,7 +455,7 @@ def main() -> int:
         _minor_st, _minor_b = fetch(base, "/search-regions", method="POST", body=_minor_payload, timeout=30)
         _minor_ok = False
         if _minor_st == 200:
-            _mj = _json.loads(_minor_b)
+            _mj = json.loads(_minor_b)
             _minor_ok = isinstance(_mj, dict) and _mj.get("type") == "FeatureCollection"
         results.append(("be_minor_asp_quincunx_overlay",
                         _minor_ok,
@@ -408,7 +468,7 @@ def main() -> int:
         # SETTINGS-WIRE-1A: display_aspects_to_angles persists through PATCH /settings/account
         _a2d_patch = {"settings_patch": {"display_aspects_to_angles": {"asc": True, "mc": True, "dsc": True, "ic": False}}}
         _a2d_st, _a2d_b = fetch(base, "/settings/account", method="PATCH", headers=headers, body=_a2d_patch)
-        _a2d_saved = _json.loads(_a2d_b).get("settings_json", {}).get("display_aspects_to_angles", {}) if _a2d_st == 200 else {}
+        _a2d_saved = json.loads(_a2d_b).get("settings_json", {}).get("display_aspects_to_angles", {}) if _a2d_st == 200 else {}
         results.append(("be_a2d_persists",
                         _a2d_st == 200 and _a2d_saved.get("dsc") is True,
                         f"status={_a2d_st} dsc={_a2d_saved.get('dsc')}"))
@@ -416,7 +476,7 @@ def main() -> int:
         # SETTINGS-WIRE-3: visible_major_aspects persists through PATCH
         _maj_patch = {"settings_patch": {"visible_major_aspects": ["conjunction", "trine"]}}
         _maj_st, _maj_b = fetch(base, "/settings/account", method="PATCH", body=_maj_patch, headers=headers)
-        _maj_saved = _json.loads(_maj_b).get("settings_json", {}).get("visible_major_aspects", []) if _maj_st == 200 else []
+        _maj_saved = json.loads(_maj_b).get("settings_json", {}).get("visible_major_aspects", []) if _maj_st == 200 else []
         results.append(("be_major_asp_persists",
                         _maj_st == 200 and "conjunction" in _maj_saved and "trine" in _maj_saved,
                         f"status={_maj_st} saved={_maj_saved}"))
@@ -430,8 +490,8 @@ def main() -> int:
         _rc2_ok = _rc_st2 == 200
         _rc3_ok = _rc_st3 == 200
         if _rc2_ok and _rc3_ok:
-            _ph2 = _json.loads(_rc_b2).get("planet_houses", {})
-            _ph3 = _json.loads(_rc_b3).get("planet_houses", {})
+            _ph2 = json.loads(_rc_b2).get("planet_houses", {})
+            _ph3 = json.loads(_rc_b3).get("planet_houses", {})
             # with orb=0.0001 no planet should be near_cusp; with orb=2.0 some may be
             _nc_wide = sum(1 for v in _ph2.values() if v.get("near_cusp"))
             _nc_tight = sum(1 for v in _ph3.values() if v.get("near_cusp"))
@@ -459,7 +519,7 @@ def main() -> int:
         _a2a_ok = False
         _natal_kind_ok = False
         if _rc_p1_ok:
-            _rcj = _json.loads(_rc_p1_b)
+            _rcj = json.loads(_rc_p1_b)
             _cc = _rcj.get("canonical_chart") or {}
             _legacy_ok = (
                 isinstance(_rcj.get("asc"), str)
@@ -481,13 +541,14 @@ def main() -> int:
                 f"/relocated-chart?lat=38.72&lon=-9.14&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0&location_kind=natal",
             )
             if _natal_st == 200:
-                _natal_cc = (_json.loads(_natal_b).get("canonical_chart") or {})
+                _natal_cc = (json.loads(_natal_b).get("canonical_chart") or {})
                 _natal_kind_ok = _natal_cc.get("location_anchor", {}).get("kind") == "natal"
         results.append(("be_canonical_legacy_preserved", _rc_p1_ok and _legacy_ok, f"st={_rc_p1_st}"))
         results.append(("be_canonical_schema_v1", _canonical_ok, f"schema={_cc.get('schema_version')}"))
         results.append(("be_canonical_cusps_12", _cusps_ok, f"len={len(_cusps) if _rc_p1_ok else 'N/A'}"))
         results.append(("be_canonical_a2a_array", _a2a_ok, f"type={type(_cc.get('aspects_to_angles')).__name__ if _rc_p1_ok else 'N/A'}"))
         results.append(("be_canonical_natal_kind", _natal_kind_ok, f"natal_kind={_natal_kind_ok}"))
+
 
         # SETTINGS-WIRE-2: /search-regions overlay accepts max_orb in aspect_overlay dict
         _ao_payload = {
@@ -499,7 +560,7 @@ def main() -> int:
         _ao_st, _ao_b = fetch(base, "/search-regions", method="POST", body=_ao_payload, timeout=30)
         _ao_ok = False
         if _ao_st == 200:
-            _aoj = _json.loads(_ao_b)
+            _aoj = json.loads(_ao_b)
             # Check that max_orb is stored in at least one feature's properties
             _feats = _aoj.get("features", [])
             # max_orb is a direct property on each feature (not nested under aspect_overlay)

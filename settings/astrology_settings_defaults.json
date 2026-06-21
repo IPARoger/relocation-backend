@@ -1,0 +1,67 @@
+{
+  "settings_version": 1,
+  "house_system": "placidus",
+  "zodiac_mode": "tropical",
+  "orb_defaults": {
+    "conjunction": 8,
+    "square": 8,
+    "opposition": 8,
+    "trine": 8,
+    "sextile": 6
+  },
+  "visible_minor_aspects": false,
+  "out_of_sign_aspects": false,
+  "visible_planets": [
+    "sun",
+    "moon",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "saturn",
+    "uranus",
+    "neptune",
+    "pluto"
+  ],
+  "visible_bodies": ["chiron"],
+  "visible_major_aspects": [
+    "conjunction",
+    "opposition",
+    "square",
+    "trine",
+    "sextile"
+  ],
+  "visible_minor_aspects_list": [],
+  "major_aspect_orbs": {
+    "conjunction": 8,
+    "square": 8,
+    "opposition": 8,
+    "trine": 8,
+    "sextile": 6
+  },
+  "minor_aspect_orbs": {
+    "quincunx": 3,
+    "semisextile": 2,
+    "semisquare": 2,
+    "sesquiquadrate": 2,
+    "quintile": 2,
+    "biquintile": 2
+  },
+  "house_proximity_orb_degrees": 2,
+  "subsequent_house_policy": "display_only",
+  "aspect_to_angle_orbs": {
+    "conjunction": 8,
+    "opposition": 8,
+    "square": 8,
+    "trine": 8,
+    "sextile": 6
+  },
+  "helper_layers": {},
+  "ontology_pack_id": null,
+  "display_aspects_to_angles": {
+    "asc": true,
+    "mc": true,
+    "dsc": false,
+    "ic": false
+  }
+}

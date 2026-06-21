@@ -1956,6 +1956,18 @@ function getA2aDisplayAngles() {
 }
 window.__rmGetA2aDisplayAngles = getA2aDisplayAngles;
 
+// SETTINGS-SOURCE-1: pass session JWT so Layer 1 uses account user_settings.
+async function relocatedChartRequestHeaders() {
+  try {
+    const client = await window.SupabaseReady;
+    const session = (await client.auth.getSession()).data.session;
+    if (session && session.access_token) {
+      return { Authorization: "Bearer " + session.access_token };
+    }
+  } catch (e) { /* session unavailable */ }
+  return {};
+}
+
 // PHASE-0A: shared house-proximity orb + relocated-chart fetch for all consumers.
 function resolveHouseProximityOrbDeg(eff) {
   const e = eff || _settingsEff();
@@ -1978,7 +1990,9 @@ async function fetchCanonicalRelocatedChart({ birth, lat, lon, placeName, locati
   }
   if (placeName) q.set("place_name", String(placeName));
   if (locationKind) q.set("location_kind", String(locationKind));
-  const chartResp = await fetch(`/relocated-chart?${q.toString()}`);
+  const chartResp = await fetch(`/relocated-chart?${q.toString()}`, {
+    headers: await relocatedChartRequestHeaders(),
+  });
   let body = {};
   try { body = await chartResp.json(); } catch (e) { /* ignore */ }
   if (!chartResp.ok) throw new Error("relocated_failed:" + chartResp.status);
@@ -1993,6 +2007,7 @@ async function fetchCanonicalRelocatedChart({ birth, lat, lon, placeName, locati
 }
 
 window.__rmFetchCanonicalRelocatedChart = fetchCanonicalRelocatedChart;
+window.__rmRelocatedChartRequestHeaders = relocatedChartRequestHeaders;
 window.__rmGetVisibleBodyNamesSet = getVisibleBodyNamesSet;
 window.__rmResolveHouseProximityOrbDeg = resolveHouseProximityOrbDeg;
 
@@ -2250,22 +2265,11 @@ function formatA2aComparisonCellText(row) {
   return formatA2aSeparationDeg(row.separation_deg);
 }
 
-function filterA2aRowsForLocalSettings(rows) {
+// SETTINGS-SOURCE-1: A2A rows are computed server-side from effective_settings.
+// Client no longer re-filters for settings drift. Re-fetch /relocated-chart after save.
+function aspectsToAnglesForDisplay(rows) {
   if (!Array.isArray(rows)) return [];
-  const a2aAngles = getA2aDisplayAngles();
-  const visibleBodies = getVisibleBodyNamesSet();
-  const eff = _settingsEff();
-  const majVis = (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : null;
-  const oosEnabled = eff ? !!eff.out_of_sign_aspects : false;
-  return rows.filter((row) => {
-    if (!row || typeof row !== "object") return false;
-    const angleKey = A2A_ANGLE_SETTING[row.angle];
-    if (angleKey && !a2aAngles[angleKey]) return false;
-    if (row.planet && !visibleBodies.has(row.planet)) return false;
-    if (majVis && majVis.length && row.aspect && !majVis.includes(String(row.aspect).toLowerCase())) return false;
-    if (row.out_of_sign && !oosEnabled) return false;
-    return true;
-  });
+  return rows.filter((row) => row && typeof row === "object");
 }
 
 function a2aRowKey(row) {
@@ -2280,7 +2284,7 @@ function renderA2aSinglePlaceHtml(canonicalChart) {
   const raw = (canonicalChart && Array.isArray(canonicalChart.aspects_to_angles))
     ? canonicalChart.aspects_to_angles
     : [];
-  const rows = filterA2aRowsForLocalSettings(raw);
+  const rows = aspectsToAnglesForDisplay(raw);
   if (!rows.length) {
     return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
   }
@@ -2312,7 +2316,7 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds) {
   places.forEach((c) => {
     const cc = getCanonicalChartFromPayload(c.chart);
     const raw = (cc && Array.isArray(cc.aspects_to_angles)) ? cc.aspects_to_angles : [];
-    filterA2aRowsForLocalSettings(raw).forEach((row) => {
+    aspectsToAnglesForDisplay(raw).forEach((row) => {
       const key = a2aRowKey(row);
       if (!keyMap.has(key)) keyMap.set(key, { label: a2aRowLabel(row), byPlace: {} });
       keyMap.get(key).byPlace[c.placeId] = row;
@@ -5347,6 +5351,8 @@ if (action === "save-comparison-note") {
           render();
           const savedMsg = document.getElementById("rm-settings-msg");
           if (savedMsg) savedMsg.textContent = "\u2713 Saved.";
+          if (navContext.route === "chart") hydrateRelocatedChart();
+          if (navContext.route === "compare") hydrateComparisonColumns();
         }).catch((err) => {
           if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
         });
