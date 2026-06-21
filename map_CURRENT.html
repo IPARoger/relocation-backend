@@ -1342,6 +1342,16 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
                             <option value="hard">All Hard Aspects</option>
                             <option value="soft">All Soft Aspects</option>
                             <option value="any">All Major Aspects</option>
+                            <optgroup id="overlay-minor-aspects-group" label="Minor Aspects" hidden>
+                                <option value="quincunx">Quincunx (150°)</option>
+                                <option value="semisextile">Semi-sextile (30°)</option>
+                                <option value="semisquare">Semi-square (45°)</option>
+                                <option value="sesquiquadrate">Sesquiquadrate (135°)</option>
+                                <option value="quintile">Quintile (72°)</option>
+                                <option value="biquintile">Biquintile (144°)</option>
+                                <option value="novile">Novile (40°)</option>
+                                <option value="septile">Septile (51°)</option>
+                            </optgroup>
                         </select>
                     </div>
                 </div>
@@ -2153,9 +2163,69 @@ async function saveCurrentInvestigation() {
 
 window.__rmSaveCurrentInvestigation = saveCurrentInvestigation;
 
+// SETTINGS-WIRE-1: sync Genie planet selectors to hide bodies disabled in Settings.
+// Called at startup and can be called again after settings change.
+function syncGenieBodySelectorsToSettings() {
+    const RM = window.RMSettings;
+    if (!RM || typeof RM.getEffectiveSettings !== "function") return;
+    const raw = (window.SupabaseStore && window.SupabaseStore.user_settings) || null;
+    const eff = RM.getEffectiveSettings(raw, null);
+    if (!eff) return;
+
+    const CORE_KEYS = ["sun","moon","mercury","venus","mars","jupiter","saturn","uranus","neptune","pluto"];
+    const EXTENDED_KEYS = ["chiron"];
+    const visPlanets = eff.visible_planets;
+    const visBodies  = eff.visible_bodies;
+
+    function isBodyVisible(key) {
+        if (CORE_KEYS.includes(key)) {
+            return !Array.isArray(visPlanets) || visPlanets.length === 0 || visPlanets.includes(key);
+        }
+        return !Array.isArray(visBodies) || visBodies.length === 0 || visBodies.includes(key);
+    }
+
+    ["planetA","planetB","planetC","overlayPlanet"].forEach((selectId) => {
+        const sel = document.getElementById(selectId);
+        if (!sel) return;
+        Array.from(sel.options).forEach((opt) => {
+            if (!opt.value) return; // blank placeholder
+            const visible = isBodyVisible(opt.value.toLowerCase());
+            opt.hidden   = !visible;
+            opt.disabled = !visible;
+            // If selected option becomes hidden, reset to first visible option
+            if (!visible && sel.value === opt.value) {
+                const firstVisible = Array.from(sel.options).find((o) => !o.hidden && o.value);
+                if (firstVisible) sel.value = firstVisible.value;
+            }
+        });
+    });
+}
+
+window.__rmSyncGenieBodySelectors = syncGenieBodySelectorsToSettings;
+
+// SETTINGS-WIRE-1: show/hide minor aspect overlay options based on visible_minor_aspects setting.
+function syncGenieMinorAspectOptionsToSettings() {
+    const RM = window.RMSettings;
+    if (!RM || typeof RM.getEffectiveSettings !== "function") return;
+    const raw = (window.SupabaseStore && window.SupabaseStore.user_settings) || null;
+    const eff = RM.getEffectiveSettings(raw, null);
+    const minorEnabled = !!(eff && eff.visible_minor_aspects);
+    const grp = document.getElementById("overlay-minor-aspects-group");
+    if (grp) grp.hidden = !minorEnabled;
+}
+
+window.__rmSyncGenieMinorAspects = syncGenieMinorAspectOptionsToSettings;
+
 document.addEventListener("DOMContentLoaded", () => {
     const saveBtn = document.getElementById("saveInvestigationBtn");
     if (saveBtn) saveBtn.addEventListener("click", () => { saveCurrentInvestigation(); });
+    // Sync selectors once store may have loaded; retry after a short delay for async stores.
+    syncGenieBodySelectorsToSettings();
+    syncGenieMinorAspectOptionsToSettings();
+    setTimeout(() => {
+        syncGenieBodySelectorsToSettings();
+        syncGenieMinorAspectOptionsToSettings();
+    }, 1500);
 });
 
 function viewportCenterFromSavedView(viewport) {

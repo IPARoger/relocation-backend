@@ -377,6 +377,34 @@ def main() -> int:
                 maj_db = (db_sj.get("major_aspect_orbs") or {}).get("conjunction")
                 results.append(("fe_db_major_orb", maj_db == want_orb, f"db_conj={maj_db} want={want_orb}"))
 
+        # CHART-TRUTH-FIX-1: /relocated-chart must reject missing birth params with 422
+        _rc_st, _ = fetch(base, "/relocated-chart?lat=40.0&lon=-74.0", method="GET", timeout=10)
+        results.append(("be_relocated_chart_422_on_missing_birth",
+                        _rc_st == 422,
+                        f"status={_rc_st} (expect 422)"))
+
+        # SETTINGS-WIRE-1: minor aspects wired in engine
+        import json as _json
+        _minor_payload = {
+            "birth_year": 1990, "birth_month": 3, "birth_day": 15, "birth_hour_utc": 12.0,
+            "house_conditions": [],
+            "aspect_overlay": {"planet": "sun", "aspect": "quincunx", "angle": "MC"},
+            "generation_mode": "truth_grid",
+            "truth_grid_resolution": 5.0,
+        }
+        _minor_st, _minor_b = fetch(base, "/search-regions", method="POST", body=_minor_payload, timeout=30)
+        _minor_ok = False
+        if _minor_st == 200:
+            _mj = _json.loads(_minor_b)
+            _minor_ok = isinstance(_mj, dict) and _mj.get("type") == "FeatureCollection"
+        results.append(("be_minor_asp_quincunx_overlay",
+                        _minor_ok,
+                        f"status={_minor_st}"))
+
+        _nov_payload = {**_minor_payload, "aspect_overlay": {"planet": "moon", "aspect": "novile", "angle": "ASC"}}
+        _nov_st, _nov_b = fetch(base, "/search-regions", method="POST", body=_nov_payload, timeout=30)
+        results.append(("be_minor_asp_novile_overlay", _nov_st == 200, f"status={_nov_st}"))
+
     finally:
         # Restore the original account-level row exactly.
         if account_id is not None:
@@ -395,12 +423,6 @@ def main() -> int:
                 proc.wait(timeout=5)
             except Exception:
                 proc.kill()
-
-    # CHART-TRUTH-FIX-1: /relocated-chart must reject missing birth params with 422
-    _rc_st, _ = fetch(base, "/relocated-chart?lat=40.0&lon=-74.0", method="GET", timeout=10)
-    results.append(("be_relocated_chart_422_on_missing_birth",
-                    _rc_st == 422,
-                    f"status={_rc_st} (expect 422 — no silent defaults)"))
 
     failed = [n for n, ok, _ in results if not ok]
     for n, ok, d in results:

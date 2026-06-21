@@ -1911,6 +1911,29 @@ function setPihDignitiesEnabled(on, scope) {
 }
 
 // Render the real relocated-chart facts into Screen 4's container.
+// SETTINGS-WIRE-1: returns the Set of capitalized body names currently
+// visible per settings (e.g. "Sun", "Chiron"). Defaults to all bodies
+// when settings are absent so pre-settings behaviour is preserved.
+// Nodes are permanently excluded — engine does not support them.
+function getVisibleBodyNamesSet() {
+  const eff = _settingsEff();
+  const CORE = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"];
+  const EXTENDED = ["Chiron"]; // Advanced points are future body support, not part of SETTINGS-WIRE-1.
+  const all = [...CORE, ...EXTENDED];
+  if (!eff) return new Set(all);
+  const visPlanets = eff.visible_planets;
+  const visBodies  = eff.visible_bodies;
+  return new Set(all.filter((name) => {
+    const key = name.toLowerCase();
+    if (CORE.includes(name)) {
+      // Core planet: visible unless explicitly removed from visible_planets list
+      return (!Array.isArray(visPlanets) || visPlanets.length === 0 || visPlanets.includes(key));
+    }
+    // Extended body (Chiron): must appear in visible_bodies; default ON when array is empty
+    return (!Array.isArray(visBodies) || visBodies.length === 0 || visBodies.includes(key));
+  }));
+}
+
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const angles = `
@@ -1924,10 +1947,13 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
       <tr><td>IC</td><td>${escapeHtml(chart.ic || "—")}</td></tr>
     </table>`;
   const ph = chart.planet_houses || {};
-  const rows = Object.keys(ph).map((name) => {
-    const info = ph[name] || {};
-    return `<tr><td>${escapeHtml(name)}</td>${pihHouseCellHtml(name, info, on)}<td>${escapeHtml(info.longitude_formatted || "—")}</td></tr>`;
-  }).join("");
+  const _visibleBodyNames = getVisibleBodyNamesSet();
+  const rows = Object.keys(ph)
+    .filter((name) => _visibleBodyNames.has(name))
+    .map((name) => {
+      const info = ph[name] || {};
+      return `<tr><td>${escapeHtml(name)}</td>${pihHouseCellHtml(name, info, on)}<td>${escapeHtml(info.longitude_formatted || "—")}</td></tr>`;
+    }).join("");
   const planets = `
     <h4 style="margin:12px 0 4px">Planet houses</h4>
     <table class="simple">
@@ -2012,7 +2038,10 @@ function renderComparisonTableHtml(cols, dignitiesOn) {
     `<tr><td>${label}</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && c.chart[key]) || "—")}</td>`).join("")}</tr>`;
   const dscRow =
     `<tr><td>DSC</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && (c.chart.dc || c.chart.desc)) || "—")}</td>`).join("")}</tr>`;
-  const planetNames = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  // SETTINGS-WIRE-1: filter visible bodies per settings before rendering rows
+  const _allCompPlanetNames = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  const _compVisibleBodies = getVisibleBodyNamesSet();
+  const planetNames = _allCompPlanetNames.filter((pn) => _compVisibleBodies.has(pn));
   const planetRows = planetNames.map((pn) =>
     `<tr><td>${pn} house</td>${cols.map((c) => {
       if (c.error) return "<td>—</td>";
@@ -2926,6 +2955,8 @@ function planetsBodiesHtml() {
     ["north_node", "North Node", false, true],
     ["south_node", "South Node", false, true],
   ];
+  // Advanced points are future body support, not part of SETTINGS-WIRE-1.
+  // Lilith, Vertex, and other advanced points live here when engine support ships.
   const MORE = [["part_of_fortune", "Part of Fortune"]];
   const chk = (kind, id, label, checked, disabled) =>
     `<label class="block" style="display:flex;align-items:center;gap:8px;${disabled ? "opacity:0.55;" : ""}">
@@ -2974,6 +3005,7 @@ function _aspectRegistryContext() {
     MINOR: [
       ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
       ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
+      ["novile", "Novile", 2], ["septile", "Septile", 2],  // SETTINGS-WIRE-1
     ],
   };
 }
@@ -4782,7 +4814,7 @@ if (action === "save-comparison-note") {
           settingsPatch.visible_bodies = collectChecked("body", bodyIds);
         }
         const majorAspIds = ["conjunction", "opposition", "square", "trine", "sextile"];
-        const minorAspIds = ["quincunx", "semisextile", "semisquare", "sesquiquadrate", "quintile", "biquintile"];
+        const minorAspIds = ["quincunx", "semisextile", "semisquare", "sesquiquadrate", "quintile", "biquintile", "novile", "septile"]; // SETTINGS-WIRE-1
         const collectAspChecked = (kind, ids) => ids.filter((id) => {
           const el = document.getElementById("rm-settings-" + kind + "asp-" + id);
           return el ? !!el.checked : false;

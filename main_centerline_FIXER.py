@@ -781,23 +781,44 @@ def search_regions(req: SearchRequest):
             planet_ra_deg = result[0][0]
             planet_lon = swe.calc_ut(jd, planet_id)[0][0] % 360
 
+            # SETTINGS-WIRE-1: minor aspects are geometric — just different ecliptic offsets.
+            # All entries are symmetric (aspect + mirror).
             aspect_sets = {
-                "conjunction": [0],
-                "opposition": [180],
-                "square": [90, 270],
-                "trine": [120, 240],
-                "sextile": [60, 300],
-
+                "conjunction":      [0],
+                "opposition":       [180],
+                "square":           [90, 270],
+                "trine":            [120, 240],
+                "sextile":          [60, 300],
+                # minor aspects
+                "quincunx":         [150, 210],
+                "semisextile":      [30, 330],
+                "semisquare":       [45, 315],
+                "sesquiquadrate":   [135, 225],
+                "quintile":         [72, 288],
+                "biquintile":       [144, 216],
+                "novile":           [40, 320],
+                "septile":          [51, 309],   # 360/7 ≈ 51.43°
+                # composite sets
                 "hard": [0, 90, 180, 270],
-
                 "soft": [60, 120, 240, 300],
-
-                "any": [0, 60, 90, 120, 180, 240, 270, 300]
+                "any":  [0, 60, 90, 120, 180, 240, 270, 300],
             }
 
             aspect_colors = {
-                0: "#0066ff", 180: "#ff4444", 90: "#ff9900", 270: "#ff9900",
-                120: "#00cc66", 240: "#00cc66", 60: "#bb66ff", 300: "#bb66ff"
+                # major aspects — full saturation
+                0:   "#0066ff", 180: "#ff4444",
+                90:  "#ff9900", 270: "#ff9900",
+                120: "#00cc66", 240: "#00cc66",
+                60:  "#bb66ff", 300: "#bb66ff",
+                # minor aspects — muted palette (SETTINGS-WIRE-1)
+                150: "#8899bb", 210: "#8899bb",
+                30:  "#99aacc", 330: "#99aacc",
+                45:  "#cc8844", 315: "#cc8844",
+                135: "#cc9966", 225: "#cc9966",
+                72:  "#66aaaa", 288: "#66aaaa",
+                144: "#88bbaa", 216: "#88bbaa",
+                40:  "#9999bb", 320: "#9999bb",
+                51:  "#aabb99", 309: "#aabb99",
             }
 
             offsets = aspect_sets.get(selected_aspect, [0])

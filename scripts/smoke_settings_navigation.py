@@ -235,6 +235,21 @@ def main():
                         not nn_checked and not sn_checked,
                         f"north_checked={nn_checked} south_checked={sn_checked}"))
 
+        # SETTINGS-WIRE-1: Minor aspects — novile and septile must exist in the UI
+        page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
+        page.wait_for_selector("#rm-settings-minasp-quincunx", timeout=10000)
+        has_novile  = page.query_selector("#rm-settings-minasp-novile")  is not None
+        has_septile = page.query_selector("#rm-settings-minasp-septile") is not None
+        results.append(("fe_minor_asp_novile_exists",  has_novile,  f"novile_present={has_novile}"))
+        results.append(("fe_minor_asp_septile_exists", has_septile, f"septile_present={has_septile}"))
+
+        # SETTINGS-WIRE-1: Chiron must be present in bodies section (default visible)
+        chiron_el    = page.query_selector("#rm-settings-body-chiron")
+        chiron_exists = chiron_el is not None
+        chiron_checked = page.eval_on_selector("#rm-settings-body-chiron", "el=>el.checked") if chiron_exists else False
+        results.append(("fe_chiron_exists",   chiron_exists,  f"chiron_present={chiron_exists}"))
+        results.append(("fe_chiron_default_on", chiron_checked, f"chiron_checked={chiron_checked}"))
+
         browser.close()
 
     overall = True
