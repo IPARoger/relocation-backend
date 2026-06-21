@@ -2203,29 +2203,121 @@ function syncGenieBodySelectorsToSettings() {
 
 window.__rmSyncGenieBodySelectors = syncGenieBodySelectorsToSettings;
 
-// SETTINGS-WIRE-1: show/hide minor aspect overlay options based on visible_minor_aspects setting.
-function syncGenieMinorAspectOptionsToSettings() {
+// SETTINGS-WIRE-3: aspect + angle selector sync (major/minor toggles, A2A display angles).
+const _GENIE_MAJOR_ASPECT_IDS = ["conjunction", "opposition", "square", "trine", "sextile"];
+const _GENIE_MINOR_ASPECT_IDS = [
+    "quincunx", "semisextile", "semisquare", "sesquiquadrate",
+    "quintile", "biquintile", "septile", "novile",
+];
+const _GENIE_COMPOSITE_REQUIRES = {
+    hard: ["conjunction", "square", "opposition"],
+    soft: ["sextile", "trine"],
+    any: ["conjunction", "opposition", "square", "trine", "sextile"],
+};
+
+function _genieEffectiveSettings() {
     const RM = window.RMSettings;
-    if (!RM || typeof RM.getEffectiveSettings !== "function") return;
+    if (!RM || typeof RM.getEffectiveSettings !== "function") return null;
     const raw = (window.SupabaseStore && window.SupabaseStore.user_settings) || null;
-    const eff = RM.getEffectiveSettings(raw, null);
-    const minorEnabled = !!(eff && eff.visible_minor_aspects);
+    return RM.getEffectiveSettings(raw, null);
+}
+
+function _isMajorAspectEnabled(eff, id) {
+    const list = eff && eff.visible_major_aspects;
+    if (!Array.isArray(list) || list.length === 0) return true;
+    return list.includes(id);
+}
+
+function _isMinorAspectEnabled(eff, id) {
+    if (!(eff && eff.visible_minor_aspects)) return false;
+    const list = eff && eff.visible_minor_aspects_list;
+    if (!Array.isArray(list) || list.length === 0) return true;
+    return list.includes(id);
+}
+
+function _isCompositeAspectEnabled(eff, id) {
+    const needs = _GENIE_COMPOSITE_REQUIRES[id];
+    if (!needs) return false;
+    return needs.every((aspectId) => _isMajorAspectEnabled(eff, aspectId));
+}
+
+function _isGenieAspectOptionEnabled(eff, value) {
+    if (!value) return false;
+    if (_GENIE_MAJOR_ASPECT_IDS.includes(value)) return _isMajorAspectEnabled(eff, value);
+    if (_GENIE_MINOR_ASPECT_IDS.includes(value)) return _isMinorAspectEnabled(eff, value);
+    if (_GENIE_COMPOSITE_REQUIRES[value]) return _isCompositeAspectEnabled(eff, value);
+    return true;
+}
+
+function _syncSelectOptions(selectId, isOptionEnabled) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    Array.from(sel.options).forEach((opt) => {
+        if (!opt.value) return;
+        const enabled = isOptionEnabled(opt.value);
+        opt.hidden = !enabled;
+        opt.disabled = !enabled;
+        if (!enabled && sel.value === opt.value) {
+            const first = Array.from(sel.options).find((o) => o.value && !o.hidden && !o.disabled);
+            if (first) sel.value = first.value;
+        }
+    });
+}
+
+function getA2aDisplayAngles() {
+    const eff = _genieEffectiveSettings();
+    const a2ad = (eff && typeof eff.display_aspects_to_angles === "object" && eff.display_aspects_to_angles)
+        ? eff.display_aspects_to_angles
+        : null;
+    return {
+        asc: a2ad ? !!a2ad.asc : true,
+        mc:  a2ad ? !!a2ad.mc : true,
+        dsc: a2ad ? !!a2ad.dsc : false,
+        ic:  a2ad ? !!a2ad.ic : false,
+    };
+}
+
+function syncGenieAspectSelectorsToSettings() {
+    const eff = _genieEffectiveSettings();
+    if (!eff) return;
     const grp = document.getElementById("overlay-minor-aspects-group");
-    if (grp) grp.hidden = !minorEnabled;
+    if (grp) {
+        const anyMinor = _GENIE_MINOR_ASPECT_IDS.some((id) => _isMinorAspectEnabled(eff, id));
+        grp.hidden = !anyMinor;
+    }
+    _syncSelectOptions("overlayAspect", (value) => _isGenieAspectOptionEnabled(eff, value));
+}
+
+function syncGenieAngleSelectorsToSettings() {
+    const angles = getA2aDisplayAngles();
+    const map = { ASC: "asc", DSC: "dsc", MC: "mc", IC: "ic" };
+    _syncSelectOptions("overlayAngle", (value) => {
+        const key = map[String(value || "").toUpperCase()];
+        return key ? !!angles[key] : false;
+    });
+}
+
+function syncGenieMinorAspectOptionsToSettings() {
+    syncGenieAspectSelectorsToSettings();
+}
+
+function syncGenieSelectorsToSettings() {
+    syncGenieBodySelectorsToSettings();
+    syncGenieAspectSelectorsToSettings();
+    syncGenieAngleSelectorsToSettings();
 }
 
 window.__rmSyncGenieMinorAspects = syncGenieMinorAspectOptionsToSettings;
+window.__rmSyncGenieAspectSelectors = syncGenieAspectSelectorsToSettings;
+window.__rmSyncGenieAngleSelectors = syncGenieAngleSelectorsToSettings;
+window.__rmSyncGenieSelectors = syncGenieSelectorsToSettings;
+window.__rmGetA2aDisplayAngles = getA2aDisplayAngles;
 
 document.addEventListener("DOMContentLoaded", () => {
     const saveBtn = document.getElementById("saveInvestigationBtn");
     if (saveBtn) saveBtn.addEventListener("click", () => { saveCurrentInvestigation(); });
-    // Sync selectors once store may have loaded; retry after a short delay for async stores.
-    syncGenieBodySelectorsToSettings();
-    syncGenieMinorAspectOptionsToSettings();
-    setTimeout(() => {
-        syncGenieBodySelectorsToSettings();
-        syncGenieMinorAspectOptionsToSettings();
-    }, 1500);
+    syncGenieSelectorsToSettings();
+    setTimeout(syncGenieSelectorsToSettings, 1500);
 });
 
 function viewportCenterFromSavedView(viewport) {
@@ -2701,8 +2793,15 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
             <p class="popup-coords">Lat ${lat.toFixed(4)} · Lon ${lon.toFixed(4)}${coordsMid}</p>
             <hr class="popup-hr-tight">
             <div class="popup-angles-summary">
-                <span class="pa-lbl">ASC</span><span class="pa-val">${data.asc || "—"}</span>
-                <span class="pa-lbl">MC</span><span class="pa-val">${data.mc || "—"}</span>
+                ${(() => {
+                    const a2a = (typeof getA2aDisplayAngles === "function") ? getA2aDisplayAngles() : { asc: true, mc: true, dsc: false, ic: false };
+                    const bits = [];
+                    if (a2a.asc) bits.push(`<span class="pa-lbl">ASC</span><span class="pa-val">${data.asc || "—"}</span>`);
+                    if (a2a.mc)  bits.push(`<span class="pa-lbl">MC</span><span class="pa-val">${data.mc || "—"}</span>`);
+                    if (a2a.dsc) bits.push(`<span class="pa-lbl">DSC</span><span class="pa-val">${data.dc || data.desc || "—"}</span>`);
+                    if (a2a.ic)  bits.push(`<span class="pa-lbl">IC</span><span class="pa-val">${data.ic || "—"}</span>`);
+                    return bits.join("") || `<span class="pa-lbl">Angles</span><span class="pa-val">—</span>`;
+                })()}
             </div>
             <table class="popup-planet-table">
                 <thead>

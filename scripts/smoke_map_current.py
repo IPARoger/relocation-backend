@@ -346,6 +346,67 @@ def main() -> int:
             }
         )
 
+        # SETTINGS-WIRE-3: major/minor aspect + A2A angle selector sync
+        wire3_defaults = page.evaluate(
+            """() => {
+              window.SupabaseStore = window.SupabaseStore || { user_settings: {} };
+              window.SupabaseStore.user_settings = Object.assign({}, window.SupabaseStore.user_settings, {
+                visible_major_aspects: ['conjunction'],
+                visible_minor_aspects: true,
+                visible_minor_aspects_list: ['quincunx'],
+                display_aspects_to_angles: { asc: true, mc: true, dsc: false, ic: false },
+              });
+              if (typeof window.__rmSyncGenieSelectors === 'function') window.__rmSyncGenieSelectors();
+              const asp = (id) => {
+                const o = document.getElementById('overlayAspect')?.querySelector(`option[value="${id}"]`);
+                return o ? (!o.hidden && !o.disabled) : null;
+              };
+              const ang = (id) => {
+                const o = document.getElementById('overlayAngle')?.querySelector(`option[value="${id}"]`);
+                return o ? (!o.hidden && !o.disabled) : null;
+              };
+              return {
+                conjunction_on: asp('conjunction') === true,
+                square_off: asp('square') === false,
+                quincunx_on: asp('quincunx') === true,
+                novile_off: asp('novile') === false,
+                asc_on: ang('ASC') === true,
+                mc_on: ang('MC') === true,
+                dsc_off: ang('DSC') === false,
+                ic_off: ang('IC') === false,
+              };
+            }"""
+        )
+        checks.append({
+            "id": "wire3_major_aspect_hidden",
+            "pass": wire3_defaults.get("conjunction_on") and wire3_defaults.get("square_off"),
+            "detail": wire3_defaults,
+        })
+        checks.append({
+            "id": "wire3_minor_aspect_hidden",
+            "pass": wire3_defaults.get("quincunx_on") and wire3_defaults.get("novile_off"),
+            "detail": wire3_defaults,
+        })
+        checks.append({
+            "id": "wire3_a2a_angle_defaults",
+            "pass": wire3_defaults.get("asc_on") and wire3_defaults.get("mc_on")
+                and wire3_defaults.get("dsc_off") and wire3_defaults.get("ic_off"),
+            "detail": wire3_defaults,
+        })
+        dsc_enabled = page.evaluate(
+            """() => {
+              window.SupabaseStore.user_settings.display_aspects_to_angles = { asc: true, mc: true, dsc: true, ic: false };
+              if (typeof window.__rmSyncGenieAngleSelectors === 'function') window.__rmSyncGenieAngleSelectors();
+              const o = document.getElementById('overlayAngle')?.querySelector('option[value="DSC"]');
+              return o ? (!o.hidden && !o.disabled) : false;
+            }"""
+        )
+        checks.append({
+            "id": "wire3_dsc_enabled_visible",
+            "pass": dsc_enabled is True,
+            "detail": {"dsc_visible": dsc_enabled},
+        })
+
         find_btn = page.locator("#findBtn")
         find_btn.scroll_into_view_if_needed()
         find_visible = find_btn.is_visible()

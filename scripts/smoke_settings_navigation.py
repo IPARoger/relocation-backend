@@ -276,6 +276,15 @@ def main():
                             asc_on and mc_on and not dsc_on and not ic_on,
                             f"asc={asc_on} mc={mc_on} dsc={dsc_on} ic={ic_on}"))
 
+        # SETTINGS-WIRE-3: out-of-sign disclosed/disabled
+        oos_el = page.query_selector("#rm-settings-oos-aspects")
+        oos_disabled = page.eval_on_selector("#rm-settings-oos-aspects", "el=>el.disabled") if oos_el else False
+        oos_meta = page.evaluate("() => (document.querySelector('#rm-settings-oos-aspects')?.closest('.panel')?.querySelector('.meta')?.textContent || '')")
+        results.append(("fe_oos_disabled", oos_disabled, f"disabled={oos_disabled}"))
+        results.append(("fe_oos_disclosed",
+                        "not active yet" in oos_meta.lower(),
+                        f"meta={oos_meta[:80]!r}"))
+
         browser.close()
 
     overall = True

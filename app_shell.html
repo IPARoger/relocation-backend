@@ -1934,6 +1934,23 @@ function getVisibleBodyNamesSet() {
   }));
 }
 
+// SETTINGS-WIRE-3: which relocated angles appear in angle lists / map overlay selector.
+function getA2aDisplayAngles() {
+  const eff = _settingsEff();
+  const a2ad = (eff && typeof eff.display_aspects_to_angles === "object" && eff.display_aspects_to_angles)
+    ? eff.display_aspects_to_angles
+    : null;
+  return {
+    asc: a2ad ? !!a2ad.asc : true,
+    mc:  a2ad ? !!a2ad.mc : true,
+    dsc: a2ad ? !!a2ad.dsc : false,
+    ic:  a2ad ? !!a2ad.ic : false,
+  };
+}
+window.__rmGetA2aDisplayAngles = getA2aDisplayAngles;
+
+
+
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const angles = `
@@ -1941,10 +1958,15 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
       <tr><th>Fact</th><th>Value</th></tr>
       <tr><td>Chart Record</td><td>${escapeHtml(recordName)}</td></tr>
       <tr><td>Place</td><td>${escapeHtml(placeName)}</td></tr>
-      <tr><td>ASC</td><td>${escapeHtml(chart.asc || "—")}</td></tr>
-      <tr><td>MC</td><td>${escapeHtml(chart.mc || "—")}</td></tr>
-      <tr><td>DSC</td><td>${escapeHtml(chart.dc || chart.desc || "—")}</td></tr>
-      <tr><td>IC</td><td>${escapeHtml(chart.ic || "—")}</td></tr>
+      ${(() => {
+        const a2a = getA2aDisplayAngles();
+        const rows = [];
+        if (a2a.asc) rows.push(`<tr><td>ASC</td><td>${escapeHtml(chart.asc || "—")}</td></tr>`);
+        if (a2a.mc)  rows.push(`<tr><td>MC</td><td>${escapeHtml(chart.mc || "—")}</td></tr>`);
+        if (a2a.dsc) rows.push(`<tr><td>DSC</td><td>${escapeHtml(chart.dc || chart.desc || "—")}</td></tr>`);
+        if (a2a.ic)  rows.push(`<tr><td>IC</td><td>${escapeHtml(chart.ic || "—")}</td></tr>`);
+        return rows.join("");
+      })()}
     </table>`;
   const ph = chart.planet_houses || {};
   const _visibleBodyNames = getVisibleBodyNamesSet();
@@ -2058,10 +2080,15 @@ function renderComparisonTableHtml(cols, dignitiesOn) {
     <p class="meta">Click a place to open its relocated chart (Screen 4).</p>
     <table class="simple">
       <tr><th>Fact</th>${headers}</tr>
-      ${angleRow("ASC", "asc")}
-      ${angleRow("MC", "mc")}
-      ${dscRow}
-      ${angleRow("IC", "ic")}
+      ${(() => {
+        const a2a = getA2aDisplayAngles();
+        const rows = [];
+        if (a2a.asc) rows.push(angleRow("ASC", "asc"));
+        if (a2a.mc)  rows.push(angleRow("MC", "mc"));
+        if (a2a.dsc) rows.push(dscRow);
+        if (a2a.ic)  rows.push(angleRow("IC", "ic"));
+        return rows.join("");
+      })()}
       ${planetRows}
     </table>
     ${errNote}
@@ -2169,7 +2196,7 @@ function comparisonWorkspacePanelHtml(cs, ws) {
         </label>
       </div>
       <div class="rm-cmp-section-body${collapsed ? " collapsed" : ""}" id="rm-cmp-sec-${sec}">
-        <p class="meta">${sec === "notes" ? "Use the notepad below." : "Reading-state bookmark \u2014 full section content ships in a later layout slice."}</p>
+        <p class="meta">${sec === "notes" ? "Use the notepad below." : sec === "a2a" ? "Aspect-to-angle table content ships in a later slice. Angle visibility for map overlays and angle lists follows Settings \u2192 Aspect-to-Angle Display." : "Reading-state bookmark \u2014 full section content ships in a later layout slice."}</p>
       </div>
     </div>`;
   }).join("");
@@ -3038,7 +3065,7 @@ function a2aDisplayAnglesHtml() {
   return `
     <div class="panel">
       <h4 style="margin:0 0 4px;">Angles in A2A display</h4>
-      <p class="meta" style="margin:0 0 8px;">Which relocated angles to include in Aspect-to-Angle tables and comparisons.</p>
+      <p class="meta" style="margin:0 0 8px;">Choose which relocated angles appear in map aspect searches and angle lists. ASC and MC are shown by default. Full aspect-to-angle tables ship in a later slice.</p>
       ${row("asc", "ASC (Ascendant)", true)}
       ${row("mc",  "MC (Midheaven)",  true)}
       ${row("dsc", "DSC (Descendant)", false)}
@@ -3128,14 +3155,16 @@ function subsequentHouseRuleHtml() {
 }
 
 function outOfSignAspectsHtml() {
+  // SETTINGS-WIRE-3: stored preference only — no engine sign-gate yet.
   const eff = _settingsEff();
   const oos = eff ? !!eff.out_of_sign_aspects : false;
   return `
     <div class="panel">
       <label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} style="width:auto;margin:0;" />
+        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} disabled aria-disabled="true" style="width:auto;margin:0;" title="Coming soon" />
         Allow out-of-sign aspects
       </label>
+      <p class="meta" style="margin:8px 0 0;font-size:11px;">Out-of-sign filtering is stored for future aspect tables and is not active yet.</p>
     </div>`;
 }
 
@@ -4840,7 +4869,8 @@ if (action === "save-comparison-note") {
         const minorEl = document.getElementById("rm-settings-minor-aspects");
         const oosEl = document.getElementById("rm-settings-oos-aspects");
         if (minorEl) settingsPatch.visible_minor_aspects = !!minorEl.checked;
-        if (oosEl) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
+        // SETTINGS-WIRE-3: out-of-sign is disclosed/disabled until engine sign-gate exists.
+        if (oosEl && !oosEl.disabled) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
         const planetIds = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
         // north_node / south_node are permanently disabled (CHART-TRUTH-FIX-1/FIX-3).
         // Never save them as enabled — the engine does not support Nodes.

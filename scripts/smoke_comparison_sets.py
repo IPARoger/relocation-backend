@@ -646,6 +646,18 @@ def main() -> int:
                             not broken,
                             f"stale_broken={broken}"))
 
+            # SETTINGS-WIRE-3: A2A display angle defaults via app shell helper
+            a2a_defaults = page.evaluate(
+                "() => (typeof window.__rmGetA2aDisplayAngles === 'function' ? window.__rmGetA2aDisplayAngles() : null)"
+            )
+            results.append(("fe_a2a_display_defaults",
+                            isinstance(a2a_defaults, dict)
+                            and a2a_defaults.get("asc") is True
+                            and a2a_defaults.get("mc") is True
+                            and a2a_defaults.get("dsc") is False
+                            and a2a_defaults.get("ic") is False,
+                            f"defaults={a2a_defaults}"))
+
             app_errors = [e for e in console_errors
                           if "Failed to load resource" not in e and "net::ERR" not in e]
             results.append(("fe_no_console_errors", len(app_errors) == 0,

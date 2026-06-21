@@ -413,6 +413,14 @@ def main() -> int:
                         _a2d_st == 200 and _a2d_saved.get("dsc") is True,
                         f"status={_a2d_st} dsc={_a2d_saved.get('dsc')}"))
 
+        # SETTINGS-WIRE-3: visible_major_aspects persists through PATCH
+        _maj_patch = {"settings_patch": {"visible_major_aspects": ["conjunction", "trine"]}}
+        _maj_st, _maj_b = fetch(base, "/settings/account", method="PATCH", body=_maj_patch, headers=headers)
+        _maj_saved = _json.loads(_maj_b).get("settings_json", {}).get("visible_major_aspects", []) if _maj_st == 200 else []
+        results.append(("be_major_asp_persists",
+                        _maj_st == 200 and "conjunction" in _maj_saved and "trine" in _maj_saved,
+                        f"status={_maj_st} saved={_maj_saved}"))
+
         # SETTINGS-WIRE-2: /relocated-chart near_cusp threshold changes with house_proximity_orb
         # Test with tight orb (0.5): a planet that was near_cusp=True at 2.0 should be False at 0.5
         # and vice versa. Just verify the param is accepted and affects the field.
