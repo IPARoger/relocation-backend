@@ -2726,8 +2726,13 @@ async function fetchRelocatedChart(lat, lon) {
 
     if (!birth) throw new Error("no_profile");
 
+    // PHASE-0A: prefer app_shell shared fetch (house_proximity_orb parity).
+    if (typeof window.__rmFetchCanonicalRelocatedChart === "function") {
+        const { chart } = await window.__rmFetchCanonicalRelocatedChart({ birth, lat, lon });
+        return chart;
+    }
+
     const { birth_year, birth_month, birth_day, birth_hour_utc } = birth;
-    // SETTINGS-WIRE-2: pass house_proximity_orb from effective settings
     const _mapHpoEff = (window.RMSettings && window.SupabaseStore)
         ? window.RMSettings.getEffectiveSettings(window.SupabaseStore.user_settings || null, null)
         : null;
@@ -2755,7 +2760,11 @@ function buildPlanetHouseRowsFromData(data) {
     if (!data.planet_houses) {
         return '<tr class="missing-row"><td colspan="3">No planet house data returned.</td></tr>';
     }
+    const visible = (typeof window.__rmGetVisibleBodyNamesSet === "function")
+        ? window.__rmGetVisibleBodyNamesSet()
+        : null;
     return Object.entries(data.planet_houses)
+        .filter(([planet]) => !visible || visible.has(planet))
         .map(([planet, info]) => {
             const near = info.near_cusp;
             const trAttr = near ? ` class="planet-row planet-row--near-cusp"` : ` class="planet-row"`;

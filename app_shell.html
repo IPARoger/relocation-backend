@@ -1949,7 +1949,33 @@ function getA2aDisplayAngles() {
 }
 window.__rmGetA2aDisplayAngles = getA2aDisplayAngles;
 
+// PHASE-0A: shared house-proximity orb + relocated-chart fetch for all consumers.
+function resolveHouseProximityOrbDeg(eff) {
+  const e = eff || _settingsEff();
+  return (e && e.house_proximity_orb_degrees != null) ? e.house_proximity_orb_degrees : 2.0;
+}
 
+async function fetchCanonicalRelocatedChart({ birth, lat, lon }) {
+  const hpo = resolveHouseProximityOrbDeg();
+  const q = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lon),
+    birth_year: String(birth.birth_year),
+    birth_month: String(birth.birth_month),
+    birth_day: String(birth.birth_day),
+    birth_hour_utc: String(birth.birth_hour_utc),
+    house_proximity_orb: String(hpo),
+  });
+  const chartResp = await fetch(`/relocated-chart?${q.toString()}`);
+  let chart = {};
+  try { chart = await chartResp.json(); } catch (e) { /* ignore */ }
+  if (!chartResp.ok) throw new Error("relocated_failed:" + chartResp.status);
+  return { birth, chart, location: { lat, lon }, house_proximity_orb: hpo };
+}
+
+window.__rmFetchCanonicalRelocatedChart = fetchCanonicalRelocatedChart;
+window.__rmGetVisibleBodyNamesSet = getVisibleBodyNamesSet;
+window.__rmResolveHouseProximityOrbDeg = resolveHouseProximityOrbDeg;
 
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
@@ -2023,23 +2049,20 @@ async function hydrateRelocatedChart(root) {
       return;
     }
     setStatus("Calculating relocated chart…");
-    const q = new URLSearchParams({
-      lat: String(lat),
-      lon: String(lon),
-      birth_year: String(birthBody.birth_year),
-      birth_month: String(birthBody.birth_month),
-      birth_day: String(birthBody.birth_day),
-      birth_hour_utc: String(birthBody.birth_hour_utc),
-    });
-    const chartResp = await fetch(`/relocated-chart?${q.toString()}`);
-    let chart = {};
-    try { chart = await chartResp.json(); } catch (e) { /* ignore */ }
-    if (!stillCurrent()) return;
-    if (!chartResp.ok) {
-      container.innerHTML = `<div class="warn-box"><strong>Could not calculate relocated chart.</strong><br>
-        HTTP ${chartResp.status}</div>`;
-      return;
+    let chart;
+    try {
+      ({ chart } = await fetchCanonicalRelocatedChart({ birth: birthBody, lat, lon }));
+    } catch (fetchErr) {
+      if (!stillCurrent()) return;
+      const msg = String(fetchErr && fetchErr.message ? fetchErr.message : fetchErr);
+      if (msg.startsWith("relocated_failed:")) {
+        container.innerHTML = `<div class="warn-box"><strong>Could not calculate relocated chart.</strong><br>
+          HTTP ${escapeHtml(msg.slice("relocated_failed:".length))}</div>`;
+        return;
+      }
+      throw fetchErr;
     }
+    if (!stillCurrent()) return;
     _screen4ChartCache = chart;
     container.innerHTML = renderRelocatedChartHtml(recordName, placeName, chart, _screen4PihDignities);
     bindPihDignitiesToggle(container);
@@ -2417,22 +2440,20 @@ async function hydrateComparisonColumns(root) {
       const name = humanPlaceLabel(pid);
       const coords = resolvePlaceLatLon(pid);
       if (!coords) return { placeId: pid, name, error: "no coordinates" };
-      // SETTINGS-WIRE-2: pass house_proximity_orb from effective settings
-      const _cmpHpoEff = _settingsEff();
-      const _cmpHpo = (_cmpHpoEff && _cmpHpoEff.house_proximity_orb_degrees != null)
-        ? _cmpHpoEff.house_proximity_orb_degrees
-        : 2.0;
-      const q = new URLSearchParams({
-        lat: String(coords.lat), lon: String(coords.lon),
-        birth_year: String(birth.birth_year), birth_month: String(birth.birth_month),
-        birth_day: String(birth.birth_day), birth_hour_utc: String(birth.birth_hour_utc),
-        house_proximity_orb: String(_cmpHpo),
-      });
-      const r = await fetch(`/relocated-chart?${q.toString()}`);
-      let chart = {};
-      try { chart = await r.json(); } catch (e) { /* ignore */ }
-      if (!r.ok) return { placeId: pid, name, error: "HTTP " + r.status };
-      return { placeId: pid, name, chart };
+      try {
+        const { chart } = await fetchCanonicalRelocatedChart({
+          birth,
+          lat: coords.lat,
+          lon: coords.lon,
+        });
+        return { placeId: pid, name, chart };
+      } catch (fetchErr) {
+        const msg = String(fetchErr && fetchErr.message ? fetchErr.message : fetchErr);
+        if (msg.startsWith("relocated_failed:")) {
+          return { placeId: pid, name, error: "HTTP " + msg.slice("relocated_failed:".length) };
+        }
+        return { placeId: pid, name, error: msg };
+      }
     }));
     if (!stillCurrent()) return;
     _comparisonColsCache = cols;
