@@ -214,6 +214,14 @@ def serve_current_location_editor_js():
     )
 
 
+@app.get("/quick_share.js")
+def serve_quick_share_js():
+    return FileResponse(
+        APP_DIR / "quick_share.js",
+        media_type="application/javascript",
+    )
+
+
 @app.get("/account_drawer.js")
 def serve_account_drawer_js():
     return FileResponse(
@@ -3485,6 +3493,73 @@ def api_update_user_settings(settings_id: str, payload: UserSettingsUpdate):
         "/settings/account",
         "Use PATCH /settings/account",
     )
+
+
+# ---------------------------------------------------------------------------
+# QUICK-SHARE-MVP — frozen map-first share links (separate from Export / share_links).
+# ---------------------------------------------------------------------------
+
+
+class QuickShareCreate(BaseModel):
+    profile_id: str
+    profile_display_name: str | None = None
+    source_surface: str = "map"
+    conditions_json: dict | None = None
+    viewport_json: dict | None = None
+    settings_snapshot_json: dict | None = None
+    place_id: str | None = None
+    place_label: str | None = None
+    chart_facts_json: dict | None = None
+
+
+@app.post("/quick-share/create")
+def api_create_quick_share(request: Request, body: QuickShareCreate):
+    jwt_token = _jwt_from_request(request)
+    from repositories.quick_share_repository import QuickShareError, create_quick_share
+
+    try:
+        return create_quick_share(
+            jwt_token,
+            profile_id=body.profile_id,
+            profile_display_name=body.profile_display_name,
+            source_surface=body.source_surface,
+            conditions_json=body.conditions_json,
+            viewport_json=body.viewport_json,
+            settings_snapshot_json=body.settings_snapshot_json,
+            place_id=body.place_id,
+            place_label=body.place_label,
+            chart_facts_json=body.chart_facts_json,
+        )
+    except QuickShareError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason in ("profile_not_found",):
+            status = 404
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.get("/quick-share/{quick_share_id}")
+def api_get_quick_share(quick_share_id: str):
+    from repositories.quick_share_repository import QuickShareError, get_quick_share_public
+
+    try:
+        return get_quick_share_public(quick_share_id)
+    except QuickShareError as err:
+        if err.reason in ("not_found", "expired"):
+            status = 404
+        elif err.reason == "storage_unavailable":
+            status = 503
+        else:
+            status = 422
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
 
 
 # ---------------------------------------------------------------------------

@@ -673,6 +673,45 @@ html.map-panel-show-legend #panelLegend { display: block; }
     font-weight: 600;
     color: #333;
 }
+
+/* ── Quick Share (QUICK-SHARE-MVP) ───────────────────────────────────────── */
+#quickShareBtn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+#quickShareBtn:hover:not(:disabled) { background: #dbeafe; }
+#quickShareBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+#rmQuickShareBanner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 12000;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 10px 14px;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+#rmQuickShareBanner strong { color: #93c5fd; }
+body.rm-quick-share-recipient #saveInvestigationBtn,
+body.rm-quick-share-recipient #quickShareBtn,
+body.rm-quick-share-recipient #saveInvestigationNote,
+body.rm-quick-share-recipient #findBtn,
+body.rm-quick-share-recipient #chartProfile {
+  pointer-events: none;
+  opacity: 0.55;
+}
+body.rm-quick-share-recipient { padding-top: 44px; }
+#rmQuickShareChartFactsHost { margin: 10px 0; }
+
 /* ── Save Investigation ──────────────────────────────────────────────────── */
 #saveInvestigationBtn {
     width: 100%;
@@ -1368,9 +1407,11 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
         </div>
 
         <button id="findBtn" type="button">Find regions</button>
+        <button id="quickShareBtn" type="button" title="Share this map/search">Quick Share</button>
         <div id="renderStatus">Ready.</div>
         <textarea id="saveInvestigationNote" rows="2" placeholder="Optional note for this investigation" style="width:100%;box-sizing:border-box;"></textarea>
         <button id="saveInvestigationBtn" type="button">Save Investigation</button>
+        <div id="quickShareStatus" aria-live="polite" class="meta" style="margin-top:6px;"></div>
         <div id="saveInvestigationStatus" aria-live="polite"></div>
         <div id="reopenInvestigationStatus" aria-live="polite"></div>
 
@@ -1407,6 +1448,7 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 <script src="/substrate_adapter.js"></script>
 <script src="/genie_map_engine_adapter.js"></script>
 <script src="/place_resolution.js"></script>
+<script src="/quick_share.js"></script>
 <script>
 const MAP_URL = new URLSearchParams(window.location.search);
 const API_BASE = '';
@@ -2161,6 +2203,213 @@ async function saveCurrentInvestigation() {
     }
 }
 
+
+// QUICK-SHARE-MVP: frozen map-first share bundle capture.
+function mapProfileDisplayName(profileId) {
+    const sel = document.getElementById("chartProfile");
+    if (!sel) return "Profile";
+    const opt = Array.from(sel.options).find((o) => o.value === profileId);
+    return (opt && opt.textContent) ? opt.textContent.trim() : "Profile";
+}
+
+function mapHasShareableSearchState(conditionsJson) {
+    const c = conditionsJson || {};
+    const houses = Array.isArray(c.house_conditions) ? c.house_conditions.length : 0;
+    const angles = Array.isArray(c.angle_sign_conditions) ? c.angle_sign_conditions.length : 0;
+    const ao = c.aspect_overlay;
+    const aspect = !!(ao && ao.planet && ao.aspect && ao.angle);
+    return houses > 0 || angles > 0 || aspect;
+}
+
+async function captureMapShareBundle() {
+    const profileId = getActiveFavoriteProfileId();
+    if (!profileId) throw new Error("Select a profile first.");
+    const _rawConds = collectSavedInvestigationConditions();
+    const _c = (_rawConds && _rawConds[0]) || {};
+    let _savedBirth = null;
+    try {
+        const _br = await fetchEngineBirthForChartRecord(profileId);
+        if (_br && _br.ok && _br.birth) _savedBirth = _br.birth;
+    } catch (_e) { /* optional birth anchor */ }
+    const conditions_json = {
+        schema_version: 1,
+        kind: "quick_share_map",
+        chart_record_id: profileId,
+        ...((_savedBirth) ? {
+            birth_year: _savedBirth.birth_year,
+            birth_month: _savedBirth.birth_month,
+            birth_day: _savedBirth.birth_day,
+            birth_hour_utc: _savedBirth.birth_hour_utc,
+        } : {}),
+        house_conditions: _c.house_conditions || [],
+        angle_sign_conditions: _c.angle_sign_conditions || [],
+        aspect_overlay: _c.aspect_overlay || null,
+    };
+    let viewport_json = {};
+    if (window.__rmMap) {
+        const _b = window.__rmMap.getBounds();
+        const _ct = window.__rmMap.getCenter();
+        viewport_json = {
+            center_lat: _ct.lat,
+            center_lon: _ct.lng,
+            north: _b.getNorth(),
+            south: _b.getSouth(),
+            east: _b.getEast(),
+            west: _b.getWest(),
+            zoom: window.__rmMap.getZoom(),
+        };
+    }
+    let settings_snapshot_json = {};
+    try {
+        if (window.RMSettings && typeof window.RMSettings.buildSettingsSnapshot === "function") {
+            const _storedSettings = (window.SupabaseStore && window.SupabaseStore.user_settings) || null;
+            const _eff = window.RMSettings.getEffectiveSettings(_storedSettings, null);
+            settings_snapshot_json = window.RMSettings.buildSettingsSnapshot(_eff);
+        }
+    } catch (_e) { settings_snapshot_json = {}; }
+    return {
+        profile_id: profileId,
+        profile_display_name: mapProfileDisplayName(profileId),
+        source_surface: "map",
+        conditions_json,
+        viewport_json,
+        settings_snapshot_json,
+        place_id: null,
+        place_label: null,
+        chart_facts_json: null,
+    };
+}
+
+async function createQuickShareFromMap() {
+    const statusEl = document.getElementById("quickShareStatus");
+    const btn = document.getElementById("quickShareBtn");
+    function setStatus(msg, isErr) {
+        if (!statusEl) return;
+        statusEl.textContent = msg;
+        statusEl.className = isErr ? "meta is-error" : "meta";
+    }
+    if (window.__rmQuickShareRecipientMode) return;
+    const sbClient = window.SupabaseClient || window._supabaseClient;
+    if (!sbClient) { setStatus("Sign in required.", true); return; }
+    try {
+        const bundle = await captureMapShareBundle();
+        if (!mapHasShareableSearchState(bundle.conditions_json)) {
+            setStatus("Run a map search first, then share.", true);
+            return;
+        }
+        if (btn) btn.disabled = true;
+        setStatus("Creating link…", false);
+        const { data: _sess } = await sbClient.auth.getSession();
+        const _token = _sess && _sess.session && _sess.session.access_token;
+        if (!_token) throw new Error("Session unavailable. Reload and try again.");
+        if (!window.RMQuickShare) throw new Error("Quick Share helper not loaded.");
+        const { url } = await window.RMQuickShare.createAndCopyQuickShare(bundle, _token);
+        setStatus("Link copied. Share this map/search snapshot.", false);
+        console.log("[quick-share] created", url);
+    } catch (err) {
+        setStatus("Quick Share failed: " + (err.message || String(err)), true);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+function applyQuickShareRecipientChrome(payload) {
+    document.body.classList.add("rm-quick-share-recipient");
+    let banner = document.getElementById("rmQuickShareBanner");
+    if (!banner) {
+        banner = document.createElement("div");
+        banner.id = "rmQuickShareBanner";
+        document.body.prepend(banner);
+    }
+    const profile = (payload && payload.profile_display_name) || "Profile";
+    const notice = (payload && payload.shared_view_notice) || "Shared snapshot — read-only.";
+    banner.innerHTML = "<strong>" + (payload.brand || "Relocation Astrology") + "</strong> · Shared map/search · Profile: "
+        + profile + " · " + notice;
+}
+
+function disableQuickShareRecipientControls() {
+    ["saveInvestigationBtn", "quickShareBtn", "findBtn", "chartProfile"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute("disabled", "disabled");
+    });
+    const note = document.getElementById("saveInvestigationNote");
+    if (note) note.setAttribute("readonly", "readonly");
+}
+
+async function applyQuickShareReplay(payload) {
+    if (!payload) return false;
+    const conditions_json = payload.conditions_json || {};
+    lastSavedInvestigationConditions = conditions_json;
+    const view = { conditions: [conditions_json] };
+    applySavedInvestigationConditions(view);
+
+    const viewport = payload.viewport_json || {};
+    const center = viewportCenterFromSavedView(viewport);
+    const zoom = Number(viewport.zoom);
+    if (center && Number.isFinite(zoom) && window.__rmMap) {
+        window.__rmMap.setView([center.lat, center.lon], zoom, { animate: false });
+    }
+
+    if (payload.chart_facts_json && window.RMQuickShare) {
+        let host = document.getElementById("rmQuickShareChartFactsHost");
+        if (!host) {
+            host = document.createElement("div");
+            host.id = "rmQuickShareChartFactsHost";
+            const panel = document.getElementById("panel");
+            if (panel) panel.insertBefore(host, panel.firstChild);
+        }
+        host.innerHTML = window.RMQuickShare.renderChartFactsReadOnlyHtml(
+            payload.chart_facts_json,
+            payload.place_label || ""
+        );
+    }
+
+    await waitForMapReady();
+    if (mapHasShareableSearchState(conditions_json)) {
+        try {
+            const savedPlan = await buildPlanFromSavedConditions(conditions_json);
+            if (savedPlan && savedPlan.birth) {
+                await executeSearchPlan(savedPlan, { source: "quick_share_json" });
+            }
+        } catch (err) {
+            console.warn("[quick-share] replay search failed:", err);
+        }
+    }
+    return true;
+}
+
+async function bootstrapQuickShareRecipient() {
+    const qsId = MAP_URL.get("quickShare");
+    if (!qsId) return;
+    window.__rmQuickShareRecipientMode = true;
+    disableQuickShareRecipientControls();
+    const statusEl = document.getElementById("quickShareStatus");
+    if (statusEl) statusEl.textContent = "Loading shared view…";
+    try {
+        const resp = await fetch("/quick-share/" + encodeURIComponent(qsId));
+        let payload = {};
+        try { payload = await resp.json(); } catch (e) { /* ignore */ }
+        if (!resp.ok) {
+            const detail = payload && payload.detail;
+            const msg = (detail && (detail.message || detail.error)) || ("HTTP " + resp.status);
+            throw new Error(msg);
+        }
+        applyQuickShareRecipientChrome(payload);
+        await chartProfilesReady;
+        await applyQuickShareReplay(payload);
+        if (statusEl) statusEl.textContent = "Shared view loaded (read-only).";
+    } catch (err) {
+        if (statusEl) {
+            statusEl.textContent = "Could not load shared view: " + (err.message || String(err));
+            statusEl.className = "meta is-error";
+        }
+    }
+}
+
+window.__rmCaptureMapShareBundle = captureMapShareBundle;
+window.__rmBootstrapQuickShareRecipient = bootstrapQuickShareRecipient;
+
+
 window.__rmSaveCurrentInvestigation = saveCurrentInvestigation;
 
 // SETTINGS-WIRE-1: sync Genie planet selectors to hide bodies disabled in Settings.
@@ -2311,11 +2560,20 @@ window.__rmSyncGenieMinorAspects = syncGenieMinorAspectOptionsToSettings;
 window.__rmSyncGenieAspectSelectors = syncGenieAspectSelectorsToSettings;
 window.__rmSyncGenieAngleSelectors = syncGenieAngleSelectorsToSettings;
 window.__rmSyncGenieSelectors = syncGenieSelectorsToSettings;
+
+// QUICK-SHARE-MVP: recipient bootstrap (public read, no JWT).
+if (MAP_URL.get('quickShare')) {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => { bootstrapQuickShareRecipient(); }, 1200);
+    });
+}
 window.__rmGetA2aDisplayAngles = getA2aDisplayAngles;
 
 document.addEventListener("DOMContentLoaded", () => {
     const saveBtn = document.getElementById("saveInvestigationBtn");
     if (saveBtn) saveBtn.addEventListener("click", () => { saveCurrentInvestigation(); });
+    const qsBtn = document.getElementById("quickShareBtn");
+    if (qsBtn) qsBtn.addEventListener("click", () => { createQuickShareFromMap(); });
     syncGenieSelectorsToSettings();
     setTimeout(syncGenieSelectorsToSettings, 1500);
 });

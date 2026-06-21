@@ -392,6 +392,7 @@
 <script src="/first_profile_intake.js"></script>
 <script src="/current_location_editor.js"></script>
 <script src="/account_drawer.js"></script>
+<script src="/quick_share.js"></script>
 <script src="/genie_variable_builder.js"></script>
 <script>
 "use strict";
@@ -1833,14 +1834,138 @@ function screenChart() {
     </div>
     <div class="row">
       <button type="button" data-nav="map">Back to map</button>
+      <button type="button" data-action="quick-share-chart" title="Share this map/search">Quick Share</button>
       <button type="button" data-nav="compare">Open comparison workspace</button>
       <button type="button" data-nav="export">Export / share status</button>
     </div>
+    <p id="rm-screen4-quick-share-msg" class="meta" style="margin-top:8px;min-height:1.2em;"></p>
   `;
 }
 
 
+
 let _screen4ChartCache = null;
+
+function captureChartFactsForQuickShare() {
+  const chart = _screen4ChartCache;
+  const cc = chart && chart.canonical_chart;
+  if (!cc) return null;
+  const planets = {};
+  const rawPlanets = cc.planets || {};
+  Object.keys(rawPlanets).forEach((name) => {
+    const e = rawPlanets[name] || {};
+    planets[name] = {
+      sign: e.sign || null,
+      house: e.house != null ? e.house : null,
+      near_cusp: !!e.near_cusp,
+    };
+  });
+  const angles = {};
+  const rawAngles = cc.angles || {};
+  ["ASC", "MC", "DSC", "IC"].forEach((key) => {
+    if (!rawAngles[key]) return;
+    angles[key] = { sign: rawAngles[key].sign || null };
+  });
+  return {
+    schema_version: 1,
+    kind: "quick_share_chart_facts",
+    planets,
+    angles,
+  };
+}
+
+async function captureChartShareBundle() {
+  const container = document.getElementById("rm-screen4-facts");
+  if (!container) throw new Error("Chart view not ready.");
+  const chartRecordId = container.getAttribute("data-chart-record");
+  const placeId = container.getAttribute("data-place-id") || null;
+  const placeName = container.getAttribute("data-place-name") || null;
+  const recordName = container.getAttribute("data-record-name") || "Profile";
+  const lat = parseFloat(container.getAttribute("data-lat"));
+  const lon = parseFloat(container.getAttribute("data-lon"));
+  if (!chartRecordId) throw new Error("No active profile.");
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    throw new Error("Place coordinates required to share from this chart view.");
+  }
+
+  const birthResp = await fetch(`/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`);
+  let birthBody = {};
+  try { birthBody = await birthResp.json(); } catch (e) { /* ignore */ }
+  if (!birthResp.ok) {
+    const detail = (birthBody && birthBody.detail) || {};
+    throw new Error(detail.message || ("Birth data unavailable (HTTP " + birthResp.status + ")"));
+  }
+
+  const conditions_json = {
+    schema_version: 1,
+    kind: "quick_share_chart",
+    chart_record_id: chartRecordId,
+    birth_year: birthBody.birth_year,
+    birth_month: birthBody.birth_month,
+    birth_day: birthBody.birth_day,
+    birth_hour_utc: birthBody.birth_hour_utc,
+    house_conditions: [],
+    angle_sign_conditions: [],
+    aspect_overlay: null,
+  };
+
+  const pad = 4;
+  const viewport_json = {
+    center_lat: lat,
+    center_lon: lon,
+    north: lat + pad,
+    south: lat - pad,
+    east: lon + pad,
+    west: lon - pad,
+    zoom: 5,
+  };
+
+  let settings_snapshot_json = {};
+  try {
+    if (window.RMSettings && typeof window.RMSettings.buildSettingsSnapshot === "function") {
+      const raw = (storeRaw && storeRaw.user_settings) || null;
+      const eff = window.RMSettings.getEffectiveSettings(raw, null);
+      settings_snapshot_json = window.RMSettings.buildSettingsSnapshot(eff);
+    }
+  } catch (e) { settings_snapshot_json = {}; }
+
+  return {
+    profile_id: chartRecordId,
+    profile_display_name: recordName,
+    source_surface: "chart",
+    conditions_json,
+    viewport_json,
+    settings_snapshot_json,
+    place_id: placeId,
+    place_label: placeName,
+    chart_facts_json: captureChartFactsForQuickShare(),
+  };
+}
+
+async function createQuickShareFromChartScreen() {
+  const msgEl = document.getElementById("rm-screen4-quick-share-msg");
+  const setMsg = (m, err) => {
+    if (msgEl) {
+      msgEl.textContent = m;
+      msgEl.style.color = err ? "var(--danger, #b91c1c)" : "";
+    }
+  };
+  try {
+    setMsg("Creating link…", false);
+    const bundle = await captureChartShareBundle();
+    const client = await window.SupabaseReady;
+    const session = (await client.auth.getSession()).data.session;
+    const token = session && session.access_token;
+    if (!token) throw new Error("Session unavailable. Reload and try again.");
+    if (!window.RMQuickShare) throw new Error("Quick Share helper not loaded.");
+    const { url } = await window.RMQuickShare.createAndCopyQuickShare(bundle, token);
+    setMsg("Link copied. Share this map/search snapshot (includes chart at " + (bundle.place_label || "place") + ").", false);
+    console.log("[quick-share] chart screen", url);
+  } catch (err) {
+    setMsg("Quick Share failed: " + (err.message || String(err)), true);
+  }
+}
+
 let _screen4PihDignities = false;
 let _comparisonColsCache = null;
 
@@ -3467,7 +3592,7 @@ function screenCompare() {
 function screenExport() {
   return `
     <h2>Screen 6 — Export / Share (not wired yet)</h2>
-    <p class="purpose">Export and share are not built yet. Nothing here generates a file, image, or shareable link.</p>
+    <p class="purpose">Professional Export is not built yet. Quick Share is available from the Map and Profile chart view. Nothing here generates a PDF or formal report.</p>
     <div class="panel">
       <h3>Module: export-investigation-link</h3>
       <input type="text" readonly disabled value="Share links are not available yet" />
@@ -5490,6 +5615,10 @@ if (action === "save-comparison-note") {
       }
       if (action === "settings-back") {
         navigate("settings", { settingsSubpage: null });
+        return;
+      }
+      if (action === "quick-share-chart") {
+        createQuickShareFromChartScreen();
         return;
       }
       if (action === "save-settings") {
