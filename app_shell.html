@@ -1849,7 +1849,12 @@ function pihDignityClass(planet, sign) {
 }
 
 function pihSignFromPlanetInfo(info) {
-  if (!info || !window.RMDignityOntology) return null;
+  if (!info) return null;
+  if (info.sign) {
+    const s = String(info.sign);
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  if (!window.RMDignityOntology) return null;
   return window.RMDignityOntology.parseSignFromLongitudeFormatted(info.longitude_formatted);
 }
 
@@ -2022,6 +2027,54 @@ function aisFormatAngleDisplay(angleEntry) {
   const minutes = Math.floor((signDeg - whole) * 60);
   return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032 ${sign}`;
 }
+
+// PHASE-2A: PIH — Layer 3 consumer of canonical_chart.planets / .angles only.
+function formatCanonicalAngleDisplay(angleEntry) {
+  return aisFormatAngleDisplay(angleEntry);
+}
+
+function formatCanonicalPlanetLongitude(planetEntry) {
+  if (!planetEntry || planetEntry.longitude_deg == null) return "—";
+  const sign = formatAisSignName(planetEntry.sign);
+  const lon = Number(planetEntry.longitude_deg) % 360;
+  const signDeg = lon % 30;
+  const whole = Math.floor(signDeg);
+  const minutes = Math.floor((signDeg - whole) * 60);
+  return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032 ${sign}`;
+}
+
+const PIH_BODY_ORDER = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
+
+function renderPihTableRowsFromCanonical(canonicalChart, options) {
+  const opts = options || {};
+  const dignitiesOn = !!opts.dignitiesOn;
+  const visible = opts.visibleBodies || getVisibleBodyNamesSet();
+  const planets = (canonicalChart && canonicalChart.planets) || {};
+  const showLongitude = opts.showLongitude !== false;
+  return PIH_BODY_ORDER.filter((name) => visible.has(name)).map((name) => {
+    const entry = planets[name] || {};
+    return `<tr><td>${escapeHtml(name)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}<td>${escapeHtml(formatCanonicalPlanetLongitude(entry))}</td></tr>`;
+  }).join("");
+}
+
+function renderComparisonAngleRowsHtml(cols) {
+  const a2a = getA2aDisplayAngles();
+  const enabled = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]);
+  return enabled.map(({ key, label }) => {
+    const cells = cols.map((c) => {
+      if (c.error) return "<td>—</td>";
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const entry = cc && cc.angles ? cc.angles[key] : null;
+      return `<td>${escapeHtml(formatCanonicalAngleDisplay(entry))}</td>`;
+    }).join("");
+    return `<tr><td>${label}</td>${cells}</tr>`;
+  }).join("");
+}
+
+window.__rmGetCanonicalChartFromPayload = getCanonicalChartFromPayload;
+window.__rmFormatCanonicalAngleDisplay = formatCanonicalAngleDisplay;
+window.__rmFormatCanonicalPlanetLongitude = formatCanonicalPlanetLongitude;
+window.__rmRenderPihTableRowsFromCanonical = renderPihTableRowsFromCanonical;
 
 function renderAisSinglePlaceHtml(canonicalChart) {
   const a2a = getA2aDisplayAngles();
@@ -2318,21 +2371,17 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const a2a = canonical
     ? `<h4 style="margin:12px 0 4px">Aspect to Angle</h4>${renderA2aSinglePlaceHtml(canonical)}`
     : `<p class="meta">Aspect to Angle unavailable (canonical chart missing).</p>`;
-  const ph = chart.planet_houses || {};
-  const _visibleBodyNames = getVisibleBodyNamesSet();
-  const rows = Object.keys(ph)
-    .filter((name) => _visibleBodyNames.has(name))
-    .map((name) => {
-      const info = ph[name] || {};
-      return `<tr><td>${escapeHtml(name)}</td>${pihHouseCellHtml(name, info, on)}<td>${escapeHtml(info.longitude_formatted || "—")}</td></tr>`;
-    }).join("");
-  const planets = `
-    <h4 style="margin:12px 0 4px">Planet houses</h4>
-    <table class="simple">
+  const pihRows = canonical
+    ? renderPihTableRowsFromCanonical(canonical, { dignitiesOn: on, visibleBodies: getVisibleBodyNamesSet() })
+    : "";
+  const planets = canonical
+    ? `<h4 style="margin:12px 0 4px">Planet houses</h4>
+    <table class="simple rm-pih-table" data-pih-source="canonical_chart">
       <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
-      ${rows}
+      ${pihRows}
     </table>
-    ${pihDignitiesFooterHtml(on, "chart")}`;
+    ${pihDignitiesFooterHtml(on, "chart")}`
+    : `<p class="meta">Planet houses unavailable (canonical chart missing).</p>`;
   return meta + wheel + ais + a2a + planets;
 }
 
@@ -2403,19 +2452,14 @@ function renderComparisonTableHtml(cols, dignitiesOn) {
   const headers = cols.map((c) =>
     `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open relocated chart (Screen 4)">${escapeHtml(c.name)}</button></th>`
   ).join("");
-  const angleRow = (label, key) =>
-    `<tr><td>${label}</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && c.chart[key]) || "—")}</td>`).join("")}</tr>`;
-  const dscRow =
-    `<tr><td>DSC</td>${cols.map((c) => `<td>${c.error ? "—" : escapeHtml((c.chart && (c.chart.dc || c.chart.desc)) || "—")}</td>`).join("")}</tr>`;
-  // SETTINGS-WIRE-1: filter visible bodies per settings before rendering rows
-  const _allCompPlanetNames = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+  const angleRows = renderComparisonAngleRowsHtml(cols);
   const _compVisibleBodies = getVisibleBodyNamesSet();
-  const planetNames = _allCompPlanetNames.filter((pn) => _compVisibleBodies.has(pn));
+  const planetNames = PIH_BODY_ORDER.filter((pn) => _compVisibleBodies.has(pn));
   const planetRows = planetNames.map((pn) =>
     `<tr><td>${pn} house</td>${cols.map((c) => {
       if (c.error) return "<td>—</td>";
-      const ph = (c.chart && c.chart.planet_houses) || {};
-      const info = ph[pn] || {};
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const info = (cc && cc.planets && cc.planets[pn]) || {};
       return pihHouseCellHtml(pn, info, on);
     }).join("")}</tr>`
   ).join("");
@@ -2427,15 +2471,7 @@ function renderComparisonTableHtml(cols, dignitiesOn) {
     <p class="meta">Click a place to open its relocated chart (Screen 4).</p>
     <table class="simple">
       <tr><th>Fact</th>${headers}</tr>
-      ${(() => {
-        const a2a = getA2aDisplayAngles();
-        const rows = [];
-        if (a2a.asc) rows.push(angleRow("ASC", "asc"));
-        if (a2a.mc)  rows.push(angleRow("MC", "mc"));
-        if (a2a.dsc) rows.push(dscRow);
-        if (a2a.ic)  rows.push(angleRow("IC", "ic"));
-        return rows.join("");
-      })()}
+      ${angleRows}
       ${planetRows}
     </table>
     ${errNote}

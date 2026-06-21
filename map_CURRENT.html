@@ -2756,16 +2756,29 @@ function polarCapPopupHtml(title, lat, lon) {
         </div>`;
 }
 
+function getCanonicalChartFromPayloadLocal(data) {
+    if (typeof window.__rmGetCanonicalChartFromPayload === "function") {
+        return window.__rmGetCanonicalChartFromPayload(data);
+    }
+    if (data && data.canonical_chart && typeof data.canonical_chart === "object") {
+        return data.canonical_chart;
+    }
+    return null;
+}
+
 function buildPlanetHouseRowsFromData(data) {
-    if (!data.planet_houses) {
+    const cc = getCanonicalChartFromPayloadLocal(data);
+    if (!cc || !cc.planets) {
         return '<tr class="missing-row"><td colspan="3">No planet house data returned.</td></tr>';
     }
     const visible = (typeof window.__rmGetVisibleBodyNamesSet === "function")
         ? window.__rmGetVisibleBodyNamesSet()
         : null;
-    return Object.entries(data.planet_houses)
-        .filter(([planet]) => !visible || visible.has(planet))
-        .map(([planet, info]) => {
+    const order = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
+    return order
+        .filter((planet) => !visible || visible.has(planet))
+        .map((planet) => {
+            const info = cc.planets[planet] || {};
             const near = info.near_cusp;
             const trAttr = near ? ` class="planet-row planet-row--near-cusp"` : ` class="planet-row"`;
             return `
@@ -2803,12 +2816,19 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
             <hr class="popup-hr-tight">
             <div class="popup-angles-summary">
                 ${(() => {
-                    const a2a = (typeof getA2aDisplayAngles === "function") ? getA2aDisplayAngles() : { asc: true, mc: true, dsc: false, ic: false };
+                    const a2a = (typeof window.__rmGetA2aDisplayAngles === "function")
+                        ? window.__rmGetA2aDisplayAngles()
+                        : ((typeof getA2aDisplayAngles === "function") ? getA2aDisplayAngles() : { asc: true, mc: true, dsc: false, ic: false });
+                    const cc = getCanonicalChartFromPayloadLocal(data);
+                    const angles = (cc && cc.angles) || {};
+                    const fmt = (typeof window.__rmFormatCanonicalAngleDisplay === "function")
+                        ? window.__rmFormatCanonicalAngleDisplay
+                        : function (entry) { return entry && entry.longitude_deg != null ? String(entry.longitude_deg) : "—"; };
                     const bits = [];
-                    if (a2a.asc) bits.push(`<span class="pa-lbl">ASC</span><span class="pa-val">${data.asc || "—"}</span>`);
-                    if (a2a.mc)  bits.push(`<span class="pa-lbl">MC</span><span class="pa-val">${data.mc || "—"}</span>`);
-                    if (a2a.dsc) bits.push(`<span class="pa-lbl">DSC</span><span class="pa-val">${data.dc || data.desc || "—"}</span>`);
-                    if (a2a.ic)  bits.push(`<span class="pa-lbl">IC</span><span class="pa-val">${data.ic || "—"}</span>`);
+                    if (a2a.asc) bits.push(`<span class="pa-lbl">ASC</span><span class="pa-val">${fmt(angles.ASC)}</span>`);
+                    if (a2a.mc)  bits.push(`<span class="pa-lbl">MC</span><span class="pa-val">${fmt(angles.MC)}</span>`);
+                    if (a2a.dsc) bits.push(`<span class="pa-lbl">DSC</span><span class="pa-val">${fmt(angles.DSC)}</span>`);
+                    if (a2a.ic)  bits.push(`<span class="pa-lbl">IC</span><span class="pa-val">${fmt(angles.IC)}</span>`);
                     return bits.join("") || `<span class="pa-lbl">Angles</span><span class="pa-val">—</span>`;
                 })()}
             </div>

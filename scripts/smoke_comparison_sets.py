@@ -160,6 +160,48 @@ def ensure_two_favorites(admin, account_id, profile_id, stamp):
 
 
 
+
+
+def static_pih_checks(shell_path: Path, map_path: Path) -> list[tuple[str, bool, str]]:
+    """Static assertions for PHASE-2A PIH canonical migration."""
+    shell = shell_path.read_text(encoding="utf-8")
+    map_html = map_path.read_text(encoding="utf-8")
+    start = shell.find("// PHASE-2A:")
+    end = shell.find("// WHEEL-1:", start)
+    block = shell[start:end] if start >= 0 and end > start else ""
+    render_start = shell.find("function renderRelocatedChartHtml")
+    render_end = shell.find("let _screen4Token = 0;", render_start)
+    render_block = shell[render_start:render_end] if render_start >= 0 else ""
+    cmp_start = shell.find("function renderComparisonTableHtml")
+    cmp_end = shell.find("// Comparison workspace reading-state", cmp_start)
+    cmp_block = shell[cmp_start:cmp_end] if cmp_start >= 0 else ""
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_pih_canonical_source",
+                'data-pih-source="canonical_chart"' in render_block,
+                "Screen 4 PIH table attr"))
+    out.append(("static_pih_no_planet_houses_in_render",
+                "planet_houses" not in block
+                and "planet_houses" not in render_block
+                and "planet_houses" not in cmp_block,
+                "no planet_houses in PIH render paths"))
+    out.append(("static_comparison_angles_from_canonical",
+                "renderComparisonAngleRowsHtml" in cmp_block
+                and "getCanonicalChartFromPayload" in cmp_block
+                and "c.chart.asc" not in cmp_block
+                and "c.chart.mc" not in cmp_block
+                and "planet_houses" not in cmp_block,
+                "comparison angles from canonical_chart.angles"))
+    out.append(("static_pih_helpers_exported",
+                "__rmGetCanonicalChartFromPayload" in shell
+                and "__rmFormatCanonicalAngleDisplay" in shell,
+                "helpers on window for map"))
+    out.append(("static_popup_canonical_planets",
+                "getCanonicalChartFromPayloadLocal" in map_html
+                and "cc.planets" in map_html
+                and "data.planet_houses" not in map_html[map_html.find("function buildPlanetHouseRowsFromData"):map_html.find("function mapHumanPlaceLabel")],
+                "popup PIH reads canonical_chart.planets"))
+    return out
+
 def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     """Static assertions for WHEEL-1 (no Playwright required)."""
     shell = shell_path.read_text(encoding="utf-8")
@@ -254,6 +296,7 @@ def main() -> int:
             fail(f"temp server did not start on {base}")
 
     results = []
+    results.extend(static_pih_checks(ROOT / "app_shell.html", ROOT / "map_CURRENT.html"))
     results.extend(static_wheel_checks(ROOT / "app_shell.html"))
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
 
