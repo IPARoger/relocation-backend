@@ -396,6 +396,12 @@ def main() -> int:
             except Exception:
                 proc.kill()
 
+    # CHART-TRUTH-FIX-1: /relocated-chart must reject missing birth params with 422
+    _rc_st, _ = fetch(base, "/relocated-chart?lat=40.0&lon=-74.0", method="GET", timeout=10)
+    results.append(("be_relocated_chart_422_on_missing_birth",
+                    _rc_st == 422,
+                    f"status={_rc_st} (expect 422 — no silent defaults)"))
+
     failed = [n for n, ok, _ in results if not ok]
     for n, ok, d in results:
         print(f"{'PASS' if ok else 'FAIL'}: {n} — {d}")

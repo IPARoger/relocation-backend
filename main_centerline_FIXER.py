@@ -1821,10 +1821,10 @@ def aspect_orb_at_point(
 def relocated_chart(
     lat: float,
     lon: float,
-    birth_year: int = 1976,
-    birth_month: int = 1,
-    birth_day: int = 13,
-    birth_hour_utc: float = 12.78333
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour_utc: float,
 ):
     jd = swe.julday(birth_year, birth_month, birth_day, birth_hour_utc)
 

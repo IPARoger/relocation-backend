@@ -156,9 +156,15 @@ def main() -> int:
             fail("no active profile")
         profile_id = profiles[0]["id"]
 
+        # CHART-TRUTH-FIX-1/FIX-2: conditions_json must carry anchored birth params
         cond = {
             "schema_version": 1,
             "kind": "saved_investigation",
+            "chart_record_id": profile_id,
+            "birth_year": 1985,
+            "birth_month": 7,
+            "birth_day": 4,
+            "birth_hour_utc": 18.5,
             "house_conditions": [],
             "angle_sign_conditions": [],
             "aspect_overlay": None,
@@ -185,6 +191,16 @@ def main() -> int:
                         and row.get("viewport_json") == viewport
                         and row.get("settings_snapshot_json") == settings,
                         f"status={st} id={sid}"))
+
+        # CHART-TRUTH-FIX-1/FIX-2: verify birth params are stored in conditions_json
+        _saved_cj = row.get("conditions_json") or {}
+        results.append(("be_birth_anchored",
+                        _saved_cj.get("birth_year") == 1985
+                        and _saved_cj.get("birth_month") == 7
+                        and _saved_cj.get("birth_day") == 4
+                        and _saved_cj.get("birth_hour_utc") == 18.5
+                        and _saved_cj.get("chart_record_id") == profile_id,
+                        f"birth_year={_saved_cj.get('birth_year')} chart_record_id={_saved_cj.get('chart_record_id')}"))
 
         # rename
         new_title = f"Smoke Renamed {stamp}"

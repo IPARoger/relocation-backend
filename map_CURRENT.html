@@ -2017,9 +2017,30 @@ async function saveCurrentInvestigation() {
     // conditions_json — reuse existing collectors
     const _rawConds = collectSavedInvestigationConditions();
     const _c = (_rawConds && _rawConds[0]) || {};
+
+    // Anchor birth params at save time (CHART-TRUTH-FIX-1/FIX-2).
+    // Snapshot the live UTC birth data for this profile so replays always use
+    // the correct chart regardless of which profile is active later.
+    let _savedBirth = null;
+    try {
+        const _br = await fetchEngineBirthForChartRecord(profileId);
+        if (_br && _br.ok && _br.birth) {
+            _savedBirth = _br.birth;
+        }
+    } catch (_birthErr) {
+        console.warn("[save-investigation] birth snapshot failed; continuing without birth anchor:", _birthErr);
+    }
+
     const conditions_json = {
         schema_version: 1,
         kind: "saved_investigation",
+        chart_record_id: profileId,
+        ...((_savedBirth) ? {
+            birth_year:     _savedBirth.birth_year,
+            birth_month:    _savedBirth.birth_month,
+            birth_day:      _savedBirth.birth_day,
+            birth_hour_utc: _savedBirth.birth_hour_utc,
+        } : {}),
         house_conditions:       _c.house_conditions       || [],
         angle_sign_conditions:  _c.angle_sign_conditions  || [],
         aspect_overlay:         _c.aspect_overlay         || null,
@@ -6364,7 +6385,32 @@ async function buildPlanFromLegacyDom() {
 // condition types, change what can be saved, or apply settings snapshots.
 async function buildPlanFromSavedConditions(conditionsJson) {
     const c = (conditionsJson && typeof conditionsJson === "object") ? conditionsJson : {};
-    const birth = await getBirthParamsFromProfile();
+
+    // CHART-TRUTH-FIX-1/FIX-2: use anchored birth params from the saved investigation
+    // if they are present. Fall back to the active profile only when birth params were
+    // not captured at save time (old investigations) — a clearly-commented fallback, not
+    // silent substitution.
+    let birth;
+    if (
+        c.chart_record_id &&
+        Number.isFinite(c.birth_year) &&
+        Number.isFinite(c.birth_month) &&
+        Number.isFinite(c.birth_day) &&
+        Number.isFinite(c.birth_hour_utc)
+    ) {
+        birth = {
+            birth_year:     c.birth_year,
+            birth_month:    c.birth_month,
+            birth_day:      c.birth_day,
+            birth_hour_utc: c.birth_hour_utc,
+        };
+    } else {
+        // Legacy fallback: old saved investigations lack anchored birth params.
+        // Use the active profile. This can produce the wrong chart if the active
+        // profile differs from the one used when the investigation was saved.
+        birth = await getBirthParamsFromProfile();
+    }
+
     const house_conditions = (Array.isArray(c.house_conditions) ? c.house_conditions : [])
         .map((cond) => ({ planet: cond && cond.planet, house: Number(cond && cond.house) }))
         .filter((cond) => !!cond.planet && Number.isFinite(cond.house));

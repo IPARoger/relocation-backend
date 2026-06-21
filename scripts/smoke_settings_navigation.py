@@ -221,6 +221,20 @@ def main():
         bad = [e for e in console_errors if e not in benign]
         results.append(("fe_no_console_errors", not bad, repr(bad[:3]) if bad else "none"))
 
+        # CHART-TRUTH-FIX-1/FIX-3: North Node and South Node controls must be disabled
+        page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
+        page.wait_for_selector("#rm-settings-body-north_node", timeout=10000)
+        nn_disabled = page.eval_on_selector("#rm-settings-body-north_node", "el=>el.disabled")
+        sn_disabled = page.eval_on_selector("#rm-settings-body-south_node", "el=>el.disabled")
+        nn_checked  = page.eval_on_selector("#rm-settings-body-north_node", "el=>el.checked")
+        sn_checked  = page.eval_on_selector("#rm-settings-body-south_node", "el=>el.checked")
+        results.append(("fe_nodes_disabled",
+                        nn_disabled and sn_disabled,
+                        f"north_node_disabled={nn_disabled} south_node_disabled={sn_disabled}"))
+        results.append(("fe_nodes_unchecked",
+                        not nn_checked and not sn_checked,
+                        f"north_checked={nn_checked} south_checked={sn_checked}"))
+
         browser.close()
 
     overall = True

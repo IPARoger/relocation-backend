@@ -2921,8 +2921,10 @@ function planetsBodiesHtml() {
   ];
   const ADDITIONAL = [
     ["chiron", "Chiron", bodies.indexOf("chiron") !== -1 || bodies.length === 0],
-    ["north_node", "North Node", bodies.indexOf("north_node") !== -1],
-    ["south_node", "South Node", bodies.indexOf("south_node") !== -1],
+    // North/South Node: engine does not calculate Nodes. Always disabled (CHART-TRUTH-FIX-1/FIX-3).
+    // Controls remain visible so users know Nodes are on the roadmap; they cannot be enabled.
+    ["north_node", "North Node", false, true],
+    ["south_node", "South Node", false, true],
   ];
   const MORE = [["part_of_fortune", "Part of Fortune"]];
   const chk = (kind, id, label, checked, disabled) =>
@@ -2933,8 +2935,8 @@ function planetsBodiesHtml() {
   const coreRows = CORE.map(([id, label]) =>
     chk("planet", id, label, true, true)
   ).join("");
-  const addRows = ADDITIONAL.map(([id, label, on]) =>
-    chk("body", id, label, on, false)
+  const addRows = ADDITIONAL.map(([id, label, on, disabled]) =>
+    chk("body", id, label, on, !!disabled)
   ).join("");
   const moreRows = MORE.map(([id, label]) =>
     chk("future", id, label, false, true)
@@ -2946,6 +2948,7 @@ function planetsBodiesHtml() {
       ${coreRows}
       <h4 style="margin:16px 0 8px;">Additional bodies</h4>
       ${addRows}
+      <p class="meta" style="margin:4px 0 0;font-size:11px;">North and South Node calculations are not yet available. ${settingsSoonBadge()}</p>
       <details class="rm-settings-more-points">
         <summary>More points</summary>
         <div style="margin-top:8px;">
@@ -4765,7 +4768,9 @@ if (action === "save-comparison-note") {
         if (minorEl) settingsPatch.visible_minor_aspects = !!minorEl.checked;
         if (oosEl) settingsPatch.out_of_sign_aspects = !!oosEl.checked;
         const planetIds = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
-        const bodyIds = ["chiron", "north_node", "south_node"];
+        // north_node / south_node are permanently disabled (CHART-TRUTH-FIX-1/FIX-3).
+        // Never save them as enabled — the engine does not support Nodes.
+        const bodyIds = ["chiron"];
         const collectChecked = (kind, ids) => ids.filter((id) => {
           const el = document.getElementById("rm-settings-" + kind + "-" + id);
           return el ? !!el.checked : false;
