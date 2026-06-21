@@ -97,4 +97,15 @@ def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
             or onto.get("display_aspects_to_angles")
             or deepcopy(RM_SETTINGS_DEFAULTS["display_aspects_to_angles"])
         ),
+        "exact_aspect_threshold_deg": pick("exact_aspect_threshold_deg"),
     }
+
+def exact_aspect_threshold_deg(effective_settings: dict) -> float:
+    raw = effective_settings.get("exact_aspect_threshold_deg")
+    if raw is None:
+        raw = RM_SETTINGS_DEFAULTS.get("exact_aspect_threshold_deg", 0.5)
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return 0.5
+

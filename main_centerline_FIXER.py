@@ -1897,10 +1897,14 @@ def aspect_orb_at_point(
 
 CANONICAL_CHART_SCHEMA_VERSION = 1
 STATION_THRESHOLD_DEG_PER_DAY = 0.05
+EXACT_ASPECT_THRESHOLD_DEG = 0.5
+ASPECT_MOTION_SAMPLE_DAYS = 1.0
+_ASPECT_MOTION_DERIVATIVE_EPSILON_DEG = 1e-9
 
 _MOTION_STATE_VALUES = frozenset({
     "direct", "retrograde", "station_direct", "station_retrograde",
 })
+_ASPECT_MOTION_VALUES = frozenset({"applying", "separating", "exact", "unknown"})
 
 
 def _planet_motion_from_speed(speed_deg_per_day: float) -> dict:
@@ -1920,6 +1924,127 @@ def _planet_motion_from_speed(speed_deg_per_day: float) -> dict:
         "station": station,
         "motion_state": motion_state,
     }
+
+def _exact_aspect_threshold_deg(effective_settings: dict) -> float:
+    from services.account_settings_resolver import RM_SETTINGS_DEFAULTS
+
+    raw = effective_settings.get("exact_aspect_threshold_deg")
+    if raw is None:
+        raw = RM_SETTINGS_DEFAULTS.get("exact_aspect_threshold_deg", EXACT_ASPECT_THRESHOLD_DEG)
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return EXACT_ASPECT_THRESHOLD_DEG
+
+
+def _separation_from_exact(lon_a: float, lon_b: float, aspect: str, target_map: dict) -> float:
+    signed_sep = ((float(lon_a) - float(lon_b) + 180) % 360) - 180
+    abs_sep = abs(signed_sep)
+    target = target_map.get(aspect)
+    if target is None:
+        return 999.0
+    return abs(abs_sep - target)
+
+
+def _houses_angle_longitudes(jd: float, lat: float, lon: float) -> dict[str, float]:
+    _cusps_raw, ascmc = swe.houses(jd, lat, lon, b"P")
+    asc = float(ascmc[0]) % 360
+    mc = float(ascmc[1]) % 360
+    return {
+        "asc": asc,
+        "mc": mc,
+        "dsc": (asc + 180) % 360,
+        "ic": (mc + 180) % 360,
+    }
+
+
+def _angle_speeds_deg_per_day(
+    jd: float,
+    lat: float,
+    lon: float,
+    *,
+    epsilon_days: float = ASPECT_MOTION_SAMPLE_DAYS,
+) -> dict[str, float]:
+    """Instantaneous relocated-angle speeds from a short forward sample."""
+    eps = float(epsilon_days) if epsilon_days else ASPECT_MOTION_SAMPLE_DAYS
+    a0 = _houses_angle_longitudes(jd, lat, lon)
+    a1 = _houses_angle_longitudes(jd + eps, lat, lon)
+    speeds: dict[str, float] = {}
+    for key in ("asc", "mc", "dsc", "ic"):
+        delta = ((a1[key] - a0[key] + 180) % 360) - 180
+        speeds[key] = delta / eps
+    return speeds
+
+
+def _planet_motion_lookup(planet_houses: dict) -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    for name, info in (planet_houses or {}).items():
+        if not isinstance(info, dict):
+            continue
+        spd = info.get("speed_deg_per_day")
+        if spd is None:
+            out[name] = {"speed_deg_per_day": None, "station": True}
+            continue
+        out[name] = _planet_motion_from_speed(float(spd))
+    return out
+
+
+def _aspect_motion_fields(
+    separation_deg: float,
+    lon_a: float,
+    speed_a: float | None,
+    lon_b: float,
+    speed_b: float | None,
+    aspect: str,
+    target_map: dict,
+    *,
+    station_a: bool,
+    station_b: bool,
+    exact_threshold: float,
+    sample_days: float = ASPECT_MOTION_SAMPLE_DAYS,
+) -> dict:
+    """Instantaneous applying/separating/exact/unknown — no perfection forecast."""
+    sep = float(separation_deg)
+    exact = sep <= float(exact_threshold)
+    if exact:
+        return {
+            "exact": True,
+            "applying": False,
+            "separating": False,
+            "motion": "exact",
+        }
+    if station_a or station_b or speed_a is None or speed_b is None:
+        return {
+            "exact": False,
+            "applying": False,
+            "separating": False,
+            "motion": "unknown",
+        }
+    dt = float(sample_days) if sample_days else ASPECT_MOTION_SAMPLE_DAYS
+    lon_a_f = (float(lon_a) + float(speed_a) * dt) % 360
+    lon_b_f = (float(lon_b) + float(speed_b) * dt) % 360
+    sep_future = _separation_from_exact(lon_a_f, lon_b_f, aspect, target_map)
+    if sep_future < sep - _ASPECT_MOTION_DERIVATIVE_EPSILON_DEG:
+        return {
+            "exact": False,
+            "applying": True,
+            "separating": False,
+            "motion": "applying",
+        }
+    if sep_future > sep + _ASPECT_MOTION_DERIVATIVE_EPSILON_DEG:
+        return {
+            "exact": False,
+            "applying": False,
+            "separating": True,
+            "motion": "separating",
+        }
+    return {
+        "exact": False,
+        "applying": False,
+        "separating": False,
+        "motion": "unknown",
+    }
+
 
 CANONICAL_CALCULATION_VERSION = "swe-placidus-tropical-1"
 
@@ -1980,35 +2105,55 @@ def _compute_aspects_to_angles(
     planet_longitudes: dict[str, float],
     angle_longitudes: dict[str, float],
     effective_settings: dict,
+    *,
+    planet_motion: dict[str, dict] | None = None,
+    angle_speeds: dict[str, float] | None = None,
 ) -> list[dict]:
     from services.account_settings_resolver import aspect_to_angle_orb_limit
 
-    a2a_orbs = effective_settings.get("aspect_to_angle_orbs") or {}
     major_aspects = effective_settings.get("visible_major_aspects") or list(_ASPECT_TARGET_DEG.keys())
     display_angles = effective_settings.get("display_aspects_to_angles") or {
         "asc": True, "mc": True, "dsc": False, "ic": False,
     }
     allow_oos = bool(effective_settings.get("out_of_sign_aspects", False))
+    exact_threshold = _exact_aspect_threshold_deg(effective_settings)
+    pm = planet_motion if isinstance(planet_motion, dict) else {}
+    ang_spd = angle_speeds if isinstance(angle_speeds, dict) else {}
     rows: list[dict] = []
 
     for planet_name, planet_lon in planet_longitudes.items():
         if planet_lon is None or not _body_visible(planet_name, effective_settings):
             continue
+        p_motion = pm.get(planet_name) or {}
+        p_speed = p_motion.get("speed_deg_per_day")
+        p_station = bool(p_motion.get("station"))
         for angle_key, angle_lon in angle_longitudes.items():
             if not display_angles.get(angle_key, False):
                 continue
             canon_angle = _ANGLE_CANONICAL.get(angle_key, angle_key.upper())
+            a_speed = ang_spd.get(angle_key)
             for aspect in major_aspects:
                 if aspect not in _ASPECT_TARGET_DEG:
                     continue
                 delta = _aspect_delta_from_exact(planet_lon, angle_lon, aspect)
                 orb_limit = aspect_to_angle_orb_limit(effective_settings, aspect)
-                in_orb = delta <= orb_limit
-                if not in_orb:
+                if delta > orb_limit:
                     continue
                 oos = _aspect_out_of_sign(planet_lon, angle_lon, aspect)
                 if oos and not allow_oos:
                     continue
+                motion_fields = _aspect_motion_fields(
+                    delta,
+                    planet_lon,
+                    p_speed,
+                    angle_lon,
+                    a_speed,
+                    aspect,
+                    _ASPECT_TARGET_DEG,
+                    station_a=p_station,
+                    station_b=False,
+                    exact_threshold=exact_threshold,
+                )
                 rows.append({
                     "planet": planet_name,
                     "angle": canon_angle,
@@ -2017,6 +2162,7 @@ def _compute_aspects_to_angles(
                     "orb_limit_deg": orb_limit,
                     "in_orb": True,
                     "out_of_sign": oos,
+                    **motion_fields,
                 })
     return rows
 
@@ -2063,11 +2209,15 @@ def _active_p2p_aspects(effective_settings: dict) -> list[tuple[str, bool]]:
 def _compute_aspects_planet_to_planet(
     planet_longitudes: dict[str, float],
     effective_settings: dict,
+    *,
+    planet_motion: dict[str, dict] | None = None,
 ) -> list[dict]:
     from services.account_settings_resolver import chart_display_orb_limit
 
     allow_oos = bool(effective_settings.get("out_of_sign_aspects", False))
+    exact_threshold = _exact_aspect_threshold_deg(effective_settings)
     active_aspects = _active_p2p_aspects(effective_settings)
+    pm = planet_motion if isinstance(planet_motion, dict) else {}
     visible_bodies = sorted(
         name for name in _P2P_BODY_ORDER
         if name in planet_longitudes and planet_longitudes[name] is not None
@@ -2076,8 +2226,14 @@ def _compute_aspects_planet_to_planet(
     rows: list[dict] = []
     for i, body_a in enumerate(visible_bodies):
         lon_a = float(planet_longitudes[body_a]) % 360
+        ma = pm.get(body_a) or {}
+        speed_a = ma.get("speed_deg_per_day")
+        station_a = bool(ma.get("station"))
         for body_b in visible_bodies[i + 1:]:
             lon_b = float(planet_longitudes[body_b]) % 360
+            mb = pm.get(body_b) or {}
+            speed_b = mb.get("speed_deg_per_day")
+            station_b = bool(mb.get("station"))
             for aspect, is_minor in active_aspects:
                 delta = _p2p_aspect_delta(lon_a, lon_b, aspect)
                 orb_limit = chart_display_orb_limit(effective_settings, aspect, is_minor=is_minor)
@@ -2086,6 +2242,18 @@ def _compute_aspects_planet_to_planet(
                 oos = _aspect_out_of_sign_p2p(lon_a, lon_b, aspect)
                 if oos and not allow_oos:
                     continue
+                motion_fields = _aspect_motion_fields(
+                    delta,
+                    lon_a,
+                    speed_a,
+                    lon_b,
+                    speed_b,
+                    aspect,
+                    _P2P_ASPECT_TARGET_DEG,
+                    station_a=station_a,
+                    station_b=station_b,
+                    exact_threshold=exact_threshold,
+                )
                 rows.append({
                     "body_a": body_a,
                     "body_b": body_b,
@@ -2094,6 +2262,7 @@ def _compute_aspects_planet_to_planet(
                     "orb_limit_deg": orb_limit,
                     "in_orb": True,
                     "out_of_sign": oos,
+                    **motion_fields,
                 })
     return rows
 
@@ -2195,6 +2364,7 @@ def build_canonical_chart_v1(
     place_name: str | None = None,
     location_kind: str | None = None,
     effective_settings: dict | None = None,
+    jd: float | None = None,
 ) -> dict:
     from datetime import datetime, timezone
     from services.account_settings_resolver import get_effective_settings
@@ -2238,8 +2408,24 @@ def build_canonical_chart_v1(
         planets[name] = entry
 
     angle_longitudes = {"asc": asc, "mc": mc, "dsc": desc, "ic": ic}
-    aspects_to_angles = _compute_aspects_to_angles(planet_longitudes, angle_longitudes, eff)
-    aspects_planet_to_planet = _compute_aspects_planet_to_planet(planet_longitudes, eff)
+    planet_motion = _planet_motion_lookup(planet_houses)
+    angle_speeds = (
+        _angle_speeds_deg_per_day(jd, lat, lon)
+        if jd is not None
+        else {}
+    )
+    aspects_to_angles = _compute_aspects_to_angles(
+        planet_longitudes,
+        angle_longitudes,
+        eff,
+        planet_motion=planet_motion,
+        angle_speeds=angle_speeds,
+    )
+    aspects_planet_to_planet = _compute_aspects_planet_to_planet(
+        planet_longitudes,
+        eff,
+        planet_motion=planet_motion,
+    )
 
     return {
         "schema_version": CANONICAL_CHART_SCHEMA_VERSION,
@@ -2396,6 +2582,7 @@ def relocated_chart(
         place_name=place_name,
         location_kind=location_kind,
         effective_settings=eff,
+        jd=jd,
     )
     return {**legacy, "canonical_chart": canonical_chart}
 @app.get("/health/supabase")
