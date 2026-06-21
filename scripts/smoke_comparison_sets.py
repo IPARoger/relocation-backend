@@ -421,6 +421,20 @@ def static_diffs_mvp_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
                 "no ranking/interpretive copy in diff block"))
     return out
 
+
+def static_dignities_house_checks(shell_path: Path, onto_path: Path) -> list[tuple[str, bool, str]]:
+    """DIGNITIES-HOUSE-1 static wiring checks."""
+    shell = shell_path.read_text(encoding="utf-8")
+    onto = onto_path.read_text(encoding="utf-8")
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_dh_lookup_export", "lookupFamilyByHouse" in onto, "ontology export"))
+    out.append(("static_dh_pih_house", "lookupFamilyByHouse(planet, house)" in shell, "PIH uses house"))
+    cell_chunk = shell.split("function pihHouseCellHtml", 1)[1].split("function pihDignitiesFooterHtml", 1)[0]
+    out.append(("static_dh_no_sign_in_cell", "pihSignFromPlanetInfo" not in cell_chunk, "no sign dignity in cell"))
+    out.append(("static_dh_help", "rm-pih-dignities-help" in shell, "? help"))
+    out.append(("static_dh_no_diff", "dignityDiff" not in shell, "no dignity diff"))
+    return out
+
 def wheel_v2_pih_crosscheck(page, profile_id: str, locations: list[tuple[str, dict]], expected: dict[str, int]) -> list[tuple[str, bool, str]]:
     """Playwright: Sun house from .rm-pih-table only (PIH-QA-FIX-1)."""
     out: list[tuple[str, bool, str]] = []
@@ -506,6 +520,7 @@ def main() -> int:
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
     results.extend(static_settings_final_wire_checks(ROOT / "app_shell.html"))
     results.extend(static_diffs_mvp_checks(ROOT / "app_shell.html"))
+    results.extend(static_dignities_house_checks(ROOT / "app_shell.html", ROOT / "dignity_ontology.js"))
 
     created_set_ids = []
     created_place_ids = []

@@ -1,6 +1,6 @@
 /**
- * dignity_ontology.js — Layer-2 essential dignity lookup (DIGNITIES-1).
- * Single data source; consumers call lookup() only.
+ * dignity_ontology.js — Layer-2 dignity lookup (DIGNITIES-1, DIGNITIES-HOUSE-1).
+ * Sign essential dignity + house correspondence via natural zodiac.
  */
 (function () {
   "use strict";
@@ -92,9 +92,23 @@
     return null;
   }
 
+  // Natural zodiac: house N corresponds to sign N (Aries = 1st house, …).
+  var NATURAL_HOUSE_SIGNS = [
+    "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+    "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+  ];
+
+  function lookupFamilyByHouse(planet, house) {
+    var h = parseInt(house, 10);
+    if (!Number.isFinite(h) || h < 1 || h > 12) return null;
+    var sign = NATURAL_HOUSE_SIGNS[h - 1];
+    return lookupFamily(planet, sign);
+  }
+
   window.RMDignityOntology = {
     lookupRelationship: lookupRelationship,
     lookupFamily: lookupFamily,
+    lookupFamilyByHouse: lookupFamilyByHouse,
     parseSignFromLongitudeFormatted: parseSignFromLongitudeFormatted,
   };
 })();

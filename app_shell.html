@@ -171,6 +171,11 @@
   table.simple th { background: #f3f4f6; font-weight: 600; }
   td.pih-house-cell.dignity-supportive { background: #eef7f3; }
   td.pih-house-cell.dignity-challenging { background: #faf3e8; }
+  .rm-pih-dignities-help { display: inline-block; margin-left: 6px; vertical-align: middle; }
+  .rm-pih-dignities-help summary { cursor: pointer; list-style: none; font-size: 0.85rem; color: var(--muted); user-select: none; }
+  .rm-pih-dignities-help summary::-webkit-details-marker { display: none; }
+  .rm-pih-dignities-help[open] summary { color: var(--accent); }
+  .rm-pih-dignities-help .rm-pih-dignities-help-body { max-width: 340px; margin: 6px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
   .pih-footer { margin-top: 8px; font-size: 12px; color: var(--muted); }
 
   .must-not { font-size: 12px; color: #991b1b; }
@@ -1972,9 +1977,19 @@ async function createQuickShareFromChartScreen() {
 let _screen4PihDignities = false;
 let _comparisonColsCache = null;
 
-function pihDignityClass(planet, sign) {
-  if (!window.RMDignityOntology) return "";
-  const family = window.RMDignityOntology.lookupFamily(planet, sign);
+
+const PIH_DIGNITIES_HELP_COPY = 'Traditional dignities apply to signs. In relocation work, signs do not change, but houses do. This option applies those traditional sign correspondences to the matching natural-zodiac house: Moon in the 2nd house corresponds to Moon in Taurus; Sun in the 7th house corresponds to Sun in Libra. It is a subtle traditional-reference overlay, not a score. Leave it off for strict interpretive neutrality.';
+
+function pihDignitiesHelpHtml() {
+  return `<details class="rm-pih-dignities-help">
+    <summary title="About house-correspondence dignities">?</summary>
+    <p class="rm-pih-dignities-help-body">${escapeHtml(PIH_DIGNITIES_HELP_COPY)}</p>
+  </details>`;
+}
+
+function pihDignityClass(planet, house) {
+  if (!window.RMDignityOntology || typeof window.RMDignityOntology.lookupFamilyByHouse !== "function") return "";
+  const family = window.RMDignityOntology.lookupFamilyByHouse(planet, house);
   if (family === "supportive") return " dignity-supportive";
   if (family === "challenging") return " dignity-challenging";
   return "";
@@ -2033,6 +2048,7 @@ function comparisonColumnsFooterHtml(dignitiesOn, diffsOn) {
   return `<div class="pih-footer">
     <label><input type="checkbox" data-action="toggle-cmp-diffs"${diffsOn ? " checked" : ""} style="width:auto;margin:0;" /> Diffs</label>
     <label style="margin-left:12px;"><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="compare"${dignitiesOn ? " checked" : ""} style="width:auto;margin:0;" /> Dignities</label>
+    ${pihDignitiesHelpHtml()}
   </div>`;
 }
 
@@ -2077,19 +2093,20 @@ window.__rmPihHouseDiffKey = pihHouseDiffKey;
 window.__rmAisAngleDiffKey = aisAngleDiffKey;
 window.__rmA2aCellDiffKey = a2aCellDiffKey;
 window.__rmCmpDiffTdClass = cmpDiffTdClass;
+window.__rmPihDignityClass = pihDignityClass;
 
 function pihHouseCellHtml(planet, info, dignitiesOn, diffClass) {
   const house = info && info.house != null ? info.house : "—";
   const dc = diffClass || "";
   if (!dignitiesOn) return `<td class="pih-house-cell${dc}">${house}</td>`;
-  const sign = pihSignFromPlanetInfo(info);
-  const extra = sign ? pihDignityClass(planet, sign) : "";
+  const houseNum = info && info.house != null ? info.house : null;
+  const extra = houseNum != null ? pihDignityClass(planet, houseNum) : "";
   return `<td class="pih-house-cell${extra}${dc}">${house}</td>`;
 }
 
 function pihDignitiesFooterHtml(checked, scope) {
   const sc = scope || "compare";
-  return `<div class="pih-footer"><label><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="${escapeHtml(sc)}"${checked ? " checked" : ""} style="width:auto;margin:0;" /> Dignities</label></div>`;
+  return `<div class="pih-footer"><label><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="${escapeHtml(sc)}"${checked ? " checked" : ""} style="width:auto;margin:0;" /> Dignities</label>${pihDignitiesHelpHtml()}</div>`;
 }
 
 function getPihDignitiesEnabled(scope) {
@@ -2113,20 +2130,8 @@ function bindPihDignitiesToggle(root) {
 function setPihDignitiesEnabled(on, scope) {
   if (scope === "compare") {
     if (_cmpWorkspaceSession) _cmpWorkspaceSession.state.dignities_enabled = !!on;
-    const container = document.getElementById("rm-screen5-columns");
-    if (container && _comparisonColsCache) {
-      const chartRecordId = container.getAttribute("data-chart-record");
-      container.innerHTML = renderComparisonTableHtml(_comparisonColsCache, !!on);
-      container.querySelectorAll("[data-cmp-open]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          navigate("chart", { chartRecordId, placeId: btn.getAttribute("data-cmp-open") });
-        });
-      });
-      applyComparisonAngleTabFilter(container);
-      bindPihDignitiesToggle(container);
-      bindCmpDiffsToggle(container);
-      scheduleComparisonWorkspaceSave();
-    }
+    refreshComparisonDiffSurfaces();
+    scheduleComparisonWorkspaceSave();
     return;
   }
   _screen4PihDignities = !!on;
@@ -3993,7 +3998,7 @@ function outOfSignAspectsHtml() {
 function dignitiesDisplayHtml() {
   return `
     <div class="panel">
-      <p class="meta">Dignity display on Planet-in-House tables is toggled from the <strong>Dignities</strong> footer on each PIH view. Ontology presets: ${settingsSoonBadge()}</p>
+      <p class="meta"><strong>Dignities</strong> on Planet-in-House tables applies traditional sign relationships to the matching natural-zodiac <em>house</em> (relocation-relevant). Toggle from each PIH footer; default off. Ontology presets: ${settingsSoonBadge()}</p>
     </div>`;
 }
 
