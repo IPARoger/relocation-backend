@@ -2390,10 +2390,16 @@ async function hydrateComparisonColumns(root) {
       const name = humanPlaceLabel(pid);
       const coords = resolvePlaceLatLon(pid);
       if (!coords) return { placeId: pid, name, error: "no coordinates" };
+      // SETTINGS-WIRE-2: pass house_proximity_orb from effective settings
+      const _cmpHpoEff = _settingsEff();
+      const _cmpHpo = (_cmpHpoEff && _cmpHpoEff.house_proximity_orb_degrees != null)
+        ? _cmpHpoEff.house_proximity_orb_degrees
+        : 2.0;
       const q = new URLSearchParams({
         lat: String(coords.lat), lon: String(coords.lon),
         birth_year: String(birth.birth_year), birth_month: String(birth.birth_month),
         birth_day: String(birth.birth_day), birth_hour_utc: String(birth.birth_hour_utc),
+        house_proximity_orb: String(_cmpHpo),
       });
       const r = await fetch(`/relocated-chart?${q.toString()}`);
       let chart = {};
@@ -3071,7 +3077,7 @@ function chartDisplayOrbsHtml() {
   return `
     <div class="panel">
       <h4 style="margin:0 0 8px;">Chart display</h4>
-      <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs.</p>
+      <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs. Stored and persisted. These will control aspect visibility in the chart wheel and aspect tables when those renderers are live. They do not affect PIH or map region calculations.</p>
       <h4 style="margin:8px 0 4px;font-size:12px;">Major</h4>
       ${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}
       <h4 style="margin:12px 0 4px;font-size:12px;">Minor</h4>
@@ -3104,6 +3110,9 @@ function subsequentHouseRuleHtml() {
   const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
   const policy = (eff && eff.subsequent_house_policy) ? eff.subsequent_house_policy : "display_only";
   const enabled = policy !== "disabled";
+  // SETTINGS-WIRE-2: house proximity orb is now live (wired to /relocated-chart).
+  // Subsequent-house DIRECTION LOGIC (retrograde-aware edge reassignment) is stored
+  // but not yet calculated. The orb controls the near_cusp threshold only.
   return `
     <div class="panel">
       <label class="block" style="display:flex;align-items:center;gap:8px;">
@@ -3114,6 +3123,7 @@ function subsequentHouseRuleHtml() {
       <label class="block" style="margin-top:12px;">Orb (degrees)
         <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}"${enabled ? "" : " disabled"} />
       </label>
+      <p class="meta" style="margin:8px 0 0;font-size:11px;">The orb controls how close a planet must be to a cusp to flag it as near-cusp. Direction-aware house-edge reassignment (retrograde/applying) is stored and coming soon.</p>
     </div>`;
 }
 

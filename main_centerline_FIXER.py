@@ -764,6 +764,17 @@ def search_regions(req: SearchRequest):
         if selected_angle not in ("ASC", "MC", "DC", "IC"):
             selected_angle = str(req.aspect_overlay.get("angle", "MC")).strip().upper()
         selected_aspect = req.aspect_overlay.get("aspect", "conjunction").lower()
+        # SETTINGS-WIRE-2: client may pass max_orb per aspect from aspect_to_angle_orbs settings.
+        # Stored in output feature properties for display consumers. Default: major=8, minor=3.
+        _a2a_orb_defaults = {
+            "conjunction": 8.0, "opposition": 8.0, "square": 8.0, "trine": 8.0, "sextile": 6.0,
+            "quincunx": 3.0, "semisextile": 2.0, "semisquare": 2.0, "sesquiquadrate": 2.0,
+            "quintile": 2.0, "biquintile": 2.0, "septile": 2.0, "novile": 2.0,
+        }
+        overlay_max_orb = float(req.aspect_overlay.get(
+            "max_orb",
+            _a2a_orb_defaults.get(selected_aspect, 6.0)
+        ))
         aspect_resolution = req.aspect_resolution if req.aspect_resolution > 0 else 0.5
         overlay_stage = req.overlay_stage or "final"
 
@@ -896,6 +907,7 @@ def search_regions(req: SearchRequest):
                             "aspect": selected_aspect,
                             "overlay_stage": overlay_stage,
                             "aspect_resolution": aspect_resolution,
+                            "max_orb": overlay_max_orb,
                             "color": aspect_colors.get(offset, "#0066ff"),
                             "weight": 4,
                             "opacity": 0.95
@@ -964,6 +976,7 @@ def search_regions(req: SearchRequest):
                                     "aspect_offset": offset,
                                     "overlay_stage": overlay_stage,
                                     "aspect_resolution": aspect_resolution,
+                                    "max_orb": overlay_max_orb,
                                     "color": aspect_colors.get(offset, "#00e5ff"),
                                     "weight": 2,
                                     "opacity": 1.0
@@ -1846,6 +1859,7 @@ def relocated_chart(
     birth_month: int,
     birth_day: int,
     birth_hour_utc: float,
+    house_proximity_orb: float = 2.0,  # SETTINGS-WIRE-2: persisted orb, default 2.0
 ):
     jd = swe.julday(birth_year, birth_month, birth_day, birth_hour_utc)
 
@@ -1897,7 +1911,7 @@ def relocated_chart(
                 "longitude_formatted": format_zodiac(planet_lon),
                 "house": house_num,
                 "cusp_separation_deg": round(sep, 3),
-                "near_cusp": bool(sep < 2.0),
+                "near_cusp": bool(sep < house_proximity_orb),
             }
         except Exception as e:
             print(f"Error calculating {name}: {e}")
@@ -1927,7 +1941,7 @@ def relocated_chart(
         "desc_deg": desc,
         "dc_deg": desc,
         "ic_deg": ic,
-        "cusp_transition_visual_deg": 2.0,
+        "cusp_transition_visual_deg": house_proximity_orb,
         "planet_houses": planet_houses,
     }
 @app.get("/health/supabase")

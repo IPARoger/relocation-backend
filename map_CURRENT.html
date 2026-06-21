@@ -2635,8 +2635,15 @@ async function fetchRelocatedChart(lat, lon) {
     if (!birth) throw new Error("no_profile");
 
     const { birth_year, birth_month, birth_day, birth_hour_utc } = birth;
+    // SETTINGS-WIRE-2: pass house_proximity_orb from effective settings
+    const _mapHpoEff = (window.RMSettings && window.SupabaseStore)
+        ? window.RMSettings.getEffectiveSettings(window.SupabaseStore.user_settings || null, null)
+        : null;
+    const _mapHpo = (_mapHpoEff && _mapHpoEff.house_proximity_orb_degrees != null)
+        ? _mapHpoEff.house_proximity_orb_degrees
+        : 2.0;
     const response = await fetch(
-        `/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}`
+        `/relocated-chart?lat=${lat}&lon=${lon}&birth_year=${birth_year}&birth_month=${birth_month}&birth_day=${birth_day}&birth_hour_utc=${birth_hour_utc}&house_proximity_orb=${_mapHpo}`
     );
     if (!response.ok) throw new Error("relocated_failed");
     return response.json();
@@ -4143,7 +4150,23 @@ function getSelectedAspectOverlay() {
     const aspect = document.getElementById("overlayAspect").value;
     const angle = document.getElementById("overlayAngle").value;
     if (!planet || !aspect || !angle) return null;
-    return { planet, aspect, angle };
+    // SETTINGS-WIRE-2: include max_orb from aspect_to_angle_orbs setting so the engine
+    // stores it in feature properties. Default orbs mirror the settings resolver defaults.
+    const _a2aOrbDefaults = {
+        conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6,
+        quincunx: 3, semisextile: 2, semisquare: 2, sesquiquadrate: 2,
+        quintile: 2, biquintile: 2, septile: 2, novile: 2,
+    };
+    const _eff = (window.RMSettings && window.SupabaseStore)
+        ? window.RMSettings.getEffectiveSettings(window.SupabaseStore.user_settings || null, null)
+        : null;
+    const _a2aOrbs = (_eff && typeof _eff.aspect_to_angle_orbs === "object")
+        ? _eff.aspect_to_angle_orbs
+        : {};
+    const max_orb = _a2aOrbs[aspect] != null
+        ? _a2aOrbs[aspect]
+        : (_a2aOrbDefaults[aspect] != null ? _a2aOrbDefaults[aspect] : 6);
+    return { planet, aspect, angle, max_orb };
 }
 
 /** Aura PoC: Sun conjunct ASC only (matches backend aura_field_engine). */

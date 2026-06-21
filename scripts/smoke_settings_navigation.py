@@ -253,8 +253,7 @@ def main():
         # SETTINGS-WIRE-1A: septile must appear before novile in minor aspects list
         page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
         page.wait_for_selector("#rm-settings-minasp-septile", timeout=10000)
-        _asp_js = 'Array.from(document.querySelectorAll("[id^='rm-settings-minasp-']")).map(e=>e.id)'
-        asp_order = page.evaluate(f"()=>{_asp_js}")
+        asp_order = page.evaluate("()=>Array.from(document.querySelectorAll('[id^=rm-settings-minasp-]')).map(e=>e.id)")
         sep_idx = asp_order.index("rm-settings-minasp-septile") if "rm-settings-minasp-septile" in asp_order else 999
         nov_idx = asp_order.index("rm-settings-minasp-novile")  if "rm-settings-minasp-novile"  in asp_order else 999
         results.append(("fe_septile_before_novile",

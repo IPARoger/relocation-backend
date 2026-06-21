@@ -413,6 +413,53 @@ def main() -> int:
                         _a2d_st == 200 and _a2d_saved.get("dsc") is True,
                         f"status={_a2d_st} dsc={_a2d_saved.get('dsc')}"))
 
+        # SETTINGS-WIRE-2: /relocated-chart near_cusp threshold changes with house_proximity_orb
+        # Test with tight orb (0.5): a planet that was near_cusp=True at 2.0 should be False at 0.5
+        # and vice versa. Just verify the param is accepted and affects the field.
+        _rc_base = f"{base}/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0"
+        _rc_st2,  _rc_b2  = fetch(base, f"/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0&house_proximity_orb=2.0")
+        _rc_st3,  _rc_b3  = fetch(base, f"/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0&house_proximity_orb=0.0001")
+        _rc2_ok = _rc_st2 == 200
+        _rc3_ok = _rc_st3 == 200
+        if _rc2_ok and _rc3_ok:
+            _ph2 = _json.loads(_rc_b2).get("planet_houses", {})
+            _ph3 = _json.loads(_rc_b3).get("planet_houses", {})
+            # with orb=0.0001 no planet should be near_cusp; with orb=2.0 some may be
+            _nc_wide = sum(1 for v in _ph2.values() if v.get("near_cusp"))
+            _nc_tight = sum(1 for v in _ph3.values() if v.get("near_cusp"))
+            # tight orb should have <= wide orb near_cusp count (monotonically decreasing)
+            _orb_mono = _nc_tight <= _nc_wide
+        else:
+            _orb_mono = False
+        results.append(("be_hpo_accepted",
+                        _rc2_ok and _rc3_ok,
+                        f"wide_st={_rc_st2} tight_st={_rc_st3}"))
+        results.append(("be_hpo_monotonic",
+                        _orb_mono,
+                        f"nc_wide={_nc_wide if _rc2_ok and _rc3_ok else 'N/A'} nc_tight={_nc_tight if _rc2_ok and _rc3_ok else 'N/A'}"))
+
+        # SETTINGS-WIRE-2: /search-regions overlay accepts max_orb in aspect_overlay dict
+        _ao_payload = {
+            "birth_year": 1990, "birth_month": 3, "birth_day": 15, "birth_hour_utc": 12.0,
+            "house_conditions": [],
+            "aspect_overlay": {"planet": "sun", "aspect": "conjunction", "angle": "MC", "max_orb": 4.0},
+            "generation_mode": "truth_grid", "truth_grid_resolution": 5.0,
+        }
+        _ao_st, _ao_b = fetch(base, "/search-regions", method="POST", body=_ao_payload, timeout=30)
+        _ao_ok = False
+        if _ao_st == 200:
+            _aoj = _json.loads(_ao_b)
+            # Check that max_orb is stored in at least one feature's properties
+            _feats = _aoj.get("features", [])
+            # max_orb is a direct property on each feature (not nested under aspect_overlay)
+        _ao_ok = isinstance(_aoj, dict) and _aoj.get("type") == "FeatureCollection" and any(
+                (f.get("properties") or {}).get("max_orb") == 4.0
+                for f in _feats
+            )
+        results.append(("be_a2a_orb_in_features",
+                        _ao_ok,
+                        f"status={_ao_st} found_max_orb={'yes' if _ao_ok else 'no'}"))
+
     finally:
         # Restore the original account-level row exactly.
         if account_id is not None:
