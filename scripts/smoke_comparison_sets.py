@@ -156,6 +156,32 @@ def ensure_two_favorites(admin, account_id, profile_id, stamp):
     return ids[:2], created_place_ids
 
 
+
+
+def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
+    """Static assertions for A2A-1 (no Playwright required)."""
+    shell = shell_path.read_text(encoding="utf-8")
+    start = shell.find("// A2A-1:")
+    end = shell.find("function renderRelocatedChartHtml", start)
+    block = shell[start:end] if start >= 0 and end > start else ""
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_a2a_placeholder_removed",
+                "Aspect-to-angle table content ships in a later slice" not in shell,
+                "workbook placeholder removed"))
+    out.append(("static_a2a_canonical_source_attr",
+                'data-a2a-source="canonical_chart"' in block,
+                "data-a2a-source on A2A tables"))
+    out.append(("static_a2a_reads_aspects_to_angles",
+                "aspects_to_angles" in block,
+                "consumer reads aspects_to_angles"))
+    out.append(("static_a2a_cache_workbook",
+                "_comparisonColsCache" in block and "refreshA2aWorkbookSection" in shell,
+                "comparison uses _comparisonColsCache"))
+    out.append(("static_a2a_no_longitude_math",
+                "longitude_deg" not in block and "swe." not in block,
+                "no client longitude aspect math in A2A block"))
+    return out
+
 def main() -> int:
     url = os.environ.get("SUPABASE_URL", "")
     anon_key = os.environ.get("SUPABASE_ANON_KEY", "")
@@ -189,6 +215,8 @@ def main() -> int:
             fail(f"temp server did not start on {base}")
 
     results = []
+    results.extend(static_a2a_checks(ROOT / "app_shell.html"))
+
     created_set_ids = []
     created_place_ids = []
     created_fav_place_ids = []
@@ -693,9 +721,67 @@ def main() -> int:
             results.append(("fe_ais_canonical_source",
                             ais_check.get("hasTable") is True,
                             "data-ais-source=canonical_chart"))
+
             results.append(("fe_ais_comparison_columns",
                             (ais_check.get("thCount") or 0) >= 2,
                             f"thCount={ais_check.get('thCount')}"))
+
+            # A2A-1: workbook + Screen 4 consume canonical_chart.aspects_to_angles
+            page.wait_for_selector("#rm-cmp-sec-a2a", timeout=25000)
+            a2a_check = page.evaluate(
+                """() => {
+                  const body = document.getElementById('rm-cmp-sec-a2a');
+                  const table = body && body.querySelector('.rm-a2a-table[data-a2a-source="canonical_chart"]');
+                  const placeholder = body && (body.textContent || '').indexOf('ships in a later slice') >= 0;
+                  const emptyMsg = body && (body.textContent || '').indexOf('No enabled aspect-to-angle contacts within the current orb settings.') >= 0;
+                  const thCount = table && table.querySelector('tr') ? table.querySelector('tr').querySelectorAll('th').length : 0;
+                  const placeChips = document.querySelectorAll('.rm-cmp-city-chip:not(.hidden-place)').length;
+                  const contactHeader = table && table.querySelector('th') ? table.querySelector('th').textContent.trim() : '';
+                  return {
+                    placeholder,
+                    hasTable: !!table,
+                    emptyMsg,
+                    thCount,
+                    placeChips,
+                    contactHeader,
+                    colsMatch: !table || (thCount === placeChips + 1),
+                    rowCount: table ? table.querySelectorAll('tr').length - 1 : 0,
+                  };
+                }"""
+            )
+            results.append(("fe_a2a_not_placeholder",
+                            not a2a_check.get("placeholder"),
+                            f"placeholder={a2a_check.get('placeholder')}"))
+            results.append(("fe_a2a_canonical_source",
+                            a2a_check.get("hasTable") or a2a_check.get("emptyMsg"),
+                            f"hasTable={a2a_check.get('hasTable')} empty={a2a_check.get('emptyMsg')}"))
+            results.append(("fe_a2a_comparison_columns",
+                            (a2a_check.get("thCount") or 0) >= 2 or a2a_check.get("emptyMsg"),
+                            f"thCount={a2a_check.get('thCount')}"))
+            results.append(("fe_a2a_contact_column",
+                            a2a_check.get("contactHeader") == "Contact" or a2a_check.get("emptyMsg"),
+                            f"contactHeader={a2a_check.get('contactHeader')}"))
+            results.append(("fe_a2a_columns_match_places",
+                            a2a_check.get("colsMatch") is True,
+                            f"thCount={a2a_check.get('thCount')} chips={a2a_check.get('placeChips')}"))
+
+            page.evaluate(
+                "(args)=>{window.__rmAppShell.navigate('chart',"
+                "{chartRecordId: args.pid, placeId: args.place});}",
+                {"pid": profile_id, "place": p1},
+            )
+            page.wait_for_selector("#rm-screen4-facts .rm-a2a-table, #rm-screen4-facts .meta", timeout=25000)
+            s4_a2a = page.evaluate(
+                """() => {
+                  const root = document.getElementById('rm-screen4-facts');
+                  const table = root && root.querySelector('.rm-a2a-table[data-a2a-source="canonical_chart"]');
+                  const emptyMsg = root && (root.textContent || '').indexOf('No enabled aspect-to-angle contacts within the current orb settings.') >= 0;
+                  return { hasTable: !!table, emptyMsg };
+                }"""
+            )
+            results.append(("fe_a2a_screen4_canonical",
+                            s4_a2a.get("hasTable") or s4_a2a.get("emptyMsg"),
+                            f"hasTable={s4_a2a.get('hasTable')} empty={s4_a2a.get('emptyMsg')}"))
 
             # SETTINGS-WIRE-3: A2A display angle defaults via app shell helper
             a2a_defaults = page.evaluate(

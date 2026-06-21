@@ -2073,6 +2073,131 @@ function refreshAisWorkbookSection() {
   body.innerHTML = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
 }
 
+// A2A-1: Aspect to Angle — Layer 3 consumer of canonical_chart.aspects_to_angles only.
+const A2A_ANGLE_SETTING = { ASC: "asc", MC: "mc", DSC: "dsc", IC: "ic" };
+
+function formatA2aAspectLabel(aspect) {
+  if (!aspect) return "—";
+  const s = String(aspect);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatA2aSeparationDeg(deg) {
+  if (deg == null || !Number.isFinite(Number(deg))) return "—";
+  const d = Math.abs(Number(deg));
+  const whole = Math.floor(d);
+  const minutes = Math.floor((d - whole) * 60);
+  return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032`;
+}
+
+function formatA2aComparisonCellText(row) {
+  if (!row || row.separation_deg == null) return "—";
+  return formatA2aSeparationDeg(row.separation_deg);
+}
+
+function filterA2aRowsForLocalSettings(rows) {
+  if (!Array.isArray(rows)) return [];
+  const a2aAngles = getA2aDisplayAngles();
+  const visibleBodies = getVisibleBodyNamesSet();
+  const eff = _settingsEff();
+  const majVis = (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : null;
+  const oosEnabled = eff ? !!eff.out_of_sign_aspects : false;
+  return rows.filter((row) => {
+    if (!row || typeof row !== "object") return false;
+    const angleKey = A2A_ANGLE_SETTING[row.angle];
+    if (angleKey && !a2aAngles[angleKey]) return false;
+    if (row.planet && !visibleBodies.has(row.planet)) return false;
+    if (majVis && majVis.length && row.aspect && !majVis.includes(String(row.aspect).toLowerCase())) return false;
+    if (row.out_of_sign && !oosEnabled) return false;
+    return true;
+  });
+}
+
+function a2aRowKey(row) {
+  return `${row.planet || ""}\0${row.aspect || ""}\0${row.angle || ""}`;
+}
+
+function a2aRowLabel(row) {
+  return `${row.planet || "—"} ${formatA2aAspectLabel(row.aspect)} ${row.angle || "—"}`;
+}
+
+function renderA2aSinglePlaceHtml(canonicalChart) {
+  const raw = (canonicalChart && Array.isArray(canonicalChart.aspects_to_angles))
+    ? canonicalChart.aspects_to_angles
+    : [];
+  const rows = filterA2aRowsForLocalSettings(raw);
+  if (!rows.length) {
+    return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
+  }
+  const body = rows.map((row) => {
+    const oos = row.out_of_sign ? `<span class="meta"> (out-of-sign)</span>` : "";
+    const limit = (row.orb_limit_deg != null && Number.isFinite(Number(row.orb_limit_deg)))
+      ? `<td>${escapeHtml(formatA2aSeparationDeg(row.orb_limit_deg))}</td>`
+      : `<td>—</td>`;
+    return `<tr>
+      <td>${escapeHtml(row.planet || "—")}</td>
+      <td>${escapeHtml(formatA2aAspectLabel(row.aspect))}</td>
+      <td>${escapeHtml(row.angle || "—")}</td>
+      <td>${escapeHtml(formatA2aSeparationDeg(row.separation_deg))}${oos}</td>
+      ${limit}
+    </tr>`;
+  }).join("");
+  return `<table class="simple rm-a2a-table" data-a2a-source="canonical_chart">
+    <tr><th>Planet</th><th>Aspect</th><th>Angle</th><th>Orb</th><th>Orb limit</th></tr>
+    ${body}
+  </table>`;
+}
+
+function renderA2aComparisonHtml(cols, visiblePlaceIds) {
+  const places = (cols || []).filter((c) => !c.error && visiblePlaceIds.includes(c.placeId));
+  if (!places.length) {
+    return `<p class="meta">No visible comparison places.</p>`;
+  }
+  const keyMap = new Map();
+  places.forEach((c) => {
+    const cc = getCanonicalChartFromPayload(c.chart);
+    const raw = (cc && Array.isArray(cc.aspects_to_angles)) ? cc.aspects_to_angles : [];
+    filterA2aRowsForLocalSettings(raw).forEach((row) => {
+      const key = a2aRowKey(row);
+      if (!keyMap.has(key)) keyMap.set(key, { label: a2aRowLabel(row), byPlace: {} });
+      keyMap.get(key).byPlace[c.placeId] = row;
+    });
+  });
+  const comboRows = Array.from(keyMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+  if (!comboRows.length) {
+    return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
+  }
+  const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
+  const body = comboRows.map(({ label, byPlace }) => {
+    const cells = places.map((c) => {
+      const row = byPlace[c.placeId];
+      return `<td>${row ? escapeHtml(formatA2aComparisonCellText(row)) : "—"}</td>`;
+    }).join("");
+    return `<tr><td>${escapeHtml(label)}</td>${cells}</tr>`;
+  }).join("");
+  return `<table class="simple rm-a2a-table" data-a2a-source="canonical_chart">
+    <tr><th>Contact</th>${headers}</tr>
+    ${body}
+  </table>`;
+}
+
+function renderA2aWorkbookSectionBody(cols, ws) {
+  if (!cols || !cols.length) {
+    return `<p class="meta">Comparison chart data loading\u2026</p>`;
+  }
+  const placeIds = cols.map((c) => c.placeId).filter(Boolean);
+  const visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
+  return renderA2aComparisonHtml(cols, visibleIds);
+}
+
+function refreshA2aWorkbookSection() {
+  const body = document.getElementById("rm-cmp-sec-a2a");
+  if (!body) return;
+  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+    || defaultComparisonWorkspaceState([]);
+  body.innerHTML = renderA2aWorkbookSectionBody(_comparisonColsCache, ws);
+}
+
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const canonical = getCanonicalChartFromPayload(chart);
@@ -2085,6 +2210,9 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const ais = canonical
     ? `<h4 style="margin:12px 0 4px">Angles in Signs (AIS)</h4>${renderAisSinglePlaceHtml(canonical)}`
     : `<p class="meta">AIS unavailable (canonical chart missing).</p>`;
+  const a2a = canonical
+    ? `<h4 style="margin:12px 0 4px">Aspect to Angle</h4>${renderA2aSinglePlaceHtml(canonical)}`
+    : `<p class="meta">Aspect to Angle unavailable (canonical chart missing).</p>`;
   const ph = chart.planet_houses || {};
   const _visibleBodyNames = getVisibleBodyNamesSet();
   const rows = Object.keys(ph)
@@ -2100,7 +2228,8 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
       ${rows}
     </table>
     ${pihDignitiesFooterHtml(on, "chart")}`;
-    return meta + ais + planets;
+  return meta + ais + a2a + planets;
+}
 
 let _screen4Token = 0;
 // Hydrate Screen 4 with real relocated-chart facts (existing endpoints only).
@@ -2311,10 +2440,10 @@ function comparisonWorkspacePanelHtml(cs, ws) {
       <div class="rm-cmp-section-body${collapsed ? " collapsed" : ""}" id="rm-cmp-sec-${sec}">
         ${sec === "ais"
           ? renderAisWorkbookSectionBody(_comparisonColsCache, ws)
-          : sec === "notes"
-            ? "<p class=\"meta\">Use the notepad below.</p>"
-            : sec === "a2a"
-              ? "<p class=\"meta\">Aspect-to-angle table content ships in a later slice. Angle visibility for map overlays and angle lists follows Settings \u2192 Aspect-to-Angle Display.</p>"
+          : sec === "a2a"
+            ? renderA2aWorkbookSectionBody(_comparisonColsCache, ws)
+            : sec === "notes"
+              ? "<p class=\"meta\">Use the notepad below.</p>"
               : "<p class=\"meta\">Reading-state bookmark \u2014 full section content ships in a later layout slice.</p>"}
       </div>
     </div>`;
@@ -2562,6 +2691,7 @@ async function hydrateComparisonColumns(root) {
     applyComparisonAngleTabFilter(container);
     bindPihDignitiesToggle(container);
     refreshAisWorkbookSection();
+    refreshA2aWorkbookSection();
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Comparison request failed.</strong><br>
