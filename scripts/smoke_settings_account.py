@@ -282,6 +282,67 @@ def main() -> int:
 
 
 
+
+        # P2P-ASPECTS-1: canonical_chart.aspects_planet_to_planet (TestClient-style via HTTP)
+        _p2p_st, _p2p_b = fetch(
+            base,
+            "/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0",
+        )
+        _p2p_ok = False
+        _p2p_fields_ok = False
+        _p2p_pair_order_ok = False
+        if _p2p_st == 200:
+            _p2p_cc = json.loads(_p2p_b).get("canonical_chart") or {}
+            _p2p_rows = _p2p_cc.get("aspects_planet_to_planet")
+            _p2p_ok = isinstance(_p2p_rows, list) and len(_p2p_rows) > 0
+            if _p2p_ok:
+                _req = {"body_a", "body_b", "aspect", "separation_deg", "orb_limit_deg", "in_orb", "out_of_sign"}
+                _p2p_fields_ok = _req.issubset(set(_p2p_rows[0].keys()))
+                _p2p_pair_order_ok = all(r.get("body_a", "") < r.get("body_b", "") for r in _p2p_rows)
+        results.append(("be_p2p_canonical_field", _p2p_ok, f"st={_p2p_st} len={len(_p2p_rows) if _p2p_ok else 0}"))
+        results.append(("be_p2p_row_schema", _p2p_fields_ok, "required fields present"))
+        results.append(("be_p2p_lexicographic_pairs", _p2p_pair_order_ok, "body_a < body_b"))
+
+        # P2P honors major_aspect_orbs not aspect_to_angle_orbs (authenticated)
+        _p2p_tight = {"settings_patch": {"major_aspect_orbs": {
+            "conjunction": 8, "opposition": 8, "square": 0.01, "trine": 8, "sextile": 6,
+        }, "aspect_to_angle_orbs": {
+            "conjunction": 8, "opposition": 8, "square": 15, "trine": 8, "sextile": 6,
+        }}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_p2p_tight)
+        _st_pt, _b_pt = fetch(base, "/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0", headers=headers)
+        _sq_pt = []
+        if _st_pt == 200:
+            _sq_pt = [r for r in (json.loads(_b_pt).get("canonical_chart", {}).get("aspects_planet_to_planet") or []) if r.get("aspect") == "square"]
+        _p2p_wide = {"settings_patch": {"major_aspect_orbs": {
+            "conjunction": 8, "opposition": 8, "square": 15, "trine": 8, "sextile": 6,
+        }}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_p2p_wide)
+        _st_pw, _b_pw = fetch(base, "/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0", headers=headers)
+        _sq_pw = []
+        if _st_pw == 200:
+            _sq_pw = [r for r in (json.loads(_b_pw).get("canonical_chart", {}).get("aspects_planet_to_planet") or []) if r.get("aspect") == "square"]
+        results.append(("be_p2p_major_orb_settings",
+                        _st_pt == 200 and _st_pw == 200 and len(_sq_pw) >= len(_sq_pt),
+                        f"square_tight={len(_sq_pt)} square_wide={len(_sq_pw)}"))
+
+        _p2p_no_sq = {"settings_patch": {"visible_major_aspects": ["conjunction", "opposition", "trine", "sextile"]}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_p2p_no_sq)
+        _st_ns, _b_ns = fetch(base, "/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0", headers=headers)
+        _has_sq = False
+        if _st_ns == 200:
+            _has_sq = any(r.get("aspect") == "square" for r in (json.loads(_b_ns).get("canonical_chart", {}).get("aspects_planet_to_planet") or []))
+        results.append(("be_p2p_aspect_visibility", _st_ns == 200 and not _has_sq, f"has_square={_has_sq}"))
+
+        _p2p_min = {"settings_patch": {"visible_minor_aspects": True, "visible_minor_aspects_list": ["quincunx"], "out_of_sign_aspects": True}}
+        fetch(base, "/settings/account", method="PATCH", headers=headers, body=_p2p_min)
+        _st_mn, _b_mn = fetch(base, "/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0", headers=headers)
+        _has_q = False
+        if _st_mn == 200:
+            _has_q = any(r.get("aspect") == "quincunx" for r in (json.loads(_b_mn).get("canonical_chart", {}).get("aspects_planet_to_planet") or []))
+        results.append(("be_p2p_minor_when_enabled", _st_mn == 200 and _has_q, f"has_quincunx={_has_q}"))
+
+
         # ================= FRONTEND =================
         if sess is None:
             results.append(("fe_skipped", True, "RM_SMOKE_JWT set; frontend needs fresh session"))

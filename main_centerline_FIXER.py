@@ -399,6 +399,35 @@ class AngleInSignCondition(BaseModel):
 # are the *exact* targets; the orb is applied per-condition at the
 # call site, not here. Quintile/quincunx/etc. are intentionally
 # absent — step 6 starts with the five classical major aspects only.
+
+# P2P-ASPECTS-1: planet-to-planet aspect targets for canonical_chart (chart-display orbs).
+_P2P_MAJOR_ASPECT_ORDER = [
+    "conjunction", "opposition", "square", "trine", "sextile",
+]
+_P2P_MINOR_ASPECT_ORDER = [
+    "quincunx", "semisextile", "semisquare", "sesquiquadrate",
+    "quintile", "biquintile", "septile", "novile",
+]
+_P2P_ASPECT_TARGET_DEG = {
+    "conjunction": 0.0,
+    "sextile": 60.0,
+    "square": 90.0,
+    "trine": 120.0,
+    "opposition": 180.0,
+    "quincunx": 150.0,
+    "semisextile": 30.0,
+    "semisquare": 45.0,
+    "sesquiquadrate": 135.0,
+    "quintile": 72.0,
+    "biquintile": 144.0,
+    "septile": 360.0 / 7.0,
+    "novile": 40.0,
+}
+_P2P_BODY_ORDER = [
+    "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter",
+    "Saturn", "Uranus", "Neptune", "Pluto", "Chiron",
+]
+
 _ASPECT_TARGET_DEG = {
     "conjunction": 0.0,
     "sextile":     60.0,
@@ -1959,6 +1988,83 @@ def _compute_aspects_to_angles(
     return rows
 
 
+
+def _p2p_aspect_delta(lon_a: float, lon_b: float, aspect: str) -> float:
+    signed_sep = ((lon_a - lon_b + 180) % 360) - 180
+    abs_sep = abs(signed_sep)
+    target = _P2P_ASPECT_TARGET_DEG.get(aspect)
+    if target is None:
+        return 999.0
+    return abs(abs_sep - target)
+
+
+def _aspect_out_of_sign_p2p(lon_a: float, lon_b: float, aspect: str) -> bool:
+    pi = int((lon_a % 360) // 30)
+    ai = int((lon_b % 360) // 30)
+    diff = (ai - pi) % 12
+    mod = _ASPECT_SIGN_MODULO.get(aspect)
+    if not mod:
+        return True
+    return diff not in mod
+
+
+def _active_p2p_aspects(effective_settings: dict) -> list[tuple[str, bool]]:
+    """Return (aspect_name, is_minor) in canonical major-then-minor order."""
+    major_vis = effective_settings.get("visible_major_aspects")
+    if not isinstance(major_vis, list) or not major_vis:
+        major_vis = list(_P2P_MAJOR_ASPECT_ORDER)
+    major_set = {str(a).lower() for a in major_vis}
+    out: list[tuple[str, bool]] = []
+    for aspect in _P2P_MAJOR_ASPECT_ORDER:
+        if aspect in major_set:
+            out.append((aspect, False))
+    if effective_settings.get("visible_minor_aspects"):
+        minor_vis = effective_settings.get("visible_minor_aspects_list") or []
+        minor_set = {str(a).lower() for a in minor_vis}
+        for aspect in _P2P_MINOR_ASPECT_ORDER:
+            if aspect in minor_set:
+                out.append((aspect, True))
+    return out
+
+
+def _compute_aspects_planet_to_planet(
+    planet_longitudes: dict[str, float],
+    effective_settings: dict,
+) -> list[dict]:
+    from services.account_settings_resolver import chart_display_orb_limit
+
+    allow_oos = bool(effective_settings.get("out_of_sign_aspects", False))
+    active_aspects = _active_p2p_aspects(effective_settings)
+    visible_bodies = sorted(
+        name for name in _P2P_BODY_ORDER
+        if name in planet_longitudes and planet_longitudes[name] is not None
+        and _body_visible(name, effective_settings)
+    )
+    rows: list[dict] = []
+    for i, body_a in enumerate(visible_bodies):
+        lon_a = float(planet_longitudes[body_a]) % 360
+        for body_b in visible_bodies[i + 1:]:
+            lon_b = float(planet_longitudes[body_b]) % 360
+            for aspect, is_minor in active_aspects:
+                delta = _p2p_aspect_delta(lon_a, lon_b, aspect)
+                orb_limit = chart_display_orb_limit(effective_settings, aspect, is_minor=is_minor)
+                if delta > orb_limit:
+                    continue
+                oos = _aspect_out_of_sign_p2p(lon_a, lon_b, aspect)
+                if oos and not allow_oos:
+                    continue
+                rows.append({
+                    "body_a": body_a,
+                    "body_b": body_b,
+                    "aspect": aspect,
+                    "separation_deg": round(delta, 3),
+                    "orb_limit_deg": orb_limit,
+                    "in_orb": True,
+                    "out_of_sign": oos,
+                })
+    return rows
+
+
 def _optional_birth_anchor_enrichment(
     chart_record_id: str | None,
     birth_year: int,
@@ -2096,6 +2202,7 @@ def build_canonical_chart_v1(
 
     angle_longitudes = {"asc": asc, "mc": mc, "dsc": desc, "ic": ic}
     aspects_to_angles = _compute_aspects_to_angles(planet_longitudes, angle_longitudes, eff)
+    aspects_planet_to_planet = _compute_aspects_planet_to_planet(planet_longitudes, eff)
 
     return {
         "schema_version": CANONICAL_CHART_SCHEMA_VERSION,
@@ -2117,6 +2224,7 @@ def build_canonical_chart_v1(
             "proximity_orb_deg": house_proximity_orb,
         },
         "aspects_to_angles": aspects_to_angles,
+        "aspects_planet_to_planet": aspects_planet_to_planet,
         "metadata": {
             "effective_settings": eff,
             "calculation_version": CANONICAL_CALCULATION_VERSION,

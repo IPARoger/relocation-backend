@@ -34,6 +34,21 @@ def aspect_to_angle_orb_limit(effective_settings: dict, aspect: str) -> float:
     return float(default_major.get(aspect, default_major.get("conjunction", 8)))
 
 
+def chart_display_orb_limit(effective_settings: dict, aspect: str, *, is_minor: bool = False) -> float:
+    """Orb limit for P2P chart-display aspects — major/minor_aspect_orbs only."""
+    key = "minor_aspect_orbs" if is_minor else "major_aspect_orbs"
+    orbs = effective_settings.get(key)
+    if not isinstance(orbs, dict):
+        orbs = RM_SETTINGS_DEFAULTS[key]
+    if aspect in orbs:
+        return float(orbs[aspect])
+    defaults = RM_SETTINGS_DEFAULTS[key]
+    if aspect in defaults:
+        return float(defaults[aspect])
+    fallback = defaults.get("conjunction") if not is_minor else defaults.get("quincunx", 2)
+    return float(fallback)
+
+
 def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
     stored = stored_user_settings if isinstance(stored_user_settings, dict) else {}
     onto = ontology_defaults if isinstance(ontology_defaults, dict) else {}

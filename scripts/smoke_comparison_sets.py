@@ -239,6 +239,28 @@ def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
                 "Screen 4 section order"))
     return out
 
+
+def static_p2p_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
+    """Static assertions for P2P-ASPECTS-1 (no client P2P math or tables)."""
+    shell = shell_path.read_text(encoding="utf-8")
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_p2p_no_client_compute",
+                "aspects_planet_to_planet" not in shell
+                and "_compute_aspects_planet_to_planet" not in shell,
+                "no client P2P aspect math in app_shell"))
+    out.append(("static_no_p2p_table",
+                "aspects_planet_to_planet" not in shell
+                or shell.count("aspects_planet_to_planet") == 0,
+                "no P2P table/grid in app_shell"))
+    # wheel still documents future spokes only
+    wh_start = shell.find("function renderRelocatedWheelSvg")
+    wh_end = shell.find("function renderRelocatedWheelHtml", wh_start)
+    wh_block = shell[wh_start:wh_end] if wh_start >= 0 and wh_end > wh_start else ""
+    out.append(("static_wheel_no_p2p_spokes",
+                "aspects_planet_to_planet" not in wh_block,
+                "wheel renderer does not draw P2P spokes yet"))
+    return out
+
 def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     """Static assertions for A2A-1 (no Playwright required)."""
     shell = shell_path.read_text(encoding="utf-8")
@@ -302,6 +324,7 @@ def main() -> int:
     results = []
     results.extend(static_pih_checks(ROOT / "app_shell.html", ROOT / "map_CURRENT.html"))
     results.extend(static_wheel_checks(ROOT / "app_shell.html"))
+    results.extend(static_p2p_checks(ROOT / "app_shell.html"))
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
 
     created_set_ids = []
