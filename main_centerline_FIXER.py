@@ -1851,6 +1851,273 @@ def aspect_orb_at_point(
     }
 
 
+
+CANONICAL_CHART_SCHEMA_VERSION = 1
+CANONICAL_CALCULATION_VERSION = "swe-placidus-tropical-1"
+
+_ANGLE_CANONICAL = {
+    "asc": "ASC",
+    "mc": "MC",
+    "dsc": "DSC",
+    "ic": "IC",
+}
+
+_ASPECT_SIGN_MODULO = {
+    "conjunction": {0},
+    "sextile": {2, 10},
+    "square": {3, 9},
+    "trine": {4, 8},
+    "opposition": {6},
+}
+
+
+def zodiac_sign_key(deg: float) -> str:
+    return SIGN_NAMES[int((deg % 360) // 30)]
+
+
+def _canonical_angle_entry(longitude_deg: float) -> dict:
+    lon = longitude_deg % 360
+    return {
+        "longitude_deg": round(lon, 4),
+        "sign": zodiac_sign_key(lon),
+    }
+
+
+def _aspect_delta_from_exact(planet_lon: float, angle_lon: float, aspect: str) -> float:
+    signed_sep = ((planet_lon - angle_lon + 180) % 360) - 180
+    abs_sep = abs(signed_sep)
+    return abs(abs_sep - _ASPECT_TARGET_DEG[aspect])
+
+
+def _aspect_out_of_sign(planet_lon: float, angle_lon: float, aspect: str) -> bool:
+    pi = int((planet_lon % 360) // 30)
+    ai = int((angle_lon % 360) // 30)
+    diff = (ai - pi) % 12
+    return diff not in _ASPECT_SIGN_MODULO.get(aspect, set())
+
+
+def _body_visible(name: str, effective_settings: dict) -> bool:
+    key = name.lower()
+    core = {"sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"}
+    if key in core:
+        vis = effective_settings.get("visible_planets")
+        return (not isinstance(vis, list) or len(vis) == 0 or key in vis)
+    if key == "chiron":
+        vis = effective_settings.get("visible_bodies")
+        return (not isinstance(vis, list) or len(vis) == 0 or key in vis)
+    return True
+
+
+def _compute_aspects_to_angles(
+    planet_longitudes: dict[str, float],
+    angle_longitudes: dict[str, float],
+    effective_settings: dict,
+) -> list[dict]:
+    a2a_orbs = effective_settings.get("aspect_to_angle_orbs") or {}
+    major_aspects = effective_settings.get("visible_major_aspects") or list(_ASPECT_TARGET_DEG.keys())
+    display_angles = effective_settings.get("display_aspects_to_angles") or {
+        "asc": True, "mc": True, "dsc": False, "ic": False,
+    }
+    allow_oos = bool(effective_settings.get("out_of_sign_aspects", False))
+    rows: list[dict] = []
+
+    for planet_name, planet_lon in planet_longitudes.items():
+        if planet_lon is None or not _body_visible(planet_name, effective_settings):
+            continue
+        for angle_key, angle_lon in angle_longitudes.items():
+            if not display_angles.get(angle_key, False):
+                continue
+            canon_angle = _ANGLE_CANONICAL.get(angle_key, angle_key.upper())
+            for aspect in major_aspects:
+                if aspect not in _ASPECT_TARGET_DEG:
+                    continue
+                delta = _aspect_delta_from_exact(planet_lon, angle_lon, aspect)
+                orb_limit = float(a2a_orbs.get(aspect, 6.0))
+                in_orb = delta <= orb_limit
+                if not in_orb:
+                    continue
+                oos = _aspect_out_of_sign(planet_lon, angle_lon, aspect)
+                if oos and not allow_oos:
+                    continue
+                rows.append({
+                    "planet": planet_name,
+                    "angle": canon_angle,
+                    "aspect": aspect,
+                    "separation_deg": round(delta, 3),
+                    "orb_limit_deg": orb_limit,
+                    "in_orb": True,
+                    "out_of_sign": oos,
+                })
+    return rows
+
+
+def _optional_birth_anchor_enrichment(
+    chart_record_id: str | None,
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour_utc: float,
+) -> dict:
+    anchor: dict[str, Any] = {
+        "chart_record_id": chart_record_id,
+        "birth_year": birth_year,
+        "birth_month": birth_month,
+        "birth_day": birth_day,
+        "birth_hour_utc": birth_hour_utc,
+        "birth_date_local": None,
+        "birth_time_local": None,
+        "timezone_id": None,
+        "birthplace": None,
+    }
+    if not chart_record_id:
+        return anchor
+    try:
+        from services.supabase_client import get_supabase
+        svc = get_supabase()
+        result = (
+            svc.table("birth_records")
+            .select("birth_date, birth_time_start, timezone_id, birth_place_id")
+            .eq("profile_id", chart_record_id)
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not result.data:
+            return anchor
+        br = result.data[0]
+        anchor["birth_date_local"] = br.get("birth_date")
+        anchor["birth_time_local"] = br.get("birth_time_start")
+        anchor["timezone_id"] = br.get("timezone_id")
+        place_id = br.get("birth_place_id")
+        if place_id:
+            place_result = (
+                svc.table("places")
+                .select("id, display_name, latitude, longitude, timezone_id")
+                .eq("id", place_id)
+                .limit(1)
+                .execute()
+            )
+            if place_result.data:
+                p = place_result.data[0]
+                if not anchor["timezone_id"]:
+                    anchor["timezone_id"] = p.get("timezone_id")
+                anchor["birthplace"] = {
+                    "place_id": p.get("id"),
+                    "name": p.get("display_name"),
+                    "lat": p.get("latitude"),
+                    "lon": p.get("longitude"),
+                }
+    except Exception:
+        pass
+    return anchor
+
+
+def _infer_location_kind(
+    lat: float,
+    lon: float,
+    location_kind: str | None,
+    birthplace: dict | None,
+) -> str:
+    if location_kind in ("natal", "relocated"):
+        return location_kind
+    if isinstance(birthplace, dict):
+        blat = birthplace.get("lat")
+        blon = birthplace.get("lon")
+        if blat is not None and blon is not None:
+            if abs(lat - float(blat)) < 0.05 and abs(lon - float(blon)) < 0.05:
+                return "natal"
+    return "relocated"
+
+
+def build_canonical_chart_v1(
+    *,
+    lat: float,
+    lon: float,
+    birth_year: int,
+    birth_month: int,
+    birth_day: int,
+    birth_hour_utc: float,
+    house_proximity_orb: float,
+    asc: float,
+    mc: float,
+    desc: float,
+    ic: float,
+    cusps: list[float],
+    planet_houses: dict,
+    chart_record_id: str | None = None,
+    place_name: str | None = None,
+    location_kind: str | None = None,
+    effective_settings: dict | None = None,
+) -> dict:
+    from datetime import datetime, timezone
+    from services.account_settings_resolver import get_effective_settings
+
+    eff = effective_settings if isinstance(effective_settings, dict) else get_effective_settings()
+    eff = dict(eff)
+    eff["house_proximity_orb_degrees"] = house_proximity_orb
+
+    birth_anchor = _optional_birth_anchor_enrichment(
+        chart_record_id, birth_year, birth_month, birth_day, birth_hour_utc,
+    )
+    birthplace = birth_anchor.get("birthplace")
+    kind = _infer_location_kind(lat, lon, location_kind, birthplace)
+
+    angles = {
+        "ASC": _canonical_angle_entry(asc),
+        "MC": _canonical_angle_entry(mc),
+        "DSC": _canonical_angle_entry(desc),
+        "IC": _canonical_angle_entry(ic),
+    }
+
+    planets: dict[str, dict] = {}
+    planet_longitudes: dict[str, float] = {}
+    for name, info in planet_houses.items():
+        if not isinstance(info, dict):
+            continue
+        plon = info.get("longitude")
+        if plon is None:
+            continue
+        plon = float(plon) % 360
+        planet_longitudes[name] = plon
+        planets[name] = {
+            "longitude_deg": round(plon, 4),
+            "sign": zodiac_sign_key(plon),
+            "house": info.get("house"),
+            "near_cusp": bool(info.get("near_cusp")),
+        }
+
+    angle_longitudes = {"asc": asc, "mc": mc, "dsc": desc, "ic": ic}
+    aspects_to_angles = _compute_aspects_to_angles(planet_longitudes, angle_longitudes, eff)
+
+    return {
+        "schema_version": CANONICAL_CHART_SCHEMA_VERSION,
+        "calculation_version": CANONICAL_CALCULATION_VERSION,
+        "computed_at": datetime.now(timezone.utc).isoformat(),
+        "birth_anchor": birth_anchor,
+        "location_anchor": {
+            "kind": kind,
+            "place_id": None,
+            "name": place_name,
+            "lat": lat,
+            "lon": lon,
+        },
+        "angles": angles,
+        "planets": planets,
+        "houses": {
+            "system": "placidus",
+            "cusps_deg": [round(c % 360, 4) for c in cusps[:12]],
+            "proximity_orb_deg": house_proximity_orb,
+        },
+        "aspects_to_angles": aspects_to_angles,
+        "metadata": {
+            "effective_settings": eff,
+            "calculation_version": CANONICAL_CALCULATION_VERSION,
+            "zodiac_mode": eff.get("zodiac_mode", "tropical"),
+            "house_system": eff.get("house_system", "placidus"),
+        },
+    }
+
+
 @app.get("/relocated-chart")
 def relocated_chart(
     lat: float,
@@ -1860,6 +2127,9 @@ def relocated_chart(
     birth_day: int,
     birth_hour_utc: float,
     house_proximity_orb: float = 2.0,  # SETTINGS-WIRE-2: persisted orb, default 2.0
+    chart_record_id: str | None = None,
+    place_name: str | None = None,
+    location_kind: str | None = None,
 ):
     jd = swe.julday(birth_year, birth_month, birth_day, birth_hour_utc)
 
@@ -1923,7 +2193,7 @@ def relocated_chart(
                 "near_cusp": False,
             }
 
-    return {
+    legacy = {
         "lat": lat,
         "lon": lon,
         "asc": format_zodiac(asc),
@@ -1944,6 +2214,25 @@ def relocated_chart(
         "cusp_transition_visual_deg": house_proximity_orb,
         "planet_houses": planet_houses,
     }
+    canonical_chart = build_canonical_chart_v1(
+        lat=lat,
+        lon=lon,
+        birth_year=birth_year,
+        birth_month=birth_month,
+        birth_day=birth_day,
+        birth_hour_utc=birth_hour_utc,
+        house_proximity_orb=house_proximity_orb,
+        asc=asc,
+        mc=mc,
+        desc=desc,
+        ic=ic,
+        cusps=cusps,
+        planet_houses=planet_houses,
+        chart_record_id=chart_record_id,
+        place_name=place_name,
+        location_kind=location_kind,
+    )
+    return {**legacy, "canonical_chart": canonical_chart}
 @app.get("/health/supabase")
 def health_supabase():
     from services.supabase_client import get_supabase

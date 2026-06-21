@@ -446,6 +446,49 @@ def main() -> int:
                         _orb_mono,
                         f"nc_wide={_nc_wide if _rc2_ok and _rc3_ok else 'N/A'} nc_tight={_nc_tight if _rc2_ok and _rc3_ok else 'N/A'}"))
 
+        # CHART-TRUTH-PHASE-1: canonical_chart v1 on /relocated-chart (additive; legacy keys preserved)
+        _rc_p1_st, _rc_p1_b = fetch(
+            base,
+            f"/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0&house_proximity_orb=2.0&location_kind=relocated",
+        )
+        _rc_p1_ok = _rc_p1_st == 200
+        _cc = {}
+        _legacy_ok = False
+        _canonical_ok = False
+        _cusps_ok = False
+        _a2a_ok = False
+        _natal_kind_ok = False
+        if _rc_p1_ok:
+            _rcj = _json.loads(_rc_p1_b)
+            _cc = _rcj.get("canonical_chart") or {}
+            _legacy_ok = (
+                isinstance(_rcj.get("asc"), str)
+                and isinstance(_rcj.get("planet_houses"), dict)
+                and _rcj.get("asc_deg") is not None
+            )
+            _cusps = ((_cc.get("houses") or {}).get("cusps_deg") or [])
+            _canonical_ok = (
+                isinstance(_cc, dict)
+                and _cc.get("schema_version") == 1
+                and isinstance(_cc.get("angles"), dict)
+                and "ASC" in _cc.get("angles", {})
+                and isinstance(_cc.get("planets"), dict)
+            )
+            _cusps_ok = len(_cusps) == 12
+            _a2a_ok = isinstance(_cc.get("aspects_to_angles"), list)
+            _natal_st, _natal_b = fetch(
+                base,
+                f"/relocated-chart?lat=38.72&lon=-9.14&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0&location_kind=natal",
+            )
+            if _natal_st == 200:
+                _natal_cc = (_json.loads(_natal_b).get("canonical_chart") or {})
+                _natal_kind_ok = _natal_cc.get("location_anchor", {}).get("kind") == "natal"
+        results.append(("be_canonical_legacy_preserved", _rc_p1_ok and _legacy_ok, f"st={_rc_p1_st}"))
+        results.append(("be_canonical_schema_v1", _canonical_ok, f"schema={_cc.get('schema_version')}"))
+        results.append(("be_canonical_cusps_12", _cusps_ok, f"len={len(_cusps) if _rc_p1_ok else 'N/A'}"))
+        results.append(("be_canonical_a2a_array", _a2a_ok, f"type={type(_cc.get('aspects_to_angles')).__name__ if _rc_p1_ok else 'N/A'}"))
+        results.append(("be_canonical_natal_kind", _natal_kind_ok, f"natal_kind={_natal_kind_ok}"))
+
         # SETTINGS-WIRE-2: /search-regions overlay accepts max_orb in aspect_overlay dict
         _ao_payload = {
             "birth_year": 1990, "birth_month": 3, "birth_day": 15, "birth_hour_utc": 12.0,

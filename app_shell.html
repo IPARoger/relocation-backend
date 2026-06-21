@@ -1955,7 +1955,7 @@ function resolveHouseProximityOrbDeg(eff) {
   return (e && e.house_proximity_orb_degrees != null) ? e.house_proximity_orb_degrees : 2.0;
 }
 
-async function fetchCanonicalRelocatedChart({ birth, lat, lon }) {
+async function fetchCanonicalRelocatedChart({ birth, lat, lon, placeName, locationKind }) {
   const hpo = resolveHouseProximityOrbDeg();
   const q = new URLSearchParams({
     lat: String(lat),
@@ -1966,11 +1966,23 @@ async function fetchCanonicalRelocatedChart({ birth, lat, lon }) {
     birth_hour_utc: String(birth.birth_hour_utc),
     house_proximity_orb: String(hpo),
   });
+  if (birth && birth.chart_record_id) {
+    q.set("chart_record_id", String(birth.chart_record_id));
+  }
+  if (placeName) q.set("place_name", String(placeName));
+  if (locationKind) q.set("location_kind", String(locationKind));
   const chartResp = await fetch(`/relocated-chart?${q.toString()}`);
-  let chart = {};
-  try { chart = await chartResp.json(); } catch (e) { /* ignore */ }
+  let body = {};
+  try { body = await chartResp.json(); } catch (e) { /* ignore */ }
   if (!chartResp.ok) throw new Error("relocated_failed:" + chartResp.status);
-  return { birth, chart, location: { lat, lon }, house_proximity_orb: hpo };
+  const canonical_chart = (body && body.canonical_chart) ? body.canonical_chart : null;
+  return {
+    birth,
+    chart: body,
+    canonical_chart,
+    location: { lat, lon },
+    house_proximity_orb: hpo,
+  };
 }
 
 window.__rmFetchCanonicalRelocatedChart = fetchCanonicalRelocatedChart;
