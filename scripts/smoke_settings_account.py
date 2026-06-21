@@ -342,6 +342,51 @@ def main() -> int:
             _has_q = any(r.get("aspect") == "quincunx" for r in (json.loads(_b_mn).get("canonical_chart", {}).get("aspects_planet_to_planet") or []))
         results.append(("be_p2p_minor_when_enabled", _st_mn == 200 and _has_q, f"has_quincunx={_has_q}"))
 
+        # RETRO-MOTION-1: canonical_chart.planets motion truth
+        _motion_st, _motion_b = fetch(
+            base,
+            "/relocated-chart?lat=40.7128&lon=-74.0060&birth_year=1990&birth_month=3&birth_day=15&birth_hour_utc=12.0",
+        )
+        _motion_req = {"speed_deg_per_day", "retrograde", "station", "motion_state"}
+        _motion_planets = {}
+        _motion_all_ok = False
+        _motion_retro_ok = False
+        _motion_state_ok = False
+        _motion_station_ok = False
+        if _motion_st == 200:
+            _motion_planets = (json.loads(_motion_b).get("canonical_chart") or {}).get("planets") or {}
+            if isinstance(_motion_planets, dict) and _motion_planets:
+                _motion_all_ok = all(_motion_req.issubset(set(p.keys())) for p in _motion_planets.values() if isinstance(p, dict))
+                _motion_retro_ok = all(
+                    bool(p.get("retrograde")) == (float(p.get("speed_deg_per_day", 0)) < 0)
+                    for p in _motion_planets.values() if isinstance(p, dict) and p.get("speed_deg_per_day") is not None
+                )
+                _motion_state_ok = all(
+                    p.get("motion_state") in ("direct", "retrograde", "station_direct", "station_retrograde")
+                    for p in _motion_planets.values() if isinstance(p, dict)
+                )
+                _pluto = _motion_planets.get("Pluto") or {}
+                _motion_station_ok = bool(_pluto.get("station")) and _pluto.get("motion_state") == "station_retrograde"
+        results.append(("be_motion_speed_present", _motion_st == 200 and _motion_all_ok, f"planets={len(_motion_planets)}"))
+        results.append(("be_motion_retrograde_matches_speed", _motion_retro_ok, "retrograde == speed < 0"))
+        results.append(("be_motion_state_populated", _motion_state_ok, "motion_state enum"))
+        results.append(("be_motion_station_threshold", _motion_station_ok, "Pluto station_retrograde on fixture"))
+
+        try:
+            import sys
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+            from main_centerline_FIXER import STATION_THRESHOLD_DEG_PER_DAY, _planet_motion_from_speed
+            _sd = _planet_motion_from_speed(0.01)
+            _sr = _planet_motion_from_speed(-0.01)
+            _helper_ok = (
+                STATION_THRESHOLD_DEG_PER_DAY == 0.05
+                and _sd["station"] and _sd["motion_state"] == "station_direct"
+                and _sr["station"] and _sr["motion_state"] == "station_retrograde"
+            )
+        except Exception as _e:
+            _helper_ok = False
+        results.append(("be_motion_helper_threshold", _helper_ok, "0.05 deg/day station band"))
+
 
         # ================= FRONTEND =================
         if sess is None:

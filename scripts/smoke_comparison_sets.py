@@ -240,6 +240,23 @@ def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     return out
 
 
+
+
+def static_motion_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
+    """RETRO-MOTION-1: backend truth only — no wheel retrograde/station glyphs yet."""
+    shell = shell_path.read_text(encoding="utf-8", errors="replace")
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_motion_no_client_speed",
+                "speed_deg_per_day" not in shell,
+                "no client speed field wiring"))
+    out.append(("static_motion_no_client_motion_state",
+                "motion_state" not in shell,
+                "no client motion_state wiring"))
+    out.append(("static_motion_no_station_enum",
+                "station_direct" not in shell and "station_retrograde" not in shell,
+                "no client station glyph wiring"))
+    return out
+
 def static_p2p_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     """Static assertions for P2P-ASPECTS-1 (no client P2P math or tables)."""
     shell = shell_path.read_text(encoding="utf-8")
@@ -325,6 +342,7 @@ def main() -> int:
     results.extend(static_pih_checks(ROOT / "app_shell.html", ROOT / "map_CURRENT.html"))
     results.extend(static_wheel_checks(ROOT / "app_shell.html"))
     results.extend(static_p2p_checks(ROOT / "app_shell.html"))
+    results.extend(static_motion_checks(ROOT / "app_shell.html"))
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
 
     created_set_ids = []

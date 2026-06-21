@@ -1888,6 +1888,31 @@ def aspect_orb_at_point(
 
 
 CANONICAL_CHART_SCHEMA_VERSION = 1
+STATION_THRESHOLD_DEG_PER_DAY = 0.05
+
+_MOTION_STATE_VALUES = frozenset({
+    "direct", "retrograde", "station_direct", "station_retrograde",
+})
+
+
+def _planet_motion_from_speed(speed_deg_per_day: float) -> dict:
+    """Derive retrograde/station/motion_state from signed ecliptic longitude speed."""
+    speed = float(speed_deg_per_day)
+    station = abs(speed) <= STATION_THRESHOLD_DEG_PER_DAY
+    retrograde = speed < 0
+    if station:
+        motion_state = "station_retrograde" if speed < 0 else "station_direct"
+    elif retrograde:
+        motion_state = "retrograde"
+    else:
+        motion_state = "direct"
+    return {
+        "speed_deg_per_day": round(speed, 6),
+        "retrograde": retrograde,
+        "station": station,
+        "motion_state": motion_state,
+    }
+
 CANONICAL_CALCULATION_VERSION = "swe-placidus-tropical-1"
 
 _ANGLE_CANONICAL = {
@@ -2193,12 +2218,16 @@ def build_canonical_chart_v1(
             continue
         plon = float(plon) % 360
         planet_longitudes[name] = plon
-        planets[name] = {
+        entry = {
             "longitude_deg": round(plon, 4),
             "sign": zodiac_sign_key(plon),
             "house": info.get("house"),
             "near_cusp": bool(info.get("near_cusp")),
         }
+        spd = info.get("speed_deg_per_day")
+        if spd is not None:
+            entry.update(_planet_motion_from_speed(spd))
+        planets[name] = entry
 
     angle_longitudes = {"asc": asc, "mc": mc, "dsc": desc, "ic": ic}
     aspects_to_angles = _compute_aspects_to_angles(planet_longitudes, angle_longitudes, eff)
@@ -2299,6 +2328,7 @@ def relocated_chart(
         try:
             pos = swe.calc_ut(jd, pid)
             planet_lon = pos[0][0] % 360
+            speed_lon = float(pos[0][3])
             house_num = get_house(planet_lon, cusps)
             sep = min_degrees_to_any_cusp(planet_lon, cusps)
             planet_houses[name] = {
@@ -2307,6 +2337,7 @@ def relocated_chart(
                 "house": house_num,
                 "cusp_separation_deg": round(sep, 3),
                 "near_cusp": bool(sep < hpo),
+                "speed_deg_per_day": speed_lon,
             }
         except Exception as e:
             print(f"Error calculating {name}: {e}")
