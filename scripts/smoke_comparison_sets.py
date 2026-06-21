@@ -158,6 +158,45 @@ def ensure_two_favorites(admin, account_id, profile_id, stamp):
 
 
 
+
+
+def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
+    """Static assertions for WHEEL-1 (no Playwright required)."""
+    shell = shell_path.read_text(encoding="utf-8")
+    start = shell.find("// WHEEL-1:")
+    end = shell.find("// A2A-1:", start)
+    block = shell[start:end] if start >= 0 and end > start else ""
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_wheel_source_attr",
+                'data-wheel-source="canonical_chart"' in block,
+                "data-wheel-source on wheel wrap"))
+    out.append(("static_wheel_reads_cusps",
+                "houses.cusps_deg" in block,
+                "reads houses.cusps_deg"))
+    out.append(("static_wheel_reads_angles",
+                "canonicalChart.angles" in block or "canonical_chart.angles" in block,
+                "reads canonical_chart.angles"))
+    out.append(("static_wheel_reads_planets",
+                "canonicalChart.planets" in block,
+                "reads canonical_chart.planets"))
+    out.append(("static_wheel_no_swe",
+                "swe." not in block and "Swiss" not in block,
+                "no client swe"))
+    out.append(("static_wheel_no_legacy_geometry",
+                "planet_houses" not in block
+                and "asc_deg" not in block
+                and "mc_deg" not in block,
+                "no legacy flat keys in wheel block"))
+    out.append(("static_wheel_no_p2p_table",
+                "p2p" not in block.lower()
+                and "planet-to-planet table" not in shell.lower()
+                and "aspects_planet_to_planet" not in block,
+                "no separate P2P table/grid"))
+    out.append(("static_wheel_screen4_order",
+                "return meta + wheel + ais + a2a + planets" in shell,
+                "Screen 4 section order"))
+    return out
+
 def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     """Static assertions for A2A-1 (no Playwright required)."""
     shell = shell_path.read_text(encoding="utf-8")
@@ -215,6 +254,7 @@ def main() -> int:
             fail(f"temp server did not start on {base}")
 
     results = []
+    results.extend(static_wheel_checks(ROOT / "app_shell.html"))
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
 
     created_set_ids = []
