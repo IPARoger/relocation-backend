@@ -250,6 +250,33 @@ def main():
         results.append(("fe_chiron_exists",   chiron_exists,  f"chiron_present={chiron_exists}"))
         results.append(("fe_chiron_default_on", chiron_checked, f"chiron_checked={chiron_checked}"))
 
+        # SETTINGS-WIRE-1A: septile must appear before novile in minor aspects list
+        page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
+        page.wait_for_selector("#rm-settings-minasp-septile", timeout=10000)
+        _asp_js = 'Array.from(document.querySelectorAll("[id^='rm-settings-minasp-']")).map(e=>e.id)'
+        asp_order = page.evaluate(f"()=>{_asp_js}")
+        sep_idx = asp_order.index("rm-settings-minasp-septile") if "rm-settings-minasp-septile" in asp_order else 999
+        nov_idx = asp_order.index("rm-settings-minasp-novile")  if "rm-settings-minasp-novile"  in asp_order else 999
+        results.append(("fe_septile_before_novile",
+                        sep_idx < nov_idx,
+                        f"septile_idx={sep_idx} novile_idx={nov_idx}"))
+
+        # SETTINGS-WIRE-1A: A2A display angle controls must exist with correct defaults
+        a2d_asc = page.query_selector("#rm-settings-a2d-asc")
+        a2d_mc  = page.query_selector("#rm-settings-a2d-mc")
+        a2d_dsc = page.query_selector("#rm-settings-a2d-dsc")
+        a2d_ic  = page.query_selector("#rm-settings-a2d-ic")
+        controls_exist = all([a2d_asc, a2d_mc, a2d_dsc, a2d_ic])
+        results.append(("fe_a2d_controls_exist", controls_exist, f"all_four_present={controls_exist}"))
+        if controls_exist:
+            asc_on = page.eval_on_selector("#rm-settings-a2d-asc", "el=>el.checked")
+            mc_on  = page.eval_on_selector("#rm-settings-a2d-mc",  "el=>el.checked")
+            dsc_on = page.eval_on_selector("#rm-settings-a2d-dsc", "el=>el.checked")
+            ic_on  = page.eval_on_selector("#rm-settings-a2d-ic",  "el=>el.checked")
+            results.append(("fe_a2d_defaults",
+                            asc_on and mc_on and not dsc_on and not ic_on,
+                            f"asc={asc_on} mc={mc_on} dsc={dsc_on} ic={ic_on}"))
+
         browser.close()
 
     overall = True

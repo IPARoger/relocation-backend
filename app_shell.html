@@ -3005,9 +3005,39 @@ function _aspectRegistryContext() {
     MINOR: [
       ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
       ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
-      ["novile", "Novile", 2], ["septile", "Septile", 2],  // SETTINGS-WIRE-1
+      ["septile", "Septile", 2], ["novile", "Novile", 2],  // SETTINGS-WIRE-1A: septile before novile
     ],
   };
+}
+
+// SETTINGS-WIRE-1A: A2A display angle toggles.
+// Controls which relocated angles (ASC/MC/DSC/IC) are shown in A2A tables,
+// comparison A2A columns, and (future) chart wheel A2A overlays.
+// Default: ASC and MC on; DSC and IC off — mirrors conventional relocation focus.
+// NOTE: The A2A chart table consumer reads these at render time; chart wheel
+// renderer is not yet live — these settings are wired for persistence now,
+// display consumer integration follows.
+function a2aDisplayAnglesHtml() {
+  const eff = _settingsEff();
+  const a2ad = (eff && typeof eff.display_aspects_to_angles === "object" && eff.display_aspects_to_angles)
+    ? eff.display_aspects_to_angles
+    : { asc: true, mc: true, dsc: false, ic: false };
+  const row = (key, label, defaultOn) => {
+    const on = (a2ad[key] != null) ? !!a2ad[key] : defaultOn;
+    return `<label class="block" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rm-settings-a2d-${key}"${on ? " checked" : ""} style="width:auto;margin:0;" />
+        ${label}
+      </label>`;
+  };
+  return `
+    <div class="panel">
+      <h4 style="margin:0 0 4px;">Angles in A2A display</h4>
+      <p class="meta" style="margin:0 0 8px;">Which relocated angles to include in Aspect-to-Angle tables and comparisons.</p>
+      ${row("asc", "ASC (Ascendant)", true)}
+      ${row("mc",  "MC (Midheaven)",  true)}
+      ${row("dsc", "DSC (Descendant)", false)}
+      ${row("ic",  "IC (Imum Coeli)",  false)}
+    </div>`;
 }
 
 function aspectsSettingsHtml() {
@@ -3308,6 +3338,8 @@ function settingsChartsBodyHtml() {
       ${planetsBodiesHtml()}
       <div class="settings-subhead">Aspects</div>
       ${aspectsSettingsHtml()}
+      <div class="settings-subhead">Aspect-to-Angle Display</div>
+      ${a2aDisplayAnglesHtml()}
       <div class="settings-subhead">Orbs</div>
       ${chartDisplayOrbsHtml()}
       ${aspectToAngleOrbsHtml()}
@@ -4814,7 +4846,7 @@ if (action === "save-comparison-note") {
           settingsPatch.visible_bodies = collectChecked("body", bodyIds);
         }
         const majorAspIds = ["conjunction", "opposition", "square", "trine", "sextile"];
-        const minorAspIds = ["quincunx", "semisextile", "semisquare", "sesquiquadrate", "quintile", "biquintile", "novile", "septile"]; // SETTINGS-WIRE-1
+        const minorAspIds = ["quincunx", "semisextile", "semisquare", "sesquiquadrate", "quintile", "biquintile", "septile", "novile"]; // SETTINGS-WIRE-1A: septile before novile
         const collectAspChecked = (kind, ids) => ids.filter((id) => {
           const el = document.getElementById("rm-settings-" + kind + "asp-" + id);
           return el ? !!el.checked : false;
@@ -4856,6 +4888,15 @@ if (action === "save-comparison-note") {
             if (el) { const n = parseFloat(el.value); if (!isNaN(n)) a2aPatch[id] = n; }
           });
           if (Object.keys(a2aPatch).length === a2aIds.length) settingsPatch.aspect_to_angle_orbs = a2aPatch;
+        }
+        // SETTINGS-WIRE-1A: collect A2A display angle toggles
+        if (document.getElementById("rm-settings-a2d-asc")) {
+          settingsPatch.display_aspects_to_angles = {
+            asc: !!(document.getElementById("rm-settings-a2d-asc") || {}).checked,
+            mc:  !!(document.getElementById("rm-settings-a2d-mc")  || {}).checked,
+            dsc: !!(document.getElementById("rm-settings-a2d-dsc") || {}).checked,
+            ic:  !!(document.getElementById("rm-settings-a2d-ic")  || {}).checked,
+          };
         }
         saveAccountSettingsPatch(settingsPatch).then(() => {
           // Mirror the saved patch into in-memory state so the shell reflects the

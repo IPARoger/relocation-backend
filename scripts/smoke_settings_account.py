@@ -405,6 +405,14 @@ def main() -> int:
         _nov_st, _nov_b = fetch(base, "/search-regions", method="POST", body=_nov_payload, timeout=30)
         results.append(("be_minor_asp_novile_overlay", _nov_st == 200, f"status={_nov_st}"))
 
+        # SETTINGS-WIRE-1A: display_aspects_to_angles persists through PATCH /settings/account
+        _a2d_patch = {"settings_patch": {"display_aspects_to_angles": {"asc": True, "mc": True, "dsc": True, "ic": False}}}
+        _a2d_st, _a2d_b = fetch(base, "/settings/account", method="PATCH", headers=headers, body=_a2d_patch)
+        _a2d_saved = _json.loads(_a2d_b).get("settings_json", {}).get("display_aspects_to_angles", {}) if _a2d_st == 200 else {}
+        results.append(("be_a2d_persists",
+                        _a2d_st == 200 and _a2d_saved.get("dsc") is True,
+                        f"status={_a2d_st} dsc={_a2d_saved.get('dsc')}"))
+
     finally:
         # Restore the original account-level row exactly.
         if account_id is not None:

@@ -796,8 +796,8 @@ def search_regions(req: SearchRequest):
                 "sesquiquadrate":   [135, 225],
                 "quintile":         [72, 288],
                 "biquintile":       [144, 216],
+                "septile":          [51, 309],   # 360/7 ≈ 51.43° — SETTINGS-WIRE-1A
                 "novile":           [40, 320],
-                "septile":          [51, 309],   # 360/7 ≈ 51.43°
                 # composite sets
                 "hard": [0, 90, 180, 270],
                 "soft": [60, 120, 240, 300],

@@ -74,6 +74,8 @@
     aspect_to_angle_orbs:  { conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6 },
     helper_layers:         {},
     ontology_pack_id:      null,
+    // SETTINGS-WIRE-1A: which relocated angles to include in A2A display
+    display_aspects_to_angles: { asc: true, mc: true, dsc: false, ic: false },
   };
 
   var RM_SETTINGS_SNAPSHOT_VERSION = 1;
@@ -117,6 +119,10 @@
       aspect_to_angle_orbs:  pick("aspect_to_angle_orbs"),
       helper_layers:         pick("helper_layers"),
       ontology_pack_id:      pick("ontology_pack_id"),
+      // SETTINGS-WIRE-1A
+      display_aspects_to_angles: stored.display_aspects_to_angles
+        || onto.display_aspects_to_angles
+        || RM_SETTINGS_DEFAULTS.display_aspects_to_angles,
     };
   }
 

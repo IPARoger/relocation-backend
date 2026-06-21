@@ -60,6 +60,14 @@ RM_SETTINGS_DEFAULTS = {
     },
     "helper_layers": {},
     "ontology_pack_id": None,
+    # SETTINGS-WIRE-1A: which relocated angles to show in A2A tables and comparisons.
+    # ASC/MC default ON; DSC/IC default OFF — conventional relocation focus.
+    "display_aspects_to_angles": {
+        "asc": True,
+        "mc":  True,
+        "dsc": False,
+        "ic":  False,
+    },
 }
 
 
@@ -106,4 +114,10 @@ def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
         "aspect_to_angle_orbs": pick("aspect_to_angle_orbs"),
         "helper_layers": pick("helper_layers"),
         "ontology_pack_id": pick("ontology_pack_id"),
+        # SETTINGS-WIRE-1A
+        "display_aspects_to_angles": (
+            stored.get("display_aspects_to_angles")
+            or onto.get("display_aspects_to_angles")
+            or RM_SETTINGS_DEFAULTS["display_aspects_to_angles"]
+        ),
     }
