@@ -127,6 +127,9 @@
   .rm-cmp-section-body.collapsed { display: none; }
   .rm-cmp-angle-tab.active { font-weight: 600; color: var(--accent); }
   .rm-cmp-city-chip.hidden-place { opacity: 0.45; text-decoration: line-through; }
+  .rm-cmp-diff-identical { opacity: 0.38; color: var(--muted); }
+  td.rm-cmp-diff-identical.pih-house-cell.dignity-supportive,
+  td.rm-cmp-diff-identical.pih-house-cell.dignity-challenging { opacity: 0.38; }
 
   .map-placeholder {
     min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
@@ -1987,12 +1990,101 @@ function pihSignFromPlanetInfo(info) {
   return window.RMDignityOntology.parseSignFromLongitudeFormatted(info.longitude_formatted);
 }
 
-function pihHouseCellHtml(planet, info, dignitiesOn) {
+// DIFFS-MVP-1: cell-level comparison readability (reference = first visible column).
+function getDiffsEnabled() {
+  return !!(_cmpWorkspaceSession && _cmpWorkspaceSession.state && _cmpWorkspaceSession.state.diffs_enabled);
+}
+
+function buildComparisonDiffContext(cols, ws) {
+  const placeIds = (cols || []).map((c) => c.placeId).filter(Boolean);
+  const state = ws || (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+    || defaultComparisonWorkspaceState(placeIds);
+  const visibleIds = resolveVisibleOrderedPlaceIds(state, placeIds);
+  return {
+    diffsOn: !!state.diffs_enabled,
+    referencePlaceId: visibleIds[0] || null,
+    visibleIds,
+  };
+}
+
+function cmpDiffTdClass(referenceValue, cellValue, diffsOn) {
+  if (!diffsOn) return "";
+  return referenceValue === cellValue ? " rm-cmp-diff-identical" : "";
+}
+
+function pihHouseDiffKey(info) {
+  return (info && info.house != null) ? String(info.house) : "—";
+}
+
+function aisAngleDiffKey(entry) {
+  return formatCanonicalAngleDisplay(entry) || "—";
+}
+
+function a2aCellDiffKey(row) {
+  if (!row) return "—";
+  const sep = row.separation_deg != null && Number.isFinite(Number(row.separation_deg))
+    ? Number(row.separation_deg).toFixed(3) : "?";
+  const mot = row.motion || "unknown";
+  const oos = row.out_of_sign ? "1" : "0";
+  return sep + "|" + mot + "|" + oos;
+}
+
+function comparisonColumnsFooterHtml(dignitiesOn, diffsOn) {
+  return `<div class="pih-footer">
+    <label><input type="checkbox" data-action="toggle-cmp-diffs"${diffsOn ? " checked" : ""} style="width:auto;margin:0;" /> Diffs</label>
+    <label style="margin-left:12px;"><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="compare"${dignitiesOn ? " checked" : ""} style="width:auto;margin:0;" /> Dignities</label>
+  </div>`;
+}
+
+function bindCmpDiffsToggle(root) {
+  (root || document).querySelectorAll("[data-action='toggle-cmp-diffs']").forEach((el) => {
+    if (el.__cmpDiffsBound) return;
+    el.__cmpDiffsBound = true;
+    el.addEventListener("change", () => setDiffsEnabled(!!el.checked));
+  });
+}
+
+function refreshComparisonDiffSurfaces() {
+  const container = document.getElementById("rm-screen5-columns");
+  if (container && _comparisonColsCache) {
+    const chartRecordId = container.getAttribute("data-chart-record");
+    container.innerHTML = renderComparisonTableHtml(
+      _comparisonColsCache,
+      getPihDignitiesEnabled("compare"),
+      buildComparisonDiffContext(_comparisonColsCache, _cmpWorkspaceSession && _cmpWorkspaceSession.state),
+    );
+    container.querySelectorAll("[data-cmp-open]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        navigate("chart", { chartRecordId, placeId: btn.getAttribute("data-cmp-open") });
+      });
+    });
+    applyComparisonAngleTabFilter(container);
+    bindPihDignitiesToggle(container);
+    bindCmpDiffsToggle(container);
+  }
+  refreshAisWorkbookSection();
+  refreshA2aWorkbookSection();
+}
+
+function setDiffsEnabled(on) {
+  if (_cmpWorkspaceSession) _cmpWorkspaceSession.state.diffs_enabled = !!on;
+  refreshComparisonDiffSurfaces();
+  scheduleComparisonWorkspaceSave();
+}
+
+window.__rmBuildComparisonDiffContext = buildComparisonDiffContext;
+window.__rmPihHouseDiffKey = pihHouseDiffKey;
+window.__rmAisAngleDiffKey = aisAngleDiffKey;
+window.__rmA2aCellDiffKey = a2aCellDiffKey;
+window.__rmCmpDiffTdClass = cmpDiffTdClass;
+
+function pihHouseCellHtml(planet, info, dignitiesOn, diffClass) {
   const house = info && info.house != null ? info.house : "—";
-  if (!dignitiesOn) return `<td class="pih-house-cell">${house}</td>`;
+  const dc = diffClass || "";
+  if (!dignitiesOn) return `<td class="pih-house-cell${dc}">${house}</td>`;
   const sign = pihSignFromPlanetInfo(info);
   const extra = sign ? pihDignityClass(planet, sign) : "";
-  return `<td class="pih-house-cell${extra}">${house}</td>`;
+  return `<td class="pih-house-cell${extra}${dc}">${house}</td>`;
 }
 
 function pihDignitiesFooterHtml(checked, scope) {
@@ -2032,6 +2124,7 @@ function setPihDignitiesEnabled(on, scope) {
       });
       applyComparisonAngleTabFilter(container);
       bindPihDignitiesToggle(container);
+      bindCmpDiffsToggle(container);
       scheduleComparisonWorkspaceSave();
     }
     return;
@@ -2201,15 +2294,24 @@ function renderPihTableRowsFromCanonical(canonicalChart, options) {
   }).join("");
 }
 
-function renderComparisonAngleRowsHtml(cols) {
+function renderComparisonAngleRowsHtml(cols, diffCtx) {
   const a2a = getA2aDisplayAngles();
   const enabled = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]);
+  const ctx = diffCtx || buildComparisonDiffContext(cols);
+  const refCol = (cols || []).find((c) => c.placeId === ctx.referencePlaceId);
   return enabled.map(({ key, label }) => {
+    let refKey = "—";
+    if (refCol && !refCol.error) {
+      const refCc = getCanonicalChartFromPayload(refCol.chart);
+      refKey = aisAngleDiffKey(refCc && refCc.angles ? refCc.angles[key] : null);
+    }
     const cells = cols.map((c) => {
       if (c.error) return "<td>—</td>";
       const cc = getCanonicalChartFromPayload(c.chart);
       const entry = cc && cc.angles ? cc.angles[key] : null;
-      return `<td>${escapeHtml(formatCanonicalAngleDisplay(entry))}</td>`;
+      const cellKey = aisAngleDiffKey(entry);
+      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      return `<td class="${dc.trim() || ""}">${escapeHtml(formatCanonicalAngleDisplay(entry))}</td>`;
     }).join("");
     return `<tr><td>${label}</td>${cells}</tr>`;
   }).join("");
@@ -2609,11 +2711,13 @@ function renderA2aSinglePlaceHtml(canonicalChart) {
   </table>`;
 }
 
-function renderA2aComparisonHtml(cols, visiblePlaceIds) {
+function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
   const places = (cols || []).filter((c) => !c.error && visiblePlaceIds.includes(c.placeId));
   if (!places.length) {
     return `<p class="meta">No visible comparison places.</p>`;
   }
+  const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
+  const refCol = places.find((c) => c.placeId === ctx.referencePlaceId) || places[0];
   const keyMap = new Map();
   places.forEach((c) => {
     const cc = getCanonicalChartFromPayload(c.chart);
@@ -2630,9 +2734,14 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds) {
   }
   const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
   const body = comboRows.map(({ label, byPlace }) => {
+    const refRow = byPlace[refCol.placeId];
+    const refKey = a2aCellDiffKey(refRow);
     const cells = places.map((c) => {
       const row = byPlace[c.placeId];
-      return `<td>${row ? escapeHtml(formatA2aComparisonCellText(row)) : "—"}</td>`;
+      const cellKey = a2aCellDiffKey(row);
+      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      const text = row ? formatA2aComparisonCellText(row) : "—";
+      return `<td class="${dc.trim() || ""}">${escapeHtml(text)}</td>`;
     }).join("");
     return `<tr><td>${escapeHtml(label)}</td>${cells}</tr>`;
   }).join("");
@@ -2753,35 +2862,45 @@ async function hydrateRelocatedChart(root) {
 }
 
 // Render Screen 5's comparison columns (facts only) into the hydration container.
-function renderComparisonTableHtml(cols, dignitiesOn) {
+function renderComparisonTableHtml(cols, dignitiesOn, diffCtx) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : getPihDignitiesEnabled("compare");
+  const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
+  const diffsOn = ctx.diffsOn;
+  const refCol = (cols || []).find((c) => c.placeId === ctx.referencePlaceId);
   const headers = cols.map((c) =>
-    `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open relocated chart (Screen 4)">${escapeHtml(c.name)}</button></th>`
+    `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open Relocated Profile page">${escapeHtml(c.name)}</button></th>`
   ).join("");
-  const angleRows = renderComparisonAngleRowsHtml(cols);
+  const angleRows = renderComparisonAngleRowsHtml(cols, ctx);
   const _compVisibleBodies = getVisibleBodyNamesSet();
   const planetNames = PIH_BODY_ORDER.filter((pn) => _compVisibleBodies.has(pn));
-  const planetRows = planetNames.map((pn) =>
-    `<tr><td>${pn} house</td>${cols.map((c) => {
+  const planetRows = planetNames.map((pn) => {
+    let refKey = "—";
+    if (refCol && !refCol.error) {
+      const refCc = getCanonicalChartFromPayload(refCol.chart);
+      refKey = pihHouseDiffKey((refCc && refCc.planets && refCc.planets[pn]) || {});
+    }
+    return `<tr><td>${pn} house</td>${cols.map((c) => {
       if (c.error) return "<td>—</td>";
       const cc = getCanonicalChartFromPayload(c.chart);
       const info = (cc && cc.planets && cc.planets[pn]) || {};
-      return pihHouseCellHtml(pn, info, on);
-    }).join("")}</tr>`
-  ).join("");
+      const cellKey = pihHouseDiffKey(info);
+      const dc = cmpDiffTdClass(refKey, cellKey, diffsOn);
+      return pihHouseCellHtml(pn, info, on, dc);
+    }).join("")}</tr>`;
+  }).join("");
   const failed = cols.filter((c) => c.error);
   const errNote = failed.length
     ? `<p class="meta">Could not resolve: ${failed.map((c) => escapeHtml(c.name) + " (" + escapeHtml(c.error) + ")").join(", ")}</p>`
     : "";
   return `
-    <p class="meta">Click a place to open its relocated chart (Screen 4).</p>
-    <table class="simple">
+    <p class="meta">Click a place to open its Relocated Profile page.</p>
+    <table class="simple rm-cmp-columns-table" data-cmp-diff-source="canonical_chart">
       <tr><th>Fact</th>${headers}</tr>
       ${angleRows}
       ${planetRows}
     </table>
     ${errNote}
-    ${pihDignitiesFooterHtml(on, "compare")}`;
+    ${comparisonColumnsFooterHtml(on, diffsOn)}`;
 }
 
 // Comparison workspace reading-state (C-UX-2): persisted via settings_snapshot_json.
@@ -2931,6 +3050,8 @@ function collectComparisonWorkspaceFromDom() {
     .map((el) => el.getAttribute("data-place-id")).filter(Boolean);
   const dig = document.querySelector("[data-action='toggle-pih-dignities'][data-pih-scope='compare']");
   if (dig) ws.dignities_enabled = !!dig.checked;
+  const diffEl = document.querySelector("[data-action='toggle-cmp-diffs']");
+  if (diffEl) ws.diffs_enabled = !!diffEl.checked;
   return ws;
 }
 
@@ -2959,6 +3080,8 @@ function applyComparisonWorkspaceToDom(ws) {
   } else if (dig) {
     dig.checked = !!ws.dignities_enabled;
   }
+  const diffEl = document.querySelector("[data-action='toggle-cmp-diffs']");
+  if (diffEl) diffEl.checked = !!ws.diffs_enabled;
   applyComparisonAngleTabFilter(document);
 }
 
@@ -3129,7 +3252,13 @@ async function hydrateComparisonColumns(root) {
     }));
     if (!stillCurrent()) return;
     _comparisonColsCache = cols;
-    container.innerHTML = renderComparisonTableHtml(cols, getPihDignitiesEnabled("compare"));
+    const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+      || defaultComparisonWorkspaceState(placeIds);
+    container.innerHTML = renderComparisonTableHtml(
+      cols,
+      getPihDignitiesEnabled("compare"),
+      buildComparisonDiffContext(cols, ws),
+    );
     container.querySelectorAll("[data-cmp-open]").forEach((btn) => {
       btn.addEventListener("click", () => {
         navigate("chart", { chartRecordId, placeId: btn.getAttribute("data-cmp-open") });
@@ -3137,6 +3266,7 @@ async function hydrateComparisonColumns(root) {
     });
     applyComparisonAngleTabFilter(container);
     bindPihDignitiesToggle(container);
+    bindCmpDiffsToggle(container);
     refreshAisWorkbookSection();
     refreshA2aWorkbookSection();
   } catch (err) {

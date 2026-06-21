@@ -390,6 +390,37 @@ def static_settings_final_wire_checks(shell_path: Path) -> list[tuple[str, bool,
     return out
 
 
+
+def static_diffs_mvp_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
+    """DIFFS-MVP-1: comparison cell-level diff mode."""
+    shell = shell_path.read_text(encoding="utf-8")
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_diffs_toggle",
+                'data-action="toggle-cmp-diffs"' in shell and "setDiffsEnabled" in shell,
+                "Diffs toggle wired"))
+    out.append(("static_diffs_identical_class",
+                "rm-cmp-diff-identical" in shell and "cmpDiffTdClass" in shell,
+                "identical cell fade class"))
+    out.append(("static_diffs_pih_ais_a2a",
+                "pihHouseDiffKey" in shell and "aisAngleDiffKey" in shell and "a2aCellDiffKey" in shell,
+                "PIH AIS A2A diff keys"))
+    out.append(("static_diffs_reference_column",
+                "referencePlaceId" in shell and "resolveVisibleOrderedPlaceIds" in shell,
+                "first visible column reference"))
+    out.append(("static_diffs_no_p2p",
+                "aspects_planet_to_planet" not in shell.split("buildComparisonDiffContext", 1)[0]
+                or "p2p" not in shell[shell.find("buildComparisonDiffContext"):shell.find("buildComparisonDiffContext") + 800].lower(),
+                "no P2P in diff helpers"))
+    out.append(("static_diffs_no_summary_panel",
+                "diff-summary" not in shell.lower() and "diffSummary" not in shell,
+                "no summary panel"))
+    bad = ("improved", "better", "worse", "stronger", "ranking")
+    diff_chunk = shell[shell.find("DIFFS-MVP-1"):shell.find("DIFFS-MVP-1") + 4500] if "DIFFS-MVP-1" in shell else ""
+    out.append(("static_diffs_no_interpretive_language",
+                not any(w in diff_chunk.lower() for w in bad),
+                "no ranking/interpretive copy in diff block"))
+    return out
+
 def wheel_v2_pih_crosscheck(page, profile_id: str, locations: list[tuple[str, dict]], expected: dict[str, int]) -> list[tuple[str, bool, str]]:
     """Playwright: Sun house from .rm-pih-table only (PIH-QA-FIX-1)."""
     out: list[tuple[str, bool, str]] = []
@@ -474,6 +505,7 @@ def main() -> int:
     results.extend(static_motion_checks(ROOT / "app_shell.html"))
     results.extend(static_a2a_checks(ROOT / "app_shell.html"))
     results.extend(static_settings_final_wire_checks(ROOT / "app_shell.html"))
+    results.extend(static_diffs_mvp_checks(ROOT / "app_shell.html"))
 
     created_set_ids = []
     created_place_ids = []
