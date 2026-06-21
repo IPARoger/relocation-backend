@@ -646,6 +646,57 @@ def main() -> int:
                             not broken,
                             f"stale_broken={broken}"))
 
+            # AIS-1: workbook AIS section consumes canonical_chart.angles
+            page.evaluate(
+                "(args)=>{window.__rmAppShell.navigate('compare',"
+                "{chartRecordId: args.pid, comparisonSetId: args.sid});}",
+                {"pid": profile_id, "sid": fe_set_id},
+            )
+            page.wait_for_selector("#rm-cmp-sec-ais .rm-ais-table[data-ais-source='canonical_chart']", timeout=25000)
+            ais_check = page.evaluate(
+                """() => {
+                  const body = document.getElementById('rm-cmp-sec-ais');
+                  const table = body && body.querySelector('.rm-ais-table[data-ais-source="canonical_chart"]');
+                  const placeholder = body && (body.textContent || '').indexOf('full section content ships in a later layout slice') >= 0;
+                  const a2a = (typeof window.__rmGetA2aDisplayAngles === 'function') ? window.__rmGetA2aDisplayAngles() : {};
+                  const labels = table ? Array.from(table.querySelectorAll('tr td:first-child')).map(td => td.textContent.trim()) : [];
+                  const thCount = table && table.querySelector('tr') ? table.querySelector('tr').querySelectorAll('th').length : 0;
+                  return {
+                    placeholder,
+                    hasTable: !!table,
+                    labels,
+                    thCount,
+                    asc: labels.includes('ASC'),
+                    mc: labels.includes('MC'),
+                    dsc: labels.includes('DSC'),
+                    ic: labels.includes('IC'),
+                    a2a,
+                    respects: labels.includes('ASC') === !!a2a.asc
+                      && labels.includes('MC') === !!a2a.mc
+                      && labels.includes('DSC') === !!a2a.dsc
+                      && labels.includes('IC') === !!a2a.ic,
+                  };
+                }"""
+            )
+            results.append(("fe_ais_not_placeholder",
+                            ais_check.get("hasTable") and not ais_check.get("placeholder"),
+                            f"hasTable={ais_check.get('hasTable')} placeholder={ais_check.get('placeholder')}"))
+            results.append(("fe_ais_default_asc_mc",
+                            ais_check.get("asc") and ais_check.get("mc"),
+                            f"labels={ais_check.get('labels')}"))
+            results.append(("fe_ais_dsc_ic_hidden_default",
+                            not ais_check.get("dsc") and not ais_check.get("ic"),
+                            f"dsc={ais_check.get('dsc')} ic={ais_check.get('ic')}"))
+            results.append(("fe_ais_respects_display_angles",
+                            ais_check.get("respects") is True,
+                            f"a2a={ais_check.get('a2a')} labels={ais_check.get('labels')}"))
+            results.append(("fe_ais_canonical_source",
+                            ais_check.get("hasTable") is True,
+                            "data-ais-source=canonical_chart"))
+            results.append(("fe_ais_comparison_columns",
+                            (ais_check.get("thCount") or 0) >= 2,
+                            f"thCount={ais_check.get('thCount')}"))
+
             # SETTINGS-WIRE-3: A2A display angle defaults via app shell helper
             a2a_defaults = page.evaluate(
                 "() => (typeof window.__rmGetA2aDisplayAngles === 'function' ? window.__rmGetA2aDisplayAngles() : null)"

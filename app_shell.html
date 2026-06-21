@@ -1989,23 +1989,102 @@ window.__rmFetchCanonicalRelocatedChart = fetchCanonicalRelocatedChart;
 window.__rmGetVisibleBodyNamesSet = getVisibleBodyNamesSet;
 window.__rmResolveHouseProximityOrbDeg = resolveHouseProximityOrbDeg;
 
+// AIS-1: Angles in Signs — Layer 3 consumer of canonical_chart.angles only.
+const AIS_ANGLE_ROWS = [
+  { key: "ASC", setting: "asc", label: "ASC" },
+  { key: "MC", setting: "mc", label: "MC" },
+  { key: "DSC", setting: "dsc", label: "DSC" },
+  { key: "IC", setting: "ic", label: "IC" },
+];
+
+function getCanonicalChartFromPayload(chartOrBody) {
+  if (!chartOrBody || typeof chartOrBody !== "object") return null;
+  if (chartOrBody.canonical_chart && typeof chartOrBody.canonical_chart === "object") {
+    return chartOrBody.canonical_chart;
+  }
+  return null;
+}
+
+function formatAisSignName(sign) {
+  if (!sign) return "—";
+  const s = String(sign);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function aisFormatAngleDisplay(angleEntry) {
+  if (!angleEntry || angleEntry.longitude_deg == null) return "—";
+  const sign = formatAisSignName(angleEntry.sign);
+  const lon = Number(angleEntry.longitude_deg) % 360;
+  const signDeg = lon % 30;
+  const whole = Math.floor(signDeg);
+  const minutes = Math.floor((signDeg - whole) * 60);
+  return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032 ${sign}`;
+}
+
+function renderAisSinglePlaceHtml(canonicalChart) {
+  const a2a = getA2aDisplayAngles();
+  const angles = (canonicalChart && canonicalChart.angles) || {};
+  const rows = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]).map(({ key, label }) => {
+    const entry = angles[key];
+    return `<tr><td>${label}</td><td>${escapeHtml(aisFormatAngleDisplay(entry))}</td></tr>`;
+  }).join("");
+  if (!rows) {
+    return `<p class="meta">No angles enabled in Settings \u2192 Aspect-to-Angle Display.</p>`;
+  }
+  return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th><th>Sign</th></tr>${rows}</table>`;
+}
+
+function renderAisComparisonHtml(cols, visiblePlaceIds) {
+  const a2a = getA2aDisplayAngles();
+  const enabled = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]);
+  if (!enabled.length) {
+    return `<p class="meta">No angles enabled in Settings \u2192 Aspect-to-Angle Display.</p>`;
+  }
+  const places = (cols || []).filter((c) => !c.error && visiblePlaceIds.includes(c.placeId));
+  if (!places.length) {
+    return `<p class="meta">No visible comparison places.</p>`;
+  }
+  const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
+  const body = enabled.map(({ key, label }) => {
+    const cells = places.map((c) => {
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const entry = cc && cc.angles ? cc.angles[key] : null;
+      return `<td>${escapeHtml(aisFormatAngleDisplay(entry))}</td>`;
+    }).join("");
+    return `<tr><td>${label}</td>${cells}</tr>`;
+  }).join("");
+  return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th>${headers}</tr>${body}</table>`;
+}
+
+function renderAisWorkbookSectionBody(cols, ws) {
+  if (!cols || !cols.length) {
+    return `<p class="meta">Comparison chart data loading\u2026</p>`;
+  }
+  const placeIds = cols.map((c) => c.placeId).filter(Boolean);
+  const visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
+  return renderAisComparisonHtml(cols, visibleIds);
+}
+
+function refreshAisWorkbookSection() {
+  const body = document.getElementById("rm-cmp-sec-ais");
+  if (!body) return;
+  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+    || defaultComparisonWorkspaceState([]);
+  body.innerHTML = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
+}
+
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
-  const angles = `
+  const canonical = getCanonicalChartFromPayload(chart);
+  const meta = `
     <table class="simple">
       <tr><th>Fact</th><th>Value</th></tr>
       <tr><td>Chart Record</td><td>${escapeHtml(recordName)}</td></tr>
       <tr><td>Place</td><td>${escapeHtml(placeName)}</td></tr>
-      ${(() => {
-        const a2a = getA2aDisplayAngles();
-        const rows = [];
-        if (a2a.asc) rows.push(`<tr><td>ASC</td><td>${escapeHtml(chart.asc || "—")}</td></tr>`);
-        if (a2a.mc)  rows.push(`<tr><td>MC</td><td>${escapeHtml(chart.mc || "—")}</td></tr>`);
-        if (a2a.dsc) rows.push(`<tr><td>DSC</td><td>${escapeHtml(chart.dc || chart.desc || "—")}</td></tr>`);
-        if (a2a.ic)  rows.push(`<tr><td>IC</td><td>${escapeHtml(chart.ic || "—")}</td></tr>`);
-        return rows.join("");
-      })()}
     </table>`;
+  const ais = canonical
+    ? `<h4 style="margin:12px 0 4px">Angles in Signs (AIS)</h4>${renderAisSinglePlaceHtml(canonical)}`
+    : `<p class="meta">AIS unavailable (canonical chart missing).</p>`;
   const ph = chart.planet_houses || {};
   const _visibleBodyNames = getVisibleBodyNamesSet();
   const rows = Object.keys(ph)
@@ -2021,8 +2100,7 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
       ${rows}
     </table>
     ${pihDignitiesFooterHtml(on, "chart")}`;
-  return angles + planets;
-}
+    return meta + ais + planets;
 
 let _screen4Token = 0;
 // Hydrate Screen 4 with real relocated-chart facts (existing endpoints only).
@@ -2231,7 +2309,13 @@ function comparisonWorkspacePanelHtml(cs, ws) {
         </label>
       </div>
       <div class="rm-cmp-section-body${collapsed ? " collapsed" : ""}" id="rm-cmp-sec-${sec}">
-        <p class="meta">${sec === "notes" ? "Use the notepad below." : sec === "a2a" ? "Aspect-to-angle table content ships in a later slice. Angle visibility for map overlays and angle lists follows Settings \u2192 Aspect-to-Angle Display." : "Reading-state bookmark \u2014 full section content ships in a later layout slice."}</p>
+        ${sec === "ais"
+          ? renderAisWorkbookSectionBody(_comparisonColsCache, ws)
+          : sec === "notes"
+            ? "<p class=\"meta\">Use the notepad below.</p>"
+            : sec === "a2a"
+              ? "<p class=\"meta\">Aspect-to-angle table content ships in a later slice. Angle visibility for map overlays and angle lists follows Settings \u2192 Aspect-to-Angle Display.</p>"
+              : "<p class=\"meta\">Reading-state bookmark \u2014 full section content ships in a later layout slice.</p>"}
       </div>
     </div>`;
   }).join("");
@@ -2477,6 +2561,7 @@ async function hydrateComparisonColumns(root) {
     });
     applyComparisonAngleTabFilter(container);
     bindPihDignitiesToggle(container);
+    refreshAisWorkbookSection();
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Comparison request failed.</strong><br>
