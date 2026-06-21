@@ -203,9 +203,9 @@ def static_pih_checks(shell_path: Path, map_path: Path) -> list[tuple[str, bool,
     return out
 
 def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
-    """Static assertions for WHEEL-1 (no Playwright required)."""
+    """Static assertions for WHEEL-1 / WHEEL-v2 (no Playwright required)."""
     shell = shell_path.read_text(encoding="utf-8")
-    start = shell.find("// WHEEL-1:")
+    start = shell.find("// WHEEL-1")
     end = shell.find("// A2A-1:", start)
     block = shell[start:end] if start >= 0 and end > start else ""
     out: list[tuple[str, bool, str]] = []
@@ -221,6 +221,17 @@ def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     out.append(("static_wheel_reads_planets",
                 "canonicalChart.planets" in block,
                 "reads canonical_chart.planets"))
+    out.append(("static_wheel_reads_p2p_spokes",
+                "canonicalChart.aspects_planet_to_planet" in block,
+                "P2P spokes from canonical_chart.aspects_planet_to_planet"))
+    out.append(("static_wheel_reads_motion_state",
+                "entry.motion_state" in block,
+                "retrograde/station from canonical_chart.planets.motion_state"))
+    out.append(("static_wheel_no_client_aspect_math",
+                "_compute_aspects_planet_to_planet" not in block
+                and "separation_deg" not in block
+                and "orb_limit_deg" not in block,
+                "no client P2P aspect math in wheel block"))
     out.append(("static_wheel_no_swe",
                 "swe." not in block and "Swiss" not in block,
                 "no client swe"))
@@ -230,9 +241,7 @@ def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
                 and "mc_deg" not in block,
                 "no legacy flat keys in wheel block"))
     out.append(("static_wheel_no_p2p_table",
-                "p2p" not in block.lower()
-                and "planet-to-planet table" not in shell.lower()
-                and "aspects_planet_to_planet" not in block,
+                "planet-to-planet table" not in shell.lower(),
                 "no separate P2P table/grid"))
     out.append(("static_wheel_screen4_order",
                 "return meta + wheel + ais + a2a + planets" in shell,
@@ -243,39 +252,41 @@ def static_wheel_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
 
 
 def static_motion_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
-    """RETRO-MOTION-1: backend truth only — no wheel retrograde/station glyphs yet."""
+    """WHEEL-v2: motion markers read canonical_chart.planets only (no client speed math)."""
     shell = shell_path.read_text(encoding="utf-8", errors="replace")
+    wh_start = shell.find("// WHEEL-1")
+    wh_end = shell.find("// A2A-1:", wh_start)
+    block = shell[wh_start:wh_end] if wh_start >= 0 and wh_end > wh_start else ""
     out: list[tuple[str, bool, str]] = []
-    out.append(("static_motion_no_client_speed",
-                "speed_deg_per_day" not in shell,
-                "no client speed field wiring"))
-    out.append(("static_motion_no_client_motion_state",
-                "motion_state" not in shell,
-                "no client motion_state wiring"))
-    out.append(("static_motion_no_station_enum",
-                "station_direct" not in shell and "station_retrograde" not in shell,
-                "no client station glyph wiring"))
+    out.append(("static_motion_wheel_reads_motion_state",
+                "entry.motion_state" in block,
+                "wheel reads planet.motion_state from canonical"))
+    out.append(("static_motion_no_client_speed_math",
+                "speed_deg_per_day" not in block,
+                "no client speed computation in wheel block"))
+    out.append(("static_motion_station_markers_in_wheel",
+                "station_direct" in block and "station_retrograde" in block,
+                "station states rendered in wheel block"))
     return out
 
 def static_p2p_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
-    """Static assertions for P2P-ASPECTS-1 (no client P2P math or tables)."""
+    """WHEEL-v2: P2P spokes from canonical only — no client aspect math or tables."""
     shell = shell_path.read_text(encoding="utf-8")
-    out: list[tuple[str, bool, str]] = []
-    out.append(("static_p2p_no_client_compute",
-                "aspects_planet_to_planet" not in shell
-                and "_compute_aspects_planet_to_planet" not in shell,
-                "no client P2P aspect math in app_shell"))
-    out.append(("static_no_p2p_table",
-                "aspects_planet_to_planet" not in shell
-                or shell.count("aspects_planet_to_planet") == 0,
-                "no P2P table/grid in app_shell"))
-    # wheel still documents future spokes only
     wh_start = shell.find("function renderRelocatedWheelSvg")
     wh_end = shell.find("function renderRelocatedWheelHtml", wh_start)
     wh_block = shell[wh_start:wh_end] if wh_start >= 0 and wh_end > wh_start else ""
-    out.append(("static_wheel_no_p2p_spokes",
-                "aspects_planet_to_planet" not in wh_block,
-                "wheel renderer does not draw P2P spokes yet"))
+    out: list[tuple[str, bool, str]] = []
+    out.append(("static_p2p_spokes_from_canonical",
+                "canonicalChart.aspects_planet_to_planet" in wh_block,
+                "wheel draws spokes from canonical_chart.aspects_planet_to_planet"))
+    out.append(("static_p2p_no_client_compute",
+                "_compute_aspects_planet_to_planet" not in shell
+                and "separation_deg" not in wh_block
+                and "orb_limit_deg" not in wh_block,
+                "no client P2P aspect math in wheel block"))
+    out.append(("static_no_p2p_table",
+                "planet-to-planet table" not in shell.lower(),
+                "no P2P table/grid in app_shell"))
     return out
 
 def static_a2a_checks(shell_path: Path) -> list[tuple[str, bool, str]]:

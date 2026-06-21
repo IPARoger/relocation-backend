@@ -2143,13 +2143,50 @@ function refreshAisWorkbookSection() {
   body.innerHTML = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
 }
 
-// WHEEL-1: Relocated geometry wheel — Layer 3 consumer of canonical_chart only.
+// WHEEL-1 / WHEEL-v2: Relocated chart wheel — Layer 3 consumer of canonical_chart only.
 const WHEEL_ASC_ROTATION_DEG = 180;
 const WHEEL_BODY_GLYPH = {
   Sun: "\u2609", Moon: "\u263d", Mercury: "\u263f", Venus: "\u2640", Mars: "\u2642",
   Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
   Chiron: "\u26b7",
 };
+// WHEEL-v2: P2P spoke colors — major harmonious blue, major challenging red, minor green.
+const WHEEL_P2P_MAJOR_HARMONIOUS = new Set(["trine", "sextile"]);
+const WHEEL_P2P_MAJOR_CHALLENGING = new Set(["conjunction", "opposition", "square"]);
+const WHEEL_P2P_MINOR_ASPECTS = new Set([
+  "quincunx", "semisextile", "semisquare", "sesquiquadrate",
+  "quintile", "biquintile", "septile", "novile",
+]);
+const WHEEL_P2P_STROKE = { harmonious: "#2563eb", challenging: "#dc2626", minor: "#16a34a" };
+
+function wheelP2pSpokeStroke(aspect) {
+  const id = String(aspect || "").toLowerCase();
+  if (WHEEL_P2P_MINOR_ASPECTS.has(id)) return WHEEL_P2P_STROKE.minor;
+  if (WHEEL_P2P_MAJOR_HARMONIOUS.has(id)) return WHEEL_P2P_STROKE.harmonious;
+  return WHEEL_P2P_STROKE.challenging;
+}
+
+function wheelMotionMarkerTspans(motionState) {
+  if (!motionState || motionState === "direct") return "";
+  if (motionState === "retrograde") {
+    return '<tspan font-size="9" fill="#6b7280" dx="1">\u211e</tspan>';
+  }
+  if (motionState === "station_direct") {
+    return '<tspan font-size="8" fill="#374151" dx="1" font-weight="600">\u00b7\u00b7</tspan>';
+  }
+  if (motionState === "station_retrograde") {
+    return '<tspan font-size="9" fill="#111827" dx="1" text-decoration="underline">\u211e</tspan>';
+  }
+  return "";
+}
+
+function wheelMotionTooltipSuffix(motionState) {
+  if (!motionState || motionState === "direct") return "";
+  if (motionState === "retrograde") return " \u00b7 retrograde";
+  if (motionState === "station_direct") return " \u00b7 station direct";
+  if (motionState === "station_retrograde") return " \u00b7 station retrograde";
+  return "";
+}
 
 function wheelEclipticToCanvasDeg(lonDeg, ascLonDeg) {
   const norm = ((Number(lonDeg) % 360) + 360) % 360;
@@ -2166,6 +2203,13 @@ function wheelSvgLine(cx, cy, r1, r2, canvasDeg, rotDeg, stroke, sw) {
   const p1 = wheelPolarXY(cx, cy, r1, canvasDeg, rotDeg);
   const p2 = wheelPolarXY(cx, cy, r2, canvasDeg, rotDeg);
   return `<line x1="${p1[0].toFixed(2)}" y1="${p1[1].toFixed(2)}" x2="${p2[0].toFixed(2)}" y2="${p2[1].toFixed(2)}" stroke="${stroke}" stroke-width="${sw}"/>`;
+}
+
+function wheelSvgChord(cx, cy, radius, canvasDegA, canvasDegB, rotDeg, stroke, sw, dash) {
+  const p1 = wheelPolarXY(cx, cy, radius, canvasDegA, rotDeg);
+  const p2 = wheelPolarXY(cx, cy, radius, canvasDegB, rotDeg);
+  const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+  return `<line x1="${p1[0].toFixed(2)}" y1="${p1[1].toFixed(2)}" x2="${p2[0].toFixed(2)}" y2="${p2[1].toFixed(2)}" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round"${dashAttr}/>`;
 }
 
 function renderRelocatedWheelSvg(canonicalChart) {
@@ -2208,6 +2252,23 @@ function renderRelocatedWheelSvg(canonicalChart) {
   }
   const visible = getVisibleBodyNamesSet();
   const planets = canonicalChart.planets || {};
+  const Rspoke = 0.2 * S;
+  const p2pRows = Array.isArray(canonicalChart.aspects_planet_to_planet)
+    ? canonicalChart.aspects_planet_to_planet
+    : [];
+  p2pRows.forEach((row) => {
+    if (!row || !row.body_a || !row.body_b || !row.aspect) return;
+    if (!visible.has(row.body_a) || !visible.has(row.body_b)) return;
+    const ea = planets[row.body_a];
+    const eb = planets[row.body_b];
+    if (!ea || ea.longitude_deg == null || !eb || eb.longitude_deg == null) return;
+    const aA = wheelEclipticToCanvasDeg(ea.longitude_deg, ascLon);
+    const aB = wheelEclipticToCanvasDeg(eb.longitude_deg, ascLon);
+    const aspectId = String(row.aspect).toLowerCase();
+    const stroke = wheelP2pSpokeStroke(aspectId);
+    const isMinor = WHEEL_P2P_MINOR_ASPECTS.has(aspectId);
+    svg += wheelSvgChord(cx, cy, Rspoke, aA, aB, rot, stroke, isMinor ? 0.9 : 1.1, isMinor ? "3 3" : "");
+  });
   const bodyOrder = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
   bodyOrder.forEach((name) => {
     if (!visible.has(name)) return;
@@ -2216,8 +2277,10 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
     const p = wheelPolarXY(cx, cy, Rlabel, a, rot);
     const glyph = WHEEL_BODY_GLYPH[name] || name.slice(0, 2);
-    const tip = `${name} ${entry.sign || ""}${entry.house != null ? " H" + entry.house : ""}`;
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="14" fill="#111827"><title>${escapeHtml(tip)}</title>${glyph}</text>`;
+    const motion = entry.motion_state || (entry.retrograde ? "retrograde" : "direct");
+    const tip = `${name} ${entry.sign || ""}${entry.house != null ? " H" + entry.house : ""}${wheelMotionTooltipSuffix(motion)}`;
+    const motionMark = wheelMotionMarkerTspans(motion);
+    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="14" fill="#111827"><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
   });
   svg += `</svg>`;
   return svg;
@@ -2239,7 +2302,6 @@ function renderRelocatedWheelHtml(canonicalChart) {
   return `<div class="rm-wheel-wrap" data-wheel-source="canonical_chart">
     <p class="meta" style="margin:0 0 8px">${escapeHtml(caption)} \u00b7 ${escapeHtml(kind)} \u00b7 ${escapeHtml(houseSys)} \u00b7 ${escapeHtml(zodiac)}</p>
     ${svg}
-    <p class="meta" style="margin:8px 0 0">Planet-to-planet aspect lines ship in WHEEL-v2 when canonical provides server aspect data.</p>
   </div>`;
 }
 
