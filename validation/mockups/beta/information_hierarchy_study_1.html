@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Information Hierarchy Study 1 — first principles</title>
+<style>
+:root{
+  --ink:#33291f;--ink-soft:#6a5f4f;--ink-faint:#9b9080;
+  --line:#ddd0b8;--line-soft:#ece2cf;--paper:#f4ecdc;--card:#fdf8ee;
+  --app:#a37458;--sep:#5f8a90;
+  --ink-dup-warm: color-mix(in srgb, var(--ink) 68%, var(--paper));
+  --ink-dup-rec: color-mix(in srgb, var(--ink) 72%, var(--paper));
+  --serif:"Iowan Old Style",Palatino,Georgia,serif;
+  --sans:"Avenir Next","Segoe UI",-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:20px 24px 64px;font:14px/1.45 var(--sans);color:var(--ink);background:var(--paper)}
+h1{font-family:var(--serif);font-size:24px;margin:0 0 8px}
+.lead{color:var(--ink-soft);max-width:960px;margin-bottom:16px;font-size:13px}
+.toc{font-size:12px;color:var(--ink-soft);max-width:960px;margin-bottom:24px;line-height:1.7}
+.toc a{color:var(--app);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.principles{font-size:12px;max-width:960px;margin-bottom:24px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);columns:2;column-gap:24px}
+@media(max-width:800px){.principles{columns:1}}
+.principles h2{font-size:13px;margin:0 0 8px;column-span:all}
+.principles li{margin-bottom:4px}
+.variant-block{margin-bottom:48px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.variant-block h2{font-family:var(--serif);font-size:17px;margin:0 0 4px}
+.vdesc{font-size:12px;color:var(--ink-soft);margin:0 0 12px;max-width:860px}
+.scenario h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-faint);margin:0 0 8px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:900px){.pair{grid-template-columns:1fr}}
+.tcard{background:var(--card);border:1px solid rgba(184,154,85,.25);border-radius:12px;padding:6px 8px 10px}
+.tcard h4{font-family:var(--serif);font-size:14px;margin:0;padding:8px 10px 4px}
+table.fact{width:100%;border-collapse:collapse;font-size:12.5px}
+table.fact th,table.fact td{padding:5px 8px;border-bottom:1px solid var(--line-soft)}
+table.fact th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);font-weight:600;text-align:left}
+table.fact td.city{text-align:center;font-variant-numeric:tabular-nums;color:var(--ink)}
+table.fact td.lbl{color:var(--ink-soft);text-align:left;font-weight:500}
+td.lbl,th{background:transparent !important}
+.dig-on .dignity-supportive{background:#eef7f3 !important}
+.dig-on .dignity-challenging{background:#faf3e8 !important}
+.foot{font-size:10px;color:var(--ink-faint);padding:6px 10px 2px}
+.asp{font-weight:600;color:var(--ink)}
+.orb-num{font-size:11.5px;font-weight:600;margin-left:3px}
+.orb-num.app{color:var(--app)}
+.orb-num.sep{color:var(--sep)}
+.v{font-variant-numeric:tabular-nums;font-weight:600}
+
+/* shared dup-cell ground helpers */
+.dup-wash td.dup-cell{position:relative}
+.dup-wash td.dup-cell::before{
+  content:"";position:absolute;inset:3px 5px;border-radius:3px;
+  background:rgba(51,41,31,.032);pointer-events:none;z-index:0
+}
+.dup-wash td.dup-cell.dignity-supportive::before,
+.dup-wash td.dup-cell.dignity-challenging::before{background:rgba(51,41,31,.026)}
+.dup-wash td.dup-cell>*{position:relative;z-index:1}
+
+.dup-edge td.dup-cell{
+  box-shadow:inset 1px 0 0 rgba(51,41,31,.09),inset -1px 0 0 rgba(51,41,31,.09)
+}
+
+.dup-grain td.dup-cell{position:relative;overflow:hidden}
+.dup-grain td.dup-cell::after{
+  content:"";position:absolute;inset:2px 4px;border-radius:2px;pointer-events:none;z-index:0;
+  opacity:.20;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size:88px 88px;mix-blend-mode:multiply
+}
+.dup-grain td.dup-cell>*{position:relative;z-index:1}
+
+/* AP anti-pattern */
+.ap td.dup-cell{opacity:.48;color:#64748b}
+.ap td.dup-cell .v,.ap td.dup-cell .asp{color:#64748b;font-weight:600}
+.ap td.dup-cell .orb-num{opacity:1}
+
+/* R1 weight + tracking */
+.r1 td.dup-cell .v,.r1 td.dup-cell .asp{font-weight:400;letter-spacing:.03em;color:var(--ink)}
+
+/* R2 saturation */
+.r2 td.dup-cell .v,.r2 td.dup-cell .asp{color:var(--ink-dup-warm);font-weight:600}
+
+/* R3 wash only */
+.r3{extend:dup-wash}
+
+/* R4 edge */
+.r4{extend:dup-edge}
+
+/* R5 grain */
+.r5{extend:dup-grain}
+
+/* R6 optical size */
+.r6 td.dup-cell .v{font-size:11px;font-weight:500;letter-spacing:.02em}
+.r6 td.dup-cell .asp{font-size:11.5px;font-weight:500;letter-spacing:.02em}
+
+/* R7 PIH composite */
+.r7{}
+.r7.dup-wash td.dup-cell::before{background:rgba(51,41,31,.032)}
+.r7 td.dup-cell .v{font-weight:400;letter-spacing:.03em;color:var(--ink-dup-rec)}
+
+/* R8 A2A split — apply edge + wash + word demote; PIH uses weight only in this block */
+.r8.dup-wash td.dup-cell::before{background:rgba(51,41,31,.028)}
+.r8.dup-edge td.dup-cell{box-shadow:inset 1px 0 0 rgba(51,41,31,.09),inset -1px 0 0 rgba(51,41,31,.09)}
+.r8 td.dup-cell .asp{font-weight:400;letter-spacing:.025em;color:var(--ink-dup-rec)}
+.r8 td.dup-cell .orb-num{font-weight:600}
+.r8 td.dup-cell .v{font-weight:400;letter-spacing:.03em;color:var(--ink-dup-rec)}
+
+</style></head><body>
+<h1>Information Hierarchy Study 1</h1>
+<p class="lead">First-principles study: how professional dense-information systems make repeated facts <em>easy to ignore, instantly recoverable</em> — without disabled, hidden, or unimportant registers. Nine technique families + one anti-pattern. Cities: <strong>Boston</strong>, <strong>New York</strong> (high duplicate pair), <strong>Omaha</strong> (divergent control).</p>
+<nav class="toc"><strong>Variants:</strong>
+<a href="#ap">AP anti-pattern</a> ·
+<a href="#r1">R1 weight+tracking</a> ·
+<a href="#r2">R2 saturation</a> ·
+<a href="#r3">R3 micro-wash</a> ·
+<a href="#r4">R4 edge</a> ·
+<a href="#r5">R5 grain</a> ·
+<a href="#r6">R6 optical size</a> ·
+<a href="#r7">R7 PIH composite</a> ·
+<a href="#r8">R8 A2A split</a>
+</nav>
+<div class="principles">
+  <h2>Ten dimensions evaluated (see report)</h2>
+  <ol>
+    <li>Ink hierarchy — warm-shift, not cool-grey default</li>
+    <li>Saturation hierarchy — toward paper, full opacity</li>
+    <li>Figure-ground — cell-local micro-wash</li>
+    <li>Local contrast — weight / size split</li>
+    <li>Edge treatments — inset hairlines, brackets</li>
+    <li>Texture — ground grain, not glyph fade</li>
+    <li>Peripheral cues — tracking, optical size</li>
+    <li>Color-temperature — paper-family recede</li>
+    <li>Density-based — <em>rejected</em> for this UI</li>
+    <li>Cell-local — <em>required</em>; no row fade</li>
+  </ol>
+</div>
+
+<section class="variant-block ap" id="ap">
+  <h2>AP — Anti-pattern (production-like)</h2>
+  <p class="vdesc">Opacity 0.48 + cool slate on entire cell. <strong>Rejected</strong> — disabled register, dignity tint collapse.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r1" id="r1">
+  <h2>R1 — Weight + tracking</h2>
+  <p class="vdesc">CAD lineweight metaphor: duplicate digits/words at weight 400, +0.03em tracking. Full ink hue.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r2" id="r2">
+  <h2>R2 — Saturation toward paper</h2>
+  <p class="vdesc">Ink hierarchy via warm desaturation: color-mix(ink 68%, paper). Full opacity.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r3 dup-wash" id="r3">
+  <h2>R3 — Cell micro-wash only</h2>
+  <p class="vdesc">Figure-ground: 3.2% inset wash behind content; primary ink unchanged.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r4 dup-edge" id="r4">
+  <h2>R4 — Inset edge brackets</h2>
+  <p class="vdesc">GIS/CAD hairline vertical rules on duplicate cells only.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r5 dup-grain" id="r5">
+  <h2>R5 — Ground grain texture</h2>
+  <p class="vdesc">Atlas-style micro-noise in cell ground; glyphs above at full ink.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r6" id="r6">
+  <h2>R6 — Optical size −1px</h2>
+  <p class="vdesc">Peripheral salience: duplicate values 11px vs 12.5px primary; weight 500.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r7 dup-wash" id="r7">
+  <h2>R7 — PIH composite (recommended)</h2>
+  <p class="vdesc">Weight 400 + micro-wash + tracking + warm ink mix. Layered orthogonal channels.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="variant-block r8 dup-wash dup-edge" id="r8">
+  <h2>R8 — A2A split + edge (recommended)</h2>
+  <p class="vdesc">Aspect word demoted; orb full color/weight; inset edges on dup cells.</p>
+  <div class="scenario">
+    <h3>Boston · New York · Omaha — mixed duplicate density</h3>
+    <div class="pair">
+      <div class="tcard dig-on">
+        <h4>Planet in House</h4>
+        <table class="fact dig-on"><tr><th>Planet</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Sun</td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dup-cell dignity-challenging"><span class="v">10</span></td><td class="city dignity-challenging"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Moon</td><td class="city dignity-supportive"><span class="v">3</span></td><td class="city dignity-supportive"><span class="v">5</span></td><td class="city dignity-supportive"><span class="v">2</span></td></tr>
+<tr><td class="lbl">Mercury ℞</td><td class="city dup-cell"><span class="v">10</span></td><td class="city dup-cell"><span class="v">10</span></td><td class="city"><span class="v">11</span></td></tr>
+<tr><td class="lbl">Venus</td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dup-cell dignity-supportive"><span class="v">9</span></td><td class="city dignity-supportive"><span class="v">10</span></td></tr>
+<tr><td class="lbl">Mars</td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dup-cell dignity-challenging"><span class="v">7</span></td><td class="city dignity-challenging"><span class="v">8</span></td></tr>
+<tr><td class="lbl">Jupiter</td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dup-cell dignity-supportive"><span class="v">2</span></td><td class="city dignity-supportive"><span class="v">3</span></td></tr>
+<tr><td class="lbl">Saturn</td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dup-cell dignity-challenging"><span class="v">4</span></td><td class="city dignity-challenging"><span class="v">5</span></td></tr>
+<tr><td class="lbl">Uranus</td><td class="city dup-cell"><span class="v">12</span></td><td class="city dup-cell"><span class="v">12</span></td><td class="city"><span class="v">1</span></td></tr>
+<tr><td class="lbl">Neptune</td><td class="city dup-cell"><span class="v">11</span></td><td class="city dup-cell"><span class="v">11</span></td><td class="city"><span class="v">12</span></td></tr>
+<tr><td class="lbl">Pluto</td><td class="city dup-cell"><span class="v">8</span></td><td class="city dup-cell"><span class="v">8</span></td><td class="city"><span class="v">9</span></td></tr>
+</table>
+        <div class="foot">Dignities ON · Diffs ON · dup cells only</div>
+      </div>
+      <div class="tcard">
+        <h4>Aspect to Angle (ASC)</h4>
+        <table class="fact"><tr><th>Planet · ASC</th><th>Boston, MA</th><th>New York, NY</th><th>Omaha, NE</th></tr>
+<tr><td class="lbl">Mars</td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city dup-cell"><span class="asp">Square</span> <span class="orb-num app">2°14′</span></td>
+<td class="city"><span class="asp">Square</span> <span class="orb-num sep">4°31′</span></td>
+</tr>
+<tr><td class="lbl">Venus</td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city dup-cell"><span class="asp">Trine</span> <span class="orb-num sep">1°02′</span></td>
+<td class="city"><span class="asp">Trine</span> <span class="orb-num app">0°55′</span></td>
+</tr>
+<tr><td class="lbl">Saturn</td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+<td class="city"><span class="asp">Sext</span> <span class="orb-num app">1°12′</span></td>
+<td class="city dup-cell"><span class="asp">Sext</span> <span class="orb-num app">0°48′</span></td>
+</tr>
+<tr><td class="lbl">Jupiter</td>
+<td class="city">—</td>
+<td class="city">—</td>
+<td class="city"><span class="asp">Conj</span> <span class="orb-num app">2°08′</span></td>
+</tr>
+</table>
+        <div class="foot">Orb color = applying / separating</div>
+      </div>
+    </div>
+  </div>
+</section>
+</body></html>
