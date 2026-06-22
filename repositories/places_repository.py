@@ -158,14 +158,14 @@ def _search_places_fallback(query: str, limit: int):
     return result.data or []
 
 
-def search_places(query: str, limit: int = 20):
+def search_places(query: str, limit: int = 20, *, use_cache: bool = True):
     q = str(query or "").strip()
     if not q:
         return []
     q_norm = normalize_place_alias(q)
     lim = max(1, min(int(limit or 20), 50))
     cache_key = (q_norm, lim)
-    cached = _search_cache_get(cache_key)
+    cached = _search_cache_get(cache_key) if use_cache else None
     if cached is not None:
         logger.info(
             "places.search cache_hit query=%r norm=%r limit=%d n=%d",
@@ -222,7 +222,8 @@ def search_places(query: str, limit: int = 20):
         stage = "fallback_table"
 
     out = [_strip_search_meta(row) for row in rows]
-    _search_cache_set(cache_key, out)
+    if use_cache:
+        _search_cache_set(cache_key, out)
     total_ms = int((time.perf_counter() - t0) * 1000)
     logger.info(
         "places.search query=%r norm=%r limit=%d stage=%s fast=%d fallback=%d n=%d ms=%d",

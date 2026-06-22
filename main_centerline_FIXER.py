@@ -3245,7 +3245,7 @@ def api_list_places(limit: int = 50):
 
 
 @app.get("/places/search")
-def api_search_places(q: str | None = None, geonames_id: str | None = None, limit: int = 20):
+def api_search_places(q: str | None = None, geonames_id: str | None = None, limit: int = 20, nocache: int = 0):
     from repositories.places_repository import search_places, search_places_by_geonames
 
     t0 = time.perf_counter()
@@ -3258,7 +3258,7 @@ def api_search_places(q: str | None = None, geonames_id: str | None = None, limi
         return rows
     if q is not None and str(q).strip():
         q_clean = str(q).strip()
-        rows = search_places(q_clean, limit)
+        rows = search_places(q_clean, limit, use_cache=not bool(nocache))
         print(
             f"[places/search] q={q_clean!r} limit={limit} n={len(rows)} "
             f"ms={int((time.perf_counter() - t0) * 1000)}"
