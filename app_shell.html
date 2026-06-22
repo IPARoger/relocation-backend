@@ -2434,7 +2434,8 @@ function wheelMotionTooltipSuffix(motionState) {
 function wheelEclipticToCanvasDeg(lonDeg, ascLonDeg) {
   const norm = ((Number(lonDeg) % 360) + 360) % 360;
   const asc = ((Number(ascLonDeg) % 360) + 360) % 360;
-  return ((asc - norm) % 360 + 360) % 360;
+  // Ecliptic longitude increases counterclockwise (beta mockup wedgeEven convention).
+  return ((norm - asc) % 360 + 360) % 360;
 }
 
 function wheelPolarXY(cx, cy, radius, canvasDeg, rotDeg) {
@@ -2458,6 +2459,21 @@ function wheelSvgChord(cx, cy, radius, canvasDegA, canvasDegB, rotDeg, stroke, s
 function wheelSvgCircle(cx, cy, r, stroke, sw, fill) {
   const fillAttr = fill != null ? ` fill="${fill}"` : ' fill="none"';
   return `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(2)}"${fillAttr} stroke="${stroke}" stroke-width="${sw}"/>`;
+}
+
+function wheelSvgWedgeEven(cx, cy, canvasA1, canvasA2, rOut, rIn, rotDeg, fill) {
+  let aa2 = canvasA2;
+  if (aa2 < canvasA1) aa2 += 360;
+  const pts = [];
+  for (let a = canvasA1; a <= aa2; a += 3) {
+    const p = wheelPolarXY(cx, cy, rOut, a, rotDeg);
+    pts.push(`${p[0].toFixed(1)},${p[1].toFixed(1)}`);
+  }
+  for (let a = aa2; a >= canvasA1; a -= 3) {
+    const p = wheelPolarXY(cx, cy, rIn, a, rotDeg);
+    pts.push(`${p[0].toFixed(1)},${p[1].toFixed(1)}`);
+  }
+  return `<polygon points="${pts.join(" ")}" fill="${fill}" stroke="none"/>`;
 }
 
 function wheelSvgWedgeCanvas(cx, cy, canvasA1, canvasA2, rOut, rIn, rotDeg, fill) {
@@ -2534,7 +2550,7 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const lon2 = (sg + 1) * 30;
     const a1 = wheelEclipticToCanvasDeg(lon1, ascLon);
     const a2 = wheelEclipticToCanvasDeg(lon2, ascLon);
-    svg += wheelSvgWedgeCanvas(cx, cy, a1, a2, Rout, Rzod, rot, "rgba(43,41,38,0.022)");
+    svg += wheelSvgWedgeEven(cx, cy, a1, a2, Rout, Rzod, rot, "rgba(43,41,38,0.022)");
   }
   for (let h = 0; h < 12; h++) {
     if (h % 2 !== 0) continue;

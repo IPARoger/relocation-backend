@@ -1,0 +1,14 @@
+[
+  {
+    "label": "before",
+    "place": "Moscow, Russia",
+    "asc_lon": 98.029,
+    "screenshot": "results/198_wheel_orient_screenshots/before_moscow_wheel.png"
+  },
+  {
+    "label": "after",
+    "place": "Moscow, Russia",
+    "asc_lon": 98.029,
+    "screenshot": "results/198_wheel_orient_screenshots/after_moscow_wheel.png"
+  }
+]
