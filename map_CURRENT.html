@@ -866,25 +866,18 @@ body.rm-quick-share-recipient { padding-top: 44px; }
   --accent-deep: #235a83;
 }
 
-/* Panel collapses when exploring */
+/* Panel explore mode — JS FLIP owns opacity/transform; CSS sets pointer-events only */
 #panel {
-    transition: width 0.8s cubic-bezier(.4,0,.2,1),
-                opacity 0.5s ease,
-                padding 0.8s cubic-bezier(.4,0,.2,1);
     overflow: hidden;
 }
 body.rm-explore #panel {
-    width: 0 !important;
-    padding-left: 0;
-    padding-right: 0;
-    opacity: 0;
     pointer-events: none;
-    border-left: none;
 }
+.rm-panel--flip-hidden { opacity: 0 !important; pointer-events: none !important; }
 
-/* Bottle — reopen Genie (hidden until explore) */
+/* Bottle — always in DOM; JS FLIP reveals via .rm-bottle--revealed */
 #rm-bottle {
-    display: none;
+    display: flex;
     position: absolute;
     top: 62px;
     right: 18px;
@@ -896,30 +889,27 @@ body.rm-explore #panel {
     color: var(--accent);
     align-items: center;
     justify-content: center;
-    pointer-events: auto;
+    pointer-events: none;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5);
     z-index: 1000;
     font-family: system-ui, -apple-system, sans-serif;
+    opacity: 0;
 }
 #rm-bottle svg { width: 22px; height: 22px; display: block; }
-body.rm-explore #rm-bottle {
-    display: flex;
-    animation: rmBottleIn 1.0s ease both;
-}
-@keyframes rmBottleIn {
-    from { opacity: 0; transform: scale(.4); }
-    to   { opacity: 1; transform: none; }
+.rm-bottle--revealed {
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 @keyframes rmBreathe {
     0%,100% { box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 0 rgba(47,111,159,.45); }
     50%     { box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(31,45,56,.5), 0 0 0 9px rgba(47,111,159,0); }
 }
-body.rm-explore #rm-bottle { animation: rmBottleIn 1.0s ease both, rmBreathe 2.6s ease 2.1s infinite; }
+.rm-bottle--revealed:hover { animation: rmBreathe 2.6s ease 2.1s infinite; }
 
-/* Ghost strip — variable tokens (hidden until explore) */
+/* Ghost strip — always in DOM; opacity/visibility toggles in explore */
 #rm-ghost-strip {
-    display: none;
+    display: flex;
     position: absolute;
     right: 18px;
     top: 46%;
@@ -932,17 +922,20 @@ body.rm-explore #rm-bottle { animation: rmBottleIn 1.0s ease both, rmBreathe 2.6
     border-radius: 14px;
     z-index: 1000;
     max-width: 240px;
-}
-body.rm-explore #rm-ghost-strip {
-    display: flex;
+    opacity: 0;
+    visibility: hidden;
     background: rgba(251,253,255,.58);
     border: 1px solid var(--line);
     box-shadow: inset 0 0 26px rgba(47,111,159,.05),
                 0 1px 2px rgba(31,45,56,.08),
                 0 16px 34px -22px rgba(31,45,56,.45);
     backdrop-filter: blur(5px);
+}
+body.rm-explore #rm-ghost-strip {
     opacity: .72;
-    transition: opacity .3s ease;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 1.15s ease 0.35s, visibility 0s;
     animation: rmGhostStripIn 1.15s cubic-bezier(.25,.1,.25,1) .35s both;
 }
 body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
@@ -1095,6 +1088,13 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
     border-color: #fecaca;
     background: rgba(254,242,242,0.95);
 }
+.rsp-saving, .rsp-saved, .rsp-error { display: none; }
+#rm-save-pill.rm-save-saving .rsp-idle,
+#rm-save-pill.rm-save-saved  .rsp-idle,
+#rm-save-pill.rm-save-error  .rsp-idle  { display: none; }
+#rm-save-pill.rm-save-saving .rsp-saving { display: inline-flex; align-items: center; gap: 5px; }
+#rm-save-pill.rm-save-saved  .rsp-saved  { display: inline-flex; align-items: center; gap: 5px; }
+#rm-save-pill.rm-save-error  .rsp-error  { display: inline-flex; align-items: center; gap: 5px; }
 /* ── end save pill CSS ───────────────────────────────────────────────────── */
 
 
@@ -1155,10 +1155,15 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
             type="button"
             data-role="map-save-search"
             title="Save this search state to your investigations">
-      <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
-        <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707L11.293.293A1 1 0 0 0 10.586 0H2zm5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 2.5V5H5V2h5.586L11 2.5z"/>
-      </svg>
-      Save Search
+      <span class="rsp-idle">
+        <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
+          <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707L11.293.293A1 1 0 0 0 10.586 0H2zm5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 2.5V5H5V2h5.586L11 2.5z"/>
+        </svg>
+        Save Search
+      </span>
+      <span class="rsp-saving" aria-hidden="true">&#x23F3; Saving&#x2026;</span>
+      <span class="rsp-saved"  aria-hidden="true">&#x2713; Saved</span>
+      <span class="rsp-error"  aria-hidden="true"></span>
     </button>
     <!-- Ghost variable strip (MAP-UX-4) — explore mode only -->
     <div id="rm-ghost-strip"
@@ -7818,15 +7823,13 @@ setRenderStatus("Ready.");
 
     function setPillState(state, msg) {
         pill.disabled = (state === 'saving');
-        pill.className = state === 'saved'  ? 'rm-save-saved'
+        pill.className = state === 'saving' ? 'rm-save-saving'
+                       : state === 'saved'  ? 'rm-save-saved'
                        : state === 'error'  ? 'rm-save-error'
                        : '';
-        if (msg) {
-            pill.innerHTML = msg;
-        } else {
-            pill.innerHTML = '<svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">'
-                + '<path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707L11.293.293A1 1 0 0 0 10.586 0H2zm5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 2.5V5H5V2h5.586L11 2.5z"/>'
-                + '</svg> Save Search';
+        var errEl = pill.querySelector('.rsp-error');
+        if (errEl) {
+            errEl.textContent = (state === 'error' && msg) ? msg : '';
         }
     }
 
@@ -8034,7 +8037,45 @@ setRenderStatus("Ready.");
         colorTick = 0;
         activeConditions = snapshotConditions();
         renderGhost();
+
+        var panel  = document.getElementById('panel');
+        var bottle = document.getElementById('rm-bottle');
+        if (!panel || !bottle) {
+            document.body.classList.add('rm-explore');
+            return;
+        }
+
+        var bR = panel.getBoundingClientRect();
+        var dR = bottle.getBoundingClientRect();
+        var tx = (dR.left + dR.width / 2)  - (bR.left + bR.width / 2);
+        var ty = (dR.top  + dR.height / 2) - (bR.top  + bR.height / 2);
+        var sc = Math.min(dR.width / bR.width, dR.height / bR.height);
+
+        panel.classList.remove('rm-panel--flip-hidden');
+        panel.style.cssText = [
+            'opacity:1', 'pointer-events:none',
+            'transform-origin:center',
+            'transform:translate(0,0) scale(1)',
+            'transition:none',
+            'will-change:transform'
+        ].join(';');
+
         document.body.classList.add('rm-explore');
+
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+            panel.style.transition = 'transform 1.9s cubic-bezier(.6,0,.15,1)';
+            panel.style.transform  = 'translate(' + tx + 'px,' + ty + 'px) scale(' + sc + ')';
+        });});
+
+        setTimeout(function(){
+            bottle.classList.add('rm-bottle--revealed');
+            panel.style.transition = 'opacity 0.12s ease';
+            panel.style.opacity    = '0';
+            setTimeout(function(){
+                panel.removeAttribute('style');
+                panel.classList.add('rm-panel--flip-hidden');
+            }, 130);
+        }, 1950);
         /* NOTE (future integration): when genie_map_engine_adapter exposes a
          * variableChange event, subscribe here and call syncGhost() on each
          * change so Mute/Solo/Not buttons reflect real overlay state.
@@ -8042,8 +8083,47 @@ setRenderStatus("Ready.");
     }
 
     function exitExplore() {
-        document.body.classList.remove('rm-explore');
-        soloId = null;
+        var panel  = document.getElementById('panel');
+        var bottle = document.getElementById('rm-bottle');
+        if (!panel || !bottle) {
+            document.body.classList.remove('rm-explore');
+            soloId = null;
+            return;
+        }
+
+        var dR = bottle.getBoundingClientRect();
+        var bR = panel.getBoundingClientRect();
+        var tx = (dR.left + dR.width / 2)  - (bR.left + bR.width / 2);
+        var ty = (dR.top  + dR.height / 2) - (bR.top  + bR.height / 2);
+        var sc = Math.min(dR.width / bR.width, dR.height / bR.height);
+
+        panel.classList.remove('rm-panel--flip-hidden');
+        panel.style.cssText = [
+            'opacity:1', 'pointer-events:none',
+            'transform-origin:center',
+            'transform:translate(' + tx + 'px,' + ty + 'px) scale(' + sc + ')',
+            'transition:none',
+            'will-change:transform'
+        ].join(';');
+
+        bottle.classList.remove('rm-bottle--revealed');
+        bottle.style.cssText = 'transition:opacity 0.12s ease; opacity:0;';
+
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+            panel.style.transition = 'transform 1.7s cubic-bezier(.2,0,.35,1)';
+            panel.style.transform  = 'none';
+        });});
+
+        setTimeout(function(){
+            document.body.classList.remove('rm-explore');
+        }, 500);
+
+        setTimeout(function(){
+            panel.removeAttribute('style');
+            bottle.classList.remove('rm-bottle--revealed');
+            bottle.removeAttribute('style');
+            soloId = null;
+        }, 1800);
         /* keep activeConditions so the snapshot is available on re-enter */
     }
 
