@@ -1,6 +1,6 @@
 /**
  * GLYPH-WIRING-1 — central AstroDotBasic glyph resolver (temporary production standard).
- * Astro key map per AstroDotBasic.ttf. Export: window.__rmGlyphs
+ * Character map per AstroDotBasic.ttf specimen (A–U planets, a–l signs, m–y aspects). Export: window.__rmGlyphs
  */
 (function () {
   "use strict";
@@ -13,36 +13,39 @@
   ];
 
   const PLANET_FONT = {
-    Sun: "Q", Moon: "R", Mercury: "S", Venus: "T", Mars: "U",
-    Jupiter: "V", Saturn: "W", Uranus: "X", Neptune: "Y", Pluto: "Z",
-    Chiron: "t",
+    Sun: "A", Moon: "B", Mercury: "C", Venus: "D", Mars: "E",
+    Jupiter: "F", Saturn: "G", Uranus: "H", Neptune: "I", Pluto: "J",
+    Chiron: "U",
+    "North Node": "L", "South Node": "M",
   };
 
   const SIGN_FONT = {
-    Aries: "A", Taurus: "B", Gemini: "C", Cancer: "D", Leo: "E", Virgo: "F",
-    Libra: "G", Scorpio: "H", Sagittarius: "I", Capricorn: "J", Aquarius: "K", Pisces: "L",
+    Aries: "a", Taurus: "b", Gemini: "c", Cancer: "d", Leo: "e", Virgo: "f",
+    Libra: "g", Scorpio: "h", Sagittarius: "i", Capricorn: "j", Aquarius: "k", Pisces: "l",
   };
 
   const ASPECT_FONT = {
-    conjunct: "!", conjunction: "!",
-    opposition: "\u0022",
-    square: "#",
-    trine: "$",
-    sextile: "'",
-    semisextile: "%",
-    quincunx: "&", inconjunct: "&",
-    semisquare: "(",
-    sesquiquadrate: ")",
-    biquintile: "*",
-    quintile: "+",
+    conjunction: "m", conjunct: "m",
+    opposition: "n",
+    square: "o",
+    trine: "p",
+    sextile: "q",
+    semisextile: "r",
+    quincunx: "s", inconjunct: "s",
+    semisquare: "t",
+    sesquiquadrate: "u",
+    biquintile: "v",
+    quintile: "w",
+    parallel: "x",
+    contraparallel: "y",
   };
 
-  const ANGLE_FONT = { ASC: "a", MC: "b", IC: "c" };
+  const ANGLE_FONT = { ASC: "P", MC: "Q" };
 
   const NODE_FONT = {
-    "North Node": "<", "South Node": ">",
-    north_node: "<", south_node: ">",
-    "north node": "<", "south node": ">",
+    "North Node": "L", "South Node": "M",
+    north_node: "L", south_node: "M",
+    "north node": "L", "south node": "M",
   };
 
   const UNICODE = {

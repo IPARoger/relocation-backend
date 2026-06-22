@@ -60,24 +60,23 @@ def main() -> int:
     angle = parse_simple_object(extract_object_block(glyphs_text, "ANGLE_FONT"))
 
     checks.append(("planet_font_map", planet == {
-        "Sun": "Q", "Moon": "R", "Mercury": "S", "Venus": "T", "Mars": "U",
-        "Jupiter": "V", "Saturn": "W", "Uranus": "X", "Neptune": "Y", "Pluto": "Z", "Chiron": "t",
-    }, "PLANET_FONT Astro keys (Q=Sun …)"))
+        "Sun": "A", "Moon": "B", "Mercury": "C", "Venus": "D", "Mars": "E",
+        "Jupiter": "F", "Saturn": "G", "Uranus": "H", "Neptune": "I", "Pluto": "J", "Chiron": "U",
+    }, "PLANET_FONT AstroDotBasic keys (A=Sun …)"))
 
     checks.append(("sign_font_map", sign == {
-        "Aries": "A", "Taurus": "B", "Gemini": "C", "Cancer": "D", "Leo": "E", "Virgo": "F",
-        "Libra": "G", "Scorpio": "H", "Sagittarius": "I", "Capricorn": "J", "Aquarius": "K", "Pisces": "L",
-    }, "SIGN_FONT Astro keys (A=Aries …)"))
+        "Aries": "a", "Taurus": "b", "Gemini": "c", "Cancer": "d", "Leo": "e", "Virgo": "f",
+        "Libra": "g", "Scorpio": "h", "Sagittarius": "i", "Capricorn": "j", "Aquarius": "k", "Pisces": "l",
+    }, "SIGN_FONT AstroDotBasic keys (a=Aries …)"))
 
     expected_aspect = {
-        "conjunct": "!", "conjunction": "!", "square": "#", "trine": "$", "sextile": "'",
-        "semisextile": "%", "quincunx": "&", "inconjunct": "&",
-        "semisquare": "(", "sesquiquadrate": ")", "biquintile": "*", "quintile": "+",
+        "conjunction": "m", "conjunct": "m", "opposition": "n", "square": "o", "trine": "p", "sextile": "q",
+        "semisextile": "r", "quincunx": "s", "inconjunct": "s",
+        "semisquare": "t", "sesquiquadrate": "u", "biquintile": "v", "quintile": "w",
     }
-    checks.append(("aspect_font_map", all(aspect.get(k) == v for k, v in expected_aspect.items()), "ASPECT_FONT Astro keys"))
-    checks.append(("aspect_opposition_char", 'opposition: "\\u0022"' in glyphs_text, "opposition quote glyph"))
+    checks.append(("aspect_font_map", all(aspect.get(k) == v for k, v in expected_aspect.items()), "ASPECT_FONT AstroDotBasic keys"))
 
-    checks.append(("angle_font_map", angle == {"ASC": "a", "MC": "b", "IC": "c"}, "ANGLE_FONT (DSC fallback)"))
+    checks.append(("angle_font_map", angle == {"ASC": "P", "MC": "Q"}, "ANGLE_FONT AstroDotBasic (DSC/IC fallback)"))
 
     checks.append(("shell_links_glyphs_css", "/theme/glyphs.css" in shell_text, "app_shell links glyphs.css"))
     checks.append(("shell_links_glyphs_js", "/theme/glyphs.js" in shell_text, "app_shell links glyphs.js"))

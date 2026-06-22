@@ -62,3 +62,7 @@ python3 scripts/smoke_glyph_wiring_1.py
 - Alternate glyph packs / user picker — deferred
 - Map Genie overlay glyphs — separate surface (not in this slice)
 
+
+## Post-closeout correction
+
+Commit `4f6a0af` briefly applied legacy Astro-ZLzx keys (Q=Sun). Reverted to the **AstroDotBasic specimen** map (A=Sun, a–l signs, m–y aspects, P/Q angles) per the font character chart.
