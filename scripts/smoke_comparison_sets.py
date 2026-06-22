@@ -398,15 +398,15 @@ def static_diffs_mvp_checks(shell_path: Path) -> list[tuple[str, bool, str]]:
     out.append(("static_diffs_toggle",
                 'data-action="toggle-cmp-diffs"' in shell and "setDiffsEnabled" in shell,
                 "Diffs toggle wired"))
-    out.append(("static_diffs_identical_class",
-                "rm-cmp-diff-identical" in shell and "cmpDiffTdClass" in shell,
-                "identical cell fade class"))
+    out.append(("static_diffs_duplicate_class",
+                "rm-cmp-diff-duplicate" in shell and "cmpDiffTdClass" in shell,
+                "duplicate cell fade class"))
     out.append(("static_diffs_pih_ais_a2a",
                 "pihHouseDiffKey" in shell and "aisAngleDiffKey" in shell and "a2aCellDiffKey" in shell,
                 "PIH AIS A2A diff keys"))
-    out.append(("static_diffs_reference_column",
-                "referencePlaceId" in shell and "resolveVisibleOrderedPlaceIds" in shell,
-                "first visible column reference"))
+    out.append(("static_diffs_per_row",
+                "cmpDiffRowFadeKeys" in shell and "referencePlaceId" not in shell,
+                "per-row duplicate fade, no reference column"))
     out.append(("static_diffs_no_p2p",
                 "aspects_planet_to_planet" not in shell.split("buildComparisonDiffContext", 1)[0]
                 or "p2p" not in shell[shell.find("buildComparisonDiffContext"):shell.find("buildComparisonDiffContext") + 800].lower(),

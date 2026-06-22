@@ -127,9 +127,9 @@
   .rm-cmp-section-body.collapsed { display: none; }
   .rm-cmp-angle-tab.active { font-weight: 600; color: var(--accent); }
   .rm-cmp-city-chip.hidden-place { opacity: 0.45; text-decoration: line-through; }
-  .rm-cmp-diff-identical { opacity: 0.28; color: var(--muted); }
-  td.rm-cmp-diff-identical.pih-house-cell.dignity-supportive,
-  td.rm-cmp-diff-identical.pih-house-cell.dignity-challenging { opacity: 0.28; }
+  .rm-cmp-diff-duplicate { opacity: 0.48; color: #64748b; }
+  td.rm-cmp-diff-duplicate.pih-house-cell.dignity-supportive,
+  td.rm-cmp-diff-duplicate.pih-house-cell.dignity-challenging { opacity: 0.48; color: #64748b; }
 
   .map-placeholder {
     min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
@@ -2086,7 +2086,7 @@ function pihSignFromPlanetInfo(info) {
   return window.RMDignityOntology.parseSignFromLongitudeFormatted(info.longitude_formatted);
 }
 
-// DIFFS-MVP-1: cell-level comparison readability (reference = first visible column).
+// DIFFS-VISUAL-TUNE-1: per-row duplicate fade (no reference column).
 function getDiffsEnabled() {
   return !!(_cmpWorkspaceSession && _cmpWorkspaceSession.state && _cmpWorkspaceSession.state.diffs_enabled);
 }
@@ -2098,14 +2098,27 @@ function buildComparisonDiffContext(cols, ws) {
   const visibleIds = resolveVisibleOrderedPlaceIds(state, placeIds);
   return {
     diffsOn: !!state.diffs_enabled,
-    referencePlaceId: visibleIds[0] || null,
     visibleIds,
   };
 }
 
-function cmpDiffTdClass(referenceValue, cellValue, diffsOn) {
+function cmpDiffRowFadeKeys(rowKeys) {
+  const counts = new Map();
+  (rowKeys || []).forEach((k) => {
+    const key = k == null ? "—" : String(k);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  const fade = new Set();
+  counts.forEach((count, key) => {
+    if (count >= 2) fade.add(key);
+  });
+  return fade;
+}
+
+function cmpDiffTdClass(cellKey, rowKeys, diffsOn) {
   if (!diffsOn) return "";
-  return referenceValue === cellValue ? " rm-cmp-diff-identical" : "";
+  const key = cellKey == null ? "—" : String(cellKey);
+  return cmpDiffRowFadeKeys(rowKeys).has(key) ? " rm-cmp-diff-duplicate" : "";
 }
 
 function pihHouseDiffKey(info) {
@@ -2178,6 +2191,7 @@ window.__rmFormatA2aComparisonCellText = formatA2aComparisonCellText;
 window.__rmCmpAngleTabMatchesRow = cmpAngleTabMatchesRow;
 window.__rmEnsureComparisonPickPlace = ensureComparisonPickPlace;
 window.__rmCmpDiffTdClass = cmpDiffTdClass;
+window.__rmCmpDiffRowFadeKeys = cmpDiffRowFadeKeys;
 window.__rmPihDignityClass = pihDignityClass;
 
 function pihHouseCellHtml(planet, info, dignitiesOn, diffClass) {
@@ -2430,19 +2444,19 @@ function renderComparisonAngleRowsHtml(cols, diffCtx) {
   const a2a = getA2aDisplayAngles();
   const enabled = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]);
   const ctx = diffCtx || buildComparisonDiffContext(cols);
-  const refCol = (cols || []).find((c) => c.placeId === ctx.referencePlaceId);
   return enabled.map(({ key, label }) => {
-    let refKey = "—";
-    if (refCol && !refCol.error) {
-      const refCc = getCanonicalChartFromPayload(refCol.chart);
-      refKey = aisAngleDiffKey(refCc && refCc.angles ? refCc.angles[key] : null);
-    }
-    const cells = cols.map((c) => {
+    const rowKeys = cols.map((c) => {
+      if (c.error) return "—";
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const entry = cc && cc.angles ? cc.angles[key] : null;
+      return aisAngleDiffKey(entry);
+    });
+    const cells = cols.map((c, i) => {
       if (c.error) return "<td>—</td>";
       const cc = getCanonicalChartFromPayload(c.chart);
       const entry = cc && cc.angles ? cc.angles[key] : null;
-      const cellKey = aisAngleDiffKey(entry);
-      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      const cellKey = rowKeys[i];
+      const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
       return `<td class="${dc.trim() || ""}">${escapeHtml(formatCanonicalAngleDisplay(entry))}</td>`;
     }).join("");
     return `<tr data-cmp-angle-row="${label}"><td>${label}</td>${cells}</tr>`;
@@ -2478,19 +2492,18 @@ function renderAisComparisonHtml(cols, visiblePlaceIds, diffCtx) {
     return `<p class="meta">No visible comparison places.</p>`;
   }
   const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
-  const refCol = places.find((c) => c.placeId === ctx.referencePlaceId) || places[0];
   const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
   const body = enabled.map(({ key, label }) => {
-    let refKey = "—";
-    if (refCol && !refCol.error) {
-      const refCc = getCanonicalChartFromPayload(refCol.chart);
-      refKey = aisAngleDiffKey(refCc && refCc.angles ? refCc.angles[key] : null);
-    }
-    const cells = places.map((c) => {
+    const rowKeys = places.map((c) => {
       const cc = getCanonicalChartFromPayload(c.chart);
       const entry = cc && cc.angles ? cc.angles[key] : null;
-      const cellKey = aisAngleDiffKey(entry);
-      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      return aisAngleDiffKey(entry);
+    });
+    const cells = places.map((c, i) => {
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const entry = cc && cc.angles ? cc.angles[key] : null;
+      const cellKey = rowKeys[i];
+      const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
       return `<td class="${dc.trim() || ""}">${escapeHtml(aisFormatAngleDisplay(entry))}</td>`;
     }).join("");
     return `<tr data-cmp-angle-row="${label}"><td>${label}</td>${cells}</tr>`;
@@ -2506,25 +2519,25 @@ function renderPihComparisonHtml(cols, visiblePlaceIds, dignitiesOn, diffCtx) {
   }
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : getPihDignitiesEnabled("compare");
   const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
-  const refCol = places.find((c) => c.placeId === ctx.referencePlaceId) || places[0];
   const visible = getVisibleBodyNamesSet();
   const planetNames = PIH_BODY_ORDER.filter((pn) => visible.has(pn));
   const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
   const body = planetNames.map((pn) => {
-    let refKey = "—";
-    if (refCol && !refCol.error) {
-      const refCc = getCanonicalChartFromPayload(refCol.chart);
-      refKey = pihHouseDiffKey((refCc && refCc.planets && refCc.planets[pn]) || {});
-    }
-    const cells = places.map((c) => {
+    const rowKeys = places.map((c) => {
+      if (c.error) return "—";
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const info = (cc && cc.planets && cc.planets[pn]) || {};
+      return pihHouseDiffKey(info);
+    });
+    const cells = places.map((c, i) => {
       if (c.error) return "<td>—</td>";
       const cc = getCanonicalChartFromPayload(c.chart);
       const info = (cc && cc.planets && cc.planets[pn]) || {};
-      const cellKey = pihHouseDiffKey(info);
-      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      const cellKey = rowKeys[i];
+      const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
       return pihHouseCellHtml(pn, info, on, dc);
     }).join("");
-    const motionEntry = planetEntryForMotionLookup(places, pn, refCol);
+    const motionEntry = planetEntryForMotionLookup(places, pn, places.find((c) => !c.error) || null);
     return `<tr><td>${formatTablePlanetNameHtml(pn, motionEntry)}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-pih-table" data-pih-source="canonical_chart"><tr><th>Planet</th>${headers}</tr>${body}</table>`;
@@ -2942,7 +2955,6 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
     return `<p class="meta">No visible comparison places.</p>`;
   }
   const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
-  const refCol = places.find((c) => c.placeId === ctx.referencePlaceId) || places[0];
   const keyMap = new Map();
   places.forEach((c) => {
     const cc = getCanonicalChartFromPayload(c.chart);
@@ -2958,22 +2970,22 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
     return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
   }
   const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
-  const refPlanets = (() => {
-    const cc = getCanonicalChartFromPayload(refCol.chart);
+  const motionPlanets = (() => {
+    const first = places.find((c) => !c.error) || places[0];
+    const cc = getCanonicalChartFromPayload(first.chart);
     return (cc && cc.planets) || {};
   })();
   const body = comboRows.map(({ planet, aspect, angle, label, byPlace }) => {
-    const refRow = byPlace[refCol.placeId];
-    const refKey = a2aCellDiffKey(refRow);
-    const cells = places.map((c) => {
+    const rowKeys = places.map((c) => a2aCellDiffKey(byPlace[c.placeId]));
+    const cells = places.map((c, i) => {
       const row = byPlace[c.placeId];
-      const cellKey = a2aCellDiffKey(row);
-      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      const cellKey = rowKeys[i];
+      const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
       const text = row ? formatA2aComparisonCellText(row) : "—";
       return `<td class="${dc.trim() || ""}">${escapeHtml(text)}</td>`;
     }).join("");
     const angleLabel = (label.match(/\b(ASC|MC|DSC|IC)\s*$/i) || [])[1] || "";
-    const contactHtml = formatA2aContactRowHtml(planet, aspect, angle, refPlanets);
+    const contactHtml = formatA2aContactRowHtml(planet, aspect, angle, motionPlanets);
     return `<tr data-cmp-a2a-angle="${escapeHtml(angleLabel.toUpperCase())}"><td>${contactHtml}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-a2a-table" data-a2a-source="canonical_chart">
@@ -3103,7 +3115,6 @@ function renderComparisonTableHtml(cols, dignitiesOn, diffCtx) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : getPihDignitiesEnabled("compare");
   const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
   const diffsOn = ctx.diffsOn;
-  const refCol = (cols || []).find((c) => c.placeId === ctx.referencePlaceId);
   const headers = cols.map((c) =>
     `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open Relocated Chart">${escapeHtml(c.name)}</button></th>`
   ).join("");
@@ -3111,18 +3122,19 @@ function renderComparisonTableHtml(cols, dignitiesOn, diffCtx) {
   const _compVisibleBodies = getVisibleBodyNamesSet();
   const planetNames = PIH_BODY_ORDER.filter((pn) => _compVisibleBodies.has(pn));
   const planetRows = planetNames.map((pn) => {
-    let refKey = "—";
-    if (refCol && !refCol.error) {
-      const refCc = getCanonicalChartFromPayload(refCol.chart);
-      refKey = pihHouseDiffKey((refCc && refCc.planets && refCc.planets[pn]) || {});
-    }
-    const motionEntry = planetEntryForMotionLookup(cols, pn, refCol);
-    return `<tr><td>${formatTablePlanetNameHtml(pn, motionEntry)} house</td>${cols.map((c) => {
+    const rowKeys = cols.map((c) => {
+      if (c.error) return "—";
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const info = (cc && cc.planets && cc.planets[pn]) || {};
+      return pihHouseDiffKey(info);
+    });
+    const motionEntry = planetEntryForMotionLookup(cols, pn, cols.find((c) => !c.error) || null);
+    return `<tr><td>${formatTablePlanetNameHtml(pn, motionEntry)} house</td>${cols.map((c, i) => {
       if (c.error) return "<td>—</td>";
       const cc = getCanonicalChartFromPayload(c.chart);
       const info = (cc && cc.planets && cc.planets[pn]) || {};
-      const cellKey = pihHouseDiffKey(info);
-      const dc = cmpDiffTdClass(refKey, cellKey, diffsOn);
+      const cellKey = rowKeys[i];
+      const dc = cmpDiffTdClass(cellKey, rowKeys, diffsOn);
       return pihHouseCellHtml(pn, info, on, dc);
     }).join("")}</tr>`;
   }).join("");

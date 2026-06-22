@@ -72,7 +72,7 @@ def static_checks() -> list[tuple[str, bool, str]]:
                 "renderPihWorkbookSectionBody" in shell and "renderPihComparisonHtml" in shell,
                 "PIH workbook section live"))
     out.append(("static_dh_diffs_combined",
-                "td.rm-cmp-diff-identical.pih-house-cell.dignity-supportive" in shell,
+                "td.rm-cmp-diff-duplicate.pih-house-cell.dignity-supportive" in shell,
                 "diffs + dignities combined CSS"))
     out.append(("static_dh_place_register",
                 "ensureComparisonPickPlace" in shell and "registerPlaceInMemory" in shell,
