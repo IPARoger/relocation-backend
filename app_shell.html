@@ -15,6 +15,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Relocation App — Application Shell</title>
 <link rel="stylesheet" href="/genie_variable_builder.css" />
+<link rel="stylesheet" href="/theme/glyphs.css" />
 <style>
   :root {
     --fg: #111827;
@@ -433,6 +434,7 @@
 <script src="/account_drawer.js"></script>
 <script src="/quick_share.js"></script>
 <script src="/genie_variable_builder.js"></script>
+<script src="/theme/glyphs.js"></script>
 <script>
 "use strict";
 
@@ -2462,6 +2464,62 @@ function formatAisSignName(sign) {
   const s = String(sign);
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
+function rmGlyphs() {
+  return window.__rmGlyphs || null;
+}
+
+function formatAngleLabelHtml(label) {
+  if (!label) return "—";
+  const g = rmGlyphs();
+  if (!g) return escapeHtml(label);
+  return g.formatGlyphHtml("angle", label, { className: "rm-glyph-inline" })
+    + ` <span class="rm-angle-name">${escapeHtml(label)}</span>`;
+}
+
+function formatSignDisplayHtml(sign) {
+  if (!sign) return "—";
+  const name = formatAisSignName(sign);
+  const g = rmGlyphs();
+  if (!g) return escapeHtml(name);
+  return g.formatGlyphHtml("sign", sign, { className: "rm-glyph-inline" })
+    + `<span class="rm-sign-name">${escapeHtml(name)}</span>`;
+}
+
+function aisFormatAngleDisplayHtml(angleEntry) {
+  if (!angleEntry || angleEntry.longitude_deg == null) return "—";
+  const lon = Number(angleEntry.longitude_deg) % 360;
+  const signDeg = lon % 30;
+  const whole = Math.floor(signDeg);
+  const minutes = Math.floor((signDeg - whole) * 60);
+  const deg = `${whole}°${String(minutes).padStart(2, "0")}′`;
+  return `${escapeHtml(deg)} ${formatSignDisplayHtml(angleEntry.sign)}`;
+}
+
+function formatCanonicalPlanetLongitudeHtml(planetEntry) {
+  if (!planetEntry || planetEntry.longitude_deg == null) return "—";
+  const lon = Number(planetEntry.longitude_deg) % 360;
+  const signDeg = lon % 30;
+  const whole = Math.floor(signDeg);
+  const minutes = Math.floor((signDeg - whole) * 60);
+  const deg = `${whole}°${String(minutes).padStart(2, "0")}′`;
+  return `${escapeHtml(deg)} ${formatSignDisplayHtml(planetEntry.sign)}`;
+}
+
+function formatCanonicalAngleDisplayHtml(angleEntry) {
+  return aisFormatAngleDisplayHtml(angleEntry);
+}
+
+function formatA2aAspectLabelHtml(aspect) {
+  if (!aspect) return "—";
+  const s = String(aspect);
+  const label = s.charAt(0).toUpperCase() + s.slice(1);
+  const g = rmGlyphs();
+  if (!g) return escapeHtml(label);
+  return g.formatGlyphHtml("aspect", aspect, { className: "rm-glyph-inline" })
+    + ` <span class="rm-aspect-name">${escapeHtml(label)}</span>`;
+}
+
+
 
 function aisFormatAngleDisplay(angleEntry) {
   if (!angleEntry || angleEntry.longitude_deg == null) return "—";
@@ -2509,7 +2567,11 @@ function tablePlanetMotionMarkerHtml(motionState) {
 
 function formatTablePlanetNameHtml(planetName, planetEntry) {
   const motion = resolvePlanetMotionState(planetEntry);
-  return escapeHtml(planetName || "—") + tablePlanetMotionMarkerHtml(motion);
+  const g = rmGlyphs();
+  const glyph = (g && planetName)
+    ? g.formatGlyphHtml("planet", planetName, { className: "rm-glyph-inline" }) + " "
+    : "";
+  return glyph + escapeHtml(planetName || "—") + tablePlanetMotionMarkerHtml(motion);
 }
 
 function planetEntryForMotionLookup(cols, planetName, refCol) {
@@ -2540,7 +2602,7 @@ function renderPihTableRowsFromCanonical(canonicalChart, options) {
   const showLongitude = opts.showLongitude !== false;
   return PIH_BODY_ORDER.filter((name) => visible.has(name)).map((name) => {
     const entry = planets[name] || {};
-    return `<tr><td>${formatTablePlanetNameHtml(name, entry)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}<td>${escapeHtml(formatCanonicalPlanetLongitude(entry))}</td></tr>`;
+    return `<tr><td>${formatTablePlanetNameHtml(name, entry)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}<td>${formatCanonicalPlanetLongitudeHtml(entry)}</td></tr>`;
   }).join("");
 }
 
@@ -2561,15 +2623,17 @@ function renderComparisonAngleRowsHtml(cols, diffCtx) {
       const entry = cc && cc.angles ? cc.angles[key] : null;
       const cellKey = rowKeys[i];
       const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
-      return `<td class="${dc.trim() || ""}">${escapeHtml(formatCanonicalAngleDisplay(entry))}</td>`;
+      return `<td class="${dc.trim() || ""}">${formatCanonicalAngleDisplayHtml(entry)}</td>`;
     }).join("");
-    return `<tr data-cmp-angle-row="${label}"><td>${label}</td>${cells}</tr>`;
+    return `<tr data-cmp-angle-row="${label}"><td>${formatAngleLabelHtml(label)}</td>${cells}</tr>`;
   }).join("");
 }
 
 window.__rmGetCanonicalChartFromPayload = getCanonicalChartFromPayload;
 window.__rmFormatCanonicalAngleDisplay = formatCanonicalAngleDisplay;
 window.__rmFormatCanonicalPlanetLongitude = formatCanonicalPlanetLongitude;
+window.__rmFormatCanonicalPlanetLongitudeHtml = formatCanonicalPlanetLongitudeHtml;
+window.__rmAisFormatAngleDisplayHtml = aisFormatAngleDisplayHtml;
 window.__rmRenderPihTableRowsFromCanonical = renderPihTableRowsFromCanonical;
 
 function renderAisSinglePlaceHtml(canonicalChart) {
@@ -2577,7 +2641,7 @@ function renderAisSinglePlaceHtml(canonicalChart) {
   const angles = (canonicalChart && canonicalChart.angles) || {};
   const rows = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]).map(({ key, label }) => {
     const entry = angles[key];
-    return `<tr><td>${label}</td><td>${escapeHtml(aisFormatAngleDisplay(entry))}</td></tr>`;
+    return `<tr><td>${formatAngleLabelHtml(label)}</td><td>${aisFormatAngleDisplayHtml(entry)}</td></tr>`;
   }).join("");
   if (!rows) {
     return `<p class="meta">No angles enabled in Settings \u2192 Aspect-to-Angle Display.</p>`;
@@ -2608,9 +2672,9 @@ function renderAisComparisonHtml(cols, visiblePlaceIds, diffCtx) {
       const entry = cc && cc.angles ? cc.angles[key] : null;
       const cellKey = rowKeys[i];
       const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
-      return `<td class="${dc.trim() || ""}">${escapeHtml(aisFormatAngleDisplay(entry))}</td>`;
+      return `<td class="${dc.trim() || ""}">${aisFormatAngleDisplayHtml(entry)}</td>`;
     }).join("");
-    return `<tr data-cmp-angle-row="${label}"><td>${label}</td>${cells}</tr>`;
+    return `<tr data-cmp-angle-row="${label}"><td>${formatAngleLabelHtml(label)}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th>${headers}</tr>${body}</table>`;
 }
@@ -2688,11 +2752,6 @@ function refreshAisWorkbookSection() {
 
 // WHEEL-1 / WHEEL-v2: Relocated chart wheel — Layer 3 consumer of canonical_chart only.
 const WHEEL_ASC_ROTATION_DEG = 180;
-const WHEEL_BODY_GLYPH = {
-  Sun: "\u2609", Moon: "\u263d", Mercury: "\u263f", Venus: "\u2640", Mars: "\u2642",
-  Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
-  Chiron: "\u26b7",
-};
 // WHEEL-VISUAL-1: beta warm-grey palette (relocated_standard.html)
 const WHEEL_GREY = { ink: "#2b2926", cusp: "#8a857a", divider: "#9b968b", tick5: "#c4bfb2", innerSoft: "#9a9485" };
 const WHEEL_VISUAL = {
@@ -2879,12 +2938,17 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const a = wheelEclipticToCanvasDeg(t5, ascLon);
     svg += wheelSvgLine(cx, cy, Rzod, Rzod + 0.018 * S, a, rot, WHEEL_GREY.tick5, (0.9 * k).toFixed(2));
   }
-  const signScale = (0.0046 * S).toFixed(2);
+  const signNames = (rmGlyphs() && rmGlyphs().SIGN_NAMES) || [];
   for (let sgi = 0; sgi < 12; sgi++) {
     const signCenterLon = sgi * 30 + 15;
     const a = wheelEclipticToCanvasDeg(signCenterLon, ascLon);
     const gp = wheelPolarXY(cx, cy, Rsg, a, rot);
-    svg += `<g transform="translate(${gp[0].toFixed(1)},${gp[1].toFixed(1)}) scale(${signScale})" stroke="${WHEEL_GREY.cusp}" stroke-width="0.7" fill="none" stroke-linecap="round" stroke-linejoin="round">${wheelZodiacSignSvg(sgi)}</g>`;
+    const signId = signNames[sgi] || String(sgi);
+    const gSign = rmGlyphs() ? rmGlyphs().resolveGlyph("sign", signId) : null;
+    const signText = rmGlyphs() ? rmGlyphs().formatGlyphSvgText("sign", signId) : "";
+    const signFont = gSign && gSign.useFont ? rmGlyphs().svgFontFamilyAttr(gSign) : "";
+    const signSize = (22 * k).toFixed(1);
+    svg += `<text x="${gp[0].toFixed(1)}" y="${(gp[1] + 5 * k).toFixed(1)}" text-anchor="middle" font-size="${signSize}" fill="${WHEEL_GREY.cusp}"${signFont}><title>${escapeHtml(signId)}</title>${signText}</text>`;
   }
   for (let i = 0; i < 12; i++) {
     if (i === 0 || i === 3 || i === 6 || i === 9) continue;
@@ -2933,11 +2997,13 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
     svg += wheelSvgLine(cx, cy, Rzod, Rzod + 0.018 * S, a, rot, WHEEL_GREY.ink, (1.1 * k).toFixed(2));
     const p = wheelPolarXY(cx, cy, Rplanet, a, rot);
-    const glyph = WHEEL_BODY_GLYPH[name] || name.slice(0, 2);
+    const gPlanet = rmGlyphs() ? rmGlyphs().resolveGlyph("planet", name) : null;
+    const glyph = rmGlyphs() ? rmGlyphs().formatGlyphSvgText("planet", name) : name.slice(0, 2);
+    const planetFont = gPlanet && gPlanet.useFont ? rmGlyphs().svgFontFamilyAttr(gPlanet) : "";
     const motion = entry.motion_state || (entry.retrograde ? "retrograde" : "direct");
     const tip = `${name} ${entry.sign || ""}${entry.house != null ? " H" + entry.house : ""}${wheelMotionTooltipSuffix(motion)}`;
     const motionMark = wheelMotionMarkerTspans(motion);
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="${(14 * k).toFixed(1)}" fill="${WHEEL_GREY.ink}"><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
+    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="${(14 * k).toFixed(1)}" fill="${WHEEL_GREY.ink}"${planetFont}><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
   });
   [0, 9, 6, 3].forEach((ci) => {
     const cuspLon = cusps[ci];
@@ -2950,7 +3016,10 @@ function renderRelocatedWheelSvg(canonicalChart) {
     if (!entry || entry.longitude_deg == null) return;
     const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
     const p = wheelPolarXY(cx, cy, Rout + 10, a, rot);
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 3 * k).toFixed(1)}" text-anchor="middle" font-size="${(10 * k).toFixed(1)}" font-weight="600" fill="#3d6b86" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
+    const gAngle = rmGlyphs() ? rmGlyphs().resolveGlyph("angle", label) : null;
+    const angleText = gAngle && gAngle.useFont ? rmGlyphs().formatGlyphSvgText("angle", label) : label;
+    const angleFont = gAngle && gAngle.useFont ? rmGlyphs().svgFontFamilyAttr(gAngle) : ' font-family="Helvetica,Arial,sans-serif"';
+    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 3 * k).toFixed(1)}" text-anchor="middle" font-size="${(10 * k).toFixed(1)}" font-weight="600" fill="#3d6b86"${angleFont}><title>${escapeHtml(label)}</title>${angleText}</text>`;
   });
   svg += `</g></svg>`;
   return svg;
@@ -3025,7 +3094,7 @@ function a2aRowKey(row) {
 
 function formatA2aContactRowHtml(planet, aspect, angle, planets) {
   const planetHtml = formatTablePlanetNameHtml(planet || "—", planets && planets[planet]);
-  return `${planetHtml} ${escapeHtml(formatA2aAspectLabel(aspect))} ${escapeHtml(angle || "—")}`;
+  return `${planetHtml} ${formatA2aAspectLabelHtml(aspect)} ${formatAngleLabelHtml(angle || "—")}`;
 }
 
 function a2aRowLabel(row) {
@@ -3068,7 +3137,7 @@ function buildA2aContactIndex(canonicalChart) {
 
 function formatA2aMatrixCellHtml(row) {
   if (!row) return "—";
-  const aspect = escapeHtml(formatA2aAspectLabel(row.aspect));
+  const aspect = formatA2aAspectLabelHtml(row.aspect);
   const orb = formatA2aOrbCellHtml(row);
   const oos = row.out_of_sign ? '<span class="meta"> (oos)</span>' : "";
   return `<span class="rm-a2a-matrix-cell"><span class="rm-a2a-matrix-aspect">${aspect}</span> ${orb}${oos}</span>`;
@@ -3095,8 +3164,8 @@ function renderA2aSinglePlaceHtml(canonicalChart) {
       : `<td>—</td>`;
     return `<tr>
       <td>${formatTablePlanetNameHtml(row.planet, ((canonicalChart && canonicalChart.planets) || {})[row.planet])}</td>
-      <td>${escapeHtml(formatA2aAspectLabel(row.aspect))}</td>
-      <td>${escapeHtml(row.angle || "—")}</td>
+      <td>${formatA2aAspectLabelHtml(row.aspect)}</td>
+      <td>${formatAngleLabelHtml(row.angle || "—")}</td>
       <td>${formatA2aOrbCellHtml(row)}${oos}</td>
       ${limit}
     </tr>`;
@@ -3139,7 +3208,7 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
   const showAngleGroups = matrixAngles.length > 1;
   const header = showAngleGroups
     ? `<tr><th rowspan="2">Planet</th>${matrixAngles.map((angle) =>
-        `<th colspan="${places.length}" data-cmp-a2a-col-angle="${escapeHtml(angle.label)}">${escapeHtml(angle.label)}</th>`
+        `<th colspan="${places.length}" data-cmp-a2a-col-angle="${escapeHtml(angle.label)}">${formatAngleLabelHtml(angle.label)}</th>`
       ).join("")}</tr><tr>${matrixAngles.map((angle) =>
         places.map((c) => `<th data-cmp-a2a-col-angle="${escapeHtml(angle.label)}">${escapeHtml(c.name)}</th>`).join("")
       ).join("")}</tr>`

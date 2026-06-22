@@ -1,0 +1,46 @@
+/* GLYPH-WIRING-1: AstroDotBasic production glyph family */
+@font-face {
+  font-family: "AstroDotBasic";
+  src: url("/theme/fonts/AstroDotBasic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+.rm-glyph {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.rm-glyph-font {
+  font-family: "AstroDotBasic", Symbola, "Segoe UI Symbol", sans-serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.rm-glyph-fallback {
+  font-family: Symbola, "Segoe UI Symbol", sans-serif;
+}
+
+.rm-glyph-inline,
+.rm-glyph--inline {
+  margin-right: 0.2em;
+}
+
+.rm-sign-name,
+.rm-angle-name,
+.rm-aspect-name {
+  margin-left: 0.15em;
+}
+
+.rm-wheel-svg .rm-wheel-glyph-font {
+  font-family: "AstroDotBasic", Symbola, "Segoe UI Symbol", sans-serif;
+}
+
+.rm-ais-table .rm-glyph,
+.rm-pih-table .rm-glyph,
+.rm-a2a-table .rm-glyph,
+.simple .rm-glyph {
+  font-size: 1.05em;
+}

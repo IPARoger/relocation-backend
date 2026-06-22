@@ -131,6 +131,30 @@ def serve_genie_variable_builder_css():
     )
 
 
+@app.get("/theme/glyphs.js")
+def serve_theme_glyphs_js():
+    return FileResponse(
+        APP_DIR / "theme" / "glyphs.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/theme/glyphs.css")
+def serve_theme_glyphs_css():
+    return FileResponse(
+        APP_DIR / "theme" / "glyphs.css",
+        media_type="text/css",
+    )
+
+
+@app.get("/theme/fonts/AstroDotBasic.ttf")
+def serve_theme_astrodotbasic_font():
+    return FileResponse(
+        APP_DIR / "theme" / "fonts" / "AstroDotBasic.ttf",
+        media_type="font/ttf",
+    )
+
+
 @app.get("/genie_SANDBOX_variable_builder.html")
 def serve_genie_sandbox_variable_builder():
     return FileResponse(
