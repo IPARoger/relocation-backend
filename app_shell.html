@@ -442,7 +442,7 @@ const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
   { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
   { id: "map", label: "2 Map", screen: "Screen 2 — Map (production)" },
-  { id: "chart", label: "4 Chart", screen: "Screen 4 — View Chart" },
+  { id: "chart", label: "4 Relocated Chart", screen: "Screen 4 — Relocated Chart" },
   { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
   { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
   { id: "settings", label: "Settings", screen: "S5 — Settings (support route)" },
@@ -1538,6 +1538,9 @@ function navigate(route, patch = {}, options = {}) {
   if (options.pushReturn) {
     next.returnTo = returnSnapshot;
   }
+  if (route === "chart" && Object.prototype.hasOwnProperty.call(patch, "placeId") && patch.placeId === null) {
+    _screen4ChartCache = null;
+  }
   navContext = next;
   uiState.popupOpen = false;
   uiState._skipComparisonOverlay = !!options.skipComparisonOverlay;
@@ -1601,6 +1604,16 @@ function renderNav() {
           explorationId: null,
         }, { skipComparisonOverlay: true });
         queueMicrotask(() => openComparisonOverlayFromChrome());
+      } else if (r.id === "chart") {
+        const chartCr = navContext.chartRecordId
+          || (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId))
+          || null;
+        navigate("chart", {
+          chartRecordId: chartCr,
+          placeId: null,
+          explorationId: null,
+          comparisonSetId: null,
+        });
       } else {
         navigate(/** @type {Route} */ (r.id));
       }
@@ -1755,7 +1768,7 @@ function screenChartRecord() {
             </label>
             <div class="row" style="margin-top:4px;margin-left:24px;">
               <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
-              <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View chart</button>
+              <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View relocated chart</button>
               <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
             </div>
           </li>`).join("")}</ul>
@@ -1855,16 +1868,25 @@ function screenChart() {
   const placeId = navContext.placeId;
   const parsed = parseLocation();
   const handoff = readChartHandoffPayload();
-  const fallbackCoords = chartHandoffCoords(handoff, parsed);
+  const explicitPlaceLaunch = Boolean(
+    placeId
+    || (parsed.placeLat && parsed.placeLon)
+    || (handoff && handoff.lat != null && handoff.lon != null)
+  );
+  const fallbackCoords = explicitPlaceLaunch ? chartHandoffCoords(handoff, parsed) : null;
   const coords = (placeId && resolvePlaceLatLon(placeId)) || fallbackCoords;
-  if (!chartRecordId || (!placeId && !coords)) {
+  if (!chartRecordId || !explicitPlaceLaunch || (!placeId && !coords)) {
     return `
-    <div class="breadcrumb">View Chart</div>
-    <h2>Screen 4 — View Chart</h2>
-    <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
-    <div class="warn-box"><strong>Cannot show relocated chart.</strong><br>
-      This screen needs both a Chart Record and a place. Open it from the map popup (View relocated chart) or a Chart Record favorite.</div>
-    <div class="row"><button type="button" data-nav="map">Back to map</button></div>
+    <div class="breadcrumb">Relocated Chart</div>
+    <h2>Screen 4 — Relocated Chart</h2>
+    <p class="purpose">Relocated chart facts for one profile and one place — not the natal Chart Record page.</p>
+    <div class="warn-box"><strong>Choose a place to view a relocated chart.</strong><br>
+      Open this screen from the map (<em>View relocated chart</em>), a Chart Record favorite, or a comparison column.
+      Primary Relocated Chart nav does not resume a previous place.</div>
+    <div class="row">
+      <button type="button" data-nav="map">Open map</button>
+      <button type="button" data-nav="chart-record">Chart Record page</button>
+    </div>
     `;
   }
   const r = getChartRecord(chartRecordId);
@@ -1878,8 +1900,8 @@ function screenChart() {
         Place id: <code>${escapeHtml(placeId)}</code></div>`;
   return `
     <div class="breadcrumb">${escapeHtml(r.displayName)} · ${escapeHtml(placeName)}</div>
-    <h2>Screen 4 — View Chart</h2>
-    <p class="purpose">Dense relocated facts · one Chart Record + one place.</p>
+    <h2>Screen 4 — Relocated Chart</h2>
+    <p class="purpose">Relocated chart facts · one profile + one place (not natal Chart Record).</p>
     ${timeUncertaintyWarning(r)}
     <div class="panel">
       <h3>Module: relocated-chart-table</h3>
@@ -2968,6 +2990,11 @@ async function hydrateRelocatedChart(root) {
   if (lat === null || lon === null) return; // coordinates unresolved — blocked state already shown
   const chartRecordId = container.getAttribute("data-chart-record");
   const placeId = container.getAttribute("data-place-id");
+  if (!navContext.placeId && !placeId) {
+    const parsed = parseLocation();
+    const handoff = readChartHandoffPayload();
+    if (!chartHandoffCoords(handoff, parsed)) return; // no explicit place — do not hydrate stale chart
+  }
   const recordName = container.getAttribute("data-record-name") || chartRecordId;
   const placeName = container.getAttribute("data-place-name") || placeId;
   const token = ++_screen4Token;
@@ -3025,7 +3052,7 @@ function renderComparisonTableHtml(cols, dignitiesOn, diffCtx) {
   const diffsOn = ctx.diffsOn;
   const refCol = (cols || []).find((c) => c.placeId === ctx.referencePlaceId);
   const headers = cols.map((c) =>
-    `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open Relocated Profile page">${escapeHtml(c.name)}</button></th>`
+    `<th><button type="button" class="linkish" data-cmp-open="${escapeHtml(c.placeId)}" title="Open Relocated Chart">${escapeHtml(c.name)}</button></th>`
   ).join("");
   const angleRows = renderComparisonAngleRowsHtml(cols, ctx);
   const _compVisibleBodies = getVisibleBodyNamesSet();
@@ -3050,7 +3077,7 @@ function renderComparisonTableHtml(cols, dignitiesOn, diffCtx) {
     ? `<p class="meta">Could not resolve: ${failed.map((c) => escapeHtml(c.name) + " (" + escapeHtml(c.error) + ")").join(", ")}</p>`
     : "";
   return `
-    <p class="meta">Click a place to open its Relocated Profile page.</p>
+    <p class="meta">Click a place to open its Relocated Chart.</p>
     <table class="simple rm-cmp-columns-table" data-cmp-diff-source="canonical_chart">
       <tr><th>Fact</th>${headers}</tr>
       ${angleRows}
@@ -5294,11 +5321,16 @@ function switchChartRecord(newId, noticePrefix) {
   _savePersistedChartRecord(newId);
   const prev = getChartRecord(navContext.chartRecordId).displayName;
   const next = getChartRecord(newId).displayName;
-  navigate(navContext.route, {
-    chartRecordId: newId,
-    explorationId: null,
-  });
+  const patch = { chartRecordId: newId, explorationId: null };
+  if (navContext.route === "chart") {
+    patch.placeId = null;
+    patch.comparisonSetId = null;
+  }
+  navigate(navContext.route, patch);
   uiState.switchNotice = `${noticePrefix || "Explicit Chart Record switch"}: ${prev} → ${next}. Exploration draft cleared for prior record (placeholder).`;
+  if (navContext.route === "chart") {
+    uiState.switchNotice += " Relocated place cleared — choose a place from the map, favorites, or comparison.";
+  }
 }
 
 // A route is "profile-scoped" when its context contract requires a chartRecordId
@@ -5380,7 +5412,12 @@ function selectProfile(chartRecordId) {
   viewModel.selectedChartRecordId = chartRecordId;
   viewModel.lastSelectedChartRecordId = chartRecordId;
   if (_isProfileScopedRoute(navContext.route)) {
-    navigate(navContext.route, { chartRecordId: chartRecordId, explorationId: null });
+    const patch = { chartRecordId: chartRecordId, explorationId: null };
+    if (navContext.route === "chart") {
+      patch.placeId = null;
+      patch.comparisonSetId = null;
+    }
+    navigate(navContext.route, patch);
   } else {
     navContext.chartRecordId = chartRecordId;
     render();
