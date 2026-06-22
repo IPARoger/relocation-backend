@@ -2370,6 +2370,48 @@ function formatCanonicalPlanetLongitude(planetEntry) {
   return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032 ${sign}`;
 }
 
+function resolvePlanetMotionState(entry) {
+  if (!entry || typeof entry !== "object") return "direct";
+  return entry.motion_state || (entry.retrograde ? "retrograde" : "direct");
+}
+
+function tablePlanetMotionMarkerHtml(motionState) {
+  if (!motionState || motionState === "direct") return "";
+  if (motionState === "retrograde") {
+    return '<span class="rm-motion-rx" aria-label="retrograde">\u211e</span>';
+  }
+  if (motionState === "station_direct") {
+    return '<span class="rm-motion-station" aria-label="station direct">\u00b7\u00b7</span>';
+  }
+  if (motionState === "station_retrograde") {
+    return '<span class="rm-motion-station-rx" aria-label="station retrograde" style="text-decoration:underline">\u211e</span>';
+  }
+  return "";
+}
+
+function formatTablePlanetNameHtml(planetName, planetEntry) {
+  const motion = resolvePlanetMotionState(planetEntry);
+  return escapeHtml(planetName || "—") + tablePlanetMotionMarkerHtml(motion);
+}
+
+function planetEntryForMotionLookup(cols, planetName, refCol) {
+  if (refCol && !refCol.error) {
+    const refCc = getCanonicalChartFromPayload(refCol.chart);
+    const entry = refCc && refCc.planets ? refCc.planets[planetName] : null;
+    if (entry) return entry;
+  }
+  for (const c of cols || []) {
+    if (c.error) continue;
+    const cc = getCanonicalChartFromPayload(c.chart);
+    const entry = cc && cc.planets ? cc.planets[planetName] : null;
+    if (entry) return entry;
+  }
+  return {};
+}
+
+window.__rmResolvePlanetMotionState = resolvePlanetMotionState;
+window.__rmFormatTablePlanetNameHtml = formatTablePlanetNameHtml;
+
 const PIH_BODY_ORDER = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
 
 function renderPihTableRowsFromCanonical(canonicalChart, options) {
@@ -2380,7 +2422,7 @@ function renderPihTableRowsFromCanonical(canonicalChart, options) {
   const showLongitude = opts.showLongitude !== false;
   return PIH_BODY_ORDER.filter((name) => visible.has(name)).map((name) => {
     const entry = planets[name] || {};
-    return `<tr><td>${escapeHtml(name)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}<td>${escapeHtml(formatCanonicalPlanetLongitude(entry))}</td></tr>`;
+    return `<tr><td>${formatTablePlanetNameHtml(name, entry)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}<td>${escapeHtml(formatCanonicalPlanetLongitude(entry))}</td></tr>`;
   }).join("");
 }
 
@@ -2482,7 +2524,8 @@ function renderPihComparisonHtml(cols, visiblePlaceIds, dignitiesOn, diffCtx) {
       const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
       return pihHouseCellHtml(pn, info, on, dc);
     }).join("");
-    return `<tr><td>${pn}</td>${cells}</tr>`;
+    const motionEntry = planetEntryForMotionLookup(places, pn, refCol);
+    return `<tr><td>${formatTablePlanetNameHtml(pn, motionEntry)}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-pih-table" data-pih-source="canonical_chart"><tr><th>Planet</th>${headers}</tr>${body}</table>`;
 }
@@ -2857,6 +2900,11 @@ function a2aRowKey(row) {
   return `${row.planet || ""}\0${row.aspect || ""}\0${row.angle || ""}`;
 }
 
+function formatA2aContactRowHtml(planet, aspect, angle, planets) {
+  const planetHtml = formatTablePlanetNameHtml(planet || "—", planets && planets[planet]);
+  return `${planetHtml} ${escapeHtml(formatA2aAspectLabel(aspect))} ${escapeHtml(angle || "—")}`;
+}
+
 function a2aRowLabel(row) {
   return `${row.planet || "—"} ${formatA2aAspectLabel(row.aspect)} ${row.angle || "—"}`;
 }
@@ -2875,7 +2923,7 @@ function renderA2aSinglePlaceHtml(canonicalChart) {
       ? `<td>${escapeHtml(formatA2aSeparationDeg(row.orb_limit_deg))}</td>`
       : `<td>—</td>`;
     return `<tr>
-      <td>${escapeHtml(row.planet || "—")}</td>
+      <td>${formatTablePlanetNameHtml(row.planet, ((canonicalChart && canonicalChart.planets) || {})[row.planet])}</td>
       <td>${escapeHtml(formatA2aAspectLabel(row.aspect))}</td>
       <td>${escapeHtml(row.angle || "—")}</td>
       <td>${escapeHtml(formatA2aSeparationDeg(row.separation_deg))}${oos}</td>
@@ -2901,7 +2949,7 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
     const raw = (cc && Array.isArray(cc.aspects_to_angles)) ? cc.aspects_to_angles : [];
     aspectsToAnglesForDisplay(raw).forEach((row) => {
       const key = a2aRowKey(row);
-      if (!keyMap.has(key)) keyMap.set(key, { label: a2aRowLabel(row), byPlace: {} });
+      if (!keyMap.has(key)) keyMap.set(key, { planet: row.planet, aspect: row.aspect, angle: row.angle, label: a2aRowLabel(row), byPlace: {} });
       keyMap.get(key).byPlace[c.placeId] = row;
     });
   });
@@ -2910,7 +2958,11 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
     return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
   }
   const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
-  const body = comboRows.map(({ label, byPlace }) => {
+  const refPlanets = (() => {
+    const cc = getCanonicalChartFromPayload(refCol.chart);
+    return (cc && cc.planets) || {};
+  })();
+  const body = comboRows.map(({ planet, aspect, angle, label, byPlace }) => {
     const refRow = byPlace[refCol.placeId];
     const refKey = a2aCellDiffKey(refRow);
     const cells = places.map((c) => {
@@ -2921,7 +2973,8 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
       return `<td class="${dc.trim() || ""}">${escapeHtml(text)}</td>`;
     }).join("");
     const angleLabel = (label.match(/\b(ASC|MC|DSC|IC)\s*$/i) || [])[1] || "";
-    return `<tr data-cmp-a2a-angle="${escapeHtml(angleLabel.toUpperCase())}"><td>${escapeHtml(label)}</td>${cells}</tr>`;
+    const contactHtml = formatA2aContactRowHtml(planet, aspect, angle, refPlanets);
+    return `<tr data-cmp-a2a-angle="${escapeHtml(angleLabel.toUpperCase())}"><td>${contactHtml}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-a2a-table" data-a2a-source="canonical_chart">
     <tr><th>Contact</th>${headers}</tr>
@@ -3063,7 +3116,8 @@ function renderComparisonTableHtml(cols, dignitiesOn, diffCtx) {
       const refCc = getCanonicalChartFromPayload(refCol.chart);
       refKey = pihHouseDiffKey((refCc && refCc.planets && refCc.planets[pn]) || {});
     }
-    return `<tr><td>${pn} house</td>${cols.map((c) => {
+    const motionEntry = planetEntryForMotionLookup(cols, pn, refCol);
+    return `<tr><td>${formatTablePlanetNameHtml(pn, motionEntry)} house</td>${cols.map((c) => {
       if (c.error) return "<td>—</td>";
       const cc = getCanonicalChartFromPayload(c.chart);
       const info = (cc && cc.planets && cc.planets[pn]) || {};
