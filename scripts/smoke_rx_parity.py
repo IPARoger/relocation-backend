@@ -81,7 +81,7 @@ def static_table_checks() -> list[tuple[str, bool, str]]:
     out.append((
         "static_a2a_comparison_contact_motion",
         "formatA2aContactRowHtml" in a2a_block
-        and "refPlanets" in a2a_block,
+        and "motionPlanets" in a2a_block,
         "comparison A2A contact row shows planet motion",
     ))
 
@@ -99,6 +99,18 @@ def static_table_checks() -> list[tuple[str, bool, str]]:
             "function wheelMotionMarkerTspans"
         )
     ]
+
+    out.append((
+        "static_motion_marker_css",
+        ".rm-motion-rx" in shell and "vertical-align: super" in shell,
+        "table motion markers use superscript spacing CSS",
+    ))
+    out.append((
+        "static_a2a_motion_marker_html",
+        "function formatA2aMotionMarkerHtml" in shell
+        and "formatA2aOrbCellHtml(row)" in shell,
+        "A2A orb cells render applying/separating/exact markers",
+    ))
     out.append((
         "static_no_client_speed_in_tables",
         "speed_deg_per_day" not in table_block,

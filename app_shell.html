@@ -177,6 +177,33 @@
   .rm-pih-dignities-help[open] summary { color: var(--accent); }
   .rm-pih-dignities-help .rm-pih-dignities-help-body { max-width: 340px; margin: 6px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
   .pih-footer { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .rm-motion-rx,
+  .rm-motion-station,
+  .rm-motion-station-rx {
+    margin-left: 0.22em;
+    font-size: 0.68em;
+    font-weight: 600;
+    vertical-align: super;
+    line-height: 0;
+    opacity: 0.88;
+  }
+  .rm-motion-station {
+    font-size: 0.62em;
+    vertical-align: baseline;
+    letter-spacing: 0.12em;
+    opacity: 0.75;
+  }
+  .rm-a2a-motion {
+    margin-left: 0.32em;
+    font-size: 0.68em;
+    font-weight: 700;
+    vertical-align: super;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .rm-a2a-motion-applying { color: #15803d; }
+  .rm-a2a-motion-separating { color: #64748b; }
+  .rm-a2a-motion-exact { color: #1d4ed8; font-weight: 800; }
 
   .must-not { font-size: 12px; color: #991b1b; }
   .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
@@ -1725,12 +1752,12 @@ function wireChartRecordFavoriteCompare(root) {
 function screenChartRecord() {
   const r = activeRecord();
   return `
-    <div class="breadcrumb">Chart Record · ${r.displayName}</div>
-    <h2>Screen 1 — Chart Record Page</h2>
-    <p class="purpose">One Chart Record = one user-facing chart. Resume exploration for this record.</p>
+    <div class="breadcrumb">Profile · ${r.displayName}</div>
+    <h2>Profile</h2>
+    <p class="purpose">Identity, natal chart, notes, favorites, saved explorations, and launches for this chart record.</p>
     ${timeUncertaintyWarning(r)}
     <div class="panel">
-      <h3>Module: chart-record-summary</h3>
+      <h3>Identity</h3>
       <p><strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span></p>
       <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}<br>${engineEligibilityLine(r)}</p>
       <p class="meta"><code>${r.chartRecordId}</code></p>
@@ -1738,7 +1765,13 @@ function screenChartRecord() {
       <button type="button" data-action="set-current-location">Set Current Location</button>
     </div>
     <div class="panel">
-      <h3>Module: chart-record-notes</h3>
+      <h3>Natal chart</h3>
+      <div id="rm-profile-natal-wheel" data-chart-record="${escapeHtml(r.chartRecordId)}">
+        <p class="meta">Loading natal chart…</p>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Notes</h3>
       <textarea id="rm-chart-note" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Notes for this Chart Record">${escapeHtml(chartRecordInitialNote(r))}</textarea>
       <div class="row" style="margin-top:8px;align-items:center;">
         <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
@@ -1753,7 +1786,7 @@ function screenChartRecord() {
     </div>
     <div class="grid-2">
       <div class="panel">
-        <h3>Module: favorites (this Chart Record)</h3>
+        <h3>Favorites</h3>
         ${r.favorites.length === 0
           ? `<p class="meta">No favorite places saved yet.<br>Open the map and save a location to begin building comparisons.</p>`
           : `<p class="meta">Check favorites below, then use <strong>Compare selected</strong> (2–5 places) to create a new comparison.</p>
@@ -1778,7 +1811,7 @@ function screenChartRecord() {
           </div>`}
       </div>
       <div class="panel">
-        <h3>Module: saved-explorations (this Chart Record)</h3>
+        <h3>Saved explorations</h3>
         ${r.explorations.length === 0
           ? `<p class="meta">No saved explorations yet.<br>Open the map, run a search, and save it to resume later.</p>`
           : `<ul class="plain">${r.explorations.map((e) => `
@@ -1797,14 +1830,75 @@ function screenChartRecord() {
       </div>
     </div>
     <div class="panel">
-      <h3>Module: comparison-sets (this Chart Record)</h3>
+      <h3>Comparison sets</h3>
       <div id="rm-cr-comparison-sets" data-chart-record="${escapeHtml(r.chartRecordId)}">
         <p class="meta">Loading comparison sets…</p>
       </div>
     </div>
-    ${stateDebugBlock()}
-    <p class="must-not">Must not appear: nested charts, solar/natal selector, dignity summaries.</p>
   `;
+}
+
+let _profileNatalToken = 0;
+async function hydrateProfileNatalWheel(root) {
+  if (navContext.route !== "chart-record") return;
+  const container = (root || document).querySelector("#rm-profile-natal-wheel");
+  if (!container) return;
+  const chartRecordId = container.getAttribute("data-chart-record") || navContext.chartRecordId;
+  if (!chartRecordId) return;
+  const token = ++_profileNatalToken;
+  const stillCurrent = () =>
+    token === _profileNatalToken &&
+    navContext.route === "chart-record" &&
+    navContext.chartRecordId === chartRecordId &&
+    document.body.contains(container);
+  const birthPlaceId = resolveBirthPlaceId(chartRecordId);
+  const coords = birthPlaceId ? resolvePlaceLatLon(birthPlaceId) : null;
+  if (!coords) {
+    container.innerHTML = '<p class="meta">Birth place coordinates unavailable — cannot render natal wheel.</p>';
+    return;
+  }
+  try {
+    const birthResp = await fetch(`/supabase/chart-records/${encodeURIComponent(chartRecordId)}/engine-birth`);
+    let birthBody = {};
+    try { birthBody = await birthResp.json(); } catch (e) { /* ignore */ }
+    if (!stillCurrent()) return;
+    if (!birthResp.ok) {
+      const detail = (birthBody && birthBody.detail) || {};
+      container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
+        ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
+      return;
+    }
+    let chart;
+    const rec = requireViewModel().chartRecords.find((row) => row.chartRecordId === chartRecordId);
+    const placeName = rec ? rec.birthCity : "Birth place";
+    try {
+      ({ chart } = await fetchCanonicalRelocatedChart({
+        birth: birthBody,
+        lat: coords.lat,
+        lon: coords.lon,
+        placeName,
+        locationKind: "natal",
+      }));
+    } catch (fetchErr) {
+      if (!stillCurrent()) return;
+      const msg = String(fetchErr && fetchErr.message ? fetchErr.message : fetchErr);
+      if (msg.startsWith("relocated_failed:")) {
+        container.innerHTML = `<div class="warn-box"><strong>Could not calculate natal chart.</strong><br>
+          HTTP ${escapeHtml(msg.slice("relocated_failed:".length))}</div>`;
+        return;
+      }
+      throw fetchErr;
+    }
+    if (!stillCurrent()) return;
+    const canonical = getCanonicalChartFromPayload(chart);
+    container.innerHTML = canonical
+      ? renderRelocatedWheelHtml(canonical)
+      : '<p class="meta">Natal wheel unavailable (canonical chart missing).</p>';
+  } catch (err) {
+    if (!stillCurrent()) return;
+    container.innerHTML = `<div class="warn-box"><strong>Natal chart request failed.</strong><br>
+      ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
+  }
 }
 
 let _crComparisonToken = 0;
@@ -1861,6 +1955,14 @@ function resolvePlaceLatLon(placeId) {
   const lon = Number(p.lon != null ? p.lon : p.longitude);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
   return { lat, lon };
+}
+
+function resolveBirthPlaceId(chartRecordId) {
+  if (!storeRaw || !chartRecordId) return null;
+  const client = (storeRaw.clients || []).find((c) => c.id === chartRecordId);
+  if (!client) return null;
+  const bp = (storeRaw.birth_profiles || []).find((b) => b.id === client.birth_profile_id);
+  return bp && bp.birth_place_id ? bp.birth_place_id : null;
 }
 
 function screenChart() {
@@ -2395,10 +2497,10 @@ function tablePlanetMotionMarkerHtml(motionState) {
     return '<span class="rm-motion-rx" aria-label="retrograde">\u211e</span>';
   }
   if (motionState === "station_direct") {
-    return '<span class="rm-motion-station" aria-label="station direct">\u00b7\u00b7</span>';
+    return '<span class="rm-motion-station" aria-label="station direct" title="Station">\u00b7\u00b7</span>';
   }
   if (motionState === "station_retrograde") {
-    return '<span class="rm-motion-station-rx" aria-label="station retrograde" style="text-decoration:underline">\u211e</span>';
+    return '<span class="rm-motion-station-rx" aria-label="station retrograde" title="Station retrograde" style="text-decoration:underline">\u211e</span>';
   }
   return "";
 }
@@ -2888,18 +2990,24 @@ function formatA2aSeparationDeg(deg) {
   return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032`;
 }
 
-function formatA2aMotionSuffix(row) {
+function formatA2aMotionMarkerHtml(row) {
   if (!row || !row.motion) return "";
   const m = String(row.motion);
-  if (m === "exact") return " exact";
-  if (m === "applying") return " A";
-  if (m === "separating") return " S";
+  if (m === "exact") {
+    return '<span class="rm-a2a-motion rm-a2a-motion-exact" title="Exact">=</span>';
+  }
+  if (m === "applying") {
+    return '<span class="rm-a2a-motion rm-a2a-motion-applying" title="Applying">A</span>';
+  }
+  if (m === "separating") {
+    return '<span class="rm-a2a-motion rm-a2a-motion-separating" title="Separating">S</span>';
+  }
   return "";
 }
 
-function formatA2aComparisonCellText(row) {
+function formatA2aOrbCellHtml(row) {
   if (!row || row.separation_deg == null) return "—";
-  return formatA2aSeparationDeg(row.separation_deg) + formatA2aMotionSuffix(row);
+  return escapeHtml(formatA2aSeparationDeg(row.separation_deg)) + formatA2aMotionMarkerHtml(row);
 }
 
 // SETTINGS-SOURCE-1: A2A rows are computed server-side from effective_settings.
@@ -2939,7 +3047,7 @@ function renderA2aSinglePlaceHtml(canonicalChart) {
       <td>${formatTablePlanetNameHtml(row.planet, ((canonicalChart && canonicalChart.planets) || {})[row.planet])}</td>
       <td>${escapeHtml(formatA2aAspectLabel(row.aspect))}</td>
       <td>${escapeHtml(row.angle || "—")}</td>
-      <td>${escapeHtml(formatA2aSeparationDeg(row.separation_deg))}${oos}</td>
+      <td>${formatA2aOrbCellHtml(row)}${oos}</td>
       ${limit}
     </tr>`;
   }).join("");
@@ -2981,8 +3089,8 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
       const row = byPlace[c.placeId];
       const cellKey = rowKeys[i];
       const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
-      const text = row ? formatA2aComparisonCellText(row) : "—";
-      return `<td class="${dc.trim() || ""}">${escapeHtml(text)}</td>`;
+      const cellHtml = row ? formatA2aOrbCellHtml(row) : "—";
+      return `<td class="${dc.trim() || ""}">${cellHtml}</td>`;
     }).join("");
     const angleLabel = (label.match(/\b(ASC|MC|DSC|IC)\s*$/i) || [])[1] || "";
     const contactHtml = formatA2aContactRowHtml(planet, aspect, angle, motionPlanets);
@@ -6185,6 +6293,7 @@ if (action === "save-comparison-note") {
   hydrateRelocatedChart(root);
   hydrateComparisonColumns(root);
   initComparisonWorkspace(root);
+  hydrateProfileNatalWheel(root);
   hydrateChartRecordComparisonSets(root);
 }
 
