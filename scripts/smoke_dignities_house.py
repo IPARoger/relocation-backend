@@ -67,6 +67,16 @@ def static_checks() -> list[tuple[str, bool, str]]:
                 "dignityDiff" not in shell and "dignity_diff" not in shell,
                 "no dignity diff logic"))
     chunk = shell[shell.find("PIH_DIGNITIES_HELP_COPY"):shell.find("PIH_DIGNITIES_HELP_COPY") + 600] if "PIH_DIGNITIES_HELP_COPY" in shell else ""
+
+    out.append(("static_dh_pih_workbook",
+                "renderPihWorkbookSectionBody" in shell and "renderPihComparisonHtml" in shell,
+                "PIH workbook section live"))
+    out.append(("static_dh_diffs_combined",
+                "td.rm-cmp-diff-identical.pih-house-cell.dignity-supportive" in shell,
+                "diffs + dignities combined CSS"))
+    out.append(("static_dh_place_register",
+                "ensureComparisonPickPlace" in shell and "registerPlaceInMemory" in shell,
+                "comparison pick place resolution"))
     out.append(("static_no_scoring_language",
                 not any(w in chunk.lower() for w in ("ranking", "better", "worse", "improved", "stronger")),
                 "no scoring in help block"))

@@ -27,6 +27,19 @@ def static_checks() -> list[tuple[str, bool, str]]:
                 "diff-summary" not in shell.lower() and "renderDiffSummary" not in shell,
                 "no summary panel"))
     chunk = shell[shell.find("DIFFS-MVP-1"):shell.find("DIFFS-MVP-1") + 5000] if "DIFFS-MVP-1" in shell else ""
+
+    out.append(("static_diffs_ais_workbook",
+                "renderAisComparisonHtml(cols, visiblePlaceIds, diffCtx)" in shell,
+                "AIS workbook diffs"))
+    out.append(("static_diffs_fade_opacity",
+                "opacity: 0.28" in shell and "rm-cmp-diff-identical" in shell,
+                "stronger fade opacity"))
+    out.append(("static_diffs_angle_tab_filter",
+                "cmpAngleTabMatchesRow" in shell and "data-cmp-a2a-angle" in shell,
+                "angle tabs filter AIS/A2A"))
+    out.append(("static_diffs_a2a_motion_display",
+                "formatA2aMotionSuffix" in shell,
+                "A2A motion suffix in cells"))
     out.append(("static_diffs_no_judgment_copy",
                 not any(x in chunk.lower() for x in ("improved", "better", "worse", "stronger")),
                 "no judgment language in diff block"))

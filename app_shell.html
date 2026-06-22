@@ -127,9 +127,9 @@
   .rm-cmp-section-body.collapsed { display: none; }
   .rm-cmp-angle-tab.active { font-weight: 600; color: var(--accent); }
   .rm-cmp-city-chip.hidden-place { opacity: 0.45; text-decoration: line-through; }
-  .rm-cmp-diff-identical { opacity: 0.38; color: var(--muted); }
+  .rm-cmp-diff-identical { opacity: 0.28; color: var(--muted); }
   td.rm-cmp-diff-identical.pih-house-cell.dignity-supportive,
-  td.rm-cmp-diff-identical.pih-house-cell.dignity-challenging { opacity: 0.38; }
+  td.rm-cmp-diff-identical.pih-house-cell.dignity-challenging { opacity: 0.28; }
 
   .map-placeholder {
     min-height: 280px; background: #e5e7eb; border: 2px dashed var(--line); border-radius: 6px;
@@ -1038,6 +1038,63 @@ function registerHandoffPlaceInMemory(h) {
   if (viewModel && viewModel.placeNameById && display) {
     viewModel.placeNameById[h.placeId] = display;
   }
+}
+
+
+function registerPlaceInMemory(placeId, displayName, lat, lon, extra) {
+  if (!placeId) return;
+  const latN = Number(lat);
+  const lonN = Number(lon);
+  if (!Number.isFinite(latN) || !Number.isFinite(lonN)) return;
+  const name = displayName || humanPlaceLabel(placeId) || "Saved place";
+  if (storeRaw && Array.isArray(storeRaw.places) && !storeRaw.places.some((p) => p.id === placeId)) {
+    storeRaw.places.push(Object.assign({
+      id: placeId,
+      display_name: name,
+      latitude: latN,
+      longitude: lonN,
+      lat: latN,
+      lon: lonN,
+      schema_version: 1,
+    }, extra || {}));
+  }
+  if (viewModel && viewModel.placeNameById) {
+    viewModel.placeNameById[placeId] = name;
+  }
+}
+
+async function ensureComparisonPickPlace(item) {
+  if (!item || !item.place_id) return null;
+  let lat = Number(item.latitude != null ? item.latitude : item.lat);
+  let lon = Number(item.longitude != null ? item.longitude : item.lon);
+  let name = shellHumanPlaceLabel(Object.assign({}, item, {
+    provider: item.source === "custom" ? "map_custom" : (item.provider || null),
+  })) || item.display_name || item.label || null;
+  if ((!Number.isFinite(lat) || !Number.isFinite(lon)) && item.place_id) {
+    try {
+      const resp = await fetch("/place/" + encodeURIComponent(item.place_id));
+      if (resp.ok) {
+        const pl = await resp.json();
+        lat = Number(pl.latitude);
+        lon = Number(pl.longitude);
+        name = shellHumanPlaceLabel(Object.assign({}, pl, {
+          display_name: pl.display_name || name,
+          provider: pl.provider || item.provider || null,
+        })) || name;
+      }
+    } catch (e) { /* ignore */ }
+  }
+  if (Number.isFinite(lat) && Number.isFinite(lon)) {
+    registerPlaceInMemory(item.place_id, name, lat, lon, {
+      provider: item.provider || (item.source === "custom" ? "map_custom" : null),
+    });
+  }
+  return {
+    placeId: item.place_id,
+    name: name || humanPlaceLabel(item.place_id),
+    lat,
+    lon,
+  };
 }
 
 function consumeMapChartHandoff(partial) {
@@ -2082,6 +2139,7 @@ function refreshComparisonDiffSurfaces() {
   }
   refreshAisWorkbookSection();
   refreshA2aWorkbookSection();
+  refreshPihWorkbookSection();
 }
 
 function setDiffsEnabled(on) {
@@ -2094,6 +2152,9 @@ window.__rmBuildComparisonDiffContext = buildComparisonDiffContext;
 window.__rmPihHouseDiffKey = pihHouseDiffKey;
 window.__rmAisAngleDiffKey = aisAngleDiffKey;
 window.__rmA2aCellDiffKey = a2aCellDiffKey;
+window.__rmFormatA2aComparisonCellText = formatA2aComparisonCellText;
+window.__rmCmpAngleTabMatchesRow = cmpAngleTabMatchesRow;
+window.__rmEnsureComparisonPickPlace = ensureComparisonPickPlace;
 window.__rmCmpDiffTdClass = cmpDiffTdClass;
 window.__rmPihDignityClass = pihDignityClass;
 
@@ -2320,7 +2381,7 @@ function renderComparisonAngleRowsHtml(cols, diffCtx) {
       const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
       return `<td class="${dc.trim() || ""}">${escapeHtml(formatCanonicalAngleDisplay(entry))}</td>`;
     }).join("");
-    return `<tr><td>${label}</td>${cells}</tr>`;
+    return `<tr data-cmp-angle-row="${label}"><td>${label}</td>${cells}</tr>`;
   }).join("");
 }
 
@@ -2342,7 +2403,7 @@ function renderAisSinglePlaceHtml(canonicalChart) {
   return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th><th>Sign</th></tr>${rows}</table>`;
 }
 
-function renderAisComparisonHtml(cols, visiblePlaceIds) {
+function renderAisComparisonHtml(cols, visiblePlaceIds, diffCtx) {
   const a2a = getA2aDisplayAngles();
   const enabled = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]);
   if (!enabled.length) {
@@ -2352,16 +2413,76 @@ function renderAisComparisonHtml(cols, visiblePlaceIds) {
   if (!places.length) {
     return `<p class="meta">No visible comparison places.</p>`;
   }
+  const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
+  const refCol = places.find((c) => c.placeId === ctx.referencePlaceId) || places[0];
   const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
   const body = enabled.map(({ key, label }) => {
+    let refKey = "—";
+    if (refCol && !refCol.error) {
+      const refCc = getCanonicalChartFromPayload(refCol.chart);
+      refKey = aisAngleDiffKey(refCc && refCc.angles ? refCc.angles[key] : null);
+    }
     const cells = places.map((c) => {
       const cc = getCanonicalChartFromPayload(c.chart);
       const entry = cc && cc.angles ? cc.angles[key] : null;
-      return `<td>${escapeHtml(aisFormatAngleDisplay(entry))}</td>`;
+      const cellKey = aisAngleDiffKey(entry);
+      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      return `<td class="${dc.trim() || ""}">${escapeHtml(aisFormatAngleDisplay(entry))}</td>`;
     }).join("");
-    return `<tr><td>${label}</td>${cells}</tr>`;
+    return `<tr data-cmp-angle-row="${label}"><td>${label}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th>${headers}</tr>${body}</table>`;
+}
+
+
+function renderPihComparisonHtml(cols, visiblePlaceIds, dignitiesOn, diffCtx) {
+  const places = (cols || []).filter((c) => !c.error && visiblePlaceIds.includes(c.placeId));
+  if (!places.length) {
+    return `<p class="meta">No visible comparison places.</p>`;
+  }
+  const on = typeof dignitiesOn === "boolean" ? dignitiesOn : getPihDignitiesEnabled("compare");
+  const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
+  const refCol = places.find((c) => c.placeId === ctx.referencePlaceId) || places[0];
+  const visible = getVisibleBodyNamesSet();
+  const planetNames = PIH_BODY_ORDER.filter((pn) => visible.has(pn));
+  const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
+  const body = planetNames.map((pn) => {
+    let refKey = "—";
+    if (refCol && !refCol.error) {
+      const refCc = getCanonicalChartFromPayload(refCol.chart);
+      refKey = pihHouseDiffKey((refCc && refCc.planets && refCc.planets[pn]) || {});
+    }
+    const cells = places.map((c) => {
+      if (c.error) return "<td>—</td>";
+      const cc = getCanonicalChartFromPayload(c.chart);
+      const info = (cc && cc.planets && cc.planets[pn]) || {};
+      const cellKey = pihHouseDiffKey(info);
+      const dc = cmpDiffTdClass(refKey, cellKey, ctx.diffsOn);
+      return pihHouseCellHtml(pn, info, on, dc);
+    }).join("");
+    return `<tr><td>${pn}</td>${cells}</tr>`;
+  }).join("");
+  return `<table class="simple rm-pih-table" data-pih-source="canonical_chart"><tr><th>Planet</th>${headers}</tr>${body}</table>`;
+}
+
+function renderPihWorkbookSectionBody(cols, ws) {
+  if (!cols || !cols.length) {
+    return `<p class="meta">Comparison chart data loading\u2026</p>`;
+  }
+  const placeIds = cols.map((c) => c.placeId).filter(Boolean);
+  const visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
+  const diffCtx = buildComparisonDiffContext(cols, ws);
+  const table = renderPihComparisonHtml(cols, visibleIds, getPihDignitiesEnabled("compare"), diffCtx);
+  return table + `<p class="meta">Diffs and Dignities toggles live on the comparison-columns panel below.</p>`;
+}
+
+function refreshPihWorkbookSection() {
+  const body = document.getElementById("rm-cmp-sec-pih");
+  if (!body) return;
+  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+    || defaultComparisonWorkspaceState([]);
+  body.innerHTML = renderPihWorkbookSectionBody(_comparisonColsCache, ws);
+  applyComparisonAngleTabFilter(document);
 }
 
 function renderAisWorkbookSectionBody(cols, ws) {
@@ -2370,7 +2491,8 @@ function renderAisWorkbookSectionBody(cols, ws) {
   }
   const placeIds = cols.map((c) => c.placeId).filter(Boolean);
   const visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
-  return renderAisComparisonHtml(cols, visibleIds);
+  const diffCtx = buildComparisonDiffContext(cols, ws);
+  return renderAisComparisonHtml(cols, visibleIds, diffCtx);
 }
 
 function refreshAisWorkbookSection() {
@@ -2379,6 +2501,7 @@ function refreshAisWorkbookSection() {
   const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
     || defaultComparisonWorkspaceState([]);
   body.innerHTML = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
+  applyComparisonAngleTabFilter(document);
 }
 
 // WHEEL-1 / WHEEL-v2: Relocated chart wheel — Layer 3 consumer of canonical_chart only.
@@ -2687,9 +2810,18 @@ function formatA2aSeparationDeg(deg) {
   return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032`;
 }
 
+function formatA2aMotionSuffix(row) {
+  if (!row || !row.motion) return "";
+  const m = String(row.motion);
+  if (m === "exact") return " exact";
+  if (m === "applying") return " A";
+  if (m === "separating") return " S";
+  return "";
+}
+
 function formatA2aComparisonCellText(row) {
   if (!row || row.separation_deg == null) return "—";
-  return formatA2aSeparationDeg(row.separation_deg);
+  return formatA2aSeparationDeg(row.separation_deg) + formatA2aMotionSuffix(row);
 }
 
 // SETTINGS-SOURCE-1: A2A rows are computed server-side from effective_settings.
@@ -2766,7 +2898,8 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
       const text = row ? formatA2aComparisonCellText(row) : "—";
       return `<td class="${dc.trim() || ""}">${escapeHtml(text)}</td>`;
     }).join("");
-    return `<tr><td>${escapeHtml(label)}</td>${cells}</tr>`;
+    const angleLabel = (label.match(/\b(ASC|MC|DSC|IC)\s*$/i) || [])[1] || "";
+    return `<tr data-cmp-a2a-angle="${escapeHtml(angleLabel.toUpperCase())}"><td>${escapeHtml(label)}</td>${cells}</tr>`;
   }).join("");
   return `<table class="simple rm-a2a-table" data-a2a-source="canonical_chart">
     <tr><th>Contact</th>${headers}</tr>
@@ -2789,6 +2922,7 @@ function refreshA2aWorkbookSection() {
   const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
     || defaultComparisonWorkspaceState([]);
   body.innerHTML = renderA2aWorkbookSectionBody(_comparisonColsCache, ws);
+  applyComparisonAngleTabFilter(document);
 }
 
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
@@ -3029,6 +3163,8 @@ function comparisonWorkspacePanelHtml(cs, ws) {
       <div class="rm-cmp-section-body${collapsed ? " collapsed" : ""}" id="rm-cmp-sec-${sec}">
         ${sec === "ais"
           ? renderAisWorkbookSectionBody(_comparisonColsCache, ws)
+          : sec === "pih"
+            ? renderPihWorkbookSectionBody(_comparisonColsCache, ws)
           : sec === "a2a"
             ? renderA2aWorkbookSectionBody(_comparisonColsCache, ws)
             : sec === "notes"
@@ -3046,9 +3182,10 @@ function comparisonWorkspacePanelHtml(cs, ws) {
     <div class="panel" id="rm-cmp-workspace" data-cs-id="${escapeHtml(cs.id)}">
       <h3>Module: comparison-workspace-state</h3>
       <p class="meta">Bookmark-style reading state \u2014 saved automatically. Diffs/hints keys reserved; PIH dignities toggle on comparison columns.</p>
-      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:4px;">
         <span class="meta">Angle tab:</span>${angleTabs}
       </div>
+      <p class="meta" style="margin:0 0 8px;">Filters ASC / MC / DSC / IC rows in comparison columns, AIS, and A2A sections. Planet house rows stay visible.</p>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
         <span class="meta">Places:</span>${chips || "<span class=\"meta\">—</span>"}
       </div>
@@ -3108,20 +3245,32 @@ function applyComparisonWorkspaceToDom(ws) {
   applyComparisonAngleTabFilter(document);
 }
 
+function cmpAngleTabMatchesRow(angleLabel, tab) {
+  if (!tab || tab === "all") return true;
+  const key = String(angleLabel || "").trim().toUpperCase();
+  if (tab === "asc") return key === "ASC";
+  if (tab === "mc") return key === "MC";
+  if (tab === "dsc") return key === "DSC";
+  if (tab === "ic") return key === "IC";
+  return true;
+}
+
 function applyComparisonAngleTabFilter(root) {
   const ws = _cmpWorkspaceSession && _cmpWorkspaceSession.state;
   const tab = ws ? ws.active_angle_tab : "all";
-  const table = (root || document).querySelector("#rm-screen5-columns table.simple");
-  if (!table) return;
-  table.querySelectorAll("tbody tr, tr").forEach((tr) => {
-    const label = (tr.querySelector("td") && tr.querySelector("td").textContent || "").trim().toUpperCase();
-    if (!label || label === "FACT") return;
-    if (tab === "all") { tr.style.display = ""; return; }
-    const show = (tab === "asc" && label === "ASC")
-      || (tab === "mc" && label === "MC")
-      || (tab === "dsc" && label === "DSC")
-      || (tab === "ic" && label === "IC");
-    tr.style.display = show ? "" : "none";
+  const scope = root || document;
+  scope.querySelectorAll("#rm-screen5-columns table.simple tr[data-cmp-angle-row]").forEach((tr) => {
+    const angle = tr.getAttribute("data-cmp-angle-row") || "";
+    tr.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
+  });
+  scope.querySelectorAll("#rm-cmp-sec-ais table.simple tr[data-cmp-angle-row]").forEach((tr) => {
+    const angle = tr.getAttribute("data-cmp-angle-row") || "";
+    tr.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
+  });
+  scope.querySelectorAll("#rm-cmp-sec-a2a table.simple tr[data-cmp-a2a-angle]").forEach((tr) => {
+    const angle = tr.getAttribute("data-cmp-a2a-angle") || "";
+    if (!angle) { tr.style.display = ""; return; }
+    tr.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
   });
 }
 
@@ -3255,8 +3404,24 @@ async function hydrateComparisonColumns(root) {
     }
     setStatus("Calculating relocated charts…");
     const cols = await Promise.all(placeIds.map(async (pid) => {
-      const name = humanPlaceLabel(pid);
-      const coords = resolvePlaceLatLon(pid);
+      const pickEl = document.querySelector(`.rm-cmp-pick[value="${CSS.escape(pid)}"]`);
+      let name = (pickEl && pickEl.getAttribute("data-place-name")) || humanPlaceLabel(pid);
+      let coords = resolvePlaceLatLon(pid);
+      if (!coords) {
+        try {
+          const resp = await fetch("/place/" + encodeURIComponent(pid));
+          if (resp.ok) {
+            const pl = await resp.json();
+            const lat = Number(pl.latitude);
+            const lon = Number(pl.longitude);
+            if (Number.isFinite(lat) && Number.isFinite(lon)) {
+              name = shellHumanPlaceLabel(pl) || pl.display_name || name;
+              registerPlaceInMemory(pid, name, lat, lon, { provider: pl.provider || null });
+              coords = { lat, lon };
+            }
+          }
+        } catch (e) { /* ignore */ }
+      }
       if (!coords) return { placeId: pid, name, error: "no coordinates" };
       try {
         const { chart } = await fetchCanonicalRelocatedChart({
@@ -3292,6 +3457,7 @@ async function hydrateComparisonColumns(root) {
     bindCmpDiffsToggle(container);
     refreshAisWorkbookSection();
     refreshA2aWorkbookSection();
+    refreshPihWorkbookSection();
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Comparison request failed.</strong><br>
@@ -3663,9 +3829,14 @@ function mountComparisonLocationSearch() {
     inputId: "rm-cmp-loc-search",
     getProfileId: () => navContext.chartRecordId,
     onSelect: (item) => {
-      const name = shellHumanPlaceLabel(Object.assign({}, item, { provider: item.source === "custom" ? "map_custom" : (item.provider || null) }));
-      addComparisonPick(item.place_id, name);
-      if (comparisonLocationSearchCtl) comparisonLocationSearchCtl.clear();
+      (async function () {
+        const resolved = await ensureComparisonPickPlace(item);
+        if (!resolved || !resolved.placeId) return;
+        addComparisonPick(resolved.placeId, resolved.name);
+        if (comparisonLocationSearchCtl) comparisonLocationSearchCtl.clear();
+      })().catch(function (err) {
+        console.warn("[cmp-location-search]", err);
+      });
     },
   });
 }
@@ -5494,6 +5665,13 @@ function bindScreenActions(root) {
         }
         const chartRecordId = navContext.chartRecordId;
         const placeIds = picks.map((el) => el.value);
+        picks.forEach((el) => {
+          const pid = el.value;
+          const pname = el.getAttribute("data-place-name");
+          if (pid && pname && viewModel && viewModel.placeNameById) {
+            viewModel.placeNameById[pid] = pname;
+          }
+        });
         if (msg) msg.textContent = "Saving…";
         (async () => {
           try {
