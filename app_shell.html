@@ -473,7 +473,7 @@ function _savePersistedChartRecord(id) {
 
 const NAV_ROUTES = /** @type {const} */ ([
   { id: "dashboard", label: "0 Dashboard", screen: "Screen 0 — Dashboard" },
-  { id: "chart-record", label: "1 Chart Record", screen: "Screen 1 — Chart Record Page" },
+  { id: "chart-record", label: "1 Profile", screen: "Profile" },
   { id: "map", label: "2 Map", screen: "Screen 2 — Map (production)" },
   { id: "chart", label: "4 Relocated Chart", screen: "Screen 4 — Relocated Chart" },
   { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
@@ -1758,23 +1758,46 @@ function wireChartRecordFavoriteCompare(root) {
 function screenChartRecord() {
   const r = activeRecord();
   return `
-    <div class="breadcrumb">Profile · ${r.displayName}</div>
-    <h2>Profile</h2>
-    <p class="purpose">Identity, natal chart, notes, favorites, saved explorations, and launches for this chart record.</p>
+    <style>
+    #rm-cr-stage .chart-stage{display:grid;grid-template-columns:250px minmax(420px,600px) 250px;justify-content:center;align-items:center;gap:14px;margin:8px 0 0}
+    #rm-cr-stage .identity-stack{grid-column:1;display:flex;flex-direction:column;gap:14px;min-height:360px;width:250px}
+    #rm-cr-stage .zone-b{text-align:center}
+    #rm-cr-stage .zb-name{font-family:Palatino,Georgia,serif;font-size:24px;font-weight:600;color:var(--fg);line-height:1.2}
+    #rm-cr-stage .zb-name .nmwrap{position:relative;display:inline-block}
+    #rm-cr-stage .zb-name .tools{position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}
+    #rm-cr-stage .zb-caret,#rm-cr-stage .zb-tool{font-size:12.5px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0 2px;font-family:inherit}
+    #rm-cr-stage .zb-tool:hover,#rm-cr-stage .zb-caret:hover{color:var(--accent)}
+    #rm-cr-stage .zb-tool.plus{font-size:17px;line-height:1}
+    #rm-cr-stage .zb-primary{font-size:14.5px;font-weight:500;color:var(--fg);margin-top:6px}
+    #rm-cr-stage .zb-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
+    #rm-cr-stage .id-actions{display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:6px}
+    #rm-cr-stage .wheel-slot{grid-column:2;display:flex;justify-content:center;align-items:center;min-height:360px}
+    #rm-cr-stage .wheel-slot svg{max-width:100%;height:auto}
+    #rm-cr-stage .balance-col{grid-column:3}
+    #rm-cr-stage .sec-rule{border:none;border-top:1px solid var(--line);margin:24px 0 18px}
+    @media(max-width:1000px){#rm-cr-stage .chart-stage{grid-template-columns:1fr}#rm-cr-stage .wheel-slot{order:-1}#rm-cr-stage .identity-stack{width:auto;min-height:0}}
+    </style>
     ${timeUncertaintyWarning(r)}
-    <div class="panel">
-      <h3>Identity</h3>
-      <p><strong>${r.displayName}</strong> <span class="meta">${r.recordType}</span></p>
-      <p class="meta">${birthSummaryLine(r)}<br>Current city: ${r.currentCity}<br>${r.confidenceTier}<br>${engineEligibilityLine(r)}</p>
-      <p class="meta"><code>${r.chartRecordId}</code></p>
-      <button type="button" data-nav="birth-data">View birth data</button>
-      <button type="button" data-action="set-current-location">Set Current Location</button>
-    </div>
-    <div class="panel">
-      <h3>Natal chart</h3>
-      <div id="rm-profile-natal-facts" data-chart-record="${escapeHtml(r.chartRecordId)}">
-        <p class="meta">Loading natal chart…</p>
+    <div id="rm-cr-stage">
+      <div class="chart-stage">
+        <div class="identity-stack">
+          <div class="zone-b">
+            <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">▾</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
+            <div class="zb-primary">${escapeHtml(r.birthDate)} · ${escapeHtml(r.birthTimeDisplay)}</div>
+            <div class="zb-primary">${escapeHtml(r.birthCity)}</div>
+            <div class="zb-meta">${escapeHtml(r.recordType)}</div>
+          </div>
+          <div class="id-actions">
+            <button type="button" data-action="set-current-location">Set Current Location</button>
+          </div>
+        </div>
+        <div class="wheel-slot" id="rm-profile-wheel-slot"><p class="meta">Loading natal wheel…</p></div>
+        <div class="balance-col"></div>
       </div>
+      <hr class="sec-rule">
+    </div>
+    <div id="rm-profile-natal-facts" data-chart-record="${escapeHtml(r.chartRecordId)}">
+      <p class="meta">Loading natal chart…</p>
     </div>
     <div class="panel">
       <h3>Notes</h3>
@@ -1860,6 +1883,8 @@ async function hydrateProfileNatalFacts(root) {
   const birthPlaceId = resolveBirthPlaceId(chartRecordId);
   const coords = birthPlaceId ? resolvePlaceLatLon(birthPlaceId) : null;
   if (!coords) {
+    const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
+    if (wheelSlot) wheelSlot.innerHTML = '<p class="meta">Natal wheel unavailable.</p>';
     container.innerHTML = '<p class="meta">Birth place coordinates unavailable — cannot render natal wheel.</p>';
     return;
   }
@@ -1870,6 +1895,8 @@ async function hydrateProfileNatalFacts(root) {
     if (!stillCurrent()) return;
     if (!birthResp.ok) {
       const detail = (birthBody && birthBody.detail) || {};
+      const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
+      if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
       container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
         ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
       return;
@@ -1889,6 +1916,8 @@ async function hydrateProfileNatalFacts(root) {
       if (!stillCurrent()) return;
       const msg = String(fetchErr && fetchErr.message ? fetchErr.message : fetchErr);
       if (msg.startsWith("relocated_failed:")) {
+        const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
+        if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
         container.innerHTML = `<div class="warn-box"><strong>Could not calculate natal chart.</strong><br>
           HTTP ${escapeHtml(msg.slice("relocated_failed:".length))}</div>`;
         return;
@@ -1897,9 +1926,13 @@ async function hydrateProfileNatalFacts(root) {
     }
     if (!stillCurrent()) return;
     const canonical = getCanonicalChartFromPayload(chart);
+    const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
+    if (wheelSlot) wheelSlot.innerHTML = renderProfileNatalWheelHtml(canonical);
     container.innerHTML = renderProfileNatalChartHtml(canonical, false);
   } catch (err) {
     if (!stillCurrent()) return;
+    const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
+    if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
     container.innerHTML = `<div class="warn-box"><strong>Natal chart request failed.</strong><br>
       ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
   }
@@ -3254,12 +3287,18 @@ function refreshA2aWorkbookSection() {
   applyComparisonAngleTabFilter(document);
 }
 
+function renderProfileNatalWheelHtml(canonical) {
+  if (!canonical) {
+    return '<p class="meta">Natal wheel unavailable (canonical chart missing).</p>';
+  }
+  return renderRelocatedWheelHtml(canonical);
+}
+
 function renderProfileNatalChartHtml(canonical, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : false;
   if (!canonical) {
     return '<p class="meta">Natal chart facts unavailable (canonical chart missing).</p>';
   }
-  const wheel = `<h4 style="margin:12px 0 4px">Natal wheel</h4>${renderRelocatedWheelHtml(canonical)}`;
   const ais = `<h4 style="margin:12px 0 4px">Angles in Signs (AIS)</h4>${renderAisSinglePlaceHtml(canonical)}`;
   const a2a = `<h4 style="margin:12px 0 4px">Aspect to Angle</h4>${renderA2aSinglePlaceHtml(canonical)}`;
   const pihRows = renderPihTableRowsFromCanonical(canonical, { dignitiesOn: on, visibleBodies: getVisibleBodyNamesSet() });
@@ -3268,7 +3307,7 @@ function renderProfileNatalChartHtml(canonical, dignitiesOn) {
       <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
       ${pihRows}
     </table>`;
-  return wheel + planets + ais + a2a;
+  return planets + ais + a2a;
 }
 
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {

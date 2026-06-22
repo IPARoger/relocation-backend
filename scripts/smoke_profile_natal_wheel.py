@@ -64,10 +64,15 @@ def main() -> int:
         "birth place id resolver for natal coords",
     ))
     profile_block = shell[shell.find("function renderProfileNatalChartHtml"):shell.find("function renderRelocatedChartHtml")]
+    # PH-3: wheel extracted from the tables renderer into a dedicated wheel
+    # renderer wired into the chart-stage wheel-slot (not nested in tables).
     checks.append((
         "static_profile_natal_wheel_section",
-        "Natal wheel" in profile_block and "renderRelocatedWheelHtml" in profile_block,
-        "profile natal renderer includes wheel",
+        "function renderProfileNatalWheelHtml" in shell
+        and "renderRelocatedWheelHtml" in shell
+        and 'id="rm-profile-wheel-slot"' in shell
+        and "renderProfileNatalWheelHtml(canonical)" in hydrate,
+        "profile wheel renders via dedicated wheel-slot (chart-stage), not nested in tables renderer",
     ))
     checks.append((
         "static_profile_natal_pih_section",
