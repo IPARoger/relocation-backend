@@ -1,54 +1,64 @@
-# GLYPH-WIRING-1 Closeout
+# 226 — GLYPH-WIRING-1 Closeout
 
-**Task:** Temporary production standardization — one glyph family (AstroDotBasic) everywhere, central `resolveGlyph()`, Unicode fallback. No picker, family selector, settings wiring, or alternate packs.
+**Date:** 2026-06-22  
+**Ticket:** GLYPH-WIRING-1  
+**Status:** **DONE**
 
-**Status:** Complete
+---
 
-## Source
+## Summary
 
-- Font: `Fonts and Glyphs/Glyphs w Aspects/astrodotbasic/AstroDotBasic.ttf`
-- Served copy: `theme/fonts/AstroDotBasic.ttf`
-- Character map per AstroDotBasic specimen (not legacy Astro-ZLzx keys):
-  - Planets: A–J (Sun–Pluto), U (Chiron), L/M (nodes)
-  - Signs: a–l (Aries–Pisces)
-  - Aspects: m–y (conjunction through contra-parallel)
-  - Angles: P (ASC), Q (MC); DSC/IC fall back to text/Unicode
+One temporary production glyph family (**AstroDotBasic**) is now wired across the application shell via a central `resolveGlyph()` resolver with Unicode fallbacks. No glyph picker, family selector, or settings stub was added.
 
-## Deliverables
+| Surface | Status | Mechanism |
+|---------|--------|-----------|
+| Wheel planets | **Live** | `formatGlyphSvgText("planet", …)` + AstroDotBasic SVG font |
+| Wheel signs | **Live** | Font glyphs at sign centers (replaced stroke paths) |
+| Wheel angles | **Live** | ASC/MC/IC font glyphs; DSC text fallback |
+| PIH tables | **Live** | Planet name prefix + sign glyph in longitude column |
+| AIS tables | **Live** | Angle label glyph + sign glyph in position cells |
+| A2A tables | **Live** | Planet/aspect/angle glyphs in single + matrix views |
+| Comparison columns | **Live** | Shared formatters (`formatCanonicalAngleDisplayHtml`, etc.) |
+| Relocated chart (Screen 4) | **Live** | Reuses `renderRelocatedChartHtml` stack |
+| Profile natal facts | **Live** | Reuses `renderProfileNatalChartHtml` stack |
 
-| File | Role |
+---
+
+## New assets
+
+| Path | Role |
 |------|------|
-| `theme/glyphs.js` | `window.__rmGlyphs.resolveGlyph()`, `formatGlyphHtml()`, `formatGlyphSvgText()`, `svgFontFamilyAttr()` |
-| `theme/glyphs.css` | `@font-face` + `.rm-glyph` styles |
-| `theme/fonts/AstroDotBasic.ttf` | Production font asset |
-| `main_centerline_FIXER.py` | Static routes for css/js/ttf |
-| `app_shell.html` | All surface wiring via `rmGlyphs()` helpers |
-| `scripts/smoke_glyph_wiring_1.py` | 17-check contract smoke |
+| `theme/fonts/AstroDotBasic.ttf` | Served production font (copied from vendor archive) |
+| `theme/glyphs.css` | `@font-face` + `.rm-glyph-*` classes |
+| `theme/glyphs.js` | `resolveGlyph`, `formatGlyphHtml`, `formatGlyphSvgText` → `window.__rmGlyphs` |
 
-## Surfaces wired
+## Server routes (`main_centerline_FIXER.py`)
 
-- **Wheel planets** — `formatGlyphSvgText("planet")` + AstroDotBasic `font-family` on SVG `<text>`
-- **Wheel signs** — font glyphs at sign cusps (replaces stroke SVG `wheelZodiacSignSvg` at render site)
-- **Wheel angles** — ASC/MC font glyphs; DSC/IC text fallback
-- **PIH** — planet glyph prefix + sign glyph in longitude column
-- **AIS** — angle glyph in label column; sign glyph in longitude display
-- **A2A** — planet, aspect, and angle glyph columns (single + comparison matrix)
-- **Comparison tables** — shared formatters (`formatTablePlanetNameHtml`, `aisFormatAngleDisplayHtml`, `formatA2aAspectLabelHtml`)
-- **Relocated chart** — `renderRelocatedChartHtml` → wheel + PIH + AIS + A2A (all use shared helpers)
-- **Profile page** — `renderProfileNatalChartHtml` → same stack as relocated chart
+- `/theme/glyphs.js`
+- `/theme/glyphs.css`
+- `/theme/fonts/AstroDotBasic.ttf`
 
-## Explicitly not wired
+## Astro key map (AstroDotBasic)
 
-- `glyphAppearanceHtml()` settings stub — left unchanged (SETTINGS frozen)
+- Planets: Q=Sun … Z=Pluto, t=Chiron
+- Signs: A=Aries … L=Pisces
+- Aspects: `!` conjunct, `"` opposition, `#` square, `$` trine, `'` sextile, etc.
+- Angles: a=ASC, b=MC, c=IC (DSC → Unicode text fallback)
+- Nodes: `<` north, `>` south (resolver ready; not yet surfaced in tables)
 
-## Smoke
+---
 
-```
+## Smoke test
+
+```bash
 python3 scripts/smoke_glyph_wiring_1.py
-# OK: GLYPH-WIRING-1 (17 checks)
 ```
 
-## Notes
+---
 
-- This is **temporary** production standardization only; no UX redesign.
-- Unicode fallbacks apply when a glyph has no AstroDotBasic codepoint (e.g. DSC, IC, minor aspects not in font).
+## Out of scope (per ticket)
+
+- `glyphAppearanceHtml()` settings stub — **not wired**
+- Alternate glyph packs / user picker — deferred
+- Map Genie overlay glyphs — separate surface (not in this slice)
+

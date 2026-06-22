@@ -1,6 +1,6 @@
 /**
- * GLYPH-WIRING-1 — AstroDotBasic temporary production glyph resolver.
- * Character map per AstroDotBasic.ttf (A–U planets, a–l signs, m–y aspects).
+ * GLYPH-WIRING-1 — central AstroDotBasic glyph resolver (temporary production standard).
+ * Astro key map per AstroDotBasic.ttf. Export: window.__rmGlyphs
  */
 (function () {
   "use strict";
@@ -13,53 +13,63 @@
   ];
 
   const PLANET_FONT = {
-    Sun: "A", Moon: "B", Mercury: "C", Venus: "D", Mars: "E",
-    Jupiter: "F", Saturn: "G", Uranus: "H", Neptune: "I", Pluto: "J",
-    Chiron: "U",
-    "North Node": "L", "South Node": "M",
+    Sun: "Q", Moon: "R", Mercury: "S", Venus: "T", Mars: "U",
+    Jupiter: "V", Saturn: "W", Uranus: "X", Neptune: "Y", Pluto: "Z",
+    Chiron: "t",
   };
 
   const SIGN_FONT = {
-    Aries: "a", Taurus: "b", Gemini: "c", Cancer: "d", Leo: "e", Virgo: "f",
-    Libra: "g", Scorpio: "h", Sagittarius: "i", Capricorn: "j", Aquarius: "k", Pisces: "l",
+    Aries: "A", Taurus: "B", Gemini: "C", Cancer: "D", Leo: "E", Virgo: "F",
+    Libra: "G", Scorpio: "H", Sagittarius: "I", Capricorn: "J", Aquarius: "K", Pisces: "L",
   };
 
   const ASPECT_FONT = {
-    conjunction: "m", conjunct: "m",
-    opposition: "n",
-    square: "o",
-    trine: "p",
-    sextile: "q",
-    semisextile: "r",
-    quincunx: "s", inconjunct: "s",
-    semisquare: "t",
-    sesquiquadrate: "u",
-    biquintile: "v",
-    quintile: "w",
-    parallel: "x",
-    contraparallel: "y",
+    conjunct: "!", conjunction: "!",
+    opposition: "\u0022",
+    square: "#",
+    trine: "$",
+    sextile: "'",
+    semisextile: "%",
+    quincunx: "&", inconjunct: "&",
+    semisquare: "(",
+    sesquiquadrate: ")",
+    biquintile: "*",
+    quintile: "+",
   };
 
-  const ANGLE_FONT = { ASC: "P", MC: "Q" };
+  const ANGLE_FONT = { ASC: "a", MC: "b", IC: "c" };
+
+  const NODE_FONT = {
+    "North Node": "<", "South Node": ">",
+    north_node: "<", south_node: ">",
+    "north node": "<", "south node": ">",
+  };
 
   const UNICODE = {
     planets: {
       Sun: "\u2609", Moon: "\u263d", Mercury: "\u263f", Venus: "\u2640", Mars: "\u2642",
       Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
       Chiron: "\u26b7",
-      "North Node": "\u260a", "South Node": "\u260b",
     },
     signs: {
       Aries: "\u2648", Taurus: "\u2649", Gemini: "\u264a", Cancer: "\u264b", Leo: "\u264c", Virgo: "\u264d",
       Libra: "\u264e", Scorpio: "\u264f", Sagittarius: "\u2650", Capricorn: "\u2651", Aquarius: "\u2652", Pisces: "\u2653",
     },
     aspects: {
-      conjunction: "\u260c", conjunct: "\u260c", opposition: "\u260d", square: "\u25a1", trine: "\u25b3",
-      sextile: "\u26b9", semisextile: "\u26ba", quincunx: "\u26bb", inconjunct: "\u26bb",
-      semisquare: "\u2220", sesquiquadrate: "\u26bc", quintile: "Q", biquintile: "bQ",
-      parallel: "//", contraparallel: "#",
+      conjunct: "\u260c", conjunction: "\u260c",
+      opposition: "\u260d",
+      square: "\u25a1",
+      trine: "\u25b3",
+      sextile: "\u26b9",
+      semisextile: "\u26ba",
+      quincunx: "\u26bb", inconjunct: "\u26bb",
+      semisquare: "\u2220",
+      sesquiquadrate: "\u26bc",
+      biquintile: "\u25c7",
+      quintile: "\u25c6",
     },
-    angles: { ASC: "Asc", MC: "MC", IC: "IC", DSC: "Dsc" },
+    angles: { ASC: "ASC", MC: "MC", IC: "IC", DSC: "DSC" },
+    nodes: { "North Node": "\u260a", "South Node": "\u260b", north_node: "\u260a", south_node: "\u260b" },
   };
 
   function normalizeKind(kind) {
@@ -75,12 +85,7 @@
   function titleCasePlanet(raw) {
     const s = String(raw || "").trim();
     if (!s) return "";
-    if (s.toLowerCase() === "sun") return "Sun";
-    if (s.toLowerCase() === "moon") return "Moon";
-    if (/node/i.test(s)) {
-      if (/north/i.test(s)) return "North Node";
-      if (/south/i.test(s)) return "South Node";
-    }
+    if (s === "Sun" || s === "Moon") return s;
     return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
   }
 
@@ -90,12 +95,14 @@
 
   function normalizeId(kind, id) {
     const k = normalizeKind(kind);
-    if (id == null || id === "") return "";
-    if (k === "sign") return titleCaseSign(id);
-    if (k === "planet") return titleCasePlanet(id);
-    if (k === "aspect") return normalizeAspectId(id);
-    if (k === "angle") return String(id).trim().toUpperCase();
-    return String(id).trim();
+    const raw = id;
+    if (raw == null || raw === "") return "";
+    if (k === "sign") return titleCaseSign(raw);
+    if (k === "planet") return titleCasePlanet(raw);
+    if (k === "aspect") return normalizeAspectId(raw);
+    if (k === "angle") return String(raw).trim().toUpperCase();
+    if (k === "node") return String(raw).trim();
+    return String(raw).trim();
   }
 
   function resolveGlyph(kind, id) {
@@ -144,6 +151,16 @@
         fallback = UNICODE.angles[nid] || nid;
       } else {
         fallback = UNICODE.angles[nid] || nid;
+        char = fallback;
+      }
+    } else if (k === "node") {
+      const fontChar = NODE_FONT[nid] || NODE_FONT[String(nid).toLowerCase()];
+      if (fontChar) {
+        char = fontChar;
+        useFont = true;
+        fallback = UNICODE.nodes[nid] || label;
+      } else {
+        fallback = UNICODE.nodes[nid] || label;
         char = fallback;
       }
     } else {
@@ -197,6 +214,7 @@
     SIGN_FONT,
     ASPECT_FONT,
     ANGLE_FONT,
+    NODE_FONT,
     resolveGlyph,
     formatGlyphHtml,
     formatGlyphSvgText,
