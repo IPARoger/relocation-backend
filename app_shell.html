@@ -4770,6 +4770,10 @@ function buildAstrologyDefaultsRestorePatch() {
 function rehydrateSettingsConsumers() {
   _screen4ChartCache = null;
   _comparisonColsCache = null;
+  _profileCanonicalCache = null;
+  if (navContext.route === "chart-record") {
+    hydrateProfileNatalFacts();
+  }
   if (navContext.route === "chart") {
     hydrateRelocatedChart();
   }
