@@ -911,7 +911,7 @@ var PROFILE = { name:"David Goodman", date:"13 Jan 1976", time24:"07:42", offset
 
       setTimeout(function(){
         ghost.remove(); pill.style.visibility='';
-        disk.style.transition=''; // restore
+        disk.style.opacity=''; disk.style.transition=''; // restore visible disk at rest
         if(onDone) onDone();
       }, DUR+60);
 
