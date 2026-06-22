@@ -3248,10 +3248,22 @@ def api_list_places(limit: int = 50):
 def api_search_places(q: str | None = None, geonames_id: str | None = None, limit: int = 20):
     from repositories.places_repository import search_places, search_places_by_geonames
 
+    t0 = time.perf_counter()
     if geonames_id is not None and str(geonames_id).strip():
-        return search_places_by_geonames(str(geonames_id).strip())
+        rows = search_places_by_geonames(str(geonames_id).strip())
+        print(
+            f"[places/search] geonames_id={str(geonames_id).strip()!r} "
+            f"n={len(rows)} ms={int((time.perf_counter() - t0) * 1000)}"
+        )
+        return rows
     if q is not None and str(q).strip():
-        return search_places(str(q).strip(), limit)
+        q_clean = str(q).strip()
+        rows = search_places(q_clean, limit)
+        print(
+            f"[places/search] q={q_clean!r} limit={limit} n={len(rows)} "
+            f"ms={int((time.perf_counter() - t0) * 1000)}"
+        )
+        return rows
     raise HTTPException(
         status_code=422,
         detail={"error": "missing_query", "message": "Provide q or geonames_id"},

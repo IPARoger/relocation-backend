@@ -179,6 +179,24 @@
       var seq = ++searchSeq;
       if (qAtStart.length >= 2) setStatus("Searching locations…");
       else setStatus("");
+      if (qAtStart.length >= 2 && typeof svc.loadProfileSaved === "function" && typeof svc.rankResults === "function") {
+        try {
+          var savedPayload = await svc.loadProfileSaved(profileId, options.searchOptions || {});
+          if (destroyed || seq !== searchSeq) return;
+          if (String(input.value || "").trim() !== qAtStart) return;
+          var localItems = svc.rankResults(qAtStart, (savedPayload && savedPayload.savedRows) || [], []);
+          if (localItems.length) {
+            renderPayload({
+              mode: "results",
+              query: qAtStart,
+              sections: [{ id: "saved", title: "Favorites & saved", items: localItems }],
+              items: localItems,
+            });
+          }
+        } catch (localErr) {
+          /* keep backend search path */
+        }
+      }
       try {
         var payload = await svc.search(profileId, input.value, options.searchOptions || {});
         if (destroyed || seq !== searchSeq) return;
