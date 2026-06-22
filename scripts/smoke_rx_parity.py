@@ -80,9 +80,9 @@ def static_table_checks() -> list[tuple[str, bool, str]]:
     ))
     out.append((
         "static_a2a_comparison_contact_motion",
-        "formatA2aContactRowHtml" in a2a_block
-        and "motionPlanets" in a2a_block,
-        "comparison A2A contact row shows planet motion",
+        "formatTablePlanetNameHtml(rowBody" in a2a_block
+        and "rm-a2a-matrix" in a2a_block,
+        "comparison A2A matrix row labels show planet motion",
     ))
 
     wh_start = shell.find("function wheelMotionMarkerTspans")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PROFILE-NATAL-WHEEL-1 — natal wheel panel on #/chart-record route."""
+"""PROFILE-NATAL-FACTS-1 — natal wheel panel on #/chart-record route."""
 
 from __future__ import annotations
 
@@ -33,15 +33,15 @@ def main() -> int:
 
     checks.append((
         "static_natal_wheel_container",
-        'id="rm-profile-natal-wheel"' in shell and "function screenChartRecord" in shell,
-        "chart-record screen includes natal wheel container",
+        'id="rm-profile-natal-facts"' in shell and "function screenChartRecord" in shell,
+        "chart-record screen includes natal facts container",
     ))
 
-    hydrate = fn_body(shell, "hydrateProfileNatalWheel")
+    hydrate = fn_body(shell, "hydrateProfileNatalFacts")
     checks.append((
         "static_hydrate_natal_wheel",
-        "async function hydrateProfileNatalWheel" in shell,
-        "hydrateProfileNatalWheel exists",
+        "async function hydrateProfileNatalFacts" in shell,
+        "hydrateProfileNatalFacts exists",
     ))
     checks.append((
         "static_natal_location_kind",
@@ -50,18 +50,39 @@ def main() -> int:
     ))
     checks.append((
         "static_natal_reuses_wheel_renderer",
-        "renderRelocatedWheelHtml" in hydrate and "fetchCanonicalRelocatedChart" in hydrate,
+        "renderProfileNatalChartHtml" in hydrate and "fetchCanonicalRelocatedChart" in hydrate,
         "natal wheel reuses relocated-chart machinery",
     ))
     checks.append((
         "static_post_render_wires_natal",
-        "hydrateProfileNatalWheel(root)" in shell,
+        "hydrateProfileNatalFacts(root)" in shell,
         "post-render calls natal wheel hydration",
     ))
     checks.append((
         "static_birth_place_resolver",
         "function resolveBirthPlaceId" in shell,
         "birth place id resolver for natal coords",
+    ))
+    profile_block = shell[shell.find("function renderProfileNatalChartHtml"):shell.find("function renderRelocatedChartHtml")]
+    checks.append((
+        "static_profile_natal_wheel_section",
+        "Natal wheel" in profile_block and "renderRelocatedWheelHtml" in profile_block,
+        "profile natal renderer includes wheel",
+    ))
+    checks.append((
+        "static_profile_natal_pih_section",
+        "Planet houses" in profile_block and "renderPihTableRowsFromCanonical" in profile_block,
+        "profile natal renderer includes PIH",
+    ))
+    checks.append((
+        "static_profile_natal_ais_section",
+        "Angles in Signs (AIS)" in profile_block and "renderAisSinglePlaceHtml" in profile_block,
+        "profile natal renderer includes AIS",
+    ))
+    checks.append((
+        "static_profile_natal_a2a_section",
+        "Aspect to Angle" in profile_block and "renderA2aSinglePlaceHtml" in profile_block,
+        "profile natal renderer includes A2A",
     ))
 
     passed = sum(1 for _, ok, _ in checks if ok)

@@ -204,6 +204,10 @@
   .rm-a2a-motion-applying { color: #15803d; }
   .rm-a2a-motion-separating { color: #64748b; }
   .rm-a2a-motion-exact { color: #1d4ed8; font-weight: 800; }
+  .rm-a2a-matrix-cell { white-space: nowrap; }
+  .rm-a2a-matrix-aspect { font-weight: 600; }
+  table.rm-a2a-matrix th[data-cmp-a2a-col-angle],
+  table.rm-a2a-matrix td[data-cmp-a2a-col-angle] { text-align: center; }
 
   .must-not { font-size: 12px; color: #991b1b; }
   .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
@@ -1766,7 +1770,7 @@ function screenChartRecord() {
     </div>
     <div class="panel">
       <h3>Natal chart</h3>
-      <div id="rm-profile-natal-wheel" data-chart-record="${escapeHtml(r.chartRecordId)}">
+      <div id="rm-profile-natal-facts" data-chart-record="${escapeHtml(r.chartRecordId)}">
         <p class="meta">Loading natal chart…</p>
       </div>
     </div>
@@ -1839,9 +1843,9 @@ function screenChartRecord() {
 }
 
 let _profileNatalToken = 0;
-async function hydrateProfileNatalWheel(root) {
+async function hydrateProfileNatalFacts(root) {
   if (navContext.route !== "chart-record") return;
-  const container = (root || document).querySelector("#rm-profile-natal-wheel");
+  const container = (root || document).querySelector("#rm-profile-natal-facts");
   if (!container) return;
   const chartRecordId = container.getAttribute("data-chart-record") || navContext.chartRecordId;
   if (!chartRecordId) return;
@@ -1891,9 +1895,7 @@ async function hydrateProfileNatalWheel(root) {
     }
     if (!stillCurrent()) return;
     const canonical = getCanonicalChartFromPayload(chart);
-    container.innerHTML = canonical
-      ? renderRelocatedWheelHtml(canonical)
-      : '<p class="meta">Natal wheel unavailable (canonical chart missing).</p>';
+    container.innerHTML = renderProfileNatalChartHtml(canonical, false);
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Natal chart request failed.</strong><br>
@@ -2289,7 +2291,7 @@ window.__rmBuildComparisonDiffContext = buildComparisonDiffContext;
 window.__rmPihHouseDiffKey = pihHouseDiffKey;
 window.__rmAisAngleDiffKey = aisAngleDiffKey;
 window.__rmA2aCellDiffKey = a2aCellDiffKey;
-window.__rmFormatA2aComparisonCellText = formatA2aComparisonCellText;
+window.__rmFormatA2aOrbCellHtml = formatA2aOrbCellHtml;
 window.__rmCmpAngleTabMatchesRow = cmpAngleTabMatchesRow;
 window.__rmEnsureComparisonPickPlace = ensureComparisonPickPlace;
 window.__rmCmpDiffTdClass = cmpDiffTdClass;
@@ -3030,6 +3032,54 @@ function a2aRowLabel(row) {
   return `${row.planet || "—"} ${formatA2aAspectLabel(row.aspect)} ${row.angle || "—"}`;
 }
 
+const A2A_MATRIX_ANGLES = [
+  { key: "ASC", label: "ASC", setting: "asc" },
+  { key: "DSC", label: "DSC", setting: "dsc" },
+  { key: "MC", label: "MC", setting: "mc" },
+  { key: "IC", label: "IC", setting: "ic" },
+];
+const A2A_MATRIX_ANGLE_ROWS = ["ASC", "MC"];
+
+function getA2aMatrixRowLabels() {
+  const visible = getVisibleBodyNamesSet();
+  const rows = PIH_BODY_ORDER.filter((name) => visible.has(name));
+  A2A_MATRIX_ANGLE_ROWS.forEach((name) => {
+    if (!rows.includes(name)) rows.push(name);
+  });
+  return rows;
+}
+
+function resolveA2aMatrixAngles() {
+  const a2a = getA2aDisplayAngles();
+  return A2A_MATRIX_ANGLES.filter(({ setting }) => a2a[setting]);
+}
+
+function buildA2aContactIndex(canonicalChart) {
+  const idx = new Map();
+  const raw = (canonicalChart && Array.isArray(canonicalChart.aspects_to_angles))
+    ? canonicalChart.aspects_to_angles
+    : [];
+  aspectsToAnglesForDisplay(raw).forEach((row) => {
+    if (!row || !row.planet || !row.angle) return;
+    idx.set(`${row.planet}\0${row.angle}`, row);
+  });
+  return idx;
+}
+
+function formatA2aMatrixCellHtml(row) {
+  if (!row) return "—";
+  const aspect = escapeHtml(formatA2aAspectLabel(row.aspect));
+  const orb = formatA2aOrbCellHtml(row);
+  const oos = row.out_of_sign ? '<span class="meta"> (oos)</span>' : "";
+  return `<span class="rm-a2a-matrix-cell"><span class="rm-a2a-matrix-aspect">${aspect}</span> ${orb}${oos}</span>`;
+}
+
+function a2aMatrixCellDiffKey(row) {
+  if (!row) return "—";
+  const asp = row.aspect || "?";
+  return asp + "|" + a2aCellDiffKey(row);
+}
+
 function renderA2aSinglePlaceHtml(canonicalChart) {
   const raw = (canonicalChart && Array.isArray(canonicalChart.aspects_to_angles))
     ? canonicalChart.aspects_to_angles
@@ -3063,41 +3113,56 @@ function renderA2aComparisonHtml(cols, visiblePlaceIds, diffCtx) {
     return `<p class="meta">No visible comparison places.</p>`;
   }
   const ctx = diffCtx || buildComparisonDiffContext(cols, _cmpWorkspaceSession && _cmpWorkspaceSession.state);
-  const keyMap = new Map();
+  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state) || defaultComparisonWorkspaceState(places.map((c) => c.placeId));
+  const matrixAngles = resolveA2aMatrixAngles();
+  if (!matrixAngles.length) {
+    return `<p class="meta">No enabled aspect-to-angle columns in current settings.</p>`;
+  }
+  const matrixRows = getA2aMatrixRowLabels();
+  const contactIndexes = new Map();
+  const motionPlanets = {};
   places.forEach((c) => {
     const cc = getCanonicalChartFromPayload(c.chart);
-    const raw = (cc && Array.isArray(cc.aspects_to_angles)) ? cc.aspects_to_angles : [];
-    aspectsToAnglesForDisplay(raw).forEach((row) => {
-      const key = a2aRowKey(row);
-      if (!keyMap.has(key)) keyMap.set(key, { planet: row.planet, aspect: row.aspect, angle: row.angle, label: a2aRowLabel(row), byPlace: {} });
-      keyMap.get(key).byPlace[c.placeId] = row;
-    });
+    contactIndexes.set(c.placeId, buildA2aContactIndex(cc));
+    if (cc && cc.planets) Object.assign(motionPlanets, cc.planets);
   });
-  const comboRows = Array.from(keyMap.values()).sort((a, b) => a.label.localeCompare(b.label));
-  if (!comboRows.length) {
-    return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
-  }
-  const headers = places.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("");
-  const motionPlanets = (() => {
-    const first = places.find((c) => !c.error) || places[0];
-    const cc = getCanonicalChartFromPayload(first.chart);
-    return (cc && cc.planets) || {};
-  })();
-  const body = comboRows.map(({ planet, aspect, angle, label, byPlace }) => {
-    const rowKeys = places.map((c) => a2aCellDiffKey(byPlace[c.placeId]));
-    const cells = places.map((c, i) => {
-      const row = byPlace[c.placeId];
-      const cellKey = rowKeys[i];
-      const dc = cmpDiffTdClass(cellKey, rowKeys, ctx.diffsOn);
-      const cellHtml = row ? formatA2aOrbCellHtml(row) : "—";
-      return `<td class="${dc.trim() || ""}">${cellHtml}</td>`;
+  const motionEntryFor = (rowBody) => {
+    if (motionPlanets[rowBody]) return motionPlanets[rowBody];
+    const angles = (() => {
+      const first = places.find((p) => !p.error) || places[0];
+      const cc = getCanonicalChartFromPayload(first.chart);
+      return (cc && cc.angles) || {};
+    })();
+    const key = rowBody === "ASC" ? "ASC" : rowBody === "MC" ? "MC" : null;
+    return key && angles[key] ? angles[key] : {};
+  };
+  const showAngleGroups = matrixAngles.length > 1;
+  const header = showAngleGroups
+    ? `<tr><th rowspan="2">Planet</th>${matrixAngles.map((angle) =>
+        `<th colspan="${places.length}" data-cmp-a2a-col-angle="${escapeHtml(angle.label)}">${escapeHtml(angle.label)}</th>`
+      ).join("")}</tr><tr>${matrixAngles.map((angle) =>
+        places.map((c) => `<th data-cmp-a2a-col-angle="${escapeHtml(angle.label)}">${escapeHtml(c.name)}</th>`).join("")
+      ).join("")}</tr>`
+    : `<tr><th>Planet</th>${places.map((c) =>
+        `<th data-cmp-a2a-col-angle="${escapeHtml(matrixAngles[0].label)}">${escapeHtml(c.name)}</th>`
+      ).join("")}</tr>`;
+  const body = matrixRows.map((rowBody) => {
+    const cells = matrixAngles.map((angle) => {
+      const rowKeys = places.map((c) => {
+        const hit = contactIndexes.get(c.placeId).get(`${rowBody}\0${angle.label}`);
+        return a2aMatrixCellDiffKey(hit);
+      });
+      return places.map((c, i) => {
+        const hit = contactIndexes.get(c.placeId).get(`${rowBody}\0${angle.label}`);
+        const dc = cmpDiffTdClass(rowKeys[i], rowKeys, ctx.diffsOn);
+        return `<td class="${dc.trim() || ""}" data-cmp-a2a-col-angle="${escapeHtml(angle.label)}">${formatA2aMatrixCellHtml(hit)}</td>`;
+      }).join("");
     }).join("");
-    const angleLabel = (label.match(/\b(ASC|MC|DSC|IC)\s*$/i) || [])[1] || "";
-    const contactHtml = formatA2aContactRowHtml(planet, aspect, angle, motionPlanets);
-    return `<tr data-cmp-a2a-angle="${escapeHtml(angleLabel.toUpperCase())}"><td>${contactHtml}</td>${cells}</tr>`;
+    const rowLabel = formatTablePlanetNameHtml(rowBody, motionEntryFor(rowBody));
+    return `<tr data-cmp-a2a-row="${escapeHtml(rowBody)}"><td>${rowLabel}</td>${cells}</tr>`;
   }).join("");
-  return `<table class="simple rm-a2a-table" data-a2a-source="canonical_chart">
-    <tr><th>Contact</th>${headers}</tr>
+  return `<table class="simple rm-a2a-table rm-a2a-matrix" data-a2a-source="canonical_chart" data-a2a-shape="matrix">
+    ${header}
     ${body}
   </table>`;
 }
@@ -3118,6 +3183,23 @@ function refreshA2aWorkbookSection() {
     || defaultComparisonWorkspaceState([]);
   body.innerHTML = renderA2aWorkbookSectionBody(_comparisonColsCache, ws);
   applyComparisonAngleTabFilter(document);
+}
+
+function renderProfileNatalChartHtml(canonical, dignitiesOn) {
+  const on = typeof dignitiesOn === "boolean" ? dignitiesOn : false;
+  if (!canonical) {
+    return '<p class="meta">Natal chart facts unavailable (canonical chart missing).</p>';
+  }
+  const wheel = `<h4 style="margin:12px 0 4px">Natal wheel</h4>${renderRelocatedWheelHtml(canonical)}`;
+  const ais = `<h4 style="margin:12px 0 4px">Angles in Signs (AIS)</h4>${renderAisSinglePlaceHtml(canonical)}`;
+  const a2a = `<h4 style="margin:12px 0 4px">Aspect to Angle</h4>${renderA2aSinglePlaceHtml(canonical)}`;
+  const pihRows = renderPihTableRowsFromCanonical(canonical, { dignitiesOn: on, visibleBodies: getVisibleBodyNamesSet() });
+  const planets = `<h4 style="margin:12px 0 4px">Planet houses</h4>
+    <table class="simple rm-pih-table" data-pih-source="canonical_chart">
+      <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
+      ${pihRows}
+    </table>`;
+  return wheel + planets + ais + a2a;
 }
 
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
@@ -3386,7 +3468,7 @@ function comparisonWorkspacePanelHtml(cs, ws) {
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:4px;">
         <span class="meta">Angle tab:</span>${angleTabs}
       </div>
-      <p class="meta" style="margin:0 0 8px;">Filters ASC / MC / DSC / IC rows in comparison columns, AIS, and A2A sections. Planet house rows stay visible.</p>
+      <p class="meta" style="margin:0 0 8px;">Filters ASC / MC / DSC / IC angle columns in A2A matrix and angle rows in comparison columns and AIS. Planet house rows stay visible.</p>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
         <span class="meta">Places:</span>${chips || "<span class=\"meta\">—</span>"}
       </div>
@@ -3468,6 +3550,10 @@ function applyComparisonAngleTabFilter(root) {
     const angle = tr.getAttribute("data-cmp-angle-row") || "";
     tr.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
   });
+  scope.querySelectorAll("#rm-cmp-sec-a2a table.rm-a2a-matrix [data-cmp-a2a-col-angle]").forEach((cell) => {
+    const angle = cell.getAttribute("data-cmp-a2a-col-angle") || "";
+    cell.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
+  });
   scope.querySelectorAll("#rm-cmp-sec-a2a table.simple tr[data-cmp-a2a-angle]").forEach((tr) => {
     const angle = tr.getAttribute("data-cmp-a2a-angle") || "";
     if (!angle) { tr.style.display = ""; return; }
@@ -3534,6 +3620,7 @@ function initComparisonWorkspace(root) {
       if (!_cmpWorkspaceSession) return;
       _cmpWorkspaceSession.state.active_angle_tab = btn.getAttribute("data-angle-tab") || "all";
       applyComparisonWorkspaceToDom(_cmpWorkspaceSession.state);
+      refreshA2aWorkbookSection();
       scheduleComparisonWorkspaceSave();
     });
   });
@@ -6293,7 +6380,7 @@ if (action === "save-comparison-note") {
   hydrateRelocatedChart(root);
   hydrateComparisonColumns(root);
   initComparisonWorkspace(root);
-  hydrateProfileNatalWheel(root);
+  hydrateProfileNatalFacts(root);
   hydrateChartRecordComparisonSets(root);
 }
 
