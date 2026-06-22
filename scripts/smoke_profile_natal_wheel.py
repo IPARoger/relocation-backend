@@ -63,7 +63,7 @@ def main() -> int:
         "function resolveBirthPlaceId" in shell,
         "birth place id resolver for natal coords",
     ))
-    profile_block = shell[shell.find("function renderProfileNatalChartHtml"):shell.find("function renderRelocatedChartHtml")]
+    profile_block = shell[shell.find("function aisVgridCellHtml"):shell.find("function renderRelocatedChartHtml")]
     # PH-3: wheel extracted from the tables renderer into a dedicated wheel
     # renderer wired into the chart-stage wheel-slot (not nested in tables).
     checks.append((
@@ -74,15 +74,49 @@ def main() -> int:
         and "renderProfileNatalWheelHtml(canonical)" in hydrate,
         "profile wheel renders via dedicated wheel-slot (chart-stage), not nested in tables renderer",
     ))
+    # PH-4: tband horizontal band with AIS -> PIH -> A2A -> Notes order.
+    tband = profile_block[profile_block.find("function renderProfileTbandHtml"):]
+    ai = tband.find("Angle in Sign"); pi = tband.find("Planet in House")
+    a2 = tband.find("Aspect to Angle"); no = tband.find("renderProfileNotesCardHtml()")
+    checks.append((
+        "static_profile_tband_structure",
+        'class="tband std rm-profile-tband"' in tband
+        and -1 < ai < pi < a2 < no,
+        "PH-4 tband: AIS -> PIH -> A2A -> Notes horizontal order",
+    ))
+    # PH-6: PIH house-only (no longitude) on Profile.
     checks.append((
         "static_profile_natal_pih_section",
-        "Planet houses" in profile_block and "renderPihTableRowsFromCanonical" in profile_block,
-        "profile natal renderer includes PIH",
+        "function renderProfilePihTableHtml" in profile_block
+        and "showLongitude: false" in profile_block
+        and "Planet in House" in profile_block
+        and "<th>Longitude</th>" not in profile_block,
+        "PH-6 PIH card is house-only (no longitude column)",
     ))
+    # PH-8: AIS deg/sign/min vgrid adapter.
     checks.append((
         "static_profile_natal_ais_section",
-        "Angles in Signs (AIS)" in profile_block and "renderAisSinglePlaceHtml" in profile_block,
-        "profile natal renderer includes AIS",
+        "function renderProfileAisCardBodyHtml" in profile_block
+        and "rm-ais-vgrid" in profile_block
+        and "Angle in Sign" in profile_block,
+        "PH-8 AIS card uses deg/sign/min vgrid",
+    ))
+    # PH-5: Notes card moved into tband col 4, save handler preserved.
+    checks.append((
+        "static_profile_notes_in_tband",
+        "function renderProfileNotesCardHtml" in profile_block
+        and 'data-action="save-chart-note"' in profile_block
+        and 'id="rm-chart-note"' in profile_block
+        and "notes-card notes-slot" in profile_block,
+        "PH-5 Notes card in tband with preserved save handler",
+    ))
+    # PH-7: profile-scoped dignities toggle.
+    checks.append((
+        "static_profile_dignities_toggle",
+        'pihDignitiesFooterHtml(on, "profile")' in profile_block
+        and 'scope === "profile"' in shell
+        and 'id="rm-profile-pih-slot"' in profile_block,
+        "PH-7 profile dignities toggle re-renders PIH slot",
     ))
     checks.append((
         "static_profile_natal_a2a_section",

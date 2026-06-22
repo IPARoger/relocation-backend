@@ -1796,16 +1796,32 @@ function screenChartRecord() {
       </div>
       <hr class="sec-rule">
     </div>
+    <style>
+    /* PROFILE-HARMONIZATION Window B — tband (PH-4..PH-8), scoped to chart-record */
+    #rm-profile-natal-facts .tband{display:grid;gap:12px;align-items:start;margin:0 0 16px}
+    #rm-profile-natal-facts .tband.std{grid-template-columns:8fr 8fr 13fr 5fr}
+    #rm-profile-natal-facts .tband>*{min-width:0;align-self:start}
+    @media(max-width:1100px){#rm-profile-natal-facts .tband.std{grid-template-columns:1fr 1fr}#rm-profile-natal-facts .notes-card{grid-column:1/-1}}
+    @media(max-width:680px){#rm-profile-natal-facts .tband.std{grid-template-columns:1fr}}
+    #rm-profile-natal-facts .tcard,#rm-profile-natal-facts .notes-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:2px 4px 10px;position:relative}
+    #rm-profile-natal-facts .tint-ais{box-shadow:inset 3px 0 0 #4a9468}
+    #rm-profile-natal-facts .tint-pih{box-shadow:inset 3px 0 0 #5a82a8}
+    #rm-profile-natal-facts .tint-a2a{box-shadow:inset 3px 0 0 #7a68a0}
+    #rm-profile-natal-facts .card-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
+    #rm-profile-natal-facts .ch-title{font-family:Palatino,Georgia,serif;font-size:15px;font-weight:700;margin:0;white-space:nowrap}
+    #rm-profile-natal-facts table.simple{margin:0;width:100%}
+    #rm-profile-natal-facts table.simple th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+    #rm-profile-natal-facts .rm-ais-vgrid{display:inline-grid;grid-template-columns:1fr auto 1fr;align-items:baseline;column-gap:6px;width:100%}
+    #rm-profile-natal-facts .rm-ais-vgrid .deg{text-align:right}
+    #rm-profile-natal-facts .rm-ais-vgrid .sgn{text-align:center}
+    #rm-profile-natal-facts .rm-ais-vgrid .min{text-align:left;color:var(--muted)}
+    #rm-profile-natal-facts .pih-foot,#rm-profile-natal-facts .pih-footer{display:flex;justify-content:flex-end;padding:6px 12px 2px;font-size:12px}
+    #rm-profile-natal-facts .notes-card .card-head{justify-content:space-between}
+    #rm-profile-natal-facts .note-ta{display:block;box-sizing:border-box;width:calc(100% - 24px);margin:4px 12px 8px;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
+    #rm-profile-natal-facts .note-foot{display:flex;align-items:center;gap:8px;padding:0 12px 8px}
+    </style>
     <div id="rm-profile-natal-facts" data-chart-record="${escapeHtml(r.chartRecordId)}">
       <p class="meta">Loading natal chart…</p>
-    </div>
-    <div class="panel">
-      <h3>Notes</h3>
-      <textarea id="rm-chart-note" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Notes for this Chart Record">${escapeHtml(chartRecordInitialNote(r))}</textarea>
-      <div class="row" style="margin-top:8px;align-items:center;">
-        <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
-        <span id="rm-chart-note-msg" class="meta" style="min-height:1.2em;"></span>
-      </div>
     </div>
     <div class="row">
       <button type="button" class="primary" data-action="open-map-record">Open Map (this Chart Record)</button>
@@ -1875,6 +1891,7 @@ async function hydrateProfileNatalFacts(root) {
   const chartRecordId = container.getAttribute("data-chart-record") || navContext.chartRecordId;
   if (!chartRecordId) return;
   const token = ++_profileNatalToken;
+  _profileCanonicalCache = null;
   const stillCurrent = () =>
     token === _profileNatalToken &&
     navContext.route === "chart-record" &&
@@ -1885,7 +1902,8 @@ async function hydrateProfileNatalFacts(root) {
   if (!coords) {
     const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
     if (wheelSlot) wheelSlot.innerHTML = '<p class="meta">Natal wheel unavailable.</p>';
-    container.innerHTML = '<p class="meta">Birth place coordinates unavailable — cannot render natal wheel.</p>';
+    container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Birth place coordinates unavailable — cannot render natal chart.");
+    bindPihDignitiesToggle(container);
     return;
   }
   try {
@@ -1897,8 +1915,8 @@ async function hydrateProfileNatalFacts(root) {
       const detail = (birthBody && birthBody.detail) || {};
       const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
       if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
-      container.innerHTML = `<div class="warn-box"><strong>Birth data unavailable.</strong><br>
-        ${escapeHtml(detail.message || ("HTTP " + birthResp.status))}</div>`;
+      container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Birth data unavailable: " + (detail.message || ("HTTP " + birthResp.status)));
+      bindPihDignitiesToggle(container);
       return;
     }
     let chart;
@@ -1918,23 +1936,25 @@ async function hydrateProfileNatalFacts(root) {
       if (msg.startsWith("relocated_failed:")) {
         const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
         if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
-        container.innerHTML = `<div class="warn-box"><strong>Could not calculate natal chart.</strong><br>
-          HTTP ${escapeHtml(msg.slice("relocated_failed:".length))}</div>`;
+        container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Could not calculate natal chart (HTTP " + msg.slice("relocated_failed:".length) + ").");
+        bindPihDignitiesToggle(container);
         return;
       }
       throw fetchErr;
     }
     if (!stillCurrent()) return;
     const canonical = getCanonicalChartFromPayload(chart);
+    _profileCanonicalCache = canonical;
     const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
     if (wheelSlot) wheelSlot.innerHTML = renderProfileNatalWheelHtml(canonical);
-    container.innerHTML = renderProfileNatalChartHtml(canonical, false);
+    container.innerHTML = renderProfileNatalChartHtml(canonical, _profilePihDignities);
+    bindPihDignitiesToggle(container);
   } catch (err) {
     if (!stillCurrent()) return;
     const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
     if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
-    container.innerHTML = `<div class="warn-box"><strong>Natal chart request failed.</strong><br>
-      ${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
+    container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Natal chart request failed: " + (err && err.message ? err.message : String(err)));
+    bindPihDignitiesToggle(container);
   }
 }
 
@@ -2193,6 +2213,8 @@ async function createQuickShareFromChartScreen() {
 }
 
 let _screen4PihDignities = false;
+let _profilePihDignities = false;
+let _profileCanonicalCache = null;
 let _comparisonColsCache = null;
 
 
@@ -2351,6 +2373,9 @@ function getPihDignitiesEnabled(scope) {
   if (scope === "compare") {
     return !!(_cmpWorkspaceSession && _cmpWorkspaceSession.state && _cmpWorkspaceSession.state.dignities_enabled);
   }
+  if (scope === "profile") {
+    return _profilePihDignities;
+  }
   return _screen4PihDignities;
 }
 
@@ -2370,6 +2395,14 @@ function setPihDignitiesEnabled(on, scope) {
     if (_cmpWorkspaceSession) _cmpWorkspaceSession.state.dignities_enabled = !!on;
     refreshComparisonDiffSurfaces();
     scheduleComparisonWorkspaceSave();
+    return;
+  }
+  if (scope === "profile") {
+    _profilePihDignities = !!on;
+    const slot = document.getElementById("rm-profile-pih-slot");
+    if (slot && _profileCanonicalCache) {
+      slot.innerHTML = renderProfilePihTableHtml(_profileCanonicalCache, !!on);
+    }
     return;
   }
   _screen4PihDignities = !!on;
@@ -2635,7 +2668,8 @@ function renderPihTableRowsFromCanonical(canonicalChart, options) {
   const showLongitude = opts.showLongitude !== false;
   return PIH_BODY_ORDER.filter((name) => visible.has(name)).map((name) => {
     const entry = planets[name] || {};
-    return `<tr><td>${formatTablePlanetNameHtml(name, entry)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}<td>${formatCanonicalPlanetLongitudeHtml(entry)}</td></tr>`;
+    const lonCell = showLongitude ? `<td>${formatCanonicalPlanetLongitudeHtml(entry)}</td>` : "";
+    return `<tr><td>${formatTablePlanetNameHtml(name, entry)}</td>${pihHouseCellHtml(name, entry, dignitiesOn)}${lonCell}</tr>`;
   }).join("");
 }
 
@@ -3294,20 +3328,76 @@ function renderProfileNatalWheelHtml(canonical) {
   return renderRelocatedWheelHtml(canonical);
 }
 
+// PH-8: AIS angle as deg / sign / min vgrid cell (profile-only adapter).
+function aisVgridCellHtml(angleEntry) {
+  if (!angleEntry || angleEntry.longitude_deg == null) return "\u2014";
+  const lon = Number(angleEntry.longitude_deg) % 360;
+  const signDeg = lon % 30;
+  const whole = Math.floor(signDeg);
+  const minutes = Math.floor((signDeg - whole) * 60);
+  const deg = `${whole}\u00b0`;
+  const min = `${String(minutes).padStart(2, "0")}\u2032`;
+  return `<span class="rm-ais-vgrid"><span class="deg">${escapeHtml(deg)}</span>` +
+    `<span class="sgn">${formatSignDisplayHtml(angleEntry.sign)}</span>` +
+    `<span class="min">${escapeHtml(min)}</span></span>`;
+}
+
+// PH-8: AIS card body (Angle in Sign) — same data source as renderAisSinglePlaceHtml.
+function renderProfileAisCardBodyHtml(canonical) {
+  const a2a = getA2aDisplayAngles();
+  const angles = (canonical && canonical.angles) || {};
+  const rows = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]).map(({ key, label }) => {
+    const entry = angles[key];
+    return `<tr><td>${formatAngleLabelHtml(label)}</td><td>${aisVgridCellHtml(entry)}</td></tr>`;
+  }).join("");
+  if (!rows) {
+    return `<p class="meta">No angles enabled in Settings \u2192 Aspect-to-Angle Display.</p>`;
+  }
+  return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th><th>Sign</th></tr>${rows}</table>`;
+}
+
+// PH-6: PIH card body (Planet in House) — house only, no longitude column on Profile.
+function renderProfilePihTableHtml(canonical, dignitiesOn) {
+  const pihRows = renderPihTableRowsFromCanonical(canonical, {
+    dignitiesOn: !!dignitiesOn,
+    visibleBodies: getVisibleBodyNamesSet(),
+    showLongitude: false,
+  });
+  return `<table class="simple rm-pih-table" data-pih-source="canonical_chart"><tr><th>Planet</th><th>House</th></tr>${pihRows}</table>`;
+}
+
+// PH-5: Notes card moved into tband col 4. Same #rm-chart-note / save-chart-note handler.
+function renderProfileNotesCardHtml(record) {
+  const r = record || activeRecord();
+  const note = r ? chartRecordInitialNote(r) : "";
+  return `<div class="notes-card notes-slot">
+      <div class="card-head"><h3 class="ch-title">Notes</h3></div>
+      <textarea id="rm-chart-note" class="note-ta" placeholder="Write or dictate a note\u2026">${escapeHtml(note)}</textarea>
+      <div class="note-foot">
+        <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
+        <span id="rm-chart-note-msg" class="meta" style="min-height:1.2em;"></span>
+      </div>
+    </div>`;
+}
+
+// PH-4: Profile tband — AIS -> PIH -> A2A -> Notes in one horizontal band.
+function renderProfileTbandHtml(canonical, dignitiesOn, errorMessage) {
+  const on = !!dignitiesOn;
+  const warn = `<p class="meta">${escapeHtml(errorMessage || "Natal chart facts unavailable.")}</p>`;
+  const aisBody = canonical ? renderProfileAisCardBodyHtml(canonical) : warn;
+  const pihBody = canonical ? renderProfilePihTableHtml(canonical, on) : warn;
+  const a2aBody = canonical ? renderA2aSinglePlaceHtml(canonical) : warn;
+  return `<div class="tband std rm-profile-tband">
+      <div class="tcard tint-ais"><div class="card-head"><h3 class="ch-title">Angle in Sign</h3></div>${aisBody}</div>
+      <div class="tcard tint-pih"><div class="card-head"><h3 class="ch-title">Planet in House</h3></div><div id="rm-profile-pih-slot">${pihBody}</div><div class="pih-foot">${pihDignitiesFooterHtml(on, "profile")}</div></div>
+      <div class="tcard tint-a2a"><div class="card-head"><h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
+      ${renderProfileNotesCardHtml()}
+    </div>`;
+}
+
 function renderProfileNatalChartHtml(canonical, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : false;
-  if (!canonical) {
-    return '<p class="meta">Natal chart facts unavailable (canonical chart missing).</p>';
-  }
-  const ais = `<h4 style="margin:12px 0 4px">Angles in Signs (AIS)</h4>${renderAisSinglePlaceHtml(canonical)}`;
-  const a2a = `<h4 style="margin:12px 0 4px">Aspect to Angle</h4>${renderA2aSinglePlaceHtml(canonical)}`;
-  const pihRows = renderPihTableRowsFromCanonical(canonical, { dignitiesOn: on, visibleBodies: getVisibleBodyNamesSet() });
-  const planets = `<h4 style="margin:12px 0 4px">Planet houses</h4>
-    <table class="simple rm-pih-table" data-pih-source="canonical_chart">
-      <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
-      ${pihRows}
-    </table>`;
-  return planets + ais + a2a;
+  return renderProfileTbandHtml(canonical, on, null);
 }
 
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
