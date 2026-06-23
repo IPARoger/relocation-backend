@@ -2084,9 +2084,34 @@ function screenChart() {
     #rm-screen4-facts .pih-foot,#rm-screen4-facts .pih-footer{display:flex;justify-content:flex-end;padding:6px 12px 2px;font-size:12px}
     #rm-screen4-facts .notes-card .card-head{justify-content:space-between}
     #rm-screen4-facts .note-ta{display:block;box-sizing:border-box;width:calc(100% - 24px);margin:4px 12px 8px;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
+    /* RELOCATED-HARMONIZATION Window A — chart-head plate + wheel slot */
+    #rm-screen4-head{display:flex;gap:24px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px}
+    #rm-screen4-head .reloc-plate{flex:0 0 220px;font-size:13px;line-height:1.6}
+    #rm-screen4-head .rp-name{font-family:Palatino,Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:4px}
+    #rm-screen4-head .rp-meta{font-size:12px;color:var(--muted);min-height:1em}
+    #rm-screen4-head .rp-place-block{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+    #rm-screen4-head .rp-place-badge{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+    #rm-screen4-head .rp-place-name{font-family:Palatino,Georgia,serif;font-size:17px;font-weight:600;color:var(--ink);margin-top:2px}
+    #rm-screen4-head .reloc-wheel-slot{flex:1 1 auto;min-width:0}
+    #rm-screen4-head .rm-wheel-wrap{max-width:460px}
+    #rm-screen4-head .rm-wheel-disc{border-radius:50%;overflow:hidden;width:100%;max-width:420px}
+    #rm-screen4-head .rm-wheel-disc svg{display:block;width:100%;height:auto}
+    @media(max-width:760px){#rm-screen4-head{flex-direction:column}#rm-screen4-head .reloc-plate{flex:none;width:100%}}
     </style>
-    <div class="panel">
-      <h3>Module: relocated-chart-table</h3>
+    <div class="panel rm-screen4-panel">
+      <div id="rm-screen4-head">
+        <div class="reloc-plate">
+          <div class="rp-name">${escapeHtml(r.displayName)}</div>
+          <div class="rp-meta" id="rm-screen4-plate-meta"></div>
+          <div class="rp-place-block">
+            <div class="rp-place-badge">Relocated to</div>
+            <div class="rp-place-name">${escapeHtml(placeName)}</div>
+          </div>
+        </div>
+        <div class="reloc-wheel-slot" id="rm-screen4-wheel">
+          <p class="meta rm-screen4-wheel-loading">Loading wheel…</p>
+        </div>
+      </div>
       <div id="rm-screen4-facts"
            data-chart-record="${escapeHtml(chartRecordId)}"
            data-place-id="${escapeHtml(placeId || "")}"
@@ -3433,9 +3458,7 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
       <tr><td>Chart Record</td><td>${escapeHtml(recordName)}</td></tr>
       <tr><td>Place</td><td>${escapeHtml(placeName)}</td></tr>
     </table>`;
-  const wheel = canonical
-    ? `<h4 style="margin:12px 0 4px">Relocated chart wheel</h4>${renderRelocatedWheelHtml(canonical)}`
-    : `<p class="meta">Chart wheel unavailable (canonical chart missing).</p>`;
+  // Wheel is rendered into #rm-screen4-wheel by hydrateRelocatedChart (Window A).
   const aisBody  = canonical ? renderProfileAisCardBodyHtml(canonical)  : warn("AIS unavailable (canonical chart missing).");
   const pihBody  = canonical ? renderProfilePihTableHtml(canonical, on) : warn("Planet houses unavailable (canonical chart missing).");
   const a2aBody  = canonical ? renderA2aSinglePlaceHtml(canonical)      : warn("Aspect to Angle unavailable (canonical chart missing).");
@@ -3449,7 +3472,7 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
     <div class="tcard tint-a2a"><div class="card-head"><h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
     ${notesCard}
   </div>`;
-  return meta + wheel + tband;
+  return meta + tband;
 }
 
 let _screen4Token = 0;
@@ -3511,6 +3534,19 @@ async function hydrateRelocatedChart(root) {
     _screen4ChartCache = chart;
     container.innerHTML = renderRelocatedChartHtml(recordName, placeName, chart, _screen4PihDignities);
     bindPihDignitiesToggle(container);
+    // RELOCATED-HARMONIZATION Window A: inject wheel and plate meta into head slot.
+    const _winACanonical = getCanonicalChartFromPayload(chart);
+    const _winAWheelSlot = document.getElementById("rm-screen4-wheel");
+    if (_winAWheelSlot && _winACanonical) {
+      _winAWheelSlot.innerHTML = renderRelocatedWheelHtml(_winACanonical);
+    }
+    const _winAPlateMeta = document.getElementById("rm-screen4-plate-meta");
+    if (_winAPlateMeta && _winACanonical) {
+      const _waSys = (_winACanonical.houses && _winACanonical.houses.system) || "placidus";
+      const _waZod = (_winACanonical.metadata && _winACanonical.metadata.zodiac_mode) || "tropical";
+      _winAPlateMeta.textContent = _waZod.charAt(0).toUpperCase() + _waZod.slice(1)
+        + " · " + _waSys.charAt(0).toUpperCase() + _waSys.slice(1);
+    }
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Relocated chart request failed.</strong><br>
