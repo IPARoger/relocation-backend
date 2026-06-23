@@ -1316,7 +1316,7 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
                   <button type="button" class="gv-btn-search" id="gv-searchBtn" title="Search map with current variables">Search Map</button>
                 </div>
                 <div class="gv-save-gap"></div>
-                <button type="button" class="gv-save-inline" id="gv-saveInline" disabled aria-disabled="true" title="Save is not connected in this UI-only preview">
+                <button type="button" class="gv-save-inline" id="gv-saveInline" title="Save this search investigation">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
                   Save search
                 </button>
@@ -1393,14 +1393,14 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
               return '<button type="button" class="gv-g-dd'+(has?"":" gv-ph")+'" data-gv-role="'+esc(role)+'"><span class="gv-g-dd-lbl">'+esc(has?cur:placeholder)+'</span><span class="gv-g-dd-car">\u25be</span></button>'; }
             function renderChips(){ els.chips.innerHTML=variables.map(function(v){ return '<span class="gv-chip'+(v.not?" gv-notc":"")+'" data-gv-id="'+v.id+'"><span class="gv-sw'+(v.not?" gv-redact":"")+'" style="background:'+(v.not?NOT_COLOR:colorOf(v))+'"></span>'+(v.not?'<span class="gv-notm">'+NOT_ICON+'</span>':"")+'<span class="gv-lbl" data-gv-act="chip" data-gv-id="'+v.id+'">'+esc(catById(v.category).chip(v.values))+'</span><button type="button" class="gv-x" data-gv-act="remove" data-gv-id="'+v.id+'" title="Remove">\u2715</button></span>'; }).join(""); }
             function renderBuildRow(){ els.buildrow.innerHTML='<div class="gv-br-master">'+selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Select variable")+'<label class="gv-not-box'+(build.not?" gv-on":"")+'" title="Redact - exclude these placements (NOT)">'+NOT_ICON+'<input type="checkbox" data-gv-role="notcheck"'+(build.not?" checked":"")+'></label></div><div class="gv-subs" id="gv-subs"></div><div class="gv-br-foot" id="gv-brFoot"></div>'; renderSubs(); applyRedactPreview(); updateGenieHint(); }
-            function renderSubs(){ var subs=document.getElementById("gv-subs"),foot=document.getElementById("gv-brFoot"); if(!subs||!foot)return; if(!build.category){subs.innerHTML="";foot.innerHTML="";updateAddState();updateSearchState();return;} subs.classList.remove("gv-open");
+            function renderSubs(){ var subs=document.getElementById("gv-subs"),foot=document.getElementById("gv-brFoot"); if(!subs||!foot)return; if(!build.category){subs.innerHTML="";foot.innerHTML="";updateAddState();updateSearchState();updateSaveState();return;} subs.classList.remove("gv-open");
               subs.innerHTML=catById(build.category).fields.map(function(f){return selectHtml("field:"+f.key,SOURCES(f.src),build.values[f.key],f.label);}).join("");
               foot.innerHTML='<button type="button" class="gv-row-x" data-gv-act="cancel" title="Discard this variable">\u2715</button>';
-              requestAnimationFrame(function(){requestAnimationFrame(function(){subs.classList.add("gv-open");});}); updateAddState(); updateSearchState(); }
+              requestAnimationFrame(function(){requestAnimationFrame(function(){subs.classList.add("gv-open");});}); updateAddState(); updateSearchState(); updateSaveState(); }
             function updateGenieHint(){ var hint=document.getElementById("gv-genieHint"); if(!hint)return; hint.classList.toggle("gv-visible",variables.length===0&&!build.category); }
             function updateAddState(){ els.addBtn.disabled=!buildComplete()||(!build.editId&&variables.length>=12); }
             function applyRedactPreview(){ els.builder.classList.toggle("gv-redacting",!!build.not); }
-            function renderAll(){ renderChips(); renderBuildRow(); updateSearchState(); }
+            function renderAll(){ renderChips(); renderBuildRow(); updateSearchState(); updateSaveState(); }
             function resetBuild(){ build={editId:null,not:false,category:null,values:{}}; }
             function commitVariable(){ if(!buildComplete())return false; if(build.editId){var ex=variables.find(function(x){return x.id===build.editId;}); if(ex){ex.not=build.not; ex.category=build.category; ex.values=Object.assign({},build.values);}} else { variables.push({id:uid(),not:build.not,category:build.category,values:Object.assign({},build.values),colorIdx:colorTick++%12,mute:false}); } resetBuild(); renderAll(); return true; }
             function editVariable(id){ var v=variables.find(function(x){return x.id===id;}); if(!v)return; build={editId:id,not:v.not,category:v.category,values:Object.assign({},v.values)}; renderBuildRow(); }
@@ -1419,11 +1419,18 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
             });
             document.addEventListener("click",function(e){ if(!(e.target.closest&&(e.target.closest(".gv-gddmenu")||e.target.closest(".gv-g-dd")))) closeGdd(); });
             var searchBtn=document.getElementById("gv-searchBtn");
+            var saveBtn=document.getElementById("gv-saveInline");
             function updateSearchState(){
               if(!searchBtn) return;
               var canSearch=variables.length>0||buildComplete();
               searchBtn.disabled=!canSearch;
               searchBtn.setAttribute("aria-disabled", canSearch?"false":"true");
+            }
+            function updateSaveState(){
+              if(!saveBtn) return;
+              var canSave=variables.length>0;
+              saveBtn.disabled=!canSave;
+              saveBtn.setAttribute("aria-disabled", canSave?"false":"true");
             }
             async function runGvSearch(){
               if(buildComplete()) commitVariable();
@@ -1449,6 +1456,20 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
               searchBtn.addEventListener("click", function(e){
                 e.preventDefault();
                 runGvSearch();
+              });
+            }
+            if(saveBtn){
+              saveBtn.addEventListener("click", function(e){
+                e.preventDefault();
+                if(saveBtn.disabled) return;
+                window.__gvLastSaveTrigger = "gv-saveInline";
+                var saveFn = window.__rmSaveCurrentInvestigation;
+                if(typeof saveFn !== "function"){
+                  console.error("[gv-save] production save path not ready");
+                  return;
+                }
+                saveBtn.disabled = true;
+                Promise.resolve(saveFn()).finally(function(){ updateSaveState(); });
               });
             }
             hideLegacyShell();
