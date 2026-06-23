@@ -2062,6 +2062,29 @@ function screenChart() {
     <h2>Screen 4 — Relocated Chart</h2>
     <p class="purpose">Relocated chart facts · one profile + one place (not natal Chart Record).</p>
     ${timeUncertaintyWarning(r)}
+    <style>
+    /* RELOCATED-HARMONIZATION Window B — tband scoped to #rm-screen4-facts */
+    #rm-screen4-facts .tband{display:grid;gap:12px;align-items:start;margin:0 0 16px}
+    #rm-screen4-facts .tband.std{grid-template-columns:8fr 8fr 13fr 5fr}
+    #rm-screen4-facts .tband>*{min-width:0;align-self:start}
+    @media(max-width:1100px){#rm-screen4-facts .tband.std{grid-template-columns:1fr 1fr}#rm-screen4-facts .notes-card{grid-column:1/-1}}
+    @media(max-width:680px){#rm-screen4-facts .tband.std{grid-template-columns:1fr}}
+    #rm-screen4-facts .tcard,#rm-screen4-facts .notes-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:2px 4px 10px;position:relative}
+    #rm-screen4-facts .tint-ais{box-shadow:inset 3px 0 0 #4a9468}
+    #rm-screen4-facts .tint-pih{box-shadow:inset 3px 0 0 #5a82a8}
+    #rm-screen4-facts .tint-a2a{box-shadow:inset 3px 0 0 #7a68a0}
+    #rm-screen4-facts .card-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
+    #rm-screen4-facts .ch-title{font-family:Palatino,Georgia,serif;font-size:15px;font-weight:700;margin:0;white-space:nowrap}
+    #rm-screen4-facts table.simple{margin:0;width:100%}
+    #rm-screen4-facts table.simple th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+    #rm-screen4-facts .rm-ais-vgrid{display:inline-grid;grid-template-columns:1fr auto 1fr;align-items:baseline;column-gap:6px;width:100%}
+    #rm-screen4-facts .rm-ais-vgrid .deg{text-align:right}
+    #rm-screen4-facts .rm-ais-vgrid .sgn{text-align:center}
+    #rm-screen4-facts .rm-ais-vgrid .min{text-align:left;color:var(--muted)}
+    #rm-screen4-facts .pih-foot,#rm-screen4-facts .pih-footer{display:flex;justify-content:flex-end;padding:6px 12px 2px;font-size:12px}
+    #rm-screen4-facts .notes-card .card-head{justify-content:space-between}
+    #rm-screen4-facts .note-ta{display:block;box-sizing:border-box;width:calc(100% - 24px);margin:4px 12px 8px;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
+    </style>
     <div class="panel">
       <h3>Module: relocated-chart-table</h3>
       <div id="rm-screen4-facts"
@@ -2073,11 +2096,7 @@ function screenChart() {
         ${factsInner}
       </div>
     </div>
-    <div class="panel">
-      <h3>Module: notes · favorite</h3>
-      <textarea rows="2" placeholder="Optional inline note (placeholder — not saved)"></textarea>
-      <button type="button" disabled>Favorite this place (not available yet)</button>
-    </div>
+
     <div class="row">
       <button type="button" data-nav="map">Back to map</button>
       <button type="button" data-action="quick-share-chart" title="Share this map/search">Quick Share</button>
@@ -3400,9 +3419,14 @@ function renderProfileNatalChartHtml(canonical, dignitiesOn) {
   return renderProfileTbandHtml(canonical, on, null);
 }
 
+// RELOCATED-HARMONIZATION Window B — tband layout (AIS · PIH · A2A · Notes).
+// Wheel and meta table retained above the tband (Window A layout deferred).
+// Reuses Profile tband renderers: renderProfileAisCardBodyHtml, renderProfilePihTableHtml.
+// PIH is house-only (showLongitude:false). Dignities footer scope: "chart".
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const canonical = getCanonicalChartFromPayload(chart);
+  const warn = (msg) => `<p class="meta">${escapeHtml(msg)}</p>`;
   const meta = `
     <table class="simple">
       <tr><th>Fact</th><th>Value</th></tr>
@@ -3412,24 +3436,20 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const wheel = canonical
     ? `<h4 style="margin:12px 0 4px">Relocated chart wheel</h4>${renderRelocatedWheelHtml(canonical)}`
     : `<p class="meta">Chart wheel unavailable (canonical chart missing).</p>`;
-  const ais = canonical
-    ? `<h4 style="margin:12px 0 4px">Angles in Signs (AIS)</h4>${renderAisSinglePlaceHtml(canonical)}`
-    : `<p class="meta">AIS unavailable (canonical chart missing).</p>`;
-  const a2a = canonical
-    ? `<h4 style="margin:12px 0 4px">Aspect to Angle</h4>${renderA2aSinglePlaceHtml(canonical)}`
-    : `<p class="meta">Aspect to Angle unavailable (canonical chart missing).</p>`;
-  const pihRows = canonical
-    ? renderPihTableRowsFromCanonical(canonical, { dignitiesOn: on, visibleBodies: getVisibleBodyNamesSet() })
-    : "";
-  const planets = canonical
-    ? `<h4 style="margin:12px 0 4px">Planet houses</h4>
-    <table class="simple rm-pih-table" data-pih-source="canonical_chart">
-      <tr><th>Planet</th><th>House</th><th>Longitude</th></tr>
-      ${pihRows}
-    </table>
-    ${pihDignitiesFooterHtml(on, "chart")}`
-    : `<p class="meta">Planet houses unavailable (canonical chart missing).</p>`;
-  return meta + wheel + ais + a2a + planets;
+  const aisBody  = canonical ? renderProfileAisCardBodyHtml(canonical)  : warn("AIS unavailable (canonical chart missing).");
+  const pihBody  = canonical ? renderProfilePihTableHtml(canonical, on) : warn("Planet houses unavailable (canonical chart missing).");
+  const a2aBody  = canonical ? renderA2aSinglePlaceHtml(canonical)      : warn("Aspect to Angle unavailable (canonical chart missing).");
+  const notesCard = `<div class="notes-card notes-slot">
+      <div class="card-head"><h3 class="ch-title">Notes</h3></div>
+      <textarea class="note-ta" rows="4" placeholder="Notes for this place (not yet saved)\u2026"></textarea>
+    </div>`;
+  const tband = `<div class="tband std rm-relocated-tband" style="margin-top:16px">
+    <div class="tcard tint-ais"><div class="card-head"><h3 class="ch-title">Angle in Sign</h3></div>${aisBody}</div>
+    <div class="tcard tint-pih"><div class="card-head"><h3 class="ch-title">Planet in House</h3></div><div id="rm-screen4-pih-slot">${pihBody}</div><div class="pih-foot">${pihDignitiesFooterHtml(on, "chart")}</div></div>
+    <div class="tcard tint-a2a"><div class="card-head"><h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
+    ${notesCard}
+  </div>`;
+  return meta + wheel + tband;
 }
 
 let _screen4Token = 0;
