@@ -24,7 +24,7 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 }
 
 #panel {
-    width: 300px;
+    width: 304px;
     flex-shrink: 0;
     height: 100%;
     overflow-y: auto;
@@ -1223,6 +1223,209 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
             <div id="rm-map-loc-search-mount"></div>
             <div id="citySearchFeedback" class="city-search-feedback" hidden aria-live="polite"></div>
         </div>
+
+        <!-- GENIE-BUILDER-PORT (Stage 2 — UI ONLY)
+             Ported from map_SANDBOX_genie_v7.html builder. Self-contained, scoped
+             under #gv-builder-host (gv- prefixed classes, data-gv-* attributes).
+             NOT wired to executeSearchPlan / save / overlays / backend. Legacy
+             static condition selects below remain in the DOM (hidden via JS) so the
+             production engine, save, and ghost-strip code keep functioning. -->
+        <style id="gv-builder-styles">
+          #gv-builder-host{
+            --gv-ink:#1f2d38; --gv-ink-soft:#485a66; --gv-ink-faint:#7d8f9a;
+            --gv-line:#cfdde6; --gv-line-soft:#e2ecf1; --gv-paper:#eef5f9; --gv-card:#fbfdff;
+            --gv-accent:#2f6f9f; --gv-accent-deep:#235a83; --gv-gold:#d8a93f; --gv-gold-deep:#b98a28; --gv-not:#26303a;
+            display:block; margin:0 0 14px;
+          }
+          .gv-builder{ position:relative; background:var(--gv-card); border:3px double var(--gv-line); border-radius:14px; padding:12px;
+            box-shadow:inset 0 0 28px rgba(47,111,159,.04), 0 1px 2px rgba(31,45,56,.07), 0 26px 50px -24px rgba(31,45,56,.5); }
+          .gv-builder.gv-redacting{ background:linear-gradient(0deg, rgba(38,48,58,.13), rgba(38,48,58,.13)), var(--gv-card); border-color:rgba(38,48,58,.4); }
+          .gv-builder-top{ display:flex; justify-content:flex-end; align-items:center; margin-bottom:9px; min-height:20px; }
+          .gv-btn-clear{ display:inline-flex; align-items:center; justify-content:center; gap:5px; height:26px; padding:0 11px; color:var(--gv-ink-faint); background:transparent; border:1px solid var(--gv-line); border-radius:8px; font-size:12px; font-weight:600; letter-spacing:.02em; cursor:pointer; }
+          .gv-btn-clear:hover{ border-color:var(--gv-gold-deep); color:var(--gv-gold-deep); }
+          .gv-chips{ display:flex; flex-direction:column; align-items:stretch; gap:6px; }
+          .gv-chips:not(:empty){ margin-bottom:11px; }
+          .gv-chip{ display:flex; align-items:center; gap:8px; width:100%; font-size:13px; color:var(--gv-ink); background:var(--gv-card); border:1px solid var(--gv-line); border-radius:10px; padding:8px 11px; animation:gvpop .2s ease both; box-shadow:inset 0 0 18px rgba(47,111,159,.03); }
+          .gv-chip.gv-notc{ background:linear-gradient(0deg, rgba(38,48,58,.16), rgba(38,48,58,.16)), var(--gv-paper); border-color:rgba(38,48,58,.5); color:#26303a; }
+          @keyframes gvpop{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:none;} }
+          .gv-sw{ width:13px; height:13px; border-radius:50%; flex:0 0 auto; border:2px solid #14181c; background-clip:padding-box; }
+          .gv-sw.gv-redact{ border-radius:4px; }
+          .gv-notm{ color:var(--gv-not); display:inline-flex; flex:0 0 auto; }
+          .gv-notm svg{ width:13px; height:13px; }
+          .gv-lbl{ flex:1 1 auto; cursor:pointer; }
+          .gv-x{ margin-left:auto; background:transparent; border:none; color:var(--gv-ink-faint); font-size:13px; padding:0 1px; cursor:pointer; }
+          .gv-x:hover{ color:var(--gv-gold-deep); }
+          .gv-br-master{ display:flex; align-items:stretch; gap:8px; }
+          .gv-g-dd{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:6px; font:inherit; font-size:13.5px; color:var(--gv-ink); background:var(--gv-card); border:1px solid var(--gv-line); border-radius:10px; padding:10px 12px; cursor:pointer; text-align:left; box-shadow:inset 0 0 16px rgba(47,111,159,.03); overflow:hidden; transition:border-color .2s ease, box-shadow .2s ease; }
+          .gv-g-dd.gv-ph{ color:var(--gv-ink-soft); border-style:dashed; }
+          .gv-g-dd:hover{ border-color:var(--gv-ink-faint); }
+          .gv-g-dd.gv-open{ border-color:var(--gv-accent); box-shadow:inset 0 0 16px rgba(47,111,159,.05), 0 0 0 2px rgba(47,111,159,.12); }
+          .gv-g-dd-lbl{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+          .gv-g-dd-car{ font-size:11px; color:var(--gv-ink-faint); flex:0 0 auto; }
+          .gv-br-master .gv-g-dd{ flex:1 1 auto; min-width:0; }
+          .gv-subs .gv-g-dd{ flex:1 1 0; min-width:0; }
+          .gv-not-box{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; padding:0 10px; border:1px solid var(--gv-line); border-radius:10px; background:var(--gv-paper); color:var(--gv-ink-soft); cursor:pointer; user-select:none; }
+          .gv-not-box:hover{ border-color:var(--gv-ink-faint); }
+          .gv-not-box.gv-on{ background:var(--gv-not); border-color:var(--gv-not); color:#eef2f6; }
+          .gv-not-box input{ width:15px; height:15px; accent-color:var(--gv-not); margin:0; cursor:pointer; }
+          .gv-not-box svg{ width:18px; height:18px; }
+          .gv-subs{ display:flex; flex-wrap:nowrap; gap:6px; margin-top:0; max-height:0; opacity:0; overflow:hidden; transition:max-height .45s cubic-bezier(.4,0,.2,1), opacity .35s ease, margin-top .35s ease; }
+          .gv-subs.gv-open{ max-height:120px; opacity:1; margin-top:8px; }
+          .gv-br-foot{ display:flex; justify-content:flex-end; }
+          .gv-row-x{ background:transparent; border:none; color:var(--gv-ink-faint); font-size:15px; line-height:1; padding:6px 2px 0; cursor:pointer; }
+          .gv-row-x:hover{ color:var(--gv-gold-deep); }
+          .gv-actions{ display:flex; flex-direction:column; gap:10px; margin-top:14px; align-items:center; }
+          .gv-genie-hint{ padding:13px 4px 10px; display:none; }
+          .gv-genie-hint.gv-visible{ display:block; }
+          .gv-gh-hint{ font-size:12px; color:var(--gv-ink-faint); text-align:center; padding:6px 0 2px; margin:0; }
+          .gv-btn-add{ width:72%; font-size:14px; font-weight:700; color:#4a3a10; border-radius:12px; padding:12px; display:flex; align-items:center; justify-content:center; gap:7px; letter-spacing:.01em; background:linear-gradient(180deg,#f3d887,#eccb6b 55%,var(--gv-gold)); border:1px solid var(--gv-gold-deep); box-shadow:0 1px 0 rgba(255,255,255,.5) inset, 0 6px 16px -9px rgba(216,169,63,.95); cursor:pointer; }
+          .gv-btn-add:hover:not(:disabled){ filter:brightness(1.04); }
+          .gv-btn-add:disabled{ background:var(--gv-card); color:var(--gv-ink-faint); border:1px dashed var(--gv-line); box-shadow:none; cursor:not-allowed; font-weight:600; }
+          .gv-btn-search{ width:72%; font-size:14px; font-weight:700; color:#fff; border-radius:12px; padding:12px; letter-spacing:.01em; background:linear-gradient(180deg,#4a8fc0,var(--gv-accent)); border:1px solid var(--gv-accent-deep); box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 6px 16px -8px rgba(47,111,159,.9); }
+          .gv-btn-search:disabled{ opacity:.55; cursor:not-allowed; filter:grayscale(.2); }
+          .gv-save-gap{ height:22px; }
+          .gv-save-inline{ align-self:center; font-size:12.5px; font-weight:600; color:var(--gv-ink-soft); background:var(--gv-paper); border:1px solid var(--gv-line); border-radius:10px; display:inline-flex; align-items:center; gap:7px; padding:7px 14px; box-shadow:0 1px 2px rgba(31,45,56,.06); }
+          .gv-save-inline svg{ width:14px; height:14px; }
+          .gv-save-inline:disabled{ opacity:.55; cursor:not-allowed; }
+          .gv-gddmenu{ position:fixed; z-index:1500; background:#fbfdff; border:1px solid #cfdde6; border-radius:12px; padding:5px; display:none; box-shadow:0 1px 2px rgba(31,45,56,.06), 0 18px 40px -20px rgba(31,45,56,.5); max-height:360px; overflow:auto; }
+          .gv-gddmenu.gv-show{ display:block; }
+          .gv-gdd-row{ display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:transparent; border:none; border-radius:8px; padding:7px 10px; font-size:13px; color:#1f2d38; white-space:nowrap; cursor:pointer; }
+          .gv-gdd-row:hover{ background:#e2ecf1; }
+          .gv-gdd-row.gv-on{ background:rgba(47,111,159,.10); }
+          .gv-gdd-row .gv-ck{ width:14px; flex:0 0 14px; color:#2f6f9f; opacity:0; font-size:12px; }
+          .gv-gdd-row.gv-on .gv-ck{ opacity:1; }
+          .gv-gdd-row .gv-rname{ flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; }
+
+          /* Stage 2C: harness-only sidebar save hidden from normal flow */
+          #saveInvestigationBtn,
+          #saveInvestigationNote { display: none !important; }
+        </style>
+
+        <div class="panel-section">
+            <div class="panel-section-title">Variable builder</div>
+            <div id="gv-builder-host" aria-label="Genie variable builder (UI-only preview)">
+              <div class="gv-builder" id="gv-builder">
+                <div class="gv-builder-top">
+                  <button type="button" class="gv-btn-clear" data-gv-act="clearmap" title="Clear - remove all variables">Clear</button>
+                </div>
+                <div class="gv-chips" id="gv-chips"></div>
+                <div class="gv-genie-hint" id="gv-genieHint"><p class="gv-gh-hint">Select a variable type to begin.</p></div>
+                <div class="gv-buildrow" id="gv-buildrow"></div>
+                <div class="gv-actions">
+                  <button type="button" class="gv-btn-add" id="gv-addBtn" data-gv-act="add"><span>+</span> Add Variable</button>
+                  <button type="button" class="gv-btn-search" id="gv-searchBtn" disabled aria-disabled="true" title="Search is not connected in this UI-only preview">Search Map</button>
+                </div>
+                <div class="gv-save-gap"></div>
+                <button type="button" class="gv-save-inline" id="gv-saveInline" disabled aria-disabled="true" title="Save is not connected in this UI-only preview">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                  Save search
+                </button>
+              </div>
+            </div>
+        </div>
+        <script>
+        /* GENIE-BUILDER-PORT - UI-only builder logic. Scoped, in-memory, no wiring. */
+        (function(){
+          "use strict";
+          function init(){
+            var host=document.getElementById("gv-builder-host");
+            if(!host) return;
+            function hideLegacyShell(){
+              try{
+                ["planetA","angleSignAngle","overlayPlanet"].forEach(function(id){
+                  var el=document.getElementById(id);
+                  var sec=el&&el.closest&&el.closest(".panel-section");
+                  if(sec) sec.style.display="none";
+                });
+                var fb=document.getElementById("findBtn");
+                if(fb) fb.style.display="none";
+              }catch(e){}
+            }
+            var PLANETS=["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
+            var SIGNS=["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+            var ANGLES=["ASC","DSC","MC","IC"];
+            var HOUSES=[1,2,3,4,5,6,7,8,9,10,11,12];
+            var ASPECTS=[{id:"conjunction",label:"Conjunction"},{id:"sextile",label:"Sextile"},{id:"square",label:"Square"},{id:"trine",label:"Trine"},{id:"opposition",label:"Opposition"},{id:"hard",label:"Hard Aspects"},{id:"soft",label:"Soft Aspects"},{id:"all_major",label:"All Major Aspects"}];
+            var PLANET_ABBR={Sun:"Sun",Moon:"Moon",Mercury:"Mer",Venus:"Ven",Mars:"Mar",Jupiter:"Jup",Saturn:"Sat",Uranus:"Ura",Neptune:"Nep",Pluto:"Plu",Chiron:"Chi"};
+            var SIGN_ABBR={Aries:"Ari",Taurus:"Tau",Gemini:"Gem",Cancer:"Can",Leo:"Leo",Virgo:"Vir",Libra:"Lib",Scorpio:"Sco",Sagittarius:"Sag",Capricorn:"Cap",Aquarius:"Aqu",Pisces:"Pis"};
+            var ASP_ABBR={conjunction:"Conj",sextile:"Sext",square:"Sq",trine:"Tri",opposition:"Opp",hard:"Hard",soft:"Soft",all_major:"Maj"};
+            var NOT_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>';
+            var NOT_COLOR="#26303a";
+            var VAR_COLORS=["#2f9e8f","#3d7fc4","#7e5bd6","#d4569b","#e8893c","#e0b341","#d6504a","#5aa84b","#36b3c4","#5061c9"];
+            function ordinal(n){ n=+n; var s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+            function aspectLabel(id){ var a=ASPECTS.find(function(x){return x.id===id;}); return a?a.label:id; }
+            function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+            function colorOf(v){ var p; try{ var ov=window.RelocationTheme?window.RelocationTheme.overlays():null; p=(ov&&ov.length&&ov[0])?ov:VAR_COLORS; }catch(e){ p=VAR_COLORS; } return p[(v.colorIdx||0)%p.length]; }
+            function uid(){ return "gv"+Math.random().toString(36).slice(2,9); }
+            var CATEGORIES=[
+              {id:"planet_house",label:"Planet \u2013 House",fields:[{key:"planet",label:"Planet",src:"PLANETS"},{key:"house",label:"House",src:"HOUSES"}],chip:function(v){return v.planet+" \u2013 "+ordinal(v.house);},mini:function(v){return PLANET_ABBR[v.planet]+" \u00b7 "+v.house;}},
+              {id:"angle_sign",label:"Angle \u2013 Sign",fields:[{key:"angle",label:"Angle",src:"ANGLES"},{key:"sign",label:"Sign",src:"SIGNS"}],chip:function(v){return v.angle+" \u2013 "+v.sign;},mini:function(v){return v.angle+" \u00b7 "+SIGN_ABBR[v.sign];}},
+              {id:"aspect_angle",label:"Aspect \u2013 Angle",fields:[{key:"planet",label:"Planet",src:"PLANETS"},{key:"aspect",label:"Aspect",src:"ASPECTS"},{key:"angle",label:"Angle",src:"ANGLES"}],chip:function(v){return v.planet+" \u2013 "+aspectLabel(v.aspect)+" \u2013 "+v.angle;},mini:function(v){return PLANET_ABBR[v.planet]+" "+ASP_ABBR[v.aspect]+" "+v.angle;}}
+            ];
+            function SOURCES(name){ switch(name){case "PLANETS":return PLANETS.map(function(p){return {value:p,label:p};});case "SIGNS":return SIGNS.map(function(s){return {value:s,label:s};});case "ANGLES":return ANGLES.map(function(a){return {value:a,label:a};});case "HOUSES":return HOUSES.map(function(h){return {value:h,label:ordinal(h)};});case "ASPECTS":return ASPECTS.map(function(a){return {value:a.id,label:a.label};});default:return [];} }
+            function catById(id){ return CATEGORIES.find(function(c){return c.id===id;}); }
+            var variables=[], soloId=null, colorTick=0;
+            var build={editId:null,not:false,category:null,values:{}};
+            var els={
+              chips:document.getElementById("gv-chips"),
+              buildrow:document.getElementById("gv-buildrow"),
+              addBtn:document.getElementById("gv-addBtn"),
+              builder:document.getElementById("gv-builder")
+            };
+            var gddMenu=document.createElement("div"); gddMenu.className="gv-gddmenu"; host.appendChild(gddMenu);
+            var gddRole=null, gddTrigger=null;
+            function gddOptions(role){ if(role==="category")return CATEGORIES.map(function(c){return {value:c.id,label:c.label};}); if(role.indexOf("field:")===0){var key=role.slice(6);var f=catById(build.category).fields.find(function(x){return x.key===key;});return f?SOURCES(f.src):[];} return []; }
+            function gddCurrent(role){ if(role==="category")return build.category||""; if(role.indexOf("field:")===0)return build.values[role.slice(6)]; return ""; }
+            function openGdd(trigger){ var role=trigger.getAttribute("data-gv-role"); gddRole=role; gddTrigger=trigger; var opts=gddOptions(role),cur=gddCurrent(role);
+              gddMenu.innerHTML=opts.map(function(o){var on=String(o.value)===String(cur);return '<button type="button" class="gv-gdd-row'+(on?" gv-on":"")+'" data-gv-val="'+esc(o.value)+'"><span class="gv-ck">\u2713</span><span class="gv-rname">'+esc(o.label)+'</span></button>';}).join("");
+              var r=trigger.getBoundingClientRect(); gddMenu.style.minWidth=Math.max(r.width,150)+"px"; gddMenu.classList.add("gv-show"); trigger.classList.add("gv-open");
+              var left=Math.min(r.left,window.innerWidth-gddMenu.offsetWidth-10); gddMenu.style.left=Math.max(10,left)+"px";
+              var top=r.bottom+5; if(top+gddMenu.offsetHeight>window.innerHeight-10) top=r.top-gddMenu.offsetHeight-5; gddMenu.style.top=top+"px";
+            }
+            function closeGdd(){ gddMenu.classList.remove("gv-show"); if(gddTrigger)gddTrigger.classList.remove("gv-open"); gddRole=null; gddTrigger=null; }
+            gddMenu.addEventListener("click",function(e){ var b=e.target.closest(".gv-gdd-row"); if(!b)return; var val=b.getAttribute("data-gv-val"),role=gddRole;
+              if(role==="category"){build.category=val||null;build.values={};renderBuildRow();}
+              else if(role&&role.indexOf("field:")===0){build.values[role.slice(6)]=val;renderSubs();}
+              closeGdd();
+            });
+            function buildComplete(){ if(!build.category)return false; return catById(build.category).fields.every(function(f){return build.values[f.key]!==undefined&&build.values[f.key]!=="";}); }
+            function selectHtml(role,options,value,placeholder){ var has=value!==undefined&&value!==""; var cur=has?((options.find(function(o){return String(o.value)===String(value);})||{}).label||""):"";
+              return '<button type="button" class="gv-g-dd'+(has?"":" gv-ph")+'" data-gv-role="'+esc(role)+'"><span class="gv-g-dd-lbl">'+esc(has?cur:placeholder)+'</span><span class="gv-g-dd-car">\u25be</span></button>'; }
+            function renderChips(){ els.chips.innerHTML=variables.map(function(v){ return '<span class="gv-chip'+(v.not?" gv-notc":"")+'" data-gv-id="'+v.id+'"><span class="gv-sw'+(v.not?" gv-redact":"")+'" style="background:'+(v.not?NOT_COLOR:colorOf(v))+'"></span>'+(v.not?'<span class="gv-notm">'+NOT_ICON+'</span>':"")+'<span class="gv-lbl" data-gv-act="chip" data-gv-id="'+v.id+'">'+esc(catById(v.category).chip(v.values))+'</span><button type="button" class="gv-x" data-gv-act="remove" data-gv-id="'+v.id+'" title="Remove">\u2715</button></span>'; }).join(""); }
+            function renderBuildRow(){ els.buildrow.innerHTML='<div class="gv-br-master">'+selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Select variable")+'<label class="gv-not-box'+(build.not?" gv-on":"")+'" title="Redact - exclude these placements (NOT)">'+NOT_ICON+'<input type="checkbox" data-gv-role="notcheck"'+(build.not?" checked":"")+'></label></div><div class="gv-subs" id="gv-subs"></div><div class="gv-br-foot" id="gv-brFoot"></div>'; renderSubs(); applyRedactPreview(); updateGenieHint(); }
+            function renderSubs(){ var subs=document.getElementById("gv-subs"),foot=document.getElementById("gv-brFoot"); if(!subs||!foot)return; if(!build.category){subs.innerHTML="";foot.innerHTML="";updateAddState();return;} subs.classList.remove("gv-open");
+              subs.innerHTML=catById(build.category).fields.map(function(f){return selectHtml("field:"+f.key,SOURCES(f.src),build.values[f.key],f.label);}).join("");
+              foot.innerHTML='<button type="button" class="gv-row-x" data-gv-act="cancel" title="Discard this variable">\u2715</button>';
+              requestAnimationFrame(function(){requestAnimationFrame(function(){subs.classList.add("gv-open");});}); updateAddState(); }
+            function updateGenieHint(){ var hint=document.getElementById("gv-genieHint"); if(!hint)return; hint.classList.toggle("gv-visible",variables.length===0&&!build.category); }
+            function updateAddState(){ els.addBtn.disabled=!buildComplete()||(!build.editId&&variables.length>=12); }
+            function applyRedactPreview(){ els.builder.classList.toggle("gv-redacting",!!build.not); }
+            function renderAll(){ renderChips(); renderBuildRow(); }
+            function resetBuild(){ build={editId:null,not:false,category:null,values:{}}; }
+            function commitVariable(){ if(!buildComplete())return false; if(build.editId){var ex=variables.find(function(x){return x.id===build.editId;}); if(ex){ex.not=build.not; ex.category=build.category; ex.values=Object.assign({},build.values);}} else { variables.push({id:uid(),not:build.not,category:build.category,values:Object.assign({},build.values),colorIdx:colorTick++%12,mute:false}); } resetBuild(); renderAll(); return true; }
+            function editVariable(id){ var v=variables.find(function(x){return x.id===id;}); if(!v)return; build={editId:id,not:v.not,category:v.category,values:Object.assign({},v.values)}; renderBuildRow(); }
+            function removeVariable(id){ variables=variables.filter(function(x){return x.id!==id;}); if(soloId===id)soloId=null; if(build.editId===id)resetBuild(); renderAll(); }
+            host.addEventListener("change",function(e){ var t=e.target; if(t&&t.getAttribute&&t.getAttribute("data-gv-role")==="notcheck"){ build.not=t.checked; var nb=els.buildrow.querySelector(".gv-not-box"); if(nb)nb.classList.toggle("gv-on",build.not); applyRedactPreview(); } });
+            host.addEventListener("click",function(e){
+              var dd=e.target.closest&&e.target.closest(".gv-g-dd");
+              if(dd){ e.stopPropagation(); if(gddMenu.classList.contains("gv-show")&&gddTrigger===dd) closeGdd(); else {closeGdd();openGdd(dd);} return; }
+              var b=e.target.closest&&e.target.closest("[data-gv-act]"); if(!b)return;
+              var act=b.getAttribute("data-gv-act");
+              if(act==="add")commitVariable();
+              else if(act==="cancel"){resetBuild();renderBuildRow();}
+              else if(act==="clearmap"){variables=[];soloId=null;resetBuild();renderAll();}
+              else if(act==="chip")editVariable(b.getAttribute("data-gv-id"));
+              else if(act==="remove")removeVariable(b.getAttribute("data-gv-id"));
+            });
+            document.addEventListener("click",function(e){ if(!(e.target.closest&&(e.target.closest(".gv-gddmenu")||e.target.closest(".gv-g-dd")))) closeGdd(); });
+            hideLegacyShell();
+            renderAll();
+            window.__gvBuilderPreview={ get variables(){return variables.slice();}, count:function(){return variables.length;} };
+          }
+          if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+        })();
+        </script>
+
 
         <div class="panel-section">
             <div class="panel-section-title">Planet in house</div>

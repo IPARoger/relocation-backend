@@ -1,0 +1,185 @@
+{
+  "checks": [
+    {
+      "name": "builder_renders",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "buildrow_dropdown_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "genie_hint_visible_empty",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "clear_btn_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "add_btn_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "search_btn_visible_and_disabled",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "save_btn_visible_and_disabled",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "bottle_shell_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "ghoststrip_shell_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy_findBtn_hidden_kept_in_dom",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy_planetA_kept_in_dom",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy_overlayPlanet_kept_in_dom",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy_angleSign_kept_in_dom",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "add_seq1_complete",
+      "pass": true,
+      "detail": "{'ok': True, 'addDisabled': False}"
+    },
+    {
+      "name": "chip_added_1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "chip_label_has_Sun",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "ghost_token_added_1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "badge_1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "memory_count_1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "add_seq2_complete",
+      "pass": true,
+      "detail": "{'ok': True, 'addDisabled': False}"
+    },
+    {
+      "name": "chip_added_2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "memory_count_2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "ghost_mute_class_applied",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "redact_preview_class",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "remove_chip_works",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "clear_all_works",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "memory_count_0_after_clear",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "prod_executeSearchPlan_fn",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "prod_map_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "prod_genie_adapter_loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "prod_save_fn_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "prod_saveNote_present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "prod_findBtn_still_in_dom",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "no_gv_page_errors",
+      "pass": true,
+      "detail": "[]"
+    }
+  ],
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "page_errors": [
+    "[RMSettings] defaults not loaded; await loadAstrologySettingsDefaults()"
+  ],
+  "summary": {
+    "total": 34,
+    "passed": 34,
+    "failed": []
+  }
+}
