@@ -192,6 +192,32 @@
   [data-view] { display: none; }
   [data-view].active { display: block; }
 
+  /* ── OAuth ── */
+  .btn-oauth {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    cursor: pointer;
+    margin-top: 0;
+    transition: background .15s, opacity .15s;
+  }
+  .btn-oauth:hover:not(:disabled) { background: var(--bg); }
+  .btn-oauth:disabled { opacity: .6; cursor: default; }
+  .oauth-divider {
+    margin: 16px 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: lowercase;
+  }
+
   /* ── Init state ── */
   .page.loading .card { opacity: 0; }
 
@@ -209,6 +235,9 @@
     <div data-view="signup" id="view-signup">
       <h1 class="card-title">Create your account</h1>
       <p class="card-sub">Your personal relocation map starts here.</p>
+
+      <button type="button" class="btn-oauth" id="google-signup-btn">Continue with Google</button>
+      <p class="oauth-divider">or</p>
 
       <div class="alert alert-err" id="signup-err" role="alert"></div>
 
@@ -242,6 +271,9 @@
     <div data-view="login" id="view-login">
       <h1 class="card-title">Welcome back</h1>
       <p class="card-sub">Sign in to your account.</p>
+
+      <button type="button" class="btn-oauth" id="google-login-btn">Continue with Google</button>
+      <p class="oauth-divider">or</p>
 
       <div class="alert alert-err" id="login-err" role="alert"></div>
 
@@ -301,6 +333,7 @@
   "use strict";
 
   var MAP_URL = "/map_CURRENT.html";
+  var OAUTH_REDIRECT = window.location.origin + "/auth.html";
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var page          = document.getElementById("page");
@@ -328,6 +361,8 @@
   var gotoSignup    = document.getElementById("goto-signup");
   var forgotBtn     = document.getElementById("forgot-btn");
   var backToSignup  = document.getElementById("back-to-signup");
+  var googleSignupBtn = document.getElementById("google-signup-btn");
+  var googleLoginBtn  = document.getElementById("google-login-btn");
 
   // ── View management ───────────────────────────────────────────────────────
   function showView(name) {
@@ -364,6 +399,12 @@
     }
     if (msg.includes("network") || msg.includes("fetch") || msg.includes("failed to fetch")) {
       return "Check your connection and try again.";
+    }
+    if (msg.includes("access_denied") || msg.includes("cancelled") || msg.includes("canceled")) {
+      return "Sign-in was cancelled.";
+    }
+    if (msg.includes("oauth") || msg.includes("provider") || msg.includes("redirect")) {
+      return "Google sign-in failed. Please try again.";
     }
     return err.message || "Something went wrong. Please try again.";
   }
@@ -545,24 +586,86 @@
     });
   });
 
-  // ── Init: check existing session, then show page ──────────────────────────
+  // ── Google OAuth ──────────────────────────────────────────────────────────
+  function stripOAuthParams() {
+    if (window.location.search || window.location.hash) {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  }
+
+  function parseOAuthUrlError() {
+    var params = new URLSearchParams(window.location.search);
+    var hash = window.location.hash.charAt(0) === "#"
+      ? window.location.hash.slice(1) : window.location.hash;
+    var hashParams = new URLSearchParams(hash);
+    var errCode = params.get("error") || hashParams.get("error");
+    if (!errCode) return null;
+    var desc = params.get("error_description") || hashParams.get("error_description") || errCode;
+    try { desc = decodeURIComponent(String(desc).replace(/\+/g, " ")); } catch (e) { /* keep raw */ }
+    if (String(errCode).toLowerCase() === "access_denied") {
+      return "Sign-in was cancelled.";
+    }
+    return friendlyError({ message: desc });
+  }
+
+  function signInWithGoogle(btn, errEl) {
+    if (!btn || btn.disabled) return;
+    clearAlert(errEl);
+    btn.disabled = true;
+    window.SupabaseReady.then(function (client) {
+      return client.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: OAUTH_REDIRECT },
+      });
+    }).then(function (result) {
+      if (result && result.error) {
+        btn.disabled = false;
+        showAlert(errEl, friendlyError(result.error));
+      }
+      // Success redirects away; button stays disabled.
+    }).catch(function () {
+      btn.disabled = false;
+      showAlert(errEl, "Check your connection and try again.");
+    });
+  }
+
+  if (googleSignupBtn) {
+    googleSignupBtn.addEventListener("click", function () {
+      signInWithGoogle(googleSignupBtn, signupErr);
+    });
+  }
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener("click", function () {
+      signInWithGoogle(googleLoginBtn, loginErr);
+    });
+  }
+
+  // ── Init: OAuth errors, session check, then show page ─────────────────────
+  var oauthUrlError = parseOAuthUrlError();
+
   window.SupabaseReady.then(function (client) {
     return client.auth.getSession();
   }).then(function (result) {
+    stripOAuthParams();
     if (result.data && result.data.session) {
-      // Already authenticated — go straight to the map.
       window.location.href = MAP_URL;
       return;
     }
-    // No session — show signup view.
     showView("signup");
     page.classList.remove("loading");
+    if (oauthUrlError) {
+      showAlert(signupErr, oauthUrlError);
+    }
   }).catch(function (err) {
-    // Config or CDN load failed — show page anyway so the user sees something.
+    stripOAuthParams();
     console.error("[auth] init error:", err);
     showView("signup");
     page.classList.remove("loading");
-    showAlert(signupErr, "Could not connect to the server. Is it running?");
+    if (oauthUrlError) {
+      showAlert(signupErr, oauthUrlError);
+    } else {
+      showAlert(signupErr, "Could not connect to the server. Is it running?");
+    }
   });
 
 })();

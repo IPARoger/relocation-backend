@@ -459,6 +459,35 @@
     launchContext = DEFAULT_LAUNCH_CONTEXT;
   }
 
+  // ── Google OAuth name prefill (intake only) ─────────────────────────────────
+
+  function userSignedInWithGoogle(user) {
+    if (!user) return false;
+    var ids = user.identities || [];
+    for (var i = 0; i < ids.length; i++) {
+      if (ids[i].provider === "google") return true;
+    }
+    return !!(user.app_metadata && user.app_metadata.provider === "google");
+  }
+
+  function prefillNameFromGoogleMetadata() {
+    if (typeof window.SupabaseReady === "undefined") return;
+    window.SupabaseReady.then(function (client) {
+      return client.auth.getSession();
+    }).then(function (result) {
+      var session = result && result.data && result.data.session;
+      var user = session && session.user;
+      if (!user || !userSignedInWithGoogle(user)) return;
+      var meta = user.user_metadata || {};
+      var name = String(meta.full_name || meta.name || "").trim();
+      if (!name) return;
+      var nameInput = document.getElementById("rm-intake-name");
+      if (nameInput && !String(nameInput.value || "").trim()) {
+        nameInput.value = name;
+      }
+    }).catch(function () { /* no session — skip prefill */ });
+  }
+
   // ── Show overlay ────────────────────────────────────────────────────────────
 
   function showOverlay(options) {
@@ -470,6 +499,7 @@
     var overlay = buildOverlay();
     document.body.appendChild(overlay);
     attachListeners(overlay);
+    prefillNameFromGoogleMetadata();
 
     // Focus name field
     setTimeout(function () {
