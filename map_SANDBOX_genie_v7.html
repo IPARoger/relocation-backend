@@ -200,10 +200,17 @@
     transition: opacity 3.5s ease, transform 3.5s ease, background 3.5s ease,
       border-color 3.5s ease, box-shadow 3.5s ease, backdrop-filter 3.5s ease;
   }
+  /* map-local override — do NOT edit identity_stamp.css */
+  .identity-stamp {
+    --authority-col-width: 200px;
+    transform: scale(0.88);
+    transform-origin: top left;
+    top: 72px;
+  }
   .zb-name .nm {
     -webkit-text-fill-color: #14222c;
-    -webkit-text-stroke: .4px rgba(70,84,94,.55);
-    text-shadow: 0 1px 2px rgba(255,255,255,.9);
+    -webkit-text-stroke: 0;
+    text-shadow: none;
     transition: -webkit-text-fill-color 3.5s ease, -webkit-text-stroke 3.5s ease,
       text-shadow 3.5s ease, color 3.5s ease;
   }
@@ -232,6 +239,10 @@
     -webkit-text-stroke: 0.8px rgba(30,45,58,.26);
     text-shadow: none;
   }
+  body.explore .identity-stamp:hover .zb-name .nm {
+    -webkit-text-fill-color: rgba(30,45,58,.42);
+    -webkit-text-stroke: 0.9px rgba(30,45,58,.35);
+  }
   body.explore .zb-primary {
     color: rgba(30,45,58,.20);
     -webkit-text-fill-color: rgba(30,45,58,.20);
@@ -250,8 +261,8 @@
 
 
   /* ---------- right rail / builder ---------- */
-  .rail { right:16px; top:62px; width:332px; max-width:calc(100% - 32px); pointer-events:none; }
-  .builder { pointer-events:auto; position:relative; background:var(--card); border:3px double var(--line); border-radius:16px; padding:15px;
+  .rail { right:14px; top:58px; width:280px; max-width:calc(100% - 32px); pointer-events:none; }
+  .builder { pointer-events:auto; position:relative; background:var(--card); border:3px double var(--line); border-radius:14px; padding:12px;
     box-shadow:inset 0 0 28px rgba(47,111,159,.04), 0 1px 2px rgba(31,45,56,.07), 0 26px 50px -24px rgba(31,45,56,.5);
     transition:opacity 0.4s ease; }
   /* builder: CSS sets only pointer-events in explore; JS manages opacity via .builder--flip-hidden */
@@ -376,9 +387,9 @@
   .ghoststrip { right:18px; top:46%; transform:translateY(-50%); display:none; flex-direction:column; gap:11px; align-items:stretch; pointer-events:none;
     padding:13px 14px; border-radius:14px; }
   /* ghost controls fade into place on a subtle profile-DNA card so they read clearly without shouting */
-  body.explore .ghoststrip { display:flex; background:rgba(248,252,255,.18); border:1px solid rgba(207,221,230,.38);
-    box-shadow:inset 0 0 20px rgba(47,111,159,.03), 0 1px 2px rgba(31,45,56,.05), 0 12px 28px -18px rgba(31,45,56,.28);
-    backdrop-filter:blur(3px); opacity:.62; transition:opacity .4s ease;
+  body.explore .ghoststrip { display:flex; background:transparent; border-color:transparent;
+    box-shadow:none;
+    backdrop-filter:none; opacity:.45; transition:opacity .4s ease;
     animation:ghostStripIn 1.4s cubic-bezier(.25,.1,.25,1) .5s both; }
   body.explore .ghoststrip:hover { opacity:1; }
   @keyframes ghostStripIn { from{ opacity:0; filter:blur(2px); transform:translate(10px,-50%); } to{ opacity:1; filter:blur(0); transform:translate(0,-50%); } }
@@ -406,7 +417,7 @@
   /* depth slider — right, beneath ghost */
   .lab { right:26px; top:72%; pointer-events:auto; background:rgba(251,253,255,.85); border:1px solid var(--line); border-radius:999px; padding:8px 14px;
     box-shadow:0 12px 26px -18px rgba(31,45,56,.5); display:none; opacity:.6; transition:opacity .3s ease; }
-  body.explore .lab { display:flex; visibility:visible; opacity:.22; pointer-events:auto;
+  body.explore .lab { display:flex; visibility:visible; opacity:.30; pointer-events:auto;
     align-items:center; transition:opacity 1.6s ease 0.7s, visibility 0s; }
   body.explore .lab:hover { opacity:.85; transition:opacity .3s ease; }
   .lab input[type=range] { width:150px; accent-color:var(--accent); }
@@ -461,7 +472,7 @@
   /* ── Notepad widget ─────────────────────────────────────────────────── */
   /* stub: 1.5" square word-processor pad visible in setup mode */
   .np-stub { position:fixed; z-index:950; left:16px; bottom:34px;
-    width:144px; height:144px; border-radius:13px;
+    width:120px; height:120px; border-radius:13px;
     background:rgba(254,253,248,.92); border:1px solid var(--line);
     box-shadow:0 1px 2px rgba(31,45,56,.08), 0 12px 28px -14px rgba(31,45,56,.4);
     display:flex; flex-direction:column; overflow:hidden; pointer-events:auto;
@@ -469,7 +480,7 @@
       height 1.4s cubic-bezier(.4,0,.2,1), border-radius 1.4s ease, right 1.4s ease, bottom 1.4s ease; }
   /* In explore mode: shrink to small icon (36x36) */
   body.explore .np-stub { width:36px; height:36px; border-radius:10px;
-    left:16px; bottom:96px; opacity:.75;
+    left:16px; bottom:110px; opacity:.75;
     background:rgba(254,253,248,.88); }
   body.explore .np-stub .np-toolbar,
   body.explore .np-stub .np-area { opacity:0; pointer-events:none; transition:opacity 0.5s ease; }
