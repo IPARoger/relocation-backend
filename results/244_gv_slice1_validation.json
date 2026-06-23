@@ -1,0 +1,86 @@
+{
+  "slice": "3B-1",
+  "validation_ok": true,
+  "plan_summary": {
+    "houses": 1,
+    "angles": 1,
+    "aspect": {
+      "planet": "moon",
+      "aspect": "any",
+      "angle": "MC",
+      "variableId": "gvtest3"
+    },
+    "degradation": [
+      {
+        "variableId": "gvtest4",
+        "status": "deferred",
+        "reason": "exclude_not_supported_in_engine_v1"
+      }
+    ]
+  },
+  "payload_example": {
+    "schema_version": 1,
+    "kind": "genie_render",
+    "variables": [
+      {
+        "id": "gvtest1",
+        "type": "planet_in_house",
+        "polarity": "include",
+        "enabled": true,
+        "status": "complete",
+        "label": "Planet \u00b7 House",
+        "fields": {
+          "body": "sun",
+          "house": 1
+        }
+      },
+      {
+        "id": "gvtest2",
+        "type": "angle_in_sign",
+        "polarity": "include",
+        "enabled": true,
+        "status": "complete",
+        "label": "Angle \u00b7 Sign",
+        "fields": {
+          "angle": "ASC",
+          "sign": "aries"
+        }
+      },
+      {
+        "id": "gvtest3",
+        "type": "aspect_to_angle",
+        "polarity": "include",
+        "enabled": true,
+        "status": "complete",
+        "label": "Aspect \u00b7 Angle",
+        "fields": {
+          "body": "moon",
+          "aspect": "any",
+          "angle": "MC"
+        }
+      },
+      {
+        "id": "gvtest4",
+        "type": "planet_in_house",
+        "polarity": "exclude",
+        "enabled": false,
+        "status": "complete",
+        "label": "Planet \u00b7 House",
+        "fields": {
+          "body": "mars",
+          "house": 7
+        }
+      }
+    ]
+  },
+  "search_btn_unchanged": {
+    "disabled": true,
+    "aria": "true"
+  },
+  "execute_command": "window.__rmExecuteGenieRender(window.__gvBuildPayloadForTesting(window.__gvBuilderPreview.variables))",
+  "execute_test_used": "Sun 1H only (headless harness; full mapper validated separately)",
+  "executed": true,
+  "search_regions_http_200": true,
+  "display_feature_count": 1,
+  "render_status": "House regions ready."
+}

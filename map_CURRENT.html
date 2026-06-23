@@ -7411,6 +7411,86 @@ async function maybeExecuteGenieRenderHandoff() {
     }
 }
 
+/**
+ * GENIE-SLICE-3B-1 — gv builder variables → genie_render payload (mapper only; no UI wiring).
+ * @param {object[]} variables gv builder variable records
+ * @param {object} [options] optional chartRecordId, createdAt, layerControls, settingsSnapshot
+ * @returns {object} genie_render payload
+ */
+function buildGenieRenderPayloadFromGv(variables, options) {
+    options = options || {};
+    const list = Array.isArray(variables) ? variables : [];
+
+    function lowerToken(val) {
+        if (val == null || val === "") return val;
+        return String(val).toLowerCase();
+    }
+
+    function mapAspect(aspect) {
+        if (aspect === "all_major") return "any";
+        return aspect;
+    }
+
+    function gvToGenieVariable(v) {
+        if (!v || typeof v !== "object" || !v.id || !v.category) return null;
+        const vals = v.values || {};
+        let type = null;
+        let fields = null;
+        let label = null;
+
+        if (v.category === "planet_house") {
+            type = "planet_in_house";
+            fields = {
+                body: lowerToken(vals.planet),
+                house: parseInt(vals.house, 10),
+            };
+            label = "Planet · House";
+        } else if (v.category === "angle_sign") {
+            type = "angle_in_sign";
+            fields = {
+                angle: vals.angle,
+                sign: lowerToken(vals.sign),
+            };
+            label = "Angle · Sign";
+        } else if (v.category === "aspect_angle") {
+            type = "aspect_to_angle";
+            fields = {
+                body: lowerToken(vals.planet),
+                aspect: mapAspect(vals.aspect),
+                angle: vals.angle,
+            };
+            label = "Aspect · Angle";
+        } else {
+            return null;
+        }
+
+        return {
+            id: v.id,
+            type,
+            polarity: v.not ? "exclude" : "include",
+            enabled: v.mute === true ? false : true,
+            status: "complete",
+            label,
+            fields,
+        };
+    }
+
+    const payload = {
+        schema_version: 1,
+        kind: "genie_render",
+        variables: list.map(gvToGenieVariable).filter(Boolean),
+    };
+
+    if (options.chartRecordId != null) payload.chartRecordId = options.chartRecordId;
+    if (options.createdAt != null) payload.createdAt = options.createdAt;
+    if (options.layerControls != null) payload.layerControls = options.layerControls;
+    if (options.settingsSnapshot != null) payload.settingsSnapshot = options.settingsSnapshot;
+
+    return payload;
+}
+
+window.__gvBuildPayloadForTesting = buildGenieRenderPayloadFromGv;
+
 window.__rmExecuteGenieRender = executeGenieRender;
 window.__rmGenieMapAdapter = window.RelocationGenieMapEngineAdapter;
 window.__rmGenieRenderExecutionSummary = () => (
