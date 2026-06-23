@@ -2097,6 +2097,15 @@ function screenChart() {
     #rm-screen4-head .rm-wheel-disc{border-radius:50%;overflow:hidden;width:100%;max-width:420px}
     #rm-screen4-head .rm-wheel-disc svg{display:block;width:100%;height:auto}
     @media(max-width:760px){#rm-screen4-head{flex-direction:column}#rm-screen4-head .reloc-plate{flex:none;width:100%}}
+    /* RELOCATED City Intelligence snippet — beta placeholder */
+    #rm-screen4-intel{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);max-width:660px}
+    #rm-screen4-intel .rm-intel-heading{font-family:Palatino,Georgia,serif;font-size:18px;font-weight:700;margin:0 0 14px;color:var(--ink)}
+    #rm-screen4-intel .rm-intel-rows{display:grid;grid-template-columns:1fr 1fr;gap:2px 36px}
+    #rm-screen4-intel .rm-intel-row{display:flex;justify-content:space-between;gap:14px;align-items:baseline;border-bottom:1px solid var(--line-soft);padding:8px 0}
+    #rm-screen4-intel .rm-intel-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
+    #rm-screen4-intel .rm-intel-value{font-size:15px;color:var(--ink);font-weight:500;text-align:right}
+    #rm-screen4-intel .intel-stub{color:var(--muted);font-weight:400}
+    @media(max-width:640px){#rm-screen4-intel .rm-intel-rows{grid-template-columns:1fr}}
     </style>
     <div class="panel rm-screen4-panel">
       <div id="rm-screen4-head">
@@ -2120,6 +2129,7 @@ function screenChart() {
            ${coords ? `data-lat="${coords.lat}" data-lon="${coords.lon}"` : ""}>
         ${factsInner}
       </div>
+      <div id="rm-screen4-intel"></div>
     </div>
 
     <div class="row">
@@ -3448,6 +3458,37 @@ function renderProfileNatalChartHtml(canonical, dignitiesOn) {
 // Wheel and meta table retained above the tband (Window A layout deferred).
 // Reuses Profile tband renderers: renderProfileAisCardBodyHtml, renderProfilePihTableHtml.
 // PIH is house-only (showLongitude:false). Dignities footer scope: "chart".
+function renderRelocatedIntelBlockHtml(placeRow, lat, lon) {
+  // Beta placeholder: renders real country/region/coords; all other rows are stubs.
+  const stubRow = (label) =>
+    `<div class="rm-intel-row"><span class="rm-intel-label">${escapeHtml(label)}</span>`
+    + `<span class="rm-intel-value intel-stub">—</span></div>`;
+  const realRow = (label, value) =>
+    `<div class="rm-intel-row"><span class="rm-intel-label">${escapeHtml(label)}</span>`
+    + `<span class="rm-intel-value">${escapeHtml(value)}</span></div>`;
+  const country = (placeRow && placeRow.country_name) || null;
+  const region  = (placeRow && placeRow.admin1) || null;
+  const coords  = (lat != null && lon != null)
+    ? `${Number(lat).toFixed(2)}°, ${Number(lon).toFixed(2)}°`
+    : null;
+  return (
+    `<h4 class="rm-intel-heading">Location Intelligence</h4>`
+    + `<div class="rm-intel-rows">`
+    + (country ? realRow("Country", country) : stubRow("Country"))
+    + (region  ? realRow("Region",  region)  : stubRow("Region"))
+    + (coords  ? realRow("Coordinates", coords) : stubRow("Coordinates"))
+    + stubRow("Population")
+    + stubRow("Language")
+    + stubRow("Currency")
+    + stubRow("Climate")
+    + stubRow("Safety")
+    + stubRow("Cost of Living")
+    + stubRow("Mobility")
+    + stubRow("Character")
+    + `</div>`
+  );
+}
+
 function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const canonical = getCanonicalChartFromPayload(chart);
@@ -3546,6 +3587,14 @@ async function hydrateRelocatedChart(root) {
       const _waZod = (_winACanonical.metadata && _winACanonical.metadata.zodiac_mode) || "tropical";
       _winAPlateMeta.textContent = _waZod.charAt(0).toUpperCase() + _waZod.slice(1)
         + " · " + _waSys.charAt(0).toUpperCase() + _waSys.slice(1);
+    }
+    // RELOCATED City Intelligence: inject beta placeholder with real country/region/coords.
+    const _ciIntelSlot = document.getElementById("rm-screen4-intel");
+    if (_ciIntelSlot) {
+      const _ciPlaceRow = placeId
+        ? (viewModel && viewModel.placesById && viewModel.placesById[placeId]) || null
+        : null;
+      _ciIntelSlot.innerHTML = renderRelocatedIntelBlockHtml(_ciPlaceRow, lat, lon);
     }
   } catch (err) {
     if (!stillCurrent()) return;
