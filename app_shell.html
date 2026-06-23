@@ -4821,7 +4821,7 @@ function settingsPageLayout(activeSub, title, subtitle, bodyHtml, opts) {
   const showSave = o.showSave === true;
   return `
     <h2>Settings</h2>
-    <p class="purpose">Choose a section. Saved settings apply to your account where indicated.</p>
+    <p class="purpose">Choose a section. Settings apply to your whole account across all profiles.</p>
     <div class="settings-layout" data-settings-framework>
       <nav class="settings-nav" aria-label="Settings sections">
         ${settingsNavHtml(activeSub)}
@@ -4938,7 +4938,7 @@ function settingsSubpageShell(subId, title, subtitle, bodyHtml, opts) {
 function settingsLandingHtml() {
   return `
     <h2>Settings</h2>
-    <p class="purpose">Choose a section from the navigation or cards below.</p>
+    <p class="purpose">Choose a section from the navigation or cards below. Settings apply to your whole account across all profiles.</p>
     <div class="settings-layout" data-settings-framework>
       <nav class="settings-nav" aria-label="Settings sections">
         ${settingsNavHtml(null)}
