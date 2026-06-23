@@ -1,0 +1,55 @@
+{
+  "slice": "3B-3",
+  "ghost_matches_chips": true,
+  "chips": [
+    "Sun \u2013 1st",
+    "ASC \u2013 Aries"
+  ],
+  "ghosts": [
+    "Sun \u2013 1st",
+    "ASC \u2013 Aries"
+  ],
+  "conditions_snapshot": {
+    "house_conditions": [
+      {
+        "type": "planet_in_house",
+        "planet": "sun",
+        "house": 1,
+        "slot": "A"
+      }
+    ],
+    "angle_sign_conditions": [
+      {
+        "type": "angle_in_sign",
+        "angle": "ASC",
+        "sign": "aries"
+      }
+    ],
+    "aspect_overlay": null
+  },
+  "saved_conditions_via_collector": {
+    "house_conditions": [
+      {
+        "type": "planet_in_house",
+        "planet": "sun",
+        "house": 1,
+        "slot": "A"
+      }
+    ],
+    "angle_sign_conditions": [
+      {
+        "type": "angle_in_sign",
+        "angle": "ASC",
+        "sign": "aries"
+      }
+    ],
+    "aspect_overlay": null
+  },
+  "replay": {
+    "houses": 1,
+    "angles": 1,
+    "features": 137
+  },
+  "search_regions_200": true,
+  "motion_smoke": "PASS 12/12 MAP-PRODUCTION-MOTION-A"
+}

@@ -2228,48 +2228,90 @@ const chartProfilesReady = loadChartProfiles().catch((err) => {
 });
 window.__rmChartProfilesReady = chartProfilesReady;
 
+
+/**
+ * GENIE-SLICE-3B-3 — gv builder variables → saved investigation condition snapshot.
+ * @param {object[]} gvVariables
+ * @returns {{ house_conditions: object[], angle_sign_conditions: object[], aspect_overlay: object|null }}
+ */
+function gvVariablesToConditionSnapshot(gvVariables) {
+    const list = Array.isArray(gvVariables) ? gvVariables : [];
+    const houseSlots = ["A", "B", "C"];
+    let houseSlotIdx = 0;
+    const house_conditions = [];
+    const angle_sign_conditions = [];
+    let aspect_overlay = null;
+
+    function lowerToken(val) {
+        if (val == null || val === "") return val;
+        return String(val).toLowerCase();
+    }
+    function mapAspect(aspect) {
+        if (aspect === "all_major") return "any";
+        return aspect;
+    }
+    function aspectMaxOrb(aspect) {
+        const _a2aOrbDefaults = {
+            conjunction: 8, opposition: 8, square: 8, trine: 8, sextile: 6,
+            quincunx: 3, semisextile: 2, semisquare: 2, sesquiquadrate: 2,
+            quintile: 2, biquintile: 2, septile: 2, novile: 2,
+        };
+        const _eff = (window.RMSettings && window.SupabaseStore)
+            ? window.RMSettings.getEffectiveSettings(window.SupabaseStore.user_settings || null, null)
+            : null;
+        const _a2aOrbs = (_eff && typeof _eff.aspect_to_angle_orbs === "object")
+            ? _eff.aspect_to_angle_orbs
+            : {};
+        return _a2aOrbs[aspect] != null
+            ? _a2aOrbs[aspect]
+            : (_a2aOrbDefaults[aspect] != null ? _a2aOrbDefaults[aspect] : 6);
+    }
+
+    for (const v of list) {
+        if (!v || typeof v !== "object" || v.mute === true || v.not === true) continue;
+        const vals = v.values || {};
+        if (v.category === "planet_house") {
+            const planet = lowerToken(vals.planet);
+            const house = parseInt(vals.house, 10);
+            if (!planet || !Number.isFinite(house)) continue;
+            const entry = { type: "planet_in_house", planet, house };
+            if (houseSlotIdx < houseSlots.length) entry.slot = houseSlots[houseSlotIdx++];
+            house_conditions.push(entry);
+        } else if (v.category === "angle_sign") {
+            const angle = vals.angle;
+            const sign = lowerToken(vals.sign);
+            if (angle && sign) angle_sign_conditions.push({ type: "angle_in_sign", angle, sign });
+        } else if (v.category === "aspect_angle" && !aspect_overlay) {
+            const planet = lowerToken(vals.planet);
+            const aspect = mapAspect(vals.aspect);
+            const angle = vals.angle;
+            if (planet && aspect && angle) {
+                aspect_overlay = {
+                    type: "aspect_to_angle",
+                    planet,
+                    aspect,
+                    angle,
+                    max_orb: aspectMaxOrb(aspect),
+                };
+            }
+        }
+    }
+
+    return { house_conditions, angle_sign_conditions, aspect_overlay };
+}
+
+window.__gvVariablesToConditionSnapshot = gvVariablesToConditionSnapshot;
+
 function collectSavedInvestigationConditions() {
-    const houseConditions = [];
-    const planetA = document.getElementById("planetA").value;
-    if (planetA) {
-        houseConditions.push({
-            slot: "A",
-            type: "planet_in_house",
-            planet: planetA,
-            house: parseInt(document.getElementById("houseA").value, 10)
-        });
-    }
-    const planetB = document.getElementById("planetB").value;
-    if (planetB) {
-        houseConditions.push({
-            slot: "B",
-            type: "planet_in_house",
-            planet: planetB,
-            house: parseInt(document.getElementById("houseB").value, 10)
-        });
-    }
-    const planetC = document.getElementById("planetC").value;
-    if (planetC) {
-        houseConditions.push({
-            slot: "C",
-            type: "planet_in_house",
-            planet: planetC,
-            house: parseInt(document.getElementById("houseC").value, 10)
-        });
-    }
-    const angleSignCondition = getSelectedAngleSignCondition();
-    const aspectOverlay = getSelectedAspectOverlay();
+    const gvVars = (window.__gvBuilderPreview && window.__gvBuilderPreview.variables) || [];
+    const snap = gvVariablesToConditionSnapshot(gvVars);
     return [{
         schema_version: 1,
         kind: "saved_investigation",
         chart_id: document.getElementById("chartProfile").value,
-        house_conditions: houseConditions,
-        angle_sign_conditions: angleSignCondition
-            ? [{ type: "angle_in_sign", ...angleSignCondition }]
-            : [],
-        aspect_overlay: aspectOverlay
-            ? { type: "aspect_to_angle", ...aspectOverlay }
-            : null
+        house_conditions: snap.house_conditions,
+        angle_sign_conditions: snap.angle_sign_conditions,
+        aspect_overlay: snap.aspect_overlay,
     }];
 }
 
@@ -8250,57 +8292,64 @@ setRenderStatus("Ready.");
     function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
     /* ── read active conditions from panel DOM ── */
+    var GV_COLORS = [
+        '#2f9e8f','#3d7fc4','#7e5bd6','#d4569b','#e8893c','#e0b341',
+        '#d6504a','#5aa84b','#36b3c4','#5061c9'
+    ];
+    var GV_NOT_COLOR = '#26303a';
+    var GV_PLANET_ABBR = {
+        Sun:'Sun', Moon:'Moon', Mercury:'Mer', Venus:'Ven', Mars:'Mar',
+        Jupiter:'Jup', Saturn:'Sat', Uranus:'Ura', Neptune:'Nep', Pluto:'Plu', Chiron:'Chi'
+    };
+    var GV_SIGN_ABBR = {
+        Aries:'Ari', Taurus:'Tau', Gemini:'Gem', Cancer:'Can', Leo:'Leo', Virgo:'Vir',
+        Libra:'Lib', Scorpio:'Sco', Sagittarius:'Sag', Capricorn:'Cap', Aquarius:'Aqu', Pisces:'Pis'
+    };
+    var GV_ASP_ABBR = {
+        conjunction:'Conj', sextile:'Sext', square:'Sq', trine:'Tri', opposition:'Opp',
+        hard:'Hard', soft:'Soft', all_major:'Maj', any:'Maj'
+    };
+    var GV_ASP_LABEL = {
+        conjunction:'Conjunction', sextile:'Sextile', square:'Square', trine:'Trine',
+        opposition:'Opposition', hard:'Hard Aspects', soft:'Soft Aspects', all_major:'All Major Aspects', any:'All Major Aspects'
+    };
+    function gvColorOf(v) {
+        return v.not ? GV_NOT_COLOR : GV_COLORS[(v.colorIdx || 0) % GV_COLORS.length];
+    }
     function snapshotConditions() {
+        var gvVars = (window.__gvBuilderPreview && window.__gvBuilderPreview.variables) || [];
+        gvVariablesToConditionSnapshot(gvVars);
         var conds = [];
-
-        /* Planet – House (conditions A / B / C) */
-        [['planetA','houseA'],['planetB','houseB'],['planetC','houseC']].forEach(function(pair, idx) {
-            var pEl = document.getElementById(pair[0]);
-            var hEl = document.getElementById(pair[1]);
-            if (!pEl || !pEl.value || !hEl || !hEl.value) return;
-            var planet = cap(pEl.value);
-            var house  = hEl.value;
+        gvVars.forEach(function(v) {
+            if (!v || !v.category || !v.values) return;
+            var vals = v.values;
+            var label = '';
+            var mini = '';
+            if (v.category === 'planet_house') {
+                label = vals.planet + ' – ' + ordinal(vals.house);
+                mini = (GV_PLANET_ABBR[vals.planet] || vals.planet) + ' · ' + vals.house;
+            } else if (v.category === 'angle_sign') {
+                label = vals.angle + ' – ' + vals.sign;
+                mini = vals.angle + ' · ' + (GV_SIGN_ABBR[vals.sign] || vals.sign);
+            } else if (v.category === 'aspect_angle') {
+                var aspLabel = GV_ASP_LABEL[vals.aspect] || vals.aspect;
+                label = vals.planet + ' – ' + aspLabel + ' – ' + vals.angle;
+                mini = (GV_PLANET_ABBR[vals.planet] || vals.planet) + ' ' +
+                    (GV_ASP_ABBR[vals.aspect] || vals.aspect) + ' ' + vals.angle;
+            } else {
+                return;
+            }
             conds.push({
-                id: 'ph-' + idx,
-                label: planet + ' – ' + ordinal(house) + ' House',
-                mini:  (PLANET_ABBR[pEl.value] || planet) + ' · ' + house,
-                color: nextColor(),
-                mute: false, solo: false, not: false,
+                id: v.id,
+                label: label,
+                mini: label,
+                color: gvColorOf(v),
+                mute: !!v.mute,
+                solo: false,
+                not: !!v.not,
             });
         });
-
-        /* Angle – Sign */
-        var aEl = document.getElementById('angleSignAngle');
-        var sEl = document.getElementById('angleSignSign');
-        if (aEl && aEl.value && sEl && sEl.value) {
-            conds.push({
-                id: 'as-0',
-                label: aEl.value + ' – ' + cap(sEl.value),
-                mini:  aEl.value + ' · ' + cap(sEl.value).slice(0,3),
-                color: nextColor(),
-                mute: false, solo: false, not: false,
-            });
-        }
-
-        /* Aspect – Angle */
-        var opEl  = document.getElementById('overlayPlanet');
-        var oaEl  = document.getElementById('overlayAspect');
-        var oanEl = document.getElementById('overlayAngle');
-        if (opEl && opEl.value && oaEl && oaEl.value && oanEl && oanEl.value) {
-            var aspLabel = oaEl.options[oaEl.selectedIndex] ?
-                oaEl.options[oaEl.selectedIndex].text : cap(oaEl.value);
-            conds.push({
-                id: 'aa-0',
-                label: cap(opEl.value) + ' ' + aspLabel + ' ' + oanEl.value,
-                mini:  (PLANET_ABBR[opEl.value] || cap(opEl.value)) +
-                       ' ' + (ASP_ABBR[oaEl.value] || oaEl.value) +
-                       ' ' + oanEl.value,
-                color: nextColor(),
-                mute: false, solo: false, not: false,
-            });
-        }
-
-        return conds.slice(0, 4); /* max 4 tokens per spec */
+        return conds;
     }
 
     /* active conditions snapshot — populated on each search */
