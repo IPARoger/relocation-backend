@@ -1,0 +1,15 @@
+{
+  "slice": "3B-2",
+  "search_btn_enabled_before_click": true,
+  "trigger": "gv-searchBtn",
+  "executed": true,
+  "display_feature_count": 1,
+  "gv_variable_count": 1,
+  "chip_text": "Sun \u2013 1st",
+  "render_status": "House regions ready.",
+  "search_regions_http_200": true,
+  "search_regions_statuses": [
+    200
+  ],
+  "motion_smoke": "PASS 12/12 MAP-PRODUCTION-MOTION-A"
+}
