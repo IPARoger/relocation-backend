@@ -1,0 +1,63 @@
+{
+  "slice": "3C-4A",
+  "before_search_chips": [
+    "Sun \u2013 1st",
+    "ASC \u2013 Aries"
+  ],
+  "saved_conditions": {
+    "house_conditions": [
+      {
+        "type": "planet_in_house",
+        "planet": "sun",
+        "house": 1,
+        "slot": "A"
+      }
+    ],
+    "angle_sign_conditions": [
+      {
+        "type": "angle_in_sign",
+        "angle": "ASC",
+        "sign": "aries"
+      }
+    ],
+    "aspect_overlay": null,
+    "kind": "saved_investigation",
+    "schema_version": 1
+  },
+  "restored_chips": [
+    "Sun \u2013 1st",
+    "ASC \u2013 Aries"
+  ],
+  "restored_gv_variables": [
+    {
+      "id": "gvls9f3a5",
+      "not": false,
+      "category": "planet_house",
+      "values": {
+        "planet": "Sun",
+        "house": 1
+      },
+      "colorIdx": 0,
+      "mute": false
+    },
+    {
+      "id": "gvdywkfzq",
+      "not": false,
+      "category": "angle_sign",
+      "values": {
+        "angle": "ASC",
+        "sign": "Aries"
+      },
+      "colorIdx": 1,
+      "mute": false
+    }
+  ],
+  "chips_match_before": true,
+  "gv_search_after_rehydrate": true,
+  "replay_overlay_features": 137,
+  "search_regions_200": true,
+  "quick_share_chip": [
+    "Moon \u2013 2nd"
+  ],
+  "motion_smoke": "PASS 12/12 MAP-PRODUCTION-MOTION-A"
+}

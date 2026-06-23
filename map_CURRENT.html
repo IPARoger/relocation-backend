@@ -1453,7 +1453,27 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
             }
             hideLegacyShell();
             renderAll();
-            window.__gvBuilderPreview={ get variables(){return variables.slice();}, count:function(){return variables.length;} };
+            function hydrateGvVariables(gvVars){
+              variables=Array.isArray(gvVars)?gvVars.map(function(v){
+                return {
+                  id:v.id||uid(),
+                  not:!!v.not,
+                  category:v.category,
+                  values:Object.assign({},v.values||{}),
+                  colorIdx:Number.isFinite(v.colorIdx)?v.colorIdx:0,
+                  mute:!!v.mute
+                };
+              }):[];
+              soloId=null;
+              colorTick=variables.length;
+              resetBuild();
+              renderAll();
+            }
+            window.__gvBuilderPreview={
+              get variables(){return variables.slice();},
+              count:function(){return variables.length;},
+              hydrate:hydrateGvVariables
+            };
           }
           if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
         })();
@@ -2302,6 +2322,76 @@ function gvVariablesToConditionSnapshot(gvVariables) {
 
 window.__gvVariablesToConditionSnapshot = gvVariablesToConditionSnapshot;
 
+/**
+ * GENIE-SLICE-3C-4A — saved conditions_json → gv builder variables.
+ * @param {object} conditionsJson
+ * @returns {object[]}
+ */
+function conditionsJsonToGvVariables(conditionsJson) {
+    const c = (conditionsJson && typeof conditionsJson === "object") ? conditionsJson : {};
+    const gvVars = [];
+    let tick = 0;
+
+    function gvUid() {
+        return "gv" + Math.random().toString(36).slice(2, 9);
+    }
+    function titleToken(val) {
+        if (val == null || val === "") return val;
+        const s = String(val);
+        return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+    function mapAspectFromSaved(aspect) {
+        if (aspect === "any") return "all_major";
+        return aspect;
+    }
+
+    (Array.isArray(c.house_conditions) ? c.house_conditions : []).forEach((cond) => {
+        if (!cond || !cond.planet) return;
+        const house = parseInt(cond.house, 10);
+        if (!Number.isFinite(house)) return;
+        gvVars.push({
+            id: gvUid(),
+            not: false,
+            category: "planet_house",
+            values: { planet: titleToken(cond.planet), house },
+            colorIdx: tick++ % 12,
+            mute: false,
+        });
+    });
+
+    (Array.isArray(c.angle_sign_conditions) ? c.angle_sign_conditions : []).forEach((cond) => {
+        if (!cond || !cond.angle || !cond.sign) return;
+        gvVars.push({
+            id: gvUid(),
+            not: false,
+            category: "angle_sign",
+            values: { angle: cond.angle, sign: titleToken(cond.sign) },
+            colorIdx: tick++ % 12,
+            mute: false,
+        });
+    });
+
+    const ao = c.aspect_overlay;
+    if (ao && ao.planet && ao.aspect && ao.angle) {
+        gvVars.push({
+            id: gvUid(),
+            not: false,
+            category: "aspect_angle",
+            values: {
+                planet: titleToken(ao.planet),
+                aspect: mapAspectFromSaved(ao.aspect),
+                angle: ao.angle,
+            },
+            colorIdx: tick++ % 12,
+            mute: false,
+        });
+    }
+
+    return gvVars;
+}
+
+window.__gvConditionsJsonToVariables = conditionsJsonToGvVariables;
+
 function collectSavedInvestigationConditions() {
     const gvVars = (window.__gvBuilderPreview && window.__gvBuilderPreview.variables) || [];
     const snap = gvVariablesToConditionSnapshot(gvVars);
@@ -2895,49 +2985,70 @@ function savedInvestigationFromView(view) {
     return record || null;
 }
 
+function conditionsPayloadFromView(view) {
+    const investigation = savedInvestigationFromView(view);
+    if (investigation) return investigation;
+    const conditions = Array.isArray(view?.conditions) ? view.conditions : [];
+    const direct = conditions[0];
+    if (direct && typeof direct === "object" && (
+        (Array.isArray(direct.house_conditions) && direct.house_conditions.length)
+        || (Array.isArray(direct.angle_sign_conditions) && direct.angle_sign_conditions.length)
+        || (direct.aspect_overlay && direct.aspect_overlay.planet)
+    )) {
+        return direct;
+    }
+    return null;
+}
+
 function applySavedInvestigationConditions(view) {
     const investigation = savedInvestigationFromView(view);
     lastLibraryHandoff.investigationReplayError = null;
     lastLibraryHandoff.investigationConditionsApplied = 0;
-    if (!investigation) return true;
-    if (investigation.schema_version !== 1) {
-        lastLibraryHandoff.investigationReplayError = "unsupported investigation schema";
-        return false;
-    }
-    const bySlot = {};
-    (investigation.house_conditions || []).forEach(cond => {
-        if (cond && cond.slot) bySlot[String(cond.slot).toUpperCase()] = cond;
-    });
-    const slotA = bySlot.A;
-    if (slotA) {
-        setSelectValueIfPresent("planetA", slotA.planet);
-        setSelectValueIfPresent("houseA", slotA.house);
-        lastLibraryHandoff.investigationConditionsApplied++;
-    }
-    ["B", "C"].forEach(slot => {
-        const cond = bySlot[slot];
-        if (cond) {
-            setSelectValueIfPresent(`planet${slot}`, cond.planet);
-            setSelectValueIfPresent(`house${slot}`, cond.house);
+    if (investigation) {
+        if (investigation.schema_version !== 1) {
+            lastLibraryHandoff.investigationReplayError = "unsupported investigation schema";
+            return false;
+        }
+        const bySlot = {};
+        (investigation.house_conditions || []).forEach(cond => {
+            if (cond && cond.slot) bySlot[String(cond.slot).toUpperCase()] = cond;
+        });
+        const slotA = bySlot.A;
+        if (slotA) {
+            setSelectValueIfPresent("planetA", slotA.planet);
+            setSelectValueIfPresent("houseA", slotA.house);
+            lastLibraryHandoff.investigationConditionsApplied++;
+        }
+        ["B", "C"].forEach(slot => {
+            const cond = bySlot[slot];
+            if (cond) {
+                setSelectValueIfPresent(`planet${slot}`, cond.planet);
+                setSelectValueIfPresent(`house${slot}`, cond.house);
+                lastLibraryHandoff.investigationConditionsApplied++;
+            } else {
+                setSelectValueIfPresent(`planet${slot}`, "");
+            }
+        });
+        const angleSign = (investigation.angle_sign_conditions || [])[0];
+        if (angleSign) {
+            setSelectValueIfPresent("angleSignAngle", angleSign.angle);
+            setSelectValueIfPresent("angleSignSign", angleSign.sign);
             lastLibraryHandoff.investigationConditionsApplied++;
         } else {
-            setSelectValueIfPresent(`planet${slot}`, "");
+            setSelectValueIfPresent("angleSignAngle", "");
         }
-    });
-    const angleSign = (investigation.angle_sign_conditions || [])[0];
-    if (angleSign) {
-        setSelectValueIfPresent("angleSignAngle", angleSign.angle);
-        setSelectValueIfPresent("angleSignSign", angleSign.sign);
-        lastLibraryHandoff.investigationConditionsApplied++;
-    } else {
-        setSelectValueIfPresent("angleSignAngle", "");
+        const aspect = investigation.aspect_overlay;
+        if (aspect) {
+            setSelectValueIfPresent("overlayPlanet", aspect.planet);
+            setSelectValueIfPresent("overlayAspect", aspect.aspect);
+            setSelectValueIfPresent("overlayAngle", aspect.angle);
+            lastLibraryHandoff.investigationConditionsApplied++;
+        }
     }
-    const aspect = investigation.aspect_overlay;
-    if (aspect) {
-        setSelectValueIfPresent("overlayPlanet", aspect.planet);
-        setSelectValueIfPresent("overlayAspect", aspect.aspect);
-        setSelectValueIfPresent("overlayAngle", aspect.angle);
-        lastLibraryHandoff.investigationConditionsApplied++;
+
+    const conditionsForGv = conditionsPayloadFromView(view);
+    if (conditionsForGv && window.__gvBuilderPreview && typeof window.__gvBuilderPreview.hydrate === "function") {
+        window.__gvBuilderPreview.hydrate(conditionsJsonToGvVariables(conditionsForGv));
     }
     return true;
 }
