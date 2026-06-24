@@ -137,3 +137,46 @@ check("PB1_account_label_from_supabase",
 check("PB1_profile_picker_still_on_nameplate",
       "caretEl.addEventListener" in MAP_B1 and "openProfileSelector" in MAP_B1,
       "Profile picker caret must still open selector from nameplate")
+
+# ─── PB2 assertions ──────────────────────────────────────────────────────────
+MAP_PB2 = Path("map_CURRENT.html").read_text(encoding="utf-8")
+
+check("PB2_requireActiveProfile_exists",
+      "async function requireActiveProfile" in MAP_PB2,
+      "requireActiveProfile helper must be defined")
+
+check("PB2_helper_awaits_readiness",
+      "await window.__rmChartProfilesReady" in MAP_PB2,
+      "helper must await __rmChartProfilesReady")
+
+check("PB2_helper_reads_chartProfile",
+      'document.getElementById("chartProfile")' in MAP_PB2 and
+      "requireActiveProfile" in MAP_PB2,
+      "helper must read #chartProfile")
+
+check("PB2_helper_normalizes_empty_value",
+      "_p.id" in MAP_PB2 and "opt.value = String(_p.id)" in MAP_PB2,
+      "helper must normalize empty value from dataset.profile.id")
+
+check("PB2_favorite_uses_helper",
+      "profileId = await requireActiveProfile" in MAP_PB2,
+      "favoriteMapSelectionFromButton must use requireActiveProfile")
+
+check("PB2_openchart_uses_helper",
+      "await requireActiveProfile()" in MAP_PB2,
+      "openChartFromMapButton must await requireActiveProfile")
+
+check("PB2_save_has_readiness_gate",
+      # saveCurrentInvestigation now has __rmChartProfilesReady gate
+      MAP_PB2.count("await window.__rmChartProfilesReady") >= 2,
+      "saveCurrentInvestigation must also have __rmChartProfilesReady gate")
+
+check("PB2_error_msg_no_caret_ref",
+      "Select a profile linked to your account (▾)" not in MAP_PB2 and
+      "Click the profile name (▾)" not in MAP_PB2,
+      "Error messages must not reference topbar caret (removed in B1)")
+
+check("PB2_account_label_not_profile_source",
+      "rm-topbar-acct" not in MAP_PB2.split("requireActiveProfile")[0].split("acctEl")[0] or
+      "initAccountLabel" in MAP_PB2,
+      "account label must not be used as profile source for actions")

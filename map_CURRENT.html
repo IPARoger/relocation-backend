@@ -3111,9 +3111,19 @@ async function saveCurrentInvestigation() {
         statusEl.className = isErr ? "is-error" : "";
     }
 
+    /* PB2: await profile readiness + normalize before checking */
+    if (window.__rmChartProfilesReady) {
+        try { await window.__rmChartProfilesReady; } catch (e) { /* proceed */ }
+    }
+    const select_pb2 = document.getElementById("chartProfile");
+    const opt_pb2 = select_pb2 && select_pb2.selectedOptions && select_pb2.selectedOptions[0];
+    if (opt_pb2 && !opt_pb2.value && opt_pb2.dataset && opt_pb2.dataset.profile) {
+        try { const _p2 = JSON.parse(opt_pb2.dataset.profile); if (_p2 && _p2.id) opt_pb2.value = String(_p2.id); }
+        catch (e) { /* skip */ }
+    }
     const profileId = getActiveFavoriteProfileId();
     if (!profileId) {
-        setStatus("Select a Supabase profile first.", true);
+        setStatus("Choose a saved profile first.", true);
         return;
     }
     const accountId = window.CurrentUser && window.CurrentUser.accountId;
@@ -4316,17 +4326,11 @@ async function openChartFromMapButton(btn) {
         statusEl.textContent = msg;
         statusEl.classList.toggle("is-error", Boolean(isError));
     };
-    /* Beta-E: wait for profiles to load before checking */
-    if (window.__rmChartProfilesReady) {
-        try { await window.__rmChartProfilesReady; } catch (e) { /* ignore */ }
-    }
+    /* PB2: await readiness + normalize, then resolve chart record id */
+    try { await requireActiveProfile(); } catch (e) { /* ok — fallbacks below may still work */ }
     const chartRecordId = resolveChartRecordIdForShellNavigation();
     if (!chartRecordId) {
-        const _sel2 = document.getElementById('chartProfile');
-        const _msg2 = (_sel2 && _sel2.value)
-            ? 'Current profile is view-only. Select a profile linked to your account (▾).'
-            : 'No profile selected. Click the profile name (▾) to choose one.';
-        setStatus(_msg2, true);
+        setStatus("Choose a saved profile first.", true);
         return;
     }
     const lat = Number(btn.dataset.favLat);
@@ -4430,6 +4434,31 @@ function getActiveFavoriteProfileId() {
     return null;
 }
 
+/* PB2: single shared helper for all profile-dependent map actions.
+ * 1. Awaits __rmChartProfilesReady so actions never fire before profiles load.
+ * 2. Normalizes: if opt.value is empty but opt.dataset.profile carries an id,
+ *    restores opt.value so getActiveFavoriteProfileId can accept it.
+ * 3. Returns the active profile id or throws with a user-facing message. */
+async function requireActiveProfile() {
+    if (window.__rmChartProfilesReady) {
+        try { await window.__rmChartProfilesReady; } catch (e) { /* profiles load failed; proceed */ }
+    }
+    const select = document.getElementById("chartProfile");
+    const opt = select && select.selectedOptions && select.selectedOptions[0];
+    /* normalization: value empty but dataset carries a real id */
+    if (opt && !opt.value && opt.dataset && opt.dataset.profile) {
+        try {
+            const _p = JSON.parse(opt.dataset.profile);
+            if (_p && _p.id) opt.value = String(_p.id);
+        } catch (e) { /* skip */ }
+    }
+    const profileId = getActiveFavoriteProfileId();
+    if (!profileId) {
+        throw new Error("Choose a saved profile first.");
+    }
+    return profileId;
+}
+
 // Resolve an existing place by name + coordinate proximity, else create one.
 // Returns the place row (with .id) or throws.
 // Phase 2.6D-1: thin wrapper over the shared RMPlaceResolution utility
@@ -4462,19 +4491,10 @@ async function favoriteMapSelectionFromButton(btn) {
         statusEl.classList.toggle("is-error", Boolean(isError));
     };
 
-    /* Beta-E: wait for profiles to load before checking */
-    if (window.__rmChartProfilesReady) {
-        try { await window.__rmChartProfilesReady; } catch (e) { /* profiles load failed; try anyway */ }
-    }
-    const profileId = getActiveFavoriteProfileId();
-    if (!profileId) {
-        const _sel = document.getElementById('chartProfile');
-        const _msg = (_sel && _sel.value)
-            ? 'Current profile is view-only (legacy). Select a profile linked to your account (▾).'
-            : 'No profile selected. Click the profile name (▾) to choose one.';
-        setStatus(_msg, true);
-        return;
-    }
+    /* PB2: single helper awaits __rmChartProfilesReady + normalizes + validates */
+    let profileId;
+    try { profileId = await requireActiveProfile(); }
+    catch (e) { setStatus(e.message, true); return; }
 
     let displayName = btn.dataset.favName || "Custom location";
     const origin = btn.dataset.favOrigin || "map_custom";

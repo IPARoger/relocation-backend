@@ -92,6 +92,8 @@ def main() -> int:
 
     # ── E. Profile readiness gate ───────────────────────────────────────
     check(
+        # PB2 superseded: inline Beta-E comment replaced by requireActiveProfile() helper
+        "requireActiveProfile" in text or
         text.count("Beta-E: wait for profiles to load before checking") >= 1,
         "E-ready: at least one profile readiness gate must exist",
     )
@@ -101,7 +103,9 @@ def main() -> int:
     )
     # Better error messaging
     check(
-        "No profile selected. Click the profile name (\u25be) to choose one." in text,
+        # PB2 superseded: caret reference removed; new message is "Choose a saved profile first."
+        "Choose a saved profile first." in text or
+        "No profile selected. Click the profile name" in text,
         "E-ready: improved no-profile error message must exist",
     )
 
