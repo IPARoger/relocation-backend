@@ -961,7 +961,9 @@ body.rm-quick-share-recipient { padding-top: 44px; }
   border: none;
   border-radius: 12px;
   padding: 0;
-  transition: opacity 0.3s ease;
+  /* R2: sandbox dissolve timings (3.5s multi-property so text/bg fade together) */
+  transition: opacity 3.5s ease, transform 3.5s ease, background 3.5s ease,
+              border-color 3.5s ease, box-shadow 3.5s ease, backdrop-filter 3.5s ease;
 }
 .identity-stamp.rm-np-loading { opacity: 0.5; }
 /* map-specific text treatments — legible over tile backgrounds */
@@ -969,14 +971,60 @@ body.rm-quick-share-recipient { padding-top: 44px; }
   -webkit-text-fill-color: #14222c;
   -webkit-text-stroke: .4px rgba(70,84,94,.55);
   text-shadow: 0 1px 2px rgba(255,255,255,.9);
+  /* R2: sandbox text-dissolve timings */
+  transition: -webkit-text-fill-color 3.5s ease, -webkit-text-stroke 3.5s ease,
+              text-shadow 3.5s ease, color 3.5s ease;
 }
-.zb-primary { text-shadow: 0 1px 2px rgba(255,255,255,.85); }
+.zb-primary {
+  text-shadow: 0 1px 2px rgba(255,255,255,.85);
+  /* R2: sandbox dissolve timings */
+  transition: color 3.0s ease, opacity 3.0s ease, text-shadow 3.0s ease;
+}
 .zb-meta {
   overflow: hidden;
   max-height: 40px;
   opacity: .85;
-  transition: max-height .8s ease, opacity .6s ease;
+  /* R2: sandbox timing — slow deliberate collapse with staggered delays */
+  transition: max-height 3.8s ease 2.0s, opacity 2.8s ease 1.0s, margin-top 3.0s ease 1.5s;
 }
+/* ── R2: Explore-mode nameplate dissolve — ported from sandbox verbatim ────────
+   Sandbox source: body.explore .identity-stamp / .zb-name .nm / .zb-primary / .tools / .zb-meta
+   Scoped to body.rm-explore (production explore class).
+   Position unchanged — dissolve is appearance-only; no spatial relocation. */
+body.rm-explore .identity-stamp {
+  opacity: 1;
+  transform: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.rm-explore .zb-name .nm {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.8px rgba(30,45,58,.26);
+  text-shadow: none;
+}
+body.rm-explore .identity-stamp:hover .zb-name .nm {
+  -webkit-text-fill-color: rgba(30,45,58,.42);
+  -webkit-text-stroke: 0.9px rgba(30,45,58,.35);
+}
+body.rm-explore .zb-primary {
+  color: rgba(30,45,58,.20);
+  -webkit-text-fill-color: rgba(30,45,58,.20);
+  text-shadow: none;
+}
+body.rm-explore .identity-stamp .tools {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2.5s ease;
+}
+body.rm-explore .zb-meta {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+/* ── end R2 nameplate dissolve ───────────────────────────────────────────── */
 /* ── end nameplate CSS ───────────────────────────────────────────────────── */
 /* ── MAP-UX-4: Explore mode / Ghost strip / Bottle ──────────────────────── */
 
@@ -1056,8 +1104,9 @@ body.rm-explore #rm-ghost-strip {
     opacity: .45;
     visibility: visible;
     pointer-events: auto;
-    transition: opacity 1.15s ease 0.35s, visibility 0s;
-    animation: rmGhostStripIn 1.15s cubic-bezier(.25,.1,.25,1) .35s both;
+    /* R2: sandbox ghostStripIn timing: 1.4s delay .5s */
+    transition: opacity 1.4s ease 0.5s, visibility 0s;
+    animation: rmGhostStripIn 1.4s cubic-bezier(.25,.1,.25,1) .5s both;
 }
 body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 @keyframes rmGhostStripIn {
