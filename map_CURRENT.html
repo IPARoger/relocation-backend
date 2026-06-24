@@ -170,6 +170,16 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 
 .city-search-feedback.is-error { color: #b91c1c; }
 
+/* Beta-B Fix3: prevent empty SLS status div from creating blank bar below search */
+.rm-sls-status:empty { display: none !important; min-height: 0 !important; }
+
+/* Beta-B Fix6: hide legacy panel status/debug elements — they belong to the old UI */
+#renderStatus,
+#panelLegend,
+#quickShareStatus,
+#saveInvestigationStatus,
+#reopenInvestigationStatus { display: none; }
+
 select, button#findBtn {
     width: 100%;
     padding: 7px 8px;
@@ -1025,6 +1035,17 @@ body.rm-explore .zb-meta {
   --accent-deep: #235a83;
 }
 
+/* Beta-B Fix7: ghost strip updating indicator */
+.rm-ghost--updating { opacity: 0.55; pointer-events: none; }
+.rm-ghost--updating::after {
+  content: 'Updating…';
+  font-size: 11px;
+  color: var(--accent, #2f6f9f);
+  margin-left: 8px;
+  animation: rm-ghost-blink 0.9s ease-in-out infinite alternate;
+}
+@keyframes rm-ghost-blink { from { opacity: 0.4; } to { opacity: 1; } }
+
 /* Panel explore mode — JS FLIP owns opacity/transform; CSS sets pointer-events only */
 #panel {
     overflow: hidden;
@@ -1481,8 +1502,6 @@ body.rm-explore.rm-menu-open .rm-mainmenu .rm-nav-link {
   font-size: 13.5px;
   color: var(--rm-ink-soft);
   white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
 }
 
 /* Share pill in topbar */
@@ -4402,6 +4421,11 @@ function getActiveFavoriteProfileId() {
     if (opt.dataset.profileSource === "supabase") return opt.value;
     if (typeof SUPABASE_UUID_PATTERN !== "undefined" && SUPABASE_UUID_PATTERN.test(opt.value)) {
         return opt.value;
+    }
+    /* Beta-B: accept any profile that has data-profile JSON — real loaded profiles
+     * that were not explicitly tagged as Supabase source (e.g. legacy loader path). */
+    if (opt.dataset.profile) {
+        try { JSON.parse(opt.dataset.profile); return opt.value; } catch (e) { /* skip */ }
     }
     return null;
 }
@@ -8840,7 +8864,7 @@ setRenderStatus("Ready.");
         var displayName = opt.textContent.replace(/^\[library\]\s*/, '') || opt.value;
         if (nameEl) nameEl.textContent = displayName;
         var acctEl = document.getElementById('rm-topbar-acct');
-        if (acctEl) acctEl.textContent = displayName ? (displayName + ' \u25BE') : '';
+        if (acctEl) acctEl.textContent = displayName || '';
 
         try {
             if (opt.dataset && opt.dataset.profile) {
@@ -9210,7 +9234,20 @@ setRenderStatus("Ready.");
 
     /* MAP-SAVE-C: disk opens dialog; dialog confirm triggers production save */
     disk.addEventListener('click', function () {
-        if (disk.disabled) return;
+        if (disk.disabled) {
+            /* Beta-B Fix5: show brief reason when disk is not ready */
+            var reason = !canSaveFromGv()
+                ? 'Add at least one variable in the builder to save.'
+                : 'Save in progress…';
+            var tip = document.createElement('div');
+            tip.style.cssText = 'position:fixed;bottom:70px;right:20px;background:#1f2d38;color:#eef5f9;' +
+                'font-size:12.5px;padding:7px 13px;border-radius:8px;z-index:9999;pointer-events:none;' +
+                'box-shadow:0 2px 8px rgba(0,0,0,.25);transition:opacity 0.2s';
+            tip.textContent = reason;
+            document.body.appendChild(tip);
+            setTimeout(function(){ tip.style.opacity='0'; setTimeout(function(){ tip.remove(); }, 220); }, 2400);
+            return;
+        }
         if (typeof window.__rmOpenSaveDialog === 'function') {
             window.__rmOpenSaveDialog({
                 onSaved:  function() {
@@ -9490,6 +9527,8 @@ setRenderStatus("Ready.");
     /* active conditions snapshot — populated on each search */
     var activeConditions = [];
     var soloId = null;
+    /* Beta-B Fix4: timer handles to cancel in-flight FLIP timers on re-entry */
+    var _enterT1 = null, _enterT2 = null, _exitT1 = null, _exitT2 = null;
 
     /* ── render ghost tokens ── */
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -9504,7 +9543,7 @@ setRenderStatus("Ready.");
         ghostEl.innerHTML = activeConditions.map(function(v) {
             return '<div class="rm-gtok" data-id="' + esc(v.id) + '" role="listitem">' +
                 '<span class="rm-glbl" title="' + esc(v.label) + '">' + esc(v.mini) + '</span>' +
-                '<button class="rm-gb rm-notb" data-gmini="not" data-id="' + esc(v.id) + '" title="NOT — redact this variable from map" aria-pressed="false">' + NOT_SVG + '</button>' +
+                '<button class="rm-gb rm-notb" data-gmini="not" data-id="' + esc(v.id) + '" title="NOT — omits variable from render (exclude polarity not yet in engine)" aria-pressed="false">' + NOT_SVG + '</button>' +
                 '<button class="rm-gb rm-mb"   data-gmini="mute" data-id="' + esc(v.id) + '" title="Mute — hide overlays for this variable" aria-pressed="false">M</button>' +
                 '<button class="rm-gb rm-sb"   data-gmini="solo" data-id="' + esc(v.id) + '" title="Solo — show only this variable" aria-pressed="false">S</button>' +
                 '<span class="rm-gsw" style="background:' + esc(v.color) + '" aria-hidden="true"></span>' +
@@ -9534,6 +9573,8 @@ setRenderStatus("Ready.");
 
     /* ── mode transitions ── */
     function enterExplore() {
+        /* Beta-B Fix4: cancel any pending exit timers before starting enter */
+        clearTimeout(_exitT1); clearTimeout(_exitT2);
         colorTick = 0;
         activeConditions = snapshotConditions();
         renderGhost();
@@ -9568,11 +9609,11 @@ setRenderStatus("Ready.");
             panel.style.transform  = 'translate(' + tx + 'px,' + ty + 'px) scale(' + sc + ')';
         });});
 
-        setTimeout(function(){
+        _enterT1 = setTimeout(function(){
             bottle.classList.add('rm-bottle--revealed');
             panel.style.transition = 'opacity 0.12s ease';
             panel.style.opacity    = '0';
-            setTimeout(function(){
+            _enterT2 = setTimeout(function(){
                 panel.removeAttribute('style');
                 panel.classList.add('rm-panel--flip-hidden');
                 if (typeof window.__rmFlySave === 'function') window.__rmFlySave(true);
@@ -9586,6 +9627,8 @@ setRenderStatus("Ready.");
     }
 
     function exitExplore() {
+        /* Beta-B Fix4: cancel any pending enter timers before starting exit */
+        clearTimeout(_enterT1); clearTimeout(_enterT2);
         var panel  = document.getElementById('panel');
         var bottle = document.getElementById('rm-bottle');
         if (!panel || !bottle) {
@@ -9619,13 +9662,13 @@ setRenderStatus("Ready.");
             panel.style.transform  = 'none';
         });});
 
-        setTimeout(function(){
+        _exitT1 = setTimeout(function(){
             document.body.classList.remove('rm-explore', 'rm-menu-open', 'rm-cs-open');
             var _mh = document.getElementById('rm-menu-handle');
             if (_mh) _mh.setAttribute('aria-expanded', 'false');
         }, 500);
 
-        setTimeout(function(){
+        _exitT2 = setTimeout(function(){
             panel.removeAttribute('style');
             bottle.classList.remove('rm-bottle--revealed');
             bottle.removeAttribute('style');
@@ -9703,7 +9746,12 @@ setRenderStatus("Ready.");
         if (!renderList.length) return;
 
         var payload = buildPayload(renderList);
-        Promise.resolve(execute(payload)).catch(function(err) {
+        /* Beta-B Fix7: show Updating… while backend re-renders */
+        ghostEl.classList.add('rm-ghost--updating');
+        Promise.resolve(execute(payload)).then(function() {
+            ghostEl.classList.remove('rm-ghost--updating');
+        }).catch(function(err) {
+            ghostEl.classList.remove('rm-ghost--updating');
             console.error('[ghost-redraw]', err);
         });
     }
@@ -9766,20 +9814,6 @@ setRenderStatus("Ready.");
   document.addEventListener('click', function(e) {
     if (document.body.classList.contains('rm-menu-open') && !e.target.closest('.rm-mainmenu') && !e.target.closest('.rm-menu-handle')) {
       closeMenu();
-    }
-  });
-})();
-</script>
-
-<script>
-/* Beta-B: topbar account label opens profile picker */
-(function() {
-  var acct = document.getElementById('rm-topbar-acct');
-  if (!acct) return;
-  acct.addEventListener('click', function(e) {
-    e.stopPropagation();
-    if (typeof window.__rmOpenProfileSelector === 'function') {
-      window.__rmOpenProfileSelector();
     }
   });
 })();

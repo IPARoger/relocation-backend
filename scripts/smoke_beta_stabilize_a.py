@@ -54,16 +54,16 @@ def main() -> int:
         "B-profile: openProfileSelector must be exposed on window",
     )
     check(
-        "topbar account label opens profile picker" in text,
-        "B-profile: topbar account label click handler must exist",
+        True,  # Beta-B Fix1 superseded: topbar no longer delegates to profile picker
+        "B-profile: topbar account label click handler (superseded by Beta-B Fix1)",
     )
     check(
         'id="rm-topbar-acct"' in text,
         "B-profile: #rm-topbar-acct must be in DOM",
     )
     check(
-        "cursor: pointer;" in text and "user-select: none;" in text,
-        "B-profile: .rm-acct must have cursor:pointer and user-select:none",
+        True,  # Beta-B Fix1 superseded: cursor:pointer removed from .rm-acct
+        "B-profile: .rm-acct cursor:pointer (superseded by Beta-B Fix1)",
     )
     check(
         "__rmOpenProfileSelector" in text,
