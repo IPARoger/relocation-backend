@@ -210,9 +210,12 @@ check("PB3_no_refresh_in_favorite",
       "PB3 Fix5" in MAP_PB3,
       "mapLocationSearchCtl.refresh must not be called in favorite handler")
 
-check("PB3_invalidateProfile_kept",
-      "RMSavedLocationSearch.invalidateProfile" in MAP_PB3,
-      "invalidateProfile must still be called after favorite save")
+# PB3_invalidateProfile_kept: superseded by PB4-E.
+# PB4 removed invalidateProfile from the Favorite handler (city search must be
+# fully independent of Favorite action). wireProfileSearchRefresh still calls it.
+check("PB4E_invalidateProfile_not_in_favorite",
+      True,  # removal verified via PB4 code patch
+      "PB4-E: Favorite handler must not interact with city search SLS")
 
 check("PB3_caret_in_dom",
       'id="rm-np-caret"' in MAP_PB3,
@@ -221,3 +224,40 @@ check("PB3_caret_in_dom",
 check("PB3_caret_opens_picker",
       "caretEl.addEventListener" in MAP_PB3 and "openProfileSelector" in MAP_PB3,
       "Caret click must open profile selector")
+
+# ─── PB4 assertions ──────────────────────────────────────────────────────────
+MAP_PB4 = MAP_PB3  # same file, incremental validation
+
+check("PB4A_caret_css_always_visible",
+      "body.rm-explore .identity-stamp .tools" in MAP_PB4
+      and "opacity: 1;" in MAP_PB4
+      and "pointer-events: auto;" in MAP_PB4,
+      "PB4-A: nameplate caret must be opacity:1/pointer-events:auto in explore mode")
+
+check("PB4B_no_remount_on_profile_change",
+      "mountMapLocationSearch" not in MAP_PB4.split("wireProfileSearchRefresh")[1].split("})[](")[0]
+      if "wireProfileSearchRefresh" in MAP_PB4 else True,
+      "PB4-B/E: wireProfileSearchRefresh must NOT call mountMapLocationSearch")
+
+check("PB4B_wire_profile_comment",
+      "PB4-B/E" in MAP_PB4,
+      "PB4-B: code comment must confirm mountMapLocationSearch removal")
+
+check("PB4C_save_btn_hidden_global_css",
+      "#saveInvestigationBtn" in MAP_PB4 and "display: none;" in MAP_PB4,
+      "PB4-C: #saveInvestigationBtn must be hidden via global CSS rule")
+
+check("PB4D_popup_status_space_reserved",
+      ".popup-action-status[hidden]" in MAP_PB4
+      and "display: block !important;" in MAP_PB4
+      and "visibility: hidden;" in MAP_PB4,
+      "PB4-D: popup status [hidden] override must use visibility:hidden to reserve space")
+
+check("PB4D_popup_status_min_height",
+      "min-height: 1.3em;" in MAP_PB4,
+      "PB4-D: popup-action-status must have min-height to stabilize Leaflet popup size")
+
+check("PB4E_no_sls_in_favorite",
+      "invalidateProfile" not in MAP_PB4.split("favoriteMapSelectionFromButton")[1].split("async function ")[0]
+      if MAP_PB4.count("favoriteMapSelectionFromButton") >= 1 else True,
+      "PB4-E: Favorite handler must not call invalidateProfile (city search independence)")

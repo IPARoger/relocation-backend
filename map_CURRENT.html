@@ -394,6 +394,16 @@ html.map-panel-show-legend #panelLegend { display: block; }
     color: #64748b;
     padding: 5px 6px;
 }
+/* PB4-D: Reserve status row height so Leaflet popup doesn't reflow when
+ * the status div transitions from hidden→visible. Override [hidden]=display:none
+ * with visibility:hidden so the element still occupies its min-height. */
+.popup-chart .popup-action-status[hidden] {
+    display: block !important;
+    visibility: hidden;
+}
+.popup-chart .popup-action-status {
+    min-height: 1.3em;
+}
 
 .map-onboarding {
     display: none;
@@ -4576,13 +4586,9 @@ async function favoriteMapSelectionFromButton(btn) {
         const _wasActive = saved && saved.status === "exists";
         setStatus(_wasActive ? "Already in favorites." : "Saved to favorites.", false);
         // Refresh Family B search so the new favorite appears immediately.
-        try {
-            /* PB3 Fix5: invalidate profile cache only — do NOT call refresh() here,
-             * as it can focus/open the city search dropdown during a Favorite action. */
-            if (window.RMSavedLocationSearch) {
-                window.RMSavedLocationSearch.invalidateProfile(profileId);
-            }
-        } catch (e) { /* non-fatal */ }
+        /* PB4-E: no SLS interaction from Favorite handler.
+         * invalidateProfile removed — city search is independent of Favorite action.
+         * Cache refreshes naturally on next profile change or search. */
     } catch (err) {
         console.error("[favorite]", err);
         btn.disabled = false;
@@ -8626,10 +8632,13 @@ async function openSavedPlace(name, lat, lon) {
     const profileSelect = document.getElementById("chartProfile");
     if (profileSelect) {
         profileSelect.addEventListener("change", function () {
+            /* PB4-B/E: invalidate cache only — do NOT remount SLS on profile change.
+             * The mounted instance reads profile dynamically via getProfileId fn ref.
+             * Remounting would destroy/recreate the SLS component and could show the
+             * city search dropdown as a side-effect. */
             if (window.RMSavedLocationSearch) {
                 window.RMSavedLocationSearch.invalidateProfile(getActiveFavoriteProfileId());
             }
-            mountMapLocationSearch();
         });
     }
 })();
