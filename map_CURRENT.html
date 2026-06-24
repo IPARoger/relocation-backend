@@ -1373,6 +1373,36 @@ body:not(.rm-explore) .rm-ctrl-btn .rm-full { opacity: 1; transition: opacity 1.
 /* Ensure #chartProfile stays functional even when wrapper is hidden via JS scroll */
 #chartProfile { /* keep default behavior */ }
 
+/* SLICE-3-FLOW: reveal chart/profile section when nameplate caret is tapped */
+body.rm-profile-selector-reveal #rm-panel-chart-section {
+  display: block !important;
+  position: relative;
+  z-index: 200;
+  background: rgba(255,255,255,.97);
+  border: 1px solid var(--rm-line, #cfdde6);
+  border-radius: 10px;
+  box-shadow: 0 4px 18px -8px rgba(31,45,56,.25);
+  padding: 10px 12px;
+  margin: 8px 0 4px;
+}
+body.rm-profile-selector-reveal #rm-panel-chart-section .panel-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--rm-ink-soft, #485a66);
+  margin-bottom: 6px;
+}
+body.rm-profile-selector-reveal #chartProfile {
+  width: 100%;
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--rm-line, #cfdde6);
+  background: #fff;
+  color: var(--rm-ink, #1a1d21);
+}
+
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -4245,8 +4275,9 @@ map.getContainer().addEventListener("contextmenu", async function(ev) {
         return;
     }
 
-    const customTitle = promptCustomLocationName(lat, lon);
-    if (customTitle === null) return;
+    /* SLICE-3-FLOW: auto-label from coordinates; naming deferred to Favorite/OpenChart actions.
+       promptCustomLocationName() is still used inside favoriteMapSelectionFromButton() only. */
+    const customTitle = `Custom location near ${Number(lat).toFixed(2)}, ${Number(lon).toFixed(2)}`;
 
     const popup = L.popup(CHART_POPUP_OPTS)
         .setLatLng(latlng)
@@ -8456,19 +8487,40 @@ setRenderStatus("Ready.");
     }
 
     function openProfileSelector() {
+        /* SLICE-3-FLOW: toggle reveal of #rm-panel-chart-section so #chartProfile
+           is visible when clicked from the nameplate caret.
+           Slice 2 CSS hides the chart section (display:none); body class overrides it. */
         var select = document.getElementById('chartProfile');
         if (!select) return;
-        select.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        setTimeout(function() {
-            select.focus();
-            select.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-        }, 120);
+        var isOpen = document.body.classList.contains('rm-profile-selector-reveal');
+        if (isOpen) {
+            document.body.classList.remove('rm-profile-selector-reveal');
+            return;
+        }
+        document.body.classList.add('rm-profile-selector-reveal');
+        requestAnimationFrame(function() {
+            select.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(function() { select.focus(); }, 160);
+        });
     }
 
     if (caretEl) caretEl.addEventListener('click', openProfileSelector);
 
+    /* Close reveal on profile change or click outside */
     document.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'chartProfile') renderNameplate();
+        if (e.target && e.target.id === 'chartProfile') {
+            renderNameplate();
+            document.body.classList.remove('rm-profile-selector-reveal');
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!document.body.classList.contains('rm-profile-selector-reveal')) return;
+        var section = document.getElementById('rm-panel-chart-section');
+        var caret   = document.getElementById('rm-np-caret');
+        if (section && section.contains(e.target)) return;
+        if (caret   && caret.contains(e.target))   return;
+        document.body.classList.remove('rm-profile-selector-reveal');
     });
 
     if (window.__rmChartProfilesReady) {
