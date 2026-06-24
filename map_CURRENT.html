@@ -1481,6 +1481,8 @@ body.rm-explore.rm-menu-open .rm-mainmenu .rm-nav-link {
   font-size: 13.5px;
   color: var(--rm-ink-soft);
   white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
 }
 
 /* Share pill in topbar */
@@ -1582,6 +1584,19 @@ body.rm-explore #map { top: 0; }
   border-color: transparent;
   outline: none;
 }
+/* Beta-C: sr-only — hides SLS screen-reader-only labels from appearing visually */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* R3-B05: sandbox .cs-drop dropdown styling */
 .rm-citysearch-wrap .rm-sls-panel {
   left: 0;
@@ -2426,7 +2441,10 @@ function renderAppShellHandoffUI() {
         root.hidden = true;
         return;
     }
-    root.hidden = false;
+    /* Beta-D: only show debug panels when ?debug=1 is in URL */
+    var _dbgMode = (new URLSearchParams(window.location.search)).get('debug') === '1';
+    root.hidden = !_dbgMode;
+    if (!_dbgMode) return;
     body.textContent = JSON.stringify(lastAppShellHandoff, null, 2);
 }
 
@@ -3892,9 +3910,17 @@ window.__rmMap = map;
     var zin  = document.getElementById('rm-zoom-in');
     var zout = document.getElementById('rm-zoom-out');
     var rctr = document.getElementById('rm-recenter');
-    if (zin)  zin.addEventListener('click',  function() { if (window.__rmMap) window.__rmMap.zoomIn(); });
-    if (zout) zout.addEventListener('click', function() { if (window.__rmMap) window.__rmMap.zoomOut(); });
+    /* Beta-A: explicit step=1 so zoomDelta:0.25 setting does not apply to button clicks */
+    if (zin)  zin.addEventListener('click',  function() { if (window.__rmMap) window.__rmMap.zoomIn(1); });
+    if (zout) zout.addEventListener('click', function() { if (window.__rmMap) window.__rmMap.zoomOut(1); });
     if (rctr) rctr.addEventListener('click', function() { if (window.__rmMap) window.__rmMap.setView([28, 6], 3); });
+    /* Beta-A: stop click/scroll propagation from zoom cluster to Leaflet map */
+    (function() {
+        var cluster = document.getElementById('rm-mapctrls');
+        if (!cluster || typeof L === 'undefined' || !L.DomEvent) return;
+        L.DomEvent.disableClickPropagation(cluster);
+        L.DomEvent.disableScrollPropagation(cluster);
+    })();
 })();
 
 const LINE_DENSIFY_STEP_DEG = 0.12;
@@ -4271,9 +4297,17 @@ async function openChartFromMapButton(btn) {
         statusEl.textContent = msg;
         statusEl.classList.toggle("is-error", Boolean(isError));
     };
+    /* Beta-E: wait for profiles to load before checking */
+    if (window.__rmChartProfilesReady) {
+        try { await window.__rmChartProfilesReady; } catch (e) { /* ignore */ }
+    }
     const chartRecordId = resolveChartRecordIdForShellNavigation();
     if (!chartRecordId) {
-        setStatus("Select a saved profile to open the chart.", true);
+        const _sel2 = document.getElementById('chartProfile');
+        const _msg2 = (_sel2 && _sel2.value)
+            ? 'Current profile is view-only. Select a profile linked to your account (▾).'
+            : 'No profile selected. Click the profile name (▾) to choose one.';
+        setStatus(_msg2, true);
         return;
     }
     const lat = Number(btn.dataset.favLat);
@@ -4404,9 +4438,17 @@ async function favoriteMapSelectionFromButton(btn) {
         statusEl.classList.toggle("is-error", Boolean(isError));
     };
 
+    /* Beta-E: wait for profiles to load before checking */
+    if (window.__rmChartProfilesReady) {
+        try { await window.__rmChartProfilesReady; } catch (e) { /* profiles load failed; try anyway */ }
+    }
     const profileId = getActiveFavoriteProfileId();
     if (!profileId) {
-        setStatus("Select a saved profile to favorite places.", true);
+        const _sel = document.getElementById('chartProfile');
+        const _msg = (_sel && _sel.value)
+            ? 'Current profile is view-only (legacy). Select a profile linked to your account (▾).'
+            : 'No profile selected. Click the profile name (▾) to choose one.';
+        setStatus(_msg, true);
         return;
     }
 
@@ -7868,7 +7910,10 @@ function renderGenieRenderStatusUI(summary) {
         if (resolvedEl) resolvedEl.hidden = true;
         return;
     }
-    root.hidden = false;
+    /* Beta-D: only show debug panels when ?debug=1 is in URL */
+    var _genieDbg = (new URLSearchParams(window.location.search)).get('debug') === '1';
+    root.hidden = !_genieDbg;
+    if (!_genieDbg) return;
     const resolvedLine = summary.birthResolution?.resolvedBirthLine
         || formatResolvedBirthDebugLine(summary.birthResolution);
     if (resolvedEl) {
@@ -8876,6 +8921,8 @@ setRenderStatus("Ready.");
     } else {
         window.addEventListener('load', renderNameplate);
     }
+    /* Beta-B: expose for topbar account label and external callers */
+    window.__rmOpenProfileSelector = openProfileSelector;
 })();
 /* ── end nameplate controller ────────────────────────────────────────────── */
 
@@ -9719,6 +9766,20 @@ setRenderStatus("Ready.");
   document.addEventListener('click', function(e) {
     if (document.body.classList.contains('rm-menu-open') && !e.target.closest('.rm-mainmenu') && !e.target.closest('.rm-menu-handle')) {
       closeMenu();
+    }
+  });
+})();
+</script>
+
+<script>
+/* Beta-B: topbar account label opens profile picker */
+(function() {
+  var acct = document.getElementById('rm-topbar-acct');
+  if (!acct) return;
+  acct.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (typeof window.__rmOpenProfileSelector === 'function') {
+      window.__rmOpenProfileSelector();
     }
   });
 })();

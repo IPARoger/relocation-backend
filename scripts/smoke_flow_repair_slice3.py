@@ -126,7 +126,7 @@ def main() -> int:
     results.append(check(
         "openChartFromMapButton still uses chartRecordId contract",
         bool(re.search(
-            r"openChartFromMapButton[\s\S]{0,400}chartRecordId",
+            r"openChartFromMapButton[\s\S]{0,700}chartRecordId",
             src,
         )),
     ))
