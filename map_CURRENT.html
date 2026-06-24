@@ -8756,6 +8756,9 @@ setRenderStatus("Ready.");
     var bottleEl = document.getElementById('rm-bottle');
     if (!ghostEl || !bottleEl) return;
 
+    /* MAP-GHOST-A: stop ghost Mute/Solo/NOT clicks from reaching Leaflet (map zoom) */
+    L.DomEvent.disableClickPropagation(ghostEl);
+
     /* ── colour palette (matches sandbox 12-color rotation) ── */
     var PALETTE = [
         '#3d6b86','#5f8a90','#4a9468','#7a68a0',
