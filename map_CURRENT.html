@@ -8854,8 +8854,7 @@ setRenderStatus("Ready.");
         var opt = select.selectedOptions && select.selectedOptions[0];
         if (!opt || !opt.value) {
             if (nameEl) nameEl.textContent = 'No profile';
-            var acctEl0 = document.getElementById('rm-topbar-acct');
-            if (acctEl0) acctEl0.textContent = '';
+            /* B1: account label is owned by initAccountLabel — do not touch here */
             [dateEl, placeEl, metaEl].forEach(function(el){ setLine(el, ''); });
             plate.classList.add('rm-np-loading');
             return;
@@ -8863,8 +8862,7 @@ setRenderStatus("Ready.");
         plate.classList.remove('rm-np-loading');
         var displayName = opt.textContent.replace(/^\[library\]\s*/, '') || opt.value;
         if (nameEl) nameEl.textContent = displayName;
-        var acctEl = document.getElementById('rm-topbar-acct');
-        if (acctEl) acctEl.textContent = displayName || '';
+        /* B1: account label is owned by initAccountLabel — profile name stays in nameplate only */
 
         try {
             if (opt.dataset && opt.dataset.profile) {
@@ -8945,10 +8943,36 @@ setRenderStatus("Ready.");
     } else {
         window.addEventListener('load', renderNameplate);
     }
-    /* Beta-B: expose for topbar account label and external callers */
+    /* B1: expose for external callers */
     window.__rmOpenProfileSelector = openProfileSelector;
 })();
 /* ── end nameplate controller ────────────────────────────────────────────── */
+
+/* ── B1: Account identity label (separate from active profile) ────────────── */
+(function initAccountLabel() {
+    var acctEl = document.getElementById('rm-topbar-acct');
+    if (!acctEl) return;
+    /* Poll for Supabase client (initialized asynchronously by substrate_adapter) */
+    var _attempts = 0;
+    var _max = 30;
+    function trySetLabel() {
+        var sbClient = window.SupabaseClient || window._supabaseClient;
+        if (!sbClient || typeof sbClient.auth === 'undefined') {
+            if (++_attempts < _max) { setTimeout(trySetLabel, 500); }
+            return;
+        }
+        sbClient.auth.getSession().then(function(result) {
+            var user = result && result.data && result.data.session && result.data.session.user;
+            if (!user) return;
+            var name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name))
+                || user.email || '';
+            acctEl.textContent = name;
+            if (user.email) acctEl.title = user.email;
+        }).catch(function() { /* no-op: stay blank if auth unavailable */ });
+    }
+    trySetLabel();
+})();
+/* ── end account identity label ─────────────────────────────────────────── */
 
 /* ── Map history & pin controller (MAP-UX-2) ─────────────────────────────── */
 (function initMapControls() {

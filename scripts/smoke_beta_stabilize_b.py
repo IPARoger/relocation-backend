@@ -22,7 +22,8 @@ check("B1_no_topbar_profile_click",
 
 # B2: rm-topbar-acct has no caret
 check("B2_no_caret_in_topbar",
-      "acctEl.textContent = displayName || ''" in MAP)
+      # Phase B1: renderNameplate no longer sets acctEl at all
+      "acctEl.textContent = displayName" not in MAP)
 
 # B3: .rm-acct CSS no longer has cursor: pointer
 acct_css = re.search(r'\.rm-acct\s*\{[^}]+\}', MAP)
@@ -117,3 +118,22 @@ if failures:
 else:
     total = 20 + 5  # 5 truth fn sub-checks in B19
     print("All checks passed (" + str(total) + " assertions).")
+
+# ─── Phase B1 additions ───────────────────────────────────────────────────────
+MAP_B1 = Path("map_CURRENT.html").read_text(encoding="utf-8")
+
+check("PB1_renderNameplate_no_acctEl",
+      "acctEl.textContent = displayName" not in MAP_B1,
+      "renderNameplate must not set rm-topbar-acct to profile name")
+
+check("PB1_initAccountLabel_present",
+      "initAccountLabel" in MAP_B1,
+      "initAccountLabel IIFE must be present")
+
+check("PB1_account_label_from_supabase",
+      "user_metadata" in MAP_B1 and "full_name" in MAP_B1 and "SupabaseClient" in MAP_B1,
+      "Account label must read from Supabase user metadata")
+
+check("PB1_profile_picker_still_on_nameplate",
+      "caretEl.addEventListener" in MAP_B1 and "openProfileSelector" in MAP_B1,
+      "Profile picker caret must still open selector from nameplate")
