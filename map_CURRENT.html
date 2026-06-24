@@ -1060,7 +1060,13 @@ body.rm-explore .zb-meta {
 }
 
 /* Beta-B Fix7: ghost strip updating indicator */
-.rm-ghost--updating { opacity: 0.55; pointer-events: none; }
+.rm-ghost--updating {
+    opacity: 0.55;
+    pointer-events: none;
+    /* PB5-C: lock position during update — suppress animation replay */
+    animation: none !important;
+    transform: translateY(-50%) !important;
+}
 .rm-ghost--updating::after {
   content: 'Updating…';
   font-size: 11px;
@@ -1073,6 +1079,10 @@ body.rm-explore .zb-meta {
 /* Panel explore mode — JS FLIP owns opacity/transform; CSS sets pointer-events only */
 #panel {
     overflow: hidden;
+    /* PB5-D: auto height so panel shrinks to builder content instead of
+     * filling full viewport. FLIP animation adapts via getBoundingClientRect. */
+    height: auto !important;
+    max-height: calc(100vh - 48px);
 }
 body.rm-explore #panel {
     pointer-events: none;
@@ -2107,11 +2117,16 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             document.addEventListener("click",function(e){ if(!(e.target.closest&&(e.target.closest(".gv-gddmenu")||e.target.closest(".gv-g-dd")))) closeGdd(); });
             var searchBtn=document.getElementById("gv-searchBtn");
             var saveBtn=document.getElementById("gv-saveInline");
+            /* PB5-A: in-flight flag prevents re-entrancy and keeps button disabled until
+             * the backend round-trip truly completes (avoids updateSearchState() re-enabling
+             * the button while a slow search is still running). */
+            var _searching=false;
             function updateSearchState(){
               if(!searchBtn) return;
               var canSearch=variables.length>0||buildComplete();
-              searchBtn.disabled=!canSearch;
-              searchBtn.setAttribute("aria-disabled", canSearch?"false":"true");
+              searchBtn.disabled=!canSearch||_searching;
+              searchBtn.setAttribute("aria-disabled",(canSearch&&!_searching)?"false":"true");
+              if(!_searching) searchBtn.textContent="Search Map";
             }
             function updateSaveState(){
               if(!saveBtn) return;
@@ -2120,6 +2135,8 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
               saveBtn.setAttribute("aria-disabled", canSave?"false":"true");
             }
             async function runGvSearch(){
+              /* PB5-A: block re-entrancy while search is in-flight */
+              if(_searching) return;
               if(buildComplete()) commitVariable();
               var vars=variables.slice();
               if(!vars.length){ updateSearchState(); return; }
@@ -2130,12 +2147,14 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
                 return;
               }
               window.__gvLastSearchTrigger="gv-searchBtn";
-              searchBtn.disabled=true;
+              _searching=true;
+              if(searchBtn){ searchBtn.disabled=true; searchBtn.textContent="Searching…"; }
               try{
                 await execute(buildPayload(vars));
               } catch(err){
                 console.error("[gv-search]", err);
               } finally {
+                _searching=false;
                 updateSearchState();
               }
             }
@@ -4589,6 +4608,10 @@ async function favoriteMapSelectionFromButton(btn) {
         /* PB4-E: no SLS interaction from Favorite handler.
          * invalidateProfile removed — city search is independent of Favorite action.
          * Cache refreshes naturally on next profile change or search. */
+        /* PB5-E DEFERRED: custom location naming.
+         * Custom favorites are currently auto-labeled "Saved location…" with no
+         * user-supplied name. Adding a naming prompt before/after save is deferred
+         * post-Beta. No change to Favorite or Open Chart behavior. */
     } catch (err) {
         console.error("[favorite]", err);
         btn.disabled = false;
@@ -9340,6 +9363,9 @@ setRenderStatus("Ready.");
 /* ── end save disk controller ────────────────────────────────────────────── */
 
 /* ── Save dialog controller (MAP-SAVE-C) ────────────────────────────────── */
+/* PB5-B: The rm-save-dialog HTML is rendered AFTER this script block closes.
+ * Defer init until DOMContentLoaded so all getElementById calls succeed. */
+document.addEventListener('DOMContentLoaded', function() {
 (function initSaveDialog() {
     var overlay  = document.getElementById('rm-save-dialog');
     var titleIn  = document.getElementById('rm-sdlg-title-input');
@@ -9348,7 +9374,10 @@ setRenderStatus("Ready.");
     var cancelBtn  = document.getElementById('rm-sdlg-cancel');
     var statusEl   = document.getElementById('rm-sdlg-status');
 
-    if (!overlay || !titleIn || !noteIn || !confirmBtn || !cancelBtn) return;
+    if (!overlay || !titleIn || !noteIn || !confirmBtn || !cancelBtn) {
+        console.warn('[save-dialog] PB5-B: dialog elements not found after DOMContentLoaded');
+        return;
+    }
 
     var _callbacks = {};
 
@@ -9443,6 +9472,7 @@ setRenderStatus("Ready.");
     window.__rmOpenSaveDialog  = openDialog;
     window.__rmCloseSaveDialog = closeDialog;
 })();
+}); /* end DOMContentLoaded — PB5-B */
 /* ── end save dialog controller ─────────────────────────────────────────── */
 
 
@@ -9756,9 +9786,17 @@ setRenderStatus("Ready.");
     if (typeof _prevSearch === 'function') {
         window.executeSearchPlan = async function(plan, meta) {
             var result = await _prevSearch.apply(this, arguments);
-            /* don't enter explore on history replays — stay in explore if already there */
-            if ((meta || {}).source !== 'history_replay' && !document.body.classList.contains('rm-explore')) {
-                enterExplore();
+            /* PB5-A: skip enterExplore on history replay OR steady-state explore (panel
+             * already flip-hidden = ghost redraw). If rm-explore is set but panel is NOT
+             * yet hidden, we are mid-exit-animation — re-entering is correct and resolves
+             * the limbo where user clicks Search during the 500ms exit window. */
+            if ((meta || {}).source !== 'history_replay') {
+                var _panelEl = document.getElementById('panel');
+                var _inSteadyExplore = document.body.classList.contains('rm-explore') &&
+                    _panelEl && _panelEl.classList.contains('rm-panel--flip-hidden');
+                if (!_inSteadyExplore) {
+                    enterExplore();
+                }
             }
             return result;
         };
@@ -9772,7 +9810,13 @@ setRenderStatus("Ready.");
                 var _base = window.executeSearchPlan;
                 window.executeSearchPlan = async function(plan, meta) {
                     var result = await _base.apply(this, arguments);
-                    if ((meta || {}).source !== 'history_replay' && !document.body.classList.contains('rm-explore')) enterExplore();
+                    /* PB5-A: same steady-state guard as primary wrapper */
+                    if ((meta || {}).source !== 'history_replay') {
+                        var _pe = document.getElementById('panel');
+                        var _sse = document.body.classList.contains('rm-explore') &&
+                            _pe && _pe.classList.contains('rm-panel--flip-hidden');
+                        if (!_sse) enterExplore();
+                    }
                     return result;
                 };
             }
@@ -9812,7 +9856,26 @@ setRenderStatus("Ready.");
         if (soloId) {
             renderList = renderList.filter(function(v) { return v.id === soloId; });
         }
-        if (!renderList.length) return;
+        /* PB5-C: if Solo+NOT conflict produces empty list, show honest message.
+         * Solo picked a candidate that is also excluded by NOT — nothing to render.
+         * Surface this so the user doesn't see a stale overlay with no explanation. */
+        if (!renderList.length) {
+            var _ghostTip = document.createElement('div');
+            var _soloed = soloId && merged.find(function(v){ return v.id === soloId; });
+            var _tipMsg = (_soloed && _soloed.not)
+                ? 'Soloed variable is excluded (NOT active). Clear NOT or Solo to see overlay.'
+                : 'No variables to render. All variables may be excluded.';
+            _ghostTip.style.cssText = 'position:fixed;bottom:70px;right:20px;background:#1f2d38;' +
+                'color:#eef5f9;font-size:12.5px;padding:7px 13px;border-radius:8px;z-index:9999;' +
+                'pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:opacity 0.2s';
+            _ghostTip.textContent = _tipMsg;
+            document.body.appendChild(_ghostTip);
+            setTimeout(function(){
+                _ghostTip.style.opacity = '0';
+                setTimeout(function(){ _ghostTip.remove(); }, 220);
+            }, 3000);
+            return;
+        }
 
         var payload = buildPayload(renderList);
         /* Beta-B Fix7: show Updating… while backend re-renders */

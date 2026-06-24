@@ -261,3 +261,55 @@ check("PB4E_no_sls_in_favorite",
       "invalidateProfile" not in MAP_PB4.split("favoriteMapSelectionFromButton")[1].split("async function ")[0]
       if MAP_PB4.count("favoriteMapSelectionFromButton") >= 1 else True,
       "PB4-E: Favorite handler must not call invalidateProfile (city search independence)")
+
+# ─── PB5 assertions ──────────────────────────────────────────────────────────
+MAP_PB5 = MAP_PB4  # same file, incremental
+
+check("PB5A_searching_flag_declared",
+      "var _searching=false;" in MAP_PB5,
+      "PB5-A: _searching in-flight flag must be declared in GV builder scope")
+
+check("PB5A_update_search_checks_flag",
+      "!canSearch||_searching" in MAP_PB5,
+      "PB5-A: updateSearchState must disable button while _searching is true")
+
+check("PB5A_runsearch_guard",
+      "if(_searching) return;" in MAP_PB5,
+      "PB5-A: runGvSearch must bail out immediately when already searching")
+
+check("PB5A_searching_text_feedback",
+      'searchBtn.textContent="Searching' in MAP_PB5,
+      "PB5-A: searchBtn must show Searching… text while in-flight")
+
+check("PB5A_steady_explore_guard",
+      "_inSteadyExplore" in MAP_PB5 or "rm-panel--flip-hidden" in MAP_PB5,
+      "PB5-A: MAP-UX-4 wrapper must not enterExplore when panel is flip-hidden (ghost redraw)")
+
+check("PB5B_save_dialog_deferred",
+      "DOMContentLoaded" in MAP_PB5 and "initSaveDialog" in MAP_PB5,
+      "PB5-B: initSaveDialog must be deferred to DOMContentLoaded (dialog HTML is after script)")
+
+check("PB5B_open_save_dialog_set",
+      "window.__rmOpenSaveDialog  = openDialog" in MAP_PB5 or
+      "window.__rmOpenSaveDialog = openDialog" in MAP_PB5,
+      "PB5-B: __rmOpenSaveDialog must be set inside initSaveDialog")
+
+check("PB5C_ghost_updating_animation_locked",
+      "animation: none !important;" in MAP_PB5,
+      "PB5-C: rm-ghost--updating must suppress animation to prevent position jump")
+
+check("PB5C_solo_not_conflict_message",
+      "Soloed variable is excluded" in MAP_PB5,
+      "PB5-C: Solo+NOT conflict must surface honest message to user")
+
+check("PB5D_panel_height_auto",
+      "height: auto !important;" in MAP_PB5,
+      "PB5-D: #panel must use height:auto to remove blank space below builder")
+
+check("PB5E_custom_location_deferred",
+      "PB5-E DEFERRED" in MAP_PB5,
+      "PB5-E: custom location naming must have deferred comment in Favorite handler")
+
+check("PB5_truth_unchanged",
+      "window.executeSearchPlan" in MAP_PB5 and "window.__rmExecuteGenieRender" in MAP_PB5,
+      "PB5: production truth bridges must remain intact")
