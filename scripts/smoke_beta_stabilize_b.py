@@ -313,3 +313,55 @@ check("PB5E_custom_location_deferred",
 check("PB5_truth_unchanged",
       "window.executeSearchPlan" in MAP_PB5 and "window.__rmExecuteGenieRender" in MAP_PB5,
       "PB5: production truth bridges must remain intact")
+
+# ─── PB6 assertions ──────────────────────────────────────────────────────────
+MAP_PB6 = MAP_PB5  # same file, incremental
+
+check("PB6_1_save_toast_exists",
+      "Investigation saved" in MAP_PB6 and "DOMContentLoaded" in MAP_PB6,
+      "PB6-1: save confirmation toast must be added to dialog onSaved path")
+
+check("PB6_1_disk_saved_css",
+      "rm-save-disk-saved" in MAP_PB6 and "rsd-saved" in MAP_PB6,
+      "PB6-1: disk saved-state class and rsd-saved span must exist")
+
+check("PB6_2_mute_feedback",
+      "Variable muted." in MAP_PB6 and "Variable excluded." in MAP_PB6,
+      "PB6-2: ghost toast must distinguish muted vs excluded actions")
+
+check("PB6_2_solo_feedback",
+      "Showing solo variable." in MAP_PB6,
+      "PB6-2: ghost toast must acknowledge solo action")
+
+check("PB6_2_all_excluded_accurate",
+      "All variables excluded" in MAP_PB6,
+      "PB6-2: all-excluded toast must have accurate copy")
+
+check("PB6_3_no_pre_save_prompt",
+      "window.prompt" not in MAP_PB6.split("favoriteMapSelectionFromButton")[1].split("async function ")[0]
+      if "favoriteMapSelectionFromButton" in MAP_PB6 else True,
+      "PB6-3: favoriteMapSelectionFromButton must not call window.prompt before save")
+
+check("PB6_3_auto_label",
+      "Custom location near" in MAP_PB6,
+      "PB6-3: custom locations must auto-label with lat/lon coordinates")
+
+check("PB6_4_angle_sign_formatter",
+      "__rmFormatCanonicalAngleDisplay" in MAP_PB6 and "_SIGNS" in MAP_PB6,
+      "PB6-4: angle-sign formatter must be defined with zodiac signs array")
+
+check("PB6_5_panel_transparent_flip_hidden",
+      "body.rm-explore .rm-panel--flip-hidden" in MAP_PB6,
+      "PB6-5: panel must be transparent when flip-hidden in explore mode")
+
+check("PB6_6_add_and_search",
+      '"Add and Search"' in MAP_PB6 or "'Add and Search'" in MAP_PB6,
+      "PB6-6: search button must show 'Add and Search' when builder has uncommitted fields")
+
+check("PB6_7_zoom_dedup_guard",
+      "__rmZoomBound" in MAP_PB6,
+      "PB6-7: zoom handlers must use __rmZoomBound flag to prevent double-binding")
+
+check("PB6_8_history_deferred",
+      "PB6-8 DEFERRED" in MAP_PB6,
+      "PB6-8: history back/forward mirroring must have explicit deferred comment")

@@ -1087,6 +1087,11 @@ body.rm-explore .zb-meta {
 body.rm-explore #panel {
     pointer-events: none;
 }
+/* PB6-5: once the panel is fully hidden in explore mode, make its background
+ * transparent so no white box bleeds through during partial-opacity states */
+body.rm-explore .rm-panel--flip-hidden {
+    background: transparent !important;
+}
 .rm-panel--flip-hidden { opacity: 0 !important; pointer-events: none !important; }
 
 /* Bottle — always in DOM; JS FLIP reveals via .rm-bottle--revealed */
@@ -2126,7 +2131,11 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
               var canSearch=variables.length>0||buildComplete();
               searchBtn.disabled=!canSearch||_searching;
               searchBtn.setAttribute("aria-disabled",(canSearch&&!_searching)?"false":"true");
-              if(!_searching) searchBtn.textContent="Search Map";
+              if(!_searching) {
+                /* PB6-6: clarify CTA — if unsaved fields are filled, "Add and Search"
+                 * tells the user their current variable will be committed then searched */
+                searchBtn.textContent = buildComplete() ? "Add and Search" : "Search Map";
+              }
             }
             function updateSaveState(){
               if(!saveBtn) return;
@@ -3986,8 +3995,15 @@ window.__rmMap = map;
     var zout = document.getElementById('rm-zoom-out');
     var rctr = document.getElementById('rm-recenter');
     /* Beta-A: explicit step=1 so zoomDelta:0.25 setting does not apply to button clicks */
-    if (zin)  zin.addEventListener('click',  function() { if (window.__rmMap) window.__rmMap.zoomIn(1); });
-    if (zout) zout.addEventListener('click', function() { if (window.__rmMap) window.__rmMap.zoomOut(1); });
+    /* PB6-7: named handlers prevent accidental double-binding on future re-init */
+    if (zin  && !zin.__rmZoomBound)  {
+        zin.__rmZoomBound  = true;
+        zin.addEventListener('click',  function(e) { e.stopPropagation(); if (window.__rmMap) window.__rmMap.zoomIn(1); });
+    }
+    if (zout && !zout.__rmZoomBound) {
+        zout.__rmZoomBound = true;
+        zout.addEventListener('click', function(e) { e.stopPropagation(); if (window.__rmMap) window.__rmMap.zoomOut(1); });
+    }
     if (rctr) rctr.addEventListener('click', function() { if (window.__rmMap) window.__rmMap.setView([28, 6], 3); });
     /* Beta-A: stop click/scroll propagation from zoom cluster to Leaflet map */
     (function() {
@@ -4239,6 +4255,22 @@ function mapHumanPlaceLabel(metaOrPlace) {
 }
 
 /** meta: { title, country?, admin?, origin?: "city_dataset"|"custom" } */
+/* PB6-4: derive zodiac sign from ecliptic longitude for popup angle display */
+(function defineAngleSignFormatter() {
+    var _SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo',
+                  'Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+    function _signOf(deg) {
+        return _SIGNS[Math.floor(((Number(deg) % 360) + 360) % 360 / 30)];
+    }
+    function _degInSign(deg) {
+        return (((Number(deg) % 30) + 30) % 30).toFixed(1);
+    }
+    window.__rmFormatCanonicalAngleDisplay = function(entry) {
+        if (!entry || entry.longitude_deg == null) return '—';
+        return _signOf(entry.longitude_deg) + ' ' + _degInSign(entry.longitude_deg) + '°';
+    };
+})();
+
 function buildRelocatedPopupHtml(data, lat, lon, meta) {
     const title = mapHumanPlaceLabel(Object.assign({}, meta || {}, {
         display_name: (meta && meta.title) || "Custom location",
@@ -4542,16 +4574,17 @@ async function favoriteMapSelectionFromButton(btn) {
     try { profileId = await requireActiveProfile(); }
     catch (e) { setStatus(e.message, true); return; }
 
-    let displayName = btn.dataset.favName || "Custom location";
     const origin = btn.dataset.favOrigin || "map_custom";
-    if (origin === "map_custom" && (!displayName || displayName === "Custom location")) {
-        const named = promptCustomLocationName(Number(btn.dataset.favLat), Number(btn.dataset.favLon));
-        if (named === null) {
-            setStatus("Favorite cancelled.", false);
-            btn.disabled = false;
-            return;
-        }
-        displayName = named;
+    /* PB6-3: no pre-save blocking prompt. Auto-label custom locations with lat/lon.
+     * Beta rule: save immediately, user can rename in their profile later.
+     * (window.prompt() before save was blocking Open Relocated Chart too.) */
+    let displayName = btn.dataset.favName;
+    if (!displayName || displayName === "Custom location") {
+        const _lat = Number(btn.dataset.favLat);
+        const _lon = Number(btn.dataset.favLon);
+        displayName = (origin === "map_custom")
+            ? `Custom location near ${_lat.toFixed(2)}, ${_lon.toFixed(2)}`
+            : "Custom location";
     }
     const selection = {
         displayName,
@@ -9460,6 +9493,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (typeof _callbacks.onError === 'function') _callbacks.onError();
             } else {
                 if (typeof _callbacks.onSaved === 'function') _callbacks.onSaved();
+                /* PB6-1: visible save confirmation toast — disk state also changes green */
+                (function() {
+                    var t = document.createElement('div');
+                    t.style.cssText = 'position:fixed;bottom:70px;right:20px;background:#16a34a;color:#fff;' +
+                        'font-size:13px;font-weight:600;padding:9px 16px;border-radius:9px;z-index:9999;' +
+                        'pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.22);transition:opacity 0.25s';
+                    t.textContent = 'Investigation saved ✓';
+                    document.body.appendChild(t);
+                    setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.remove(); }, 280); }, 2800);
+                })();
             }
         } catch (err) {
             if (statusEl) statusEl.textContent = 'Save failed: ' + (err.message || String(err));
@@ -9864,7 +9907,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var _soloed = soloId && merged.find(function(v){ return v.id === soloId; });
             var _tipMsg = (_soloed && _soloed.not)
                 ? 'Soloed variable is excluded (NOT active). Clear NOT or Solo to see overlay.'
-                : 'No variables to render. All variables may be excluded.';
+                : 'All variables excluded. Remove NOT (✕) to show overlays.';
             _ghostTip.style.cssText = 'position:fixed;bottom:70px;right:20px;background:#1f2d38;' +
                 'color:#eef5f9;font-size:12.5px;padding:7px 13px;border-radius:8px;z-index:9999;' +
                 'pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:opacity 0.2s';
@@ -9909,8 +9952,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 else patch(id, { mute: v.mute });
             }
         }
+        /* PB6-2: immediate per-action feedback — show what just happened */
+        (function() {
+            var _fbMsg = null;
+            if (mini === 'not')  _fbMsg = v.not  ? 'Variable excluded.' : 'Variable included.';
+            if (mini === 'mute') _fbMsg = v.mute ? 'Variable muted.'    : 'Variable unmuted.';
+            if (mini === 'solo') _fbMsg = soloId  ? 'Showing solo variable.' : 'Solo cleared.';
+            if (!_fbMsg) return;
+            var _ft = document.createElement('div');
+            _ft.style.cssText = 'position:fixed;bottom:70px;right:20px;background:#26303a;color:#eef5f9;' +
+                'font-size:12.5px;padding:7px 13px;border-radius:8px;z-index:9999;pointer-events:none;' +
+                'box-shadow:0 2px 8px rgba(0,0,0,.25);transition:opacity 0.2s';
+            _ft.textContent = _fbMsg;
+            document.body.appendChild(_ft);
+            setTimeout(function(){ _ft.style.opacity='0'; setTimeout(function(){ _ft.remove(); }, 220); }, 2000);
+        })();
         ghostRedrawFromState();
     });
+
+    /* PB6-8 DEFERRED: history back/forward state mirroring.
+     * When popstate fires, Genie variables and ghost controls should reflect
+     * the restored search state. Full implementation requires:
+     *   1. Serialize GV variable state into the history entry on each search.
+     *   2. On popstate, hydrate GV builder (hydrateGvVariables) with saved state.
+     *   3. Sync ghost strip (syncGhost / renderGhost) with hydrated conditions.
+     * This is deferred post-Beta because it requires changes to the history
+     * push path (inside executeSearchPlan wrapper) and GV builder hydration
+     * contract. The forward/back buttons are present; state mirroring is the gap. */
 
     /* expose for onboarding walkthrough step 4 */
     window.__rmGhostStrip = {
