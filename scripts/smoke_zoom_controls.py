@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Static smoke for MAP-ZOOM-A: Leaflet zoom control fix in map_CURRENT.html."""
+"""Static smoke for R1: Sandbox-aligned map control cluster in map_CURRENT.html.
+
+Replaces MAP-ZOOM-A assertions (bottom-right Leaflet control) with R1 assertions
+(sandbox-unified top-left cluster: custom zoomcol + navgrp at left:16 top:62).
+"""
 from __future__ import annotations
 
 import re
@@ -14,63 +18,69 @@ def main() -> int:
     text = MAP.read_text(encoding="utf-8")
     failures: list[str] = []
 
-    # D-15: zoomControl:false in L.map init suppresses default top-left blank bar
+    # 1. zoomControl:false must still suppress Leaflet default control
     if "zoomControl: false," not in text:
         failures.append("zoomControl: false must be present in L.map() init")
 
-    # Default zoom control must NOT be added separately at topleft
-    topleft_zoom = re.findall(
-        r"L\.control\.zoom\([^)]*position\s*:\s*['\"]topleft['\"]", text
-    )
-    if topleft_zoom:
-        failures.append("L.control.zoom at topleft must not exist (causes blank bar)")
+    # 2. Leaflet native zoom control must NOT be added (removed in R1)
+    if "L.control.zoom(" in text:
+        failures.append(
+            "L.control.zoom() must not be present — R1 uses custom .rm-zoomcol buttons"
+        )
 
-    # D-03: zoom added at bottomright
-    if 'L.control.zoom({ position: "bottomright" }).addTo(map)' not in text:
-        failures.append('L.control.zoom({ position: "bottomright" }) must be added')
+    # 3. Unified cluster element must exist
+    if 'id="rm-mapctrls"' not in text:
+        failures.append('#rm-mapctrls cluster element must exist')
 
-    # CSS: .leaflet-bottom.leaflet-right positioned to clear save disk
-    br_rule = re.search(
-        r"\.leaflet-bottom\.leaflet-right\s*\{[^}]+\}", text, re.DOTALL
+    # 4. Custom zoom buttons must exist with correct IDs
+    for btn_id in ("rm-zoom-in", "rm-zoom-out", "rm-recenter"):
+        if f'id="{btn_id}"' not in text:
+            failures.append(f'#{btn_id} button must exist in cluster')
+
+    # 5. Cluster CSS must be at sandbox coordinates: left:16px top:62px
+    cluster_css = re.search(
+        r"#rm-mapctrls\s*\{[^}]+\}", text, re.DOTALL
     )
-    if not br_rule:
-        failures.append(".leaflet-bottom.leaflet-right CSS rule must exist")
+    if not cluster_css:
+        failures.append("#rm-mapctrls CSS rule must exist")
     else:
-        body = br_rule.group()
-        if "bottom:" not in body:
-            failures.append(".leaflet-bottom.leaflet-right must set bottom offset")
-        if "right:" not in body:
-            failures.append(".leaflet-bottom.leaflet-right must set right offset")
-        # Verify offset clears save disk (bottom: 34px + 48px height = 82px; zoom must be > 82px)
-        m = re.search(r"bottom:\s*(\d+)px", body)
-        if m:
-            offset = int(m.group(1))
-            if offset <= 82:
-                failures.append(
-                    f".leaflet-bottom.leaflet-right bottom:{offset}px collides with "
-                    f"#rm-save-disk (occupies bottom 34–82px); must be >82px"
-                )
+        body = cluster_css.group()
+        if "left: 16px" not in body:
+            failures.append("#rm-mapctrls must have left: 16px (sandbox coordinate)")
+        if "top: 62px" not in body:
+            failures.append("#rm-mapctrls must have top: 62px (sandbox coordinate)")
 
-    # Truth functions untouched
-    for fn in [
+    # 6. Nav button IDs preserved for JS truth wiring
+    for nav_id in ("rm-ctrl-back", "rm-ctrl-fwd", "rm-ctrl-pin"):
+        if f'id="{nav_id}"' not in text:
+            failures.append(f'#{nav_id} must be preserved (JS history controller wires by ID)')
+
+    # 7. Custom zoom buttons wired to Leaflet map API
+    if "rm-zoom-in" not in text or "__rmMap" not in text:
+        failures.append("Custom zoom buttons must be wired via window.__rmMap")
+
+    # 8. No bottom-right .leaflet-bottom.leaflet-right positioning rule
+    if ".leaflet-bottom.leaflet-right" in text and "bottom: 100px" in text:
+        failures.append(
+            ".leaflet-bottom.leaflet-right bottom:100px must be removed (R1 moved zoom to cluster)"
+        )
+
+    # 9. Truth functions untouched
+    for fn in (
         "executeSearchPlan",
         "__rmSaveCurrentInvestigation",
         "collectSavedInvestigationConditions",
-    ]:
+    ):
         if fn not in text:
-            failures.append(f"{fn} must remain present")
-
-    # Zoom CSS must not broaden to affect other controls unintentionally
-    if ".leaflet-control {" in text and ".leaflet-zoom" not in text:
-        failures.append("bare .leaflet-control rule without zoom scope is too broad")
+            failures.append(f"{fn} must remain present (truth wiring)")
 
     if failures:
         print(f"FAIL {len(failures)}")
         for f in failures:
-            print(f" - {f}")
+            print(f"  - {f}")
         return 1
 
-    print("PASS 7/7 MAP-ZOOM-A static checks")
+    print("PASS 9/9 R1 spatial cluster checks")
     return 0
 
 

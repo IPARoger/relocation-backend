@@ -69,8 +69,8 @@ def main() -> int:
     results.append(check("#rm-ctrl-fwd present", 'id="rm-ctrl-fwd"' in src))
     results.append(check("#rm-ctrl-pin present", 'id="rm-ctrl-pin"' in src))
     results.append(check("back/fwd have .rm-full/.rm-mini spans", 'class="rm-full"' in src and 'class="rm-mini"' in src))
-    results.append(check("#rm-map-controls uses fixed positioning in CSS",
-        bool(re.search(r'#rm-map-controls\s*\{[^}]*position:\s*fixed', src, re.DOTALL))))
+    results.append(check("#rm-mapctrls cluster uses fixed positioning in CSS (R1)",
+        bool(re.search(r'#rm-mapctrls\s*\{[^}]*position:\s*fixed', src, re.DOTALL))))
 
     print("\nGV copy polish:")
     results.append(check('"Variable builder" section title removed',
