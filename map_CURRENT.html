@@ -1034,8 +1034,9 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 
 /* ── Map history & pin controls (MAP-UX-2) ──────────────────────────────── */
 #rm-map-controls {
-    position: absolute;
-    top: 90px;
+    /* SLICE-2: fixed position so it floats over map independent of map scroll */
+    position: fixed;
+    top: 110px;
     left: 12px;
     z-index: 1000;
     display: flex;
@@ -1072,8 +1073,9 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 
 /* ── Save Search pill (MAP-UX-3) ─────────────────────────────────────────── */
 #rm-save-pill {
-    position: absolute;
-    top: 136px;
+    /* SLICE-2: fixed position floating over map */
+    position: fixed;
+    top: 156px;
     left: 12px;
     z-index: 1000;
     pointer-events: auto;
@@ -1117,6 +1119,260 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 
 
 
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SLICE-2-CHROME  — topbar, mainmenu, share pill, floating city search
+   Adapted from map_SANDBOX_genie_v7.html chrome CSS.
+   Scoped with rm- prefixes; production explore class is body.rm-explore.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Topbar theme tokens (extend existing :root if needed) */
+:root {
+  --rm-serif: Georgia, "Times New Roman", serif;
+  --rm-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --rm-ink: #1a1d21;
+  --rm-ink-soft: #485a66;
+  --rm-ink-faint: #7d8f9a;
+  --rm-line: #cfdde6;
+  --rm-line-soft: #e2ecf1;
+  --rm-card: #fbfdff;
+  --rm-accent: #2f6f9f;
+  --rm-accent-deep: #235a83;
+}
+
+/* Topbar chrome */
+.topbar {
+  background: rgba(251,253,255,.88);
+  backdrop-filter: blur(8px);
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transition: background .8s ease, border-color .8s ease, backdrop-filter .8s ease;
+}
+
+.rm-brand {
+  font-family: var(--rm-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--rm-accent-deep);
+  margin-right: auto;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Hamburger — hidden in normal mode, appears in explore */
+.rm-menu-handle {
+  display: none;
+  border: none;
+  background: transparent;
+  color: var(--rm-ink-soft);
+  font-size: 19px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .5s ease, transform .5s ease;
+  flex-shrink: 0;
+}
+.rm-menu-handle:hover { background: var(--rm-line-soft); color: var(--rm-ink); }
+body.rm-explore .rm-menu-handle {
+  display: inline-flex;
+  animation: rmMenuHandleIn .9s cubic-bezier(.2,0,.4,1) both;
+}
+@keyframes rmMenuHandleIn { from{ transform:scale(.55); opacity:0; } to{ transform:scale(1); opacity:1; } }
+
+/* Close button inside menu (explore+menu-open) */
+.rm-menu-close {
+  display: none;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: var(--rm-ink-soft);
+  padding: 8px 0;
+  cursor: pointer;
+  align-self: flex-end;
+}
+body.rm-explore.rm-menu-open .rm-menu-close { display: block; }
+.rm-menu-close:hover { color: var(--rm-ink); }
+
+/* Main nav — centered, collapses in explore */
+.rm-mainmenu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+  max-width: 600px;
+  opacity: 1;
+  clip-path: inset(0 round 8px);
+  transition: opacity .45s ease .45s, max-width 1.0s cubic-bezier(.4,0,.2,1),
+              transform 1.0s cubic-bezier(.4,0,.2,1), clip-path 1.0s ease;
+}
+body.rm-explore .rm-mainmenu {
+  max-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-8px);
+  clip-path: inset(0 100% 0 0 round 8px);
+  transition: opacity .35s ease, max-width 1.1s cubic-bezier(.4,0,.2,1) .2s,
+              clip-path 1.0s cubic-bezier(.4,0,.2,1) .1s, transform .8s ease;
+}
+/* Menu open panel (explore + hamburger tapped) */
+body.rm-explore.rm-menu-open .rm-mainmenu {
+  position: fixed;
+  left: 0;
+  top: 48px;
+  right: 0;
+  transform: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  background: rgba(251,253,255,.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rm-line);
+  padding: 8px 20px 14px;
+  max-width: none;
+  opacity: 1;
+  pointer-events: auto;
+  clip-path: inset(0 round 0);
+  transition: opacity .3s ease, clip-path .4s cubic-bezier(.2,0,.4,1), transform .4s ease;
+}
+body.rm-explore.rm-menu-open .rm-mainmenu .rm-nav-link {
+  padding: 10px 0;
+  font-size: 15px;
+  border-bottom: 1px solid var(--rm-line-soft);
+  width: 100%;
+  display: block;
+}
+.rm-nav-link {
+  font-size: 13.5px;
+  color: var(--rm-ink-soft);
+  text-decoration: none;
+  padding: 6px 11px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.rm-nav-link:hover { background: rgba(47,111,159,.12); color: var(--rm-ink); }
+.rm-nav-link.rm-nav-on { background: var(--rm-card); color: var(--rm-accent-deep); font-weight: 600; box-shadow: 0 1px 2px rgba(31,45,56,.1); }
+
+/* Topright cluster */
+.rm-topright {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity .6s ease;
+}
+
+/* Share pill in topbar */
+.rm-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--rm-ink-soft);
+  background: transparent;
+  border: 1px solid var(--rm-line);
+  border-radius: 9px;
+  padding: 5px 11px;
+  max-width: 200px;
+  overflow: hidden;
+  cursor: pointer;
+  font-family: var(--rm-sans);
+  transition: max-width 2.2s cubic-bezier(.4,0,.2,1), padding 2.2s cubic-bezier(.4,0,.2,1),
+              height 2.0s ease, background 2.0s ease, color 2.0s ease,
+              border-color 2.0s ease, box-shadow 2.0s ease;
+}
+.rm-share-btn:hover { border-color: var(--rm-accent); color: var(--rm-accent); }
+.rm-share-btn svg { width: 14px; height: 14px; transition: width 2.0s ease, height 2.0s ease; }
+.rm-share-txt {
+  max-width: 60px;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 2.0s cubic-bezier(.4,0,.2,1), opacity 1.8s ease, margin 2.0s ease;
+}
+body.rm-explore .rm-share-btn {
+  max-width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+  background: var(--rm-card);
+  color: var(--rm-accent);
+  border-color: var(--rm-accent);
+  box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 14px 26px -16px rgba(47,111,159,.5);
+}
+body.rm-explore .rm-share-btn .rm-share-txt { max-width: 0; opacity: 0; margin-left: -6px; }
+body.rm-explore .rm-share-btn svg { width: 18px; height: 18px; }
+
+/* Override old panel-style quickShareBtn rules (button is now in topbar) */
+#quickShareBtn {
+  /* reset panel-specific styles */
+  margin-top: 0 !important;
+  width: auto !important;
+  background: transparent !important;
+  border: 1px solid var(--rm-line) !important;
+  color: var(--rm-ink-soft) !important;
+  border-radius: 9px !important;
+  font-weight: normal !important;
+}
+
+/* Explore: topbar dissolves */
+body.rm-explore .topbar {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+}
+/* Map slides up behind dissolved topbar in explore */
+#map { transition: top .8s ease, inset .8s ease; }
+body.rm-explore #map { top: 0; }
+
+/* ── Floating city search (center-top of map) ── */
+.rm-citysearch-wrap {
+  position: fixed;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  width: 300px;
+  max-width: calc(100vw - 340px); /* don't overlap panel */
+  pointer-events: auto;
+}
+/* The mounted search UI needs to look like a floating card */
+.rm-citysearch-wrap .saved-location-search,
+.rm-citysearch-wrap .rm-loc-search {
+  background: rgba(251,253,255,.93);
+  border: 1px solid var(--rm-line);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(31,45,56,.07), 0 10px 24px -16px rgba(31,45,56,.45);
+}
+/* Hide city search section title from panel; the Location section is now empty */
+.rm-panel-section-hidden {
+  display: none !important;
+}
+
+/* Explore: city search dims */
+body.rm-explore .rm-citysearch-wrap { opacity: .65; }
+body.rm-explore .rm-citysearch-wrap:hover,
+body.rm-explore .rm-citysearch-wrap:focus-within { opacity: 1; }
+
+/* ── Map-level navbtn labels (mini/full cross-fade) ── */
+.rm-ctrl-btn .rm-full { display: inline; }
+.rm-ctrl-btn .rm-mini { display: none; font-size: 16px; }
+body.rm-explore .rm-ctrl-btn .rm-full { opacity: 0; transition: opacity .7s ease; }
+body.rm-explore .rm-ctrl-btn .rm-mini { display: inline; opacity: 0; transition: opacity 1.0s ease 1.6s; }
+body:not(.rm-explore) .rm-ctrl-btn .rm-full { opacity: 1; transition: opacity 1.0s ease 2.0s; }
+
+/* ── Panel cleanup: hide duplicate sections ── */
+/* Chart section: hidden visually; #chartProfile kept functional in DOM */
+#rm-panel-chart-section { display: none !important; }
+/* Ensure #chartProfile stays functional even when wrapper is hidden via JS scroll */
+#chartProfile { /* keep default behavior */ }
+
 </style>
 <script src="/supabase_client.js"></script>
 <script src="/auth_guard.js"></script>
@@ -1130,8 +1386,25 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 </head>
 <body>
 
-<!-- SLICE-1-LAYOUT: empty topbar shell; nav/chrome content added in later slices -->
-<header class="topbar" aria-label="App navigation (placeholder)"></header>
+<!-- SLICE-2-CHROME: topbar with brand, nav, share. Menu toggle via rm-menu-handle JS below. -->
+<header class="topbar">
+  <div class="rm-brand">Relocation</div>
+  <button class="rm-menu-handle" id="rm-menu-handle" title="Menu" aria-label="Open menu" aria-expanded="false">&#9776;</button>
+  <nav class="rm-mainmenu" id="rm-mainmenu" aria-label="Main navigation">
+    <button class="rm-menu-close" id="rm-menu-close" title="Close menu" aria-label="Close menu">&#10005;</button>
+    <a href="/map_CURRENT.html" class="rm-nav-link rm-nav-on">Map</a>
+    <a href="/app_shell.html" class="rm-nav-link">Profile</a>
+    <a href="/app_shell.html#/comparison" class="rm-nav-link">Comparison</a>
+    <a href="/app_shell.html#/settings" class="rm-nav-link">Settings</a>
+  </nav>
+  <div class="rm-topright">
+    <!-- SLICE-2: #quickShareBtn moved from panel to topbar topright -->
+    <button id="quickShareBtn" type="button" class="rm-share-btn" title="Share this map/search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      <span class="rm-share-txt">Share</span>
+    </button>
+  </div>
+</header>
 
 <div id="app">
 
@@ -1156,12 +1429,12 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
               class="rm-ctrl-btn"
               data-role="map-history-back"
               disabled
-              title="Previous search state (no history yet)">&#8249;</button>
+              title="Previous search state (no history yet)"><span class="rm-full">&#8249; Back</span><span class="rm-mini">&#8249;</span></button>
       <button id="rm-ctrl-fwd"
               class="rm-ctrl-btn"
               data-role="map-history-forward"
               disabled
-              title="Next search state">&#8250;</button>
+              title="Next search state"><span class="rm-full">Forward &#8250;</span><span class="rm-mini">&#8250;</span></button>
       <button id="rm-ctrl-pin"
               class="rm-ctrl-btn"
               data-role="map-pin"
@@ -1226,12 +1499,18 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
         <div class="zb-meta"    id="rm-np-meta"  style="display:none"></div>
       </div>
     </div>
+    <!-- SLICE-2: floating city search (center-top, z-index:600 inside map) -->
+    <div class="rm-citysearch-wrap" id="rm-citysearch-wrap">
+      <div id="rm-map-loc-search-mount"></div>
+      <div id="citySearchFeedback" class="city-search-feedback" hidden aria-live="polite"></div>
+    </div>
     </div>
 
     <div id="panel">
-        <h1>Relocation Mapper</h1>
+        <!-- SLICE-2: h1 title hidden; brand now in .rm-brand topbar -->
 
-        <div class="panel-section">
+        <!-- SLICE-2: Chart section title+label hidden; #chartProfile kept functional for JS -->
+        <div class="panel-section" id="rm-panel-chart-section">
             <div class="panel-section-title">Chart</div>
             <label for="chartProfile">Profile</label>
             <select id="chartProfile">
@@ -1239,10 +1518,9 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
             </select>
         </div>
 
-        <div class="panel-section">
+        <!-- SLICE-2: Location panel-section hidden; city search moved to floating .rm-citysearch-wrap -->
+        <div class="panel-section rm-panel-section-hidden" aria-hidden="true">
             <div class="panel-section-title">Location</div>
-            <div id="rm-map-loc-search-mount"></div>
-            <div id="citySearchFeedback" class="city-search-feedback" hidden aria-live="polite"></div>
         </div>
 
         <!-- GENIE-BUILDER-PORT (Stage 2 — UI ONLY)
@@ -1322,8 +1600,8 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
           #saveInvestigationNote { display: none !important; }
         </style>
 
+        <!-- SLICE-2: "Variable builder" label removed; GV builder is the only element in this section -->
         <div class="panel-section">
-            <div class="panel-section-title">Variable builder</div>
             <div id="gv-builder-host" aria-label="Genie variable builder (UI-only preview)">
               <div class="gv-builder" id="gv-builder">
                 <div class="gv-builder-top">
@@ -1413,7 +1691,7 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
             function selectHtml(role,options,value,placeholder){ var has=value!==undefined&&value!==""; var cur=has?((options.find(function(o){return String(o.value)===String(value);})||{}).label||""):"";
               return '<button type="button" class="gv-g-dd'+(has?"":" gv-ph")+'" data-gv-role="'+esc(role)+'"><span class="gv-g-dd-lbl">'+esc(has?cur:placeholder)+'</span><span class="gv-g-dd-car">\u25be</span></button>'; }
             function renderChips(){ els.chips.innerHTML=variables.map(function(v){ return '<span class="gv-chip'+(v.not?" gv-notc":"")+'" data-gv-id="'+v.id+'"><span class="gv-sw'+(v.not?" gv-redact":"")+'" style="background:'+(v.not?NOT_COLOR:colorOf(v))+'"></span>'+(v.not?'<span class="gv-notm">'+NOT_ICON+'</span>':"")+'<span class="gv-lbl" data-gv-act="chip" data-gv-id="'+v.id+'">'+esc(catById(v.category).chip(v.values))+'</span><button type="button" class="gv-x" data-gv-act="remove" data-gv-id="'+v.id+'" title="Remove">\u2715</button></span>'; }).join(""); }
-            function renderBuildRow(){ els.buildrow.innerHTML='<div class="gv-br-master">'+selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Select variable")+'<label class="gv-not-box'+(build.not?" gv-on":"")+'" title="Redact - exclude these placements (NOT)">'+NOT_ICON+'<input type="checkbox" data-gv-role="notcheck"'+(build.not?" checked":"")+'></label></div><div class="gv-subs" id="gv-subs"></div><div class="gv-br-foot" id="gv-brFoot"></div>'; renderSubs(); applyRedactPreview(); updateGenieHint(); }
+            function renderBuildRow(){ els.buildrow.innerHTML='<div class="gv-br-master">'+selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Choose Variable")+'<label class="gv-not-box'+(build.not?" gv-on":"")+'" title="Redact - exclude these placements (NOT)">'+NOT_ICON+'<input type="checkbox" data-gv-role="notcheck"'+(build.not?" checked":"")+'></label></div><div class="gv-subs" id="gv-subs"></div><div class="gv-br-foot" id="gv-brFoot"></div>'; renderSubs(); applyRedactPreview(); updateGenieHint(); }
             function renderSubs(){ var subs=document.getElementById("gv-subs"),foot=document.getElementById("gv-brFoot"); if(!subs||!foot)return; if(!build.category){subs.innerHTML="";foot.innerHTML="";updateAddState();updateSearchState();updateSaveState();return;} subs.classList.remove("gv-open");
               subs.innerHTML=catById(build.category).fields.map(function(f){return selectHtml("field:"+f.key,SOURCES(f.src),build.values[f.key],f.label);}).join("");
               foot.innerHTML='<button type="button" class="gv-row-x" data-gv-act="cancel" title="Discard this variable">\u2715</button>';
@@ -1710,7 +1988,7 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
         </div>
 
         <button id="findBtn" type="button">Find regions</button>
-        <button id="quickShareBtn" type="button" title="Share this map/search">Quick Share</button>
+        <!-- SLICE-2: #quickShareBtn moved to topbar .rm-topright (see <header>) -->
         <div id="renderStatus">Ready.</div>
         <textarea id="saveInvestigationNote" rows="2" placeholder="Optional note for this investigation" style="width:100%;box-sizing:border-box;"></textarea>
         <button id="saveInvestigationBtn" type="button">Save Investigation</button>
@@ -8721,5 +8999,31 @@ setRenderStatus("Ready.");
 /* ── end MAP-UX-4 ────────────────────────────────────────────────────────── */
 </script>
 
+<script>
+/* SLICE-2-CHROME: menu-handle toggle for hamburger menu in explore mode */
+(function() {
+  var handle = document.getElementById('rm-menu-handle');
+  var closeBtn = document.getElementById('rm-menu-close');
+  if (!handle) return;
+  function openMenu() {
+    document.body.classList.add('rm-menu-open');
+    handle.setAttribute('aria-expanded', 'true');
+  }
+  function closeMenu() {
+    document.body.classList.remove('rm-menu-open');
+    handle.setAttribute('aria-expanded', 'false');
+  }
+  handle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.body.classList.contains('rm-menu-open') ? closeMenu() : openMenu();
+  });
+  if (closeBtn) closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeMenu(); });
+  document.addEventListener('click', function(e) {
+    if (document.body.classList.contains('rm-menu-open') && !e.target.closest('.rm-mainmenu') && !e.target.closest('.rm-menu-handle')) {
+      closeMenu();
+    }
+  });
+})();
+</script>
 </body>
 </html>
