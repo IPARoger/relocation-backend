@@ -1516,19 +1516,25 @@ body:not(.rm-explore) .rm-ctrl-btn .rm-full { opacity: 1; transition: opacity 1.
 /* Ensure #chartProfile stays functional even when wrapper is hidden via JS scroll */
 #chartProfile { /* keep default behavior */ }
 
-/* SLICE-3-FLOW: reveal chart/profile section when nameplate caret is tapped */
-body.rm-profile-selector-reveal #rm-panel-chart-section {
-  display: block !important;
-  position: relative;
-  z-index: 200;
+/* MAP-PROFILE-A: floating profile picker anchored to nameplate */
+#rm-profile-picker {
+  display: none;
+  position: fixed;
+  z-index: 8500;
+  min-width: 220px;
+  max-width: calc(100vw - 24px);
   background: rgba(255,255,255,.97);
   border: 1px solid var(--rm-line, #cfdde6);
   border-radius: 10px;
   box-shadow: 0 4px 18px -8px rgba(31,45,56,.25);
   padding: 10px 12px;
-  margin: 8px 0 4px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
-body.rm-profile-selector-reveal #rm-panel-chart-section .panel-section-title {
+#rm-profile-picker.rm-pp-open {
+  display: block;
+}
+.rm-pp-label {
+  display: block;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .05em;
@@ -1536,7 +1542,7 @@ body.rm-profile-selector-reveal #rm-panel-chart-section .panel-section-title {
   color: var(--rm-ink-soft, #485a66);
   margin-bottom: 6px;
 }
-body.rm-profile-selector-reveal #chartProfile {
+#rm-profile-picker #chartProfile {
   width: 100%;
   font-size: 13px;
   padding: 7px 10px;
@@ -1544,6 +1550,7 @@ body.rm-profile-selector-reveal #chartProfile {
   border: 1px solid var(--rm-line, #cfdde6);
   background: #fff;
   color: var(--rm-ink, #1a1d21);
+  box-sizing: border-box;
 }
 
 </style>
@@ -1662,13 +1669,20 @@ body.rm-profile-selector-reveal #chartProfile {
           <span class="nm" id="rm-np-name">Loading…</span>
           <span class="tools">
             <button type="button" class="zb-caret" id="rm-np-caret"
-                    title="Switch profile — opens profile selector in side panel">▾</button>
+                    title="Switch profile">▾</button>
           </span>
         </span></div>
         <div class="zb-primary" id="rm-np-date"  style="display:none"></div>
         <div class="zb-primary" id="rm-np-place" style="display:none"></div>
         <div class="zb-meta"    id="rm-np-meta"  style="display:none"></div>
       </div>
+    </div>
+    <!-- Floating profile picker (MAP-PROFILE-A) — owns #chartProfile -->
+    <div id="rm-profile-picker" class="rm-profile-picker" hidden aria-label="Select profile">
+      <label for="chartProfile" class="rm-pp-label">Profile</label>
+      <select id="chartProfile">
+        <option value="">Loading…</option>
+      </select>
     </div>
     <!-- SLICE-2: floating city search (center-top, z-index:600 inside map) -->
     <div class="rm-citysearch-wrap" id="rm-citysearch-wrap">
@@ -1680,14 +1694,8 @@ body.rm-profile-selector-reveal #chartProfile {
     <div id="panel">
         <!-- SLICE-2: h1 title hidden; brand now in .rm-brand topbar -->
 
-        <!-- SLICE-2: Chart section title+label hidden; #chartProfile kept functional for JS -->
-        <div class="panel-section" id="rm-panel-chart-section">
-            <div class="panel-section-title">Chart</div>
-            <label for="chartProfile">Profile</label>
-            <select id="chartProfile">
-                <option value="">Loading…</option>
-            </select>
-        </div>
+        <!-- SLICE-2 / MAP-PROFILE-A: chart section shell; #chartProfile lives in #rm-profile-picker -->
+        <div class="panel-section" id="rm-panel-chart-section" aria-hidden="true"></div>
 
         <!-- SLICE-2: Location panel-section hidden; city search moved to floating .rm-citysearch-wrap -->
         <div class="panel-section rm-panel-section-hidden" aria-hidden="true">
@@ -8647,41 +8655,63 @@ setRenderStatus("Ready.");
         } catch(e) { /* ignore */ }
     }
 
-    function openProfileSelector() {
-        /* SLICE-3-FLOW: toggle reveal of #rm-panel-chart-section so #chartProfile
-           is visible when clicked from the nameplate caret.
-           Slice 2 CSS hides the chart section (display:none); body class overrides it. */
-        var select = document.getElementById('chartProfile');
-        if (!select) return;
-        var isOpen = document.body.classList.contains('rm-profile-selector-reveal');
-        if (isOpen) {
-            document.body.classList.remove('rm-profile-selector-reveal');
-            return;
-        }
-        document.body.classList.add('rm-profile-selector-reveal');
-        requestAnimationFrame(function() {
-            select.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            setTimeout(function() { select.focus(); }, 160);
-        });
+    var pickerEl = document.getElementById('rm-profile-picker');
+
+    function positionProfilePicker() {
+        if (!pickerEl || !plate) return;
+        var r = plate.getBoundingClientRect();
+        pickerEl.style.top  = (r.bottom + 6) + 'px';
+        pickerEl.style.left = Math.max(8, r.left) + 'px';
+        pickerEl.style.minWidth = Math.max(220, r.width) + 'px';
     }
 
-    if (caretEl) caretEl.addEventListener('click', openProfileSelector);
+    function closeProfilePicker() {
+        if (!pickerEl) return;
+        pickerEl.classList.remove('rm-pp-open');
+        pickerEl.setAttribute('hidden', '');
+    }
 
-    /* Close reveal on profile change or click outside */
+    function openProfileSelector() {
+        /* MAP-PROFILE-A: toggle floating picker adjacent to nameplate */
+        var select = document.getElementById('chartProfile');
+        if (!pickerEl || !select) return;
+        if (pickerEl.classList.contains('rm-pp-open')) {
+            closeProfilePicker();
+            return;
+        }
+        positionProfilePicker();
+        pickerEl.classList.add('rm-pp-open');
+        pickerEl.removeAttribute('hidden');
+        requestAnimationFrame(function() { select.focus(); });
+    }
+
+    if (caretEl) caretEl.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openProfileSelector();
+    });
+
+    /* Close on profile change */
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'chartProfile') {
             renderNameplate();
-            document.body.classList.remove('rm-profile-selector-reveal');
+            closeProfilePicker();
         }
     });
 
+    /* Close on click outside */
     document.addEventListener('click', function(e) {
-        if (!document.body.classList.contains('rm-profile-selector-reveal')) return;
-        var section = document.getElementById('rm-panel-chart-section');
-        var caret   = document.getElementById('rm-np-caret');
-        if (section && section.contains(e.target)) return;
-        if (caret   && caret.contains(e.target))   return;
-        document.body.classList.remove('rm-profile-selector-reveal');
+        if (!pickerEl || !pickerEl.classList.contains('rm-pp-open')) return;
+        if (pickerEl.contains(e.target)) return;
+        if (caretEl && caretEl.contains(e.target)) return;
+        if (plate && plate.contains(e.target)) return;
+        closeProfilePicker();
+    });
+
+    /* Close on Escape */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && pickerEl && pickerEl.classList.contains('rm-pp-open')) {
+            closeProfilePicker();
+        }
     });
 
     if (window.__rmChartProfilesReady) {

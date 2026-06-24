@@ -66,54 +66,35 @@ def main() -> int:
         ] if "contextmenu" in src else True,
     ))
 
-    # ── Fix 2: profile selector reveal ──────────────────────────────────────
-    print("\nFix 2 — Profile selector reveal path:")
+    # ── Fix 2: profile selector (MAP-PROFILE-A floating picker) ─────────────
+    print("\nFix 2 — Profile selector picker path:")
     results.append(check(
-        "body.rm-profile-selector-reveal CSS rule present",
-        "body.rm-profile-selector-reveal #rm-panel-chart-section" in src,
+        "#rm-profile-picker exists",
+        'id="rm-profile-picker"' in src,
     ))
     results.append(check(
-        "reveal CSS overrides display:none with display:block !important",
-        bool(re.search(
-            r"body\.rm-profile-selector-reveal\s+#rm-panel-chart-section\s*\{[^}]*display:\s*block\s*!important",
-            src,
-        )),
+        "openProfileSelector references floating picker",
+        "openProfileSelector" in src and ("rm-profile-picker" in src or "pickerEl" in src),
     ))
     results.append(check(
-        "openProfileSelector() uses rm-profile-selector-reveal toggle",
-        "rm-profile-selector-reveal" in src and "openProfileSelector" in src,
+        "no scrollIntoView in nameplate controller",
+        "scrollIntoView" not in src[src.find("initNameplate"):src.find("/* ── end nameplate controller")],
     ))
     results.append(check(
-        "openProfileSelector toggles body class (classList.add)",
-        bool(re.search(
-            r"openProfileSelector[\s\S]{0,800}classList\.add\(['\"]rm-profile-selector-reveal",
-            src,
-        )),
+        "no rm-profile-selector-reveal panel reveal",
+        "rm-profile-selector-reveal" not in src,
     ))
     results.append(check(
-        "openProfileSelector closes on classList.remove",
-        bool(re.search(
-            r"classList\.remove\(['\"]rm-profile-selector-reveal",
-            src,
-        )),
+        "profile picker closes on chartProfile change",
+        bool(re.search(r"chartProfile.*closeProfilePicker|closeProfilePicker", src)),
     ))
     results.append(check(
-        "Profile reveal closes on chartProfile change",
-        bool(re.search(
-            r"chartProfile.*rm-profile-selector-reveal|rm-profile-selector-reveal.*chartProfile",
-            src, re.DOTALL
-        )),
+        "profile picker closes on outside click",
+        "pickerEl.contains(e.target)" in src,
     ))
     results.append(check(
-        "Profile reveal closes on outside click",
-        bool(re.search(
-            r"addEventListener\(['\"]click['\"][\s\S]{0,300}rm-profile-selector-reveal",
-            src,
-        )),
-    ))
-    results.append(check(
-        "#chartProfile still exists in DOM",
-        'id="chartProfile"' in src,
+        "#chartProfile still exists in DOM (exactly once)",
+        src.count('id="chartProfile"') == 1,
     ))
     results.append(check(
         "#rm-panel-chart-section still exists in DOM",
