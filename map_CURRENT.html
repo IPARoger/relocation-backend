@@ -179,6 +179,8 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 #quickShareStatus,
 #saveInvestigationStatus,
 #reopenInvestigationStatus { display: none; }
+/* PB3 Fix3: in explore mode, save disk is the only save surface; hide inline save button */
+body.rm-explore #gv-saveInline { display: none !important; }
 
 select, button#findBtn {
     width: 100%;
@@ -381,6 +383,16 @@ html.map-panel-show-legend #panelLegend { display: block; }
     background: #f8fafc;
     cursor: pointer;
     color: #334155;
+}
+/* PB3 Fix4: favorited placeholder holds same flex slot as the button it replaced */
+.popup-chart .popup-actions .popup-action-favorited {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #64748b;
+    padding: 5px 6px;
 }
 
 .map-onboarding {
@@ -1013,9 +1025,11 @@ body.rm-explore .zb-primary {
   text-shadow: none;
 }
 body.rm-explore .identity-stamp .tools {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 2.5s ease;
+  /* PB3 Fix1: keep caret accessible during explore — sole profile-change path.
+   * Sandbox dissolves this, but beta needs it always clickable. */
+  opacity: 1;
+  pointer-events: auto;
+  transition: none;
 }
 body.rm-explore .zb-meta {
   max-height: 0;
@@ -1691,10 +1705,13 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
 /* R1: navbtn full/mini labels handled by .rm-navbtn rules above */
 
 /* ── Panel cleanup: hide duplicate sections ── */
-/* Chart section: hidden visually; #chartProfile kept functional in DOM */
+/* Chart section: hidden visually; #chartProfile kept functional in DOM.
+ * PB3 Fix2: #chartProfile sole UI path is #rm-profile-picker (nameplate caret). */
 #rm-panel-chart-section { display: none !important; }
 /* Ensure #chartProfile stays functional even when wrapper is hidden via JS scroll */
 #chartProfile { /* keep default behavior */ }
+/* PB3 Fix2: profile picker label should not appear as a standalone element */
+.rm-pp-label { display: block; font-size: 11px; color: #64748b; margin-bottom: 4px; }
 
 /* MAP-PROFILE-A: floating profile picker anchored to nameplate */
 #rm-profile-picker {
@@ -4560,11 +4577,10 @@ async function favoriteMapSelectionFromButton(btn) {
         setStatus(_wasActive ? "Already in favorites." : "Saved to favorites.", false);
         // Refresh Family B search so the new favorite appears immediately.
         try {
+            /* PB3 Fix5: invalidate profile cache only — do NOT call refresh() here,
+             * as it can focus/open the city search dropdown during a Favorite action. */
             if (window.RMSavedLocationSearch) {
                 window.RMSavedLocationSearch.invalidateProfile(profileId);
-            }
-            if (mapLocationSearchCtl && typeof mapLocationSearchCtl.refresh === "function") {
-                mapLocationSearchCtl.refresh();
             }
         } catch (e) { /* non-fatal */ }
     } catch (err) {

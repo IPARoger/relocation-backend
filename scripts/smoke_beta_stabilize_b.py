@@ -180,3 +180,44 @@ check("PB2_account_label_not_profile_source",
       "rm-topbar-acct" not in MAP_PB2.split("requireActiveProfile")[0].split("acctEl")[0] or
       "initAccountLabel" in MAP_PB2,
       "account label must not be used as profile source for actions")
+
+# ─── PB3 assertions ──────────────────────────────────────────────────────────
+MAP_PB3 = Path("map_CURRENT.html").read_text(encoding="utf-8")
+
+check("PB3_caret_visible_in_explore",
+      "opacity: 1;" in MAP_PB3 and "PB3 Fix1" in MAP_PB3 and
+      "opacity: 0;\n  pointer-events: none;\n  transition: opacity 2.5s ease;" not in MAP_PB3,
+      "Caret tools must not have opacity:0 in explore mode")
+
+check("PB3_caret_pointer_events_auto",
+      "pointer-events: auto;" in MAP_PB3,
+      "Caret must have pointer-events:auto in explore mode")
+
+check("PB3_panel_chart_section_hidden",
+      "#rm-panel-chart-section { display: none !important; }" in MAP_PB3,
+      "Profile selector in panel must remain hidden")
+
+check("PB3_gv_save_hidden_in_explore",
+      "body.rm-explore #gv-saveInline { display: none !important; }" in MAP_PB3,
+      "gv-saveInline must be hidden in explore mode (rm-save-disk is the save surface)")
+
+check("PB3_favorited_flex_1",
+      ".popup-action-favorited" in MAP_PB3 and "flex: 1;" in MAP_PB3,
+      "popup-action-favorited must have flex:1 to hold its space in the row")
+
+check("PB3_no_refresh_in_favorite",
+      "mapLocationSearchCtl.refresh" not in MAP_PB3 or
+      "PB3 Fix5" in MAP_PB3,
+      "mapLocationSearchCtl.refresh must not be called in favorite handler")
+
+check("PB3_invalidateProfile_kept",
+      "RMSavedLocationSearch.invalidateProfile" in MAP_PB3,
+      "invalidateProfile must still be called after favorite save")
+
+check("PB3_caret_in_dom",
+      'id="rm-np-caret"' in MAP_PB3,
+      "Nameplate caret #rm-np-caret must remain in DOM")
+
+check("PB3_caret_opens_picker",
+      "caretEl.addEventListener" in MAP_PB3 and "openProfileSelector" in MAP_PB3,
+      "Caret click must open profile selector")
