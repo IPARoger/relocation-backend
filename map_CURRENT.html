@@ -685,6 +685,38 @@ html.map-panel-show-legend #panelLegend { display: block; }
     padding-right: 8px;
 }
 
+/* MAP-ZOOM-A: Leaflet zoom control placement ─────────────────────────────
+   Placed bottom-right, offset so it clears:
+     #rm-save-disk  (right:46px; bottom:34px; 48px tall → occupies 34–82px)
+   Zoom sits at bottom:100px right:10px — above the disk, away from left chrome.
+   The default top-left zoom (suppressed via zoomControl:false in L.map init)
+   is not rendered; this rule targets only our explicitly added control. */
+.leaflet-bottom.leaflet-right {
+    bottom: 100px;
+    right: 10px;
+}
+.leaflet-control-zoom {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(31,45,56,.18);
+}
+.leaflet-control-zoom a {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2d38;
+    background: rgba(251,253,255,0.93);
+    border-bottom: 1px solid #cfdde6;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+.leaflet-control-zoom a:last-child { border-bottom: none; }
+.leaflet-control-zoom a:hover { background: #e8f0f5; color: #0f172a; }
+/* ── end zoom control CSS ────────────────────────────────────────────────── */
+
 .leaflet-control a[aria-label='Reset map to default world view'] {
     font-size: 14px;
     line-height: 26px;
@@ -1071,51 +1103,60 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 /* ── end controls CSS ───────────────────────────────────────────────────── */
 
 
-/* ── Save Search pill (MAP-UX-3) ─────────────────────────────────────────── */
-#rm-save-pill {
-    /* SLICE-2: fixed position floating over map */
+/* ── Save disk (MAP-SAVE-B) — sandbox-aligned floating save ───────────────── */
+#rm-save-disk {
     position: fixed;
-    top: 156px;
-    left: 12px;
+    right: 46px;
+    bottom: 34px;
     z-index: 1000;
-    pointer-events: auto;
-    background: rgba(251,253,255,0.93);
-    border: 1px solid #cfdde6;
-    border-radius: 10px;
-    padding: 6px 13px;
-    box-shadow: 0 2px 12px rgba(15,23,42,0.10);
-    backdrop-filter: blur(4px);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #475569;
-    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--accent);
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    transition: background 0.12s, color 0.12s, border-color 0.12s;
-    white-space: nowrap;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(31,45,56,.12), 0 16px 30px -16px rgba(47,111,159,.5);
+    opacity: 0;
+    pointer-events: none;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: opacity 0.4s ease, background 0.12s, color 0.12s, border-color 0.12s;
 }
-#rm-save-pill:hover:not(:disabled) { background: #e8f0f5; color: #0f172a; }
-#rm-save-pill:disabled { opacity: 0.55; cursor: not-allowed; }
-#rm-save-pill.rm-save-saved {
+body.rm-explore #rm-save-disk {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.4s ease 0.2s, background 0.12s, color 0.12s, border-color 0.12s;
+}
+body.rm-explore #rm-save-disk.flying {
+    opacity: 0;
+    pointer-events: none;
+}
+#rm-save-disk:hover:not(:disabled) { color: #fff; background: var(--accent); }
+#rm-save-disk:disabled { opacity: 0.55; cursor: not-allowed; }
+#rm-save-disk svg { width: 22px; height: 22px; flex: 0 0 auto; }
+#rm-save-disk.rm-save-disk-saved {
     color: #16a34a;
     border-color: #bbf7d0;
     background: rgba(240,253,244,0.95);
 }
-#rm-save-pill.rm-save-error {
+#rm-save-disk.rm-save-disk-error {
     color: #b91c1c;
     border-color: #fecaca;
     background: rgba(254,242,242,0.95);
 }
-.rsp-saving, .rsp-saved, .rsp-error { display: none; }
-#rm-save-pill.rm-save-saving .rsp-idle,
-#rm-save-pill.rm-save-saved  .rsp-idle,
-#rm-save-pill.rm-save-error  .rsp-idle  { display: none; }
-#rm-save-pill.rm-save-saving .rsp-saving { display: inline-flex; align-items: center; gap: 5px; }
-#rm-save-pill.rm-save-saved  .rsp-saved  { display: inline-flex; align-items: center; gap: 5px; }
-#rm-save-pill.rm-save-error  .rsp-error  { display: inline-flex; align-items: center; gap: 5px; }
-/* ── end save pill CSS ───────────────────────────────────────────────────── */
+.rsd-saving, .rsd-saved, .rsd-error { display: none; }
+#rm-save-disk.rm-save-disk-saving .rsd-idle,
+#rm-save-disk.rm-save-disk-saved  .rsd-idle,
+#rm-save-disk.rm-save-disk-error  .rsd-idle  { display: none; }
+#rm-save-disk.rm-save-disk-saving .rsd-saving { display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+#rm-save-disk.rm-save-disk-saved  .rsd-saved  { display: inline-flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; }
+#rm-save-disk.rm-save-disk-error  .rsd-error  { display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+body.rm-explore .gv-save-inline { visibility: hidden; pointer-events: none; }
+/* ── end save disk CSS ───────────────────────────────────────────────────── */
 
 
 
@@ -1474,20 +1515,18 @@ body.rm-profile-selector-reveal #chartProfile {
         </svg>
       </button>
     </div>
-    <!-- Save Search pill (MAP-UX-3) -->
-    <button id="rm-save-pill"
+    <!-- Save disk (MAP-SAVE-B) — explore-mode floating save -->
+    <button id="rm-save-disk"
             type="button"
+            class="rm-save-disk"
             data-role="map-save-search"
-            title="Save this search state to your investigations">
-      <span class="rsp-idle">
-        <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
-          <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4.414a1 1 0 0 0-.293-.707L11.293.293A1 1 0 0 0 10.586 0H2zm5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 2.5V5H5V2h5.586L11 2.5z"/>
-        </svg>
-        Save Search
+            title="Save this search investigation">
+      <span class="rsd-idle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
       </span>
-      <span class="rsp-saving" aria-hidden="true">&#x23F3; Saving&#x2026;</span>
-      <span class="rsp-saved"  aria-hidden="true">&#x2713; Saved</span>
-      <span class="rsp-error"  aria-hidden="true"></span>
+      <span class="rsd-saving" aria-hidden="true">&#x23F3;</span>
+      <span class="rsd-saved"  aria-hidden="true">&#x2713;</span>
+      <span class="rsd-error"  aria-hidden="true">&#x26A0;</span>
     </button>
     <!-- Ghost variable strip (MAP-UX-4) — explore mode only -->
     <div id="rm-ghost-strip"
@@ -1819,10 +1858,19 @@ body.rm-profile-selector-reveal #chartProfile {
               resetBuild();
               renderAll();
             }
+            function patchVariable(id, delta){
+              var v=variables.find(function(x){return x.id===id;});
+              if(!v||!delta||typeof delta!=="object") return false;
+              if("not" in delta) v.not=!!delta.not;
+              if("mute" in delta) v.mute=!!delta.mute;
+              renderChips();
+              return true;
+            }
             window.__gvBuilderPreview={
               get variables(){return variables.slice();},
               count:function(){return variables.length;},
-              hydrate:hydrateGvVariables
+              hydrate:hydrateGvVariables,
+              patchVariable:patchVariable
             };
           }
           if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
@@ -3569,11 +3617,18 @@ const map = L.map("map", {
     wheelDebounceTime: 100,
     inertia: true,
     inertiaDeceleration: 2800,
-    worldCopyJump: false
+    worldCopyJump: false,
+    zoomControl: false,
 }).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
 
 /** Dev/smoke hook — browser tests read zoom, bounds, popups without DOM hacks. */
 window.__rmMap = map;
+
+/* MAP-ZOOM-A: re-add zoom control at bottom-right so it is clear of the
+   save disk (#rm-save-disk: right:46px bottom:34px, 48px tall → occupied
+   region is bottom 34–100px). Zoom sits above that at bottom:110px.
+   zoomControl:false in L.map() suppresses the default top-left placement. */
+L.control.zoom({ position: "bottomright" }).addTo(map);
 
 const LINE_DENSIFY_STEP_DEG = 0.12;
 
@@ -8664,61 +8719,186 @@ setRenderStatus("Ready.");
 })();
 /* ── end controls controller ─────────────────────────────────────────────── */
 
-/* ── Save Search pill controller (MAP-UX-3) ─────────────────────────────── */
-(function initSavePill() {
-    var pill = document.getElementById('rm-save-pill');
-    if (!pill) return;
+/* ── flySave: gv inline → save disk morph (MAP-SAVE-B, sandbox parity) ───── */
+(function initFlySave() {
+    function flySave(toDisk, onDone) {
+        var pill = document.getElementById('gv-saveInline');
+        var disk = document.getElementById('rm-save-disk');
+        if (!pill || !disk) { if (onDone) onDone(); return; }
+        var DUR = 1600;
+        var easing = 'cubic-bezier(.4,0,.2,1)';
+        var dur = (DUR / 1000) + 's';
+
+        if (toDisk) {
+            var src = pill.getBoundingClientRect();
+            disk.classList.add('flying');
+            disk.style.opacity = '0';
+            disk.style.transform = 'none';
+            disk.style.transition = 'none';
+            var dst = disk.getBoundingClientRect();
+
+            var pillSvgEl = pill.querySelector('svg');
+            var diskSvgEl = disk.querySelector('svg');
+            var pillSvg = pillSvgEl ? pillSvgEl.outerHTML : '';
+            var diskSvg = diskSvgEl ? diskSvgEl.outerHTML : '';
+            var ghost = document.createElement('div');
+            ghost.innerHTML =
+                '<span class="gf-pill" style="display:inline-flex;align-items:center;gap:7px;transition:opacity ' + (DUR * 0.45 / 1000) + 's ease">' +
+                  pillSvg + '<span style="font-size:12.5px;font-weight:600;color:#475569">Save search</span></span>' +
+                '<span class="gf-disk" style="opacity:0;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity ' + (DUR * 0.45 / 1000) + 's ease ' + (DUR * 0.42 / 1000) + 's">' + diskSvg + '</span>';
+            ghost.style.cssText = [
+                'position:fixed', 'left:' + src.left + 'px', 'top:' + src.top + 'px',
+                'width:' + src.width + 'px', 'height:' + src.height + 'px',
+                'border-radius:10px', 'background:var(--card,#fbfdff)',
+                'border:1px solid var(--line,#cfdde6)', 'box-shadow:0 1px 2px rgba(31,45,56,.06)',
+                'display:inline-flex', 'align-items:center', 'justify-content:center',
+                'gap:7px', 'padding:7px 14px', 'z-index:2000', 'pointer-events:none', 'overflow:hidden',
+                'transition:left ' + dur + ' ' + easing + ',top ' + dur + ' ' + easing +
+                  ',width ' + dur + ' ' + easing + ',height ' + dur + ' ' + easing +
+                  ',border-radius ' + dur + ' ' + easing + ',padding ' + dur + ' ' + easing +
+                  ',background 0.9s ease 0.5s,color ' + dur + ' ease,border-color 0.9s ease 0.5s'
+            ].join(';');
+            document.body.appendChild(ghost);
+            pill.style.visibility = 'hidden';
+
+            requestAnimationFrame(function() { requestAnimationFrame(function() {
+                ghost.style.left = dst.left + 'px';
+                ghost.style.top = dst.top + 'px';
+                ghost.style.width = dst.width + 'px';
+                ghost.style.height = dst.height + 'px';
+                ghost.style.borderRadius = '14px';
+                ghost.style.padding = '0';
+                ghost.style.background = 'var(--card,#fbfdff)';
+                ghost.style.borderColor = 'var(--accent,#2f6f9f)';
+                setTimeout(function() { var p = ghost.querySelector('.gf-pill'); if (p) p.style.opacity = '0'; }, 80);
+                setTimeout(function() { var d = ghost.querySelector('.gf-disk'); if (d) d.style.opacity = '1'; }, DUR * 0.42);
+            }); });
+
+            setTimeout(function() {
+                ghost.remove();
+                pill.style.visibility = '';
+                disk.classList.remove('flying');
+                disk.style.opacity = '';
+                disk.style.transition = '';
+                if (typeof window.__rmUpdateSaveDiskState === 'function') window.__rmUpdateSaveDiskState();
+                if (onDone) onDone();
+            }, DUR + 60);
+        } else {
+            var src2 = disk.getBoundingClientRect();
+            pill.style.visibility = 'hidden';
+            pill.style.display = '';
+            var dst2 = pill.getBoundingClientRect();
+            pill.style.visibility = '';
+
+            var diskSvgEl2 = disk.querySelector('svg');
+            var pillSvgEl2 = pill.querySelector('svg');
+            var diskSvg2 = diskSvgEl2 ? diskSvgEl2.outerHTML : '';
+            var pillSvg2 = pillSvgEl2 ? pillSvgEl2.outerHTML : '';
+
+            var ghost2 = document.createElement('div');
+            ghost2.innerHTML =
+                '<span class="gf-disk2" style="display:flex;align-items:center;justify-content:center;transition:opacity ' + (DUR * 0.45 / 1000) + 's ease">' + diskSvg2 + '</span>' +
+                '<span class="gf-pill2" style="opacity:0;position:absolute;inset:0;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:opacity ' + (DUR * 0.45 / 1000) + 's ease ' + (DUR * 0.42 / 1000) + 's">' +
+                  pillSvg2 + '<span style="font-size:12.5px;font-weight:600;color:#475569">Save search</span></span>';
+            ghost2.style.cssText = [
+                'position:fixed', 'left:' + src2.left + 'px', 'top:' + src2.top + 'px',
+                'width:' + src2.width + 'px', 'height:' + src2.height + 'px',
+                'border-radius:14px', 'background:var(--card,#fbfdff)',
+                'border:1px solid var(--accent,#2f6f9f)', 'color:var(--accent,#2f6f9f)',
+                'display:inline-flex', 'align-items:center', 'justify-content:center',
+                'z-index:2000', 'pointer-events:none', 'overflow:hidden',
+                'transition:left ' + dur + ' ' + easing + ',top ' + dur + ' ' + easing +
+                  ',width ' + dur + ' ' + easing + ',height ' + dur + ' ' + easing +
+                  ',border-radius ' + dur + ' ' + easing + ',padding ' + dur + ' ' + easing +
+                  ',background 0.9s ease 0.5s,border-color 0.9s ease 0.5s'
+            ].join(';');
+            document.body.appendChild(ghost2);
+            disk.classList.add('flying');
+
+            requestAnimationFrame(function() { requestAnimationFrame(function() {
+                ghost2.style.left = dst2.left + 'px';
+                ghost2.style.top = dst2.top + 'px';
+                ghost2.style.width = dst2.width + 'px';
+                ghost2.style.height = dst2.height + 'px';
+                ghost2.style.borderRadius = '10px';
+                ghost2.style.padding = '7px 14px';
+                ghost2.style.background = 'var(--card,#fbfdff)';
+                ghost2.style.borderColor = 'var(--line,#cfdde6)';
+                setTimeout(function() { var d = ghost2.querySelector('.gf-disk2'); if (d) d.style.opacity = '0'; }, 80);
+                setTimeout(function() { var p = ghost2.querySelector('.gf-pill2'); if (p) p.style.opacity = '1'; }, DUR * 0.42);
+            }); });
+
+            setTimeout(function() {
+                ghost2.remove();
+                disk.classList.remove('flying');
+                if (onDone) onDone();
+            }, DUR + 60);
+        }
+    }
+    window.__rmFlySave = flySave;
+})();
+
+/* ── Save disk controller (MAP-SAVE-B) ──────────────────────────────────── */
+(function initSaveDisk() {
+    var disk = document.getElementById('rm-save-disk');
+    if (!disk) return;
 
     var _saveTimer = null;
 
-    function setPillState(state, msg) {
-        pill.disabled = (state === 'saving');
-        pill.className = state === 'saving' ? 'rm-save-saving'
-                       : state === 'saved'  ? 'rm-save-saved'
-                       : state === 'error'  ? 'rm-save-error'
-                       : '';
-        var errEl = pill.querySelector('.rsp-error');
-        if (errEl) {
-            errEl.textContent = (state === 'error' && msg) ? msg : '';
-        }
+    function canSaveFromGv() {
+        var preview = window.__gvBuilderPreview;
+        var vars = preview && preview.variables;
+        return Array.isArray(vars) && vars.length > 0;
     }
 
-    pill.addEventListener('click', async function () {
-        if (pill.disabled) return;
+    function setDiskState(state) {
+        disk.classList.remove('rm-save-disk-saving', 'rm-save-disk-saved', 'rm-save-disk-error');
+        if (state === 'saving') disk.classList.add('rm-save-disk-saving');
+        else if (state === 'saved') disk.classList.add('rm-save-disk-saved');
+        else if (state === 'error') disk.classList.add('rm-save-disk-error');
+        updateDiskEnabled();
+    }
+
+    function updateDiskEnabled() {
+        var canSave = canSaveFromGv();
+        var saving = disk.classList.contains('rm-save-disk-saving');
+        disk.disabled = !canSave || saving;
+        disk.setAttribute('aria-disabled', (canSave && !saving) ? 'false' : 'true');
+    }
+
+    window.__rmUpdateSaveDiskState = updateDiskEnabled;
+
+    disk.addEventListener('click', async function () {
+        if (disk.disabled) return;
         clearTimeout(_saveTimer);
-        setPillState('saving', '\u23F3 Saving\u2026');
+        window.__gvLastSaveTrigger = 'rm-save-disk';
+        setDiskState('saving');
         try {
-            /* Delegate to the fully-wired production function. */
             if (typeof window.__rmSaveCurrentInvestigation === 'function') {
                 await window.__rmSaveCurrentInvestigation();
-                /* Check the panel status element to detect errors written there. */
                 var statusEl = document.getElementById('saveInvestigationStatus');
                 var isErr = statusEl && statusEl.classList.contains('is-error');
                 if (isErr) {
-                    setPillState('error', '\u26A0 ' + (statusEl.textContent || 'Save failed'));
-                    _saveTimer = setTimeout(function() { setPillState('idle'); }, 3500);
+                    setDiskState('error');
+                    _saveTimer = setTimeout(function() { setDiskState('idle'); }, 3500);
                 } else {
-                    setPillState('saved', '\u2713 Saved');
-                    _saveTimer = setTimeout(function() { setPillState('idle'); }, 2500);
+                    setDiskState('saved');
+                    _saveTimer = setTimeout(function() { setDiskState('idle'); }, 2500);
                 }
             } else {
-                /* Future integration path:
-                 * When the Save Search flow is decoupled from the panel form,
-                 * replace this fallback with a direct call to the new save API.
-                 */
-                setPillState('error', '\u26A0 Save not available');
-                _saveTimer = setTimeout(function() { setPillState('idle'); }, 2500);
+                setDiskState('error');
+                _saveTimer = setTimeout(function() { setDiskState('idle'); }, 2500);
             }
         } catch (err) {
-            setPillState('error', '\u26A0 Error — see panel');
-            _saveTimer = setTimeout(function() { setPillState('idle'); }, 3500);
+            setDiskState('error');
+            _saveTimer = setTimeout(function() { setDiskState('idle'); }, 3500);
         }
     });
 
-    /* Expose reset for testing */
-    window.__rmSavePillReset = function() { clearTimeout(_saveTimer); setPillState('idle'); };
+    window.__rmSaveDiskReset = function() { clearTimeout(_saveTimer); setDiskState('idle'); };
+    updateDiskEnabled();
 })();
-/* ── end save pill controller ────────────────────────────────────────────── */
+/* ── end save disk controller ────────────────────────────────────────────── */
 
 
 
@@ -8902,6 +9082,7 @@ setRenderStatus("Ready.");
         var bottle = document.getElementById('rm-bottle');
         if (!panel || !bottle) {
             document.body.classList.add('rm-explore');
+            if (typeof window.__rmUpdateSaveDiskState === 'function') window.__rmUpdateSaveDiskState();
             return;
         }
 
@@ -8934,6 +9115,8 @@ setRenderStatus("Ready.");
             setTimeout(function(){
                 panel.removeAttribute('style');
                 panel.classList.add('rm-panel--flip-hidden');
+                if (typeof window.__rmFlySave === 'function') window.__rmFlySave(true);
+                if (typeof window.__rmUpdateSaveDiskState === 'function') window.__rmUpdateSaveDiskState();
             }, 130);
         }, 1950);
         /* NOTE (future integration): when genie_map_engine_adapter exposes a
@@ -8983,6 +9166,7 @@ setRenderStatus("Ready.");
             bottle.classList.remove('rm-bottle--revealed');
             bottle.removeAttribute('style');
             soloId = null;
+            if (typeof window.__rmFlySave === 'function') window.__rmFlySave(false);
         }, 1800);
         /* keep activeConditions so the snapshot is available on re-enter */
     }
@@ -8997,7 +9181,7 @@ setRenderStatus("Ready.");
         window.executeSearchPlan = async function(plan, meta) {
             var result = await _prevSearch.apply(this, arguments);
             /* don't enter explore on history replays — stay in explore if already there */
-            if ((meta || {}).source !== 'history_replay') {
+            if ((meta || {}).source !== 'history_replay' && !document.body.classList.contains('rm-explore')) {
                 enterExplore();
             }
             return result;
@@ -9012,7 +9196,7 @@ setRenderStatus("Ready.");
                 var _base = window.executeSearchPlan;
                 window.executeSearchPlan = async function(plan, meta) {
                     var result = await _base.apply(this, arguments);
-                    if ((meta || {}).source !== 'history_replay') enterExplore();
+                    if ((meta || {}).source !== 'history_replay' && !document.body.classList.contains('rm-explore')) enterExplore();
                     return result;
                 };
             }
@@ -9025,10 +9209,47 @@ setRenderStatus("Ready.");
         exitExplore();
     });
 
+    /* MAP-GHOST-B: redraw overlays via existing GV → genie_render → executeSearchPlan.
+     * Beta: Mute/Solo trigger full re-search (not per-layer hide/show).
+     * NOT excludes variables from the render list — engine exclude polarity is deferred v1.
+     * Future per-layer ownership can replace this path. */
+    function ghostRedrawFromState() {
+        var preview = window.__gvBuilderPreview;
+        var buildPayload = window.__gvBuildPayloadForTesting;
+        var execute = window.__rmExecuteGenieRender;
+        if (!preview || typeof buildPayload !== 'function' || typeof execute !== 'function') return;
+
+        var gvVars = preview.variables || [];
+        if (!gvVars.length) return;
+
+        var actById = {};
+        activeConditions.forEach(function(ac) { actById[ac.id] = ac; });
+
+        var merged = gvVars.map(function(v) {
+            var ac = actById[v.id];
+            if (!ac) return Object.assign({}, v);
+            return Object.assign({}, v, { mute: !!ac.mute, not: !!ac.not });
+        });
+
+        /* Beta NOT: omit not:true vars from render list (exclude polarity deferred in engine v1) */
+        var renderList = merged.filter(function(v) { return !v.not; });
+        if (soloId) {
+            renderList = renderList.filter(function(v) { return v.id === soloId; });
+        }
+        if (!renderList.length) return;
+
+        var payload = buildPayload(renderList);
+        Promise.resolve(execute(payload)).catch(function(err) {
+            console.error('[ghost-redraw]', err);
+        });
+    }
+
     /* ── ghost token button clicks ── */
     document.addEventListener('click', function(e) {
         var btn = e.target.closest && e.target.closest('[data-gmini]');
         if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
         var mini = btn.getAttribute('data-gmini');
         var id   = btn.getAttribute('data-id');
         var v    = activeConditions.find(function(x) { return x.id === id; });
@@ -9037,9 +9258,14 @@ setRenderStatus("Ready.");
         if (mini === 'mute') v.mute = !v.mute;
         if (mini === 'solo') soloId = (soloId === v.id ? null : v.id);
         syncGhost();
-        /* NOTE (future integration): call drawOverlays() here once genie adapter
-         * exposes a method to redraw with filtered variable set:
-         *   window.rmGenieAdapter.redrawWithFilters(activeConditions, soloId) */
+        if (mini === 'not' || mini === 'mute') {
+            var patch = window.__gvBuilderPreview && window.__gvBuilderPreview.patchVariable;
+            if (typeof patch === 'function') {
+                if (mini === 'not') patch(id, { not: v.not });
+                else patch(id, { mute: v.mute });
+            }
+        }
+        ghostRedrawFromState();
     });
 
     /* expose for onboarding walkthrough step 4 */
