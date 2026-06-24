@@ -2176,15 +2176,28 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             if(saveBtn){
               saveBtn.addEventListener("click", function(e){
                 e.preventDefault();
-                if(saveBtn.disabled) return;
+                if(saveBtn.disabled) {
+                  var _why = variables.length > 0 ? "Save in progress…" : "Add at least one variable to save.";
+                  if (typeof showMapBetaToast === "function") showMapBetaToast(_why, "error");
+                  return;
+                }
                 window.__gvLastSaveTrigger = "gv-saveInline";
                 var saveFn = window.__rmSaveCurrentInvestigation;
                 if(typeof saveFn !== "function"){
                   console.error("[gv-save] production save path not ready");
+                  if (typeof showMapBetaToast === "function") showMapBetaToast("Save not available.", "error");
                   return;
                 }
                 saveBtn.disabled = true;
-                Promise.resolve(saveFn()).finally(function(){ updateSaveState(); });
+                Promise.resolve(saveFn()).then(function(){
+                  var st = document.getElementById("saveInvestigationStatus");
+                  var isErr = st && st.classList.contains("is-error");
+                  var msg = (st && st.textContent) ? st.textContent : (isErr ? "Save failed." : "Saved.");
+                  if (typeof showMapBetaToast === "function") showMapBetaToast(isErr ? msg : "Saved.", isErr ? "error" : "success");
+                }).catch(function(err){
+                  console.error("[gv-save]", err);
+                  if (typeof showMapBetaToast === "function") showMapBetaToast("Save failed.", "error");
+                }).finally(function(){ updateSaveState(); });
               });
             }
             hideLegacyShell();
@@ -3415,6 +3428,9 @@ async function captureMapShareBundle() {
     };
 }
 
+/* FUTURE SHARE PRODUCT NOTE (document only — not implemented):
+ * Shared links should open a branded, feature-limited view that encourages
+ * signup/exploration rather than unlimited anonymous full-map access. */
 async function createQuickShareFromMap() {
     const statusEl = document.getElementById("quickShareStatus");
     const btn = document.getElementById("quickShareBtn");
@@ -3440,9 +3456,20 @@ async function createQuickShareFromMap() {
         if (!window.RMQuickShare) throw new Error("Quick Share helper not loaded.");
         const { url } = await window.RMQuickShare.createAndCopyQuickShare(bundle, _token);
         setStatus("Link copied. Share this map/search snapshot.", false);
+        /* QA-PATCH-4: visible confirmation — #quickShareStatus is hidden in normal Beta UI */
+        if (typeof showMapBetaToast === "function") {
+            showMapBetaToast("Share link copied.", "success");
+            if (url) {
+                setTimeout(function() {
+                    showMapBetaToast(String(url), "info");
+                }, 400);
+            }
+        }
         console.log("[quick-share] created", url);
     } catch (err) {
-        setStatus("Quick Share failed: " + (err.message || String(err)), true);
+        var _qsErr = "Quick Share failed: " + (err.message || String(err));
+        setStatus(_qsErr, true);
+        if (typeof showMapBetaToast === "function") showMapBetaToast("Share failed.", "error");
     } finally {
         if (btn) btn.disabled = false;
     }
@@ -4080,24 +4107,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     noWrap: true,
     bounds: [[-85, -180], [85, 180]]
 }).addTo(map);
-
-(function addResetMapControl() {
-    const ctl = L.control({ position: "topleft" });
-    ctl.onAdd = function() {
-        const div = L.DomUtil.create("div", "leaflet-bar leaflet-control");
-        const a = L.DomUtil.create("a", "", div);
-        a.href = "#";
-        a.title = "Reset view (world)";
-        a.setAttribute("aria-label", "Reset map to default world view");
-        a.innerHTML = "&#9675;";
-        L.DomEvent.disableClickPropagation(div);
-        L.DomEvent.on(a, "click", L.DomEvent.stopPropagation);
-        L.DomEvent.on(a, "click", L.DomEvent.preventDefault);
-        L.DomEvent.on(a, "click", () => map.setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM));
-        return div;
-    };
-    ctl.addTo(map);
-})();
+/* QA-PATCH-2: duplicate O removed — recenter is #rm-recenter in #rm-mapctrls only */
 
 (function initMapOnboarding() {
     const card = document.getElementById("mapOnboarding");
@@ -4404,11 +4414,13 @@ async function openChartFromMapButton(btn) {
         statusEl.textContent = msg;
         statusEl.classList.toggle("is-error", Boolean(isError));
     };
-    /* PB2: await readiness + normalize, then resolve chart record id */
-    try { await requireActiveProfile(); } catch (e) { /* ok — fallbacks below may still work */ }
-    const chartRecordId = resolveChartRecordIdForShellNavigation();
-    if (!chartRecordId) {
-        setStatus("Choose a saved profile first.", true);
+    /* QA-PATCH-1: require active profile — do not swallow errors when nameplate shows saved profile */
+    let chartRecordId;
+    try {
+        chartRecordId = await requireActiveProfile();
+    } catch (e) {
+        setStatus(e.message || "Choose a saved profile first.", true);
+        showMapBetaToast(e.message || "Choose a saved profile first.", "error");
         return;
     }
     const lat = Number(btn.dataset.favLat);
@@ -4456,7 +4468,13 @@ async function openChartFromMapButton(btn) {
     try {
         sessionStorage.setItem("rm_shell_chart_handoff", JSON.stringify(handoff));
     } catch (e) { /* ignore */ }
-    window.location.assign(`/app_shell.html#/chart?${q.toString()}`);
+    try {
+        window.location.assign(`/app_shell.html#/chart?${q.toString()}`);
+    } catch (navErr) {
+        console.error("[open-chart]", navErr);
+        setStatus("Could not open chart.", true);
+        showMapBetaToast("Could not open chart.", "error");
+    }
 }
 
 // Single favorite control for Web2 map popup (not saved -> Favorite; saved -> Favorited span).
@@ -4494,20 +4512,51 @@ function buildPlaceFallbackPopupHtml(meta, lat, lon, message) {
         </div>`;
 }
 
+/* QA-PATCH-1: small fixed toast for inline save / share / popup feedback */
+function showMapBetaToast(msg, kind) {
+    var bg = kind === 'error' ? '#b91c1c' : (kind === 'success' ? '#16a34a' : '#1f2d38');
+    var tip = document.createElement('div');
+    tip.style.cssText = 'position:fixed;bottom:70px;right:20px;background:' + bg + ';color:#fff;' +
+        'font-size:12.5px;padding:8px 14px;border-radius:8px;z-index:9999;pointer-events:none;' +
+        'max-width:min(360px,calc(100vw - 32px));box-shadow:0 2px 8px rgba(0,0,0,.25);transition:opacity 0.2s';
+    tip.textContent = msg;
+    document.body.appendChild(tip);
+    setTimeout(function(){ tip.style.opacity='0'; setTimeout(function(){ tip.remove(); }, 220); }, kind === 'success' ? 3200 : 2600);
+}
+
+/* QA-PATCH-1: normalize #chartProfile selected option so profile id is authoritative */
+function normalizeChartProfileOption(opt) {
+    if (!opt || !opt.dataset || !opt.dataset.profile) return;
+    try {
+        var p = JSON.parse(opt.dataset.profile);
+        var pid = (p && (p.id || p.profile_id)) ? String(p.id || p.profile_id) : '';
+        if (pid && !opt.value) opt.value = pid;
+        else if (pid && typeof SUPABASE_UUID_PATTERN !== 'undefined' && SUPABASE_UUID_PATTERN.test(pid) && !SUPABASE_UUID_PATTERN.test(opt.value)) {
+            opt.value = pid;
+        }
+    } catch (e) { /* skip */ }
+}
+
 // Active saved profile UUID for favorites/saved places, or null when a
 // built-in demo chart profile (baseline_validated, ...) is selected.
 function getActiveFavoriteProfileId() {
     const select = document.getElementById("chartProfile");
-    const opt = select && select.selectedOptions[0];
-    if (!opt || !opt.value) return null;
+    const opt = select && select.selectedOptions && select.selectedOptions[0];
+    if (!opt) return null;
+    normalizeChartProfileOption(opt);
+    if (!opt.value) return null;
     if (opt.dataset.profileSource === "supabase") return opt.value;
     if (typeof SUPABASE_UUID_PATTERN !== "undefined" && SUPABASE_UUID_PATTERN.test(opt.value)) {
         return opt.value;
     }
-    /* Beta-B: accept any profile that has data-profile JSON — real loaded profiles
-     * that were not explicitly tagged as Supabase source (e.g. legacy loader path). */
+    /* Beta-B + QA-PATCH-1: accept profile id from dataset.profile when value is a slug */
     if (opt.dataset.profile) {
-        try { JSON.parse(opt.dataset.profile); return opt.value; } catch (e) { /* skip */ }
+        try {
+            const p = JSON.parse(opt.dataset.profile);
+            const pid = p && (p.id || p.profile_id) ? String(p.id || p.profile_id) : "";
+            if (pid && typeof SUPABASE_UUID_PATTERN !== "undefined" && SUPABASE_UUID_PATTERN.test(pid)) return pid;
+            if (opt.value) return opt.value;
+        } catch (e) { /* skip */ }
     }
     return null;
 }
@@ -4523,13 +4572,7 @@ async function requireActiveProfile() {
     }
     const select = document.getElementById("chartProfile");
     const opt = select && select.selectedOptions && select.selectedOptions[0];
-    /* normalization: value empty but dataset carries a real id */
-    if (opt && !opt.value && opt.dataset && opt.dataset.profile) {
-        try {
-            const _p = JSON.parse(opt.dataset.profile);
-            if (_p && _p.id) opt.value = String(_p.id);
-        } catch (e) { /* skip */ }
-    }
+    normalizeChartProfileOption(opt);
     const profileId = getActiveFavoriteProfileId();
     if (!profileId) {
         throw new Error("Choose a saved profile first.");
@@ -4636,7 +4679,9 @@ async function favoriteMapSelectionFromButton(btn) {
         markPopupFavoriteSaved(shell);
         // Honest feedback: already-active favorite vs. a new/reactivated save.
         const _wasActive = saved && saved.status === "exists";
-        setStatus(_wasActive ? "Already in favorites." : "Saved to favorites.", false);
+        var _favOk = _wasActive ? "Already in favorites." : "Saved to favorites.";
+        setStatus(_favOk, false);
+        showMapBetaToast(_favOk, "success");
         // Refresh Family B search so the new favorite appears immediately.
         /* PB4-E: no SLS interaction from Favorite handler.
          * invalidateProfile removed — city search is independent of Favorite action.
@@ -4648,7 +4693,18 @@ async function favoriteMapSelectionFromButton(btn) {
     } catch (err) {
         console.error("[favorite]", err);
         btn.disabled = false;
-        setStatus("Could not save favorite.", true);
+        var _favMsg = (err && err.message) ? String(err.message) : "Could not save favorite.";
+        if (_favMsg.indexOf("Choose a saved profile") >= 0) {
+            _favMsg = "Choose a saved profile first.";
+        } else if (_favMsg.indexOf("place_") >= 0 || _favMsg.indexOf("place_unresolved") >= 0) {
+            _favMsg = "Could not resolve this location. Try again.";
+        } else if (_favMsg.indexOf("session") >= 0 || _favMsg.indexOf("supabase") >= 0) {
+            _favMsg = "Sign in required to save favorites.";
+        } else if (_favMsg.indexOf("favorite_failed") >= 0) {
+            _favMsg = "Could not save favorite.";
+        }
+        setStatus(_favMsg, true);
+        showMapBetaToast(_favMsg, "error");
     }
 }
 
@@ -4658,14 +4714,20 @@ document.addEventListener("click", function(ev) {
     if (openBtn) {
         ev.preventDefault();
         ev.stopPropagation();
-        openChartFromMapButton(openBtn);
+        Promise.resolve(openChartFromMapButton(openBtn)).catch(function(err) {
+            console.error("[open-chart]", err);
+            showMapBetaToast("Could not open chart.", "error");
+        });
         return;
     }
     const btn = ev.target.closest && ev.target.closest(".popup-action-favorite");
     if (!btn) return;
     ev.preventDefault();
     ev.stopPropagation();
-    favoriteMapSelectionFromButton(btn);
+    Promise.resolve(favoriteMapSelectionFromButton(btn)).catch(function(err) {
+        console.error("[favorite]", err);
+        showMapBetaToast("Could not save favorite.", "error");
+    });
 });
 
 window.__rmResolvePlaceFromMapSelection = resolvePlaceFromMapSelection;

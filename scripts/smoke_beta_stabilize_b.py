@@ -365,3 +365,39 @@ check("PB6_7_zoom_dedup_guard",
 check("PB6_8_history_deferred",
       "PB6-8 DEFERRED" in MAP_PB6,
       "PB6-8: history back/forward mirroring must have explicit deferred comment")
+
+# ─── QA-PATCH-1 assertions ───────────────────────────────────────────────────
+# Re-read map for QA patch checks (incremental on same file)
+MAP_QA = MAP_PB6 if "MAP_PB6" in globals() else open("map_CURRENT.html", encoding="utf-8").read()
+
+check("QA1_favorite_uses_requireActiveProfile",
+      "requireActiveProfile()" in MAP_QA.split("favoriteMapSelectionFromButton")[1].split("async function ")[0],
+      "Favorite must route through requireActiveProfile")
+
+check("QA1_openchart_uses_requireActiveProfile",
+      "chartRecordId = await requireActiveProfile()" in MAP_QA,
+      "Open Chart must use requireActiveProfile return value")
+
+check("QA1_normalize_profile_helper",
+      "normalizeChartProfileOption" in MAP_QA,
+      "Profile normalization helper must exist for popup actions")
+
+check("QA2_no_duplicate_reset_control",
+      "addResetMapControl" not in MAP_QA,
+      "Duplicate Leaflet reset O control must be removed")
+
+check("QA2_recenter_in_mapctrls",
+      'id="rm-recenter"' in MAP_QA,
+      "Single recenter button must remain in rm-mapctrls")
+
+check("QA3_inline_save_toast",
+      "showMapBetaToast" in MAP_QA and 'showMapBetaToast(isErr ? msg : "Saved."' in MAP_QA,
+      "Inline Save Search must show visible toast confirmation")
+
+check("QA4_share_toast",
+      'showMapBetaToast("Share link copied."' in MAP_QA,
+      "Quick Share must show visible success toast")
+
+check("QA4_share_product_note",
+      "FUTURE SHARE PRODUCT NOTE" in MAP_QA,
+      "Future share product note must be documented in code")
