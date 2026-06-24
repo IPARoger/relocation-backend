@@ -724,6 +724,108 @@ html.map-panel-show-legend #panelLegend { display: block; }
     color: #333;
 }
 
+/* ── Save Dialog (MAP-SAVE-C) ────────────────────────────────────────────── */
+#rm-save-dialog {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    background: rgba(15,23,42,0.52);
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+#rm-save-dialog.rm-sdlg-open {
+    display: flex;
+}
+.rm-sdlg-card {
+    background: var(--card, #fbfdff);
+    border: 1px solid var(--line, #cfdde6);
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(15,23,42,0.22);
+    padding: 24px 24px 20px;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.rm-sdlg-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2d38;
+    margin: 0;
+}
+.rm-sdlg-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.rm-sdlg-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    letter-spacing: .02em;
+}
+.rm-sdlg-field input,
+.rm-sdlg-field textarea {
+    border: 1px solid var(--line, #cfdde6);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #1f2d38;
+    background: #fff;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.12s;
+    box-sizing: border-box;
+    width: 100%;
+}
+.rm-sdlg-field input:focus,
+.rm-sdlg-field textarea:focus {
+    border-color: var(--accent, #2f6f9f);
+}
+.rm-sdlg-field textarea {
+    min-height: 72px;
+}
+.rm-sdlg-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.rm-sdlg-btn-cancel {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--line, #cfdde6);
+    background: #fff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.rm-sdlg-btn-cancel:hover { background: #f1f5f8; }
+.rm-sdlg-btn-save {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-deep, #235a83);
+    background: var(--accent, #2f6f9f);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.rm-sdlg-btn-save:hover { background: var(--accent-deep, #235a83); }
+.rm-sdlg-btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
+.rm-sdlg-status {
+    font-size: 12px;
+    color: #b91c1c;
+    min-height: 16px;
+}
+/* ── end save dialog CSS ─────────────────────────────────────────────────── */
+
 /* ── Quick Share (QUICK-SHARE-MVP) ───────────────────────────────────────── */
 #quickShareBtn {
   margin-top: 8px;
@@ -2832,10 +2934,14 @@ async function saveCurrentInvestigation() {
         return;
     }
 
-    // Title: "Investigation YYYY-MM-DD HH:MM"
+    // Title: user-supplied from save dialog, or auto-generated "Investigation YYYY-MM-DD HH:MM"
     const _now = new Date();
     const _pad = (n) => String(n).padStart(2, "0");
-    const title = `Investigation ${_now.getFullYear()}-${_pad(_now.getMonth()+1)}-${_pad(_now.getDate())} ${_pad(_now.getHours())}:${_pad(_now.getMinutes())}`;
+    const _autoTitle = `Investigation ${_now.getFullYear()}-${_pad(_now.getMonth()+1)}-${_pad(_now.getDate())} ${_pad(_now.getHours())}:${_pad(_now.getMinutes())}`;
+    const title = (window.__rmSaveDialogTitle && window.__rmSaveDialogTitle.trim())
+        ? window.__rmSaveDialogTitle.trim()
+        : _autoTitle;
+    window.__rmSaveDialogTitle = null;
 
     // conditions_json — reuse existing collectors
     const _rawConds = collectSavedInvestigationConditions();
@@ -8868,30 +8974,23 @@ setRenderStatus("Ready.");
 
     window.__rmUpdateSaveDiskState = updateDiskEnabled;
 
-    disk.addEventListener('click', async function () {
+    /* MAP-SAVE-C: disk opens dialog; dialog confirm triggers production save */
+    disk.addEventListener('click', function () {
         if (disk.disabled) return;
-        clearTimeout(_saveTimer);
-        window.__gvLastSaveTrigger = 'rm-save-disk';
-        setDiskState('saving');
-        try {
-            if (typeof window.__rmSaveCurrentInvestigation === 'function') {
-                await window.__rmSaveCurrentInvestigation();
-                var statusEl = document.getElementById('saveInvestigationStatus');
-                var isErr = statusEl && statusEl.classList.contains('is-error');
-                if (isErr) {
-                    setDiskState('error');
-                    _saveTimer = setTimeout(function() { setDiskState('idle'); }, 3500);
-                } else {
+        if (typeof window.__rmOpenSaveDialog === 'function') {
+            window.__rmOpenSaveDialog({
+                onSaved:  function() {
+                    clearTimeout(_saveTimer);
                     setDiskState('saved');
                     _saveTimer = setTimeout(function() { setDiskState('idle'); }, 2500);
-                }
-            } else {
-                setDiskState('error');
-                _saveTimer = setTimeout(function() { setDiskState('idle'); }, 2500);
-            }
-        } catch (err) {
-            setDiskState('error');
-            _saveTimer = setTimeout(function() { setDiskState('idle'); }, 3500);
+                },
+                onError:  function() {
+                    clearTimeout(_saveTimer);
+                    setDiskState('error');
+                    _saveTimer = setTimeout(function() { setDiskState('idle'); }, 3500);
+                },
+                onCancel: function() { /* no state change on cancel */ },
+            });
         }
     });
 
@@ -8900,10 +8999,137 @@ setRenderStatus("Ready.");
 })();
 /* ── end save disk controller ────────────────────────────────────────────── */
 
+/* ── Save dialog controller (MAP-SAVE-C) ────────────────────────────────── */
+(function initSaveDialog() {
+    var overlay  = document.getElementById('rm-save-dialog');
+    var titleIn  = document.getElementById('rm-sdlg-title-input');
+    var noteIn   = document.getElementById('rm-sdlg-note-input');
+    var confirmBtn = document.getElementById('rm-sdlg-confirm');
+    var cancelBtn  = document.getElementById('rm-sdlg-cancel');
+    var statusEl   = document.getElementById('rm-sdlg-status');
+
+    if (!overlay || !titleIn || !noteIn || !confirmBtn || !cancelBtn) return;
+
+    var _callbacks = {};
+
+    function generateDefaultTitle() {
+        var now = new Date();
+        function pad(n) { return String(n).padStart(2, '0'); }
+        return 'Investigation ' + now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+               ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+    }
+
+    function openDialog(callbacks) {
+        _callbacks = callbacks || {};
+        titleIn.value = generateDefaultTitle();
+        /* pre-fill notes from existing textarea if it has content */
+        var legacyNote = document.getElementById('saveInvestigationNote');
+        noteIn.value = (legacyNote && legacyNote.value) ? legacyNote.value : '';
+        if (statusEl) statusEl.textContent = '';
+        confirmBtn.disabled = false;
+        overlay.classList.add('rm-sdlg-open');
+        /* focus title for immediate editing */
+        requestAnimationFrame(function() { titleIn.focus(); titleIn.select(); });
+    }
+
+    function closeDialog() {
+        overlay.classList.remove('rm-sdlg-open');
+        _callbacks = {};
+    }
+
+    cancelBtn.addEventListener('click', function() {
+        closeDialog();
+        if (typeof _callbacks.onCancel === 'function') _callbacks.onCancel();
+    });
+
+    /* close on backdrop click */
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closeDialog();
+            if (typeof _callbacks.onCancel === 'function') _callbacks.onCancel();
+        }
+    });
+
+    /* close on Escape */
+    overlay.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDialog();
+            if (typeof _callbacks.onCancel === 'function') _callbacks.onCancel();
+        }
+    });
+
+    confirmBtn.addEventListener('click', async function() {
+        if (confirmBtn.disabled) return;
+        var userTitle = titleIn.value.trim();
+        var userNote  = noteIn.value.trim();
+
+        /* thread title into the save function via window variable */
+        window.__rmSaveDialogTitle = userTitle || generateDefaultTitle();
+
+        /* thread note into the existing legacy textarea so saveCurrentInvestigation reads it */
+        var legacyNote = document.getElementById('saveInvestigationNote');
+        if (legacyNote) legacyNote.value = userNote;
+
+        if (statusEl) statusEl.textContent = '';
+        confirmBtn.disabled = true;
+
+        try {
+            var saveFn = window.__rmSaveCurrentInvestigation;
+            if (typeof saveFn !== 'function') {
+                if (statusEl) statusEl.textContent = 'Save not available.';
+                confirmBtn.disabled = false;
+                return;
+            }
+            window.__gvLastSaveTrigger = 'rm-save-dialog';
+            await saveFn();
+
+            var panelStatus = document.getElementById('saveInvestigationStatus');
+            var isErr = panelStatus && panelStatus.classList.contains('is-error');
+
+            closeDialog();
+            if (isErr) {
+                if (typeof _callbacks.onError === 'function') _callbacks.onError();
+            } else {
+                if (typeof _callbacks.onSaved === 'function') _callbacks.onSaved();
+            }
+        } catch (err) {
+            if (statusEl) statusEl.textContent = 'Save failed: ' + (err.message || String(err));
+            confirmBtn.disabled = false;
+            window.__rmSaveDialogTitle = null;
+            if (typeof _callbacks.onError === 'function') _callbacks.onError();
+        }
+    });
+
+    window.__rmOpenSaveDialog  = openDialog;
+    window.__rmCloseSaveDialog = closeDialog;
+})();
+/* ── end save dialog controller ─────────────────────────────────────────── */
+
 
 
 </script>
 
+
+<!-- Save dialog (MAP-SAVE-C) -->
+<div id="rm-save-dialog" role="dialog" aria-modal="true" aria-labelledby="rm-sdlg-heading">
+  <div class="rm-sdlg-card">
+    <h2 class="rm-sdlg-title" id="rm-sdlg-heading">Save investigation</h2>
+    <div class="rm-sdlg-field">
+      <label for="rm-sdlg-title-input">Title</label>
+      <input type="text" id="rm-sdlg-title-input" maxlength="120" autocomplete="off"
+             placeholder="Investigation YYYY-MM-DD HH:MM" />
+    </div>
+    <div class="rm-sdlg-field">
+      <label for="rm-sdlg-note-input">Notes <span style="font-weight:400;opacity:.7">(optional)</span></label>
+      <textarea id="rm-sdlg-note-input" placeholder="Add a personal note to this investigation…"></textarea>
+    </div>
+    <div class="rm-sdlg-actions">
+      <button type="button" class="rm-sdlg-btn-cancel" id="rm-sdlg-cancel">Cancel</button>
+      <button type="button" class="rm-sdlg-btn-save"   id="rm-sdlg-confirm">Save</button>
+    </div>
+    <div class="rm-sdlg-status" id="rm-sdlg-status" aria-live="polite"></div>
+  </div>
+</div>
 
 <!-- Walkthrough peep-hole overlay (ONBOARDING-2A1) -->
 <div id="rm-walkthrough" role="dialog" aria-modal="false" aria-label="Map walkthrough">
