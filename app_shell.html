@@ -365,13 +365,18 @@
   body.rm-beta-profile .shell-banner,
   body.rm-beta-profile .shell-footer,
   body.rm-beta-relocated .shell-banner,
+  body.rm-beta-compare .shell-banner,
   body.rm-beta-relocated .shell-footer,
+  body.rm-beta-compare .shell-footer,
   body.rm-beta-profile .app-header h1,
   body.rm-beta-profile .app-header .tag,
   body.rm-beta-relocated .app-header h1,
+  body.rm-beta-compare .app-header h1,
   body.rm-beta-relocated .app-header .tag,
+  body.rm-beta-compare .app-header .tag,
   body.rm-beta-profile .screen-meta,
-  body.rm-beta-relocated .screen-meta { display: none !important; }
+  body.rm-beta-relocated .screen-meta,
+  body.rm-beta-compare .screen-meta { display: none !important; }
   body.rm-beta-profile .app-header {
     display: flex;
     align-items: center;
@@ -397,7 +402,8 @@
     box-shadow: none;
   }
   body.rm-beta-profile .primary-nav,
-  body.rm-beta-relocated .primary-nav {
+  body.rm-beta-relocated .primary-nav,
+  body.rm-beta-compare .primary-nav {
     flex: 1 1 auto;
     display: flex;
     justify-content: center;
@@ -405,7 +411,8 @@
     flex-wrap: wrap;
   }
   body.rm-beta-profile .primary-nav .linkish,
-  body.rm-beta-relocated .primary-nav .linkish {
+  body.rm-beta-relocated .primary-nav .linkish,
+  body.rm-beta-compare .primary-nav .linkish {
     font-size: 14px;
     color: var(--rm-ink-soft);
     background: transparent;
@@ -414,18 +421,21 @@
     padding: 6px 11px;
   }
   body.rm-beta-profile .primary-nav .linkish:hover,
-  body.rm-beta-relocated .primary-nav .linkish:hover {
+  body.rm-beta-relocated .primary-nav .linkish:hover,
+  body.rm-beta-compare .primary-nav .linkish:hover {
     background: rgba(184,154,85,.14);
     color: var(--rm-ink);
   }
   body.rm-beta-profile .primary-nav .linkish.active,
-  body.rm-beta-relocated .primary-nav .linkish.active {
+  body.rm-beta-relocated .primary-nav .linkish.active,
+  body.rm-beta-compare .primary-nav .linkish.active {
     color: var(--rm-ink);
     font-weight: 600;
     background: rgba(184,154,85,.14);
   }
   body.rm-beta-profile #rm-acct-drawer-btn.rm-beta-acct-circle,
-  body.rm-beta-relocated #rm-acct-drawer-btn.rm-beta-acct-circle {
+  body.rm-beta-relocated #rm-acct-drawer-btn.rm-beta-acct-circle,
+  body.rm-beta-compare #rm-acct-drawer-btn.rm-beta-acct-circle {
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -440,7 +450,8 @@
     flex-shrink: 0;
   }
   body.rm-beta-profile #rm-acct-drawer-btn.rm-beta-acct-circle:hover,
-  body.rm-beta-relocated #rm-acct-drawer-btn.rm-beta-acct-circle:hover {
+  body.rm-beta-relocated #rm-acct-drawer-btn.rm-beta-acct-circle:hover,
+  body.rm-beta-compare #rm-acct-drawer-btn.rm-beta-acct-circle:hover {
     background: rgba(184,154,85,.14);
   }
   body.rm-beta-profile main {
@@ -509,6 +520,205 @@
     border-radius: 8px;
     line-height: 1.5;
   }
+
+
+  /* H4B — Comparison authority shell (scoped to #/compare) */
+  body.rm-beta-compare {
+    --rm-ink: #33291f;
+    --rm-ink-soft: #6a5f4f;
+    --rm-ink-faint: #9b9080;
+    --rm-line: #ddd0b8;
+    --rm-line-soft: #ece2cf;
+    --rm-paper: #f4ecdc;
+    --rm-card: #fdf8ee;
+    --rm-gold: #b89a55;
+    --rm-teal: #5f8a90;
+    --rm-accent: #5b6b63;
+    color: var(--rm-ink);
+    background:
+      radial-gradient(58% 50% at 12% -4%, rgba(214,176,108,.16), transparent 60%),
+      radial-gradient(50% 44% at 98% 4%, rgba(150,178,150,.10), transparent 60%),
+      radial-gradient(70% 60% at 86% 96%, rgba(120,160,185,.09), transparent 62%),
+      radial-gradient(120% 90% at 40% 110%, rgba(214,176,108,.08), transparent 60%),
+      var(--rm-paper);
+    background-attachment: fixed;
+  }
+  body.rm-beta-compare main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 28px 70px;
+  }
+  body.rm-beta-compare .screen.active {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  body.rm-beta-compare .rm-comparison-beta-root {
+    font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  body.rm-beta-compare .rm-comparison-legacy-chrome { display: none !important; }
+  body.rm-beta-compare .cmp-profile-block {
+    background: rgba(253,248,238,.82);
+    border-bottom: 1px solid var(--rm-line);
+    padding: 18px 0 16px;
+    margin: 0 -28px;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+  body.rm-beta-compare .cmp-zone-b { text-align: center; min-width: 0; }
+  body.rm-beta-compare .cmp-zone-b .zb-name {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 25px;
+    font-weight: 600;
+    color: var(--rm-ink);
+    line-height: 1.2;
+  }
+  body.rm-beta-compare .cmp-zone-b .zb-name .nmwrap { position: relative; display: inline-block; }
+  body.rm-beta-compare .cmp-zone-b .zb-name .tools {
+    position: absolute;
+    left: calc(100% + 9px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  body.rm-beta-compare .cmp-zone-b .zb-caret,
+  body.rm-beta-compare .cmp-zone-b .zb-tool {
+    font-size: 12px;
+    color: var(--rm-ink-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 2px;
+    font-family: inherit;
+  }
+  body.rm-beta-compare .cmp-zone-b .zb-tool { font-size: 12.5px; }
+  body.rm-beta-compare .cmp-zone-b .zb-tool.plus { font-size: 17px; line-height: 1; }
+  body.rm-beta-compare .cmp-zone-b .zb-tool:hover,
+  body.rm-beta-compare .cmp-zone-b .zb-caret:hover { color: var(--rm-accent); }
+  body.rm-beta-compare .cmp-zone-b .zb-primary {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--rm-ink);
+    margin-top: 4px;
+  }
+  body.rm-beta-compare .cmp-zone-b .zb-meta {
+    font-size: 12px;
+    color: var(--rm-ink-faint);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+  body.rm-beta-compare .city-bar-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(253,248,238,.92);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--rm-line);
+    border-bottom: 2px solid var(--rm-ink);
+    margin: 8px -28px 20px;
+    padding: 0 28px;
+    overflow-x: auto;
+    box-shadow: 0 8px 20px -18px rgba(51,41,31,.36);
+  }
+  body.rm-beta-compare .city-bar-table { border-collapse: collapse; width: max-content; min-width: 100%; }
+  body.rm-beta-compare .bar-label {
+    vertical-align: middle;
+    padding: 10px 12px;
+    border-right: 3px solid var(--rm-ink-faint);
+    background: rgba(244,236,224,.7);
+    text-align: center;
+    min-width: 170px;
+    width: 170px;
+  }
+  body.rm-beta-compare .bar-authority .ba-name {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--rm-ink);
+    line-height: 1.2;
+  }
+  body.rm-beta-compare .bar-authority .ba-meta,
+  body.rm-beta-compare .bar-authority .ba-place {
+    font-size: 10.5px;
+    color: var(--rm-ink-faint);
+    margin-top: 2px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  body.rm-beta-compare .bar-city {
+    position: relative;
+    padding: 8px 10px;
+    border-left: 1px solid var(--rm-line);
+    vertical-align: top;
+    text-align: center;
+    min-width: 158px;
+    width: 158px;
+  }
+  body.rm-beta-compare .bar-stub {
+    padding: 8px 4px;
+    border-left: 1px solid var(--rm-line);
+    vertical-align: middle;
+    text-align: center;
+    width: 30px;
+    min-width: 30px;
+  }
+  body.rm-beta-compare .bar-stub .stub-restore {
+    font-size: 10px;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    padding: 4px 2px;
+    color: var(--rm-ink-soft);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  body.rm-beta-compare .city-badge-zone { min-height: 18px; margin-bottom: 4px; }
+  body.rm-beta-compare .city-tag-empty { height: 18px; }
+  body.rm-beta-compare .city-name-zone .bname {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rm-ink);
+    line-height: 1.2;
+  }
+  body.rm-beta-compare .city-ctrls { display: flex; gap: 4px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+  body.rm-beta-compare .city-ctrls .cc {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    border: 1px solid var(--rm-line);
+    border-radius: 6px;
+    background: var(--rm-card);
+    color: var(--rm-ink-soft);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  body.rm-beta-compare .city-ctrls .cc.cc-arr { opacity: 0.35; cursor: not-allowed; }
+  body.rm-beta-compare .bar-add {
+    padding: 9px 8px;
+    vertical-align: middle;
+    border-left: 1px solid var(--rm-line);
+    width: 64px;
+    min-width: 64px;
+  }
+  body.rm-beta-compare .add-city-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px dashed var(--rm-line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--rm-ink-soft);
+    cursor: not-allowed;
+    opacity: 0.55;
+    font-family: inherit;
+  }
+  body.rm-beta-compare .rm-cmp-workspace-places-row { display: none !important; }
+  body.rm-beta-compare .warn-box { margin-top: 0; margin-bottom: 12px; }
 
   /* H3B — Relocated authority stack (scoped to #/chart) */
   body.rm-beta-relocated {
@@ -946,6 +1156,12 @@ const RELOCATED_BETA_NAV = /** @type {const} */ ([
   { id: "chart-record", label: "Profile" },
   { id: "compare", label: "Comparison" },
   { id: "chart", label: "City" },
+]);
+const COMPARISON_BETA_NAV = /** @type {const} */ ([
+  { id: "map", label: "Map" },
+  { id: "chart-record", label: "Profile" },
+  { id: "compare", label: "Comparison" },
+  { id: "city", label: "City", disabled: true },
 ]);
 const PROFILE_A2A_FRAMES = ["ASC", "DSC", "MC", "IC", "All"];
 const _a2aSelByScope = { profile: "All", chart: "All" };
@@ -2162,7 +2378,9 @@ function renderNav() {
     ? PROFILE_BETA_NAV
     : navContext.route === "chart"
       ? RELOCATED_BETA_NAV
-      : NAV_ROUTES;
+      : navContext.route === "compare"
+        ? COMPARISON_BETA_NAV
+        : NAV_ROUTES;
   routes.forEach((r) => {
     const a = document.createElement("button");
     a.type = "button";
@@ -4668,7 +4886,7 @@ function comparisonWorkspacePanelHtml(cs, ws) {
         <span class="meta">Angle tab:</span>${angleTabs}
       </div>
       <p class="meta" style="margin:0 0 8px;">Filters ASC / MC / DSC / IC angle columns in A2A matrix and angle rows in comparison columns and AIS. Planet house rows stay visible.</p>
-      <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
+      <div class="row rm-cmp-workspace-places-row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
         <span class="meta">Places:</span>${chips || "<span class=\"meta\">—</span>"}
       </div>
       ${sections}
@@ -4845,23 +5063,8 @@ function initComparisonWorkspace(root) {
       scheduleComparisonWorkspaceSave();
     });
   });
-  scope.querySelectorAll("[data-action='cmp-toggle-place']").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!_cmpWorkspaceSession) return;
-      const pid = btn.getAttribute("data-place-id");
-      const hidden = new Set(_cmpWorkspaceSession.state.hidden_place_ids || []);
-      if (hidden.has(pid)) hidden.delete(pid); else hidden.add(pid);
-      _cmpWorkspaceSession.state.hidden_place_ids = [...hidden];
-      btn.classList.toggle("hidden-place", hidden.has(pid));
-      const cols = document.getElementById("rm-screen5-columns");
-      if (cols && cs) {
-        const visible = resolveVisibleOrderedPlaceIds(_cmpWorkspaceSession.state, cs.placeIds);
-        cols.setAttribute("data-place-ids", visible.join(","));
-        hydrateComparisonColumns(scope);
-      }
-      scheduleComparisonWorkspaceSave();
-    });
-  });
+  wireComparisonPlaceToggleButtons(scope);
+  refreshComparisonCityBar(scope);
 }
 
 let _screen5Token = 0;
@@ -5328,6 +5531,106 @@ function mountComparisonLocationSearch() {
   });
 }
 
+function renderComparisonZoneBHtml(r) {
+  return `<div class="cmp-zone-b zone-b">
+    <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">\u25be</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
+    <div class="zb-primary">${escapeHtml(r.birthDate)} \u00b7 ${escapeHtml(r.birthTimeDisplay)}</div>
+    <div class="zb-primary">${escapeHtml(r.birthCity)}</div>
+    <div class="zb-meta">${escapeHtml(profilePlateReferenceMetaLine(r.chartRecordId))}</div>
+    <div class="zb-meta">Tropical \u00b7 Placidus</div>
+  </div>`;
+}
+
+function comparisonCityDisplayName(placeId, favs, nameById) {
+  const fav = favs.find((f) => f.placeId === placeId);
+  return (fav && fav.placeName) || nameById[placeId] || humanPlaceLabel(placeId);
+}
+
+function renderComparisonCityBarHtml(origin, cs, ws) {
+  if (!origin || !cs || !ws) return "";
+  const order = resolveColumnOrderPlaceIds(ws, cs.placeIds);
+  const hidden = new Set(ws.hidden_place_ids || []);
+  const visible = order.filter((pid) => !hidden.has(pid));
+  const nameById = (viewModel && viewModel.placeNameById) || {};
+  const favs = origin.favorites || [];
+  const birthCityShort = origin.birthCity ? String(origin.birthCity).split(",")[0].trim() : "";
+  let cityCells = "";
+  order.forEach((pid) => {
+    const name = comparisonCityDisplayName(pid, favs, nameById);
+    if (hidden.has(pid)) {
+      const short = name.split(",")[0].trim().slice(0, 10) || name.slice(0, 10);
+      cityCells += `<td class="bar-stub"><button type="button" class="stub-restore" data-action="cmp-toggle-place" data-place-id="${escapeHtml(pid)}" title="Restore ${escapeHtml(name)}">${escapeHtml(short)}</button></td>`;
+    } else {
+      cityCells += `<td class="bar-city">
+        <div class="city-badge-zone"><div class="city-tag-empty" aria-hidden="true"></div></div>
+        <div class="city-name-zone"><span class="bnwrap"><span class="bname">${escapeHtml(name)}</span></span></div>
+        <div class="city-ctrls">
+          <button type="button" class="cc cc-arr" disabled aria-disabled="true" tabindex="-1">\u2039</button>
+          <button type="button" class="cc" data-action="cmp-toggle-place" data-place-id="${escapeHtml(pid)}">Hide</button>
+          <button type="button" class="cc cc-arr" disabled aria-disabled="true" tabindex="-1">\u203a</button>
+        </div>
+      </td>`;
+    }
+  });
+  return `<div class="city-bar-wrap" id="rm-cmp-city-bar">
+    <div class="city-bar-inner">
+      <table class="city-bar-table">
+        <tbody><tr>
+          <td class="bar-label">
+            <div class="bar-authority">
+              <div class="ba-name">${escapeHtml(origin.displayName)}</div>
+              <div class="ba-meta">${escapeHtml(origin.birthDate)} \u00b7 ${escapeHtml(origin.birthTimeDisplay)}</div>
+              <div class="ba-place">${escapeHtml(birthCityShort)}</div>
+            </div>
+          </td>
+          ${cityCells}
+          <td class="bar-add"><button type="button" class="add-city-btn" disabled aria-disabled="true" tabindex="-1" title="Use the place picker below">+ Add</button></td>
+        </tr></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function refreshComparisonCityBar(scope) {
+  if (navContext.route !== "compare") return;
+  const mount = document.getElementById("rm-cmp-city-bar-mount");
+  if (!mount) return;
+  const origin = getChartRecord(navContext.chartRecordId);
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!origin || !cs) {
+    mount.innerHTML = "";
+    return;
+  }
+  const ws = _cmpWorkspaceSession ? _cmpWorkspaceSession.state : initComparisonWorkspaceSession(cs);
+  mount.innerHTML = renderComparisonCityBarHtml(origin, cs, ws);
+  wireComparisonPlaceToggleButtons(scope || mount);
+}
+
+function wireComparisonPlaceToggleButtons(scope) {
+  const root = scope || document;
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  root.querySelectorAll("[data-action='cmp-toggle-place']").forEach((btn) => {
+    if (btn.getAttribute("data-cmp-bar-wired") === "1") return;
+    btn.setAttribute("data-cmp-bar-wired", "1");
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession || !cs) return;
+      const pid = btn.getAttribute("data-place-id");
+      const hidden = new Set(_cmpWorkspaceSession.state.hidden_place_ids || []);
+      if (hidden.has(pid)) hidden.delete(pid); else hidden.add(pid);
+      _cmpWorkspaceSession.state.hidden_place_ids = [...hidden];
+      applyComparisonWorkspaceToDom(_cmpWorkspaceSession.state);
+      const cols = document.getElementById("rm-screen5-columns");
+      if (cols) {
+        const visible = resolveVisibleOrderedPlaceIds(_cmpWorkspaceSession.state, cs.placeIds);
+        cols.setAttribute("data-place-ids", visible.join(","));
+        hydrateComparisonColumns(document.getElementById("main"));
+      }
+      refreshComparisonCityBar(document);
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+}
+
 function screenCompare() {
   const origin = getChartRecord(navContext.chartRecordId);
   const favs = origin.favorites || [];
@@ -5364,7 +5667,15 @@ function screenCompare() {
         </div></div>`
     : "";
 
+  const cityBarHtml = cs && ws ? renderComparisonCityBarHtml(origin, cs, ws) : "";
   return `
+    <div class="rm-comparison-beta-root" data-beta-comparison-visual="true">
+    <div class="cmp-profile-block">
+      ${renderComparisonZoneBHtml(origin)}
+    </div>
+    <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
+    <div class="rm-comparison-beta-body">
+    <div class="rm-comparison-legacy-chrome">
     <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>
     <h2>Screen 5 — Comparison</h2>
     <p class="purpose">2–5 places under ONE Chart Record · facts only · not multi-chart comparison.</p>
@@ -5374,6 +5685,7 @@ function screenCompare() {
       <p><strong>${escapeHtml(origin.displayName)}</strong> <span class="meta">${origin.recordType}</span></p>
       <p class="meta"><code>${origin.chartRecordId}</code> · ${origin.confidenceTier}</p>
       ${timeUncertaintyWarning(origin)}
+    </div>
     </div>
     ${pickerPanel}
     ${workspacePanel}
@@ -5397,6 +5709,8 @@ function screenCompare() {
     </div>
     ${stateDebugBlock()}
     <p class="must-not">Must not appear: client-vs-client columns, ranked scores, multiple active Chart Records.</p>
+    </div>
+    </div>
   `;
 }
 
@@ -6773,18 +7087,28 @@ function render() {
   if (navContext.route === "chart-record") {
     document.body.classList.add("rm-beta-profile");
     document.body.classList.remove("rm-beta-relocated");
+    document.body.classList.remove("rm-beta-compare");
     acctBtn.classList.add("rm-beta-acct-circle");
     acctBtn.textContent = accountInitials();
     acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
   } else if (navContext.route === "chart") {
     document.body.classList.remove("rm-beta-profile");
+    document.body.classList.remove("rm-beta-compare");
     document.body.classList.add("rm-beta-relocated");
+    acctBtn.classList.add("rm-beta-acct-circle");
+    acctBtn.textContent = accountInitials();
+    acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
+  } else if (navContext.route === "compare") {
+    document.body.classList.remove("rm-beta-profile");
+    document.body.classList.remove("rm-beta-relocated");
+    document.body.classList.add("rm-beta-compare");
     acctBtn.classList.add("rm-beta-acct-circle");
     acctBtn.textContent = accountInitials();
     acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
   } else {
     document.body.classList.remove("rm-beta-profile");
     document.body.classList.remove("rm-beta-relocated");
+    document.body.classList.remove("rm-beta-compare");
     acctBtn.classList.remove("rm-beta-acct-circle");
     acctBtn.textContent = "Account";
     acctBtn.removeAttribute("title");
