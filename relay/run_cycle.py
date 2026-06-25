@@ -90,6 +90,11 @@ def main() -> int:
     model = pick_model()
     os.environ["ANTHROPIC_MODEL"] = model
     touch_heartbeat("cycle_start")
+    subprocess.run(
+        [sys.executable, str(REPO / "scripts" / "relay_recover_h4.py")],
+        cwd=REPO,
+        check=False,
+    )
     log(f"--- cycle start {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} model={model} ---")
     try:
         proc = subprocess.run(

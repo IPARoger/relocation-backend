@@ -219,7 +219,7 @@ def main(argv):
             merge_cloud_pr_and_pull(result)
             if str(status).lower() in ("error", "failed", "cancelled"):
                 return 4
-            return 0
+            return 0  # finished — merge warnings are non-fatal
 
         agent = Agent.create(opts)
         run = agent.send(prompt)
@@ -237,7 +237,7 @@ def main(argv):
             sys.stdout.write("LOW\n")
             return 5
         sys.stderr.write("Cloud agent launch failed: " + str(e) + "\n")
-        return 4
+        return 4  # pre-launch only
 
 
 if __name__ == "__main__":

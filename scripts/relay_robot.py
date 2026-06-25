@@ -167,9 +167,11 @@ def step_execute(dry_run: bool) -> str:
     )
     log_handoff("exec", f"# Cursor agent\n\nTask: {task}\n\n```\n{out}\n```")
     print(out)
-    if code != 0:
+    if code != 0 and "status=finished" not in out:
         relay_notify("not-verified")
         return "error"
+    if code != 0 and "status=finished" in out:
+        print("RELAY_RECOVER: executor non-zero but cloud agent finished — continuing closeout")
     sys.path.insert(0, str(SCRIPTS))
     from relay_context import write_closeout_handoff
     co = write_closeout_handoff()

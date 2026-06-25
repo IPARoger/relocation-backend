@@ -1,7 +1,8 @@
 #!/bin/bash
 # Start watchdog + keep Mac awake while relay runs (close laptop lid may still sleep).
 cd "$(dirname "$0")/.."
-if pgrep -f "relay/watchdog.sh" >/dev/null; then
+WATCHDOG_PIDFILE=relay/handoffs/watchdog.pid
+if [ -f "$WATCHDOG_PIDFILE" ] && kill -0 "$(cat "$WATCHDOG_PIDFILE" 2>/dev/null)" 2>/dev/null; then
   echo "watchdog already running"
 else
   nohup ./relay/watchdog.sh >> relay/handoffs/session.log 2>&1 &

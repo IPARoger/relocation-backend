@@ -1,11 +1,25 @@
 #!/bin/bash
 # Restarts session if dead OR hung (heartbeat stuck on cycle_start too long).
 cd "$(dirname "$0")/.."
+
+load_env() {
+  for f in .env.local .env; do
+    [ -f "$f" ] || continue
+    while IFS= read -r line || [ -n "$line" ]; do
+      line="${line%%#*}"
+      line="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+      [ -z "$line" ] && continue
+      case "$line" in *=*) export "$line" ;; esac
+    done < "$f"
+  done
+}
+load_env
+
 set +e
 INTERVAL="${RELAY_WATCHDOG_INTERVAL:-120}"
 # Default 90 min: just over RELAY_CYCLE_TIMEOUT (3600) would be too long; use 90 min or env
 STALE="${RELAY_STALE_SEC:-5400}"
-HUNG="${RELAY_HUNG_SEC:-1800}"
+HUNG="${RELAY_HUNG_SEC:-2700}"
 PIDFILE=relay/handoffs/session.pid
 LOG=relay/handoffs/session.log
 
