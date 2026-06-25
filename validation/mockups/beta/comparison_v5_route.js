@@ -49,8 +49,8 @@
       <div class="fact-table-wrap"><div id="table-pih" data-cmp-mount="pih-table"></div></div>
     </div>
     <div class="pih-footer" data-cmp-mount="pih-footer" data-cmp-role="pih-footer">
-      <label><input type="checkbox" data-action="toggle-cmp-diffs" style="width:auto;margin:0;" /> Diffs</label>
-      <label style="margin-left:12px;"><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="compare" style="width:auto;margin:0;" /> Dignities</label>
+      <label title="Fade duplicate values within each row across visible cities"><input type="checkbox" data-action="toggle-cmp-diffs" style="width:auto;margin:0;" /> Diffs</label>
+      <label style="margin-left:12px;" title="Tint house cells using traditional sign–house correspondence (requires dignity data)"><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="compare" style="width:auto;margin:0;" /> Dignities</label>
     </div>
   </div>
 
