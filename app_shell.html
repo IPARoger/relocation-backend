@@ -721,6 +721,7 @@
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="a2a"] { display: none !important; }
+  body.rm-beta-compare .rm-cmp-section[data-cmp-section="city_intelligence"] { display: none !important; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
     display: flex;
@@ -913,6 +914,73 @@
     color: var(--rm-ink-faint);
     margin: 8px 0 0;
   }
+  body.rm-beta-compare .ci-section { margin-top: 38px; }
+  body.rm-beta-compare .ci-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    max-width: 640px;
+    border-bottom: 1px solid var(--rm-line);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  body.rm-beta-compare .ci-section-title {
+    font-family: var(--serif, Georgia, serif);
+    font-size: 17px;
+    font-weight: 700;
+    margin-right: auto;
+    color: var(--rm-ink);
+  }
+  body.rm-beta-compare .ci-collapse {
+    background: none;
+    border: none;
+    color: var(--rm-ink-faint);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0 6px 0 0;
+    line-height: 1;
+    transition: transform 0.2s;
+  }
+  body.rm-beta-compare .ci-collapse:hover { color: var(--rm-ink); }
+  body.rm-beta-compare .ci-section.collapsed .ci-collapse { transform: rotate(-90deg); }
+  body.rm-beta-compare .ci-section.collapsed .ci-grid { display: none; }
+  body.rm-beta-compare .ci-section.collapsed .ci-section-head { border-bottom: none; margin-bottom: 0; }
+  body.rm-beta-compare .ci-grid {
+    display: grid;
+    grid-template-columns: 170px repeat(auto-fit, minmax(140px, 160px));
+    gap: 0;
+    max-width: 700px;
+  }
+  body.rm-beta-compare .ci-spacer { border-right: 1px solid var(--rm-line-soft, rgba(154, 144, 128, 0.25)); }
+  body.rm-beta-compare .ci-card {
+    min-width: 0;
+    border-left: 1px solid var(--rm-line-soft, rgba(154, 144, 128, 0.25));
+    padding: 0 12px;
+  }
+  body.rm-beta-compare .ci-list { list-style: none; font-size: 13px; margin: 0; padding: 0; }
+  body.rm-beta-compare .ci-list li {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--rm-line-soft, rgba(154, 144, 128, 0.25));
+    color: var(--rm-ink-soft);
+    line-height: 1.35;
+  }
+  body.rm-beta-compare .ci-list li:last-child { border-bottom: none; }
+  body.rm-beta-compare .ci-open-btn {
+    margin-top: 8px;
+    padding-top: 8px;
+    font-size: 12.5px;
+    color: var(--rm-teal, #5f8a90);
+    background: none;
+    border: none;
+    border-top: 1px solid var(--rm-line-soft, rgba(154, 144, 128, 0.25));
+    cursor: not-allowed;
+    opacity: 0.55;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+  }
+  body.rm-beta-compare .ci-placeholder { margin: 0; max-width: 640px; }
   @media (max-width: 1000px) {
     body.rm-beta-compare .comparison-body-grid { grid-template-columns: 1fr; }
     body.rm-beta-compare .comparison-notes-rail {
@@ -5168,7 +5236,17 @@ function applyComparisonWorkspaceToDom(ws) {
       if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
     }
   }
-  document.querySelectorAll(".rm-cmp-angle-tab, .cmp-angle-pill").forEach((btn) => {
+  const ciSection = document.getElementById("rm-cmp-ci-section");
+  if (ciSection) {
+    const ciCollapsed = !!ws.collapsed_sections.city_intelligence;
+    ciSection.classList.toggle("collapsed", ciCollapsed);
+    const ciBtn = document.querySelector("[data-action='cmp-toggle-ci']");
+    if (ciBtn) {
+      ciBtn.setAttribute("aria-expanded", ciCollapsed ? "false" : "true");
+      ciBtn.title = (ciCollapsed ? "Show" : "Hide") + " City Intelligence";
+    }
+  }
+    document.querySelectorAll(".rm-cmp-angle-tab, .cmp-angle-pill").forEach((btn) => {
     btn.classList.toggle("active", btn.getAttribute("data-angle-tab") === ws.active_angle_tab);
   });
   const hidden = new Set(ws.hidden_place_ids || []);
@@ -5354,6 +5432,22 @@ function initComparisonWorkspace(root) {
       const legacyBody = document.getElementById("rm-cmp-sec-a2a");
       if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
       if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.a2a || "Aspect to Angle");
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-ci']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const section = document.getElementById("rm-cmp-ci-section");
+      const collapsed = section ? !section.classList.contains("collapsed") : false;
+      _cmpWorkspaceSession.state.collapsed_sections.city_intelligence = collapsed;
+      if (section) section.classList.toggle("collapsed", collapsed);
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      btn.title = (collapsed ? "Show" : "Hide") + " City Intelligence";
+      const legacyBtn = scope.querySelector("[data-action='cmp-toggle-section'][data-cmp-section='city_intelligence']");
+      const legacyBody = document.getElementById("rm-cmp-sec-city_intelligence");
+      if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
+      if (legacyBtn) legacyBtn.textContent = (collapsed ? "▶" : "▼") + " " + (CMP_WS_SECTION_LABELS.city_intelligence || "City Intelligence");
       scheduleComparisonWorkspaceSave();
     });
   });
@@ -5915,6 +6009,42 @@ function comparisonCityDisplayName(placeId, favs, nameById) {
   return (fav && fav.placeName) || nameById[placeId] || humanPlaceLabel(placeId);
 }
 
+function renderComparisonCiSectionShellHtml(ws, cs) {
+  const collapsed = !!(ws && ws.collapsed_sections && ws.collapsed_sections.city_intelligence);
+  const sectionClass = "ci-section" + (collapsed ? " collapsed" : "");
+  let gridInner = "";
+  if (cs && ws) {
+    const origin = getChartRecord(navContext.chartRecordId);
+    const visibleIds = resolveVisibleOrderedPlaceIds(ws, cs.placeIds);
+    const nameById = (viewModel && viewModel.placeNameById) || {};
+    const favs = (origin && origin.favorites) || [];
+    gridInner = '<div class="ci-spacer" aria-hidden="true"></div>';
+    if (visibleIds.length === 0) {
+      gridInner += '<p class="meta ci-placeholder">Unhide a city column to preview intelligence slots.</p>';
+    } else {
+      visibleIds.forEach((pid) => {
+        const name = comparisonCityDisplayName(pid, favs, nameById);
+        gridInner += `<div class="ci-card" data-place-id="${escapeHtml(pid)}">
+          <ul class="ci-list">
+            <li>${escapeHtml(name)} — preview shell</li>
+            <li class="meta">Relocation dossier ships in a later slice.</li>
+          </ul>
+          <button type="button" class="ci-open-btn" disabled aria-disabled="true" tabindex="-1">Open Full City Intelligence ›</button>
+        </div>`;
+      });
+    }
+  } else {
+    gridInner = '<p class="meta ci-placeholder">Build a comparison to preview city intelligence columns.</p>';
+  }
+  return `<div class="${sectionClass}" id="rm-cmp-ci-section" data-ci-wired="false" data-cmp-section="city_intelligence">
+    <div class="ci-section-head">
+      <button type="button" class="ci-collapse" title="${collapsed ? "Show" : "Hide"} City Intelligence" data-action="cmp-toggle-ci" aria-expanded="${collapsed ? "false" : "true"}">▾</button>
+      <div class="ci-section-title">City Intelligence</div>
+    </div>
+    <div class="ci-grid" id="rm-cmp-ci-grid">${gridInner}</div>
+  </div>`;
+}
+
 function renderComparisonCityBarHtml(origin, cs, ws) {
   if (!origin || !cs || !ws) return "";
   const order = resolveColumnOrderPlaceIds(ws, cs.placeIds);
@@ -6044,7 +6174,7 @@ function screenCompare() {
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
     <div class="comparison-body-grid" id="rm-cmp-body-grid">
-    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}${renderComparisonCiSectionShellHtml(ws, cs)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
     ${renderComparisonNotesRailHtml(cs)}
     </div>
     <div class="rm-comparison-beta-body">
