@@ -721,6 +721,7 @@
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="a2a"] { display: none !important; }
+  body.rm-beta-compare .rm-cmp-section[data-cmp-section="city_intelligence"] { display: none !important; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
     display: flex;
@@ -921,6 +922,49 @@
       width: 100%;
       justify-self: stretch;
     }
+  }
+  body.rm-beta-compare .ci-section { margin-top: 38px; }
+  body.rm-beta-compare .ci-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    max-width: var(--grid-w, 640px);
+    border-bottom: 1px solid var(--rm-line);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  body.rm-beta-compare .ci-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: auto;
+    color: var(--rm-ink);
+  }
+  body.rm-beta-compare .ci-collapse {
+    background: none;
+    border: none;
+    color: var(--rm-ink-faint);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0 6px 0 0;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
+  body.rm-beta-compare .ci-collapse:hover { color: var(--rm-ink); }
+  body.rm-beta-compare .ci-section.collapsed .ci-collapse { transform: rotate(-90deg); }
+  body.rm-beta-compare .ci-section.collapsed .ci-grid { display: none; }
+  body.rm-beta-compare .ci-section.collapsed .ci-section-head {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  body.rm-beta-compare .ci-grid {
+    max-width: var(--grid-w, 700px);
+  }
+  body.rm-beta-compare .ci-placeholder {
+    font-size: 13px;
+    color: var(--rm-ink-faint);
+    margin: 0;
+    line-height: 1.45;
   }
   body.rm-beta-compare .warn-box { margin-top: 0; margin-bottom: 12px; }
 
@@ -5116,6 +5160,8 @@ function collectComparisonWorkspaceFromDom() {
     const vis = document.querySelector(`input[data-action="cmp-visible-section"][data-cmp-section="${sec}"]`);
     ws.visible_sections[sec] = vis ? !!vis.checked : ws.visible_sections[sec];
   });
+  const ciShell = document.getElementById("rm-cmp-ci-section");
+  if (ciShell) ws.collapsed_sections.city_intelligence = ciShell.classList.contains("collapsed");
   ws.hidden_place_ids = Array.from(document.querySelectorAll(".rm-cmp-city-chip.hidden-place"))
     .map((el) => el.getAttribute("data-place-id")).filter(Boolean);
   const dig = document.querySelector("[data-action='toggle-pih-dignities'][data-pih-scope='compare']");
@@ -5167,6 +5213,13 @@ function applyComparisonWorkspaceToDom(ws) {
       const arrow = a2aBtn.querySelector(".cmp-block-arrow");
       if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
     }
+  }
+  const ciSection = document.getElementById("rm-cmp-ci-section");
+  if (ciSection) {
+    const collapsed = !!ws.collapsed_sections.city_intelligence;
+    ciSection.classList.toggle("collapsed", collapsed);
+    const ciBtn = document.querySelector("[data-action='cmp-toggle-ci-section']");
+    if (ciBtn) ciBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
   }
   document.querySelectorAll(".rm-cmp-angle-tab, .cmp-angle-pill").forEach((btn) => {
     btn.classList.toggle("active", btn.getAttribute("data-angle-tab") === ws.active_angle_tab);
@@ -5354,6 +5407,21 @@ function initComparisonWorkspace(root) {
       const legacyBody = document.getElementById("rm-cmp-sec-a2a");
       if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
       if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.a2a || "Aspect to Angle");
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-ci-section']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const section = document.getElementById("rm-cmp-ci-section");
+      const collapsed = section ? !section.classList.contains("collapsed") : false;
+      _cmpWorkspaceSession.state.collapsed_sections.city_intelligence = collapsed;
+      if (section) section.classList.toggle("collapsed", collapsed);
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const legacyBtn = scope.querySelector("[data-action='cmp-toggle-section'][data-cmp-section='city_intelligence']");
+      const legacyBody = document.getElementById("rm-cmp-sec-city_intelligence");
+      if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
+      if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.city_intelligence || "City Intelligence");
       scheduleComparisonWorkspaceSave();
     });
   });
@@ -5878,6 +5946,18 @@ function renderComparisonA2aBlockShellHtml(ws) {
 }
 
 
+function renderComparisonCiSectionShellHtml(ws) {
+  const collapsed = !!(ws && ws.collapsed_sections && ws.collapsed_sections.city_intelligence);
+  const placeholder = `<p class="meta ci-placeholder" data-cmp-ci-wired="false">Location intelligence previews will appear here in a later slice.</p>`;
+  return `<div class="ci-section${collapsed ? " collapsed" : ""}" id="rm-cmp-ci-section" data-cmp-ci-wired="false">
+    <div class="ci-section-head">
+      <button type="button" class="ci-collapse" title="Hide City Intelligence" data-action="cmp-toggle-ci-section" aria-expanded="${collapsed ? "false" : "true"}">\u25be</button>
+      <div class="ci-section-title">City Intelligence</div>
+    </div>
+    <div class="ci-grid" id="rm-cmp-ci-grid">${placeholder}</div>
+  </div>`;
+}
+
 function renderComparisonNotesRailHtml(cs) {
   const notesFabSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>';
   const body = cs
@@ -6044,7 +6124,7 @@ function screenCompare() {
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
     <div class="comparison-body-grid" id="rm-cmp-body-grid">
-    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}${renderComparisonCiSectionShellHtml(ws)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
     ${renderComparisonNotesRailHtml(cs)}
     </div>
     <div class="rm-comparison-beta-body">
