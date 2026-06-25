@@ -122,6 +122,24 @@
   details.rm-settings-more-points { margin-top: 8px; }
   details.rm-settings-more-points > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
   .settings-save-bar { position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); padding: 12px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+  .settings-nav button.settings-nav-item { padding: 8px 11px; border-radius: 8px; font-size: 13px; }
+  .settings-subpage .panel,
+  .settings-subpage .settings-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+  .settings-subpage .panel h4,
+  .settings-subpage .settings-panel h4 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--fg); text-transform: none; letter-spacing: 0; }
+  .settings-subhead { margin: 20px 0 10px; }
+  .settings-checklist { display: flex; flex-direction: column; gap: 0; max-width: 420px; }
+  .settings-check-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 13px; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+  .settings-check-item:first-child { border-top: none; }
+  .settings-check-item input[type=checkbox] { width: 16px; height: 16px; margin: 0; flex: 0 0 auto; accent-color: var(--accent); }
+  .settings-subpage select,
+  .settings-subpage input[type=number],
+  .settings-subpage input[type=text] { min-height: 36px; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+  .settings-subpage label.block select { max-width: 100%; min-width: 200px; }
+  .settings-subpage .loc-row { padding: 10px 0; align-items: flex-start; }
+  .settings-stub-row { opacity: 0.92; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+  .settings-stub-row:first-child { border-top: none; }
+  .settings-orb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 14px; }
   .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
   .hint-swatch.pos { background: #86efac; }
@@ -503,14 +521,219 @@
   body.rm-beta-profile #rm-profile-natal-facts table.simple { margin: 0; width: 100%; border-collapse: collapse; }
   body.rm-beta-profile #rm-profile-natal-facts table.simple th { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--rm-ink-soft); }
 
-  body.rm-beta-profile .rm-profile-lower .panel { max-height: 420px; overflow: auto; }
-  body.rm-beta-profile .rm-profile-lower .rm-cr-favorites-list,
-  body.rm-beta-profile .rm-profile-lower .plain { list-style: none; margin: 0; padding: 0; }
-  body.rm-beta-profile .rm-profile-lower .rm-cr-favorites-list li,
-  body.rm-beta-profile .rm-profile-lower .plain li { padding: 8px 0; border-top: 1px solid var(--rm-line-soft); font-size: 13.5px; }
-  body.rm-beta-profile .rm-profile-lower .rm-cr-favorites-list li:first-child,
-  body.rm-beta-profile .rm-profile-lower .plain li:first-child { border-top: none; }
-  body.rm-beta-profile .rm-profile-lower .row { gap: 6px; flex-wrap: wrap; }
+  body.rm-beta-profile .rm-profile-lower.lower {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid var(--rm-line);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 22px;
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+  @media (max-width: 920px) {
+    body.rm-beta-profile .rm-profile-lower.lower { grid-template-columns: 1fr; }
+  }
+  body.rm-beta-profile .rm-profile-lower .panel {
+    background: var(--rm-card, #fdf8ee);
+    border: 1px solid rgba(184, 154, 85, 0.22);
+    border-radius: 16px;
+    padding: 20px 20px 16px;
+    box-shadow: 0 1px 2px rgba(51, 41, 31, 0.05), 0 12px 26px -18px rgba(51, 41, 31, 0.32);
+    max-height: 520px;
+    overflow: auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+  body.rm-beta-profile .rm-profile-lower .panel h3 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--rm-ink);
+    margin: 0 0 14px;
+  }
+  body.rm-beta-profile .rm-profile-fav-list { list-style: none; margin: 0; padding: 0; }
+  body.rm-beta-profile .rm-profile-fav-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  body.rm-beta-profile .rm-profile-fav-row input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
+    accent-color: var(--rm-accent);
+  }
+  body.rm-beta-profile .rm-profile-fav-star { color: var(--rm-ink-faint); font-size: 15px; flex: 0 0 auto; }
+  body.rm-beta-profile .rm-profile-fav-city {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 10px;
+    margin: -6px -10px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    color: var(--rm-ink);
+  }
+  body.rm-beta-profile .rm-profile-fav-city:hover { background: rgba(184, 154, 85, 0.12); }
+  body.rm-beta-profile .rm-profile-fav-city .name { font-size: 14px; }
+  body.rm-beta-profile .rm-profile-fav-city .go { color: var(--rm-ink-faint); font-size: 15px; margin-left: auto; }
+  body.rm-beta-profile .rm-profile-fav-city:hover .go { color: var(--rm-gold, #b89a55); }
+  body.rm-beta-profile .rm-profile-fav-trash {
+    background: transparent;
+    border: none;
+    color: var(--rm-ink-faint);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 6px;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    flex: 0 0 auto;
+  }
+  body.rm-beta-profile .rm-profile-fav-row:hover .rm-profile-fav-trash { opacity: 0.7; }
+  body.rm-beta-profile .rm-profile-fav-trash:hover { color: var(--rm-accent); opacity: 1; }
+  body.rm-beta-profile .rm-profile-compare-btn {
+    margin: 0 0 12px;
+    opacity: 0.45;
+    pointer-events: none;
+    font-size: 12.5px;
+    font-weight: 700;
+    border-radius: 9px;
+    padding: 8px 18px;
+    border: 1px dashed var(--rm-line);
+    background: transparent;
+    color: var(--rm-ink-faint);
+  }
+
+  body.rm-beta-profile .rm-profile-lower .city-add { position: relative; margin-bottom: 12px; }
+  body.rm-beta-profile .rm-profile-lower .city-add input {
+    width: 100%; font: inherit; font-size: 13.5px; padding: 8px 12px;
+    border: 1px solid var(--rm-line); border-radius: 10px; background: var(--rm-paper, #f4ecdc); color: var(--rm-ink);
+  }
+  body.rm-beta-profile .rm-profile-lower .city-add input::placeholder { color: var(--rm-ink-faint); }
+  body.rm-beta-profile .rm-profile-lower .city-suggest {
+    position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--rm-card);
+    border: 1px solid var(--rm-line); border-radius: 10px; padding: 5px; z-index: 12;
+    box-shadow: 0 10px 24px rgba(51, 41, 31, 0.16); max-height: 200px; overflow: auto;
+  }
+  body.rm-beta-profile .rm-profile-lower .city-suggest button {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    padding: 7px 10px; border-radius: 7px; font-size: 13.5px; color: var(--rm-ink-soft); cursor: pointer;
+  }
+  body.rm-beta-profile .rm-profile-lower .city-suggest button:hover { background: rgba(184, 154, 85, 0.12); color: var(--rm-ink); }
+  body.rm-beta-profile .rm-profile-lower-rule { margin: 28px 0 0; border: none; border-top: 1px solid var(--rm-line); }
+  body.rm-beta-profile .profile-list-foot {
+    display: flex; align-items: center; gap: 9px; padding: 9px 2px 0; font-size: 11px; color: var(--rm-ink-faint);
+  }
+  body.rm-beta-profile .profile-pg {
+    border: 1px solid var(--rm-line); background: var(--rm-card); color: var(--rm-ink-soft);
+    border-radius: 7px; cursor: pointer; font: inherit; font-size: 11px; padding: 4px 8px;
+  }
+  body.rm-beta-profile .profile-pg[disabled] { opacity: 0.4; cursor: default; }
+  body.rm-beta-profile .profile-saved-map-link { margin-left: 0; }
+  body.rm-beta-profile .profile-saved-notes-link { margin-left: 0; }
+  body.rm-beta-profile .rm-profile-beta-root { overflow-x: hidden; max-width: 100%; }
+  body.rm-beta-profile .rm-profile-fav-trash,
+  body.rm-beta-profile .profile-saved-trash { display: none !important; }
+  body.rm-beta-profile .rm-profile-compare-btn.active {
+    opacity: 1;
+    pointer-events: auto;
+    background: var(--rm-accent);
+    color: #fff;
+    border-color: var(--rm-accent);
+  }
+  body.rm-beta-profile .profile-saved-list { list-style: none; margin: 0; padding: 0; }
+  body.rm-beta-profile .profile-saved-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    border-top: 1px solid var(--rm-line-soft);
+    font-size: 13.5px;
+  }
+  body.rm-beta-profile .profile-saved-row:first-child { border-top: none; }
+  body.rm-beta-profile .profile-saved-main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+  }
+  body.rm-beta-profile .profile-saved-title {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--rm-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.rm-beta-profile .profile-saved-meta {
+    font-size: 12px;
+    color: var(--rm-ink-faint);
+    white-space: normal;
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  body.rm-beta-profile .profile-saved-notes-link {
+    font-size: 11.5px;
+    color: var(--rm-ink-faint);
+    text-decoration: none;
+    border: none;
+    background: none;
+    border-bottom: 1px dotted var(--rm-line);
+    margin-left: 0;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+    align-self: flex-start;
+  }
+  body.rm-beta-profile .profile-saved-notes-link:hover { color: var(--rm-ink-soft); }
+  body.rm-beta-profile .profile-saved-open,
+  body.rm-beta-profile .profile-saved-trash {
+    background: transparent;
+    border: none;
+    color: var(--rm-ink-faint);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 6px;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    flex: 0 0 auto;
+  }
+  body.rm-beta-profile .profile-saved-row:hover .profile-saved-open,
+  body.rm-beta-profile .profile-saved-row:hover .profile-saved-trash { opacity: 0.7; }
+  body.rm-beta-profile .profile-saved-open:hover,
+  body.rm-beta-profile .profile-saved-trash:hover { color: var(--rm-accent); opacity: 1; }
+  body.rm-beta-relocated #rm-screen4-stage .rm-relocated-wheel-disc {
+    width: 560px;
+    max-width: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 34px 2px rgba(184, 154, 85, 0.2), 0 3px 12px rgba(51, 41, 31, 0.14), inset 0 0 0 1px rgba(51, 41, 31, 0.05);
+  }
+  body.rm-beta-relocated #rm-screen4-stage .rm-relocated-wheel-disc svg { display: block; width: 100%; height: auto; }
+  body.rm-beta-relocated #rm-screen4-intel .iv {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  }
     body.rm-beta-profile .rm-profile-deferred-shell {
     margin-top: 22px;
     padding: 11px 14px;
@@ -2952,7 +3175,7 @@ function wireComparisonV5CanonicalActions(root) {
   });
 }
 
-function mountComparisonV5Route(root) {
+async function mountComparisonV5Route(root) {
   if (navContext.route !== "compare" || !comparisonV5Ready()) return;
   const cs = navContext.comparisonSetId ? getComparisonSet(navContext.comparisonSetId) : null;
   const ws = cs ? ((_cmpWorkspaceSession && _cmpWorkspaceSession.state) || defaultComparisonWorkspaceState(cs.placeIds)) : null;
@@ -2966,8 +3189,11 @@ function mountComparisonV5Route(root) {
     accountInitials,
   });
   if (!cs) return;
-  hydrateComparisonColumns(root);
+  _comparisonColsCache = null;
   initComparisonWorkspace(root);
+  await hydrateComparisonColumns(root);
+  const v5ctx = buildComparisonV5HydrationContext();
+  if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
   applyComparisonV5SectionCollapse(ws);
   wireComparisonV5CanonicalActions(root);
   const v5root = document.getElementById("rm-cmp-v5-root");
@@ -3141,6 +3367,229 @@ function escapeHtml(value) {
 }
 
 
+
+const PROFILE_LOWER_PAGE_SIZE = 12;
+const _profileListPages = { favorites: 0, comparisons: 0, searches: 0 };
+
+function profileListSlice(items, panelKey) {
+  const page = _profileListPages[panelKey] || 0;
+  const start = page * PROFILE_LOWER_PAGE_SIZE;
+  return {
+    page,
+    total: items.length,
+    items: items.slice(start, start + PROFILE_LOWER_PAGE_SIZE),
+    startIndex: start,
+    hasPrev: page > 0,
+    hasNext: start + PROFILE_LOWER_PAGE_SIZE < items.length,
+  };
+}
+
+function profileListPagerHtml(panelKey, slice) {
+  if (slice.total <= PROFILE_LOWER_PAGE_SIZE) return "";
+  const from = slice.startIndex + 1;
+  const to = Math.min(slice.startIndex + PROFILE_LOWER_PAGE_SIZE, slice.total);
+  return `<div class="profile-list-foot" data-profile-pager="${escapeHtml(panelKey)}">
+    <button type="button" class="profile-pg" data-profile-pager-action="prev" data-profile-pager="${escapeHtml(panelKey)}"${slice.hasPrev ? "" : " disabled"}>‹</button>
+    <span>${from}–${to} of ${slice.total}</span>
+    <button type="button" class="profile-pg" data-profile-pager-action="next" data-profile-pager="${escapeHtml(panelKey)}"${slice.hasNext ? "" : " disabled"}>View next 12 ›</button>
+  </div>`;
+}
+
+function profilePihLabelHtml(name, entry) {
+  const motion = resolvePlanetMotionState(entry);
+  const rx = tablePlanetMotionMarkerHtml(motion);
+  return `${escapeHtml(name)}${rx}`;
+}
+
+const PROFILE_A2A_OPPOSITE_ANGLE = { ASC: "DSC", DSC: "ASC", MC: "IC", IC: "MC" };
+const PROFILE_A2A_OPPOSITE_ASPECT = {
+  conjunction: "opposition",
+  opposition: "conjunction",
+  square: "square",
+  trine: "sextile",
+  sextile: "trine",
+};
+
+function profileA2aLookup(idx, planet, angle) {
+  const keys = [`${planet}\0${angle}`, `${planet}\0${String(angle).toUpperCase()}`, `${planet}\0${String(angle).toLowerCase()}`];
+  for (const k of keys) {
+    const hit = idx.get(k);
+    if (hit) return hit;
+  }
+  const opp = PROFILE_A2A_OPPOSITE_ANGLE[angle];
+  if (!opp) return null;
+  const oppKeys = [`${planet}\0${opp}`, `${planet}\0${String(opp).toUpperCase()}`, `${planet}\0${String(opp).toLowerCase()}`];
+  let oppHit = null;
+  for (const k of oppKeys) {
+    oppHit = idx.get(k);
+    if (oppHit) break;
+  }
+  if (!oppHit || !oppHit.aspect) return null;
+  const flipped = PROFILE_A2A_OPPOSITE_ASPECT[String(oppHit.aspect).toLowerCase()];
+  if (!flipped) return null;
+  return Object.assign({}, oppHit, { angle, aspect: flipped, derived_from: opp });
+}
+
+function renderProfileFavoritesPanelHtml(r) {
+  const slice = profileListSlice(r.favorites || [], "favorites");
+  if (!slice.total) {
+    return `<div class="city-add" data-profile-city-add="true">
+      <input type="text" id="rm-profile-city-add" placeholder="Add a city…" autocomplete="off" />
+      <div class="city-suggest" id="rm-profile-city-suggest" hidden></div>
+    </div>
+    <p class="meta">No favorite places saved yet. Search above or open the map and save a location.</p>`;
+  }
+  const rows = slice.items.map((f) => `
+    <li class="rm-profile-fav-row">
+      <input type="checkbox" data-action="cr-fav-cmp-toggle" data-place-id="${escapeHtml(f.placeId)}" data-place-name="${escapeHtml(f.placeName).replace(/"/g, "&quot;")}" />
+      <span class="rm-profile-fav-star" aria-hidden="true">★</span>
+      <button type="button" class="rm-profile-fav-city" data-nav="chart" data-place-id="${escapeHtml(f.placeId)}" data-place="${escapeHtml(f.placeName)}">
+        <span class="name">${escapeHtml(f.placeName)}</span><span class="go">›</span>
+      </button>
+    </li>`).join("");
+  return `<div class="city-add" data-profile-city-add="true">
+      <input type="text" id="rm-profile-city-add" placeholder="Add a city…" autocomplete="off" />
+      <div class="city-suggest" id="rm-profile-city-suggest" hidden></div>
+    </div>
+    <button type="button" id="rm-cr-compare-selected-btn" class="rm-profile-compare-btn" data-action="compare-selected-favorites" disabled>Compare (0)</button>
+    <span id="rm-cr-compare-selected-msg" class="meta" hidden></span>
+    <ul class="rm-profile-fav-list fav">${rows}</ul>
+    ${profileListPagerHtml("favorites", slice)}`;
+}
+
+function renderProfileSavedSearchesPanelHtml(r) {
+  const items = r.explorations || [];
+  const slice = profileListSlice(items, "searches");
+  if (!slice.total) {
+    return `<p class="meta">No saved explorations yet. Open the map, run a search, and save it to resume later.</p>`;
+  }
+  const rows = slice.items.map((e) => {
+    const metaLine = [e.saved, ...(e.conditions || [])].filter(Boolean).join(" · ");
+    return `<li class="profile-saved-row">
+      <span class="profile-saved-main it-main">
+        <span class="profile-saved-title">${escapeHtml(e.name)}</span>
+        <span class="profile-saved-meta meta">${escapeHtml(metaLine)}
+          <button type="button" class="profile-saved-notes-link notes-link" data-nav="notes-library" data-chart-record="${escapeHtml(r.chartRecordId)}" data-exploration-id="${escapeHtml(e.id)}">notes</button>
+          <button type="button" class="profile-saved-map-link notes-link" data-action="resume-exploration" data-chart-record="${escapeHtml(r.chartRecordId)}" data-exploration="${escapeHtml(e.id)}">Open in Map</button>
+        </span>
+      </span>
+    </li>`;
+  }).join("");
+  return `<ul class="profile-saved-list list">${rows}</ul>${profileListPagerHtml("searches", slice)}`;
+}
+
+function renderProfileSavedComparisonsListHtml(rows, chartRecordId) {
+  const slice = profileListSlice(rows || [], "comparisons");
+  if (!slice.total) {
+    return `<p class="meta">No saved comparisons yet. Check favorites and click <strong>Compare</strong>.</p>`;
+  }
+  const body = slice.items.map((cs) => {
+    const meta = comparisonSetRowMeta(cs);
+    return `<li class="profile-saved-row">
+      <span class="profile-saved-main it-main">
+        <span class="profile-saved-title">${escapeHtml(meta.title)}</span>
+        <span class="profile-saved-meta meta">
+          <button type="button" class="profile-saved-notes-link notes-link rm-cr-cmp-open" data-cmp-id="${escapeHtml(cs.id)}" data-chart-record="${escapeHtml(chartRecordId)}">notes</button>
+        </span>
+      </span>
+      <button type="button" class="profile-saved-open rm-cr-cmp-open" data-cmp-id="${escapeHtml(cs.id)}" data-chart-record="${escapeHtml(chartRecordId)}" title="Open comparison">›</button>
+    </li>`;
+  }).join("");
+  return `<ul class="profile-saved-list list">${body}</ul>${profileListPagerHtml("comparisons", slice)}`;
+}
+
+async function wireProfileFavoritesCitySearch(root, chartRecordId) {
+  const scope = root || document;
+  const input = scope.querySelector("#rm-profile-city-add");
+  const box = scope.querySelector("#rm-profile-city-suggest");
+  if (!input || !box || input.__profileCityBound) return;
+  input.__profileCityBound = true;
+  let timer = null;
+  const hide = () => { box.hidden = true; box.innerHTML = ""; };
+  const renderMatches = (matches, raw) => {
+    if (!matches.length && !raw) { hide(); return; }
+    const html = matches.slice(0, 6).map((row) => {
+      const label = row.display_name || row.name || row.label || "Place";
+      const pid = row.id || row.place_id || "";
+      return `<button type="button" data-profile-city-pick="true" data-place-id="${escapeHtml(pid)}" data-place-name="${escapeHtml(label).replace(/"/g, "&quot;")}">${escapeHtml(label)}</button>`;
+    }).join("");
+    box.innerHTML = html || `<button type="button" data-profile-city-pick="raw" data-place-name="${escapeHtml(raw).replace(/"/g, "&quot;")}">Search map for “${escapeHtml(raw)}”</button>`;
+    box.hidden = false;
+  };
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (!q) { hide(); return; }
+    timer = setTimeout(async () => {
+      try {
+        const resp = await fetch(`/places/search?q=${encodeURIComponent(q)}&limit=8`);
+        const rows = resp.ok ? await resp.json() : [];
+        renderMatches(Array.isArray(rows) ? rows : [], q);
+      } catch (e) {
+        renderMatches([], q);
+      }
+    }, 220);
+  });
+  box.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-profile-city-pick]");
+    if (!btn) return;
+    e.preventDefault();
+    const placeId = btn.getAttribute("data-place-id");
+    const placeName = btn.getAttribute("data-place-name") || "";
+    if (btn.getAttribute("data-profile-city-pick") === "raw" || !placeId) {
+      navigate("map", { chartRecordId, placeId: null, explorationId: null }, { mapQuery: placeName });
+      return;
+    }
+    try {
+      const client = await window.SupabaseReady;
+      const session = (await client.auth.getSession()).data.session;
+      const token = session && session.access_token;
+      if (!token) throw new Error("Sign in required.");
+      const resp = await fetch("/favorites/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ profile_id: chartRecordId, place_id: placeId, label: placeName, starred: true }),
+      });
+      if (!resp.ok) throw new Error("Could not save favorite.");
+      if (typeof refreshViewModel === "function") await refreshViewModel();
+      render();
+    } catch (err) {
+      alert(err && err.message ? err.message : String(err));
+    } finally {
+      input.value = "";
+      hide();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-profile-city-add]")) hide();
+  });
+}
+
+function wireProfileLowerPagination(root) {
+  const scope = root || document;
+  scope.querySelectorAll("[data-profile-pager-action]").forEach((btn) => {
+    if (btn.__profilePagerBound) return;
+    btn.__profilePagerBound = true;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const key = btn.getAttribute("data-profile-pager");
+      const action = btn.getAttribute("data-profile-pager-action");
+      if (!key) return;
+      const cur = _profileListPages[key] || 0;
+      if (action === "next") _profileListPages[key] = cur + 1;
+      else if (action === "prev" && cur > 0) _profileListPages[key] = cur - 1;
+      render();
+    });
+  });
+}
+
+function wireProfileLowerPanels(root) {
+  const chartRecordId = navContext.chartRecordId;
+  wireChartRecordFavoriteCompare(root);
+  wireProfileFavoritesCitySearch(root, chartRecordId);
+  wireProfileLowerPagination(root);
+}
+
 function wireChartRecordFavoriteCompare(root) {
   const scope = root || document;
   const boxes = scope.querySelectorAll("[data-action='cr-fav-cmp-toggle']");
@@ -3148,9 +3597,13 @@ function wireChartRecordFavoriteCompare(root) {
   const msg = scope.querySelector("#rm-cr-compare-selected-msg");
   const sync = () => {
     const n = Array.from(boxes).filter((b) => b.checked).length;
-    if (btn) btn.disabled = n < 2 || n > 5;
+    if (btn) {
+      btn.disabled = n < 2 || n > 5;
+      btn.textContent = "Compare (" + n + ")";
+      btn.classList.toggle("active", n >= 2 && n <= 5);
+    }
     if (msg && !msg.textContent.startsWith("Save") && !msg.textContent.startsWith("Choose")) {
-      msg.textContent = n ? (n + " selected") : "";
+      msg.textContent = "";
     }
   };
   boxes.forEach((b) => b.addEventListener("change", sync));
@@ -3183,61 +3636,21 @@ function screenChartRecord() {
     <div id="rm-profile-natal-facts" data-chart-record="${escapeHtml(r.chartRecordId)}">
       <p class="meta">Loading natal chart…</p>
     </div>
-    <div class="row rm-profile-beta-actions">
-      <button type="button" class="primary" data-action="open-map-record">Open Map</button>
-      <button type="button" data-nav="export">Export</button>
-      <button type="button" data-nav="notes-library" data-chart-record="${r.chartRecordId}">Notes Library</button>
-      <button type="button" data-nav="settings">Settings</button>
-    </div>
+    <hr class="sec-rule rm-profile-lower-rule" />
     <div class="rm-profile-lower lower">
       <div class="panel rm-profile-panel-favorites">
         <h3>Favorites</h3>
-        ${r.favorites.length === 0
-          ? `<p class="meta">No favorite places saved yet. Open the map and save a location to begin building comparisons.</p>`
-          : `<p class="meta">Check favorites below, then use <strong>Compare selected</strong> (2–5 places).</p>
-          <ul class="plain rm-cr-favorites-list">${r.favorites.map((f) => `
-          <li>
-            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
-              <input type="checkbox" data-action="cr-fav-cmp-toggle" data-place-id="${f.placeId}" data-place-name="${escapeHtml(f.placeName).replace(/"/g, '&quot;')}" />
-              <span>
-                <strong>${escapeHtml(f.placeName)}</strong>
-                <span class="meta" style="display:block;">Favorite place</span>
-              </span>
-            </label>
-            <div class="row" style="margin-top:4px;margin-left:24px;">
-              <button type="button" data-action="open-map-favorite" data-place-id="${f.placeId}" data-place="${f.placeName}">Open on map</button>
-              <button type="button" data-nav="chart" data-place-id="${f.placeId}" data-place="${f.placeName}">View relocated chart</button>
-              <button type="button" data-action="archive-favorite" data-favorite-id="${f.id}" data-chart-record="${r.chartRecordId}" data-place="${f.placeName}">Archive</button>
-            </div>
-          </li>`).join("")}</ul>
-          <div class="row" style="margin-top:8px;align-items:center;">
-            <button type="button" id="rm-cr-compare-selected-btn" data-action="compare-selected-favorites" disabled>Compare selected</button>
-            <span id="rm-cr-compare-selected-msg" class="meta"></span>
-          </div>`}
-      </div>
-      <div class="panel rm-profile-panel-explorations">
-        <h3>Saved Searches</h3>
-        ${r.explorations.length === 0
-          ? `<p class="meta">No saved explorations yet. Open the map, run a search, and save it to resume later.</p>`
-          : `<ul class="plain">${r.explorations.map((e) => `
-          <li>
-            <strong>${e.name}</strong>
-            <span class="meta">${e.saved} · ${e.conditions.join("; ")}</span>
-            <br>${explorationSnapshotSummaryHtml(e.settingsSnapshot)}
-            <br>${resumeContextStubHtml()}
-            <button type="button" data-action="resume-exploration"
-              data-chart-record="${r.chartRecordId}" data-exploration="${e.id}">Resume → Map</button>
-            <button type="button" data-action="rename-exploration"
-              data-exploration="${e.id}" data-current-title="${escapeHtml(e.name).replace(/"/g, '&quot;')}">Rename</button>
-            <button type="button" data-action="archive-exploration"
-              data-exploration="${e.id}">Archive</button>
-          </li>`).join("")}</ul>`}
+        ${renderProfileFavoritesPanelHtml(r)}
       </div>
       <div class="panel rm-profile-panel-comparisons">
         <h3>Saved Comparisons</h3>
         <div id="rm-cr-comparison-sets" data-chart-record="${escapeHtml(r.chartRecordId)}">
           <p class="meta">Loading comparison sets…</p>
         </div>
+      </div>
+      <div class="panel rm-profile-panel-explorations">
+        <h3>Saved Searches</h3>
+        ${renderProfileSavedSearchesPanelHtml(r)}
       </div>
     </div>
     </div>
@@ -3349,7 +3762,7 @@ async function hydrateChartRecordComparisonSets(root) {
       return;
     }
     if (!stillCurrent()) return;
-    container.innerHTML = renderComparisonSetsListHtml(rows, chartRecordId, "chart-record");
+    container.innerHTML = renderProfileSavedComparisonsListHtml(rows, chartRecordId);
     wireComparisonSetListActions(container, chartRecordId, "chart-record");
   } catch (err) {
     if (!stillCurrent()) return;
@@ -4066,8 +4479,8 @@ function getA2aDisplayAngles() {
   return {
     asc: a2ad ? !!a2ad.asc : true,
     mc:  a2ad ? !!a2ad.mc : true,
-    dsc: a2ad ? !!a2ad.dsc : false,
-    ic:  a2ad ? !!a2ad.ic : false,
+    dsc: a2ad ? !!a2ad.dsc : true,
+    ic:  a2ad ? !!a2ad.ic : true,
   };
 }
 window.__rmGetA2aDisplayAngles = getA2aDisplayAngles;
@@ -4737,6 +5150,14 @@ function renderRelocatedWheelHtml(canonicalChart) {
   </div>`;
 }
 
+function renderRelocatedBetaWheelDiscHtml(canonicalChart) {
+  const svg = renderRelocatedWheelSvg(canonicalChart);
+  if (!svg) {
+    return '<p class="meta rm-screen4-wheel-loading">Chart wheel unavailable.</p>';
+  }
+  return `<div class="disc guest rm-relocated-wheel-disc">${svg}</div>`;
+}
+
 // A2A-1: Aspect to Angle — Layer 3 consumer of canonical_chart.aspects_to_angles only.
 const A2A_ANGLE_SETTING = { ASC: "asc", MC: "mc", DSC: "dsc", IC: "ic" };
 
@@ -5035,12 +5456,6 @@ function profileA2aAspectCellHtml(row) {
   return `<span class="asp">${escapeHtml(abbr)}</span> <span class="orb${motion}">${escapeHtml(orb)}</span>`;
 }
 
-function profileA2aLookup(idx, planet, angle) {
-  return idx.get(`${planet}\0${angle}`)
-    || idx.get(`${planet}\0${String(angle).toUpperCase()}`)
-    || idx.get(`${planet}\0${String(angle).toLowerCase()}`);
-}
-
 function profileA2aVcolHtml(canonical, angle, rowBodies) {
   const idx = buildA2aContactIndex(canonical);
   const body = rowBodies.map((name) => {
@@ -5135,7 +5550,7 @@ function renderProfilePihTableHtml(canonical, dignitiesOn) {
   const planets = (canonical && canonical.planets) || {};
   const rows = PIH_BODY_ORDER.filter((name) => visible.has(name)).map((name) => {
     const entry = planets[name] || {};
-    return `<tr><td class="lbl">${escapeHtml(name)}</td><td class="sp"></td>${profilePihHouseCellHtml(name, entry, on)}</tr>`;
+    return `<tr><td class="lbl">${profilePihLabelHtml(name, entry)}</td><td class="sp"></td>${profilePihHouseCellHtml(name, entry, on)}</tr>`;
   }).join("");
   return `<table class="rt pih texture-stripe" data-pih-source="canonical_chart"><colgroup><col class="cp"><col class="csp"><col class="ch"></colgroup><thead><tr><th class="hd-spacer"></th><th class="hd-spacer"></th><th class="hd-spacer"></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
@@ -5235,32 +5650,25 @@ function renderProfileNatalChartHtml(canonical, dignitiesOn) {
 // Reuses Profile tband renderers: renderProfileAisCardBodyHtml, renderProfilePihTableHtml.
 // PIH is house-only (showLongitude:false). Dignities footer scope: "chart".
 function renderRelocatedIntelBlockHtml(placeRow, lat, lon) {
-  // H3E — executive snippet shell; content stubs only (no full CI page).
   const stubRow = (label) =>
     `<div class="ir"><span class="il">${escapeHtml(label)}</span>`
     + `<span class="iv intel-stub">\u2014</span></div>`;
   const realRow = (label, value) =>
     `<div class="ir"><span class="il">${escapeHtml(label)}</span>`
     + `<span class="iv">${escapeHtml(value)}</span></div>`;
-  const country = (placeRow && placeRow.country_name) || null;
-  const region  = (placeRow && placeRow.admin1) || null;
-  const coords  = (lat != null && lon != null)
-    ? `${Number(lat).toFixed(2)}\u00b0, ${Number(lon).toFixed(2)}\u00b0`
-    : null;
+  const population = (placeRow && (placeRow.population_label || placeRow.population)) || null;
+  const character = (placeRow && placeRow.character_label) || null;
   return (
     `<h4>Location Intelligence</h4>`
     + `<div class="intel-rows">`
-    + (country ? realRow("Country", country) : stubRow("Country"))
-    + (region  ? realRow("Region",  region)  : stubRow("Region"))
-    + (coords  ? realRow("Coordinates", coords) : stubRow("Coordinates"))
-    + stubRow("Population")
-    + stubRow("Language")
-    + stubRow("Currency")
-    + stubRow("Climate")
+    + stubRow("Stability")
     + stubRow("Safety")
     + stubRow("Cost of Living")
+    + stubRow("Expat Environment")
+    + (population ? realRow("Population", population) : stubRow("Population"))
+    + stubRow("Climate")
     + stubRow("Mobility")
-    + stubRow("Character")
+    + (character ? realRow("Character", character) : stubRow("Character"))
     + `</div>`
     + `<a class="intel-link" href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Open Full City Intelligence \u203a</a>`
   );
@@ -5352,7 +5760,7 @@ async function hydrateRelocatedChart(root) {
     const _winAWheelSlot = document.getElementById("rm-screen4-wheel");
     if (_winAWheelSlot && _winACanonical) {
       const _wheelFrame = _winAWheelSlot.querySelector(".rm-relocated-wheel-frame") || _winAWheelSlot;
-      _wheelFrame.innerHTML = renderRelocatedWheelHtml(_winACanonical);
+      _wheelFrame.innerHTML = renderRelocatedBetaWheelDiscHtml(_winACanonical);
     }
     void hydrateRelocatedZoneCLocalTime(placeId);
     // RELOCATED City Intelligence: inject beta placeholder with real country/region/coords.
@@ -6689,57 +7097,6 @@ function screenExport() {
   `;
 }
 
-// Read-only Effective Astrology Configuration panel. Sources ALL values from the
-// Phase 1 Effective Settings helper (window.RMSettings) so the Settings UI never
-// duplicates defaults. Display only: no editable controls, no writes, no snapshot
-// or calculation changes.
-function effectiveConfigPanelHtml() {
-  const RM = window.RMSettings;
-  if (!RM || typeof RM.getEffectiveSettings !== "function") {
-    return `
-    <div class="panel">
-      <h3 class="settings-subhead-inner">Effective configuration (read-only)</h3>
-      <p class="meta">Effective settings helper unavailable.</p>
-    </div>`;
-  }
-  const raw = (window.__rmAppShell && window.__rmAppShell.storeRaw && window.__rmAppShell.storeRaw()) || {};
-  const eff = RM.getEffectiveSettings(raw.user_settings || null, null);
-  const orb = eff.major_aspect_orbs || eff.orb_defaults || {};
-  const a2a = eff.aspect_to_angle_orbs || {};
-  const orbCell = (v) => (v == null ? "\u2014" : `${v}\u00b0`);
-  const snapVer = (RM.SNAPSHOT_VERSION != null) ? RM.SNAPSHOT_VERSION : "\u2014";
-  return `
-    <div class="panel">
-      <h3 class="settings-subhead-inner">Effective configuration (read-only)</h3>
-      <p class="meta">Read-only. The effective runtime configuration currently in use. Editable controls are not available yet.</p>
-      <table class="simple">
-        <tr><th>Current Astrology Configuration</th><th></th></tr>
-        <tr><td>Zodiac Mode</td><td>${escapeHtml(capitalize(eff.zodiac_mode))}</td></tr>
-        <tr><td>House System</td><td>${escapeHtml(capitalize(eff.house_system))}</td></tr>
-        <tr><td>Conjunction orb</td><td>${orbCell(orb.conjunction)}</td></tr>
-        <tr><td>Opposition orb</td><td>${orbCell(orb.opposition)}</td></tr>
-        <tr><td>Square orb</td><td>${orbCell(orb.square)}</td></tr>
-        <tr><td>Trine orb</td><td>${orbCell(orb.trine)}</td></tr>
-        <tr><td>Sextile orb</td><td>${orbCell(orb.sextile)}</td></tr>
-        <tr><td>Minor Aspects</td><td>${eff.visible_minor_aspects ? "Enabled" : "Disabled"}</td></tr>
-        <tr><td>Out-of-sign Aspects</td><td>${eff.out_of_sign_aspects ? "Enabled" : "Disabled"}</td></tr>
-        <tr><td>Visible Planets</td><td>${Array.isArray(eff.visible_planets) ? eff.visible_planets.length : "\u2014"}</td></tr>
-        <tr><td>Visible Bodies</td><td>${Array.isArray(eff.visible_bodies) ? eff.visible_bodies.length : "\u2014"}</td></tr>
-        <tr><td>Visible Major Aspects</td><td>${Array.isArray(eff.visible_major_aspects) ? eff.visible_major_aspects.length : "\u2014"}</td></tr>
-        <tr><td>Visible Minor Aspects</td><td>${Array.isArray(eff.visible_minor_aspects_list) ? eff.visible_minor_aspects_list.length : "\u2014"}</td></tr>
-        <tr><td>House Proximity Orb</td><td>${(eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees + "\u00b0" : "\u2014"}</td></tr>
-        <tr><td>Subsequent-house Policy</td><td>${escapeHtml(houseProximityPolicyLabel(eff.subsequent_house_policy))}</td></tr>
-        <tr><td>Aspect-to-Angle Conjunction orb</td><td>${orbCell(a2a.conjunction)}</td></tr>
-        <tr><td>Aspect-to-Angle Opposition orb</td><td>${orbCell(a2a.opposition)}</td></tr>
-        <tr><td>Aspect-to-Angle Square orb</td><td>${orbCell(a2a.square)}</td></tr>
-        <tr><td>Aspect-to-Angle Trine orb</td><td>${orbCell(a2a.trine)}</td></tr>
-        <tr><td>Aspect-to-Angle Sextile orb</td><td>${orbCell(a2a.sextile)}</td></tr>
-        <tr><td>Ontology Pack</td><td>${eff.ontology_pack_id ? escapeHtml(String(eff.ontology_pack_id)) : "Default"}</td></tr>
-        <tr><td>Settings Snapshot Version</td><td>${escapeHtml(String(snapVer))}</td></tr>
-      </table>
-    </div>`;
-}
-
 // Astrology settings sections (SETTINGS-2D doctrine order).
 function _settingsEff() {
   const RM = window.RMSettings;
@@ -6769,9 +7126,9 @@ function planetsBodiesHtml() {
   // Lilith, Vertex, and other advanced points live here when engine support ships.
   const MORE = [["part_of_fortune", "Part of Fortune"]];
   const chk = (kind, id, label, checked, disabled) =>
-    `<label class="block" style="display:flex;align-items:center;gap:8px;${disabled ? "opacity:0.55;" : ""}">
-        <input type="checkbox" id="rm-settings-${kind}-${id}"${checked ? " checked" : ""}${disabled ? " disabled aria-disabled=\"true\"" : ""} style="width:auto;margin:0;" />
-        ${label}
+    `<label class="settings-check-item"${disabled ? ' style="opacity:0.55;"' : ""}>
+        <input type="checkbox" id="rm-settings-${kind}-${id}"${checked ? " checked" : ""}${disabled ? " disabled aria-disabled=\"true\"" : ""} />
+        <span>${label}</span>
       </label>`;
   const coreRows = CORE.map(([id, label]) =>
     chk("planet", id, label, true, true)
@@ -6783,12 +7140,12 @@ function planetsBodiesHtml() {
     chk("future", id, label, false, true)
   ).join("");
   return `
-    <div class="panel">
-      <h4 style="margin:0 0 8px;">Core planets</h4>
+    <div class="panel settings-panel">
+      <h4>Core planets</h4>
       <p class="meta" style="margin:0 0 8px;">Always included in charts.</p>
-      ${coreRows}
-      <h4 style="margin:16px 0 8px;">Additional bodies</h4>
-      ${addRows}
+      <div class="settings-checklist">${coreRows}</div>
+      <h4 style="margin-top:16px;">Additional bodies</h4>
+      <div class="settings-checklist">${addRows}</div>
       <p class="meta" style="margin:4px 0 0;font-size:11px;">North and South Node calculations are not yet available. ${settingsSoonBadge()}</p>
       <details class="rm-settings-more-points">
         <summary>More points</summary>
@@ -6823,28 +7180,30 @@ function _aspectRegistryContext() {
 // SETTINGS-WIRE-1A: A2A display angle toggles.
 // Controls which relocated angles (ASC/MC/DSC/IC) are shown in A2A tables,
 // comparison A2A columns, and (future) chart wheel A2A overlays.
-// Default: ASC and MC on; DSC and IC off — mirrors conventional relocation focus.
+// Default: all four angles on — matches astrology_settings_defaults.json / MICRO_DECISION_LOG.
 // SETTINGS-FINAL-WIRE-1: consumers include AIS, comparison angle rows, A2A tables, map Genie.
 function a2aDisplayAnglesHtml() {
   const eff = _settingsEff();
   const a2ad = (eff && typeof eff.display_aspects_to_angles === "object" && eff.display_aspects_to_angles)
     ? eff.display_aspects_to_angles
-    : { asc: true, mc: true, dsc: false, ic: false };
-  const row = (key, label, defaultOn) => {
-    const on = (a2ad[key] != null) ? !!a2ad[key] : defaultOn;
-    return `<label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-a2d-${key}"${on ? " checked" : ""} style="width:auto;margin:0;" />
-        ${label}
+    : { asc: true, mc: true, dsc: true, ic: true };
+  const row = (key, label) => {
+    const on = (a2ad[key] != null) ? !!a2ad[key] : true;
+    return `<label class="settings-check-item">
+        <input type="checkbox" id="rm-settings-a2d-${key}"${on ? " checked" : ""} />
+        <span>${label}</span>
       </label>`;
   };
   return `
-    <div class="panel">
-      <h4 style="margin:0 0 4px;">Angles in A2A display</h4>
-      <p class="meta" style="margin:0 0 8px;">Choose which relocated angles appear in AIS, comparison angle rows, A2A tables, and the map Genie angle selector. ASC and MC are shown by default.</p>
-      ${row("asc", "ASC (Ascendant)", true)}
-      ${row("mc",  "MC (Midheaven)",  true)}
-      ${row("dsc", "DSC (Descendant)", false)}
-      ${row("ic",  "IC (Imum Coeli)",  false)}
+    <div class="panel settings-panel">
+      <h4>Angles in A2A display</h4>
+      <p class="meta" style="margin:0 0 8px;">Choose which relocated angles appear in AIS, comparison angle rows, A2A tables, and the map Genie angle selector. All four are shown by default.</p>
+      <div class="settings-checklist">
+      ${row("asc", "ASC (Ascendant)")}
+      ${row("mc",  "MC (Midheaven)")}
+      ${row("dsc", "DSC (Descendant)")}
+      ${row("ic",  "IC (Imum Coeli)")}
+      </div>
     </div>`;
 }
 
@@ -6853,19 +7212,19 @@ function aspectsSettingsHtml() {
   const minorMaster = eff ? !!eff.visible_minor_aspects : false;
   const { majVis, minVis, MAJOR, MINOR } = _aspectRegistryContext();
   const visRow = (kind, id, label, checked) =>
-    `<label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-${kind}asp-${id}"${checked ? " checked" : ""} style="width:auto;margin:0;" />
-        ${label}
+    `<label class="settings-check-item">
+        <input type="checkbox" id="rm-settings-${kind}asp-${id}"${checked ? " checked" : ""} />
+        <span>${label}</span>
       </label>`;
   return `
-    <div class="panel">
-      <h4 style="margin:0 0 8px;">Major aspects</h4>
-      ${MAJOR.map(([id, label]) => visRow("maj", id, label, majVis.indexOf(id) !== -1)).join("")}
-      <h4 style="margin:16px 0 8px;">Minor aspects</h4>
-      ${MINOR.map(([id, label]) => visRow("min", id, label, minVis.indexOf(id) !== -1)).join("")}
-      <label class="block" style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-        <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} style="width:auto;margin:0;" />
-        Show minor aspects
+    <div class="panel settings-panel">
+      <h4>Major aspects</h4>
+      <div class="settings-checklist">${MAJOR.map(([id, label]) => visRow("maj", id, label, majVis.indexOf(id) !== -1)).join("")}</div>
+      <h4 style="margin-top:16px;">Minor aspects</h4>
+      <div class="settings-checklist">${MINOR.map(([id, label]) => visRow("min", id, label, minVis.indexOf(id) !== -1)).join("")}</div>
+      <label class="settings-check-item" style="margin-top:12px;border-top:1px solid color-mix(in srgb, var(--line) 65%, transparent);padding-top:12px;">
+        <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} />
+        <span>Show minor aspects</span>
       </label>
       <p class="meta" style="margin:8px 0 0;font-size:11px;">Major and minor visibility affect server-computed planet-to-planet aspects (wheel spokes), A2A major aspects, and map Genie overlay aspect options.</p>
     </div>`;
@@ -6878,13 +7237,13 @@ function chartDisplayOrbsHtml() {
         <input type="number" id="rm-settings-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}" />
       </label>`;
   return `
-    <div class="panel">
-      <h4 style="margin:0 0 8px;">Chart display</h4>
+    <div class="panel settings-panel">
+      <h4>Chart display</h4>
       <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs. Affect wheel spokes and server-computed <code>aspects_planet_to_planet</code>. They do not change PIH house assignment or map region geometry.</p>
       <h4 style="margin:8px 0 4px;font-size:12px;">Major</h4>
-      ${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}
+      <div class="settings-orb-grid">${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}</div>
       <h4 style="margin:12px 0 4px;font-size:12px;">Minor</h4>
-      ${MINOR.map(([id, label, d]) => orbRow("min", id, label, num(minOrb[id], d))).join("")}
+      <div class="settings-orb-grid">${MINOR.map(([id, label, d]) => orbRow("min", id, label, num(minOrb[id], d))).join("")}</div>
     </div>`;
 }
 
@@ -6901,30 +7260,33 @@ function aspectToAngleOrbsHtml() {
         <input type="number" id="rm-settings-a2aorb-${id}" min="0" max="15" step="0.5" value="${num(a2a[id], fallback)}" />
       </label>`;
   return `
-    <div class="panel">
-      <h4 style="margin:0 0 8px;">Aspect-to-angle / search</h4>
+    <div class="panel settings-panel">
+      <h4>Aspect-to-angle / search</h4>
+      <div class="settings-orb-grid">
       <p class="meta" style="margin:0 0 8px;">Orbs for aspect-to-angle contacts in relocated A2A tables and map search metadata. Map overlay lines remain exact aspect crossings; orbs filter which contacts are computed.</p>
       ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
+      </div>
     </div>`;
 }
 
 function subsequentHouseRuleHtml() {
   const eff = _settingsEff();
   const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
+  const policy = (eff && eff.subsequent_house_policy) ? String(eff.subsequent_house_policy) : "display_only";
   // SETTINGS-FINAL-WIRE-1: orb is live on /relocated-chart near_cusp. Direction-aware
-  // subsequent-house reassignment remains future work — do not expose a live toggle.
+  // house-edge reassignment is display-only until engine support ships.
   return `
-    <div class="panel">
+    <div class="panel settings-panel">
       <label class="block">Near-cusp orb (degrees)
         <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
       </label>
-      <p class="meta" style="margin:8px 0 0;font-size:11px;">Controls how close a planet must be to a house cusp to flag it as near-cusp on PIH tables and chart data.</p>
-      <div class="loc-row" style="margin-top:12px;opacity:0.88;">
+      <p class="meta" style="margin:8px 0 0;">Flags planets within this orb of a house boundary on PIH tables and chart data. House-edge doctrine is direction-aware: direct motion near the <em>end</em> of a house may assign to the subsequent house; retrograde motion near the <em>beginning</em> may assign to the previous house. This is not a simple &ldquo;late in house only&rdquo; rule.</p>
+      <div class="loc-row" style="margin-top:14px;">
         <div class="loc-row-text">
-          <strong>Direction-aware subsequent house</strong>
-          <span class="meta">Retrograde/applying house-edge reassignment.</span>
+          <strong>Direction-aware house reassignment</strong>
+          <span class="meta">Automatic reassignment is not applied in calculations yet (${escapeHtml(policy.replace(/_/g, " "))}). Near-cusp flagging above is live.</span>
         </div>
-        ${settingsSoonBadge()}
+        <span class="badge-soon" title="Display only until engine support">Display only</span>
       </div>
     </div>`;
 }
@@ -6933,18 +7295,18 @@ function outOfSignAspectsHtml() {
   const eff = _settingsEff();
   const oos = eff ? !!eff.out_of_sign_aspects : false;
   return `
-    <div class="panel">
-      <label class="block" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} style="width:auto;margin:0;" />
-        Allow out-of-sign aspects
+    <div class="panel settings-panel">
+      <label class="settings-check-item">
+        <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} />
+        <span>Allow out-of-sign aspects</span>
       </label>
-      <p class="meta" style="margin:8px 0 0;font-size:11px;">When enabled, cross-sign planet-to-planet and aspect-to-angle contacts are included in wheel spokes, A2A tables, and server aspect compute.</p>
+      <p class="meta" style="margin:8px 0 0;">When enabled, cross-sign planet-to-planet and aspect-to-angle contacts are included in wheel spokes, A2A tables, and server aspect compute.</p>
     </div>`;
 }
 
 function dignitiesDisplayHtml() {
   return `
-    <div class="panel">
+    <div class="panel settings-panel">
       <p class="meta"><strong>Dignities</strong> on Planet-in-House tables applies traditional sign relationships to the matching natural-zodiac <em>house</em> (relocation-relevant). Toggle from each PIH footer; default off.</p>
       <p class="meta" style="margin-top:8px;">We use two colors, not four: Rulership and Exaltation share one overlay (generally positive); Detriment and Fall share one (generally difficult). This keeps PIH readable. Optional separate colors for Exaltation and Fall are under <button type="button" class="linkish" data-settings-sub="display">Appearance</button>.</p>
       <p class="meta" style="margin-top:8px;"><strong>Ontology preset</strong> — choose which dignity relationships apply: Modern, Ancient, Hybrid (default), or Advanced (custom system). ${settingsSoonBadge()}</p>
@@ -6994,8 +7356,10 @@ function settingsPageLayout(activeSub, title, subtitle, bodyHtml, opts) {
         ${settingsNavHtml(activeSub)}
       </nav>
       <div class="settings-sections settings-subpage">
+        <div class="settings-card" style="border:none;padding:0;box-shadow:none;background:transparent;">
         <h3 class="settings-sec-title">${title}</h3>
         <p class="settings-sec-sub">${subtitle}</p>
+        </div>
         ${bodyHtml}
         ${showSave ? settingsSaveBarHtml(o) : ""}
         <div class="row" style="margin-top:16px;">
@@ -7078,7 +7442,7 @@ function settingsSoonBadge() {
 
 function settingsStubRow(label, desc) {
   const d = desc ? `<span class="meta">${desc}</span>` : "";
-  return `<div class="loc-row" style="margin-bottom:10px;opacity:0.88;">
+  return `<div class="loc-row settings-stub-row">
     <div class="loc-row-text"><strong>${label}</strong>${d}</div>
     ${settingsSoonBadge()}
   </div>`;
@@ -7132,7 +7496,7 @@ function settingsAccountPanelHtml() {
   const role = user.role || user.accountType || "\u2014";
   return `
     <div class="settings-subhead">Identity</div>
-    <div class="panel" id="sec-account-identity">
+    <div class="panel settings-panel" id="sec-account-identity">
       <p class="meta">Sign-in and billing controls are in the account drawer (top bar).</p>
       <label class="block">Account name
         <input type="text" value="${escapeHtml(name)}" disabled />
@@ -7148,7 +7512,7 @@ function settingsProfilesPanelHtml() {
   const vm = requireViewModel();
   return `
     <div class="settings-subhead">Profiles</div>
-    <div class="panel" id="sec-data-profiles">
+    <div class="panel settings-panel" id="sec-data-profiles">
       <label class="block">Default profile
         <select id="rm-settings-default-cr">
           ${vm.chartRecords.map((r) =>
@@ -7163,7 +7527,7 @@ function settingsProfilesPanelHtml() {
 
 function chartAppearanceHtml() {
   return `
-    <div class="panel" id="sec-appearance-chart">
+    <div class="panel settings-panel" id="sec-appearance-chart">
       ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
       ${settingsStubRow("Chart surface", "Background, rings, and table framing.")}
       <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
@@ -7172,7 +7536,7 @@ function chartAppearanceHtml() {
 
 function glyphAppearanceHtml() {
   return `
-    <div class="panel" id="sec-appearance-glyphs">
+    <div class="panel settings-panel" id="sec-appearance-glyphs">
       ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
       ${settingsStubRow("Glyph variants", "Mars, Capricorn, Uranus, Pluto, and aspect notation.")}
       <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
@@ -7181,7 +7545,7 @@ function glyphAppearanceHtml() {
 
 function aspectBandAppearanceHtml() {
   return `
-    <div class="panel" id="sec-appearance-aspect-bands">
+    <div class="panel settings-panel" id="sec-appearance-aspect-bands">
       ${settingsStubRow("Aspect band style", "Relocation map overlay band rendering.")}
       ${settingsStubRow("Aspect band topology", "How bands connect and layer on the map.")}
       <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
@@ -7211,10 +7575,10 @@ function chartsZodiacHtml() {
     : null;
   const mode = eff && eff.zodiac_mode ? capitalize(eff.zodiac_mode) : "Tropical";
   return `
-    <div class="panel">
-      <p class="meta">Tropical zodiac is active.</p>
+    <div class="panel settings-panel">
+      <p class="meta" style="margin:0 0 8px;">Tropical zodiac is active. Sidereal modes are not available yet.</p>
       <label class="block">Zodiac mode (read-only)
-        <input type="text" value="${escapeHtml(mode)}" disabled />
+        <input type="text" value="${escapeHtml(mode)}" disabled aria-disabled="true" />
       </label>
     </div>`;
 }
@@ -7271,7 +7635,7 @@ function settingsMapBodyHtml() {
 function settingsAppearanceRegionalBodyHtml() {
   return `
     <div class="settings-subhead">Themes</div>
-    <div class="panel" id="sec-appearance-themes">
+    <div class="panel settings-panel" id="sec-appearance-themes">
       ${settingsStubRow("Color themes", "App atmosphere and map overlay palettes.")}
       <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
     </div>
@@ -7286,7 +7650,7 @@ function settingsAppearanceRegionalBodyHtml() {
 function settingsExportsBodyHtml() {
   return `
     <div class="settings-subhead">Sharing &amp; export defaults</div>
-    <div class="panel" id="sec-exports" data-settings-future="export-defaults">
+    <div class="panel settings-panel" id="sec-exports" data-settings-future="export-defaults">
       ${settingsStubRow("Default share link", "Quick sharing options.")}
       ${settingsStubRow("Export defaults", "Report and file export presets.")}
       ${settingsStubRow("PNG / PDF presets", "Viewport and table export options.")}
@@ -7322,7 +7686,7 @@ function settingsDataBodyHtml() {
 
 function dignityAppearanceHtml() {
   return `
-    <div class="panel" id="sec-appearance-dignities">
+    <div class="panel settings-panel" id="sec-appearance-dignities">
       <p class="meta">Planet-in-House dignities use two overlay colors by default: Rulership and Exaltation (generally positive), and Detriment and Fall (generally difficult).</p>
       ${settingsStubRow("Exaltation color", "Optional distinct color when only Exaltation applies (otherwise uses the positive overlay).")}
       ${settingsStubRow("Fall color", "Optional distinct color when only Fall applies (otherwise uses the difficult overlay).")}
@@ -7350,7 +7714,7 @@ function settingsDisplayBodyHtml() {
 function settingsNotificationsBodyHtml() {
   return `
     <div class="settings-subhead">Travel &amp; location</div>
-    <div class="panel" id="sec-notifications" data-settings-future="notifications">
+    <div class="panel settings-panel" id="sec-notifications" data-settings-future="notifications">
       ${settingsStubRow("Road Trip Mode", "Continuous route-based location alerts.")}
       ${settingsStubRow("Airplane Mode", "Offline or saved-location travel alerts.")}
       ${settingsStubRow("Location change alerts", "When your effective relocation context changes.")}
@@ -8079,10 +8443,10 @@ function render() {
   const fn = SCREEN_RENDERERS[navContext.route];
   $("#main").innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
   bindScreenActions($("#main"));
-  if (navContext.route === "chart-record") wireChartRecordFavoriteCompare($("#main"));
+  if (navContext.route === "chart-record") wireProfileLowerPanels($("#main"));
   if (navContext.route === "compare") {
     mountComparisonLocationSearch();
-    mountComparisonV5Route($("#main"));
+    void mountComparisonV5Route($("#main"));
   }
   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
   if (uiState.popupOpen) openPopup();
