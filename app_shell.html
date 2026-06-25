@@ -718,6 +718,64 @@
     font-family: inherit;
   }
   body.rm-beta-compare .rm-cmp-workspace-places-row { display: none !important; }
+  body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
+  body.rm-beta-compare .comparison-main { margin-top: 4px; }
+  body.rm-beta-compare .cmp-block { margin-top: 28px; }
+  body.rm-beta-compare .cmp-block-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rm-line);
+  }
+  body.rm-beta-compare .cmp-block-header-btn {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+  }
+  body.rm-beta-compare .cmp-block-header-btn:hover .cmp-block-title { opacity: 0.75; }
+  body.rm-beta-compare .cmp-block-arrow {
+    font-size: 12px;
+    color: var(--rm-ink-faint);
+    margin-right: 8px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  body.rm-beta-compare .cmp-block-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    color: var(--rm-ink);
+  }
+  body.rm-beta-compare .cmp-block-body {
+    overflow: hidden;
+    max-height: 1600px;
+    opacity: 1;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  }
+  body.rm-beta-compare .cmp-block-body.collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
+  body.rm-beta-compare .cmp-block-body .fact-table-wrap { overflow-x: auto; }
+  body.rm-beta-compare .cmp-block-body table.simple {
+    margin: 0;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  body.rm-beta-compare .cmp-block-body table.simple td,
+  body.rm-beta-compare .cmp-block-body table.simple th {
+    border-bottom: 1px solid rgba(51, 41, 31, 0.1);
+  }
   body.rm-beta-compare .warn-box { margin-top: 0; margin-bottom: 12px; }
 
   /* H3B — Relocated authority stack (scoped to #/chart) */
@@ -3795,11 +3853,13 @@ function renderAisWorkbookSectionBody(cols, ws) {
 }
 
 function refreshAisWorkbookSection() {
-  const body = document.getElementById("rm-cmp-sec-ais");
-  if (!body) return;
   const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
     || defaultComparisonWorkspaceState([]);
-  body.innerHTML = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
+  const html = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
+  ["rm-cmp-bottle-ais-body", "rm-cmp-sec-ais"].forEach((id) => {
+    const body = document.getElementById(id);
+    if (body) body.innerHTML = html;
+  });
   applyComparisonAngleTabFilter(document);
 }
 
@@ -4928,6 +4988,17 @@ function applyComparisonWorkspaceToDom(ws) {
     const vis = document.querySelector(`input[data-action="cmp-visible-section"][data-cmp-section="${sec}"]`);
     if (vis) vis.checked = ws.visible_sections[sec] !== false;
   });
+  const aisBottleBody = document.getElementById("rm-cmp-bottle-ais-body");
+  if (aisBottleBody) {
+    const collapsed = !!ws.collapsed_sections.ais;
+    aisBottleBody.classList.toggle("collapsed", collapsed);
+    const aisBtn = document.querySelector("[data-action='cmp-toggle-bottle-ais']");
+    if (aisBtn) {
+      aisBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const arrow = aisBtn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+    }
+  }
   const hidden = new Set(ws.hidden_place_ids || []);
   document.querySelectorAll(".rm-cmp-city-chip").forEach((chip) => {
     const pid = chip.getAttribute("data-place-id");
@@ -5060,6 +5131,23 @@ function initComparisonWorkspace(root) {
       _cmpWorkspaceSession.state.visible_sections[sec] = !!el.checked;
       const wrap = scope.querySelector(`.rm-cmp-section[data-cmp-section="${sec}"]`);
       if (wrap) wrap.style.opacity = el.checked ? "" : "0.55";
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-bottle-ais']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const body = document.getElementById("rm-cmp-bottle-ais-body");
+      const collapsed = body ? !body.classList.contains("collapsed") : false;
+      _cmpWorkspaceSession.state.collapsed_sections.ais = collapsed;
+      if (body) body.classList.toggle("collapsed", collapsed);
+      const arrow = btn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const legacyBtn = scope.querySelector("[data-action='cmp-toggle-section'][data-cmp-section='ais']");
+      const legacyBody = document.getElementById("rm-cmp-sec-ais");
+      if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
+      if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.ais || "Angle in Sign");
       scheduleComparisonWorkspaceSave();
     });
   });
@@ -5531,6 +5619,20 @@ function mountComparisonLocationSearch() {
   });
 }
 
+function renderComparisonAisBlockShellHtml(ws) {
+  const collapsed = !!(ws && ws.collapsed_sections && ws.collapsed_sections.ais);
+  const inner = renderAisWorkbookSectionBody(_comparisonColsCache, ws);
+  return `<div class="cmp-block cmp-block-ais" id="rm-cmp-bottle-ais" data-cmp-bottle-block="ais">
+    <div class="cmp-block-header">
+      <button type="button" class="cmp-block-header-btn" data-action="cmp-toggle-bottle-ais" aria-expanded="${collapsed ? "false" : "true"}">
+        <span class="cmp-block-arrow">${collapsed ? "\u25b6" : "\u25bc"}</span>
+        <span class="cmp-block-title">Angle in Sign</span>
+      </button>
+    </div>
+    <div class="cmp-block-body fact-table-wrap${collapsed ? " collapsed" : ""}" id="rm-cmp-bottle-ais-body">${inner}</div>
+  </div>`;
+}
+
 function renderComparisonZoneBHtml(r) {
   return `<div class="cmp-zone-b zone-b">
     <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">\u25be</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
@@ -5674,6 +5776,7 @@ function screenCompare() {
       ${renderComparisonZoneBHtml(origin)}
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}</div>` : ""}
     <div class="rm-comparison-beta-body">
     <div class="rm-comparison-legacy-chrome">
     <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>

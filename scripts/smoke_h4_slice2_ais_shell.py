@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static smoke: H4B Slice 1 — Comparison authority shell."""
+"""Static smoke: H4 Slice 2 — Comparison AIS bottled shell."""
 from __future__ import annotations
 
 import subprocess
@@ -23,20 +23,16 @@ def main() -> int:
     text = SHELL.read_text(encoding="utf-8")
     sc = text.split("function screenCompare() {", 1)[1].split("function screenExport()", 1)[0]
 
-    check("COMPARISON_BETA_NAV" in text, "comparison beta nav defined")
-    check('navContext.route === "compare"\n        ? COMPARISON_BETA_NAV' in text, "renderNav uses comparison beta nav")
-    check("body.rm-beta-compare .app-header" in text, "compare beta header CSS")
-    check("body.rm-beta-compare main" in text and "padding: 0 28px 70px" in text.split("body.rm-beta-compare main", 1)[1][:200], "compare main pad 70px")
-    check("function renderComparisonZoneBHtml" in text, "cmp-zone-b renderer")
-    check('class="cmp-zone-b' in text, "cmp-zone-b class in renderer")
-    check("function renderComparisonCityBarHtml" in text, "city bar renderer")
-    check('class="bar-authority"' in text, "bar-authority in city bar")
-    check('id="rm-cmp-city-bar-mount"' in sc, "city bar mount in screenCompare")
-    check('class="rm-comparison-beta-root"' in sc, "beta root wrapper")
-    check("rm-comparison-legacy-chrome" in sc, "legacy chrome wrapper for hide")
-    check('navContext.route === "compare"' in text.split("function render() {", 1)[1].split("function switchChartRecord", 1)[0] and "rm-beta-compare" in text.split("function render() {", 1)[1].split("function switchChartRecord", 1)[0], "render toggles rm-beta-compare")
-    check("renderComparisonTableHtml" in text, "comparison table renderer preserved")
-    check("hydrateComparisonColumns" in text, "hydration preserved")
+    check("function renderComparisonAisBlockShellHtml" in text, "AIS bottle renderer defined")
+    check('class="cmp-block cmp-block-ais"' in text, "cmp-block-ais class")
+    check('id="rm-cmp-bottle-ais-body"' in text, "bottle AIS body id")
+    check('data-action="cmp-toggle-bottle-ais"' in text, "bottle AIS collapse action")
+    check("Angle in Sign" in text.split("renderComparisonAisBlockShellHtml", 1)[1][:600], "AIS title in bottle")
+    check('comparison-main' in sc and "renderComparisonAisBlockShellHtml" in sc, "comparison-main in screenCompare")
+    check('rm-cmp-section[data-cmp-section="ais"] { display: none' in text, "workspace AIS hidden in beta")
+    check("rm-cmp-bottle-ais-body" in text.split("function refreshAisWorkbookSection", 1)[1][:400], "refresh targets bottle body")
+    check("renderAisComparisonHtml" in text, "canonical AIS renderer preserved")
+    check("renderAisWorkbookSectionBody" in text, "AIS workbook body preserved")
 
     if failures:
         print(f"FAIL {len(failures)}/{checks}")
@@ -47,6 +43,7 @@ def main() -> int:
     print(f"PASS {checks}/{checks}")
 
     for script in [
+        ROOT / "scripts" / "smoke_h4b_comparison_authority.py",
         ROOT / "scripts" / "smoke_h2_profile_transplant.py",
         ROOT / "scripts" / "smoke_h3e_relocated_shell_completion.py",
         ROOT / "scripts" / "smoke_comparison_a2a_matrix.py",
