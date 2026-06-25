@@ -84,24 +84,8 @@
   </div>
     </main>
 
-    <!-- Notes rail: floating panel; RTE toolbar harmonization deferred (preferred future: controls on bottom) -->
-    <aside class="comparison-notes-rail" id="cmp-notes-rail" data-cmp-mount="notes-rail" data-cmp-role="notes-rail" data-cmp-notes-layout="floating" data-cmp-notes-toolbar-position="top">
-      <button type="button" id="notes-fab" title="Open notes" data-action="cmp-notes-show" data-cmp-role="notes-fab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></button>
-      
-      <div class="general-notes-section">
-        <div class="general-notes-head"><button type="button" class="gn-collapse" title="Hide notes" data-action="cmp-notes-hide" data-cmp-role="notes-collapse">▾</button><div class="general-notes-label">Notes</div></div>
-        <div class="notes-toolbar">
-            <button class="notes-tool" title="Bold"><b>B</b></button>
-            <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
-            <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
-            <button class="notes-tool" title="Bullet list"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg></button>
-          </div>
-          <textarea id="rm-cmp-note" class="notes-textarea" data-cmp-mount="notes-input" data-cmp-role="notes-input" placeholder="General comparison notes&#8230;" rows="7">__CMP_NOTES__</textarea>
-          <p class="note-hint">Optional &middot; same record as Profile notebook &middot; pops out for long entries</p>
-          <div class="notes-actions"><button class="notes-tool mic" title="Voice note (future)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8.5" y1="22" x2="15.5" y2="22"/></svg></button><button type="button" class="notes-save" data-action="save-comparison-note" data-cmp-role="notes-save">Save</button></div>
-        </div>
-      </div>
-    </aside>
+    <!-- H7-1: Notes rail hydrated from NotesCanonical shared renderer -->
+    __NOTES_RAIL__
   </div>
 </div>
 </div>`;
@@ -122,8 +106,11 @@
     return '<span class="glyph glyph-slot" aria-hidden="true"></span>';
   }
 
-  function shellFragmentHtml(notesEsc) {
-    return SHELL_FRAGMENT.replace("__CMP_NOTES__", notesEsc || "");
+  function shellFragmentHtml(notesRaw, escapeHtml) {
+    const rail = (global.NotesCanonical && NotesCanonical.CANONICAL)
+      ? NotesCanonical.renderRailHtml({ notes: notesRaw || "" }, escapeHtml)
+      : "";
+    return SHELL_FRAGMENT.replace("__NOTES_RAIL__", rail);
   }
 
   function isCanonicalComparisonSet(cs, comparisonSetId, ws) {
@@ -141,8 +128,7 @@
     const orderedIds = resolveColumnOrderPlaceIds(ws, cs.placeIds).slice(0, 5);
     const chartRecordId = escapeHtml(origin.chartRecordId);
     const placeIdsAttr = escapeHtml(orderedIds.join(","));
-    const notesEsc = escapeHtml(cs.notes || "");
-    const shellFixed = shellFragmentHtml(notesEsc);
+    const shellFixed = shellFragmentHtml(cs.notes || "", escapeHtml);
     return `
     <div class="rm-cmp-v5-canonical-wrap" data-cmp-v5-canonical="true">
       ${shellFixed}

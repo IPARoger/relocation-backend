@@ -1,0 +1,130 @@
+/* H7-1 — shared Notes typography (all surfaces). Authority: comparison_notes_slot.html */
+
+.notes-canonical .notes-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 12px;
+  border-top: 1px solid var(--rm-line-soft, var(--line-soft, #ece2cf));
+  border-bottom: 1px solid var(--rm-line-soft, var(--line-soft, #ece2cf));
+  background: transparent;
+}
+
+.notes-canonical .notes-toolbar .notes-tool {
+  background: none;
+  border: none;
+  color: var(--rm-ink-soft, var(--ink-soft, #6a5f4f));
+  cursor: default;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-canonical .notes-toolbar .notes-tool:hover {
+  background: rgba(51, 41, 31, .06);
+  color: var(--rm-ink, var(--ink, #33291f));
+}
+
+.notes-canonical .notes-toolbar .notes-tool.mic {
+  margin-left: auto;
+}
+
+.notes-canonical .note-ta {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 104px;
+  border: none;
+  background: transparent;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 14.5px;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  color: var(--rm-ink, var(--ink, #33291f));
+}
+
+.notes-canonical.notes-card .note-ta {
+  width: calc(100% - 28px);
+  max-width: calc(100% - 28px);
+  margin: 4px 14px 6px;
+  min-height: 128px;
+  border: 1px solid var(--rm-line, var(--line, #ddd0b8));
+  background: rgba(255, 255, 255, .45);
+  border-radius: 10px;
+  padding: 11px 12px;
+}
+
+.notes-canonical .note-hint {
+  font-size: 11px;
+  color: var(--rm-ink-faint, var(--ink-faint, #9b9080));
+  padding: 0 14px 12px;
+  margin: 0;
+}
+
+.notes-canonical .note-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+
+.notes-canonical .note-foot[hidden] {
+  display: none;
+}
+
+.notes-canonical .notes-popout {
+  font-size: 13px;
+  color: var(--rm-ink-faint, var(--ink-faint, #9b9080));
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 2px 4px;
+}
+
+body.rm-beta-compare .notes-canonical.comparison-notes-rail .note-ta,
+body.rm-compare-v5-canonical .notes-canonical.comparison-notes-rail .note-ta {
+  border: 1px solid rgba(154, 144, 128, .28);
+  border-radius: 12px;
+  background: var(--rm-card, var(--card));
+  margin: 0;
+  width: 100%;
+  min-height: 118px;
+  padding: 13px 14px;
+}
+
+body.rm-beta-compare .notes-canonical .notes-save,
+body.rm-compare-v5-canonical .notes-canonical .notes-save {
+  font-size: 12.5px;
+  border-radius: 999px;
+  padding: 4px 11px;
+  border: 1px solid var(--rm-line, var(--line));
+  background: var(--rm-card, var(--card));
+  cursor: pointer;
+  font-family: inherit;
+}
+
+body.rm-beta-compare .notes-canonical .notes-save:hover,
+body.rm-compare-v5-canonical .notes-canonical .notes-save:hover {
+  background: rgba(51, 41, 31, .06);
+}
+
+.notes-library-composer.notes-canonical {
+  margin-top: 4px;
+}
+
+.notes-library-composer.notes-canonical .nl-editor-head {
+  margin-bottom: 6px;
+}
+
+.notes-library-composer.notes-canonical .note-ta {
+  border: 1px solid var(--rm-line, #cbd5e1);
+  border-radius: 10px;
+  background: #fff;
+  margin: 0;
+  min-height: 220px;
+}

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/genie_variable_builder.css" />
 <link rel="stylesheet" href="/theme/glyphs.css" />
 <link rel="stylesheet" href="/theme/tband_foundation.css" />
+<link rel="stylesheet" href="/validation/mockups/beta/notes_canonical.css" />
 <link rel="stylesheet" href="/theme/relocation_themes.css" />
 <script src="/theme/relocation_theme.js"></script>
 <style>
@@ -1553,6 +1554,7 @@
 <script src="/genie_variable_builder.js"></script>
 <script src="/theme/glyphs.js"></script>
 <script src="/validation/mockups/beta/comparison_v5_adapter.js"></script>
+<script src="/validation/mockups/beta/notes_canonical.js"></script>
 <script src="/validation/mockups/beta/comparison_v5_route.js"></script>
 <script>
 "use strict";
@@ -5579,50 +5581,22 @@ function renderProfilePihTableHtml(canonical, dignitiesOn) {
   return `<table class="rt pih texture-stripe" data-pih-source="canonical_chart"><colgroup><col class="cp"><col class="csp"><col class="ch"></colgroup><thead><tr><th class="hd-spacer"></th><th class="hd-spacer"></th><th class="hd-spacer"></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-// H3D Slice 3 — shared Notes card renderer (Profile + Relocated consumers).
-var _NOTES_LIST_SVG = "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" aria-hidden=\"true\"><line x1=\"9\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"9\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"9\" y1=\"18\" x2=\"20\" y2=\"18\"/><circle cx=\"4.5\" cy=\"6\" r=\"1.3\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"4.5\" cy=\"12\" r=\"1.3\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"4.5\" cy=\"18\" r=\"1.3\" fill=\"currentColor\" stroke=\"none\"/></svg>";
-var _NOTES_MIC_SVG = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"2\" width=\"6\" height=\"11\" rx=\"3\"/><path d=\"M5 10a7 7 0 0 0 14 0\"/><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"22\"/><line x1=\"8.5\" y1=\"22\" x2=\"15.5\" y2=\"22\"/></svg>";
-var _NOTES_HINT_DEFAULT = "Optional \u00b7 same record as Profile notebook \u00b7 pops out for long entries";
+// H7-1 — Notes canonicalization: shared renderer module (Profile + Relocated + Comparison + Library).
+function notesCanonicalReady() {
+  return typeof NotesCanonical !== "undefined" && NotesCanonical && NotesCanonical.CANONICAL;
+}
 
 function renderNotesToolbarHtml() {
-  return `<div class="notes-toolbar" aria-label="Formatting tools (visual only)">
-      <button type="button" class="notes-tool" title="Bold" tabindex="-1" aria-disabled="true"><b>B</b></button>
-      <button type="button" class="notes-tool" title="Italic" tabindex="-1" aria-disabled="true"><i>I</i></button>
-      <button type="button" class="notes-tool" title="Underline" tabindex="-1" aria-disabled="true"><u>U</u></button>
-      <button type="button" class="notes-tool" title="Bullet list" tabindex="-1" aria-disabled="true">${_NOTES_LIST_SVG}</button>
-      <button type="button" class="notes-tool mic" title="Voice note" tabindex="-1" aria-disabled="true">${_NOTES_MIC_SVG}</button>
-    </div>`;
+  return notesCanonicalReady() ? NotesCanonical.renderToolbarHtml() : "";
 }
 
 function renderNotesSaveFootHtml(opts) {
-  if (!opts || !opts.showSave) {
-    return opts && opts.saveSlot
-      ? `<div class="note-foot" data-notes-save-slot="${escapeHtml(opts.saveSlot)}" hidden></div>`
-      : "";
-  }
-  const msgId = opts.msgId ? ` id="${escapeHtml(opts.msgId)}"` : "";
-  const action = escapeHtml(opts.saveAction || "save-chart-note");
-  const label = escapeHtml(opts.saveLabel || "Save Note");
-  return `<div class="note-foot">
-        <button type="button" class="primary" data-action="${action}">${label}</button>
-        <span${msgId} class="meta" style="min-height:1.2em;"></span>
-      </div>`;
+  return notesCanonicalReady() ? NotesCanonical.renderSaveFootHtml(opts, escapeHtml) : "";
 }
 
 function renderNotesCardHtml(config) {
-  const cfg = config || {};
-  const textareaId = cfg.textareaId ? ` id="${escapeHtml(cfg.textareaId)}"` : "";
-  const body = cfg.body != null ? String(cfg.body) : "";
-  const placeholder = escapeHtml(cfg.placeholder || "Write or dictate a note\u2026");
-  const hint = escapeHtml(cfg.hint != null ? cfg.hint : _NOTES_HINT_DEFAULT);
-  const scopeAttr = cfg.scope ? ` data-notes-scope="${escapeHtml(cfg.scope)}"` : "";
-  return `<div class="notes-card notes-slot"${scopeAttr}>
-      <div class="card-head"><h3 class="ch-title">Notes</h3><button type="button" class="notes-popout" title="Pop out" tabindex="-1" aria-disabled="true">⤢</button></div>
-      ${renderNotesToolbarHtml()}
-      <textarea${textareaId} class="note-ta" placeholder="${placeholder}">${escapeHtml(body)}</textarea>
-      <p class="note-hint">${hint}</p>
-      ${renderNotesSaveFootHtml(cfg)}
-    </div>`;
+  if (notesCanonicalReady()) return NotesCanonical.renderCardHtml(config, escapeHtml);
+  return "";
 }
 
 // PH-5: Profile t-band consumer — chart_record save path unchanged.
@@ -6862,25 +6836,8 @@ function renderComparisonCiBlockShellHtml(ws) {
 
 
 function renderComparisonNotesRailHtml(cs) {
-  const notesFabSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>';
-  const body = cs
-    ? `<textarea id="rm-cmp-note" class="notes-textarea" rows="7" placeholder="General comparison notes\u2026">${escapeHtml(cs.notes || "")}</textarea>
-       <div class="notes-actions">
-         <button type="button" class="notes-save" data-action="save-comparison-note">Save</button>
-         <span class="meta" id="rm-cmp-note-msg"></span>
-       </div>`
-    : `<textarea class="notes-textarea" rows="7" placeholder="Build or select a comparison to add notes." disabled></textarea>
-       <p class="note-hint">Notes attach to a built comparison set.</p>`;
-  return `<aside class="comparison-notes-rail" id="cmp-notes-rail">
-    <button type="button" id="notes-fab" title="Open notes" data-action="cmp-notes-show">${notesFabSvg}</button>
-    <div class="general-notes-section">
-      <div class="general-notes-head">
-        <button type="button" class="gn-collapse" title="Hide notes" data-action="cmp-notes-hide">\u25be</button>
-        <div class="general-notes-label">Notes</div>
-      </div>
-      ${body}
-    </div>
-  </aside>`;
+  if (notesCanonicalReady()) return NotesCanonical.renderRailHtml(cs, escapeHtml);
+  return "";
 }
 
 function renderComparisonZoneBHtml(r) {
@@ -8448,16 +8405,8 @@ function renderNotesLibraryEditorHtml() {
   if (!item) {
     return '<p class="notes-library-empty">Select a note to view and edit.</p>';
   }
-  return `
-    <div class="nl-editor-head">
-      <strong>${escapeHtml(item.title)}</strong>
-      <div class="meta">${escapeHtml(item.noteType)} \u00b7 ${escapeHtml(item.relatedName)}</div>
-    </div>
-    <textarea id="rm-notes-lib-body" rows="14" style="margin-top:8px;">${escapeHtml(item.body)}</textarea>
-    <div class="row" style="margin-top:8px;align-items:center;">
-      <button type="button" class="primary" data-action="save-notes-library-note">Save</button>
-      <span id="rm-notes-lib-msg" class="meta" style="margin-left:10px;min-height:1.2em;"></span>
-    </div>`;
+  if (notesCanonicalReady()) return NotesCanonical.renderLibraryEditorHtml(item, escapeHtml);
+  return "";
 }
 
 function screenNotesLibrary() {

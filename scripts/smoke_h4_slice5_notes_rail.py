@@ -21,19 +21,23 @@ def main() -> int:
             failures.append(msg)
 
     text = SHELL.read_text(encoding="utf-8")
+    notes_mod = (ROOT / "validation" / "mockups" / "beta" / "notes_canonical.js")
     sc = text.split("function screenCompare() {", 1)[1].split("function screenExport()", 1)[0]
     notes_fn = text.split("function renderComparisonNotesRailHtml", 1)[1].split("function renderComparisonZoneBHtml", 1)[0]
+    if "NotesCanonical.renderRailHtml" in notes_fn and notes_mod.exists():
+        notes_fn = notes_mod.read_text(encoding="utf-8")
 
     check("function renderComparisonNotesRailHtml" in text, "notes rail renderer defined")
+    check("NotesCanonical.renderRailHtml" in text or (notes_mod.exists() and "renderRailHtml" in notes_mod.read_text(encoding="utf-8")), "shared notes rail module wired")
     check('class="comparison-body-grid"' in sc, "comparison-body-grid in screenCompare")
-    check('class="comparison-notes-rail"' in notes_fn, "comparison-notes-rail class")
+    check("comparison-notes-rail" in notes_fn, "comparison-notes-rail class")
     check('id="cmp-notes-rail"' in notes_fn, "cmp-notes-rail id")
     check('id="notes-fab"' in notes_fn, "notes-fab id")
     check("general-notes-section" in notes_fn, "general-notes-section in rail")
-    check('id="rm-cmp-note"' in notes_fn, "rm-cmp-note preserved in rail")
-    check('data-action="save-comparison-note"' in notes_fn, "save-comparison-note action preserved")
-    check('data-action="cmp-notes-hide"' in notes_fn, "notes collapse action")
-    check('data-action="cmp-notes-show"' in notes_fn, "notes expand action")
+    check("rm-cmp-note" in notes_fn, "rm-cmp-note preserved in rail")
+    check('save-comparison-note' in notes_fn, "save-comparison-note action preserved")
+    check("cmp-notes-hide" in notes_fn, "notes collapse action")
+    check("cmp-notes-show" in notes_fn, "notes expand action")
     check("renderComparisonNotesRailHtml" in sc, "notes rail in screenCompare")
     check("Module: comparison-notepad" not in sc, "legacy notepad panel removed from screenCompare")
     check("async function saveComparisonSetNote" in text, "saveComparisonSetNote preserved")
