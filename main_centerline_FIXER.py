@@ -147,6 +147,30 @@ def serve_theme_glyphs_css():
     )
 
 
+@app.get("/theme/tband_foundation.css")
+def serve_theme_tband_foundation_css():
+    return FileResponse(
+        APP_DIR / "theme" / "tband_foundation.css",
+        media_type="text/css",
+    )
+
+
+@app.get("/theme/relocation_themes.css")
+def serve_theme_relocation_themes_css():
+    return FileResponse(
+        APP_DIR / "theme" / "relocation_themes.css",
+        media_type="text/css",
+    )
+
+
+@app.get("/theme/relocation_theme.js")
+def serve_theme_relocation_theme_js():
+    return FileResponse(
+        APP_DIR / "theme" / "relocation_theme.js",
+        media_type="application/javascript",
+    )
+
+
 @app.get("/theme/fonts/AstroDotBasic.ttf")
 def serve_theme_astrodotbasic_font():
     return FileResponse(
@@ -281,6 +305,22 @@ def serve_comparison_v5_adapter_js():
     return FileResponse(
         V5_COMPARE_BETA_DIR / "comparison_v5_adapter.js",
         media_type="application/javascript",
+    )
+
+
+@app.get("/validation/mockups/beta/city_intelligence_canonical.js")
+def serve_city_intelligence_canonical_js():
+    return FileResponse(
+        V5_COMPARE_BETA_DIR / "city_intelligence_canonical.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/validation/mockups/beta/city_intelligence_canonical.css")
+def serve_city_intelligence_canonical_css():
+    return FileResponse(
+        V5_COMPARE_BETA_DIR / "city_intelligence_canonical.css",
+        media_type="text/css",
     )
 
 
@@ -717,6 +757,28 @@ def min_degrees_to_any_cusp(planet_lon: float, cusps12: list[float]) -> float:
         if d < best:
             best = d
     return best
+
+
+def degrees_to_cusp(planet_lon: float, cusp_lon: float) -> float:
+    p = planet_lon % 360
+    c = cusp_lon % 360
+    return abs(((p - c + 180) % 360) - 180)
+
+
+def separation_to_approaching_cusp(
+    planet_lon: float,
+    house_num: int | None,
+    cusps12: list[float],
+    speed_lon: float,
+) -> float:
+    """Distance to the cusp the planet is moving toward (house-edge ambiguity)."""
+    if house_num is None:
+        return 180.0
+    start = cusps12[(house_num - 1) % 12] % 360
+    end = cusps12[house_num % 12] % 360
+    if speed_lon < 0:
+        return degrees_to_cusp(planet_lon, start)
+    return degrees_to_cusp(planet_lon, end)
 
 
 def planet_in_house(planet_long, house_num, cusps):
@@ -2167,7 +2229,7 @@ def _compute_aspects_to_angles(
 
     major_aspects = effective_settings.get("visible_major_aspects") or list(_ASPECT_TARGET_DEG.keys())
     display_angles = effective_settings.get("display_aspects_to_angles") or {
-        "asc": True, "mc": True, "dsc": False, "ic": False,
+        "asc": True, "mc": True, "dsc": True, "ic": True,
     }
     allow_oos = bool(effective_settings.get("out_of_sign_aspects", False))
     exact_threshold = _exact_aspect_threshold_deg(effective_settings)
@@ -2578,7 +2640,7 @@ def relocated_chart(
             planet_lon = pos[0][0] % 360
             speed_lon = float(pos[0][3])
             house_num = get_house(planet_lon, cusps)
-            sep = min_degrees_to_any_cusp(planet_lon, cusps)
+            sep = separation_to_approaching_cusp(planet_lon, house_num, cusps, speed_lon)
             planet_houses[name] = {
                 "longitude": planet_lon,
                 "longitude_formatted": format_zodiac(planet_lon),
@@ -2639,6 +2701,40 @@ def relocated_chart(
         jd=jd,
     )
     return {**legacy, "canonical_chart": canonical_chart}
+
+
+# ---------------------------------------------------------------------------
+# City Intelligence (CI-0) — cache-first reads, admin force hydrate
+# ---------------------------------------------------------------------------
+
+
+@app.get("/city-intelligence/{city_id}")
+def api_get_city_intelligence(city_id: str):
+    from city_intelligence.service import CityIntelligenceError, get_or_hydrate
+
+    try:
+        return get_or_hydrate(city_id)
+    except CityIntelligenceError as err:
+        status = 404 if err.reason == "city_not_found" else 500
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
+
+@app.post("/city-intelligence/hydrate/{city_id}")
+def api_force_hydrate_city_intelligence(city_id: str):
+    from city_intelligence.service import CityIntelligenceError, force_hydrate
+
+    try:
+        return force_hydrate(city_id)
+    except CityIntelligenceError as err:
+        status = 404 if err.reason == "city_not_found" else 500
+        raise HTTPException(
+            status_code=status,
+            detail={"error": err.reason, "message": str(err)},
+        ) from err
+
 @app.get("/health/supabase")
 def health_supabase():
     from services.supabase_client import get_supabase
@@ -3941,12 +4037,15 @@ def api_set_current_location(request: Request, body: CurrentLocationSet):
     )
 
     try:
-        return set_current_location(
+        result = set_current_location(
             jwt_token,
             profile_id=body.profile_id,
             place_id=body.place_id,
             source=body.source,
         )
+        from city_intelligence.hooks import on_place_saved
+        on_place_saved(body.place_id)
+        return result
     except CurrentLocationError as err:
         status = 404 if err.reason in ("profile_not_found", "place_not_found") else 422
         raise HTTPException(
@@ -4097,7 +4196,7 @@ def api_save_favorite(request: Request, body: FavoriteSave):
     )
 
     try:
-        return save_favorite(
+        result = save_favorite(
             jwt_token,
             profile_id=body.profile_id,
             place_id=body.place_id,
@@ -4105,6 +4204,9 @@ def api_save_favorite(request: Request, body: FavoriteSave):
             rank=body.rank,
             starred=body.starred,
         )
+        from city_intelligence.hooks import on_place_saved
+        on_place_saved(body.place_id)
+        return result
     except FavoritesError as err:
         status = 404 if err.reason in ("profile_not_found", "place_not_found", "favorite_not_found") else 422
         raise HTTPException(
@@ -4173,12 +4275,15 @@ def api_create_comparison_set_owned(request: Request, body: ComparisonSetCreateO
     )
 
     try:
-        return create_comparison_set(
+        result = create_comparison_set(
             jwt_token,
             profile_id=body.profile_id,
             place_ids=body.place_ids,
             title=body.title,
         )
+        from city_intelligence.hooks import on_places_saved
+        on_places_saved(body.place_ids)
+        return result
     except ComparisonSetsError as err:
         status = 404 if err.reason in (
             "profile_not_found", "place_not_found", "comparison_set_not_found",
@@ -4204,12 +4309,15 @@ def api_update_comparison_set_places_owned(request: Request, body: ComparisonSet
     )
 
     try:
-        return update_comparison_set_places(
+        result = update_comparison_set_places(
             jwt_token,
             profile_id=body.profile_id,
             comparison_set_id=body.comparison_set_id,
             place_ids=body.place_ids,
         )
+        from city_intelligence.hooks import on_places_saved
+        on_places_saved(body.place_ids)
+        return result
     except ComparisonSetsError as err:
         status = 404 if err.reason in (
             "profile_not_found", "place_not_found", "comparison_set_not_found",

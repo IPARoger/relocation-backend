@@ -88,6 +88,7 @@
     __NOTES_RAIL__
   </div>
 </div>
+__CI_MODAL__
 </div>`;
 
   function formatComparisonAuthorityBirthDate(isoDate) {
@@ -110,7 +111,10 @@
     const rail = (global.NotesCanonical && NotesCanonical.CANONICAL)
       ? NotesCanonical.renderRailHtml({ notes: notesRaw || "" }, escapeHtml)
       : "";
-    return SHELL_FRAGMENT.replace("__NOTES_RAIL__", rail);
+    const modal = (global.CityIntelligenceCanonical && CityIntelligenceCanonical.CANONICAL)
+      ? CityIntelligenceCanonical.renderComparisonModalShellHtml()
+      : "";
+    return SHELL_FRAGMENT.replace("__NOTES_RAIL__", rail).replace("__CI_MODAL__", modal);
   }
 
   function isCanonicalComparisonSet(cs, comparisonSetId, ws) {

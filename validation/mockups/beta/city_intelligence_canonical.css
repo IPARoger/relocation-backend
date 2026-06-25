@@ -1,0 +1,34 @@
+/* H8-1 — City Intelligence canonical surfaces (full page + shared intel block) */
+.rm-ci-page{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.rm-ci-page .hero{padding:28px 0 32px;border-bottom:1px solid var(--line,#e2dfd9);text-align:center}
+.rm-ci-page .city-title{font-size:30px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1.12}
+.rm-ci-page .snapshot{margin-top:28px;max-width:640px;margin-left:auto;margin-right:auto}
+.rm-ci-page .snap-row{display:grid;gap:14px}
+.rm-ci-page .snap-row-1{grid-template-columns:repeat(4,1fr)}
+.rm-ci-page .snap-row-2{grid-template-columns:repeat(3,1fr);margin-top:14px;max-width:480px;margin-left:auto;margin-right:auto}
+.rm-ci-page .snap-cell{background:var(--card,#fff);border:1px solid var(--line,#e2dfd9);border-radius:6px;padding:14px 16px;text-align:center}
+.rm-ci-page .snap-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted,#8c8882);margin-bottom:6px}
+.rm-ci-page .snap-value{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.rm-ci-page .photos{margin-top:40px}
+.rm-ci-page .photos-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.rm-ci-page .photo-block{flex:0 0 128px;height:88px;background:var(--line,#e2dfd9);border-radius:4px;display:flex;align-items:flex-end;padding:8px}
+.rm-ci-page .photo-label{font-size:10px;font-weight:600;color:var(--muted,#8c8882);letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.85);padding:2px 4px;border-radius:2px}
+.rm-ci-page .section{margin-top:44px}
+.rm-ci-page .section-title{font-size:17px;font-weight:700;padding-bottom:10px;border-bottom:2px solid var(--ink,#1c1a18);margin-bottom:6px}
+.rm-ci-page .summary-text{font-size:14px;color:var(--muted,#8c8882);line-height:1.55;padding:12px 0 4px}
+.rm-ci-page .acc-row{border-bottom:1px solid var(--line,#e2dfd9)}
+.rm-ci-page .acc-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;min-height:44px;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;color:inherit}
+.rm-ci-page .acc-label{font-size:14px;font-weight:600;color:var(--muted,#8c8882);flex-shrink:0}
+.rm-ci-page .acc-short{font-size:14px;font-weight:500;color:var(--ink,#1c1a18);text-align:right;flex:1}
+.rm-ci-page .acc-chevron{width:14px;text-align:center;font-size:11px;color:var(--muted,#8c8882);flex-shrink:0;transition:transform 200ms ease}
+.rm-ci-page .acc-row.open .acc-chevron{transform:rotate(90deg)}
+.rm-ci-page .acc-panel{max-height:0;overflow:hidden;padding:0 18px;transition:max-height 200ms ease,padding 200ms ease}
+.rm-ci-page .acc-row.open .acc-panel{max-height:1200px;padding-bottom:14px}
+.rm-ci-page .acc-panel-inner{font-size:13px;color:var(--muted,#8c8882);line-height:1.6;padding:4px 0 8px;border-left:1px solid var(--line,#e2dfd9);padding-left:14px;margin-left:2px}
+.rm-ci-page .visa-block{margin-top:44px;padding:20px 0;border-top:2px solid var(--line,#e2dfd9);border-bottom:1px solid var(--line,#e2dfd9)}
+.rm-ci-page .visa-heading{font-size:16px;font-weight:700;margin-bottom:6px}
+.rm-ci-page .visa-summary{font-size:13px;color:var(--muted,#8c8882);line-height:1.6;margin-top:12px}
+.rm-ci-page .back-link{display:inline-block;font-size:13px;color:var(--muted,#8c8882);text-decoration:none;padding:16px 0 0}
+.rm-ci-page .back-to-top{display:block;text-align:center;font-size:12px;color:var(--muted,#8c8882);text-decoration:none;padding:32px 0 8px}
+.ci-regional-note{font-size:12px;color:var(--muted,#8c8882);margin-top:8px;font-style:italic}
+body.rm-beta-city .rm-ci-page-wrap{padding:0}

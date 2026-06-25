@@ -18,6 +18,10 @@
 <link rel="stylesheet" href="/theme/glyphs.css" />
 <link rel="stylesheet" href="/theme/tband_foundation.css" />
 <link rel="stylesheet" href="/validation/mockups/beta/notes_canonical.css" />
+<link rel="stylesheet" href="/theme/family_resemblance.css" />
+<link rel="stylesheet" href="/validation/mockups/beta/city_intelligence_canonical.css" />
+<link rel="stylesheet" href="/validation/mockups/beta/help_canonical.css" />
+<link rel="stylesheet" href="/validation/mockups/beta/city_intelligence_canonical.css" />
 <link rel="stylesheet" href="/theme/relocation_themes.css" />
 <script src="/theme/relocation_theme.js"></script>
 <style>
@@ -1555,11 +1559,13 @@
 <script src="/theme/glyphs.js"></script>
 <script src="/validation/mockups/beta/comparison_v5_adapter.js"></script>
 <script src="/validation/mockups/beta/notes_canonical.js"></script>
+<script src="/validation/mockups/beta/help_canonical.js"></script>
+<script src="/validation/mockups/beta/city_intelligence_canonical.js"></script>
 <script src="/validation/mockups/beta/comparison_v5_route.js"></script>
 <script>
 "use strict";
 
-/** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"export"|"settings"|"birth-data"|"notes-library"|"future"} Route */
+/** @typedef {"dashboard"|"chart-record"|"map"|"chart"|"compare"|"city"|"export"|"settings"|"birth-data"|"notes-library"|"future"} Route */
 
 const STORE_LOAD_SOURCE = "supabase-store-bridge";
 const CHART_RECORDS_API_URL = "/chart-records";
@@ -1607,7 +1613,7 @@ const PROFILE_BETA_NAV = /** @type {const} */ ([
   { id: "map", label: "Map" },
   { id: "chart-record", label: "Profile" },
   { id: "compare", label: "Comparison" },
-  { id: "city", label: "City", disabled: true },
+  { id: "city", label: "City" },
 ]);
 const RELOCATED_BETA_NAV = /** @type {const} */ ([
   { id: "map", label: "Map" },
@@ -1717,6 +1723,7 @@ const ALL_ROUTES = /** @type {const} */ ([
   { id: "help", label: "Help & Learn", screen: "Help & Learn" },
   { id: "profiles", label: "Profiles", screen: "Profile Management" },
   { id: "notes-library", label: "Notes Library", screen: "Notes Library" },
+  { id: "city", label: "City Intelligence", screen: "City Intelligence" },
 ]);
 
 /**
@@ -1774,6 +1781,12 @@ const ROUTE_CONTEXT_CONTRACT = {
     placeId: "optional",
     explorationId: "optional",
     comparisonSetId: "optional",
+  },
+  city: {
+    chartRecordId: "optional",
+    placeId: "required",
+    explorationId: "none",
+    comparisonSetId: "none",
   },
   export: {
     chartRecordId: "required",
@@ -2903,6 +2916,8 @@ function buildComparisonV5HydrationContext() {
       formatTablePlanetNameHtml,
       planetEntryForMotionLookup,
       comparisonPihHouseValueHtml,
+      cityIntelligenceByPlaceId: _comparisonCiCache || {},
+      placesById: (viewModel && viewModel.placesById) || {},
     },
   };
 }
@@ -3157,10 +3172,24 @@ function handleComparisonV5CanonicalAction(action, btn) {
   if (action === "cmp-city-info") {
     const pid = btn.getAttribute("data-place-id");
     if (!pid) return true;
-    const label = humanPlaceLabel(pid);
-    window.alert(label + "\n\nCity Intelligence is not available yet for this city.");
+    openCityIntelligenceModal(pid);
     return true;
   }
+  if (action === "cmp-ci-open-page") {
+    const pidOpen = btn.getAttribute("data-place-id");
+    if (!pidOpen) return true;
+    navigate("city", { placeId: pidOpen, chartRecordId: navContext.chartRecordId });
+    return true;
+  }
+  if (action === "cmp-modal-close" && btn.getAttribute("data-modal") === "cityinfo") {
+    closeCityIntelligenceModal();
+    return true;
+  }
+  if (action === "cmp-modal-backdrop" && btn.id === "modal-cityinfo") {
+    closeCityIntelligenceModal();
+    return true;
+  }
+
   if (action === "cmp-angle-tab") {
     const tab = btn.getAttribute("data-angle-tab") || "all";
     if (!_cmpWorkspaceSession) return true;
@@ -3201,6 +3230,39 @@ function wireComparisonV5CanonicalActions(root) {
   });
 }
 
+async function hydrateComparisonCityIntelligence(root) {
+  if (!ciCanonicalReady()) return;
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!cs) return;
+  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+    || defaultComparisonWorkspaceState(cs.placeIds);
+  const visibleIds = resolveVisibleOrderedPlaceIds(ws, cs.placeIds);
+  _comparisonCiCache = await fetchCityIntelligenceMany(visibleIds);
+  const v5ctx = buildComparisonV5HydrationContext();
+  if (v5ctx && document.getElementById("rm-cmp-v5-root")) {
+    ComparisonV5Route.hydrateCanonical(v5ctx);
+    applyComparisonV5SectionCollapse(ws);
+  }
+  const legacyBody = document.getElementById("rm-cmp-bottle-ci-body");
+  if (legacyBody && CityIntelligenceCanonical.renderComparisonInlineCardsHtml) {
+    const origin = getChartRecord(navContext.chartRecordId);
+    const favs = (origin && origin.favorites) || [];
+    const nameById = (viewModel && viewModel.placeNameById) || {};
+    legacyBody.innerHTML = CityIntelligenceCanonical.renderComparisonInlineCardsHtml({
+      placeIds: visibleIds,
+      rowsById: _comparisonCiCache || {},
+      placesById: (viewModel && viewModel.placesById) || {},
+      nameFor: (pid) => comparisonCityDisplayName(pid, favs, nameById),
+      coordsFor: (pid) => {
+        const c = resolvePlaceLatLon(pid);
+        return c ? formatPlateLatLonDisplay(c.lat, c.lon) : "\u2014";
+      },
+    }, escapeHtml);
+    const bottle = document.getElementById("rm-cmp-bottle-ci");
+    if (bottle) bottle.dataset.cmpCiWired = "true";
+  }
+}
+
 async function mountComparisonV5Route(root) {
   if (navContext.route !== "compare" || !comparisonV5Ready()) return;
   const cs = navContext.comparisonSetId ? getComparisonSet(navContext.comparisonSetId) : null;
@@ -3220,8 +3282,16 @@ async function mountComparisonV5Route(root) {
   await hydrateComparisonColumns(root);
   const v5ctx = buildComparisonV5HydrationContext();
   if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
+  await hydrateComparisonCityIntelligence(root);
   applyComparisonV5SectionCollapse(ws);
   wireComparisonV5CanonicalActions(root);
+  if (ciCanonicalReady() && !document.getElementById("modal-cityinfo")) {
+    const holder = document.createElement("div");
+    holder.innerHTML = CityIntelligenceCanonical.renderComparisonModalShellHtml();
+    const modal = holder.firstElementChild;
+    if (modal) document.body.appendChild(modal);
+  }
+
   const v5root = document.getElementById("rm-cmp-v5-root");
   if (v5root) {
     bindCmpDiffsToggle(v5root);
@@ -3257,7 +3327,6 @@ function renderNav() {
     a.textContent = r.label;
     if (r.disabled) {
       a.disabled = true;
-      a.title = "City intelligence — not available yet";
       a.setAttribute("data-nav-route", r.id);
       nav.appendChild(a);
       return;
@@ -3301,9 +3370,21 @@ function renderNav() {
           explorationId: null,
           comparisonSetId: null,
         });
+      } else if (r.id === "city") {
+        const chartCr = navContext.chartRecordId
+          || (viewModel && (viewModel.selectedChartRecordId || viewModel.defaultChartRecordId))
+          || null;
+        const birthPid = chartCr ? resolveBirthPlaceId(chartCr) : null;
+        const targetPid = navContext.placeId || birthPid;
+        if (!targetPid) {
+          window.alert("No place selected for City Intelligence.");
+          return;
+        }
+        navigate("city", { chartRecordId: chartCr, placeId: targetPid });
       } else {
         navigate(/** @type {Route} */ (r.id));
       }
+
     });
     a.setAttribute("data-nav-route", r.id);
     nav.appendChild(a);
@@ -4252,6 +4333,7 @@ let _screen4PihDignities = false;
 let _profilePihDignities = false;
 let _profileCanonicalCache = null;
 let _comparisonColsCache = null;
+let _comparisonCiCache = null;
 
 
 const PIH_DIGNITIES_HELP_COPY = 'Traditional dignities apply to signs. In relocation work, signs do not change, but houses do. This option applies those traditional sign correspondences to the matching natural-zodiac house: Moon in the 2nd house corresponds to Moon in Taurus; Sun in the 7th house corresponds to Sun in Libra. We simplify the four traditional relationships into two overlay colors: one for Rulership and Exaltation (generally positive), and one for Detriment and Fall (generally difficult), rather than four separate colors. It is a subtle traditional-reference overlay, not a score. Leave it off for strict interpretive neutrality.';
@@ -5586,6 +5668,89 @@ function notesCanonicalReady() {
   return typeof NotesCanonical !== "undefined" && NotesCanonical && NotesCanonical.CANONICAL;
 }
 
+// H8-1 — City Intelligence canonicalization: shared renderer module.
+function ciCanonicalReady() {
+  return typeof CityIntelligenceCanonical !== "undefined" && CityIntelligenceCanonical && CityIntelligenceCanonical.CANONICAL;
+}
+
+const _ciFetchCache = new Map();
+let _ciFetchInflight = new Map();
+
+async function fetchCityIntelligence(placeId) {
+  if (!placeId) return null;
+  if (_ciFetchCache.has(placeId)) return _ciFetchCache.get(placeId);
+  if (_ciFetchInflight.has(placeId)) return _ciFetchInflight.get(placeId);
+  const p = fetch("/city-intelligence/" + encodeURIComponent(placeId))
+    .then(async (resp) => {
+      let body = {};
+      try { body = await resp.json(); } catch (e) { /* ignore */ }
+      if (!resp.ok) return null;
+      if (body && body.status && body.status !== "ready" && body.status !== "custom") return null;
+      _ciFetchCache.set(placeId, body);
+      return body;
+    })
+    .catch(() => null)
+    .finally(() => { _ciFetchInflight.delete(placeId); });
+  _ciFetchInflight.set(placeId, p);
+  return p;
+}
+
+async function fetchCityIntelligenceMany(placeIds) {
+  const ids = (placeIds || []).filter(Boolean);
+  const out = {};
+  await Promise.all(ids.map(async (pid) => {
+    const row = await fetchCityIntelligence(pid);
+    if (row) out[pid] = row;
+  }));
+  return out;
+}
+
+function placeRowForId(placeId) {
+  if (!placeId || !viewModel) return null;
+  return (viewModel.placesById && viewModel.placesById[placeId])
+    || (viewModel.placeNameById && viewModel.placeNameById[placeId] ? { id: placeId, display_name: viewModel.placeNameById[placeId] } : null);
+}
+
+function openCityIntelligenceModal(placeId) {
+  if (!placeId || !ciCanonicalReady()) return;
+  const modal = document.getElementById("modal-cityinfo");
+  if (!modal) return;
+  const title = document.getElementById("modal-ci-title");
+  const list = document.getElementById("modal-ci-list");
+  const place = placeRowForId(placeId);
+  const label = (place && (place.display_name || place.canonical_name)) || resolvePlaceName(placeId) || placeId;
+  if (title) title.textContent = label;
+  if (list) list.innerHTML = '<li class="meta">Loading…</li>';
+  modal.classList.add("open");
+  void fetchCityIntelligence(placeId).then((row) => {
+    if (!document.body.contains(modal)) return;
+    if (title) title.textContent = label;
+    if (list) {
+      list.innerHTML = CityIntelligenceCanonical.renderComparisonModalBodyHtml({ row: row, place: place }, escapeHtml);
+    }
+  });
+}
+
+function closeCityIntelligenceModal() {
+  const modal = document.getElementById("modal-cityinfo");
+  if (modal) modal.classList.remove("open");
+}
+
+function wireCityIntelligenceAccordions(root) {
+  const scope = root || document;
+  scope.querySelectorAll(".rm-ci-page .accordions").forEach((group) => {
+    group.querySelectorAll(".acc-trigger").forEach((btn) => {
+      if (btn.dataset.ciAccWired === "1") return;
+      btn.dataset.ciAccWired = "1";
+      btn.addEventListener("click", () => {
+        const row = btn.closest(".acc-row");
+        if (row) row.classList.toggle("open");
+      });
+    });
+  });
+}
+
+
 function renderNotesToolbarHtml() {
   return notesCanonicalReady() ? NotesCanonical.renderToolbarHtml() : "";
 }
@@ -5647,32 +5812,22 @@ function renderProfileNatalChartHtml(canonical, dignitiesOn) {
 // Wheel and meta table retained above the tband (Window A layout deferred).
 // Reuses Profile tband renderers: renderProfileAisCardBodyHtml, renderProfilePihTableHtml.
 // PIH is house-only (showLongitude:false). Dignities footer scope: "chart".
-function renderRelocatedIntelBlockHtml(placeRow, lat, lon) {
-  const stubRow = (label) =>
-    `<div class="ir"><span class="il">${escapeHtml(label)}</span>`
-    + `<span class="iv intel-stub">\u2014</span></div>`;
-  const realRow = (label, value) =>
-    `<div class="ir"><span class="il">${escapeHtml(label)}</span>`
-    + `<span class="iv">${escapeHtml(value)}</span></div>`;
-  const population = (placeRow && (placeRow.population_label || placeRow.population)) || null;
-  const character = (placeRow && placeRow.character_label) || null;
-  return (
-    `<h4>Location Intelligence</h4>`
-    + `<div class="intel-rows">`
-    + stubRow("Stability")
-    + stubRow("Safety")
-    + stubRow("Cost of Living")
-    + stubRow("Expat Environment")
-    + (population ? realRow("Population", population) : stubRow("Population"))
-    + stubRow("Climate")
-    + stubRow("Mobility")
-    + (character ? realRow("Character", character) : stubRow("Character"))
-    + `</div>`
-    + `<a class="intel-link" href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Open Full City Intelligence \u203a</a>`
-  );
+function renderRelocatedIntelBlockHtml(placeRow, lat, lon, placeId, ciRow) {
+  if (ciCanonicalReady()) {
+    return CityIntelligenceCanonical.renderRelocatedBlockHtml({
+      row: ciRow || null,
+      place: placeRow || null,
+      lat: lat,
+      lon: lon,
+      placeId: placeId || (placeRow && placeRow.id) || null,
+      formatCoords: formatPlateLatLonDisplay,
+    }, escapeHtml);
+  }
+  return `<h4>Location Intelligence</h4><div class="intel-rows"><div class="ir"><span class="il">Status</span><span class="iv intel-stub">` + "\u2014" + `</span></div></div><a class="intel-link" href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Open Full City Intelligence ` + "\u203a" + `</a>`;
 }
 
-function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
+function renderRelocatedChartHtml
+(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const canonical = getCanonicalChartFromPayload(chart);
   const warn = (msg) => `<p class="meta">${escapeHtml(msg)}</p>`;
@@ -5764,11 +5919,18 @@ async function hydrateRelocatedChart(root) {
     // RELOCATED City Intelligence: inject beta placeholder with real country/region/coords.
     const _ciIntelSlot = document.getElementById("rm-screen4-intel");
     if (_ciIntelSlot) {
-      const _ciPlaceRow = placeId
-        ? (viewModel && viewModel.placesById && viewModel.placesById[placeId]) || null
-        : null;
-      _ciIntelSlot.innerHTML = renderRelocatedIntelBlockHtml(_ciPlaceRow, lat, lon);
+      const _ciPlaceRow = placeId ? placeRowForId(placeId) : null;
+      _ciIntelSlot.innerHTML = renderRelocatedIntelBlockHtml(_ciPlaceRow, lat, lon, placeId, null);
+      if (placeId) {
+        void fetchCityIntelligence(placeId).then((row) => {
+          if (!stillCurrent()) return;
+          const slot = document.getElementById("rm-screen4-intel");
+          if (!slot) return;
+          slot.innerHTML = renderRelocatedIntelBlockHtml(_ciPlaceRow, lat, lon, placeId, row);
+        });
+      }
     }
+
   } catch (err) {
     if (!stillCurrent()) return;
     container.innerHTML = `<div class="warn-box"><strong>Relocated chart request failed.</strong><br>
@@ -7414,6 +7576,8 @@ function rehydrateSettingsConsumers() {
   }
   if (navContext.route === "compare") {
     hydrateComparisonColumns();
+  } else if (navContext.route === "city") {
+    hydrateCityIntelligencePage();
   } else {
     refreshAisWorkbookSection();
     refreshA2aWorkbookSection();
@@ -8079,50 +8243,51 @@ function screenBirthData() {
   `;
 }
 
+const helpHandbookState = {
+  searchQuery: "",
+  activeSectionId: "start",
+};
+
+function helpCanonicalReady() {
+  return window.HelpCanonical && HelpCanonical.CANONICAL;
+}
+
 function screenHelp() {
+  if (helpCanonicalReady()) {
+    return HelpCanonical.renderPageHtml(helpHandbookState, escapeHtml);
+  }
   return `
     <h2>Help &amp; Learn</h2>
-    <p class="purpose">Static reference · no tutorial engine · Web 2.0 only.</p>
-    <div class="panel">
-      <h3>Start Here</h3>
-      <p>This instrument maps astrological chart structure onto geography. Select a birth profile, open the map, and right-click any city to see your relocated chart for that location.</p>
-      <p>Your birth data stays fixed. The map shows how your chart angles and house cusps shift as you move around the planet.</p>
-      <button type="button" class="primary" data-action="replay-guided-onboarding">Replay app tour</button>
-    </div>
-    <div class="panel">
-      <h3>How to Use the Map</h3>
-      <ul class="plain">
-        <li><strong>Right-click</strong> anywhere on the map to open a relocated chart popup.</li>
-        <li>Use the <strong>city search bar</strong> to jump to a specific location.</li>
-        <li>Use <strong>Find Regions</strong> to highlight areas matching astrological conditions.</li>
-        <li>Use <strong>Genie</strong> (drawer) to define and layer conditions visually.</li>
-        <li>Switch profiles from the Chart Record page or Account drawer.</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h3>Beginner Path</h3>
-      <ul class="plain">
-        <li>Create your first profile with birth date, time, and city.</li>
-        <li>Open the map and right-click a few cities you are curious about.</li>
-        <li>Notice which planets land near the Ascendant or Midheaven in different places.</li>
-        <li>Save cities you want to revisit as favorites.</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h3>Professional Path</h3>
-      <ul class="plain">
-        <li>Add multiple client profiles — each gets its own chart record and map.</li>
-        <li>Use Find Regions with specific planetary conditions to narrow geographic candidates.</li>
-        <li>Use comparison sets to evaluate multiple cities side by side.</li>
-        <li>Export client reports (planned, not yet available).</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h3>Feedback</h3>
-      <p>Found a bug or have a suggestion? <a href="mailto:feedback@relocationapp.com">feedback@relocationapp.com</a></p>
-    </div>
-    <button type="button" data-nav="dashboard">Back to dashboard</button>
-  `;
+    <p class="purpose">Handbook module unavailable in this build.</p>
+    <button type="button" data-nav="dashboard">Back to app</button>`;
+}
+
+function refreshHelpHandbookPanels(root) {
+  if (!helpCanonicalReady()) return;
+  HelpCanonical.refreshPanels(helpHandbookState, escapeHtml, root || document);
+}
+
+function wireHelpHandbook(root) {
+  if (!root || !helpCanonicalReady()) return;
+  const search = root.querySelector("#rm-help-search");
+  if (search && !search.dataset.helpWired) {
+    search.dataset.helpWired = "1";
+    search.addEventListener("input", () => {
+      helpHandbookState.searchQuery = search.value;
+      refreshHelpHandbookPanels(root);
+    });
+  }
+  root.querySelectorAll(".help-toc-item").forEach((btn) => {
+    if (btn.dataset.helpTocWired) return;
+    btn.dataset.helpTocWired = "1";
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-help-section");
+      if (id) helpHandbookState.activeSectionId = id;
+      refreshHelpHandbookPanels(root);
+      const target = root.querySelector("#help-section-" + id);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 }
 
 
@@ -8522,12 +8687,44 @@ function screenFuture() {
   `;
 }
 
+function screenCity() {
+  const placeId = navContext.placeId;
+  if (!placeId) {
+    return `<div class="warn-box"><strong>Choose a place for City Intelligence.</strong><br>Open from Relocated, Comparison, or Profile.</div>`;
+  }
+  const place = placeRowForId(placeId);
+  const name = (place && (place.display_name || place.canonical_name)) || resolvePlaceName(placeId) || placeId;
+  return `<div class="rm-ci-page-wrap" id="rm-ci-page-wrap" data-place-id="${escapeHtml(placeId)}"><p class="meta">Loading City Intelligence for ${escapeHtml(name)}…</p></div>`;
+}
+
+async function hydrateCityIntelligencePage(root) {
+  if (navContext.route !== "city") return;
+  const wrap = (root || document).getElementById("rm-ci-page-wrap");
+  if (!wrap || !ciCanonicalReady()) return;
+  const placeId = wrap.getAttribute("data-place-id") || navContext.placeId;
+  if (!placeId) return;
+  const place = placeRowForId(placeId);
+  const coords = resolvePlaceLatLon(placeId);
+  const row = await fetchCityIntelligence(placeId);
+  if (navContext.route !== "city" || navContext.placeId !== placeId) return;
+  wrap.innerHTML = CityIntelligenceCanonical.renderFullPageHtml({
+    row: row,
+    place: place,
+    placeId: placeId,
+    lat: coords && coords.lat,
+    lon: coords && coords.lon,
+    formatCoords: formatPlateLatLonDisplay,
+  }, escapeHtml);
+  wireCityIntelligenceAccordions(wrap);
+}
+
 const SCREEN_RENDERERS = {
   dashboard: screenDashboard,
   "chart-record": screenChartRecord,
   map: screenMap,
   chart: screenChart,
   compare: screenCompare,
+  city: screenCity,
   export: screenExport,
   settings: screenSettings,
   "birth-data": screenBirthData,
@@ -8581,6 +8778,8 @@ function render() {
     return;
   }
   renderNav();
+  const INSTRUMENT_SURFACE_ROUTES = new Set(["chart-record", "chart", "compare", "settings", "help", "notes-library", "profiles"]);
+  document.body.classList.toggle("rm-instrument-surface", INSTRUMENT_SURFACE_ROUTES.has(navContext.route));
   const acctBtn = $("#rm-acct-drawer-btn");
   if (navContext.route === "chart-record") {
     document.body.classList.add("rm-beta-profile");
@@ -8601,8 +8800,18 @@ function render() {
   } else if (navContext.route === "compare") {
     document.body.classList.remove("rm-beta-profile");
     document.body.classList.remove("rm-beta-relocated");
+    document.body.classList.remove("rm-beta-city");
     document.body.classList.add("rm-beta-compare");
     document.body.classList.remove("rm-compare-v5-canonical");
+    acctBtn.classList.add("rm-beta-acct-circle");
+    acctBtn.textContent = accountInitials();
+    acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
+  } else if (navContext.route === "city") {
+    document.body.classList.remove("rm-beta-profile");
+    document.body.classList.remove("rm-beta-relocated");
+    document.body.classList.remove("rm-beta-compare");
+    document.body.classList.remove("rm-compare-v5-canonical");
+    document.body.classList.add("rm-beta-city");
     acctBtn.classList.add("rm-beta-acct-circle");
     acctBtn.textContent = accountInitials();
     acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
@@ -8610,8 +8819,10 @@ function render() {
     document.body.classList.remove("rm-beta-profile");
     document.body.classList.remove("rm-beta-relocated");
     document.body.classList.remove("rm-beta-compare");
+    document.body.classList.remove("rm-beta-city");
     document.body.classList.remove("rm-compare-v5-canonical");
     acctBtn.classList.remove("rm-beta-acct-circle");
+
     acctBtn.textContent = "Account";
     acctBtn.removeAttribute("title");
   }
@@ -8625,7 +8836,11 @@ function render() {
     mountComparisonLocationSearch();
     void mountComparisonV5Route($("#main"));
   }
-  if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
+  if (navContext.route === "city") {
+    void hydrateCityIntelligencePage($("#main"));
+  }
+  if (navContext.route === "notes-library"
+ wireNotesLibrary($("#main"));
   if (navContext.route === "settings") initAppearanceSettingsControls($("#main"));
   if (uiState.popupOpen) openPopup();
 }
@@ -8759,7 +8974,23 @@ function mountGenieDrawer(root) {
 }
 
 function bindScreenActions(root) {
-  root.querySelectorAll("[data-nav]").forEach((btn) => {
+  root.querySelectorAll('[data-action="ci-back"]').forEach((btn) => {
+    if (btn.dataset.ciBackWired === "1") return;
+    btn.dataset.ciBackWired = "1";
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (navContext.returnTo) {
+        navigate(navContext.returnTo.route, navContext.returnTo);
+      } else if (navContext.chartRecordId && navContext.placeId) {
+        navigate("chart", { chartRecordId: navContext.chartRecordId, placeId: navContext.placeId });
+      } else if (navContext.chartRecordId) {
+        navigate("chart-record", { chartRecordId: navContext.chartRecordId });
+      } else {
+        navigate("dashboard");
+      }
+    });
+  });
+.forEach((btn) => {
     btn.addEventListener("click", () => {
       const route = btn.getAttribute("data-nav");
       const chartRecordId = btn.getAttribute("data-chart-record");

@@ -435,6 +435,25 @@
     var visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
     var nameById = (deps.viewModelPlaceNameById) || {};
     var favs = (ctx.chartRecord && ctx.chartRecord.favorites) || [];
+    var rowsById = (deps.cityIntelligenceByPlaceId) || {};
+    var placesById = (deps.placesById) || {};
+
+    if (global.CityIntelligenceCanonical && CityIntelligenceCanonical.CANONICAL) {
+      el.innerHTML = CityIntelligenceCanonical.renderComparisonInlineCardsHtml({
+        placeIds: visibleIds,
+        rowsById: rowsById,
+        placesById: placesById,
+        nameFor: function (pid) {
+          var name = typeof deps.comparisonCityDisplayName === "function"
+            ? deps.comparisonCityDisplayName(pid, favs, nameById)
+            : (nameById[pid] || pid);
+          var lines = splitCityNameLines(name);
+          return lines.line1 + (lines.line2 ? ", " + lines.line2 : "");
+        },
+        coordsFor: function (pid) { return placeCoordsDisplay(deps, pid); },
+      }, deps.escapeHtml);
+      return;
+    }
 
     var h = '<div class="ci-spacer"></div>';
     visibleIds.forEach(function (pid) {
@@ -450,7 +469,7 @@
         h += '<li data-ci-category="' + idx + '">' + esc(deps, snippet) + "</li>";
       });
       h += "</ul>";
-      h += '<button type="button" class="ci-open-btn" data-action="cmp-ci-open-page" data-place-id="' + esc(deps, pid) + '">Open Full City Page</button>';
+      h += '<button type="button" class="ci-open-btn" data-action="cmp-ci-open-page" data-place-id="' + esc(deps, pid) + '">Open Full City Intelligence</button>';
       h += "</div>";
     });
     el.innerHTML = h;
