@@ -1,0 +1,41 @@
+# H4 comparison — runs on GitHub servers while your Mac sleeps.
+# One-time: add repo secret CURSOR_API_KEY (Settings → Secrets → Actions)
+name: H4 Relay Autopilot
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: h4-relay-autopilot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  next-slice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: pip install cursor-sdk
+
+      - name: One slice — cloud Cursor agent
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELAY_RUNTIME: cloud
+          RELAY_EXECUTOR_WAIT: "1"
+          RELAY_AUTO_MERGE: "1"
+        run: python3 scripts/relay_github_cycle.py
