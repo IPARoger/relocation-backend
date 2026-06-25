@@ -1902,9 +1902,55 @@ function comparisonPlaceNamesForRecord(chartRecordId) {
   return match ? match.placeNames.slice(0, 5) : [];
 }
 
-function getComparisonSet(comparisonSetId) {
+function comparisonV5Ready() {
+  return typeof ComparisonV5Route !== "undefined" && ComparisonV5Route && ComparisonV5Route.CANONICAL;
+}
+
+function comparisonSetVmFromStoreRow(raw) {
+  if (!raw || !raw.id) return null;
+  const placeIds = raw.place_ids || [];
+  const settings_snapshot_json = raw.settings_snapshot_json || {};
+  const workspaceState = extractWorkspaceStateFromSnapshot(settings_snapshot_json, placeIds);
+  const nameById = (viewModel && viewModel.placeNameById) || {};
+  return {
+    id: raw.id,
+    clientId: raw.client_id || raw.profile_id,
+    title: raw.title || "",
+    updated_at: raw.updated_at || raw.created_at || null,
+    placeIds: placeIds.slice(),
+    placeNames: placeIds.map((pid) => nameById[pid] || humanPlaceLabel(pid)).filter(Boolean),
+    notes: raw.notes || "",
+    settings_snapshot_json,
+    workspaceState,
+  };
+}
+
+function ensureComparisonSetInViewModel(comparisonSetId) {
   if (!comparisonSetId || !viewModel) return null;
-  return viewModel.comparisonSets.find((cs) => cs.id === comparisonSetId) || null;
+  const existing = viewModel.comparisonSets.find((cs) => cs.id === comparisonSetId);
+  if (existing) return existing;
+  const storeRows = (storeRaw && storeRaw.comparison_sets)
+    || (window.SupabaseStore && window.SupabaseStore.comparison_sets)
+    || [];
+  const raw = storeRows.find((c) => c.id === comparisonSetId);
+  if (!raw) return null;
+  const cs = comparisonSetVmFromStoreRow(raw);
+  if (!cs) return null;
+  viewModel.comparisonSets.push(cs);
+  return cs;
+}
+
+function getComparisonSet(comparisonSetId) {
+  return ensureComparisonSetInViewModel(comparisonSetId);
+}
+
+function finishComparisonBuildStatus(msgEl, err) {
+  if (!msgEl || !document.body.contains(msgEl)) return;
+  if (err) {
+    msgEl.textContent = "Save failed: " + (err.message || String(err));
+    return;
+  }
+  msgEl.textContent = "";
 }
 
 function comparisonPlaceNamesFromContext() {
@@ -2605,7 +2651,7 @@ function buildComparisonV5HydrationContext() {
 }
 
 function mountComparisonV5Route(root) {
-  if (navContext.route !== "compare") return;
+  if (navContext.route !== "compare" || !comparisonV5Ready()) return;
   const cs = navContext.comparisonSetId ? getComparisonSet(navContext.comparisonSetId) : null;
   const ws = cs ? ((_cmpWorkspaceSession && _cmpWorkspaceSession.state) || defaultComparisonWorkspaceState(cs.placeIds)) : null;
   const canonicalActive = !!(cs && ws && document.getElementById("rm-cmp-v5-root")
@@ -5629,7 +5675,7 @@ async function createComparisonSetFromPlaceIds(chartRecordId, placeIds) {
   const accountId = window.CurrentUser && window.CurrentUser.accountId;
   if (!chartRecordId || !accountId) throw new Error("Missing chart record or account.");
   if (placeIds.length < 2 || placeIds.length > 5) throw new Error("Choose between 2 and 5 places.");
-  const client = await window.SupabaseReady;
+  const client = window.SupabaseClient || await window.SupabaseReady;
   if (!client) throw new Error("Supabase unavailable.");
   const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
   const sessionResult = await client.auth.getSession();
@@ -5693,6 +5739,7 @@ function wireComparisonSetListActions(container, chartRecordId, context) {
       const setId = btn.getAttribute("data-cmp-id");
       const crId = btn.getAttribute("data-chart-record") || chartRecordId;
       if (!setId || !crId) return;
+      ensureComparisonSetInViewModel(setId);
       closeComparisonOverlay();
       navigate("compare", { chartRecordId: crId, comparisonSetId: setId, placeId: null, explorationId: null }, { pushReturn: true, skipComparisonOverlay: true });
     });
@@ -5841,8 +5888,10 @@ function handleComparisonOverlayAction(action, btn) {
     const placeIds = picks.map((el) => el.value);
     if (msg) msg.textContent = "Saving…";
     (async () => {
+      let err = null;
       try {
         const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
+        ensureComparisonSetInViewModel(setId);
         closeComparisonOverlay();
         navigate("compare", {
           chartRecordId,
@@ -5851,8 +5900,10 @@ function handleComparisonOverlayAction(action, btn) {
           explorationId: null,
           returnTo: null,
         }, { skipComparisonOverlay: true });
-      } catch (err) {
-        if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+      } catch (e) {
+        err = e;
+      } finally {
+        finishComparisonBuildStatus(msg, err);
       }
     })();
   }
@@ -6158,8 +6209,20 @@ function screenCompare() {
   }
   const favs = origin.favorites || [];
   const cs = getComparisonSet(navContext.comparisonSetId);
-  const ws = cs ? initComparisonWorkspaceSession(cs) : null;
-  if (cs && ws && ComparisonV5Route.shouldRenderCanonicalShell(cs, navContext.comparisonSetId, ws)) {
+  if (!cs) {
+    return `
+    <div class="rm-comparison-picker-root" data-cmp-route-mode="missing-set">
+      <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)}</div>
+      <h2>Comparison unavailable</h2>
+      <p class="meta">Saved comparison <code>${escapeHtml(navContext.comparisonSetId)}</code> was not found for this profile. It may have been archived.</p>
+      <div class="row" style="margin-top:12px">
+        <button type="button" data-nav="compare" data-chart-record="${escapeHtml(origin.chartRecordId)}">Choose places to compare</button>
+        <button type="button" data-nav="chart-record" data-chart-record="${escapeHtml(origin.chartRecordId)}">Back to Chart Record page</button>
+      </div>
+    </div>`;
+  }
+  const ws = initComparisonWorkspaceSession(cs);
+  if (comparisonV5Ready() && ComparisonV5Route.shouldRenderCanonicalShell(cs, navContext.comparisonSetId, ws)) {
     return ComparisonV5Route.renderShellHtml(origin, cs, ws, { escapeHtml, resolveColumnOrderPlaceIds });
   }
   const selectedIds = cs
@@ -7792,6 +7855,9 @@ function bindScreenActions(root) {
       else if (place) patch.placeId = resolvePlaceIdFromDisplayName(place);
       if (route === "settings") patch.settingsSubpage = null;
       if (route === "compare") {
+        if (!Object.prototype.hasOwnProperty.call(patch, "comparisonSetId")) {
+          patch.comparisonSetId = null;
+        }
         navigate(/** @type {Route} */ (route), patch, { pushReturn: true, skipComparisonOverlay: true });
       } else if (route) {
         navigate(/** @type {Route} */ (route), patch);
@@ -8015,14 +8081,18 @@ function bindScreenActions(root) {
         const placeIds = picks.map((el) => el.getAttribute("data-place-id")).filter(Boolean);
         if (msgEl) msgEl.textContent = "Saving…";
         (async () => {
+          let err = null;
           try {
             const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
+            ensureComparisonSetInViewModel(setId);
             navigate("compare", {
               chartRecordId, comparisonSetId: setId,
               placeId: null, explorationId: null, returnTo: null,
             }, { skipComparisonOverlay: true });
-          } catch (err) {
-            if (msgEl) msgEl.textContent = "Save failed: " + (err.message || String(err));
+          } catch (e) {
+            err = e;
+          } finally {
+            finishComparisonBuildStatus(msgEl, err);
           }
         })();
       }
@@ -8045,14 +8115,18 @@ function bindScreenActions(root) {
         });
         if (msg) msg.textContent = "Saving…";
         (async () => {
+          let err = null;
           try {
             const setId = await createComparisonSetFromPlaceIds(chartRecordId, placeIds);
+            ensureComparisonSetInViewModel(setId);
             navigate("compare", {
               chartRecordId, comparisonSetId: setId,
               placeId: null, explorationId: null, returnTo: null,
             }, { skipComparisonOverlay: true });
-          } catch (err) {
-            if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+          } catch (e) {
+            err = e;
+          } finally {
+            finishComparisonBuildStatus(msg, err);
           }
         })();
       }

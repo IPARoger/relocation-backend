@@ -263,6 +263,36 @@ def serve_user_profile_js():
 
 
 
+V5_COMPARE_BETA_DIR = APP_DIR / "validation" / "mockups" / "beta"
+
+
+@app.get("/validation/mockups/beta/comparison_v5_route.js")
+def serve_comparison_v5_route_js():
+    _ensure_app_shell_enabled()
+    return FileResponse(
+        V5_COMPARE_BETA_DIR / "comparison_v5_route.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/validation/mockups/beta/comparison_v5_adapter.js")
+def serve_comparison_v5_adapter_js():
+    _ensure_app_shell_enabled()
+    return FileResponse(
+        V5_COMPARE_BETA_DIR / "comparison_v5_adapter.js",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/validation/mockups/beta/comparison_v5_beta.css")
+def serve_comparison_v5_beta_css():
+    _ensure_app_shell_enabled()
+    return FileResponse(
+        V5_COMPARE_BETA_DIR / "comparison_v5_beta.css",
+        media_type="text/css",
+    )
+
+
 @app.get("/human_place_label.js")
 def serve_human_place_label_js():
     return FileResponse(
