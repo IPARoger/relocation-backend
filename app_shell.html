@@ -372,8 +372,7 @@
   body.rm-beta-relocated .app-header .tag,
   body.rm-beta-profile .screen-meta,
   body.rm-beta-relocated .screen-meta { display: none !important; }
-  body.rm-beta-profile .app-header,
-  body.rm-beta-relocated .app-header {
+  body.rm-beta-profile .app-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -381,6 +380,18 @@
     max-width: 1280px;
     margin: 0 auto;
     padding: 18px 28px 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  body.rm-beta-relocated .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 28px 6px;
     background: transparent;
     border: none;
     box-shadow: none;
@@ -637,6 +648,7 @@
   body.rm-beta-relocated #rm-screen4-stage .rm-relocated-wheel-frame {
     width: 560px;
     max-width: 100%;
+    aspect-ratio: 1 / 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -753,6 +765,15 @@
   body.rm-beta-relocated #rm-screen4-intel .iv.intel-stub {
     color: var(--rm-ink-faint);
     font-weight: 400;
+  }
+  body.rm-beta-relocated .defer-note {
+    margin-top: 22px;
+    padding: 11px 14px;
+    font-size: 11px;
+    color: var(--rm-ink-faint);
+    background: rgba(154,144,128,.08);
+    border-radius: 8px;
+    line-height: 1.5;
   }
   body.rm-beta-relocated #rm-screen4-intel .intel-link {
     display: block;
@@ -2824,6 +2845,7 @@ function screenChart() {
       ${factsInner}
     </div>
     <div id="rm-screen4-intel" class="intel-block"></div>
+    <p class="defer-note">Deferred: Favorites / Saved Comparisons / Saved Searches below · table hide→drawer (animated) · full chart labels (degrees, AC/IC) · typography & fonts · aspect-label setting (Conj/Conjunction/glyph) · animation pacing & direction · centered main menu + logo</p>
     </div>
 
   `;
