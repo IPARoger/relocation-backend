@@ -2,6 +2,10 @@
   "completed_since_digest": 9,
   "last_digest_through_task": 65,
   "digest_interval": 15,
+<<<<<<< HEAD
   "last_completed_task": 99,
+=======
+  "last_completed_task": 78,
+>>>>>>> 6ef4f4ac543ea2da31cafa43cee151b76c125b06
   "awaiting_digest_ack": true
 }
