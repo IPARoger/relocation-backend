@@ -54,6 +54,15 @@ def load_dotenv_files() -> None:
 
 
 
+
+def relay_notify(event: str) -> None:
+    """Best-effort Telegram ping; never blocks relay."""
+    try:
+        run([sys.executable, str(SCRIPTS / "relay_notify.py"), event])
+    except Exception:
+        pass
+
+
 def log_handoff(step: str, content: str) -> Path:
     HANDOFFS.mkdir(parents=True, exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -73,7 +82,7 @@ def run(cmd: list[str], env: dict | None = None) -> tuple[int, str]:
 def pending_task() -> str | None:
     code, out = run(
         [sys.executable, str(SCRIPTS / "relay_executor.py"), "--dry-run"],
-        env={"RELAY_RUNTIME": "local"},
+        env={},
     )
     m = re.search(r"for (\d+_[^\s)]+)", out)
     return m.group(1) if m else None
@@ -128,7 +137,7 @@ def step_execute(dry_run: bool) -> str:
     if dry_run:
         code, out = run(
             [sys.executable, str(SCRIPTS / "relay_executor.py"), "--dry-run"],
-            env={"RELAY_RUNTIME": "local"},
+            env={},
         )
         log_handoff("exec_dry_run", f"# Execute (dry run)\n\nTask: {task}\n\n```\n{out}\n```")
         print(out)
@@ -151,13 +160,15 @@ def step_execute(dry_run: bool) -> str:
         )
         return "blocked"
 
+    relay_notify("started")
     code, out = run(
         [sys.executable, str(SCRIPTS / "relay_executor.py")],
-        env={"RELAY_RUNTIME": "local"},
+        env={},
     )
-    log_handoff("exec", f"# Cursor local agent\n\nTask: {task}\n\n```\n{out}\n```")
+    log_handoff("exec", f"# Cursor agent\n\nTask: {task}\n\n```\n{out}\n```")
     print(out)
     if code != 0:
+        relay_notify("not-verified")
         return "error"
     sys.path.insert(0, str(SCRIPTS))
     from relay_context import write_closeout_handoff
@@ -167,6 +178,8 @@ def step_execute(dry_run: bool) -> str:
     git_commit(f"relay: robot executed {task}")
     run([sys.executable, str(SCRIPTS / "relay_progress.py"), "record-closeout"])
     git_commit("relay: progress")
+    relay_notify("verified")
+    relay_notify("complete")
     return "done"
 
 

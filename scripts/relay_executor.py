@@ -54,6 +54,25 @@ def next_pending_task():
     return tasks[pending[0]] if pending else None
 
 
+
+def merge_cloud_pr_and_pull(result) -> None:
+    """After cloud agent finishes, merge PR and pull main (RELAY_AUTO_MERGE=1)."""
+    if os.environ.get("RELAY_AUTO_MERGE", "1").strip().lower() in ("0", "false", "no"):
+        return
+    pr_url = ""
+    git = getattr(result, "git", None)
+    if git and getattr(git, "branches", None):
+        for br in git.branches:
+            if getattr(br, "pr_url", ""):
+                pr_url = br.pr_url
+                break
+    if not pr_url:
+        return
+    import subprocess
+    subprocess.run(["gh", "pr", "merge", pr_url, "--squash", "--delete-branch"], cwd=REPO, check=False)
+    subprocess.run(["git", "pull", "origin", "main"], cwd=REPO, check=False)
+
+
 def build_prompt(task_path, local: bool = False):
     task_text = task_path.read_text(encoding="utf-8")
     finish = (
@@ -150,6 +169,8 @@ def main(argv):
                 + task.name
                 + "\n"
             )
+            if str(status).lower() in ("error", "failed", "cancelled"):
+                return 4
             return 0
 
         repo_url = "https://github.com/" + repo + ".git" if repo else None
@@ -168,7 +189,19 @@ def main(argv):
         if wait:
             result = Agent.prompt(prompt, opts)
             agent_id = getattr(result, "id", None) or getattr(result, "agent_id", "?")
-            sys.stdout.write("EXECUTED agent=" + str(agent_id) + " task=" + task.name + "\n")
+            status = getattr(result, "status", "?")
+            sys.stdout.write(
+                "EXECUTED_CLOUD agent="
+                + str(agent_id)
+                + " status="
+                + str(status)
+                + " task="
+                + task.name
+                + "\n"
+            )
+            merge_cloud_pr_and_pull(result)
+            if str(status).lower() in ("error", "failed", "cancelled"):
+                return 4
             return 0
 
         agent = Agent.create(opts)
