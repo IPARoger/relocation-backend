@@ -719,6 +719,7 @@
   }
   body.rm-beta-compare .rm-cmp-workspace-places-row { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
+  body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
   body.rm-beta-compare .comparison-main { margin-top: 4px; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
@@ -3834,11 +3835,13 @@ function renderPihWorkbookSectionBody(cols, ws) {
 }
 
 function refreshPihWorkbookSection() {
-  const body = document.getElementById("rm-cmp-sec-pih");
-  if (!body) return;
   const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
     || defaultComparisonWorkspaceState([]);
-  body.innerHTML = renderPihWorkbookSectionBody(_comparisonColsCache, ws);
+  const html = renderPihWorkbookSectionBody(_comparisonColsCache, ws);
+  ["rm-cmp-bottle-pih-body", "rm-cmp-sec-pih"].forEach((id) => {
+    const body = document.getElementById(id);
+    if (body) body.innerHTML = html;
+  });
   applyComparisonAngleTabFilter(document);
 }
 
@@ -4999,6 +5002,17 @@ function applyComparisonWorkspaceToDom(ws) {
       if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
     }
   }
+  const pihBottleBody = document.getElementById("rm-cmp-bottle-pih-body");
+  if (pihBottleBody) {
+    const collapsed = !!ws.collapsed_sections.pih;
+    pihBottleBody.classList.toggle("collapsed", collapsed);
+    const pihBtn = document.querySelector("[data-action='cmp-toggle-bottle-pih']");
+    if (pihBtn) {
+      pihBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const arrow = pihBtn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+    }
+  }
   const hidden = new Set(ws.hidden_place_ids || []);
   document.querySelectorAll(".rm-cmp-city-chip").forEach((chip) => {
     const pid = chip.getAttribute("data-place-id");
@@ -5148,6 +5162,23 @@ function initComparisonWorkspace(root) {
       const legacyBody = document.getElementById("rm-cmp-sec-ais");
       if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
       if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.ais || "Angle in Sign");
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-bottle-pih']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const body = document.getElementById("rm-cmp-bottle-pih-body");
+      const collapsed = body ? !body.classList.contains("collapsed") : false;
+      _cmpWorkspaceSession.state.collapsed_sections.pih = collapsed;
+      if (body) body.classList.toggle("collapsed", collapsed);
+      const arrow = btn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const legacyBtn = scope.querySelector("[data-action='cmp-toggle-section'][data-cmp-section='pih']");
+      const legacyBody = document.getElementById("rm-cmp-sec-pih");
+      if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
+      if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.pih || "Planet in House");
       scheduleComparisonWorkspaceSave();
     });
   });
@@ -5633,6 +5664,20 @@ function renderComparisonAisBlockShellHtml(ws) {
   </div>`;
 }
 
+function renderComparisonPihBlockShellHtml(ws) {
+  const collapsed = !!(ws && ws.collapsed_sections && ws.collapsed_sections.pih);
+  const inner = renderPihWorkbookSectionBody(_comparisonColsCache, ws);
+  return `<div class="cmp-block cmp-block-pih" id="rm-cmp-bottle-pih" data-cmp-bottle-block="pih">
+    <div class="cmp-block-header">
+      <button type="button" class="cmp-block-header-btn" data-action="cmp-toggle-bottle-pih" aria-expanded="${collapsed ? "false" : "true"}">
+        <span class="cmp-block-arrow">${collapsed ? "\u25b6" : "\u25bc"}</span>
+        <span class="cmp-block-title">Planet in House</span>
+      </button>
+    </div>
+    <div class="cmp-block-body fact-table-wrap${collapsed ? " collapsed" : ""}" id="rm-cmp-bottle-pih-body">${inner}</div>
+  </div>`;
+}
+
 function renderComparisonZoneBHtml(r) {
   return `<div class="cmp-zone-b zone-b">
     <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">\u25be</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
@@ -5776,7 +5821,7 @@ function screenCompare() {
       ${renderComparisonZoneBHtml(origin)}
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
-    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}</div>` : ""}
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}</div>` : ""}
     <div class="rm-comparison-beta-body">
     <div class="rm-comparison-legacy-chrome">
     <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>
