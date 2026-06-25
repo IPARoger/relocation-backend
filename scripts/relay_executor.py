@@ -56,21 +56,38 @@ def next_pending_task():
 
 
 def merge_cloud_pr_and_pull(result) -> None:
-    """After cloud agent finishes, merge PR and pull main (RELAY_AUTO_MERGE=1)."""
+    """After cloud agent finishes, merge PR/branch and pull main (RELAY_AUTO_MERGE=1)."""
     if os.environ.get("RELAY_AUTO_MERGE", "1").strip().lower() in ("0", "false", "no"):
         return
+    import shutil
+    import subprocess
+
     pr_url = ""
+    branch = ""
     git = getattr(result, "git", None)
     if git and getattr(git, "branches", None):
         for br in git.branches:
             if getattr(br, "pr_url", ""):
                 pr_url = br.pr_url
-                break
-    if not pr_url:
-        return
-    import subprocess
-    subprocess.run(["gh", "pr", "merge", pr_url, "--squash", "--delete-branch"], cwd=REPO, check=False)
-    subprocess.run(["git", "pull", "origin", "main"], cwd=REPO, check=False)
+            if getattr(br, "branch", ""):
+                branch = br.branch
+    try:
+        if shutil.which("gh") and pr_url:
+            subprocess.run(
+                ["gh", "pr", "merge", pr_url, "--squash", "--delete-branch"],
+                cwd=REPO,
+                check=False,
+            )
+        elif branch:
+            subprocess.run(["git", "fetch", "origin", branch], cwd=REPO, check=False)
+            subprocess.run(
+                ["git", "merge", "--no-edit", f"origin/{branch}"],
+                cwd=REPO,
+                check=False,
+            )
+        subprocess.run(["git", "pull", "origin", "main"], cwd=REPO, check=False)
+    except OSError as exc:
+        sys.stderr.write(f"merge_cloud_pr_and_pull: {exc}\n")
 
 
 def build_prompt(task_path, local: bool = False):
