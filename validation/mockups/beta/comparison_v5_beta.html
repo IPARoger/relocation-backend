@@ -301,11 +301,36 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
 .ci-section.collapsed .ci-collapse{transform:rotate(-90deg)}
 /* notes FAB: ride the notes column, sit below the city-bar divider, never float into header */
 #notes-fab{position:sticky;top:calc(var(--nav-h) + 130px);right:auto;margin-left:auto;z-index:40}
+
+/* == V5-0B comparison mockup doctrine (hydration contract; do not intensify) == */
+/* Authority: #rm-cmp-zone-b is primary; #rm-cmp-bar-authority-sticky is scroll/sticky transform target only. */
+#rm-cmp-zone-b[data-cmp-role="authority-primary"]{}
+#rm-cmp-bar-authority-sticky[data-cmp-role="authority-sticky-transform"]{/* mirrors zone-b when scrolled; animation deferred */}
+/* City card slot anatomy: badge row | 2-line name | coords | controls; (i) and × inline on name */
+.city-card[data-cmp-role="city-card"]{position:relative}
+.city-name-lines{display:block;min-height:34px;max-height:34px;overflow:hidden;text-align:center}
+.bname-line{display:block;font-family:var(--serif);font-weight:700;font-size:13.5px;line-height:1.2;color:var(--ink)}
+.bname-line-secondary{font-size:12px;font-weight:600;color:var(--ink-soft)}
+.city-name-inline-actions{position:absolute;left:100%;top:0;margin-left:3px;display:inline-flex;align-items:flex-start;gap:2px;white-space:nowrap}
+.bar-city-slot-empty{vertical-align:top;border-left:1px dashed var(--line-soft);background:rgba(244,236,224,.35);min-height:118px}
+.bar-city-slot-empty .city-slot-placeholder{font-size:10px;color:var(--ink-faint);padding:24px 6px;text-align:center}
+/* Approved visual grammar: subtle multi-directional column hatching — differentiates columns, avoids value judgment; candidate for reuse elsewhere. Do not intensify. */
+.fact-table .val-col.cmp-col-texture-a{background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(51,41,31,.014) 4px 5px)}
+.fact-table .val-col.cmp-col-texture-b{background-image:repeating-linear-gradient(-45deg,transparent 0 4px,rgba(51,41,31,.014) 4px 5px)}
+/* Canonical A2A pill style — candidate for Profile/Relocated propagation (not in this slice) */
+.angle-tabs[data-cmp-role="canonical-a2a-pills"]{}
+/* Notes rail: floating panel; toolbar harmonization deferred (preferred future: controls on bottom) */
+.comparison-notes-rail[data-cmp-notes-layout="floating"]{}
+.comparison-notes-rail[data-cmp-notes-toolbar-position="top"] .notes-toolbar{/* future: move to bottom across all Notes surfaces */}
+
 </style>
 </head>
 <body>
 
-<!-- V5-0 wiring contract: stable mounts for production adapter (see scripts/smoke_h4x_v5_0_comparison_mockup_contract.py) -->
+<!-- V5-0 wiring contract + V5-0B doctrine: see scripts/smoke_h4x_v5_0b_comparison_mockup_doctrine.py -->
+<!-- Authority: cmp-zone-b (#rm-cmp-zone-b) is PRIMARY profile authority (harmonized with Map/Profile/Relocated origin). -->
+<!-- City bar .bar-authority is STICKY TRANSFORM TARGET only — same plate, not a second authority. Scroll animation deferred. -->
+<!-- Capacity: CMP_CAPACITY_RESERVED slots include blank placeholders; 4 vs 5 city limit is OPEN PRODUCT DECISION. -->
 
 <nav class="app-nav">
   <a class="nav-logo" href="#">Relocation</a>
@@ -320,7 +345,7 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
 
 <div id="rm-cmp-v5-root" class="rm-cmp-v5-root" data-cmp-role="comparison-root" data-cmp-mount="comparison-root">
 <div class="profile-block comp-profile" data-cmp-role="authority">
-  <div class="cmp-zone-b" id="rm-cmp-zone-b" data-cmp-mount="authority">
+  <div class="cmp-zone-b" id="rm-cmp-zone-b" data-cmp-mount="authority" data-cmp-role="authority-primary">
     <div class="zb-name"><span class="nmwrap"><span class="nm">David Goodman</span><span class="tools"><button class="profile-caret">▾</button><button class="profile-btn">Edit</button><button class="profile-btn plus" title="Add profile">+</button></span></span></div>
     <div class="zb-primary">13 Jan 1976 · 07:42 <span class="glyph">♂</span></div>
     <div class="zb-primary">Portland, OR, USA</div>
@@ -373,7 +398,8 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
         <span class="block-arrow" id="arrow-ata">&#9660;</span>
         <span class="block-title">Aspect to Angle</span>
         <span class="angle-sep">&middot;</span>
-        <div class="angle-tabs" data-cmp-role="a2a-angle-tabs">
+        <!-- Canonical A2A pill style (preferred); candidate to propagate to Profile/Relocated later -->
+        <div class="angle-tabs" data-cmp-role="canonical-a2a-pills">
           <button type="button" class="angle-tab active" data-action="cmp-angle-tab" data-angle-tab="asc" data-angle="ASC">ASC</button>
           <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="dsc" data-angle="DSC">DSC</button>
           <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="mc" data-angle="MC">MC</button>
@@ -388,14 +414,15 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
 
   <p class="wheel-note">City names reserved for chart wheel preview.</p>
 
-  <!-- City Intelligence -->
+  <!-- City Intelligence (below A2A): column-aligned CI grid; 7 categories from City page; compact snippets; (i) modal shows labeled version -->
   <div class="ci-section" data-section="city_intelligence" data-cmp-mount="ci-section">
     <div class="ci-section-head"><button type="button" class="ci-collapse" title="Hide City Intelligence" data-action="cmp-toggle-ci-section" data-section="city_intelligence">▾</button><div class="ci-section-title">City Intelligence</div></div>
     <div class="ci-grid" id="ci-cards" data-cmp-mount="ci-cards"></div>
   </div>
     </main>
 
-    <aside class="comparison-notes-rail" id="cmp-notes-rail" data-cmp-mount="notes-rail" data-cmp-role="notes-rail">
+    <!-- Notes rail: floating panel; RTE toolbar harmonization deferred (preferred future: controls on bottom) -->
+    <aside class="comparison-notes-rail" id="cmp-notes-rail" data-cmp-mount="notes-rail" data-cmp-role="notes-rail" data-cmp-notes-layout="floating" data-cmp-notes-toolbar-position="top">
       <button type="button" id="notes-fab" title="Open notes" data-action="cmp-notes-show" data-cmp-role="notes-fab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></button>
       
       <div class="general-notes-section">
@@ -446,21 +473,34 @@ var COL_STUB  = 30;
 var COL_ADD   = 64;
 var COL_CITY  = 158;
 
+// V5-0B: City Intelligence — 7 categories aligned with City page (compact comparison omits repeated labels).
+var CI_CATEGORY_LABELS = [
+  'Regional context',
+  'Safety',
+  'Cost of living',
+  'Professional / expat environment',
+  'Climate',
+  'Mobility / transit',
+  'Regional character'
+];
+// V5-0B: comparison capacity — blank slots reserved; 4 vs 5 city limit is OPEN PRODUCT DECISION.
+var CMP_CAPACITY_RESERVED = 5;
+
 // MOCKUP_ONLY_REPLACED_BY_ADAPTER
 // ── City data ────────────────────────────────────────────────────
 var CITY_DATA = {
   lisbon: {
-    name: 'Lisbon', country: 'Portugal', shortName: 'Lisbon',
+    name: 'Lisbon', country: 'Portugal', nameLine1: 'Lisbon', nameLine2: 'Portugal', shortName: 'Lisbon',
     coords: '38.7223° N, 9.1393° W', tag: 'Natal',
     ci: ['Stable EU context','Low violent crime','Moderate cost of living','Strong expat environment','Mediterranean climate','Public transit + walkability','Historic capital · tech/finance']
   },
   austin: {
-    name: 'Austin', country: 'Texas, USA', shortName: 'Austin',
+    name: 'Austin', country: 'Texas, USA', nameLine1: 'Austin', nameLine2: 'Texas, USA', shortName: 'Austin',
     coords: '30.2672° N, 97.7431° W', tag: 'Current',
     ci: ['Stable US context','Moderate urban safety','High cost pressure','Strong professional network','Hot humid summers','Car-dependent sprawl','Tech/music/government hub']
   },
   bali: {
-    name: 'Bali', country: 'Indonesia', shortName: 'Bali',
+    name: 'Bali', country: 'Indonesia', nameLine1: 'Bali', nameLine2: 'Indonesia', shortName: 'Bali',
     coords: '8.3405° S, 115.0920° E', tag: null,
     ci: ['Indonesia context','Tourist-area safety varies','Low-to-moderate cost','Strong nomad environment','Tropical wet/dry seasons','Scooter/taxi mobility','Island region · creative scene']
   }
@@ -583,9 +623,10 @@ function buildTable(labels, getData) {
   h += '</colgroup><tbody>';
   labels.forEach(function(label, i) {
     h += '<tr><td class="label-col">' + label + '</td>';
-    vis.forEach(function(id) {
+    vis.forEach(function(id, colIdx) {
       var v = getData(id, i);
-      h += '<td class="val-col">' + (v != null ? v : '<span class="ph">&mdash;</span>') + '</td>';
+      var tex = (colIdx % 2 === 0) ? ' cmp-col-texture-a' : ' cmp-col-texture-b';
+      h += '<td class="val-col' + tex + '" data-cmp-col-index="' + colIdx + '">' + (v != null ? v : '<span class="ph">&mdash;</span>') + '</td>';
     });
     h += '</tr>';
   });
@@ -615,6 +656,7 @@ function renderCityBar() {
   var vis = visibleCities();
   var W = COL_LABEL;
   cityOrder.forEach(function(id) { W += cityHidden[id] ? COL_STUB : COL_CITY; });
+  for (var _wsi = cityOrder.length; _wsi < CMP_CAPACITY_RESERVED; _wsi++) { W += COL_CITY; }
   W += COL_ADD;
 
   var h = '<table class="city-bar-table" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
@@ -622,7 +664,10 @@ function renderCityBar() {
   cityOrder.forEach(function(id) {
     h += '<col style="width:' + (cityHidden[id] ? COL_STUB : COL_CITY) + 'px">';
   });
-  h += '<col style="width:' + COL_ADD + 'px"></colgroup><tbody><tr><td class="bar-label"><div class="bar-authority"><div class="ba-name">David Goodman</div><div class="ba-meta">13 Jan 1976 · 07:42</div><div class="ba-place">Portland, OR</div></div></td>';
+  for (var _sgi = cityOrder.length; _sgi < CMP_CAPACITY_RESERVED; _sgi++) {
+    h += '<col style="width:' + COL_CITY + 'px">';
+  }
+  h += '<col style="width:' + COL_ADD + 'px"></colgroup><tbody><tr><td class="bar-label"><div class="bar-authority" id="rm-cmp-bar-authority-sticky" data-cmp-role="authority-sticky-transform" data-cmp-authority-source="rm-cmp-zone-b"><div class="ba-name">David Goodman</div><div class="ba-meta">13 Jan 1976 · 07:42</div><div class="ba-place">Portland, OR</div></div></td>';
 
   cityOrder.forEach(function(id) {
     if (cityHidden[id]) {
@@ -639,20 +684,30 @@ function renderCityBar() {
       var tagHtml = c.tag
         ? '<div class="city-tag' + (c.tag==="Natal"?" natal":"") + (c.tag==="Current"?" current":"") + '">' + tagLabel + '</div>'
         : '';
-      h += '<td class="bar-city">';
+      var line1 = c.nameLine1 || c.name;
+      var line2 = c.nameLine2 || c.country || '';
+      h += '<td class="bar-city city-card" data-cmp-role="city-card" data-place-id="' + id + '">';
       h += '<button type="button" class="city-remove" data-action="cmp-remove-place" data-place-id="' + id + '" title="Remove from comparison">×</button>';
-      h += '<div class="city-badge-zone">' + tagHtml + '</div>';
-      h += '<div class="city-name-zone"><span class="bnwrap"><span class="bname">' + c.name + ', ' + c.country + '</span><button type="button" class="city-info-inline" data-action="cmp-city-info" data-place-id="' + id + '" title="City Intelligence">i</button></span></div>';
+      h += '<div class="city-badge-zone">' + (tagHtml || '<div class="city-tag-empty" aria-hidden="true"></div>') + '</div>';
+      h += '<div class="city-name-zone"><span class="bnwrap city-name-lines">';
+      h += '<span class="bname-line bname-line-primary">' + line1 + '</span>';
+      h += '<span class="bname-line bname-line-secondary">' + line2 + '</span>';
+      h += '<span class="city-name-inline-actions"><button type="button" class="city-info-inline" data-action="cmp-city-info" data-place-id="' + id + '" title="City Intelligence">i</button></span>';
+      h += '</span></div>';
       h += '<div class="city-coords">' + c.coords + '</div>';
       h += '<div class="city-ctrls">';
       h += '<button type="button" class="cc cc-arr" data-action="cmp-move-place" data-place-id="' + id + '" data-dir="-1"' + (isFirst ? ' disabled' : '') + '>&#8249;</button>';
       h += '<button type="button" class="cc" data-action="cmp-toggle-place" data-place-id="' + id + '">Hide</button>';
+      h += '<button type="button" class="cc cc-rep" data-action="cmp-replace-place" data-place-id="' + id + '">Replace</button>';
       h += '<button type="button" class="cc cc-arr" data-action="cmp-move-place" data-place-id="' + id + '" data-dir="1"'  + (isLast  ? ' disabled' : '') + '>&#8250;</button>';
       h += '</div>';
       h += '</td>';
     }
   });
 
+  for (var slotIdx = cityOrder.length; slotIdx < CMP_CAPACITY_RESERVED; slotIdx++) {
+    h += '<td class="bar-city bar-city-slot-empty" data-cmp-role="city-slot-empty" data-cmp-slot-index="' + slotIdx + '"><div class="city-slot-placeholder">Open slot</div></td>';
+  }
   h += '<td class="bar-add"><button type="button" class="add-city-btn" data-action="cmp-add-place">+\u2009Add</button></td>';
   h += '</tr></tbody></table>';
   document.getElementById('city-bar-inner').innerHTML = h;
@@ -663,11 +718,13 @@ function renderCI() {
   var h = '<div class="ci-spacer"></div>';
   vis.forEach(function(id) {
     var c = CITY_DATA[id];
-    h += '<div class="ci-card">';
+    h += '<div class="ci-card" data-place-id="' + id + '" data-cmp-role="ci-card">';
     h += '<div class="ci-name">' + c.name + ', ' + c.country + '</div>';
     h += '<div class="ci-coords">' + c.coords + '</div>';
-    h += '<ul class="ci-list">' + c.ci.map(function(b) { return '<li>' + b + '</li>'; }).join('') + '</ul>';
-    h += '<button type="button" class="ci-open-btn" data-action="cmp-ci-open-page">Open Full City Page</button>';
+    h += '<ul class="ci-list">' + (c.ci || []).map(function(b, idx) {
+      return '<li data-ci-category="' + idx + '">' + b + '</li>';
+    }).join('') + '</ul>';
+    h += '<button type="button" class="ci-open-btn" data-action="cmp-ci-open-page" data-place-id="' + id + '">Open Full City Page</button>';
     h += '</div>';
   });
   document.getElementById('ci-cards').innerHTML = h;
@@ -736,7 +793,10 @@ function toggleNotes(id) {
 function openCityInfo(id) {
   var c = CITY_DATA[id];
   document.getElementById('modal-ci-title').textContent = c.name + ', ' + c.country;
-  document.getElementById('modal-ci-list').innerHTML = c.ci.map(function(b) { return '<li>' + b + '</li>'; }).join('');
+  document.getElementById('modal-ci-list').innerHTML = (c.ci || []).map(function(b, idx) {
+    var label = (CI_CATEGORY_LABELS && CI_CATEGORY_LABELS[idx]) ? CI_CATEGORY_LABELS[idx] + ': ' : '';
+    return '<li data-ci-category="' + idx + '"><b>' + label + '</b>' + b + '</li>';
+  }).join('');
   openModal('cityinfo');
 }
 // picker-note intentionally omitted (doctrine internal)
@@ -797,6 +857,11 @@ function wireMockupPreviewActions() {
     if (action === "cmp-city-info") {
       var pid4 = el.getAttribute("data-place-id");
       if (pid4) openCityInfo(pid4);
+      return;
+    }
+    if (action === "cmp-replace-place") {
+      var pidR = el.getAttribute("data-place-id");
+      if (pidR) openPicker(pidR, false);
       return;
     }
     if (action === "cmp-add-place") { openPicker(null, true); return; }
