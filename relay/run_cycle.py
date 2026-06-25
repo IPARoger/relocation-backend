@@ -105,7 +105,9 @@ def main() -> int:
         )
         code = proc.returncode
     except subprocess.TimeoutExpired:
-        log(f"CYCLE_TIMEOUT after {DEFAULT_TIMEOUT}s — will auto-resume next cycle")
+        log(f"CYCLE_TIMEOUT after {DEFAULT_TIMEOUT}s — killing stuck executor")
+        subprocess.run(["pkill", "-f", "relay_executor.py"], check=False)
+        subprocess.run(["pkill", "-f", "relay_robot.py"], check=False)
         touch_heartbeat("timeout")
         return 124
     except Exception as exc:

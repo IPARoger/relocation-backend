@@ -19,9 +19,12 @@ set +e
 INTERVAL="${RELAY_WATCHDOG_INTERVAL:-120}"
 # Default 90 min: just over RELAY_CYCLE_TIMEOUT (3600) would be too long; use 90 min or env
 STALE="${RELAY_STALE_SEC:-5400}"
-HUNG="${RELAY_HUNG_SEC:-2700}"
+HUNG="${RELAY_HUNG_SEC:-3900}"
+WATCHDOG_PIDFILE=relay/handoffs/watchdog.pid
 PIDFILE=relay/handoffs/session.pid
 LOG=relay/handoffs/session.log
+mkdir -p relay/handoffs
+echo $$ > "$WATCHDOG_PIDFILE"
 
 start_session() {
   nohup ./relay/run_session.sh >> "$LOG" 2>&1 &
@@ -33,6 +36,7 @@ kill_session() {
   echo "watchdog: killing session pid $(cat "$PIDFILE" 2>/dev/null) $(date -u)" >> "$LOG"
   pkill -f "relay/run_cycle.py" 2>/dev/null
   pkill -f "relay_robot.py" 2>/dev/null
+  pkill -f "relay_executor.py" 2>/dev/null
   pkill -P "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null
   kill "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null
   sleep 5

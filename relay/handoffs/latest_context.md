@@ -1,32 +1,22 @@
-# Latest relay context — H4 Comparison harmonization
+# H4 relay — AUTOPILOT ARMED
 
-**Updated:** 2026-06-25 (post Slice 3 commit)
+**Updated:** 2026-06-25
+**Mode:** Cloud executor + auto-merge + 24/7 session
 
-## Rollback anchor
-- `e37bf9d` / tag `checkpoint/h4b_start_clean`
+## Queue (tasks without closeout)
+| Task | Slice | Status |
+|------|-------|--------|
+| `74_h4_slice4_a2a_shell.md` | H4-4 A2A | **RUNNING NEXT** |
+| `77_h4_slice5_notes_rail.md` | H4-5 Notes | queued |
+| `81_h4_slice6_ci_shell.md` | H4-6 CI | queued |
+| `85_h4_slice7_freeze_audit.md` | H4-7 audit | queued |
 
-## HEAD
-- `662cf2e` — comparison: add PIH bottled block shell (H4 slice 3)
+## Done
+- H4-2 AIS `52cbf07`, H4-3 PIH `662cf2e`, task 73 closeout VERIFIED
 
-## Slice status
-| Slice | Status | Notes |
-|-------|--------|-------|
-| H4B-1 Authority | ✅ | `e37bf9d` |
-| H4-2 AIS shell | ✅ | `52cbf07` |
-| H4-3 PIH shell | ✅ | committed this turn |
-| H4-4 A2A shell | ⏳ next | — |
-| H4-5 Notes rail | pending | — |
-| H4-6 CI shell | pending | — |
-| H4-7 Freeze audit | pending | — |
+## Rollback
+`checkpoint/h4b_start_clean` (`e37bf9d`)
 
-## Smokes (Slice 3)
-- `scripts/smoke_h4_slice3_pih_shell.py` — PASS 11/11
-- `scripts/smoke_h4_slice2_ais_shell.py` — PASS (regression)
-- `scripts/smoke_h4b_comparison_authority.py` — PASS
-- `scripts/smoke_comparison_a2a_matrix.py` — PASS 10/10
-
-## Guardrail
-One slice per turn: implement → smoke → commit → **STOP**.
-
-## Next executor prompt
-H4 Slice 4 only: A2A bottled block shell. Preserve `data-a2a-shape="matrix"`. Do not touch PIH/AIS bottles, Notes, CI, APIs.
+## Operator
+- Start/monitor: `./relay/start_24_7.sh` + `tail -f relay/handoffs/session.log`
+- Telegram: started / verified / complete / not-verified (auto via relay_robot)
