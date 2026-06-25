@@ -282,9 +282,16 @@ def smoke_playwright(results: list[tuple[str, bool, str]]) -> None:
             )
             check(dom_order == CANONICAL_ASTROLOGY_SECTIONS, "fe_astrology_section_order", str(dom_order), results)
 
+            page.evaluate("() => { const el = document.querySelector('[data-rm-astrology-section=\"house-edge\"]'); if (el) el.scrollIntoView({ block: 'nearest' }); }")
             body_text = page.inner_text(".settings-subpage") or ""
             check("Exact aspect threshold" in body_text, "fe_exact_threshold_copy", "visible", results)
-            check("House Edge Behavior" in body_text, "fe_house_edge_heading", "visible", results)
+            house_edge_heading = page.evaluate(
+                """() => {
+                    const el = document.querySelector('[data-rm-astrology-section="house-edge"]');
+                    return el ? (el.innerText || el.textContent || '').trim() : '';
+                }"""
+            )
+            check("house edge behavior" in house_edge_heading.lower(), "fe_house_edge_heading", repr(house_edge_heading), results)
 
             vm = page.evaluate("() => window.__rmAppShell.viewModel()")
             cr_id = (vm or {}).get("defaultChartRecordId") or (vm or {}).get("accountDefaultChartRecordId")
