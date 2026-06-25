@@ -1,22 +1,25 @@
-# H4 relay — AUTOPILOT ARMED
+# H4 relay — COMPLETE
 
 **Updated:** 2026-06-25
-**Mode:** Cloud executor + auto-merge + 24/7 session
+**Mode:** Slices 6–7 finished locally; full H4 harmonization done
 
-## Queue (tasks without closeout)
-| Task | Slice | Status |
-|------|-------|--------|
-| `74_h4_slice4_a2a_shell.md` | H4-4 A2A | **RUNNING NEXT** |
-| `77_h4_slice5_notes_rail.md` | H4-5 Notes | queued |
-| `81_h4_slice6_ci_shell.md` | H4-6 CI | queued |
-| `85_h4_slice7_freeze_audit.md` | H4-7 audit | queued |
+## Queue
+All H4 tasks closed.
 
-## Done
-- H4-2 AIS `52cbf07`, H4-3 PIH `662cf2e`, task 73 closeout VERIFIED
+| Slice | Status |
+|-------|--------|
+| H4B-1 Authority | `e37bf9d` |
+| H4-2 AIS | `52cbf07` |
+| H4-3 PIH | `662cf2e` |
+| H4-4 A2A | `ced5365` |
+| H4-5 Notes | `ad25532` |
+| H4-6 CI shell | VERIFIED (this session) |
+| H4-7 Freeze audit | VERIFIED (this session) |
+
+## Artifacts
+- `COMPARISON_FREEZE_AUDIT.md`
+- `results/H4-6.md`, `results/H4-7.md`
+- `scripts/smoke_h4_slice6_ci_shell.py`
 
 ## Rollback
 `checkpoint/h4b_start_clean` (`e37bf9d`)
-
-## Operator
-- Start/monitor: `./relay/start_24_7.sh` + `tail -f relay/handoffs/session.log`
-- Telegram: started / verified / complete / not-verified (auto via relay_robot)
