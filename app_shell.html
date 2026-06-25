@@ -721,6 +721,7 @@
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="a2a"] { display: none !important; }
+  body.rm-beta-compare .rm-cmp-section[data-cmp-section="city_intelligence"] { display: none !important; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
     display: flex;
@@ -5077,6 +5078,8 @@ function comparisonWorkspacePanelHtml(cs, ws) {
             ? renderPihWorkbookSectionBody(_comparisonColsCache, ws)
           : sec === "a2a"
             ? renderA2aWorkbookSectionBody(_comparisonColsCache, ws)
+            : sec === "city_intelligence"
+              ? renderComparisonCiWorkbookSectionBody()
             : sec === "notes"
               ? "<p class=\"meta\">Use the notepad below.</p>"
               : "<p class=\"meta\">Reading-state bookmark \u2014 full section content ships in a later layout slice.</p>"}
@@ -5165,6 +5168,17 @@ function applyComparisonWorkspaceToDom(ws) {
     if (a2aBtn) {
       a2aBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
       const arrow = a2aBtn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+    }
+  }
+  const ciBottleBody = document.getElementById("rm-cmp-bottle-ci-body");
+  if (ciBottleBody) {
+    const collapsed = !!ws.collapsed_sections.city_intelligence;
+    ciBottleBody.classList.toggle("collapsed", collapsed);
+    const ciBtn = document.querySelector("[data-action='cmp-toggle-bottle-ci']");
+    if (ciBtn) {
+      ciBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const arrow = ciBtn.querySelector(".cmp-block-arrow");
       if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
     }
   }
@@ -5357,6 +5371,23 @@ function initComparisonWorkspace(root) {
       scheduleComparisonWorkspaceSave();
     });
   });
+  scope.querySelectorAll("[data-action='cmp-toggle-bottle-ci']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const body = document.getElementById("rm-cmp-bottle-ci-body");
+      const collapsed = body ? !body.classList.contains("collapsed") : false;
+      _cmpWorkspaceSession.state.collapsed_sections.city_intelligence = collapsed;
+      if (body) body.classList.toggle("collapsed", collapsed);
+      const arrow = btn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const legacyBtn = scope.querySelector("[data-action='cmp-toggle-section'][data-cmp-section='city_intelligence']");
+      const legacyBody = document.getElementById("rm-cmp-sec-city_intelligence");
+      if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
+      if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.city_intelligence || "City Intelligence");
+      scheduleComparisonWorkspaceSave();
+    });
+  });
   wireComparisonPlaceToggleButtons(scope);
   refreshComparisonCityBar(scope);
 }
@@ -5441,6 +5472,7 @@ async function hydrateComparisonColumns(root) {
     bindCmpDiffsToggle(container);
     refreshAisWorkbookSection();
     refreshA2aWorkbookSection();
+    refreshComparisonCiSection();
     refreshPihWorkbookSection();
   } catch (err) {
     if (!stillCurrent()) return;
@@ -5878,6 +5910,33 @@ function renderComparisonA2aBlockShellHtml(ws) {
 }
 
 
+function renderComparisonCiWorkbookSectionBody() {
+  return `<div class="ci-placeholder" data-cmp-ci-wired="false"><p class="meta">City Intelligence — layout shell only. Content engine not wired (<code>wired: false</code>).</p></div>`;
+}
+
+function refreshComparisonCiSection() {
+  const html = renderComparisonCiWorkbookSectionBody();
+  ["rm-cmp-bottle-ci-body", "rm-cmp-sec-city_intelligence"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+}
+
+function renderComparisonCiBlockShellHtml(ws) {
+  const collapsed = !!(ws && ws.collapsed_sections && ws.collapsed_sections.city_intelligence);
+  const inner = renderComparisonCiWorkbookSectionBody();
+  return `<div class="cmp-block cmp-block-ci ci-section" id="rm-cmp-bottle-ci" data-cmp-bottle-block="city_intelligence" data-cmp-ci-wired="false">
+    <div class="cmp-block-header">
+      <button type="button" class="cmp-block-header-btn" data-action="cmp-toggle-bottle-ci" aria-expanded="${collapsed ? "false" : "true"}">
+        <span class="cmp-block-arrow">${collapsed ? "\u25b6" : "\u25bc"}</span>
+        <span class="cmp-block-title">City Intelligence</span>
+      </button>
+    </div>
+    <div class="cmp-block-body ci-grid${collapsed ? " collapsed" : ""}" id="rm-cmp-bottle-ci-body">${inner}</div>
+  </div>`;
+}
+
+
 function renderComparisonNotesRailHtml(cs) {
   const notesFabSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>';
   const body = cs
@@ -6044,7 +6103,7 @@ function screenCompare() {
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
     <div class="comparison-body-grid" id="rm-cmp-body-grid">
-    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}${renderComparisonCiBlockShellHtml(ws)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
     ${renderComparisonNotesRailHtml(cs)}
     </div>
     <div class="rm-comparison-beta-body">
