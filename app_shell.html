@@ -17,6 +17,8 @@
 <link rel="stylesheet" href="/genie_variable_builder.css" />
 <link rel="stylesheet" href="/theme/glyphs.css" />
 <link rel="stylesheet" href="/theme/tband_foundation.css" />
+<link rel="stylesheet" href="/theme/relocation_themes.css" />
+<script src="/theme/relocation_theme.js"></script>
 <style>
   :root {
     --fg: #111827;
@@ -143,6 +145,24 @@
   .settings-subpage .loc-row { padding: 10px 0; align-items: flex-start; }
   .settings-stub-row { opacity: 0.92; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
   .settings-stub-row:first-child { border-top: none; }
+  .settings-future-row { opacity: 0.88; }
+  .settings-theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+  @media (max-width: 640px) { .settings-theme-grid { grid-template-columns: 1fr; } }
+  .settings-theme-card {
+    text-align: left; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    background: var(--panel); cursor: pointer; font: inherit; color: inherit;
+  }
+  .settings-theme-card.on { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .settings-theme-card .settings-theme-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0 0 6px; }
+  .settings-theme-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+  .settings-theme-swrow { display: flex; border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
+  .settings-theme-swrow i { display: block; height: 14px; flex: 1; }
+  .settings-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .settings-seg button {
+    border: none; background: var(--panel); padding: 6px 12px; font: inherit; font-size: 12px; cursor: pointer; color: var(--fg);
+  }
+  .settings-seg button.on { background: #eff6ff; color: var(--accent); font-weight: 600; }
+  .settings-local-msg { font-size: 12px; color: var(--muted); min-height: 1.2em; margin-top: 8px; }
   .settings-orb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 14px; }
   .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
@@ -7458,6 +7478,188 @@ function applyAccountSettingsPatch(settingsPatch, viewModelPatch) {
   });
 }
 
+const RM_REGIONAL_PREFS_LS = "rm_regional_prefs";
+const RM_DATE_FORMAT_OPTIONS = [
+  { v: "d MMM yyyy", sample: "13 Jan 1976" },
+  { v: "MMM d, yyyy", sample: "Jan 13, 1976" },
+  { v: "dd/MM/yyyy", sample: "13/01/1976" },
+  { v: "MM/dd/yyyy", sample: "01/13/1976" },
+  { v: "yyyy-MM-dd", sample: "1976-01-13" },
+];
+const RM_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function loadRegionalPrefs() {
+  const defaults = { dateFmt: "d MMM yyyy", timeFmt: "ampm" };
+  try {
+    const stored = JSON.parse(localStorage.getItem(RM_REGIONAL_PREFS_LS) || "{}");
+    return Object.assign({}, defaults, stored);
+  } catch (e) {
+    return Object.assign({}, defaults);
+  }
+}
+
+function saveRegionalPrefs(patch) {
+  const next = Object.assign({}, loadRegionalPrefs(), patch || {});
+  try { localStorage.setItem(RM_REGIONAL_PREFS_LS, JSON.stringify(next)); } catch (e) { /* ignore */ }
+  return next;
+}
+
+function parseIsoDateParts(isoDate) {
+  if (!isoDate) return null;
+  const m = String(isoDate).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const y = Number(m[1]); const mo = Number(m[2]); const d = Number(m[3]);
+  if (!y || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  return { y, mo, d };
+}
+
+function formatRegionalDate(isoDate) {
+  const parts = parseIsoDateParts(isoDate);
+  if (!parts) return isoDate || "—";
+  const raw = (storeRaw && storeRaw.user_settings) || {};
+  const fmt = raw.date_format || raw.dateFormat || loadRegionalPrefs().dateFmt || "d MMM yyyy";
+  const mon = RM_MONTHS_SHORT[parts.mo - 1] || String(parts.mo);
+  const dd = String(parts.d).padStart(2, "0");
+  const mm = String(parts.mo).padStart(2, "0");
+  switch (fmt) {
+    case "MMM d, yyyy": return `${mon} ${parts.d}, ${parts.y}`;
+    case "dd/MM/yyyy": return `${dd}/${mm}/${parts.y}`;
+    case "MM/dd/yyyy": return `${mm}/${dd}/${parts.y}`;
+    case "yyyy-MM-dd": return `${parts.y}-${mm}-${dd}`;
+    case "d MMM yyyy":
+    default: return `${parts.d} ${mon} ${parts.y}`;
+  }
+}
+
+function settingsFutureRow(label, desc) {
+  const d = desc ? `<span class="meta">${desc}</span>` : "";
+  return `<div class="loc-row settings-stub-row settings-future-row">
+    <div class="loc-row-text"><strong>${label}</strong>${d}</div>
+    ${settingsSoonBadge()}
+  </div>`;
+}
+
+function settingsThemePickerHtml() {
+  const RT = window.RelocationTheme;
+  if (!RT || !Array.isArray(RT.THEMES)) {
+    return `<p class="meta">Theme system unavailable in this build.</p>`;
+  }
+  const cur = RT.get();
+  const cards = RT.THEMES.map((t) => {
+    const on = t === cur ? " on" : "";
+    const label = (RT.LABELS && RT.LABELS[t]) || t;
+    return `<button type="button" class="settings-theme-card${on}" data-action="pick-theme" data-theme="${escapeHtml(t)}" aria-pressed="${t === cur ? "true" : "false"}">
+      <div class="settings-theme-name"><span class="settings-theme-dot" data-theme-dot="${escapeHtml(t)}"></span>${escapeHtml(label)}</div>
+      <div class="settings-theme-swrow" data-theme-swatches="${escapeHtml(t)}" aria-hidden="true"></div>
+    </button>`;
+  }).join("");
+  return `<div class="settings-theme-grid" id="rm-settings-theme-grid">${cards}</div>
+    <p class="meta" style="margin-top:10px;">Saved on this device. Map and other open tabs sync via the theme system.</p>
+    <p class="settings-local-msg" id="rm-display-prefs-msg" aria-live="polite"></p>`;
+}
+
+function settingsRegionalPrefsHtml() {
+  const prefs = loadRegionalPrefs();
+  const dateOpts = RM_DATE_FORMAT_OPTIONS.map((f) =>
+    `<option value="${escapeHtml(f.v)}"${prefs.dateFmt === f.v ? " selected" : ""}>${escapeHtml(f.sample)}</option>`
+  ).join("");
+  const ampmOn = prefs.timeFmt !== "24" ? " on" : "";
+  const h24On = prefs.timeFmt === "24" ? " on" : "";
+  return `
+    <div class="loc-row">
+      <div class="loc-row-text">
+        <strong>Date format</strong>
+        <span class="meta">How birth dates appear in Settings and profile lists.</span>
+      </div>
+      <select id="rm-settings-date-fmt" aria-label="Date format">${dateOpts}</select>
+    </div>
+    <div class="loc-row">
+      <div class="loc-row-text">
+        <strong>Time format</strong>
+        <span class="meta">12-hour vs 24-hour clock for relocated local times.</span>
+      </div>
+      <div class="settings-seg" id="rm-settings-time-seg" role="group" aria-label="Time format">
+        <button type="button" data-time-fmt="ampm"${ampmOn ? ' class="on"' : ""}>AM / PM</button>
+        <button type="button" data-time-fmt="24"${h24On ? ' class="on"' : ""}>24-hour</button>
+      </div>
+    </div>`;
+}
+
+function paintSettingsThemeCards() {
+  const RT = window.RelocationTheme;
+  if (!RT) return;
+  const probe = document.createElement("div");
+  probe.style.position = "absolute";
+  probe.style.visibility = "hidden";
+  probe.style.pointerEvents = "none";
+  document.body.appendChild(probe);
+  try {
+    RT.THEMES.forEach((t) => {
+      probe.setAttribute("data-theme", t);
+      const dot = document.querySelector(`[data-theme-dot="${t}"]`);
+      if (dot) dot.style.background = getComputedStyle(probe).getPropertyValue("--th-accent").trim() || "#64748b";
+      const swHost = document.querySelector(`[data-theme-swatches="${t}"]`);
+      if (!swHost) return;
+      const cols = [];
+      for (let i = 1; i <= 6; i++) cols.push(getComputedStyle(probe).getPropertyValue(`--th-ov-${i}`).trim());
+      swHost.innerHTML = cols.filter(Boolean).map((c) => `<i style="background:${c}"></i>`).join("");
+    });
+  } finally {
+    probe.remove();
+  }
+  const cur = RT.get();
+  document.querySelectorAll(".settings-theme-card").forEach((btn) => {
+    const t = btn.getAttribute("data-theme");
+    const on = t === cur;
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+function initAppearanceSettingsControls(root) {
+  if (!root || navContext.route !== "settings" || normalizeSettingsSubpage(navContext.settingsSubpage) !== "display") return;
+  paintSettingsThemeCards();
+  const msgEl = root.querySelector("#rm-display-prefs-msg");
+  const flash = (txt) => { if (msgEl) msgEl.textContent = txt; };
+
+  root.querySelectorAll("[data-action='pick-theme']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const RT = window.RelocationTheme;
+      const t = btn.getAttribute("data-theme");
+      if (!RT || !t) return;
+      RT.set(t);
+      paintSettingsThemeCards();
+      flash("Theme saved on this device.");
+    });
+  });
+
+  const dateEl = root.querySelector("#rm-settings-date-fmt");
+  if (dateEl) {
+    dateEl.addEventListener("change", () => {
+      saveRegionalPrefs({ dateFmt: dateEl.value });
+      flash("Date format saved on this device.");
+      render();
+    });
+  }
+
+  const timeSeg = root.querySelector("#rm-settings-time-seg");
+  if (timeSeg) {
+    timeSeg.querySelectorAll("[data-time-fmt]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const fmt = b.getAttribute("data-time-fmt");
+        saveRegionalPrefs({ timeFmt: fmt });
+        timeSeg.querySelectorAll("[data-time-fmt]").forEach((x) => x.classList.toggle("on", x === b));
+        flash("Time format saved on this device.");
+      });
+    });
+  }
+
+  if (!window.__rmSettingsThemePaintBound) {
+    window.__rmSettingsThemePaintBound = true;
+    window.addEventListener("relocation:theme", paintSettingsThemeCards);
+  }
+}
+
 function settingsSoonBadge() {
   return '<span class="badge-soon">Coming soon</span>';
 }
@@ -7549,28 +7751,26 @@ function settingsProfilesPanelHtml() {
 
 function chartAppearanceHtml() {
   return `
-    <div class="panel settings-panel" id="sec-appearance-chart">
-      ${settingsStubRow("Wheel style", "Chart wheel presentation.")}
-      ${settingsStubRow("Chart surface", "Background, rings, and table framing.")}
-      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    <div class="panel settings-panel" id="sec-appearance-chart" data-settings-future="chart-wheel">
+      ${settingsFutureRow("Wheel style", "Chart wheel presentation.")}
+      ${settingsFutureRow("Chart surface", "Background, rings, and table framing.")}
     </div>`;
 }
 
 function glyphAppearanceHtml() {
   return `
     <div class="panel settings-panel" id="sec-appearance-glyphs">
-      ${settingsStubRow("Glyph family", "Symbol notation on wheels and tables.")}
-      ${settingsStubRow("Glyph variants", "Mars, Capricorn, Uranus, Pluto, and aspect notation.")}
-      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+      ${settingsFutureRow("Glyph family", "Symbol notation on wheels and tables.")}
+      ${settingsFutureRow("Glyph variants", "Mars, Capricorn, Uranus, and Pluto styles.")}
+      ${settingsFutureRow("Aspect notation", "Conjunction vs Conj vs glyph formats on tables.")}
     </div>`;
 }
 
 function aspectBandAppearanceHtml() {
   return `
-    <div class="panel settings-panel" id="sec-appearance-aspect-bands">
-      ${settingsStubRow("Aspect band style", "Relocation map overlay band rendering.")}
-      ${settingsStubRow("Aspect band topology", "How bands connect and layer on the map.")}
-      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    <div class="panel settings-panel" id="sec-appearance-aspect-bands" data-settings-future="aspect-bands">
+      ${settingsFutureRow("Aspect band style", "Relocation map overlay band rendering.")}
+      ${settingsFutureRow("Aspect band topology", "How bands connect and layer on the map.")}
     </div>`;
 }
 
@@ -7630,10 +7830,14 @@ function settingsChartsBodyHtml() {
 function settingsMapBodyHtml() {
   return `
     <div class="settings-subhead">My Map</div>
-    <div class="panel">
-      ${settingsStubRow("Exact aspect lines", "Centerline display on map.")}
-      ${settingsStubRow("Exclusion style", "How excluded areas appear.")}
-      ${settingsStubRow("City labels", "Label density and click behavior.")}
+    <div class="panel" id="sec-map-display" data-settings-future="map-overlays">
+      <p class="meta" style="margin:0 0 8px;">Map overlay behavior is configured on the map. These display preferences will apply account-wide when wired.</p>
+      ${settingsFutureRow("Aspect bands on map", "Relocation overlay band rendering.")}
+      ${settingsFutureRow("Exact aspect lines", "Centerline display on map.")}
+      ${settingsFutureRow("Exclusion style", "How excluded areas appear.")}
+      ${settingsFutureRow("City labels", "Label density and click behavior.")}
+      ${settingsFutureRow("Map labels & borders", "Overlay labels and boundary styling.")}
+      ${settingsFutureRow("Search provider", "City search backend preference.")}
     </div>
     <div class="settings-subhead">Location</div>
     <div class="panel">
@@ -7657,14 +7861,13 @@ function settingsAppearanceRegionalBodyHtml() {
   return `
     <div class="settings-subhead">Themes</div>
     <div class="panel settings-panel" id="sec-appearance-themes">
-      ${settingsStubRow("Color themes", "App atmosphere and map overlay palettes.")}
-      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+      <p class="meta" style="margin:0 0 4px;">Seasonal color themes set app atmosphere. Map overlay colors use a separate palette.</p>
+      ${settingsThemePickerHtml()}
     </div>
     <div class="settings-subhead">Language &amp; Regional</div>
-    <div class="panel">
-      ${settingsStubRow("Interface language", "App UI language.")}
-      ${settingsStubRow("Date format", "How dates appear across the app.")}
-      ${settingsStubRow("Time format", "12-hour vs 24-hour clock.")}
+    <div class="panel" id="sec-appearance-regional">
+      ${settingsFutureRow("Interface language", "App UI language.")}
+      ${settingsRegionalPrefsHtml()}
     </div>`;
 }
 
@@ -7672,10 +7875,15 @@ function settingsExportsBodyHtml() {
   return `
     <div class="settings-subhead">Sharing &amp; export defaults</div>
     <div class="panel settings-panel" id="sec-exports" data-settings-future="export-defaults">
-      ${settingsStubRow("Default share link", "Quick sharing options.")}
-      ${settingsStubRow("Export defaults", "Report and file export presets.")}
-      ${settingsStubRow("PNG / PDF presets", "Viewport and table export options.")}
-      <button type="button" data-nav="export" disabled>Export / share status</button>
+      <p class="meta" style="margin:0 0 8px;">Quick Share is available from the Map and Relocated chart view. Nothing here generates a PDF or formal report yet.</p>
+      ${settingsFutureRow("Default share link visibility", "Public vs private quick-share defaults.")}
+      ${settingsFutureRow("Hide birth data by default", "Quick-share privacy default.")}
+      ${settingsFutureRow("Include notes by default", "Whether shared views include notes.")}
+      ${settingsFutureRow("Include tables by default", "Whether shared views include tables.")}
+      ${settingsFutureRow("Include chart wheel by default", "Whether shared views include the wheel.")}
+      ${settingsFutureRow("Export defaults", "Report and file export presets.")}
+      ${settingsFutureRow("PNG / PDF presets", "Viewport and table export options.")}
+      <button type="button" data-nav="export" disabled title="Coming soon">Export / share status</button>
     </div>`;
 }
 
@@ -7707,17 +7915,16 @@ function settingsDataBodyHtml() {
 
 function dignityAppearanceHtml() {
   return `
-    <div class="panel settings-panel" id="sec-appearance-dignities">
+    <div class="panel settings-panel" id="sec-appearance-dignities" data-settings-future="dignity-colors">
       <p class="meta">Planet-in-House dignities use two overlay colors by default: Rulership and Exaltation (generally positive), and Detriment and Fall (generally difficult).</p>
-      ${settingsStubRow("Exaltation color", "Optional distinct color when only Exaltation applies (otherwise uses the positive overlay).")}
-      ${settingsStubRow("Fall color", "Optional distinct color when only Fall applies (otherwise uses the difficult overlay).")}
-      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+      ${settingsFutureRow("Exaltation color", "Optional distinct color when only Exaltation applies (otherwise uses the positive overlay).")}
+      ${settingsFutureRow("Fall color", "Optional distinct color when only Fall applies (otherwise uses the difficult overlay).")}
     </div>`;
 }
 
 function settingsDisplayBodyHtml() {
   return `
-    <div id="sec-display" data-settings-future="display">
+    <div id="sec-display">
       <div class="settings-subhead">Chart appearance</div>
       ${chartAppearanceHtml()}
       <div class="settings-subhead">Glyph appearance</div>
@@ -7865,7 +8072,7 @@ function screenProfileList() {
           <span class="pm-card-type">${escapeHtml(r.recordType)}</span>
         </div>
         <div class="pm-meta">
-          Born&nbsp;${escapeHtml(r.birthDate || "—")} &middot; ${escapeHtml(r.birthCity || "—")}
+          Born&nbsp;${escapeHtml(formatRegionalDate(r.birthDate) || "—")} &middot; ${escapeHtml(r.birthCity || "—")}
         </div>
         <div class="pm-meta">
           Current&nbsp;${escapeHtml(r.currentCity || "Not set")} &middot; ${escapeHtml(r.confidenceTier || "—")}
@@ -8470,6 +8677,7 @@ function render() {
     void mountComparisonV5Route($("#main"));
   }
   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
+  if (navContext.route === "settings") initAppearanceSettingsControls($("#main"));
   if (uiState.popupOpen) openPopup();
 }
 
