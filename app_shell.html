@@ -120,7 +120,11 @@
   .settings-landing-card h3 { margin: 0; font-size: 15px; font-weight: 600; }
   .settings-subpage { max-width: 720px; }
   details.rm-settings-more-points { margin-top: 8px; }
-  details.rm-settings-more-points > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+  details.rm-settings-more-points > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; padding: 6px 4px; min-height: 32px; display: flex; align-items: center; list-style-position: outside; }
+  .settings-subpage .settings-panel + .settings-panel { margin-top: 10px; }
+  .settings-subpage .settings-subhead[data-rm-astrology-section]:not(:first-child) { margin-top: 24px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+  .settings-subpage .settings-info-row { padding: 8px 0 2px; }
+  .settings-subpage .settings-info-row strong { display: block; font-size: 13px; margin-bottom: 4px; }
   .settings-save-bar { position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); padding: 12px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
   .settings-nav button.settings-nav-item { padding: 8px 11px; border-radius: 8px; font-size: 13px; }
   .settings-subpage .panel,
@@ -7196,12 +7200,11 @@ function a2aDisplayAnglesHtml() {
   };
   return `
     <div class="panel settings-panel">
-      <h4>Angles in A2A display</h4>
-      <p class="meta" style="margin:0 0 8px;">Choose which relocated angles appear in AIS, comparison angle rows, A2A tables, and the map Genie angle selector. All four are shown by default.</p>
+      <p class="meta" style="margin:0 0 8px;">Choose which chart angles appear in relocated aspect tables, comparison angle rows, and map angle selectors.</p>
       <div class="settings-checklist">
       ${row("asc", "ASC (Ascendant)")}
-      ${row("mc",  "MC (Midheaven)")}
       ${row("dsc", "DSC (Descendant)")}
+      ${row("mc",  "MC (Midheaven)")}
       ${row("ic",  "IC (Imum Coeli)")}
       </div>
     </div>`;
@@ -7226,7 +7229,7 @@ function aspectsSettingsHtml() {
         <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} />
         <span>Show minor aspects</span>
       </label>
-      <p class="meta" style="margin:8px 0 0;font-size:11px;">Major and minor visibility affect server-computed planet-to-planet aspects (wheel spokes), A2A major aspects, and map Genie overlay aspect options.</p>
+      <p class="meta" style="margin:8px 0 0;font-size:11px;">Controls which aspect types appear on chart wheels, in planet-to-planet tables, and in map overlay options.</p>
     </div>`;
 }
 
@@ -7238,8 +7241,8 @@ function chartDisplayOrbsHtml() {
       </label>`;
   return `
     <div class="panel settings-panel">
-      <h4>Chart display</h4>
-      <p class="meta" style="margin:0 0 8px;">Planet-to-planet aspect orbs. Affect wheel spokes and server-computed <code>aspects_planet_to_planet</code>. They do not change PIH house assignment or map region geometry.</p>
+      <h4>Chart display orbs</h4>
+      <p class="meta" style="margin:0 0 8px;">Maximum orb for planet-to-planet aspects on the chart wheel and in planet aspect tables.</p>
       <h4 style="margin:8px 0 4px;font-size:12px;">Major</h4>
       <div class="settings-orb-grid">${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}</div>
       <h4 style="margin:12px 0 4px;font-size:12px;">Minor</h4>
@@ -7261,34 +7264,52 @@ function aspectToAngleOrbsHtml() {
       </label>`;
   return `
     <div class="panel settings-panel">
-      <h4>Aspect-to-angle / search</h4>
+      <h4>Aspect-to-angle orbs</h4>
+      <p class="meta" style="margin:0 0 10px;">Maximum orb for planet-to-angle contacts in relocated aspect tables and map search. Map overlay lines still mark exact crossings; these orbs decide which contacts are listed.</p>
       <div class="settings-orb-grid">
-      <p class="meta" style="margin:0 0 8px;">Orbs for aspect-to-angle contacts in relocated A2A tables and map search metadata. Map overlay lines remain exact aspect crossings; orbs filter which contacts are computed.</p>
       ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
       </div>
     </div>`;
 }
 
-function subsequentHouseRuleHtml() {
+function houseEdgeBehaviorHtml() {
   const eff = _settingsEff();
   const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
   const policy = (eff && eff.subsequent_house_policy) ? String(eff.subsequent_house_policy) : "display_only";
-  // SETTINGS-FINAL-WIRE-1: orb is live on /relocated-chart near_cusp. Direction-aware
-  // house-edge reassignment is display-only until engine support ships.
   return `
     <div class="panel settings-panel">
-      <label class="block">Near-cusp orb (degrees)
+      <label class="block">House proximity orb (degrees)
         <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
       </label>
-      <p class="meta" style="margin:8px 0 0;">Flags planets within this orb of a house boundary on PIH tables and chart data. House-edge doctrine is direction-aware: direct motion near the <em>end</em> of a house may assign to the subsequent house; retrograde motion near the <em>beginning</em> may assign to the previous house. This is not a simple &ldquo;late in house only&rdquo; rule.</p>
+      <p class="meta" style="margin:8px 0 0;">Planets within this distance of a house boundary are flagged as near the edge in Planet-in-House tables. House-edge behavior is direction-aware: direct motion near the <em>end</em> of a house may place a planet in the subsequent house; retrograde motion near the <em>beginning</em> may place it in the previous house. This is not a simple &ldquo;late in house only&rdquo; rule.</p>
       <div class="loc-row" style="margin-top:14px;">
         <div class="loc-row-text">
-          <strong>Direction-aware house reassignment</strong>
-          <span class="meta">Automatic reassignment is not applied in calculations yet (${escapeHtml(policy.replace(/_/g, " "))}). Near-cusp flagging above is live.</span>
+          <strong>Direction-aware house-edge rule</strong>
+          <span class="meta">Automatic reassignment using motion direction is not applied in calculations yet (${escapeHtml(policy.replace(/_/g, " "))}). Proximity flagging above is active.</span>
         </div>
         <span class="badge-soon" title="Display only until engine support">Display only</span>
       </div>
     </div>`;
+}
+
+function exactAspectThresholdInfoHtml() {
+  const eff = _settingsEff();
+  const deg = (eff && eff.exact_aspect_threshold_deg != null) ? eff.exact_aspect_threshold_deg : 0.5;
+  return `
+    <div class="panel settings-panel">
+      <div class="settings-info-row">
+        <strong>Exact aspect threshold</strong>
+        <p class="meta" style="margin:0;">Aspects within ${deg}° of exact are labeled as exact. This threshold is fixed for now and cannot be changed here.</p>
+      </div>
+    </div>`;
+}
+
+function chartFrameworkHtml() {
+  return chartsHouseSystemHtml() + chartsZodiacHtml();
+}
+
+function advancedAstrologyHtml() {
+  return dignitiesDisplayHtml();
 }
 
 function outOfSignAspectsHtml() {
@@ -7296,11 +7317,12 @@ function outOfSignAspectsHtml() {
   const oos = eff ? !!eff.out_of_sign_aspects : false;
   return `
     <div class="panel settings-panel">
+      <h4 style="margin:0 0 6px;">Out-of-sign aspects</h4>
       <label class="settings-check-item">
         <input type="checkbox" id="rm-settings-oos-aspects"${oos ? " checked" : ""} />
-        <span>Allow out-of-sign aspects</span>
+        <span>Include cross-sign aspects</span>
       </label>
-      <p class="meta" style="margin:8px 0 0;">When enabled, cross-sign planet-to-planet and aspect-to-angle contacts are included in wheel spokes, A2A tables, and server aspect compute.</p>
+      <p class="meta" style="margin:8px 0 0;">When on, aspects are recognized even when the two bodies are in different signs. When off, only same-sign aspects appear on charts, in tables, and in search results.</p>
     </div>`;
 }
 
@@ -7576,8 +7598,9 @@ function chartsZodiacHtml() {
   const mode = eff && eff.zodiac_mode ? capitalize(eff.zodiac_mode) : "Tropical";
   return `
     <div class="panel settings-panel">
+      <h4>Zodiac</h4>
       <p class="meta" style="margin:0 0 8px;">Tropical zodiac is active. Sidereal modes are not available yet.</p>
-      <label class="block">Zodiac mode (read-only)
+      <label class="block">Zodiac
         <input type="text" value="${escapeHtml(mode)}" disabled aria-disabled="true" />
       </label>
     </div>`;
@@ -7585,25 +7608,23 @@ function chartsZodiacHtml() {
 
 function settingsChartsBodyHtml() {
   return `
-      <div class="settings-subhead">Bodies</div>
+      <div class="settings-subhead" data-rm-astrology-section="chart-framework">Chart Framework</div>
+      ${chartFrameworkHtml()}
+      <div class="settings-subhead" data-rm-astrology-section="bodies">Bodies</div>
       ${planetsBodiesHtml()}
-      <div class="settings-subhead">Aspects</div>
+      <div class="settings-subhead" data-rm-astrology-section="aspects">Aspects</div>
       ${aspectsSettingsHtml()}
-      <div class="settings-subhead">Aspect-to-Angle Display</div>
-      ${a2aDisplayAnglesHtml()}
-      <div class="settings-subhead">Orbs</div>
+      ${outOfSignAspectsHtml()}
+      <div class="settings-subhead" data-rm-astrology-section="orb-settings">Orb Settings</div>
       ${chartDisplayOrbsHtml()}
       ${aspectToAngleOrbsHtml()}
-      <div class="settings-subhead">Subsequent House Rule</div>
-      ${subsequentHouseRuleHtml()}
-      <div class="settings-subhead">Out-of-Sign Aspects</div>
-      ${outOfSignAspectsHtml()}
-      <div class="settings-subhead">House System</div>
-      ${chartsHouseSystemHtml()}
-      <div class="settings-subhead">Zodiac</div>
-      ${chartsZodiacHtml()}
-      <div class="settings-subhead">Dignities</div>
-      ${dignitiesDisplayHtml()}`;
+      ${exactAspectThresholdInfoHtml()}
+      <div class="settings-subhead" data-rm-astrology-section="house-edge">House Edge Behavior</div>
+      ${houseEdgeBehaviorHtml()}
+      <div class="settings-subhead" data-rm-astrology-section="angle-display">Angle Display</div>
+      ${a2aDisplayAnglesHtml()}
+      <div class="settings-subhead" data-rm-astrology-section="advanced">Advanced</div>
+      ${advancedAstrologyHtml()}`;
 }
 
 function settingsMapBodyHtml() {
