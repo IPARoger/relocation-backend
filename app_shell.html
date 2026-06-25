@@ -720,6 +720,7 @@
   body.rm-beta-compare .rm-cmp-workspace-places-row { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
+  body.rm-beta-compare .rm-cmp-section[data-cmp-section="a2a"] { display: none !important; }
   body.rm-beta-compare .comparison-main { margin-top: 4px; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
@@ -776,6 +777,43 @@
   body.rm-beta-compare .cmp-block-body table.simple td,
   body.rm-beta-compare .cmp-block-body table.simple th {
     border-bottom: 1px solid rgba(51, 41, 31, 0.1);
+  }
+  body.rm-beta-compare .cmp-block-header-a2a {
+    justify-content: flex-start;
+    gap: 0;
+  }
+  body.rm-beta-compare .cmp-block-header-a2a .cmp-block-header-btn {
+    flex: 0 1 auto;
+  }
+  body.rm-beta-compare .cmp-angle-pills {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 12px;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgba(51, 41, 31, 0.06);
+    flex-shrink: 0;
+  }
+  body.rm-beta-compare .cmp-angle-pill {
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 2px 11px;
+    border-radius: 999px;
+    border: none;
+    background: none;
+    color: var(--rm-ink-soft);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  body.rm-beta-compare .cmp-angle-pill:hover { color: var(--rm-ink); }
+  body.rm-beta-compare .cmp-angle-pill.active {
+    background: rgba(51, 41, 31, 0.085);
+    color: var(--rm-ink);
+    font-weight: 700;
+    box-shadow: inset 0 1px 2px rgba(51, 41, 31, 0.12);
   }
   body.rm-beta-compare .warn-box { margin-top: 0; margin-bottom: 12px; }
 
@@ -4362,11 +4400,13 @@ function renderA2aWorkbookSectionBody(cols, ws) {
 }
 
 function refreshA2aWorkbookSection() {
-  const body = document.getElementById("rm-cmp-sec-a2a");
-  if (!body) return;
   const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
     || defaultComparisonWorkspaceState([]);
-  body.innerHTML = renderA2aWorkbookSectionBody(_comparisonColsCache, ws);
+  const html = renderA2aWorkbookSectionBody(_comparisonColsCache, ws);
+  ["rm-cmp-bottle-a2a-body", "rm-cmp-sec-a2a"].forEach((id) => {
+    const body = document.getElementById(id);
+    if (body) body.innerHTML = html;
+  });
   applyComparisonAngleTabFilter(document);
 }
 
@@ -4980,9 +5020,6 @@ function collectComparisonWorkspaceFromDom() {
 
 function applyComparisonWorkspaceToDom(ws) {
   if (!ws) return;
-  document.querySelectorAll(".rm-cmp-angle-tab").forEach((btn) => {
-    btn.classList.toggle("active", btn.getAttribute("data-angle-tab") === ws.active_angle_tab);
-  });
   CMP_WS_SECTIONS.forEach((sec) => {
     const body = document.getElementById("rm-cmp-sec-" + sec);
     if (body) body.classList.toggle("collapsed", !!ws.collapsed_sections[sec]);
@@ -5013,6 +5050,20 @@ function applyComparisonWorkspaceToDom(ws) {
       if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
     }
   }
+  const a2aBottleBody = document.getElementById("rm-cmp-bottle-a2a-body");
+  if (a2aBottleBody) {
+    const collapsed = !!ws.collapsed_sections.a2a;
+    a2aBottleBody.classList.toggle("collapsed", collapsed);
+    const a2aBtn = document.querySelector("[data-action='cmp-toggle-bottle-a2a']");
+    if (a2aBtn) {
+      a2aBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const arrow = a2aBtn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+    }
+  }
+  document.querySelectorAll(".rm-cmp-angle-tab, .cmp-angle-pill").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-angle-tab") === ws.active_angle_tab);
+  });
   const hidden = new Set(ws.hidden_place_ids || []);
   document.querySelectorAll(".rm-cmp-city-chip").forEach((chip) => {
     const pid = chip.getAttribute("data-place-id");
@@ -5052,11 +5103,11 @@ function applyComparisonAngleTabFilter(root) {
     const angle = tr.getAttribute("data-cmp-angle-row") || "";
     tr.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
   });
-  scope.querySelectorAll("#rm-cmp-sec-a2a table.rm-a2a-matrix [data-cmp-a2a-col-angle]").forEach((cell) => {
+  scope.querySelectorAll("#rm-cmp-sec-a2a table.rm-a2a-matrix [data-cmp-a2a-col-angle], #rm-cmp-bottle-a2a-body table.rm-a2a-matrix [data-cmp-a2a-col-angle]").forEach((cell) => {
     const angle = cell.getAttribute("data-cmp-a2a-col-angle") || "";
     cell.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
   });
-  scope.querySelectorAll("#rm-cmp-sec-a2a table.simple tr[data-cmp-a2a-angle]").forEach((tr) => {
+  scope.querySelectorAll("#rm-cmp-sec-a2a table.simple tr[data-cmp-a2a-angle], #rm-cmp-bottle-a2a-body table.simple tr[data-cmp-a2a-angle]").forEach((tr) => {
     const angle = tr.getAttribute("data-cmp-a2a-angle") || "";
     if (!angle) { tr.style.display = ""; return; }
     tr.style.display = cmpAngleTabMatchesRow(angle, tab) ? "" : "none";
@@ -5179,6 +5230,23 @@ function initComparisonWorkspace(root) {
       const legacyBody = document.getElementById("rm-cmp-sec-pih");
       if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
       if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.pih || "Planet in House");
+      scheduleComparisonWorkspaceSave();
+    });
+  });
+  scope.querySelectorAll("[data-action='cmp-toggle-bottle-a2a']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!_cmpWorkspaceSession) return;
+      const body = document.getElementById("rm-cmp-bottle-a2a-body");
+      const collapsed = body ? !body.classList.contains("collapsed") : false;
+      _cmpWorkspaceSession.state.collapsed_sections.a2a = collapsed;
+      if (body) body.classList.toggle("collapsed", collapsed);
+      const arrow = btn.querySelector(".cmp-block-arrow");
+      if (arrow) arrow.textContent = collapsed ? "\u25b6" : "\u25bc";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      const legacyBtn = scope.querySelector("[data-action='cmp-toggle-section'][data-cmp-section='a2a']");
+      const legacyBody = document.getElementById("rm-cmp-sec-a2a");
+      if (legacyBody) legacyBody.classList.toggle("collapsed", collapsed);
+      if (legacyBtn) legacyBtn.textContent = (collapsed ? "\u25b6" : "\u25bc") + " " + (CMP_WS_SECTION_LABELS.a2a || "Aspect to Angle");
       scheduleComparisonWorkspaceSave();
     });
   });
@@ -5678,6 +5746,30 @@ function renderComparisonPihBlockShellHtml(ws) {
   </div>`;
 }
 
+function renderComparisonA2aAnglePillsHtml(ws) {
+  const active = (ws && ws.active_angle_tab) || "all";
+  return ["asc", "dsc", "mc", "ic"].map((tab) => {
+    const label = tab.toUpperCase();
+    const isActive = active === tab;
+    return `<button type="button" class="cmp-angle-pill${isActive ? " active" : ""}" data-action="cmp-angle-tab" data-angle-tab="${tab}">${label}</button>`;
+  }).join("");
+}
+
+function renderComparisonA2aBlockShellHtml(ws) {
+  const collapsed = !!(ws && ws.collapsed_sections && ws.collapsed_sections.a2a);
+  const inner = renderA2aWorkbookSectionBody(_comparisonColsCache, ws);
+  return `<div class="cmp-block cmp-block-a2a" id="rm-cmp-bottle-a2a" data-cmp-bottle-block="a2a">
+    <div class="cmp-block-header cmp-block-header-a2a">
+      <button type="button" class="cmp-block-header-btn" data-action="cmp-toggle-bottle-a2a" aria-expanded="${collapsed ? "false" : "true"}">
+        <span class="cmp-block-arrow">${collapsed ? "\u25b6" : "\u25bc"}</span>
+        <span class="cmp-block-title">Aspect to Angle</span>
+      </button>
+      <div class="cmp-angle-pills" data-cmp-angle-pills="a2a">${renderComparisonA2aAnglePillsHtml(ws)}</div>
+    </div>
+    <div class="cmp-block-body fact-table-wrap${collapsed ? " collapsed" : ""}" id="rm-cmp-bottle-a2a-body">${inner}</div>
+  </div>`;
+}
+
 function renderComparisonZoneBHtml(r) {
   return `<div class="cmp-zone-b zone-b">
     <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">\u25be</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
@@ -5821,7 +5913,7 @@ function screenCompare() {
       ${renderComparisonZoneBHtml(origin)}
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
-    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}</div>` : ""}
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : ""}
     <div class="rm-comparison-beta-body">
     <div class="rm-comparison-legacy-chrome">
     <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>
