@@ -1,0 +1,58 @@
+/**
+ * H10 — Family resemblance harmonization (Material Canon D1).
+ * Shared instrument surface via body.rm-instrument-surface.
+ */
+body.rm-instrument-surface {
+  --rm-ink: #33291f;
+  --rm-ink-soft: #6a5f4f;
+  --rm-ink-faint: #9b9080;
+  --rm-line: #ddd0b8;
+  --rm-line-soft: #ece2cf;
+  --rm-paper: #f4ecdc;
+  --rm-card: #fdf8ee;
+  --rm-gold: #b89a55;
+  --rm-teal: #5f8a90;
+  --rm-accent: #5b6b63;
+  color: var(--rm-ink);
+  background:
+    radial-gradient(58% 50% at 12% -4%, rgba(214, 176, 108, .16), transparent 60%),
+    radial-gradient(50% 44% at 98% 4%, rgba(150, 178, 150, .10), transparent 60%),
+    radial-gradient(70% 60% at 86% 96%, rgba(120, 160, 185, .09), transparent 62%),
+    radial-gradient(120% 90% at 40% 110%, rgba(214, 176, 108, .08), transparent 60%),
+    var(--rm-paper);
+  background-attachment: fixed;
+}
+body.rm-instrument-surface .shell-banner,
+body.rm-instrument-surface .shell-footer,
+body.rm-instrument-surface .app-header h1,
+body.rm-instrument-surface .app-header .tag,
+body.rm-instrument-surface .screen-meta { display: none !important; }
+body.rm-instrument-surface .app-header { border-bottom: none; background: transparent; padding: 12px 0 0; }
+body.rm-instrument-surface .primary-nav { gap: 4px; padding: 0 0 8px; border-bottom: 1px solid color-mix(in srgb, var(--rm-line) 70%, transparent); margin-bottom: 4px; }
+body.rm-instrument-surface .primary-nav .linkish { font-size: 13px; padding: 6px 10px; border-radius: 8px; color: var(--rm-ink-soft); text-decoration: none; }
+body.rm-instrument-surface .primary-nav .linkish:hover { background: rgba(51, 41, 31, .06); color: var(--rm-ink); }
+body.rm-instrument-surface .primary-nav .linkish.active { background: color-mix(in srgb, var(--rm-accent) 14%, var(--rm-card)); color: var(--rm-ink); font-weight: 600; }
+body.rm-instrument-surface main { max-width: 1280px; margin: 0 auto; padding: 0 28px 70px; }
+body.rm-instrument-surface .screen.active { background: transparent; border: none; box-shadow: none; padding: 0; }
+body.rm-instrument-surface #rm-acct-drawer-btn.rm-beta-acct-circle { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--rm-line); background: var(--rm-card); color: var(--rm-ink-soft); font-size: 12px; font-weight: 600; padding: 0; line-height: 1; }
+body.rm-instrument-surface #rm-acct-drawer-btn.rm-beta-acct-circle:hover { background: rgba(51, 41, 31, .06); color: var(--rm-ink); }
+body.rm-instrument-surface .settings-nav a:hover,
+body.rm-instrument-surface .settings-nav button.settings-nav-item:hover { background: rgba(51, 41, 31, .06); color: var(--rm-ink); }
+body.rm-instrument-surface .settings-nav a.active,
+body.rm-instrument-surface .settings-nav button.settings-nav-item.active { background: color-mix(in srgb, var(--rm-accent) 14%, var(--rm-card)); color: var(--rm-ink); font-weight: 600; }
+body.rm-instrument-surface .settings-subpage .panel,
+body.rm-instrument-surface .settings-subpage .settings-panel,
+body.rm-instrument-surface .settings-card { background: var(--rm-card); border-color: var(--rm-line); }
+body.rm-instrument-surface .settings-seg button.on { background: color-mix(in srgb, var(--rm-accent) 14%, var(--rm-card)); color: var(--rm-ink); font-weight: 600; }
+body.rm-instrument-surface .notes-library-list-item:hover { background: rgba(51, 41, 31, .04); }
+body.rm-instrument-surface .notes-library-list-item.active { background: color-mix(in srgb, var(--rm-accent) 14%, var(--rm-card)); color: var(--rm-ink); }
+body.rm-instrument-surface .notes-library-layout { font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; font-size: 15.5px; line-height: 1.5; }
+body.rm-instrument-surface .rm-handbook-root { font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; font-size: 15.5px; line-height: 1.55; max-width: 720px; color: var(--rm-ink); }
+body.rm-instrument-surface .rm-handbook-root > h2 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.65rem; font-weight: 600; margin: 0 0 8px; }
+body.rm-instrument-surface .rm-handbook-root > .purpose { color: var(--rm-ink-soft); font-size: 13px; margin: 0 0 20px; }
+body.rm-instrument-surface .rm-handbook-root .panel { background: var(--rm-card); border: 1px solid var(--rm-line); border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); margin-bottom: 14px; }
+body.rm-instrument-surface .rm-handbook-root .panel h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.05rem; font-weight: 600; margin: 0 0 8px; }
+body.rm-instrument-surface .rm-handbook-root .panel p,
+body.rm-instrument-surface .rm-handbook-root .panel li { color: var(--rm-ink-soft); line-height: 1.55; }
+body.rm-instrument-surface .rm-handbook-root .plain { margin: 0; padding-left: 1.1rem; }
+body.rm-instrument-surface .profile-management-root { font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; font-size: 15.5px; line-height: 1.5; }
