@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SHELL = ROOT / "app_shell.html"
+ROUTE = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_route.js"
 ADAPTER = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_adapter.js"
 MOCKUP = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_beta.html"
 CSS = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_beta.css"
@@ -24,38 +25,38 @@ def main() -> int:
             failures.append(msg)
 
     shell = SHELL.read_text(encoding="utf-8")
+    route = ROUTE.read_text(encoding="utf-8")
     adapter = ADAPTER.read_text(encoding="utf-8")
     screen_compare = shell.split("function screenCompare()", 1)[1].split("\nfunction ", 1)[0]
 
     # Flag
-    check("RM_COMPARE_V5_CANONICAL" in shell, "RM_COMPARE_V5_CANONICAL flag exists")
+    check("RM_COMPARE_V5_CANONICAL" in route, "RM_COMPARE_V5_CANONICAL flag owned by route plugin")
 
     # V5 shell renderer
-    check("function renderComparisonV5ShellHtml" in shell, "renderComparisonV5ShellHtml exists")
-    check("comparisonV5ShellFragmentHtml" in shell, "mockup shell fragment renderer exists")
+    check("renderShellHtml" in route, "route plugin renderShellHtml exists")
+    check("SHELL_FRAGMENT" in route, "mockup shell fragment embedded in route plugin")
     check(CSS.is_file(), "scoped mockup CSS file exists")
     check("comparison_v5_beta.css" in shell, "mockup CSS linked from app_shell")
 
   # Gating in screenCompare
-    check("RM_COMPARE_V5_CANONICAL && cs && navContext.comparisonSetId" in screen_compare, "screenCompare gates V5 shell on flag + comparisonSetId")
-    check("renderComparisonV5ShellHtml(origin, cs, ws)" in screen_compare, "screenCompare calls V5 shell renderer")
+    check("ComparisonV5Route.shouldRenderCanonicalShell" in screen_compare, "screenCompare gates V5 shell via route plugin")
+    check("ComparisonV5Route.renderShellHtml" in screen_compare, "screenCompare calls route plugin shell renderer")
     check("rm-comparison-beta-root" in screen_compare, "legacy beta root preserved for OFF path rollback")
 
     # V5 ON path must not include legacy leak strings in renderer output template
-    v5_renderer = shell.split("function renderComparisonV5ShellHtml", 1)[1].split("\nfunction ", 1)[0]
-    frag_fn = shell.split("function comparisonV5ShellFragmentHtml", 1)[1].split("\nfunction ", 1)[0]
+    frag_fn = route
     for bad in ("Module:", "comparison-workspace-state", "comparison-columns", "stateDebugBlock", "table.simple", 'data-a2a-shape="matrix"'):
         check(bad not in frag_fn, f"V5 shell fragment does not include {bad}")
-    check("rm-comparison-beta-body" not in v5_renderer, "V5 shell renderer does not emit rm-comparison-beta-body")
+    check("rm-comparison-beta-body" not in route.split("renderShellHtml", 1)[1].split("syncRouteChrome", 1)[0], "route shell renderer does not emit rm-comparison-beta-body")
 
     # Canonical mounts from mockup contract
     for mount in ("rm-cmp-v5-root", "rm-cmp-zone-b", "city-bar-inner", "table-ais", "table-pih", "table-ata", "ci-cards", "rm-cmp-note", "canonical-a2a-pills"):
         check(mount in frag_fn, f"V5 shell includes mount {mount}")
 
     # Hydration via adapter on visible root
-    check("function hydrateComparisonV5Canonical" in shell, "canonical hydration function exists")
-    check("ComparisonV5Adapter.hydrate(root" in shell, "adapter hydrates visible root")
-    check("getElementById(\"rm-cmp-v5-root\")" in shell, "hydration targets rm-cmp-v5-root")
+    check("function hydrateCanonical" in route, "route plugin canonical hydration exists")
+    check("ComparisonV5Adapter.hydrate(root" in route, "route plugin hydrates visible root via adapter")
+    check("getElementById(\"rm-cmp-v5-root\")" in route, "hydration targets rm-cmp-v5-root")
 
     # AIS four rows + A2A single-angle in adapter (unchanged contract)
     check("AIS_ANGLE_ROWS" in adapter, "adapter AIS fixed angle rows")
@@ -68,7 +69,7 @@ def main() -> int:
     check("rm-comparison-beta-body" in screen_compare, "OFF path still includes legacy beta body")
 
     # Body class for canonical styling
-    check("rm-compare-v5-canonical" in shell, "canonical body class toggled")
+    check("rm-compare-v5-canonical" in route, "canonical body class toggled in route plugin")
 
     # Mockup reference unchanged
     mockup = MOCKUP.read_text(encoding="utf-8")

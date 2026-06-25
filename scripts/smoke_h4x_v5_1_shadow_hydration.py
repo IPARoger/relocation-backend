@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ADAPTER = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_adapter.js"
+ROUTE = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_route.js"
 SHELL = ROOT / "app_shell.html"
 MOCKUP = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_beta.html"
 
@@ -23,6 +24,7 @@ def main() -> int:
             failures.append(msg)
 
     adapter = ADAPTER.read_text(encoding="utf-8")
+    route = ROUTE.read_text(encoding="utf-8")
     shell = SHELL.read_text(encoding="utf-8")
 
     check(ADAPTER.is_file(), "adapter file exists at validation/mockups/beta/comparison_v5_adapter.js")
@@ -73,15 +75,15 @@ def main() -> int:
     # Shadow shell + app integration without live route promotion
     check("buildShadowShellHtml" in adapter, "shadow shell builder present")
     check("rm-cmp-v5-shadow" in adapter, "shadow mount id in adapter")
-    check("hydrateComparisonV5Shadow" in shell, "app_shell shadow hydration hook present")
-    check("ComparisonV5Adapter.hydrate" in shell, "app_shell calls adapter hydrate")
+    check("ComparisonV5Route.hydrateShadow" in shell, "app_shell shadow hydration delegates to route plugin")
+    check("function hydrateShadow" in route, "route plugin defines shadow hydration")
 
     # Live compare route: V5-2 promotes canonical shell behind flag; OFF path unchanged
     screen_compare = shell.split("function screenCompare()", 1)[1].split("\nfunction ", 1)[0]
-    check("RM_COMPARE_V5_CANONICAL" in shell, "canonical flag present for gated promotion")
-    check("renderComparisonV5ShellHtml" in shell, "V5 shell renderer present")
+    check("RM_COMPARE_V5_CANONICAL" in route, "canonical flag owned by route plugin")
+    check("renderShellHtml" in route, "route plugin shell renderer present")
     check("rm-comparison-beta-root" in screen_compare, "screenCompare still uses beta root for OFF path")
-    check("hydrateComparisonV5Shadow" not in screen_compare, "shadow hydration not wired inside screenCompare template")
+    check("hydrateShadow" not in screen_compare, "shadow hydration not wired inside screenCompare template")
 
     # Canonical mockup unchanged contract still valid
     mockup = MOCKUP.read_text(encoding="utf-8")

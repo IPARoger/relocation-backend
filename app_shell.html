@@ -2606,12 +2606,18 @@ function buildComparisonV5HydrationContext() {
 
 function mountComparisonV5Route(root) {
   if (navContext.route !== "compare") return;
+  const cs = navContext.comparisonSetId ? getComparisonSet(navContext.comparisonSetId) : null;
+  const ws = cs ? ((_cmpWorkspaceSession && _cmpWorkspaceSession.state) || defaultComparisonWorkspaceState(cs.placeIds)) : null;
+  const canonicalActive = !!(cs && ws && document.getElementById("rm-cmp-v5-root")
+    && ComparisonV5Route.shouldRenderCanonicalShell(cs, navContext.comparisonSetId, ws));
   ComparisonV5Route.syncRouteChrome({
     route: navContext.route,
-    comparisonSetId: navContext.comparisonSetId,
+    comparisonSetId: canonicalActive ? navContext.comparisonSetId : null,
+    canonicalActive,
     escapeHtml,
     accountInitials,
   });
+  if (!cs) return;
   hydrateComparisonColumns(root);
   initComparisonWorkspace(root);
 }
@@ -5343,7 +5349,7 @@ function initComparisonWorkspace(root) {
       applyComparisonWorkspaceToDom(_cmpWorkspaceSession.state);
       if (document.getElementById("rm-cmp-v5-root")) {
         const v5ctx = buildComparisonV5HydrationContext();
-        if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
+        if (v5ctx && Array.isArray(v5ctx.cols) && v5ctx.cols.length) ComparisonV5Route.hydrateCanonical(v5ctx);
       }
       else refreshA2aWorkbookSection();
       scheduleComparisonWorkspaceSave();
@@ -5512,7 +5518,7 @@ async function hydrateComparisonColumns(root) {
       || defaultComparisonWorkspaceState(placeIds);
     if (document.getElementById("rm-cmp-v5-root")) {
       const v5ctx = buildComparisonV5HydrationContext();
-      if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
+      if (v5ctx && Array.isArray(v5ctx.cols) && v5ctx.cols.length) ComparisonV5Route.hydrateCanonical(v5ctx);
     } else {
       container.innerHTML = renderComparisonTableHtml(
         cols,
@@ -6115,7 +6121,7 @@ function wireComparisonPlaceToggleButtons(scope) {
       }
       if (document.getElementById("rm-cmp-v5-root")) {
         const v5ctx = buildComparisonV5HydrationContext();
-        if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
+        if (v5ctx && Array.isArray(v5ctx.cols) && v5ctx.cols.length) ComparisonV5Route.hydrateCanonical(v5ctx);
       }
       else refreshComparisonCityBar(document);
       scheduleComparisonWorkspaceSave();
@@ -6126,11 +6132,36 @@ function wireComparisonPlaceToggleButtons(scope) {
 
 
 
+
+function renderComparisonPickerShell(origin) {
+  return `
+    <div class="rm-comparison-picker-root" data-cmp-route-mode="picker">
+      <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)}</div>
+      <h2>Choose places to compare</h2>
+      <p class="meta">Select 2–5 saved locations or favorites under <strong>${escapeHtml(origin.displayName)}</strong>, then build the comparison.</p>
+      <div id="rm-cmp-loc-search-mount"></div>
+      <div id="rm-cmp-selected" class="row" style="flex-wrap:wrap;margin-top:8px;"></div>
+      <div class="row" style="margin-top:8px;align-items:center">
+        <button type="button" data-action="compare-build">Build comparison</button>
+        <span class="meta" id="rm-cmp-build-msg"></span>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button type="button" data-nav="chart-record" data-chart-record="${escapeHtml(origin.chartRecordId)}">Back to Chart Record page</button>
+      </div>
+    </div>`;
+}
+
 function screenCompare() {
   const origin = getChartRecord(navContext.chartRecordId);
+  if (!navContext.comparisonSetId) {
+    return renderComparisonPickerShell(origin);
+  }
   const favs = origin.favorites || [];
   const cs = getComparisonSet(navContext.comparisonSetId);
   const ws = cs ? initComparisonWorkspaceSession(cs) : null;
+  if (cs && ws && ComparisonV5Route.shouldRenderCanonicalShell(cs, navContext.comparisonSetId, ws)) {
+    return ComparisonV5Route.renderShellHtml(origin, cs, ws, { escapeHtml, resolveColumnOrderPlaceIds });
+  }
   const selectedIds = cs
     ? resolveVisibleOrderedPlaceIds(ws || extractWorkspaceStateFromSnapshot(cs.settings_snapshot_json, cs.placeIds), cs.placeIds).slice(0, 5)
     : [];
@@ -6161,10 +6192,6 @@ function screenCompare() {
           <p class="meta" id="rm-screen5-status">Loading relocated facts…</p>
         </div></div>`
     : "";
-
-  if (ComparisonV5Route.shouldRenderCanonicalShell(cs, navContext.comparisonSetId, ws)) {
-    return ComparisonV5Route.renderShellHtml(origin, cs, ws, { escapeHtml, resolveColumnOrderPlaceIds });
-  }
 
   const cityBarHtml = cs && ws ? renderComparisonCityBarHtml(origin, cs, ws) : "";
   return `
@@ -8438,8 +8465,10 @@ if (action === "cmp-notes-hide") {
 
   mountGenieDrawer(root);
   hydrateRelocatedChart(root);
-  hydrateComparisonColumns(root);
-  initComparisonWorkspace(root);
+  if (navContext.route !== "compare") {
+    hydrateComparisonColumns(root);
+    initComparisonWorkspace(root);
+  }
   hydrateProfileNatalFacts(root);
   hydrateChartRecordComparisonSets(root);
 }

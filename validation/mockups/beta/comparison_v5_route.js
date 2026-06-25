@@ -122,8 +122,12 @@
     return SHELL_FRAGMENT.replace("__CMP_NOTES__", notesEsc || "");
   }
 
+  function isCanonicalComparisonSet(cs, comparisonSetId, ws) {
+    return !!(RM_COMPARE_V5_CANONICAL && cs && comparisonSetId && ws && Array.isArray(cs.placeIds) && cs.placeIds.length >= 2);
+  }
+
   function shouldRenderCanonicalShell(cs, comparisonSetId, ws) {
-    return !!(RM_COMPARE_V5_CANONICAL && cs && comparisonSetId && ws);
+    return isCanonicalComparisonSet(cs, comparisonSetId, ws);
   }
 
   function renderShellHtml(origin, cs, ws, helpers) {
@@ -153,8 +157,8 @@
     const accountInitials = opts.accountInitials;
     const nav = document.getElementById("rm-cmp-v5-nav");
     const header = document.querySelector("header.app-header");
-    const on = !!(RM_COMPARE_V5_CANONICAL && route === "compare" && comparisonSetId);
-    if (RM_COMPARE_V5_CANONICAL && route === "compare" && comparisonSetId) {
+    const on = !!(opts.canonicalActive);
+    if (on) {
       document.body.classList.add("rm-compare-v5-canonical");
     } else {
       document.body.classList.remove("rm-compare-v5-canonical");
@@ -205,11 +209,13 @@
   }
 
   function hydrateCanonical(ctx) {
-    if (!RM_COMPARE_V5_CANONICAL) return;
-    if (!global.ComparisonV5Adapter || !ctx || !ctx.cols) return;
+    if (!RM_COMPARE_V5_CANONICAL) return false;
+    if (!global.ComparisonV5Adapter || !ctx) return false;
+    if (!Array.isArray(ctx.cols) || !ctx.cols.length) return false;
     const root = document.getElementById("rm-cmp-v5-root");
     if (!root) return;
     global.ComparisonV5Adapter.hydrate(root, withAdapterDeps(ctx));
+    return true;
   }
 
   function hydrateShadow(ctx) {
@@ -222,6 +228,7 @@
 
   global.ComparisonV5Route = {
     CANONICAL: RM_COMPARE_V5_CANONICAL,
+    isCanonicalComparisonSet,
     shouldRenderCanonicalShell,
     renderShellHtml,
     syncRouteChrome,
