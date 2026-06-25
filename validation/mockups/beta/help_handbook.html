@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Help Handbook — field guide mockup (H9 authority)</title>
+<link rel="stylesheet" href="/theme/tband_foundation.css" />
+<link rel="stylesheet" href="help_canonical.css" />
+<style>
+  body { margin: 0; font: 14px/1.5 system-ui, sans-serif; background: #f3efe6; color: #33291f; }
+  main { max-width: 980px; margin: 0 auto; padding: 20px 16px 40px; }
+</style>
+</head>
+<body class="rm-help-handbook">
+<main id="help-mockup-root"></main>
+<script src="help_canonical.js"></script>
+<script>
+(function () {
+  var state = { searchQuery: "", activeSectionId: "start" };
+  var root = document.getElementById("help-mockup-root");
+  function esc(t) {
+    return String(t == null ? "" : t)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function paint() {
+    root.innerHTML = HelpCanonical.renderPageHtml(state, esc);
+    var search = root.querySelector("#rm-help-search");
+    if (search) {
+      search.addEventListener("input", function () {
+        state.searchQuery = search.value;
+        HelpCanonical.refreshPanels(state, esc, root);
+      });
+    }
+    root.querySelectorAll("[data-help-section]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        state.activeSectionId = btn.getAttribute("data-help-section");
+        var el = root.querySelector("#help-section-" + state.activeSectionId);
+        HelpCanonical.refreshPanels(state, esc, root);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+  paint();
+})();
+</script>
+</body>
+</html>

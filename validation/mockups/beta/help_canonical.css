@@ -1,0 +1,256 @@
+/* H9 — Help handbook (field guide / atlas). Authority: help_handbook.html */
+
+body.rm-help-handbook {
+  background: var(--rm-stone, #f3efe6);
+}
+
+body.rm-help-handbook main {
+  max-width: 980px;
+}
+
+.help-handbook {
+  --help-ink: var(--rm-ink, #33291f);
+  --help-ink-soft: var(--rm-ink-soft, #6a5f4f);
+  --help-ink-faint: var(--rm-ink-faint, #9b9080);
+  --help-line: var(--rm-line, #ddd0b8);
+  --help-paper: var(--rm-card, #faf7f0);
+  color: var(--help-ink);
+}
+
+.help-handbook .help-kicker {
+  margin: 0 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--help-ink-faint);
+}
+
+.help-handbook-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .help-handbook-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-handbook-toc {
+  position: sticky;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: calc(100vh - 96px);
+  overflow: auto;
+}
+
+.help-handbook-toc button {
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: var(--help-ink-soft);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.help-handbook-toc button:hover {
+  background: rgba(51, 41, 31, 0.05);
+  color: var(--help-ink);
+}
+
+.help-handbook-toc button.active {
+  background: rgba(51, 41, 31, 0.07);
+  color: var(--help-ink);
+  font-weight: 600;
+}
+
+.help-handbook-main {
+  min-width: 0;
+}
+
+.help-handbook-search-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.help-handbook-search-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: var(--help-ink-faint);
+  pointer-events: none;
+}
+
+.help-handbook-search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--help-line);
+  border-radius: 10px;
+  background: var(--help-paper);
+  padding: 10px 12px 10px 36px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--help-ink);
+}
+
+.help-handbook-search:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--help-ink-soft) 45%, var(--help-line));
+  box-shadow: 0 0 0 3px rgba(51, 41, 31, 0.06);
+}
+
+.help-handbook-search-meta {
+  min-height: 1.2em;
+  margin: 6px 2px 0;
+  font-size: 12px;
+  color: var(--help-ink-faint);
+}
+
+.help-handbook-section {
+  scroll-margin-top: 12px;
+  background: var(--help-paper);
+  border: 1px solid var(--help-line);
+  border-radius: 14px;
+  padding: 16px 18px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(43, 41, 38, 0.04);
+}
+
+.help-handbook-section-head {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 520px) {
+  .help-handbook-section-head {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-handbook-plate {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--help-line) 80%, transparent);
+  background: color-mix(in srgb, var(--help-paper) 88%, #ece4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--help-ink-soft);
+}
+
+.help-handbook-plate svg {
+  display: block;
+  width: 52px;
+  height: 52px;
+}
+
+.help-handbook-section h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--help-ink);
+}
+
+.help-handbook-section .help-section-lede {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--help-ink-soft);
+}
+
+.help-handbook-entry {
+  border-top: 1px solid color-mix(in srgb, var(--help-line) 70%, transparent);
+  margin-top: 8px;
+  padding-top: 2px;
+}
+
+.help-handbook-entry > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 2px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--help-ink);
+}
+
+.help-handbook-entry > summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-handbook-entry > summary::before {
+  content: "▸ ";
+  color: var(--help-ink-faint);
+  font-weight: 400;
+}
+
+.help-handbook-entry[open] > summary::before {
+  content: "▾ ";
+}
+
+.help-handbook-entry-body {
+  padding: 0 2px 12px 14px;
+  font-size: 14px;
+  line-height: 1.58;
+  color: var(--help-ink-soft);
+}
+
+.help-handbook-entry-body p {
+  margin: 0 0 10px;
+}
+
+.help-handbook-entry-body ul {
+  margin: 0 0 10px;
+  padding-left: 1.15rem;
+}
+
+.help-handbook-entry-body li {
+  margin-bottom: 6px;
+}
+
+.help-handbook-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.help-handbook-links button.linkish,
+.help-handbook-links a.linkish {
+  font-size: 12px;
+}
+
+.help-handbook-empty {
+  padding: 18px 4px;
+  color: var(--help-ink-faint);
+  font-size: 14px;
+}
+
+.help-handbook-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.help-handbook-foot .meta {
+  font-size: 12px;
+  color: var(--help-ink-faint);
+}

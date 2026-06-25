@@ -8780,6 +8780,7 @@ function render() {
   renderNav();
   const INSTRUMENT_SURFACE_ROUTES = new Set(["chart-record", "chart", "compare", "settings", "help", "notes-library", "profiles"]);
   document.body.classList.toggle("rm-instrument-surface", INSTRUMENT_SURFACE_ROUTES.has(navContext.route));
+  document.body.classList.toggle("rm-help-handbook", navContext.route === "help");
   const acctBtn = $("#rm-acct-drawer-btn");
   if (navContext.route === "chart-record") {
     document.body.classList.add("rm-beta-profile");
@@ -8839,8 +8840,8 @@ function render() {
   if (navContext.route === "city") {
     void hydrateCityIntelligencePage($("#main"));
   }
-  if (navContext.route === "notes-library"
- wireNotesLibrary($("#main"));
+  if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
+  if (navContext.route === "help") wireHelpHandbook($("#main"));
   if (navContext.route === "settings") initAppearanceSettingsControls($("#main"));
   if (uiState.popupOpen) openPopup();
 }
