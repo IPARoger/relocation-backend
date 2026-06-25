@@ -48,6 +48,10 @@
     <div class="block-body" id="body-pih" data-cmp-mount="pih-body">
       <div class="fact-table-wrap"><div id="table-pih" data-cmp-mount="pih-table"></div></div>
     </div>
+    <div class="pih-footer" data-cmp-mount="pih-footer" data-cmp-role="pih-footer">
+      <label><input type="checkbox" data-action="toggle-cmp-diffs" style="width:auto;margin:0;" /> Diffs</label>
+      <label style="margin-left:12px;"><input type="checkbox" data-action="toggle-pih-dignities" data-pih-scope="compare" style="width:auto;margin:0;" /> Dignities</label>
+    </div>
   </div>
 
   <!-- Aspect to Angle -->
@@ -71,7 +75,7 @@
     </div>
   </div>
 
-  <p class="wheel-note">City names reserved for chart wheel preview.</p>
+  <p class="wheel-note" aria-hidden="true" hidden></p>
 
   <!-- City Intelligence (below A2A): column-aligned CI grid; 7 categories from City page; compact snippets; (i) modal shows labeled version -->
   <div class="ci-section" data-section="city_intelligence" data-cmp-mount="ci-section">
@@ -226,6 +230,18 @@
     global.ComparisonV5Adapter.hydrate(shadowRoot, withAdapterDeps(ctx));
   }
 
+  function wireComparisonV5CanonicalActions(scope, hooks) {
+    var root = (scope && scope.querySelector) ? scope.querySelector("#rm-cmp-v5-root") : document.getElementById("rm-cmp-v5-root");
+    if (!root || root.dataset.cmpV5ActionsWired === "1") return;
+    root.dataset.cmpV5ActionsWired = "1";
+    root.addEventListener("click", function (e) {
+      var el = e.target.closest("[data-action]");
+      if (!el || !root.contains(el)) return;
+      var action = el.getAttribute("data-action");
+      if (hooks && typeof hooks.onAction === "function") hooks.onAction(action, el, e);
+    });
+  }
+
   global.ComparisonV5Route = {
     CANONICAL: RM_COMPARE_V5_CANONICAL,
     isCanonicalComparisonSet,
@@ -234,6 +250,7 @@
     syncRouteChrome,
     hydrateCanonical,
     hydrateShadow,
+    wireComparisonV5CanonicalActions,
     formatComparisonAuthorityBirthDate,
     comparisonAuthorityGlyphHtml,
   };

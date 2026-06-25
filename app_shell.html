@@ -2650,6 +2650,287 @@ function buildComparisonV5HydrationContext() {
   };
 }
 
+
+let _cmpV5PlacePick = null;
+
+function comparisonV5WsSectionKey(sectionAttr) {
+  if (!sectionAttr) return null;
+  if (sectionAttr === "a2a" || sectionAttr === "ata") return "a2a";
+  if (sectionAttr === "city_intelligence") return "city_intelligence";
+  return sectionAttr;
+}
+
+function comparisonV5BodyIdForSection(sectionAttr) {
+  if (sectionAttr === "a2a") return "body-ata";
+  if (sectionAttr === "ata") return "body-ata";
+  return "body-" + sectionAttr;
+}
+
+function comparisonV5ArrowIdForSection(sectionAttr) {
+  if (sectionAttr === "a2a" || sectionAttr === "ata") return "arrow-ata";
+  return "arrow-" + sectionAttr;
+}
+
+function applyComparisonV5SectionCollapse(ws) {
+  if (!document.getElementById("rm-cmp-v5-root") || !ws) return;
+  ["ais", "pih", "a2a"].forEach((key) => {
+    const bodyId = comparisonV5BodyIdForSection(key === "a2a" ? "ata" : key);
+    const arrowId = comparisonV5ArrowIdForSection(key === "a2a" ? "ata" : key);
+    const body = document.getElementById(bodyId);
+    const arrow = document.getElementById(arrowId);
+    const collapsed = !!ws.collapsed_sections[key];
+    if (body) body.classList.toggle("collapsed", collapsed);
+    if (arrow) arrow.style.transform = collapsed ? "rotate(-90deg)" : "";
+  });
+  const ciSec = document.querySelector("#rm-cmp-v5-root .ci-section");
+  if (ciSec) ciSec.classList.toggle("collapsed", !!ws.collapsed_sections.city_intelligence);
+}
+
+async function persistComparisonSetPlaceIds(chartRecordId, comparisonSetId, placeIds) {
+  const client = window.SupabaseClient || await window.SupabaseReady;
+  if (!client) throw new Error("Supabase unavailable.");
+  const sessionResult = await client.auth.getSession();
+  const token = sessionResult && sessionResult.data ? sessionResult.data.session?.access_token : null;
+  if (!token) throw new Error("Session unavailable. Reload and try again.");
+  const resp = await fetch("/comparison-sets/places", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ profile_id: chartRecordId, comparison_set_id: comparisonSetId, place_ids: placeIds }),
+  });
+  if (!resp.ok) {
+    let detail;
+    try { detail = (await resp.json()).detail; } catch (e) { /* ignore */ }
+    const msg = (detail && (detail.message || detail.error)) ||
+      (typeof detail === "string" ? detail : null) || ("HTTP " + resp.status);
+    throw new Error(msg);
+  }
+  const out = await resp.json();
+  const ids = out.place_ids || placeIds;
+  if (storeRaw && Array.isArray(storeRaw.comparison_sets)) {
+    const raw = storeRaw.comparison_sets.find((c) => c.id === comparisonSetId);
+    if (raw) raw.place_ids = ids.slice();
+  }
+  if (viewModel && Array.isArray(viewModel.comparisonSets)) {
+    const vmCs = viewModel.comparisonSets.find((c) => c.id === comparisonSetId);
+    if (vmCs) {
+      vmCs.placeIds = ids.slice();
+      vmCs.placeNames = ids.map((pid) => humanPlaceLabel(pid));
+      vmCs.workspaceState = normalizeComparisonWorkspaceState(vmCs.workspaceState || {}, ids);
+    }
+  }
+  return ids;
+}
+
+async function refreshComparisonV5Dom() {
+  if (navContext.route !== "compare" || !navContext.comparisonSetId) return;
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!cs || !_cmpWorkspaceSession) return;
+  cs.workspaceState = normalizeComparisonWorkspaceState(_cmpWorkspaceSession.state, cs.placeIds);
+  initComparisonWorkspaceSession(cs);
+  const bridge = document.getElementById("rm-screen5-columns");
+  const visible = resolveVisibleOrderedPlaceIds(_cmpWorkspaceSession.state, cs.placeIds);
+  if (bridge) bridge.setAttribute("data-place-ids", visible.join(","));
+  const root = document.getElementById("main");
+  await hydrateComparisonColumns(root);
+  initComparisonWorkspace(root);
+  const v5ctx = buildComparisonV5HydrationContext();
+  if (v5ctx && comparisonV5Ready() && ComparisonV5Route.hydrateCanonical(v5ctx)) {
+    applyComparisonV5SectionCollapse(_cmpWorkspaceSession.state);
+    const v5root = document.getElementById("rm-cmp-v5-root");
+    if (v5root) {
+      bindCmpDiffsToggle(v5root);
+      bindPihDignitiesToggle(v5root);
+      wireComparisonV5CanonicalActions(document.getElementById("main"));
+    }
+  }
+}
+
+function openComparisonV5PlacePicker(opts) {
+  opts = opts || {};
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!cs) return;
+  if (opts.mode === "add" && cs.placeIds.length >= 5) {
+    window.alert("Maximum 5 cities in a comparison.");
+    return;
+  }
+  _cmpV5PlacePick = {
+    mode: opts.mode || "add",
+    replacePlaceId: opts.replacePlaceId || null,
+    chartRecordId: navContext.chartRecordId,
+    comparisonSetId: cs.id,
+  };
+  const saved = document.querySelector("#comparisonOverlayModal .comparison-overlay-section:not(.comparison-overlay-section--picker)");
+  if (saved) saved.hidden = true;
+  const title = document.getElementById("comparisonOverlayTitle");
+  if (title) title.textContent = opts.mode === "replace" ? "Replace city" : "Add city";
+  const btn = document.getElementById("rm-cmp-overlay-compare-btn");
+  if (btn) btn.textContent = opts.mode === "replace" ? "Replace city" : "Add city";
+  const selectedHost = document.getElementById("rm-cmp-overlay-selected");
+  if (selectedHost) selectedHost.innerHTML = "";
+  const msg = document.getElementById("rm-cmp-overlay-msg");
+  if (msg) msg.textContent = "";
+  syncOverlayCompareButton();
+  openComparisonOverlayFromChrome();
+}
+
+function closeComparisonV5PlacePicker() {
+  _cmpV5PlacePick = null;
+  const saved = document.querySelector("#comparisonOverlayModal .comparison-overlay-section:not(.comparison-overlay-section--picker)");
+  if (saved) saved.hidden = false;
+  const title = document.getElementById("comparisonOverlayTitle");
+  if (title) title.textContent = "Compare locations";
+  const btn = document.getElementById("rm-cmp-overlay-compare-btn");
+  if (btn) btn.textContent = "Compare";
+  closeComparisonOverlay();
+}
+
+async function applyComparisonV5PlacePick(placeId, placeName) {
+  const pick = _cmpV5PlacePick;
+  if (!pick || !placeId) return;
+  const cs = getComparisonSet(pick.comparisonSetId || navContext.comparisonSetId);
+  if (!cs) return;
+  let next = cs.placeIds.slice();
+  if (pick.mode === "replace" && pick.replacePlaceId) {
+    const idx = next.indexOf(pick.replacePlaceId);
+    if (idx === -1) throw new Error("City slot not found.");
+    next[idx] = placeId;
+  } else if (!next.includes(placeId)) {
+    next.push(placeId);
+  }
+  if (placeName && viewModel && viewModel.placeNameById) viewModel.placeNameById[placeId] = placeName;
+  await persistComparisonSetPlaceIds(pick.chartRecordId || navContext.chartRecordId, cs.id, next);
+  if (_cmpWorkspaceSession) {
+    _cmpWorkspaceSession.state = normalizeComparisonWorkspaceState(_cmpWorkspaceSession.state, next);
+  }
+  closeComparisonV5PlacePicker();
+  await refreshComparisonV5Dom();
+}
+
+function handleComparisonV5CanonicalAction(action, btn) {
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!cs || !_cmpWorkspaceSession) return false;
+  const ws = _cmpWorkspaceSession.state;
+
+  if (action === "cmp-toggle-block") {
+    const secAttr = btn.getAttribute("data-section") || btn.getAttribute("data-cmp-toggle-id");
+    const wsKey = comparisonV5WsSectionKey(secAttr);
+    if (!wsKey) return true;
+    const body = document.getElementById(comparisonV5BodyIdForSection(secAttr));
+    const collapsed = body ? !body.classList.contains("collapsed") : !ws.collapsed_sections[wsKey];
+    ws.collapsed_sections[wsKey] = collapsed;
+    applyComparisonV5SectionCollapse(ws);
+    scheduleComparisonWorkspaceSave();
+    return true;
+  }
+  if (action === "cmp-toggle-ci-section") {
+    ws.collapsed_sections.city_intelligence = !ws.collapsed_sections.city_intelligence;
+    applyComparisonV5SectionCollapse(ws);
+    scheduleComparisonWorkspaceSave();
+    return true;
+  }
+  if (action === "cmp-toggle-place") {
+    const pid = btn.getAttribute("data-place-id");
+    if (!pid) return true;
+    const hidden = new Set(ws.hidden_place_ids || []);
+    if (hidden.has(pid)) hidden.delete(pid); else hidden.add(pid);
+    ws.hidden_place_ids = [...hidden];
+    applyComparisonWorkspaceToDom(ws);
+    const bridge = document.getElementById("rm-screen5-columns");
+    if (bridge) bridge.setAttribute("data-place-ids", resolveVisibleOrderedPlaceIds(ws, cs.placeIds).join(","));
+    const v5ctx = buildComparisonV5HydrationContext();
+    if (v5ctx && ComparisonV5Route.hydrateCanonical(v5ctx)) applyComparisonV5SectionCollapse(ws);
+    scheduleComparisonWorkspaceSave();
+    return true;
+  }
+  if (action === "cmp-move-place") {
+    const pid = btn.getAttribute("data-place-id");
+    const dir = Number(btn.getAttribute("data-dir") || 0);
+    if (!pid || !dir) return true;
+    const order = resolveColumnOrderPlaceIds(ws, cs.placeIds);
+    const idx = order.indexOf(pid);
+    const ni = idx + (dir < 0 ? -1 : 1);
+    if (idx < 0 || ni < 0 || ni >= order.length) return true;
+    const tmp = order[idx]; order[idx] = order[ni]; order[ni] = tmp;
+    ws.column_order_place_ids = order;
+    applyComparisonWorkspaceToDom(ws);
+    const v5ctx = buildComparisonV5HydrationContext();
+    if (v5ctx && ComparisonV5Route.hydrateCanonical(v5ctx)) applyComparisonV5SectionCollapse(ws);
+    scheduleComparisonWorkspaceSave();
+    return true;
+  }
+  if (action === "cmp-remove-place") {
+    const pid = btn.getAttribute("data-place-id");
+    if (!pid) return true;
+    if (cs.placeIds.length <= 2) {
+      window.alert("A comparison must keep at least 2 cities.");
+      return true;
+    }
+    const name = humanPlaceLabel(pid);
+    if (!window.confirm("Remove " + name + " from this comparison?")) return true;
+    const next = cs.placeIds.filter((id) => id !== pid);
+    persistComparisonSetPlaceIds(navContext.chartRecordId, cs.id, next).then(() => {
+      if (_cmpWorkspaceSession) _cmpWorkspaceSession.state = normalizeComparisonWorkspaceState(_cmpWorkspaceSession.state, next);
+      return refreshComparisonV5Dom();
+    }).catch((err) => window.alert("Remove failed: " + (err.message || String(err))));
+    return true;
+  }
+  if (action === "cmp-add-place") {
+    openComparisonV5PlacePicker({ mode: "add" });
+    return true;
+  }
+  if (action === "cmp-replace-place") {
+    const pid = btn.getAttribute("data-place-id");
+    if (!pid) return true;
+    openComparisonV5PlacePicker({ mode: "replace", replacePlaceId: pid });
+    return true;
+  }
+  if (action === "cmp-city-info") {
+    const pid = btn.getAttribute("data-place-id");
+    if (!pid) return true;
+    const label = humanPlaceLabel(pid);
+    window.alert(label + "\n\nCity Intelligence is not available yet for this city.");
+    return true;
+  }
+  if (action === "cmp-angle-tab") {
+    const tab = btn.getAttribute("data-angle-tab") || "all";
+    if (!_cmpWorkspaceSession) return true;
+    _cmpWorkspaceSession.state.active_angle_tab = tab;
+    applyComparisonWorkspaceToDom(_cmpWorkspaceSession.state);
+    const v5ctx = buildComparisonV5HydrationContext();
+    if (v5ctx && Array.isArray(v5ctx.cols) && v5ctx.cols.length) ComparisonV5Route.hydrateCanonical(v5ctx);
+    else refreshA2aWorkbookSection();
+    scheduleComparisonWorkspaceSave();
+    return true;
+  }
+    if (action === "cmp-notes-hide") {
+    const rail = document.getElementById("cmp-notes-rail");
+    const fab = document.getElementById("notes-fab");
+    if (rail) rail.classList.add("collapsed");
+    if (fab) fab.classList.add("show");
+    return true;
+  }
+  if (action === "cmp-notes-show") {
+    const rail = document.getElementById("cmp-notes-rail");
+    const fab = document.getElementById("notes-fab");
+    if (rail) rail.classList.remove("collapsed");
+    if (fab) fab.classList.remove("show");
+    return true;
+  }
+  return false;
+}
+
+function wireComparisonV5CanonicalActions(root) {
+  if (!comparisonV5Ready() || typeof ComparisonV5Route.wireComparisonV5CanonicalActions !== "function") return;
+  ComparisonV5Route.wireComparisonV5CanonicalActions(root, {
+    onAction: function (action, btn, e) {
+      if (action === "save-comparison-note") return;
+      if (handleComparisonV5CanonicalAction(action, btn)) {
+        if (e) e.preventDefault();
+      }
+    },
+  });
+}
+
 function mountComparisonV5Route(root) {
   if (navContext.route !== "compare" || !comparisonV5Ready()) return;
   const cs = navContext.comparisonSetId ? getComparisonSet(navContext.comparisonSetId) : null;
@@ -2666,6 +2947,17 @@ function mountComparisonV5Route(root) {
   if (!cs) return;
   hydrateComparisonColumns(root);
   initComparisonWorkspace(root);
+  applyComparisonV5SectionCollapse(ws);
+  wireComparisonV5CanonicalActions(root);
+  const v5root = document.getElementById("rm-cmp-v5-root");
+  if (v5root) {
+    bindCmpDiffsToggle(v5root);
+    bindPihDignitiesToggle(v5root);
+    const dig = v5root.querySelector("[data-action='toggle-pih-dignities'][data-pih-scope='compare']");
+    const diff = v5root.querySelector("[data-action='toggle-cmp-diffs']");
+    if (dig) dig.checked = !!ws.dignities_enabled;
+    if (diff) diff.checked = !!ws.diffs_enabled;
+  }
 }
 
 function closePopup() {
@@ -5298,6 +5590,7 @@ function applyComparisonWorkspaceToDom(ws) {
   }
   const diffEl = document.querySelector("[data-action='toggle-cmp-diffs']");
   if (diffEl) diffEl.checked = !!ws.diffs_enabled;
+  applyComparisonV5SectionCollapse(ws);
   applyComparisonAngleTabFilter(document);
 }
 
@@ -5389,6 +5682,8 @@ function initComparisonWorkspace(root) {
   applyComparisonWorkspaceToDom(ws);
   const scope = root || document;
   scope.querySelectorAll("[data-action='cmp-angle-tab']").forEach((btn) => {
+    if (btn.__cmpAngleTabBound) return;
+    btn.__cmpAngleTabBound = true;
     btn.addEventListener("click", () => {
       if (!_cmpWorkspaceSession) return;
       _cmpWorkspaceSession.state.active_angle_tab = btn.getAttribute("data-angle-tab") || "all";
@@ -5635,6 +5930,10 @@ function syncOverlayCompareButton() {
   const host = document.getElementById("rm-cmp-overlay-selected");
   if (!btn || !host) return;
   const count = host.querySelectorAll(".rm-cmp-pick").length;
+  if (_cmpV5PlacePick) {
+    btn.disabled = count < 1 || count > 1;
+    return;
+  }
   btn.disabled = count < 2 || count > 5;
 }
 
@@ -5880,6 +6179,22 @@ function handleComparisonOverlayAction(action, btn) {
     const msg = document.getElementById("rm-cmp-overlay-msg");
     const host = document.getElementById("rm-cmp-overlay-selected");
     const picks = host ? Array.from(host.querySelectorAll(".rm-cmp-pick:checked")) : [];
+    if (_cmpV5PlacePick) {
+      if (picks.length !== 1) {
+        if (msg) msg.textContent = "Choose one location.";
+        return;
+      }
+      const el = picks[0];
+      const placeId = el.value;
+      const placeName = el.getAttribute("data-place-name") || humanPlaceLabel(placeId);
+      if (msg) msg.textContent = "Saving…";
+      applyComparisonV5PlacePick(placeId, placeName).then(() => {
+        if (msg) msg.textContent = "";
+      }).catch((err) => {
+        if (msg) msg.textContent = "Save failed: " + (err.message || String(err));
+      });
+      return;
+    }
     if (picks.length < 2 || picks.length > 5) {
       if (msg) msg.textContent = "Choose between 2 and 5 locations.";
       return;
@@ -5911,6 +6226,15 @@ function handleComparisonOverlayAction(action, btn) {
 
 function closeComparisonOverlay() {
   uiState.comparisonOverlayOpen = false;
+  if (_cmpV5PlacePick) {
+    _cmpV5PlacePick = null;
+    const saved = document.querySelector("#comparisonOverlayModal .comparison-overlay-section:not(.comparison-overlay-section--picker)");
+    if (saved) saved.hidden = false;
+    const title = document.getElementById("comparisonOverlayTitle");
+    if (title) title.textContent = "Compare locations";
+    const btn = document.getElementById("rm-cmp-overlay-compare-btn");
+    if (btn) btn.textContent = "Compare";
+  }
   const modal = document.getElementById("comparisonOverlayModal");
   if (modal) {
     modal.classList.remove("open");

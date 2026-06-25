@@ -210,6 +210,102 @@ def archive_comparison_set(
         "status": "archived",
     }
 
+
+
+def update_comparison_set_places(
+    jwt_token: str,
+    profile_id: str,
+    comparison_set_id: str,
+    place_ids: list,
+) -> dict:
+    """Replace comparison set place membership (account-safe)."""
+    client = get_supabase_for_user(jwt_token)
+    account_id = _resolve_account_id(client, jwt_token)
+    _require_owned_active_profile(client, account_id, profile_id)
+    ordered_place_ids = _validate_place_ids(place_ids)
+
+    try:
+        existing = (
+            client.table("comparison_sets")
+            .select("id, profile_id, archived_at")
+            .eq("id", comparison_set_id)
+            .eq("account_id", account_id)
+            .limit(1)
+            .execute()
+        ).data or []
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "22P02" in msg or "invalid input syntax for type uuid" in msg:
+            raise ComparisonSetsError(
+                "comparison set not found", "comparison_set_not_found",
+            ) from exc
+        raise
+    if not existing:
+        raise ComparisonSetsError(
+            "comparison set not found", "comparison_set_not_found",
+        )
+    row = existing[0]
+    if row.get("profile_id") != profile_id:
+        raise ComparisonSetsError(
+            "comparison set not found", "comparison_set_not_found",
+        )
+    if row.get("archived_at") is not None:
+        raise ComparisonSetsError(
+            "comparison set is archived", "comparison_set_not_found",
+        )
+
+    for pid in ordered_place_ids:
+        _require_place(client, pid)
+
+    del_result = (
+        client.table("comparison_set_places")
+        .delete()
+        .eq("comparison_set_id", comparison_set_id)
+        .execute()
+    )
+    if getattr(del_result, "error", None):
+        raise ComparisonSetsError(
+            f"could not clear comparison set places: {del_result.error}",
+            "places_update_failed",
+        )
+
+    place_rows = [
+        {
+            "comparison_set_id": comparison_set_id,
+            "place_id": pid,
+            "sort_order": idx,
+        }
+        for idx, pid in enumerate(ordered_place_ids, start=1)
+    ]
+    ins_result = client.table("comparison_set_places").insert(place_rows).execute()
+    if getattr(ins_result, "error", None) or not ins_result.data:
+        raise ComparisonSetsError(
+            f"could not update comparison set places: {getattr(ins_result, 'error', 'no data')}",
+            "places_update_failed",
+        )
+
+    now = _utc_now_iso()
+    upd = (
+        client.table("comparison_sets")
+        .update({"updated_at": now})
+        .eq("id", comparison_set_id)
+        .execute()
+    )
+    if getattr(upd, "error", None) or not upd.data:
+        raise ComparisonSetsError(
+            f"could not update comparison set: {getattr(upd, 'error', 'no data')}",
+            "places_update_failed",
+        )
+
+    return {
+        "id": comparison_set_id,
+        "profile_id": profile_id,
+        "place_ids": ordered_place_ids,
+        "updated_at": upd.data[0].get("updated_at"),
+        "status": "updated",
+    }
+
+
 def update_comparison_set_state(
     jwt_token: str,
     profile_id: str,

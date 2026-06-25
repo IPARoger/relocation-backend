@@ -257,3 +257,13 @@ body.rm-compare-v5-canonical .rm-cmp-v5-root .city-name-lines{min-height:34px;ma
 body.rm-compare-v5-canonical .rm-cmp-v5-root .city-coords{margin-top:5px;min-height:15px}
 body.rm-compare-v5-canonical .rm-cmp-v5-root .city-ctrls{display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:6px;margin-top:7px}
 body.rm-compare-v5-canonical .rm-cmp-v5-root .city-ctrls .cc{white-space:nowrap;padding:3px 7px}
+
+body.rm-compare-v5-canonical .rm-cmp-v5-root{max-width:1320px;margin:0 auto;padding:0 32px;box-sizing:border-box}
+body.rm-compare-v5-canonical .rm-cmp-v5-root > .comp-profile{padding-left:0;padding-right:0}
+body.rm-compare-v5-canonical .rm-cmp-v5-root > .page{padding-left:0;padding-right:0}
+body.rm-compare-v5-canonical .city-name-zone{align-items:center;justify-content:center}
+body.rm-compare-v5-canonical .city-name-lines{text-align:center}
+body.rm-compare-v5-canonical .block-body.collapsed{display:none}
+body.rm-compare-v5-canonical .ci-section.collapsed .ci-grid{display:none}
+body.rm-compare-v5-canonical .pih-footer{margin-top:8px;font-size:12px;color:var(--ink-faint)}
+body.rm-compare-v5-canonical .wheel-note{display:none}

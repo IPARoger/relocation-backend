@@ -36,15 +36,7 @@
     "Regional character",
   ];
 
-  var CI_PLACEHOLDER_SNIPPETS = [
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-  ];
+  var CI_PLACEHOLDER_SNIPPETS = ["—", "—", "—", "—", "—", "—", "—"];
 
   var COL_LABEL = 200;
   var COL_CITY = 158;
@@ -258,7 +250,7 @@
     });
 
     for (var slot = order.length; slot < CMP_CAPACITY_RESERVED; slot++) {
-      h += '<td class="bar-city bar-city-slot-empty" data-cmp-role="city-slot-empty" data-cmp-slot-index="' + slot + '"><div class="city-slot-placeholder">Open slot</div></td>';
+      h += '<td class="bar-city bar-city-slot-empty" data-cmp-role="city-slot-empty" data-cmp-slot-index="' + slot + '"><div class="city-slot-placeholder" aria-hidden="true"></div></td>';
     }
     h += '<td class="bar-add"><button type="button" class="add-city-btn" data-action="cmp-add-place">+\u2009Add</button></td>';
     h += "</tr></tbody></table>";
