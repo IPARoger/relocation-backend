@@ -721,7 +721,6 @@
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="a2a"] { display: none !important; }
-  body.rm-beta-compare .comparison-main { margin-top: 4px; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
     display: flex;
@@ -814,6 +813,114 @@
     color: var(--rm-ink);
     font-weight: 700;
     box-shadow: inset 0 1px 2px rgba(51, 41, 31, 0.12);
+  }
+  body.rm-beta-compare .comparison-body-grid {
+    display: grid;
+    grid-template-columns: minmax(0, max-content) 1fr 268px;
+    gap: 0;
+    align-items: start;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+  body.rm-beta-compare .comparison-body-grid .comparison-main {
+    grid-column: 1;
+    margin-top: 4px;
+    padding-left: 24px;
+    min-width: 0;
+  }
+  body.rm-beta-compare .comparison-notes-rail {
+    grid-column: 3;
+    position: sticky;
+    top: 120px;
+    padding-top: 28px;
+    justify-self: end;
+    width: 268px;
+    align-self: start;
+  }
+  body.rm-beta-compare .comparison-notes-rail.collapsed .general-notes-section { display: none; }
+  body.rm-beta-compare .comparison-notes-rail.collapsed #notes-fab.show { display: flex; }
+  body.rm-beta-compare #notes-fab {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(154, 144, 128, 0.4);
+    background: var(--rm-card, var(--card));
+    color: var(--rm-ink-soft);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    position: sticky;
+    top: 130px;
+    z-index: 40;
+  }
+  body.rm-beta-compare #notes-fab.show { display: flex; }
+  body.rm-beta-compare .general-notes-section { margin-top: 0; max-width: none; }
+  body.rm-beta-compare .general-notes-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  body.rm-beta-compare .general-notes-label {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+    color: var(--rm-ink);
+  }
+  body.rm-beta-compare .gn-collapse {
+    background: none;
+    border: none;
+    color: var(--rm-ink-faint);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0 6px 0 0;
+    line-height: 1;
+  }
+  body.rm-beta-compare .gn-collapse:hover { color: var(--rm-ink); }
+  body.rm-beta-compare .notes-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14.5px;
+    min-height: 118px;
+    padding: 13px 14px;
+    border: 1px solid rgba(154, 144, 128, 0.28);
+    border-radius: 12px;
+    background: var(--rm-card, var(--card));
+    font-family: inherit;
+    resize: vertical;
+  }
+  body.rm-beta-compare .notes-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  body.rm-beta-compare .notes-save {
+    font-size: 12.5px;
+    border-radius: 999px;
+    padding: 4px 11px;
+    border: 1px solid var(--rm-line);
+    background: var(--rm-card, var(--card));
+    cursor: pointer;
+    font-family: inherit;
+  }
+  body.rm-beta-compare .notes-save:hover { background: rgba(51, 41, 31, 0.06); }
+  body.rm-beta-compare .note-hint {
+    font-size: 11px;
+    color: var(--rm-ink-faint);
+    margin: 8px 0 0;
+  }
+  @media (max-width: 1000px) {
+    body.rm-beta-compare .comparison-body-grid { grid-template-columns: 1fr; }
+    body.rm-beta-compare .comparison-notes-rail {
+      position: static;
+      padding-top: 8px;
+      width: 100%;
+      justify-self: stretch;
+    }
   }
   body.rm-beta-compare .warn-box { margin-top: 0; margin-bottom: 12px; }
 
@@ -5770,6 +5877,29 @@ function renderComparisonA2aBlockShellHtml(ws) {
   </div>`;
 }
 
+
+function renderComparisonNotesRailHtml(cs) {
+  const notesFabSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>';
+  const body = cs
+    ? `<textarea id="rm-cmp-note" class="notes-textarea" rows="7" placeholder="General comparison notes\u2026">${escapeHtml(cs.notes || "")}</textarea>
+       <div class="notes-actions">
+         <button type="button" class="notes-save" data-action="save-comparison-note">Save</button>
+         <span class="meta" id="rm-cmp-note-msg"></span>
+       </div>`
+    : `<textarea class="notes-textarea" rows="7" placeholder="Build or select a comparison to add notes." disabled></textarea>
+       <p class="note-hint">Notes attach to a built comparison set.</p>`;
+  return `<aside class="comparison-notes-rail" id="cmp-notes-rail">
+    <button type="button" id="notes-fab" title="Open notes" data-action="cmp-notes-show">${notesFabSvg}</button>
+    <div class="general-notes-section">
+      <div class="general-notes-head">
+        <button type="button" class="gn-collapse" title="Hide notes" data-action="cmp-notes-hide">\u25be</button>
+        <div class="general-notes-label">Notes</div>
+      </div>
+      ${body}
+    </div>
+  </aside>`;
+}
+
 function renderComparisonZoneBHtml(r) {
   return `<div class="cmp-zone-b zone-b">
     <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">\u25be</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
@@ -5913,7 +6043,10 @@ function screenCompare() {
       ${renderComparisonZoneBHtml(origin)}
     </div>
     <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
-    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : ""}
+    <div class="comparison-body-grid" id="rm-cmp-body-grid">
+    ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : `<div class="comparison-main comparison-main-empty" id="rm-cmp-comparison-main"></div>`}
+    ${renderComparisonNotesRailHtml(cs)}
+    </div>
     <div class="rm-comparison-beta-body">
     <div class="rm-comparison-legacy-chrome">
     <div class="breadcrumb">Comparison · ${escapeHtml(origin.displayName)} · places only</div>
@@ -5930,17 +6063,6 @@ function screenCompare() {
     ${pickerPanel}
     ${workspacePanel}
     ${columnsPanel}
-    <div class="panel">
-      <h3>Module: comparison-notepad</h3>
-      ${cs
-        ? `<textarea id="rm-cmp-note" rows="3" style="width:100%;box-sizing:border-box;" placeholder="Notes for this comparison set">${escapeHtml(cs.notes || "")}</textarea>
-           <div class="row" style="margin-top:8px;align-items:center;">
-             <button type="button" data-action="save-comparison-note">Save note</button>
-             <span class="meta" id="rm-cmp-note-msg"></span>
-           </div>`
-        : `<textarea rows="3" placeholder="Build or select a comparison to add notes." disabled></textarea>
-           <p class="meta">Notes attach to a built comparison set.</p>`}
-    </div>
     <div class="future-only">Future: AI assist (disabled) · multi–Chart Record comparison (not Web 2.0)</div>
     <div class="row">
       <button type="button" data-action="compare-back-map">Back to map (preserve originating record)</button>
@@ -8013,7 +8135,21 @@ function bindScreenActions(root) {
           }
         });
       }
-if (action === "save-comparison-note") {
+if (action === "cmp-notes-hide") {
+        const rail = document.getElementById("cmp-notes-rail");
+        const fab = document.getElementById("notes-fab");
+        if (rail) rail.classList.add("collapsed");
+        if (fab) fab.classList.add("show");
+        return;
+      }
+      if (action === "cmp-notes-show") {
+        const rail = document.getElementById("cmp-notes-rail");
+        const fab = document.getElementById("notes-fab");
+        if (rail) rail.classList.remove("collapsed");
+        if (fab) fab.classList.remove("show");
+        return;
+      }
+      if (action === "save-comparison-note") {
         const csId = navContext.comparisonSetId;
         const cs = getComparisonSet(csId);
         const noteEl = document.getElementById("rm-cmp-note");
