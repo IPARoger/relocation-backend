@@ -267,3 +267,48 @@ body.rm-compare-v5-canonical .block-body.collapsed{display:none}
 body.rm-compare-v5-canonical .ci-section.collapsed .ci-grid{display:none}
 body.rm-compare-v5-canonical .pih-footer{margin-top:8px;font-size:12px;color:var(--ink-faint)}
 body.rm-compare-v5-canonical .wheel-note{display:none}
+
+/* V5-6B: control reality fixes */
+body.rm-compare-v5-canonical .bar-city,
+body.rm-compare-v5-canonical .bar-stub,
+body.rm-compare-v5-canonical .bar-add { text-align: center; }
+body.rm-compare-v5-canonical .city-name-zone { display: flex; justify-content: center; width: 100%; }
+body.rm-compare-v5-canonical .city-name-zone .bnwrap { text-align: center; margin: 0 auto; }
+body.rm-compare-v5-canonical .city-coords,
+body.rm-compare-v5-canonical .city-ctrls { justify-content: center; }
+body.rm-compare-v5-canonical .fact-table .val-col { text-align: center; }
+body.rm-compare-v5-canonical .bar-stub { padding: 4px; vertical-align: middle; }
+body.rm-compare-v5-canonical .stub-restore {
+  min-height: 88px; min-width: 44px; padding: 12px 10px; font-size: 11px;
+  border-radius: 6px; box-sizing: border-box; cursor: pointer;
+}
+body.rm-compare-v5-canonical .bar-stub .stub-restore { width: 100%; }
+body.rm-compare-v5-canonical #rm-cmp-city-bar.cmp-city-reorder-anim .city-bar-table {
+  transition: opacity 280ms ease, transform 280ms ease;
+  opacity: 0.62; transform: translateY(2px);
+}
+body.rm-compare-v5-canonical .rm-cmp-v5-root .block-header .angle-tabs { margin-left: 18px; }
+body.rm-compare-v5-canonical .rm-cmp-diff-duplicate { opacity: 0.48; color: #64748b; }
+body.rm-compare-v5-canonical .val-col.pih-house-cell.dignity-supportive { background: #eef7f3; }
+body.rm-compare-v5-canonical .val-col.pih-house-cell.dignity-challenging { background: #faf3e8; }
+body.rm-compare-v5-canonical .val-col.rm-cmp-diff-duplicate.pih-house-cell.dignity-supportive,
+body.rm-compare-v5-canonical .val-col.rm-cmp-diff-duplicate.pih-house-cell.dignity-challenging { opacity: 0.48; color: #64748b; }
+
+/* V5-6B: AIS deg / sign / min vgrid (no degree glyphs) */
+body.rm-compare-v5-canonical .fact-table .val-col .rm-ais-vgrid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  column-gap: 7px;
+  justify-items: center;
+}
+body.rm-compare-v5-canonical .fact-table .val-col .rm-ais-vgrid .deg { text-align: right; width: 100%; }
+body.rm-compare-v5-canonical .fact-table .val-col .rm-ais-vgrid .sgn { text-align: center; color: var(--ink); }
+body.rm-compare-v5-canonical .fact-table .val-col .rm-ais-vgrid .min { text-align: left; width: 100%; color: var(--ink-soft); }
+
+/* PIH late-in-house + retrograde row labels */
+body.rm-compare-v5-canonical .fact-table .label-col .rm-motion-rx,
+body.rm-compare-v5-canonical .fact-table .label-col .rm-motion-station,
+body.rm-compare-v5-canonical .fact-table .label-col .rm-motion-station-rx { margin-left: 2px; font-size: 11px; color: var(--ink-faint); }
+body.rm-compare-v5-canonical .cmp-pih-house.cmp-pih-late { color: var(--ink-faint); }
+body.rm-compare-v5-canonical .cmp-pih-house .lh { margin-left: 3px; font-size: 10px; color: var(--ink-faint); text-decoration: none; }

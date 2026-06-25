@@ -134,19 +134,30 @@
     return deps.getCanonicalChartFromPayload(col.chart);
   }
 
-  function buildFactTable(labels, visibleCols, getCell, colPlaceIds) {
+  function buildFactTable(labels, visibleCols, getCell, colPlaceIds, rowMeta) {
+    rowMeta = rowMeta || {};
     var W = COL_LABEL + visibleCols.length * COL_CITY;
     var h = '<table class="fact-table" data-cmp-v5-hydrated="true" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
     h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
     visibleCols.forEach(function () { h += '<col style="width:' + COL_CITY + 'px">'; });
     h += "</colgroup><tbody>";
     labels.forEach(function (label, rowIdx) {
-      h += "<tr><td class=\"label-col\">" + label + "</td>";
+      var rowKeys = visibleCols.map(function (col, colIdx) {
+        var pid = colPlaceIds[colIdx];
+        if (typeof rowMeta.rowKey === "function") return rowMeta.rowKey(pid, rowIdx, col);
+        return null;
+      });
+      var labelOut = (typeof rowMeta.labelHtml === "function") ? rowMeta.labelHtml(label, rowIdx) : label;
+      h += "<tr><td class=\"label-col\">" + labelOut + "</td>";
       visibleCols.forEach(function (col, colIdx) {
         var pid = colPlaceIds[colIdx];
         var v = getCell(pid, rowIdx, col);
         var tex = (colIdx % 2 === 0) ? " cmp-col-texture-a" : " cmp-col-texture-b";
-        h += '<td class="val-col' + tex + '" data-cmp-col-index="' + colIdx + '">' + (v != null ? v : '<span class="ph">&mdash;</span>') + "</td>";
+        var diffCls = typeof rowMeta.diffTdClass === "function"
+          ? (rowMeta.diffTdClass(rowKeys[colIdx], rowKeys) || "") : "";
+        var extraCls = typeof rowMeta.extraTdClass === "function"
+          ? (rowMeta.extraTdClass(pid, rowIdx, col) || "") : "";
+        h += '<td class="val-col' + tex + diffCls + extraCls + '" data-cmp-col-index="' + colIdx + '">' + (v != null ? v : '<span class="ph">&mdash;</span>') + "</td>";
       });
       h += "</tr>";
     });
@@ -193,20 +204,18 @@
     var nameById = (deps.viewModelPlaceNameById) || {};
     var favs = (ctx.chartRecord && ctx.chartRecord.favorites) || [];
 
+    var canAdd = order.length < CMP_CAPACITY_RESERVED;
     var W = COL_LABEL;
     order.forEach(function (pid) { W += hidden.has(pid) ? COL_STUB : COL_CITY; });
-    for (var si = order.length; si < CMP_CAPACITY_RESERVED; si++) W += COL_CITY;
-    W += COL_ADD;
+    if (canAdd) W += COL_ADD;
 
     var h = '<table class="city-bar-table" data-cmp-v5-hydrated="true" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
     h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
     order.forEach(function (pid) {
       h += '<col style="width:' + (hidden.has(pid) ? COL_STUB : COL_CITY) + 'px">';
     });
-    for (var cgi = order.length; cgi < CMP_CAPACITY_RESERVED; cgi++) {
-      h += '<col style="width:' + COL_CITY + 'px">';
-    }
-    h += '<col style="width:' + COL_ADD + 'px"></colgroup><tbody><tr>';
+    if (canAdd) h += '<col style="width:' + COL_ADD + 'px">';
+    h += '</colgroup><tbody><tr>';
     h += '<td class="bar-label"><div class="bar-authority" data-cmp-role="authority-sticky-transform" data-cmp-authority-source="rm-cmp-zone-b">';
     if (ctx.chartRecord) {
       h += '<div class="ba-name">' + esc(deps, ctx.chartRecord.displayName) + "</div>";
@@ -249,10 +258,9 @@
       h += "</div></td>";
     });
 
-    for (var slot = order.length; slot < CMP_CAPACITY_RESERVED; slot++) {
-      h += '<td class="bar-city bar-city-slot-empty" data-cmp-role="city-slot-empty" data-cmp-slot-index="' + slot + '"><div class="city-slot-placeholder" aria-hidden="true"></div></td>';
+    if (canAdd) {
+      h += '<td class="bar-add"><button type="button" class="add-city-btn" data-action="cmp-add-place">+\u2009Add</button></td>';
     }
-    h += '<td class="bar-add"><button type="button" class="add-city-btn" data-action="cmp-add-place">+\u2009Add</button></td>';
     h += "</tr></tbody></table>";
     el.innerHTML = h;
   }
@@ -267,6 +275,7 @@
     var visibleCols = visibleIds.map(function (pid) { return colByPlaceId(ctx.cols, pid); }).filter(Boolean);
     var labels = AIS_ANGLE_ROWS.map(function (r) { return r.label; });
 
+    var diffsOn = !!(ws && ws.diffs_enabled);
     el.innerHTML = buildFactTable(labels, visibleCols, function (pid, rowIdx) {
       var col = colByPlaceId(ctx.cols, pid);
       var cc = canonicalFromCol(deps, col);
@@ -275,7 +284,18 @@
       if (!entry || entry.longitude_deg == null) return null;
       if (typeof deps.aisFormatAngleDisplayHtml === "function") return deps.aisFormatAngleDisplayHtml(entry);
       return "\u2014";
-    }, visibleIds);
+    }, visibleIds, {
+      rowKey: function (pid, rowIdx, col) {
+        var cc = canonicalFromCol(deps, col);
+        var key = AIS_ANGLE_ROWS[rowIdx].key;
+        var entry = cc && cc.angles ? cc.angles[key] : null;
+        if (deps.aisAngleDiffKey) return deps.aisAngleDiffKey(entry);
+        return entry ? String(entry.longitude_deg) : "\u2014";
+      },
+      diffTdClass: function (cellKey, rowKeys) {
+        return deps.cmpDiffTdClass ? deps.cmpDiffTdClass(cellKey, rowKeys, diffsOn) : "";
+      },
+    });
   }
 
   function mapPihTable(root, ctx) {
@@ -289,6 +309,8 @@
     // Mockup rhythm: fixed PIH row set (canonical planet house order + nodes).
     var labels = PIH_ROWS.slice();
 
+    var diffsOn = !!(ws && ws.diffs_enabled);
+    var dignitiesOn = !!(ws && ws.dignities_enabled);
     el.innerHTML = buildFactTable(labels, visibleCols, function (pid, rowIdx) {
       var col = colByPlaceId(ctx.cols, pid);
       if (!col || col.error) return null;
@@ -296,8 +318,42 @@
       var pn = labels[rowIdx];
       var info = (cc && cc.planets && cc.planets[pn]) || {};
       if (info.house == null) return '<span class="ph">&mdash;</span>';
+      if (typeof deps.comparisonPihHouseValueHtml === "function") return deps.comparisonPihHouseValueHtml(pn, info);
       return ord(info.house);
-    }, visibleIds);
+    }, visibleIds, {
+      labelHtml: function (label, rowIdx) {
+        var refCol = visibleCols[0];
+        var entry = {};
+        if (refCol && typeof deps.planetEntryForMotionLookup === "function") {
+          entry = deps.planetEntryForMotionLookup(visibleCols, label, refCol);
+        } else if (refCol) {
+          var cc0 = canonicalFromCol(deps, refCol);
+          entry = (cc0 && cc0.planets && cc0.planets[label]) || {};
+        }
+        if (typeof deps.formatTablePlanetNameHtml === "function") {
+          return deps.formatTablePlanetNameHtml(label, entry);
+        }
+        return esc(deps, label);
+      },
+      rowKey: function (pid, rowIdx, col) {
+        var cc = canonicalFromCol(deps, col);
+        var pn = labels[rowIdx];
+        var info = (cc && cc.planets && cc.planets[pn]) || {};
+        return deps.pihHouseDiffKey ? deps.pihHouseDiffKey(info) : String(info.house != null ? info.house : "\u2014");
+      },
+      diffTdClass: function (cellKey, rowKeys) {
+        return deps.cmpDiffTdClass ? deps.cmpDiffTdClass(cellKey, rowKeys, diffsOn) : "";
+      },
+      extraTdClass: function (pid, rowIdx, col) {
+        var base = " pih-house-cell";
+        if (!dignitiesOn || !deps.pihDignityClass) return base;
+        var cc = canonicalFromCol(deps, col);
+        var pn = labels[rowIdx];
+        var info = (cc && cc.planets && cc.planets[pn]) || {};
+        if (info.house == null) return base;
+        return base + (deps.pihDignityClass(pn, info.house) || "");
+      },
+    });
   }
 
   function buildA2aContactIndex(canonicalChart) {
@@ -333,6 +389,7 @@
     var visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
     var visibleCols = visibleIds.map(function (pid) { return colByPlaceId(ctx.cols, pid); }).filter(Boolean);
 
+    var diffsOn = !!(ws && ws.diffs_enabled);
     el.innerHTML = buildFactTable(ATA_PLANETS, visibleCols, function (pid, rowIdx) {
       var col = colByPlaceId(ctx.cols, pid);
       var cc = canonicalFromCol(deps, col);
@@ -341,7 +398,19 @@
       var planet = ATA_PLANETS[rowIdx];
       var hit = idx.get(planet + "\0" + angleKey) || idx.get(planet + "\0" + angleKey.toLowerCase());
       return formatA2aCellHtml(deps, hit);
-    }, visibleIds);
+    }, visibleIds, {
+      rowKey: function (pid, rowIdx, col) {
+        var cc = canonicalFromCol(deps, col);
+        if (!cc) return "\u2014";
+        var idx = buildA2aContactIndex(cc);
+        var planet = ATA_PLANETS[rowIdx];
+        var hit = idx.get(planet + "\0" + angleKey) || idx.get(planet + "\0" + angleKey.toLowerCase());
+        return deps.a2aCellDiffKey ? deps.a2aCellDiffKey(hit) : (hit ? String(hit.aspect || "\u2014") : "\u2014");
+      },
+      diffTdClass: function (cellKey, rowKeys) {
+        return deps.cmpDiffTdClass ? deps.cmpDiffTdClass(cellKey, rowKeys, diffsOn) : "";
+      },
+    });
 
     var pills = root.querySelector('[data-cmp-role="canonical-a2a-pills"]');
     if (pills) {

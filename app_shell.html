@@ -2646,10 +2646,29 @@ function buildComparisonV5HydrationContext() {
       getVisibleBodyNamesSet,
       profilePlateReferenceMetaLine,
       viewModelPlaceNameById: (viewModel && viewModel.placeNameById) || {},
+      cmpDiffTdClass,
+      pihHouseDiffKey,
+      aisAngleDiffKey,
+      a2aCellDiffKey,
+      pihDignityClass,
+      formatTablePlanetNameHtml,
+      planetEntryForMotionLookup,
+      comparisonPihHouseValueHtml,
     },
   };
 }
 
+
+function runComparisonV5CityReorderAnim(fn) {
+  const wrap = document.getElementById("rm-cmp-city-bar");
+  if (wrap) wrap.classList.add("cmp-city-reorder-anim");
+  window.setTimeout(() => {
+    fn();
+    if (wrap) {
+      window.requestAnimationFrame(() => wrap.classList.remove("cmp-city-reorder-anim"));
+    }
+  }, 280);
+}
 
 let _cmpV5PlacePick = null;
 
@@ -2850,12 +2869,14 @@ function handleComparisonV5CanonicalAction(action, btn) {
     const idx = order.indexOf(pid);
     const ni = idx + (dir < 0 ? -1 : 1);
     if (idx < 0 || ni < 0 || ni >= order.length) return true;
-    const tmp = order[idx]; order[idx] = order[ni]; order[ni] = tmp;
-    ws.column_order_place_ids = order;
-    applyComparisonWorkspaceToDom(ws);
-    const v5ctx = buildComparisonV5HydrationContext();
-    if (v5ctx && ComparisonV5Route.hydrateCanonical(v5ctx)) applyComparisonV5SectionCollapse(ws);
-    scheduleComparisonWorkspaceSave();
+    runComparisonV5CityReorderAnim(() => {
+      const tmp = order[idx]; order[idx] = order[ni]; order[ni] = tmp;
+      ws.column_order_place_ids = order;
+      applyComparisonWorkspaceToDom(ws);
+      const v5ctx = buildComparisonV5HydrationContext();
+      if (v5ctx && ComparisonV5Route.hydrateCanonical(v5ctx)) applyComparisonV5SectionCollapse(ws);
+      scheduleComparisonWorkspaceSave();
+    });
     return true;
   }
   if (action === "cmp-remove-place") {
@@ -3912,6 +3933,21 @@ function refreshComparisonDiffSurfaces() {
   refreshAisWorkbookSection();
   refreshA2aWorkbookSection();
   refreshPihWorkbookSection();
+  if (document.getElementById("rm-cmp-v5-root") && comparisonV5Ready()) {
+    const v5ctx = buildComparisonV5HydrationContext();
+    if (v5ctx && ComparisonV5Route.hydrateCanonical(v5ctx)) {
+      if (_cmpWorkspaceSession) applyComparisonV5SectionCollapse(_cmpWorkspaceSession.state);
+      const v5root = document.getElementById("rm-cmp-v5-root");
+      if (v5root) {
+        bindCmpDiffsToggle(v5root);
+        bindPihDignitiesToggle(v5root);
+        const dig = v5root.querySelector("[data-action='toggle-pih-dignities'][data-pih-scope='compare']");
+        const diff = v5root.querySelector("[data-action='toggle-cmp-diffs']");
+        if (dig && _cmpWorkspaceSession) dig.checked = !!_cmpWorkspaceSession.state.dignities_enabled;
+        if (diff && _cmpWorkspaceSession) diff.checked = !!_cmpWorkspaceSession.state.diffs_enabled;
+      }
+    }
+  }
 }
 
 function setDiffsEnabled(on) {
@@ -4139,8 +4175,12 @@ function aisFormatAngleDisplayHtml(angleEntry) {
   const signDeg = lon % 30;
   const whole = Math.floor(signDeg);
   const minutes = Math.floor((signDeg - whole) * 60);
-  const deg = `${whole}°${String(minutes).padStart(2, "0")}′`;
-  return `${escapeHtml(deg)} ${formatSignDisplayHtml(angleEntry.sign)}`;
+  const deg = String(whole);
+  const min = String(minutes).padStart(2, "0");
+  const sign = formatAisSignName(angleEntry.sign);
+  return `<span class="rm-ais-vgrid"><span class="deg">${escapeHtml(deg)}</span>` +
+    `<span class="sgn">${escapeHtml(sign)}</span>` +
+    `<span class="min">${escapeHtml(min)}</span></span>`;
 }
 
 function formatCanonicalPlanetLongitudeHtml(planetEntry) {
@@ -4176,7 +4216,7 @@ function aisFormatAngleDisplay(angleEntry) {
   const signDeg = lon % 30;
   const whole = Math.floor(signDeg);
   const minutes = Math.floor((signDeg - whole) * 60);
-  return `${whole}\u00b0${String(minutes).padStart(2, "0")}\u2032 ${sign}`;
+  return `${whole} ${sign} ${String(minutes).padStart(2, "0")}`;
 }
 
 // PHASE-2A: PIH — Layer 3 consumer of canonical_chart.planets / .angles only.
@@ -4964,6 +5004,17 @@ function profileHouseDisplay(house) {
   const mod100 = n % 100;
   const suffix = (mod100 >= 11 && mod100 <= 13) ? "th" : (mod10 === 1 ? "st" : mod10 === 2 ? "nd" : mod10 === 3 ? "rd" : "th");
   return `${n}${suffix}`;
+}
+
+function comparisonPihHouseValueHtml(planet, info) {
+  if (!info || info.house == null) return '<span class="ph">&mdash;</span>';
+  const house = profileHouseDisplay(info.house);
+  const late = !!(info && info.near_cusp);
+  const mark = late
+    ? `<a class="lh" href="#" title="${escapeHtml(PROFILE_PIH_LATE_TITLE)}" onclick="return false">?</a>`
+    : "";
+  const lateCls = late ? " cmp-pih-late" : "";
+  return `<span class="cmp-pih-house${lateCls}">${escapeHtml(house)}${mark}</span>`;
 }
 
 function profilePihHouseCellHtml(planet, info, dignitiesOn) {
