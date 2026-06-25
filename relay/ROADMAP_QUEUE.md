@@ -158,3 +158,24 @@ Settings completion, saved comparisons UX, Help/onboarding, exports, city search
 - **W2-WIRE-2E** — Custom location naming prompt on right-click + unnamed custom favorite.
 
 Closeout: `results/106_w2_wire2_user_qa_recovery.md`
+
+---
+
+## H4 Comparison harmonization — **CURRENT** (2026-06-25)
+
+**Active roadmap:** `docs/roadmaps/active/COMPARISON_HARMONIZATION__ACTIVE__2026-06-25.md`
+**Executor contract:** `relay/handoffs/20260625T051014Z_h4_autonomous_comparison_plan.md`
+**Rollback:** `checkpoint/h4b_start_clean` (`e37bf9d`)
+
+| ID | Status | Item | Closeout / commit |
+|----|--------|------|-------------------|
+| H4B-1 | ✅ | Authority shell | `e37bf9d` |
+| H4-2 | ✅ | AIS bottled shell | `52cbf07` |
+| H4-3 | **NEXT** | PIH bottled shell | `tasks/73_h4_slice3_pih_shell.md` |
+| H4-4 | pending | A2A bottled shell | — |
+| H4-5 | pending | Notes rail | — |
+| H4-6 | pending | CI shell | — |
+| H4-7 | pending | Freeze audit | — |
+
+**Planner rule:** While H4-3…H4-7 remain, propose only the next H4 slice from the executor contract (one slice per task).
+
