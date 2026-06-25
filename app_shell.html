@@ -1225,6 +1225,7 @@
   <span class="screen-meta" id="screenMeta">Screen 0</span>
 </header>
 
+<nav class="app-nav" id="rm-cmp-v5-nav" data-cmp-v5-nav="true" hidden aria-hidden="true"></nav>
 <main id="main"></main>
 
 <footer class="shell-footer">
@@ -1304,452 +1305,8 @@
 <script src="/quick_share.js"></script>
 <script src="/genie_variable_builder.js"></script>
 <script src="/theme/glyphs.js"></script>
-<script>
-const RM_COMPARE_V5_CANONICAL = true; // V5-2: opt-in canonical mockup surface for #/compare
-
-/* V5-1 inline load — canonical: validation/mockups/beta/comparison_v5_adapter.js */
-/**
- * V5-1 shadow hydration adapter — maps live comparison data to mockup anchors.
- * Canonical path: validation/mockups/beta/comparison_v5_adapter.js
- * Consumes existing app shapes only; does not define new fetch routes or backend contracts.
- */
-(function (global) {
-  "use strict";
-
-  var AIS_ANGLE_ROWS = [
-    { key: "ASC", label: "ASC" },
-    { key: "DSC", label: "DSC" },
-    { key: "MC", label: "MC" },
-    { key: "IC", label: "IC" },
-  ];
-
-  var ATA_PLANETS = [
-    "Sun", "Moon", "Mercury", "Venus", "Mars",
-    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron",
-  ];
-
-  var PIH_ROWS = [
-    "Sun", "Moon", "Mercury", "Venus", "Mars",
-    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron",
-    "North Node", "South Node",
-  ];
-
-  var CMP_CAPACITY_RESERVED = 5;
-
-  var CI_CATEGORY_LABELS = [
-    "Regional context",
-    "Safety",
-    "Cost of living",
-    "Professional / expat environment",
-    "Climate",
-    "Mobility / transit",
-    "Regional character",
-  ];
-
-  var CI_PLACEHOLDER_SNIPPETS = [
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-    "City Intelligence pending",
-  ];
-
-  var COL_LABEL = 200;
-  var COL_CITY = 158;
-  var COL_STUB = 52;
-  var COL_ADD = 72;
-
-  var A2A_ASP_ABBR = {
-    conjunction: "Conj",
-    square: "Sq",
-    trine: "Tri",
-    opposition: "Opp",
-    sextile: "Sext",
-  };
-
-  function esc(deps, s) {
-    if (deps && typeof deps.escapeHtml === "function") return deps.escapeHtml(s == null ? "" : String(s));
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  function ord(n) {
-    var num = Number(n);
-    if (!Number.isFinite(num)) return "\u2014";
-    var s = num % 100;
-    var t = num % 10;
-    if (s >= 11 && s <= 13) return num + "th";
-    return num + (t === 1 ? "st" : t === 2 ? "nd" : t === 3 ? "rd" : "th");
-  }
-
-  function mountEl(root, name) {
-    return root ? root.querySelector('[data-cmp-mount="' + name + '"]') : null;
-  }
-
-  function resolveColumnOrder(ws, placeIds) {
-    var ids = Array.isArray(placeIds) ? placeIds.slice() : [];
-    if (!ws || !Array.isArray(ws.column_order_place_ids)) return ids;
-    var order = ws.column_order_place_ids.filter(function (id) { return ids.indexOf(id) >= 0; });
-    ids.forEach(function (id) {
-      if (order.indexOf(id) < 0) order.push(id);
-    });
-    return order;
-  }
-
-  function resolveHiddenSet(ws) {
-    var hidden = ws && Array.isArray(ws.hidden_place_ids) ? ws.hidden_place_ids : [];
-    return new Set(hidden);
-  }
-
-  function resolveVisibleOrderedPlaceIds(ws, placeIds) {
-    var ordered = resolveColumnOrder(ws, placeIds);
-    var hidden = resolveHiddenSet(ws);
-    return ordered.filter(function (id) { return !hidden.has(id); });
-  }
-
-  function resolveActiveAngleKey(ws) {
-    var tab = (ws && ws.active_angle_tab) || "asc";
-    if (tab === "all" || tab === "mc") return tab === "mc" ? "MC" : "ASC";
-    return String(tab).toUpperCase();
-  }
-
-  function splitCityNameLines(name) {
-    var parts = String(name || "").split(",");
-    return {
-      line1: (parts[0] || "").trim() || String(name || ""),
-      line2: parts.slice(1).join(",").trim(),
-    };
-  }
-
-  function placeCoordsDisplay(deps, placeId) {
-    if (!deps || typeof deps.resolvePlaceLatLon !== "function") return "\u2014";
-    var c = deps.resolvePlaceLatLon(placeId);
-    if (!c || typeof deps.formatPlateLatLonDisplay !== "function") return "\u2014";
-    return deps.formatPlateLatLonDisplay(c.lat, c.lon) || "\u2014";
-  }
-
-  function cityTagForPlace(ctx, placeId) {
-    var deps = ctx.deps || {};
-    var chartId = ctx.chartRecord && ctx.chartRecord.chartRecordId;
-    if (deps.resolveBirthPlaceId && chartId && deps.resolveBirthPlaceId(chartId) === placeId) return "Natal";
-    if (deps.resolveCurrentLocationPlaceId && chartId && deps.resolveCurrentLocationPlaceId(chartId) === placeId) return "Current";
-    var favs = (ctx.chartRecord && ctx.chartRecord.favorites) || [];
-    if (favs.some(function (f) { return f.placeId === placeId; })) return "Favorite";
-    return null;
-  }
-
-  function colByPlaceId(cols, placeId) {
-    return (cols || []).find(function (c) { return c.placeId === placeId; }) || null;
-  }
-
-  function canonicalFromCol(deps, col) {
-    if (!col || col.error || !deps || typeof deps.getCanonicalChartFromPayload !== "function") return null;
-    return deps.getCanonicalChartFromPayload(col.chart);
-  }
-
-  function buildFactTable(labels, visibleCols, getCell, colPlaceIds) {
-    var W = COL_LABEL + visibleCols.length * COL_CITY;
-    var h = '<table class="fact-table" data-cmp-v5-hydrated="true" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
-    h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
-    visibleCols.forEach(function () { h += '<col style="width:' + COL_CITY + 'px">'; });
-    h += "</colgroup><tbody>";
-    labels.forEach(function (label, rowIdx) {
-      h += "<tr><td class=\"label-col\">" + label + "</td>";
-      visibleCols.forEach(function (col, colIdx) {
-        var pid = colPlaceIds[colIdx];
-        var v = getCell(pid, rowIdx, col);
-        var tex = (colIdx % 2 === 0) ? " cmp-col-texture-a" : " cmp-col-texture-b";
-        h += '<td class="val-col' + tex + '" data-cmp-col-index="' + colIdx + '">' + (v != null ? v : '<span class="ph">&mdash;</span>') + "</td>";
-      });
-      h += "</tr>";
-    });
-    h += "</tbody></table>";
-    return h;
-  }
-
-  function mapAuthority(root, ctx) {
-    var el = mountEl(root, "authority");
-    if (!el || !ctx.chartRecord) return;
-    var r = ctx.chartRecord;
-    var deps = ctx.deps || {};
-    var meta = typeof deps.profilePlateReferenceMetaLine === "function"
-      ? deps.profilePlateReferenceMetaLine(r.chartRecordId)
-      : "";
-    el.innerHTML =
-      '<div class="zb-name"><span class="nmwrap"><span class="nm">' + esc(deps, r.displayName) + "</span></span></div>" +
-      '<div class="zb-primary">' + esc(deps, r.birthDate) + " \u00b7 " + esc(deps, r.birthTimeDisplay) + "</div>" +
-      '<div class="zb-primary">' + esc(deps, r.birthCity) + "</div>" +
-      (meta ? '<div class="zb-meta">' + esc(deps, meta) + "</div>" : "") +
-      '<div class="zb-meta">Tropical \u00b7 Placidus</div>';
-  }
-
-  function mapCityBar(root, ctx) {
-    var el = mountEl(root, "city-bar-inner");
-    if (!el || !ctx.comparisonSet) return;
-    var deps = ctx.deps || {};
-    var placeIds = ctx.comparisonSet.placeIds || [];
-    var ws = ctx.workspaceState || {};
-    var order = resolveColumnOrder(ws, placeIds);
-    var hidden = resolveHiddenSet(ws);
-    var visible = resolveVisibleOrderedPlaceIds(ws, placeIds);
-    var nameById = (deps.viewModelPlaceNameById) || {};
-    var favs = (ctx.chartRecord && ctx.chartRecord.favorites) || [];
-
-    var W = COL_LABEL;
-    order.forEach(function (pid) { W += hidden.has(pid) ? COL_STUB : COL_CITY; });
-    for (var si = order.length; si < CMP_CAPACITY_RESERVED; si++) W += COL_CITY;
-    W += COL_ADD;
-
-    var h = '<table class="city-bar-table" data-cmp-v5-hydrated="true" style="width:' + W + 'px;table-layout:fixed;border-collapse:collapse">';
-    h += '<colgroup><col style="width:' + COL_LABEL + 'px">';
-    order.forEach(function (pid) {
-      h += '<col style="width:' + (hidden.has(pid) ? COL_STUB : COL_CITY) + 'px">';
-    });
-    for (var cgi = order.length; cgi < CMP_CAPACITY_RESERVED; cgi++) {
-      h += '<col style="width:' + COL_CITY + 'px">';
-    }
-    h += '<col style="width:' + COL_ADD + 'px"></colgroup><tbody><tr>';
-    h += '<td class="bar-label"><div class="bar-authority" data-cmp-role="authority-sticky-transform" data-cmp-authority-source="rm-cmp-zone-b">';
-    if (ctx.chartRecord) {
-      h += '<div class="ba-name">' + esc(deps, ctx.chartRecord.displayName) + "</div>";
-      h += '<div class="ba-meta">' + esc(deps, ctx.chartRecord.birthDate) + " \u00b7 " + esc(deps, ctx.chartRecord.birthTimeDisplay) + "</div>";
-      h += '<div class="ba-place">' + esc(deps, (ctx.chartRecord.birthCity || "").split(",")[0].trim()) + "</div>";
-    }
-    h += "</div></td>";
-
-    order.forEach(function (pid) {
-      var name = typeof deps.comparisonCityDisplayName === "function"
-        ? deps.comparisonCityDisplayName(pid, favs, nameById)
-        : (nameById[pid] || pid);
-      if (hidden.has(pid)) {
-        var short = name.split(",")[0].trim().slice(0, 10) || name.slice(0, 10);
-        h += '<td class="bar-stub"><button type="button" class="stub-restore" data-action="cmp-toggle-place" data-place-id="' + esc(deps, pid) + '">' + esc(deps, short) + "</button></td>";
-        return;
-      }
-      var lines = splitCityNameLines(name);
-      var tag = cityTagForPlace(ctx, pid);
-      var tagHtml = tag
-        ? '<div class="city-tag' + (tag === "Natal" ? " natal" : tag === "Current" ? " current" : "") + '">' + esc(deps, tag) + "</div>"
-        : '<div class="city-tag-empty" aria-hidden="true"></div>';
-      var vidx = visible.indexOf(pid);
-      var isFirst = vidx === 0;
-      var isLast = vidx === visible.length - 1;
-      h += '<td class="bar-city city-card" data-cmp-role="city-card" data-place-id="' + esc(deps, pid) + '">';
-      h += '<button type="button" class="city-remove" data-action="cmp-remove-place" data-place-id="' + esc(deps, pid) + '">\u00d7</button>';
-      h += '<div class="city-badge-zone">' + tagHtml + "</div>";
-      h += '<div class="city-name-zone"><span class="bnwrap city-name-lines">';
-      h += '<span class="bname-line bname-line-primary">' + esc(deps, lines.line1) + "</span>";
-      h += '<span class="bname-line bname-line-secondary">' + esc(deps, lines.line2) + "</span>";
-      h += '<span class="city-name-inline-actions"><button type="button" class="city-info-inline" data-action="cmp-city-info" data-place-id="' + esc(deps, pid) + '">i</button></span>';
-      h += "</span></div>";
-      h += '<div class="city-coords">' + esc(deps, placeCoordsDisplay(deps, pid)) + "</div>";
-      h += '<div class="city-ctrls">';
-      h += '<button type="button" class="cc cc-arr" data-action="cmp-move-place" data-place-id="' + esc(deps, pid) + '" data-dir="-1"' + (isFirst ? " disabled" : "") + ">\u2039</button>";
-      h += '<button type="button" class="cc" data-action="cmp-toggle-place" data-place-id="' + esc(deps, pid) + '">Hide</button>';
-      h += '<button type="button" class="cc cc-rep" data-action="cmp-replace-place" data-place-id="' + esc(deps, pid) + '">Replace</button>';
-      h += '<button type="button" class="cc cc-arr" data-action="cmp-move-place" data-place-id="' + esc(deps, pid) + '" data-dir="1"' + (isLast ? " disabled" : "") + ">\u203a</button>";
-      h += "</div></td>";
-    });
-
-    for (var slot = order.length; slot < CMP_CAPACITY_RESERVED; slot++) {
-      h += '<td class="bar-city bar-city-slot-empty" data-cmp-role="city-slot-empty" data-cmp-slot-index="' + slot + '"><div class="city-slot-placeholder">Open slot</div></td>';
-    }
-    h += '<td class="bar-add"><button type="button" class="add-city-btn" data-action="cmp-add-place">+\u2009Add</button></td>';
-    h += "</tr></tbody></table>";
-    el.innerHTML = h;
-  }
-
-  function mapAisTable(root, ctx) {
-    var el = mountEl(root, "ais-table");
-    if (!el) return;
-    var deps = ctx.deps || {};
-    var placeIds = (ctx.comparisonSet && ctx.comparisonSet.placeIds) || [];
-    var ws = ctx.workspaceState || {};
-    var visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
-    var visibleCols = visibleIds.map(function (pid) { return colByPlaceId(ctx.cols, pid); }).filter(Boolean);
-    var labels = AIS_ANGLE_ROWS.map(function (r) { return r.label; });
-
-    el.innerHTML = buildFactTable(labels, visibleCols, function (pid, rowIdx) {
-      var col = colByPlaceId(ctx.cols, pid);
-      var cc = canonicalFromCol(deps, col);
-      var key = AIS_ANGLE_ROWS[rowIdx].key;
-      var entry = cc && cc.angles ? cc.angles[key] : null;
-      if (!entry || entry.longitude_deg == null) return null;
-      if (typeof deps.aisFormatAngleDisplayHtml === "function") return deps.aisFormatAngleDisplayHtml(entry);
-      return "\u2014";
-    }, visibleIds);
-  }
-
-  function mapPihTable(root, ctx) {
-    var el = mountEl(root, "pih-table");
-    if (!el) return;
-    var deps = ctx.deps || {};
-    var placeIds = (ctx.comparisonSet && ctx.comparisonSet.placeIds) || [];
-    var ws = ctx.workspaceState || {};
-    var visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
-    var visibleCols = visibleIds.map(function (pid) { return colByPlaceId(ctx.cols, pid); }).filter(Boolean);
-    // Mockup rhythm: fixed PIH row set (canonical planet house order + nodes).
-    var labels = PIH_ROWS.slice();
-
-    el.innerHTML = buildFactTable(labels, visibleCols, function (pid, rowIdx) {
-      var col = colByPlaceId(ctx.cols, pid);
-      if (!col || col.error) return null;
-      var cc = canonicalFromCol(deps, col);
-      var pn = labels[rowIdx];
-      var info = (cc && cc.planets && cc.planets[pn]) || {};
-      if (info.house == null) return '<span class="ph">&mdash;</span>';
-      return ord(info.house);
-    }, visibleIds);
-  }
-
-  function buildA2aContactIndex(canonicalChart) {
-    var idx = new Map();
-    var raw = (canonicalChart && Array.isArray(canonicalChart.aspects_to_angles))
-      ? canonicalChart.aspects_to_angles
-      : [];
-    raw.forEach(function (row) {
-      if (!row || !row.planet || !row.angle) return;
-      idx.set(String(row.planet) + "\0" + String(row.angle).toUpperCase(), row);
-    });
-    return idx;
-  }
-
-  function formatA2aCellHtml(deps, row) {
-    if (!row || !row.aspect) return '<span class="ph">&mdash;</span>';
-    var abbrMap = (deps && deps.PROFILE_A2A_ASP_ABBR) || A2A_ASP_ABBR;
-    var abbr = abbrMap[String(row.aspect).toLowerCase()] || String(row.aspect);
-    var motion = row.motion === "applying" ? " app" : row.motion === "separating" ? " sep" : "";
-    var orb = typeof deps.formatA2aSeparationDeg === "function"
-      ? deps.formatA2aSeparationDeg(row.separation_deg)
-      : "\u2014";
-    return '<span class="asp">' + esc(deps, abbr) + '</span> <span class="orb' + motion + '">' + esc(deps, orb) + "</span>";
-  }
-
-  function mapA2aTable(root, ctx) {
-    var el = mountEl(root, "a2a-table");
-    if (!el) return;
-    var deps = ctx.deps || {};
-    var ws = ctx.workspaceState || {};
-    var angleKey = resolveActiveAngleKey(ws);
-    var placeIds = (ctx.comparisonSet && ctx.comparisonSet.placeIds) || [];
-    var visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
-    var visibleCols = visibleIds.map(function (pid) { return colByPlaceId(ctx.cols, pid); }).filter(Boolean);
-
-    el.innerHTML = buildFactTable(ATA_PLANETS, visibleCols, function (pid, rowIdx) {
-      var col = colByPlaceId(ctx.cols, pid);
-      var cc = canonicalFromCol(deps, col);
-      if (!cc) return null;
-      var idx = buildA2aContactIndex(cc);
-      var planet = ATA_PLANETS[rowIdx];
-      var hit = idx.get(planet + "\0" + angleKey) || idx.get(planet + "\0" + angleKey.toLowerCase());
-      return formatA2aCellHtml(deps, hit);
-    }, visibleIds);
-
-    var pills = root.querySelector('[data-cmp-role="canonical-a2a-pills"]');
-    if (pills) {
-      pills.querySelectorAll("[data-angle]").forEach(function (btn) {
-        btn.classList.toggle("active", btn.getAttribute("data-angle") === angleKey);
-      });
-    }
-  }
-
-  function mapNotes(root, ctx) {
-    var el = mountEl(root, "notes-input") || (root && root.querySelector("#rm-cmp-note"));
-    if (!el || !ctx.comparisonSet) return;
-    el.value = ctx.comparisonSet.notes || "";
-  }
-
-  function mapCiSection(root, ctx) {
-    var el = mountEl(root, "ci-cards");
-    if (!el) return;
-    var deps = ctx.deps || {};
-    var placeIds = (ctx.comparisonSet && ctx.comparisonSet.placeIds) || [];
-    var ws = ctx.workspaceState || {};
-    var visibleIds = resolveVisibleOrderedPlaceIds(ws, placeIds);
-    var nameById = (deps.viewModelPlaceNameById) || {};
-    var favs = (ctx.chartRecord && ctx.chartRecord.favorites) || [];
-
-    var h = '<div class="ci-spacer"></div>';
-    visibleIds.forEach(function (pid) {
-      var name = typeof deps.comparisonCityDisplayName === "function"
-        ? deps.comparisonCityDisplayName(pid, favs, nameById)
-        : (nameById[pid] || pid);
-      var lines = splitCityNameLines(name);
-      h += '<div class="ci-card" data-place-id="' + esc(deps, pid) + '" data-cmp-role="ci-card">';
-      h += '<div class="ci-name">' + esc(deps, lines.line1 + (lines.line2 ? ", " + lines.line2 : "")) + "</div>";
-      h += '<div class="ci-coords">' + esc(deps, placeCoordsDisplay(deps, pid)) + "</div>";
-      h += "<ul class=\"ci-list\">";
-      CI_PLACEHOLDER_SNIPPETS.forEach(function (snippet, idx) {
-        h += '<li data-ci-category="' + idx + '">' + esc(deps, snippet) + "</li>";
-      });
-      h += "</ul>";
-      h += '<button type="button" class="ci-open-btn" data-action="cmp-ci-open-page" data-place-id="' + esc(deps, pid) + '">Open Full City Page</button>';
-      h += "</div>";
-    });
-    el.innerHTML = h;
-  }
-
-  function buildShadowShellHtml() {
-    return (
-      '<div id="rm-cmp-v5-shadow" data-cmp-v5-shadow="true" hidden aria-hidden="true" style="display:none">' +
-        '<div data-cmp-mount="comparison-root" data-cmp-v5-shadow-root="true">' +
-          '<div class="cmp-zone-b" data-cmp-mount="authority" data-cmp-role="authority-primary"></div>' +
-          '<div data-cmp-mount="city-bar-inner"></div>' +
-          '<div data-cmp-mount="ais-table"></div>' +
-          '<div data-cmp-mount="pih-table"></div>' +
-          '<div class="angle-tabs" data-cmp-role="canonical-a2a-pills">' +
-            '<button type="button" class="angle-tab" data-angle="ASC">ASC</button>' +
-            '<button type="button" class="angle-tab" data-angle="DSC">DSC</button>' +
-            '<button type="button" class="angle-tab" data-angle="MC">MC</button>' +
-            '<button type="button" class="angle-tab" data-angle="IC">IC</button>' +
-          "</div>" +
-          '<div data-cmp-mount="a2a-table"></div>' +
-          '<div class="ci-section" data-cmp-mount="ci-section"><div class="ci-grid" data-cmp-mount="ci-cards"></div></div>' +
-          '<textarea id="rm-cmp-note" data-cmp-mount="notes-input" data-cmp-role="notes-input"></textarea>' +
-        "</div>" +
-      "</div>"
-    );
-  }
-
-  function hydrate(root, ctx) {
-    if (!root || !ctx) return false;
-    mapAuthority(root, ctx);
-    mapCityBar(root, ctx);
-    mapAisTable(root, ctx);
-    mapPihTable(root, ctx);
-    mapA2aTable(root, ctx);
-    mapNotes(root, ctx);
-    mapCiSection(root, ctx);
-    root.setAttribute("data-cmp-v5-shadow-hydrated", "true");
-    return true;
-  }
-
-  var ComparisonV5Adapter = {
-    AIS_ANGLE_ROWS: AIS_ANGLE_ROWS,
-    ATA_PLANETS: ATA_PLANETS,
-    PIH_ROWS: PIH_ROWS,
-    CMP_CAPACITY_RESERVED: CMP_CAPACITY_RESERVED,
-    CI_CATEGORY_LABELS: CI_CATEGORY_LABELS,
-    buildShadowShellHtml: buildShadowShellHtml,
-    hydrate: hydrate,
-    mapAuthority: mapAuthority,
-    mapCityBar: mapCityBar,
-    mapAisTable: mapAisTable,
-    mapPihTable: mapPihTable,
-    mapA2aTable: mapA2aTable,
-    mapNotes: mapNotes,
-    mapCiSection: mapCiSection,
-  };
-
-  global.ComparisonV5Adapter = ComparisonV5Adapter;
-})(typeof window !== "undefined" ? window : globalThis);
-
-</script>
+<script src="/validation/mockups/beta/comparison_v5_adapter.js"></script>
+<script src="/validation/mockups/beta/comparison_v5_route.js"></script>
 <script>
 "use strict";
 
@@ -3017,11 +2574,54 @@ function openPopup() {
   $("#popupModal").setAttribute("aria-hidden", "false");
 }
 
+
+function buildComparisonV5HydrationContext() {
+  const origin = getChartRecord(navContext.chartRecordId);
+  const cs = getComparisonSet(navContext.comparisonSetId);
+  if (!origin || !cs) return null;
+  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
+    || defaultComparisonWorkspaceState(cs.placeIds);
+  return {
+    chartRecord: origin,
+    comparisonSet: cs,
+    cols: _comparisonColsCache,
+    workspaceState: ws,
+    deps: {
+      escapeHtml,
+      getCanonicalChartFromPayload,
+      aisFormatAngleDisplayHtml,
+      formatPlateLatLonDisplay,
+      resolvePlaceLatLon,
+      resolveBirthPlaceId,
+      resolveCurrentLocationPlaceId,
+      comparisonCityDisplayName,
+      formatA2aSeparationDeg,
+      PROFILE_A2A_ASP_ABBR,
+      getVisibleBodyNamesSet,
+      profilePlateReferenceMetaLine,
+      viewModelPlaceNameById: (viewModel && viewModel.placeNameById) || {},
+    },
+  };
+}
+
+function mountComparisonV5Route(root) {
+  if (navContext.route !== "compare") return;
+  ComparisonV5Route.syncRouteChrome({
+    route: navContext.route,
+    comparisonSetId: navContext.comparisonSetId,
+    escapeHtml,
+    accountInitials,
+  });
+  hydrateComparisonColumns(root);
+  initComparisonWorkspace(root);
+}
+
 function closePopup() {
   uiState.popupOpen = false;
   $("#popupModal").classList.remove("open");
   $("#popupModal").setAttribute("aria-hidden", "true");
 }
+
 
 function renderNav() {
   const nav = $("#primaryNav");
@@ -5741,7 +5341,10 @@ function initComparisonWorkspace(root) {
       if (!_cmpWorkspaceSession) return;
       _cmpWorkspaceSession.state.active_angle_tab = btn.getAttribute("data-angle-tab") || "all";
       applyComparisonWorkspaceToDom(_cmpWorkspaceSession.state);
-      if (RM_COMPARE_V5_CANONICAL && document.getElementById("rm-cmp-v5-root")) hydrateComparisonV5Canonical();
+      if (document.getElementById("rm-cmp-v5-root")) {
+        const v5ctx = buildComparisonV5HydrationContext();
+        if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
+      }
       else refreshA2aWorkbookSection();
       scheduleComparisonWorkspaceSave();
     });
@@ -5844,91 +5447,6 @@ let _screen5Token = 0;
 // Hydrate Screen 5 with real relocated facts per selected place (existing endpoints only).
 
 // V5-1 shadow hydration — proof slice; live #/compare route unchanged.
-function ensureComparisonV5ShadowMount() {
-  let outer = document.getElementById("rm-cmp-v5-shadow");
-  if (!outer && window.ComparisonV5Adapter) {
-    const holder = document.createElement("div");
-    holder.innerHTML = ComparisonV5Adapter.buildShadowShellHtml();
-    outer = holder.firstElementChild;
-    if (outer) document.body.appendChild(outer);
-  }
-  return outer ? outer.querySelector('[data-cmp-v5-shadow-root="true"]') : null;
-}
-
-
-function comparisonV5HydrationContext() {
-  const origin = getChartRecord(navContext.chartRecordId);
-  const cs = getComparisonSet(navContext.comparisonSetId);
-  if (!origin || !cs) return null;
-  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
-    || defaultComparisonWorkspaceState(cs.placeIds);
-  return {
-    chartRecord: origin,
-    comparisonSet: cs,
-    cols: _comparisonColsCache,
-    workspaceState: ws,
-    deps: {
-      escapeHtml,
-      getCanonicalChartFromPayload,
-      aisFormatAngleDisplayHtml,
-      formatPlateLatLonDisplay,
-      resolvePlaceLatLon,
-      resolveBirthPlaceId,
-      resolveCurrentLocationPlaceId,
-      comparisonCityDisplayName,
-      formatA2aSeparationDeg,
-      PROFILE_A2A_ASP_ABBR,
-      getVisibleBodyNamesSet,
-      profilePlateReferenceMetaLine,
-      viewModelPlaceNameById: (viewModel && viewModel.placeNameById) || {},
-    },
-  };
-}
-
-function hydrateComparisonV5Canonical() {
-  if (!RM_COMPARE_V5_CANONICAL || navContext.route !== "compare") return;
-  if (!window.ComparisonV5Adapter || !_comparisonColsCache) return;
-  const root = document.getElementById("rm-cmp-v5-root");
-  if (!root) return;
-  const ctx = comparisonV5HydrationContext();
-  if (!ctx) return;
-  ComparisonV5Adapter.hydrate(root, ctx);
-}
-
-function hydrateComparisonV5Shadow() {
-  if (navContext.route !== "compare") return;
-  if (RM_COMPARE_V5_CANONICAL && document.getElementById("rm-cmp-v5-root")) return;
-  if (!window.ComparisonV5Adapter || !_comparisonColsCache) return;
-  const shadowRoot = ensureComparisonV5ShadowMount();
-  if (!shadowRoot) return;
-  const origin = getChartRecord(navContext.chartRecordId);
-  const cs = getComparisonSet(navContext.comparisonSetId);
-  if (!origin || !cs) return;
-  const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
-    || defaultComparisonWorkspaceState(cs.placeIds);
-  ComparisonV5Adapter.hydrate(shadowRoot, {
-    chartRecord: origin,
-    comparisonSet: cs,
-    cols: _comparisonColsCache,
-    workspaceState: ws,
-    deps: {
-      escapeHtml,
-      getCanonicalChartFromPayload,
-      aisFormatAngleDisplayHtml,
-      formatPlateLatLonDisplay,
-      resolvePlaceLatLon,
-      resolveBirthPlaceId,
-      resolveCurrentLocationPlaceId,
-      comparisonCityDisplayName,
-      formatA2aSeparationDeg,
-      PROFILE_A2A_ASP_ABBR,
-      getVisibleBodyNamesSet,
-      profilePlateReferenceMetaLine,
-      viewModelPlaceNameById: (viewModel && viewModel.placeNameById) || {},
-    },
-  });
-}
-
 async function hydrateComparisonColumns(root) {
   if (navContext.route !== "compare") return;
   const container = (root || document).querySelector("#rm-screen5-columns");
@@ -5992,8 +5510,9 @@ async function hydrateComparisonColumns(root) {
     _comparisonColsCache = cols;
     const ws = (_cmpWorkspaceSession && _cmpWorkspaceSession.state)
       || defaultComparisonWorkspaceState(placeIds);
-    if (RM_COMPARE_V5_CANONICAL && document.getElementById("rm-cmp-v5-root")) {
-      hydrateComparisonV5Canonical();
+    if (document.getElementById("rm-cmp-v5-root")) {
+      const v5ctx = buildComparisonV5HydrationContext();
+      if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
     } else {
       container.innerHTML = renderComparisonTableHtml(
         cols,
@@ -6012,7 +5531,8 @@ async function hydrateComparisonColumns(root) {
       refreshA2aWorkbookSection();
       refreshComparisonCiSection();
       refreshPihWorkbookSection();
-      hydrateComparisonV5Shadow();
+      const shadowCtx = buildComparisonV5HydrationContext();
+      if (shadowCtx) ComparisonV5Route.hydrateShadow(shadowCtx);
     }
   } catch (err) {
     if (!stillCurrent()) return;
@@ -6593,7 +6113,10 @@ function wireComparisonPlaceToggleButtons(scope) {
         cols.setAttribute("data-place-ids", visible.join(","));
         hydrateComparisonColumns(document.getElementById("main"));
       }
-      if (RM_COMPARE_V5_CANONICAL && document.getElementById("rm-cmp-v5-root")) hydrateComparisonV5Canonical();
+      if (document.getElementById("rm-cmp-v5-root")) {
+        const v5ctx = buildComparisonV5HydrationContext();
+        if (v5ctx) ComparisonV5Route.hydrateCanonical(v5ctx);
+      }
       else refreshComparisonCityBar(document);
       scheduleComparisonWorkspaceSave();
     });
@@ -6602,120 +6125,6 @@ function wireComparisonPlaceToggleButtons(scope) {
 
 
 
-
-function comparisonV5ShellFragmentHtml(notesEsc) {
-  return `<div id="rm-cmp-v5-root" class="rm-cmp-v5-root" data-cmp-role="comparison-root" data-cmp-mount="comparison-root">
-<div class="profile-block comp-profile" data-cmp-role="authority">
-  <div class="cmp-zone-b" id="rm-cmp-zone-b" data-cmp-mount="authority" data-cmp-role="authority-primary"></div>
-</div>
-
-<div class="page">
-  <div class="comp-header" aria-hidden="true"></div>
-  <p class="mobile-hint">Scroll right to see all cities.</p>
-
-  <div class="city-bar-wrap" id="rm-cmp-city-bar" data-cmp-mount="city-bar">
-    <div id="city-bar-inner" data-cmp-mount="city-bar-inner"></div>
-  </div>
-
-  <div class="comparison-body-grid">
-    <main class="comparison-main">
-
-  <!-- Angle in Sign -->
-  <div class="block" data-section="ais" data-cmp-role="ais-block">
-    <div class="block-header">
-      <div class="block-header-left" data-action="cmp-toggle-block" data-section="ais" role="button" tabindex="0">
-        <span class="block-arrow" id="arrow-ais">&#9660;</span>
-        <span class="block-title">Angle in Sign</span>
-      </div>
-    </div>
-    <div class="block-body" id="body-ais" data-cmp-mount="ais-body">
-      <div class="fact-table-wrap"><div id="table-ais" data-cmp-mount="ais-table"></div></div>
-    </div>
-  </div>
-
-  <!-- Planet in House -->
-  <div class="block" data-section="pih" data-cmp-role="pih-block">
-    <div class="block-header">
-      <div class="block-header-left" data-action="cmp-toggle-block" data-section="pih" role="button" tabindex="0">
-        <span class="block-arrow" id="arrow-pih">&#9660;</span>
-        <span class="block-title">Planet in House</span>
-      </div>
-    </div>
-    <div class="block-body" id="body-pih" data-cmp-mount="pih-body">
-      <div class="fact-table-wrap"><div id="table-pih" data-cmp-mount="pih-table"></div></div>
-    </div>
-  </div>
-
-  <!-- Aspect to Angle -->
-  <div class="block" data-section="a2a" data-cmp-role="a2a-block">
-    <div class="block-header">
-      <div class="block-header-left" data-action="cmp-toggle-block" data-section="a2a" data-cmp-toggle-id="ata" role="button" tabindex="0">
-        <span class="block-arrow" id="arrow-ata">&#9660;</span>
-        <span class="block-title">Aspect to Angle</span>
-        <span class="angle-sep">&middot;</span>
-        <!-- Canonical A2A pill style (preferred); candidate to propagate to Profile/Relocated later -->
-        <div class="angle-tabs" data-cmp-role="canonical-a2a-pills">
-          <button type="button" class="angle-tab active" data-action="cmp-angle-tab" data-angle-tab="asc" data-angle="ASC">ASC</button>
-          <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="dsc" data-angle="DSC">DSC</button>
-          <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="mc" data-angle="MC">MC</button>
-          <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="ic" data-angle="IC">IC</button>
-        </div>
-      </div>
-    </div>
-    <div class="block-body" id="body-ata" data-cmp-mount="a2a-body">
-      <div class="fact-table-wrap"><div id="table-ata" data-cmp-mount="a2a-table"></div></div>
-    </div>
-  </div>
-
-  <p class="wheel-note">City names reserved for chart wheel preview.</p>
-
-  <!-- City Intelligence (below A2A): column-aligned CI grid; 7 categories from City page; compact snippets; (i) modal shows labeled version -->
-  <div class="ci-section" data-section="city_intelligence" data-cmp-mount="ci-section">
-    <div class="ci-section-head"><button type="button" class="ci-collapse" title="Hide City Intelligence" data-action="cmp-toggle-ci-section" data-section="city_intelligence">▾</button><div class="ci-section-title">City Intelligence</div></div>
-    <div class="ci-grid" id="ci-cards" data-cmp-mount="ci-cards"></div>
-  </div>
-    </main>
-
-    <!-- Notes rail: floating panel; RTE toolbar harmonization deferred (preferred future: controls on bottom) -->
-    <aside class="comparison-notes-rail" id="cmp-notes-rail" data-cmp-mount="notes-rail" data-cmp-role="notes-rail" data-cmp-notes-layout="floating" data-cmp-notes-toolbar-position="top">
-      <button type="button" id="notes-fab" title="Open notes" data-action="cmp-notes-show" data-cmp-role="notes-fab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></button>
-      
-      <div class="general-notes-section">
-        <div class="general-notes-head"><button type="button" class="gn-collapse" title="Hide notes" data-action="cmp-notes-hide" data-cmp-role="notes-collapse">▾</button><div class="general-notes-label">Notes</div></div>
-        <div class="notes-toolbar">
-            <button class="notes-tool" title="Bold"><b>B</b></button>
-            <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
-            <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
-            <button class="notes-tool" title="Bullet list"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg></button>
-          </div>
-          <textarea id="rm-cmp-note" class="notes-textarea" data-cmp-mount="notes-input" data-cmp-role="notes-input" placeholder="General comparison notes&#8230;" rows="7">__CMP_NOTES__</textarea>
-          <p class="note-hint">Optional &middot; same record as Profile notebook &middot; pops out for long entries</p>
-          <div class="notes-actions"><button class="notes-tool mic" title="Voice note (future)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8.5" y1="22" x2="15.5" y2="22"/></svg></button><button type="button" class="notes-save" data-action="save-comparison-note" data-cmp-role="notes-save">Save</button></div>
-        </div>
-      </div>
-    </aside>
-  </div>
-</div>
-</div>`.replace('__CMP_NOTES__', notesEsc || '');
-}
-
-function renderComparisonV5ShellHtml(origin, cs, ws) {
-  if (!origin || !cs || !ws) return "";
-  const orderedIds = resolveColumnOrderPlaceIds(ws, cs.placeIds).slice(0, 5);
-  const chartRecordId = escapeHtml(origin.chartRecordId);
-  const placeIdsAttr = escapeHtml(orderedIds.join(","));
-  const notesEsc = escapeHtml(cs.notes || "");
-  const shellFixed = comparisonV5ShellFragmentHtml(notesEsc);
-  return `
-    <div class="rm-cmp-v5-canonical-wrap" data-cmp-v5-canonical="true">
-      ${shellFixed}
-      <div id="rm-cmp-v5-hydration-bridge" hidden aria-hidden="true" data-cmp-v5-hydration-only="true">
-        <div id="rm-screen5-columns"
-             data-chart-record="${chartRecordId}"
-             data-place-ids="${placeIdsAttr}"></div>
-      </div>
-    </div>`;
-}
 
 function screenCompare() {
   const origin = getChartRecord(navContext.chartRecordId);
@@ -6753,8 +6162,8 @@ function screenCompare() {
         </div></div>`
     : "";
 
-  if (RM_COMPARE_V5_CANONICAL && cs && navContext.comparisonSetId && ws) {
-    return renderComparisonV5ShellHtml(origin, cs, ws);
+  if (ComparisonV5Route.shouldRenderCanonicalShell(cs, navContext.comparisonSetId, ws)) {
+    return ComparisonV5Route.renderShellHtml(origin, cs, ws, { escapeHtml, resolveColumnOrderPlaceIds });
   }
 
   const cityBarHtml = cs && ws ? renderComparisonCityBarHtml(origin, cs, ws) : "";
@@ -8187,8 +7596,7 @@ function render() {
     document.body.classList.remove("rm-beta-profile");
     document.body.classList.remove("rm-beta-relocated");
     document.body.classList.add("rm-beta-compare");
-    if (RM_COMPARE_V5_CANONICAL) document.body.classList.add("rm-compare-v5-canonical");
-    else document.body.classList.remove("rm-compare-v5-canonical");
+    document.body.classList.remove("rm-compare-v5-canonical");
     acctBtn.classList.add("rm-beta-acct-circle");
     acctBtn.textContent = accountInitials();
     acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
@@ -8207,7 +7615,10 @@ function render() {
   $("#main").innerHTML = `<section class="screen active">${fn ? fn() : screenDashboard()}</section>`;
   bindScreenActions($("#main"));
   if (navContext.route === "chart-record") wireChartRecordFavoriteCompare($("#main"));
-  if (navContext.route === "compare") mountComparisonLocationSearch();
+  if (navContext.route === "compare") {
+    mountComparisonLocationSearch();
+    mountComparisonV5Route($("#main"));
+  }
   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
   if (uiState.popupOpen) openPopup();
 }

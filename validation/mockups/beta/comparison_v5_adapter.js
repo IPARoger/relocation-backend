@@ -167,15 +167,26 @@
     if (!el || !ctx.chartRecord) return;
     var r = ctx.chartRecord;
     var deps = ctx.deps || {};
-    var meta = typeof deps.profilePlateReferenceMetaLine === "function"
+    var coordsMeta = typeof deps.profilePlateReferenceMetaLine === "function"
       ? deps.profilePlateReferenceMetaLine(r.chartRecordId)
       : "";
+    var birthLine = typeof deps.formatComparisonAuthorityBirthDate === "function"
+      ? deps.formatComparisonAuthorityBirthDate(r.birthDate)
+      : r.birthDate;
+    var glyph = typeof deps.comparisonAuthorityGlyphHtml === "function"
+      ? deps.comparisonAuthorityGlyphHtml(r)
+      : '<span class="glyph glyph-slot" aria-hidden="true"></span>';
     el.innerHTML =
-      '<div class="zb-name"><span class="nmwrap"><span class="nm">' + esc(deps, r.displayName) + "</span></span></div>" +
-      '<div class="zb-primary">' + esc(deps, r.birthDate) + " \u00b7 " + esc(deps, r.birthTimeDisplay) + "</div>" +
+      '<div class="zb-name"><span class="nmwrap"><span class="nm">' + esc(deps, r.displayName) + "</span>" +
+      '<span class="tools">' +
+      '<button type="button" class="profile-caret" title="Switch profile" tabindex="-1" aria-hidden="true">&#9662;</button>' +
+      '<button type="button" class="profile-btn" title="Edit birth data" tabindex="-1" aria-hidden="true">Edit</button>' +
+      '<button type="button" class="profile-btn plus" title="Add profile" tabindex="-1" aria-hidden="true">+</button>' +
+      "</span></span></div>" +
+      '<div class="zb-primary">' + esc(deps, birthLine) + " \u00b7 " + esc(deps, r.birthTimeDisplay) + " " + glyph + "</div>" +
       '<div class="zb-primary">' + esc(deps, r.birthCity) + "</div>" +
-      (meta ? '<div class="zb-meta">' + esc(deps, meta) + "</div>" : "") +
-      '<div class="zb-meta">Tropical \u00b7 Placidus</div>';
+      (coordsMeta ? '<div class="zb-meta">' + esc(deps, coordsMeta) + "</div>" : "") +
+      '<div class="zb-meta">Tropical \u00b7 Placidus</div>";
   }
 
   function mapCityBar(root, ctx) {
