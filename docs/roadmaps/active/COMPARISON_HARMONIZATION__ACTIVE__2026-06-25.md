@@ -4,7 +4,7 @@
 **Status:** ACTIVE  
 **Date:** 2026-06-25  
 **Executor contract:** `relay/handoffs/20260625T051014Z_h4_autonomous_comparison_plan.md`  
-**Checkpoint:** `checkpoint/h4b_start` (`5f76990`)
+**Checkpoint:** `checkpoint/h4b_start_clean` (`e37bf9d`) — do not use `5f76990`
 
 ## Scope
 

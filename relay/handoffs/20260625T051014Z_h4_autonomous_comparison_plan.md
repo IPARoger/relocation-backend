@@ -8,20 +8,24 @@
 
 ---
 
-## Safety checkpoint (ALREADY CREATED)
+## Safety checkpoint (CLEAN — use this only)
 
 | Item | Value |
 |------|-------|
-| **Commit** | `5f76990c73b45bbddf055aeb31e6dd76d998c242` |
-| **Tag** | `checkpoint/h4b_start` |
-| **Message** | `checkpoint: before autonomous H4 comparison harmonization` |
-| **Working tree** | Clean at checkpoint |
+| **Rollback commit** | `e37bf9d6d572973e9b4f834ed084cd2f39878fff` |
+| **Tag** | `checkpoint/h4b_start_clean` |
+| **Message** | `comparison: harmonize authority system with beta shell` |
+| **Includes** | H4B Slice 1 complete (authority shell only) |
+
+### ⚠️ Do NOT use `5f76990` or old `checkpoint/h4b_start`
+
+Commit `5f76990` was an accidental `git add -A` checkpoint that bundled ~6,429 files (Fonts/Glyphs duplicates, archaeology clutter). It was **removed from branch history** on 2026-06-25. Rollback to it would restore repo pollution.
 
 ### On ANY smoke failure in ANY slice
 
 ```bash
-git reset --hard checkpoint/h4b_start
-# or: git reset --hard 5f76990c73b45bbddf055aeb31e6dd76d998c242
+git reset --hard checkpoint/h4b_start_clean_clean
+# or: git reset --hard e37bf9d
 ```
 
 **Then STOP.** Do not attempt fixes. Write `results/H4_SLICE<N>_FAILURE_AUDIT.md` and exit.
@@ -85,7 +89,7 @@ Also forbidden: performance optimization, renaming functions, removing dead code
 |-------|--------|-------------|
 | **H4B Slice 1 — Authority** | `e37bf9d` | Beta header, `cmp-zone-b`, sticky city bar shell, `rm-beta-compare` |
 
-Checkpoint `5f76990` includes Slice 1 + all prior H3E work.
+Rollback anchor `e37bf9d` is H4B Slice 1 + all prior H3E work.
 
 ---
 
@@ -233,11 +237,11 @@ hydrateComparisonColumns → _comparisonColsCache → render*ComparisonHtml
 
 ## Morning review checklist (human)
 
-1. `git log checkpoint/h4b_start..HEAD --oneline` — expect ≤6 commits
+1. `git log checkpoint/h4b_start_clean..HEAD --oneline` — expect ≤6 commits
 2. Each commit message matches slice table above
-3. `git diff checkpoint/h4b_start..HEAD --stat` — only `app_shell.html`, `theme/*`, `scripts/smoke_h4*`, audit docs
+3. `git diff checkpoint/h4b_start_clean..HEAD --stat` — only `app_shell.html`, `theme/*`, `scripts/smoke_h4*`, audit docs
 4. Run full smoke battery once
-5. If anything feels wrong: `git reset --hard checkpoint/h4b_start`
+5. If anything feels wrong: `git reset --hard checkpoint/h4b_start_clean`
 
 ---
 
@@ -248,8 +252,8 @@ Execute H4 Comparison harmonization relay plan:
 relay/handoffs/20260625T051014Z_h4_autonomous_comparison_plan.md
 
 Start at Slice 2 only.
-Checkpoint: checkpoint/h4b_start (5f76990).
-On smoke failure: git reset --hard checkpoint/h4b_start and STOP.
+Checkpoint: checkpoint/h4b_start_clean (e37bf9d).
+On smoke failure: git reset --hard checkpoint/h4b_start_clean and STOP.
 One slice per session turn: implement, smoke, commit, stop.
 Discovery kill switch applies.
 ```
