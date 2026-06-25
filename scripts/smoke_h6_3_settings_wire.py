@@ -239,17 +239,17 @@ def smoke_playwright(results: list[tuple[str, bool, str]]) -> None:
             check(page.query_selector("#rm-settings-time-seg") is not None, "fe_appearance_time_seg", "present", results)
 
             display_text = page.inner_text("#sec-display") or ""
-            check("Coming soon" in display_text, "fe_appearance_future_markers", "stubs labeled", results)
+            check("coming soon" in display_text.lower(), "fe_appearance_future_markers", "stubs labeled", results)
             check("Interface language" in display_text, "fe_appearance_language_stub", "deferred", results)
 
             map_text = page.inner_text("#sec-map-display") or ""
-            check("Exact aspect lines" in map_text and "Coming soon" in map_text, "fe_map_future_rows", "stubs", results)
+            check("Exact aspect lines" in map_text and "coming soon" in map_text.lower(), "fe_map_future_rows", "stubs", results)
 
             page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'exports' })")
             page.wait_for_selector("#sec-exports", timeout=15000)
             exports_text = page.inner_text("#sec-exports") or ""
             check("Quick Share" in exports_text, "fe_exports_copy", "honest copy", results)
-            check("PNG / PDF presets" in exports_text and "Coming soon" in exports_text, "fe_exports_future", "stubs", results)
+            check("PNG / PDF presets" in exports_text and "coming soon" in exports_text.lower(), "fe_exports_future", "stubs", results)
 
             page_body = page.inner_text("main") or ""
             for forbidden in ["City Intelligence", "km/mi", "°C/°F", "animation speed"]:
