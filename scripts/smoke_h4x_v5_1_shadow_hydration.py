@@ -76,10 +76,11 @@ def main() -> int:
     check("hydrateComparisonV5Shadow" in shell, "app_shell shadow hydration hook present")
     check("ComparisonV5Adapter.hydrate" in shell, "app_shell calls adapter hydrate")
 
-    # Live compare route not promoted to v5 mockup root
+    # Live compare route: V5-2 promotes canonical shell behind flag; OFF path unchanged
     screen_compare = shell.split("function screenCompare()", 1)[1].split("\nfunction ", 1)[0]
-    check("rm-cmp-v5-root" not in screen_compare, "screenCompare does not mount rm-cmp-v5-root")
-    check("rm-comparison-beta-root" in screen_compare, "screenCompare still uses beta root")
+    check("RM_COMPARE_V5_CANONICAL" in shell, "canonical flag present for gated promotion")
+    check("renderComparisonV5ShellHtml" in shell, "V5 shell renderer present")
+    check("rm-comparison-beta-root" in screen_compare, "screenCompare still uses beta root for OFF path")
     check("hydrateComparisonV5Shadow" not in screen_compare, "shadow hydration not wired inside screenCompare template")
 
     # Canonical mockup unchanged contract still valid
