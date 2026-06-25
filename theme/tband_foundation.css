@@ -1,0 +1,592 @@
+/**
+ * H3C — Shared T-Band visual foundation (Profile + Relocated).
+ * Canon source: validation/mockups/beta/profile_standard.html (t-band block).
+ * Consumed by app_shell.html via link; scoped to beta facts surfaces only.
+ */
+body.rm-beta-profile #rm-profile-natal-facts,
+body.rm-beta-relocated #rm-screen4-facts {
+  --tb-card: var(--rm-card, #fdf8ee);
+  --tb-ink: var(--rm-ink, #33291f);
+  --tb-ink-soft: var(--rm-ink-soft, #6a5f4f);
+  --tb-ink-faint: var(--rm-ink-faint, #9b9080);
+  --tb-line: var(--rm-line, #ddd0b8);
+  --tb-line-soft: var(--rm-line-soft, #ece2cf);
+  --tb-teal: var(--rm-teal, #5f8a90);
+  --tb-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --tb-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---- t-band grid ---- */
+body.rm-beta-profile #rm-profile-natal-facts .tband {
+  display: grid;
+  gap: 12px;
+  align-items: start;
+  margin: 0 0 16px;
+}
+body.rm-beta-relocated #rm-screen4-facts .tband {
+  display: grid;
+  gap: 12px;
+  align-items: start;
+  margin: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tband.std,
+body.rm-beta-relocated #rm-screen4-facts .tband.std {
+  grid-template-columns: 8fr 8fr 13fr 5fr;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tband > *,
+body.rm-beta-relocated #rm-screen4-facts .tband > * {
+  min-width: 0;
+  align-self: start;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tband > .tcard,
+body.rm-beta-profile #rm-profile-natal-facts .tband > .notes-card,
+body.rm-beta-relocated #rm-screen4-facts .tband > .tcard,
+body.rm-beta-relocated #rm-screen4-facts .tband > .notes-card {
+  height: auto;
+}
+body.rm-beta-profile #rm-profile-natal-facts .notes-slot,
+body.rm-beta-relocated #rm-screen4-facts .notes-slot {
+  margin-left: 0;
+}
+@media (max-width: 1100px) {
+  body.rm-beta-profile #rm-profile-natal-facts .tband.std,
+  body.rm-beta-relocated #rm-screen4-facts .tband.std {
+    grid-template-columns: 1fr 1fr;
+  }
+  body.rm-beta-profile #rm-profile-natal-facts .notes-card,
+  body.rm-beta-relocated #rm-screen4-facts .notes-card {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 680px) {
+  body.rm-beta-profile #rm-profile-natal-facts .tband.std,
+  body.rm-beta-relocated #rm-screen4-facts .tband.std {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- card anatomy ---- */
+body.rm-beta-profile #rm-profile-natal-facts .tcard,
+body.rm-beta-relocated #rm-screen4-facts .tcard {
+  --arh: 30px;
+  position: relative;
+  background: var(--tb-card);
+  border-radius: 16px;
+  padding: 2px 4px 10px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.home,
+body.rm-beta-relocated #rm-screen4-facts .tcard.guest {
+  /* emotional register — home (profile) / guest (relocated) */
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.home {
+  border-color: rgba(184, 154, 85, .32);
+  background: linear-gradient(180deg, rgba(184, 154, 85, .08), rgba(184, 154, 85, 0) 40%), var(--tb-card);
+}
+body.rm-beta-relocated #rm-screen4-facts .tcard.guest {
+  border-color: rgba(95, 138, 144, .3);
+  background: linear-gradient(180deg, rgba(95, 138, 144, .08), rgba(95, 138, 144, 0) 40%), var(--tb-card);
+}
+
+body.rm-beta-profile #rm-profile-natal-facts .card-head,
+body.rm-beta-relocated #rm-screen4-facts .card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 11px 14px 7px 4px;
+  min-height: 38px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .card-head .ch-title,
+body.rm-beta-relocated #rm-screen4-facts .card-head .ch-title {
+  font-family: var(--tb-serif);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  color: var(--tb-ink);
+}
+
+/* ---- texture-stripe (lines-only; no zebra fill) ---- */
+body.rm-beta-profile #rm-profile-natal-facts .texture-stripe tbody tr:nth-child(even):not(.sec) td,
+body.rm-beta-relocated #rm-screen4-facts .texture-stripe tbody tr:nth-child(even):not(.sec) td,
+body.rm-beta-profile #rm-profile-natal-facts .texture-stripe .a2a-planetcol .ar.pl:nth-child(odd),
+body.rm-beta-relocated #rm-screen4-facts .texture-stripe .a2a-planetcol .ar.pl:nth-child(odd),
+body.rm-beta-profile #rm-profile-natal-facts .texture-stripe .vcol .ar:nth-child(odd):not(.head),
+body.rm-beta-relocated #rm-screen4-facts .texture-stripe .vcol .ar:nth-child(odd):not(.head) {
+  background-image: none;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.texture-stripe tbody tr:nth-child(even) td,
+body.rm-beta-relocated #rm-screen4-facts .tcard.texture-stripe tbody tr:nth-child(even) td {
+  background: transparent !important;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.guest .a2a-planetcol .ar:nth-child(even),
+body.rm-beta-profile #rm-profile-natal-facts .tcard.guest .vcol .ar:nth-child(even),
+body.rm-beta-relocated #rm-screen4-facts .tcard.guest .a2a-planetcol .ar:nth-child(even),
+body.rm-beta-relocated #rm-screen4-facts .tcard.guest .vcol .ar:nth-child(even) {
+  background-color: transparent;
+}
+
+/* ---- rt tables ---- */
+body.rm-beta-profile #rm-profile-natal-facts .rt,
+body.rm-beta-relocated #rm-screen4-facts .rt {
+  width: 100%;
+  border-collapse: collapse;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt thead th,
+body.rm-beta-relocated #rm-screen4-facts .rt thead th {
+  font-family: var(--tb-sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--tb-ink-soft);
+  height: 24px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--tb-line-soft);
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt thead th.hd-spacer,
+body.rm-beta-relocated #rm-screen4-facts .rt thead th.hd-spacer {
+  height: 22px;
+  padding: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt td,
+body.rm-beta-relocated #rm-screen4-facts .rt td {
+  font-size: 15.5px;
+  height: var(--arh, 30px);
+  padding: 0 14px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt td.lbl,
+body.rm-beta-relocated #rm-screen4-facts .rt td.lbl {
+  text-align: left;
+  color: var(--tb-ink-soft);
+  padding-left: 4px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt td.val,
+body.rm-beta-relocated #rm-screen4-facts .rt td.val {
+  text-align: right;
+  color: var(--tb-ink);
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt tbody td,
+body.rm-beta-relocated #rm-screen4-facts .rt tbody td {
+  border-bottom: 1px solid rgba(51, 41, 31, .1);
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt tbody tr:last-child td,
+body.rm-beta-relocated #rm-screen4-facts .rt tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* AIS */
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais {
+  table-layout: fixed;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais col.ca-lbl,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais col.ca-lbl { width: 18%; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais col.ca-val,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais col.ca-val { width: 64%; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais col.ca-pad,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais col.ca-pad { width: 18%; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais td.val,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais td.val { text-align: center; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais td.val .vgrid,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais td.val .vgrid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  column-gap: 7px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais td.val .deg,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais td.val .deg { text-align: right; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais td.val .sgn,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais td.val .sgn { text-align: center; color: var(--tb-ink); }
+body.rm-beta-profile #rm-profile-natal-facts .rt.ais td.val .min,
+body.rm-beta-relocated #rm-screen4-facts .rt.ais td.val .min { text-align: left; color: var(--tb-ink-soft); }
+
+/* PIH */
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih {
+  table-layout: fixed;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih col.cp,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih col.cp { width: 40%; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih col.csp,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih col.csp { width: 16%; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih col.ch,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih col.ch { width: 44%; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih td.hv,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih td.hv { text-align: center; }
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih td.hv.late .hnum,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih td.hv.late .hnum { color: var(--tb-ink-faint); }
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih td.hv .hnum,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih td.hv .hnum {
+  position: relative;
+  display: inline-block;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih td.hv .lh,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih td.hv .lh {
+  position: absolute;
+  left: calc(100% + 1px);
+  top: -2px;
+  font-size: 9px;
+  color: var(--tb-teal);
+  text-decoration: underline;
+  font-weight: 600;
+  cursor: help;
+}
+body.rm-beta-profile #rm-profile-natal-facts .rt.pih td.hv .lh:hover,
+body.rm-beta-relocated #rm-screen4-facts .rt.pih td.hv .lh:hover { color: var(--tb-ink); }
+body.rm-beta-profile #rm-profile-natal-facts .tcard.show-dignities .rt.pih .hnum.dignity-supportive,
+body.rm-beta-relocated #rm-screen4-facts .tcard.show-dignities .rt.pih .hnum.dignity-supportive {
+  color: #4a9468;
+  font-weight: 600;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.show-dignities .rt.pih .hnum.dignity-challenging,
+body.rm-beta-relocated #rm-screen4-facts .tcard.show-dignities .rt.pih .hnum.dignity-challenging {
+  color: #a8392c;
+  font-weight: 600;
+}
+body.rm-beta-profile #rm-profile-natal-facts .pih-foot,
+body.rm-beta-profile #rm-profile-natal-facts .pih-footer,
+body.rm-beta-relocated #rm-screen4-facts .pih-foot,
+body.rm-beta-relocated #rm-screen4-facts .pih-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 14px 4px;
+  font-size: 12px;
+}
+
+/* A2A matrix layout (profile carousel; styles apply when markup present) */
+body.rm-beta-profile #rm-profile-natal-facts .a2a-top,
+body.rm-beta-relocated #rm-screen4-facts .a2a-top {
+  padding: 0 4px 4px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .a2a-rows,
+body.rm-beta-relocated #rm-screen4-facts .a2a-rows {
+  display: flex;
+  min-width: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .a2a-viewport,
+body.rm-beta-relocated #rm-screen4-facts .a2a-viewport {
+  flex: 1 1 auto;
+  overflow: hidden;
+  min-width: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .a2a-track,
+body.rm-beta-relocated #rm-screen4-facts .a2a-track {
+  display: flex;
+  width: 500%;
+  transition: transform .78s cubic-bezier(.33, .12, .18, 1);
+}
+body.rm-beta-profile #rm-profile-natal-facts .frame,
+body.rm-beta-relocated #rm-screen4-facts .frame {
+  flex: 0 0 20%;
+}
+body.rm-beta-profile #rm-profile-natal-facts .frame.all,
+body.rm-beta-relocated #rm-screen4-facts .frame.all {
+  display: flex;
+}
+body.rm-beta-profile #rm-profile-natal-facts .frame.all .vcol,
+body.rm-beta-relocated #rm-screen4-facts .frame.all .vcol {
+  flex: 1 1 0;
+  min-width: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .frame.single .vcol,
+body.rm-beta-relocated #rm-screen4-facts .frame.single .vcol { width: 100%; }
+body.rm-beta-profile #rm-profile-natal-facts .frame.single .ar,
+body.rm-beta-profile #rm-profile-natal-facts .frame.single .ar.vh,
+body.rm-beta-relocated #rm-screen4-facts .frame.single .ar,
+body.rm-beta-relocated #rm-screen4-facts .frame.single .ar.vh {
+  justify-content: flex-start;
+  padding-left: 2px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .a2a-planetcol,
+body.rm-beta-relocated #rm-screen4-facts .a2a-planetcol {
+  flex: 0 0 100px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.compact-a2a .a2a-planetcol,
+body.rm-beta-relocated #rm-screen4-facts .tcard.compact-a2a .a2a-planetcol {
+  flex: 0 0 84px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.compact-a2a .a2a-planetcol .ar,
+body.rm-beta-relocated #rm-screen4-facts .tcard.compact-a2a .a2a-planetcol .ar {
+  font-size: 15.5px;
+  padding: 0 4px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.compact-a2a .ar,
+body.rm-beta-relocated #rm-screen4-facts .tcard.compact-a2a .ar {
+  padding: 0 6px;
+  font-size: 14px;
+  min-width: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.compact-a2a .frame.all .vcol,
+body.rm-beta-relocated #rm-screen4-facts .tcard.compact-a2a .frame.all .vcol {
+  min-width: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.compact-a2a .ar .orb,
+body.rm-beta-relocated #rm-screen4-facts .tcard.compact-a2a .ar .orb {
+  font-size: 11.5px;
+  margin-left: 3px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.compact-a2a .ar .asp,
+body.rm-beta-relocated #rm-screen4-facts .tcard.compact-a2a .ar .asp {
+  font-size: 14px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .ar,
+body.rm-beta-relocated #rm-screen4-facts .ar {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  font-size: 13.5px;
+  color: var(--tb-ink);
+  white-space: nowrap;
+}
+body.rm-beta-profile #rm-profile-natal-facts .ar.pl,
+body.rm-beta-relocated #rm-screen4-facts .ar.pl { color: var(--tb-ink-soft); }
+body.rm-beta-profile #rm-profile-natal-facts .ar.head,
+body.rm-beta-relocated #rm-screen4-facts .ar.head {
+  height: 22px;
+  font-size: 10.5px;
+  color: transparent;
+  border-bottom: 1px solid var(--tb-line-soft);
+}
+body.rm-beta-profile #rm-profile-natal-facts .ar.vh,
+body.rm-beta-relocated #rm-screen4-facts .ar.vh {
+  font-family: var(--tb-serif);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tb-ink-soft);
+  justify-content: center;
+}
+body.rm-beta-profile #rm-profile-natal-facts .a2a-planetcol .ar:not(.head),
+body.rm-beta-profile #rm-profile-natal-facts .vcol .ar:not(.head),
+body.rm-beta-relocated #rm-screen4-facts .a2a-planetcol .ar:not(.head),
+body.rm-beta-relocated #rm-screen4-facts .vcol .ar:not(.head) {
+  border-bottom: 1px solid rgba(51, 41, 31, .1);
+}
+body.rm-beta-profile #rm-profile-natal-facts .a2a-planetcol .ar:last-child,
+body.rm-beta-profile #rm-profile-natal-facts .vcol .ar:last-child,
+body.rm-beta-relocated #rm-screen4-facts .a2a-planetcol .ar:last-child,
+body.rm-beta-relocated #rm-screen4-facts .vcol .ar:last-child {
+  border-bottom: none;
+}
+body.rm-beta-profile #rm-profile-natal-facts .ar .orb,
+body.rm-beta-relocated #rm-screen4-facts .ar .orb {
+  font-size: 11.5px;
+  color: var(--tb-ink-faint);
+  margin-left: 6px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .ar .orb.app,
+body.rm-beta-relocated #rm-screen4-facts .ar .orb.app { color: #a37458; }
+body.rm-beta-profile #rm-profile-natal-facts .ar .orb.sep,
+body.rm-beta-relocated #rm-screen4-facts .ar .orb.sep { color: var(--tb-teal); }
+body.rm-beta-profile #rm-profile-natal-facts .ar .ph,
+body.rm-beta-relocated #rm-screen4-facts .ar .ph {
+  color: var(--tb-ink-faint);
+  opacity: .55;
+}
+body.rm-beta-profile #rm-profile-natal-facts .card-head .apills,
+body.rm-beta-relocated #rm-screen4-facts .card-head .apills {
+  background: rgba(51, 41, 31, .07);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+  display: flex;
+  align-self: center;
+  margin-left: 8px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .card-head .apill,
+body.rm-beta-relocated #rm-screen4-facts .card-head .apill {
+  font-size: 11px;
+  padding: 2px 11px;
+  border: none;
+  background: transparent;
+  color: var(--tb-ink-soft);
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.45;
+}
+body.rm-beta-profile #rm-profile-natal-facts .card-head .apill:hover,
+body.rm-beta-relocated #rm-screen4-facts .card-head .apill:hover { color: var(--tb-ink); }
+body.rm-beta-profile #rm-profile-natal-facts .card-head .apill.on,
+body.rm-beta-relocated #rm-screen4-facts .card-head .apill.on {
+  background: rgba(51, 41, 31, .085);
+  color: var(--tb-ink);
+  font-weight: 700;
+  box-shadow: inset 0 1px 2px rgba(51, 41, 31, .12);
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-a2a .card-head,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-a2a .card-head {
+  flex-wrap: wrap;
+}
+
+/* ---- notes card (visual shell; behavior unchanged) ---- */
+body.rm-beta-profile #rm-profile-natal-facts .notes-card,
+body.rm-beta-relocated #rm-screen4-facts .notes-card {
+  background: var(--tb-card);
+  border: 1px solid rgba(154, 144, 128, .28);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(51, 41, 31, .04), 0 10px 24px -16px rgba(51, 41, 31, .22);
+  position: relative;
+  padding: 2px 4px 10px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .notes-card .card-head,
+body.rm-beta-relocated #rm-screen4-facts .notes-card .card-head {
+  justify-content: space-between;
+}
+body.rm-beta-profile #rm-profile-natal-facts .note-ta,
+body.rm-beta-relocated #rm-screen4-facts .note-ta {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 28px);
+  max-width: calc(100% - 28px);
+  margin: 4px 14px 14px;
+  min-height: 128px;
+  border: 1px solid var(--tb-line);
+  background: rgba(255, 255, 255, .45);
+  border-radius: 10px;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 14.5px;
+  resize: vertical;
+  line-height: 1.55;
+  outline: none;
+}
+
+body.rm-beta-profile #rm-profile-natal-facts .notes-popout,
+body.rm-beta-relocated #rm-screen4-facts .notes-popout {
+  font-size: 13px;
+  color: var(--tb-ink-faint, var(--rm-ink-faint, #8a7f72));
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 2px 4px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .notes-toolbar,
+body.rm-beta-relocated #rm-screen4-facts .notes-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 12px;
+  border-top: 1px solid var(--tb-line-soft, var(--rm-line-soft, #e8e2d8));
+  border-bottom: 1px solid var(--tb-line-soft, var(--rm-line-soft, #e8e2d8));
+}
+body.rm-beta-profile #rm-profile-natal-facts .notes-toolbar .notes-tool,
+body.rm-beta-relocated #rm-screen4-facts .notes-toolbar .notes-tool {
+  background: none;
+  border: none;
+  color: var(--tb-ink-soft, var(--rm-ink-soft, #6b5f52));
+  cursor: default;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+body.rm-beta-profile #rm-profile-natal-facts .notes-toolbar .notes-tool.mic,
+body.rm-beta-relocated #rm-screen4-facts .notes-toolbar .notes-tool.mic {
+  margin-left: auto;
+}
+body.rm-beta-profile #rm-profile-natal-facts .note-hint,
+body.rm-beta-relocated #rm-screen4-facts .note-hint {
+  font-size: 11px;
+  color: var(--tb-ink-faint, var(--rm-ink-faint, #8a7f72));
+  padding: 0 14px 8px;
+  margin: 0;
+}
+body.rm-beta-profile #rm-profile-natal-facts .notes-card .note-ta,
+body.rm-beta-relocated #rm-screen4-facts .notes-card .note-ta {
+  margin-bottom: 6px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .note-foot,
+body.rm-beta-relocated #rm-screen4-facts .note-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 8px;
+}
+body.rm-beta-relocated #rm-screen4-facts .note-foot[hidden] {
+  display: none;
+}
+
+/* ---- G3 signature tint system (locked C5) ---- */
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-ais,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-ais { --sig: #4a9468; }
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-pih,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-pih { --sig: #5a82a8; }
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-a2a,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-a2a { --sig: #7a68a0; }
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-ais,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-pih,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.tint-a2a,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-ais,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-pih,
+body.rm-beta-relocated #rm-screen4-facts .tcard.tint-a2a {
+  border: 1px solid #e6e0d4;
+  box-shadow:
+    inset 0 0 26px color-mix(in srgb, var(--sig) 4%, transparent),
+    0 1px 2px rgba(51, 41, 31, .05),
+    0 0 0 1.5px #fff,
+    0 0 0 4.5px color-mix(in srgb, var(--sig) 8%, #e3ddd1);
+}
+
+
+/* ---- T-band collapse (H1+ stub-only; Slice 9) ---- */
+body.rm-beta-profile #rm-profile-natal-facts .tcollapse,
+body.rm-beta-relocated #rm-screen4-facts .tcollapse {
+  background: none;
+  border: none;
+  color: var(--tb-ink-faint);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 5px 0 0;
+  transition: transform .2s;
+  line-height: 1;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcollapse:hover,
+body.rm-beta-relocated #rm-screen4-facts .tcollapse:hover {
+  color: var(--tb-ink);
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .tcollapse,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .tcollapse {
+  transform: rotate(-90deg);
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .card-head,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .card-head {
+  min-height: 30px;
+  padding: 7px 6px 9px 4px;
+  justify-content: flex-start;
+  padding-bottom: 11px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .card-head .ch-title,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .card-head .ch-title,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .card-head h3,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .card-head h3 {
+  display: none;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed {
+  min-height: 34px;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .rt,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .rt,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .a2a-rows,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .a2a-rows,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .a2a-top,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .a2a-top,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .apills,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .apills {
+  display: none;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed .pih-foot,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed .pih-foot {
+  display: none;
+}
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed.tint-ais > .meta,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed.tint-ais > .meta,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed.tint-a2a > .meta,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed.tint-a2a > .meta,
+body.rm-beta-profile #rm-profile-natal-facts .tcard.collapsed #rm-profile-pih-slot > .meta,
+body.rm-beta-relocated #rm-screen4-facts .tcard.collapsed #rm-screen4-pih-slot > .meta {
+  display: none;
+}

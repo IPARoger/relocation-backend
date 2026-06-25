@@ -16,6 +16,7 @@
 <title>Relocation App — Application Shell</title>
 <link rel="stylesheet" href="/genie_variable_builder.css" />
 <link rel="stylesheet" href="/theme/glyphs.css" />
+<link rel="stylesheet" href="/theme/tband_foundation.css" />
 <style>
   :root {
     --fg: #111827;
@@ -340,6 +341,437 @@
     padding: 12px 4px;
   }
 
+  /* H2 — Profile beta visual transplant (scoped to #/chart-record) */
+  body.rm-beta-profile {
+    --rm-ink: #33291f;
+    --rm-ink-soft: #6a5f4f;
+    --rm-ink-faint: #9b9080;
+    --rm-line: #ddd0b8;
+    --rm-line-soft: #ece2cf;
+    --rm-paper: #f4ecdc;
+    --rm-card: #fdf8ee;
+    --rm-gold: #b89a55;
+    --rm-teal: #5f8a90;
+    --rm-accent: #5b6b63;
+    color: var(--rm-ink);
+    background:
+      radial-gradient(58% 50% at 12% -4%, rgba(214,176,108,.16), transparent 60%),
+      radial-gradient(50% 44% at 98% 4%, rgba(150,178,150,.10), transparent 60%),
+      radial-gradient(70% 60% at 86% 96%, rgba(120,160,185,.09), transparent 62%),
+      radial-gradient(120% 90% at 40% 110%, rgba(214,176,108,.08), transparent 60%),
+      var(--rm-paper);
+    background-attachment: fixed;
+  }
+  body.rm-beta-profile .shell-banner,
+  body.rm-beta-profile .shell-footer,
+  body.rm-beta-relocated .shell-banner,
+  body.rm-beta-relocated .shell-footer,
+  body.rm-beta-profile .app-header h1,
+  body.rm-beta-profile .app-header .tag,
+  body.rm-beta-relocated .app-header h1,
+  body.rm-beta-relocated .app-header .tag,
+  body.rm-beta-profile .screen-meta,
+  body.rm-beta-relocated .screen-meta { display: none !important; }
+  body.rm-beta-profile .app-header,
+  body.rm-beta-relocated .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 28px 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  body.rm-beta-profile .primary-nav,
+  body.rm-beta-relocated .primary-nav {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  body.rm-beta-profile .primary-nav .linkish,
+  body.rm-beta-relocated .primary-nav .linkish {
+    font-size: 14px;
+    color: var(--rm-ink-soft);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 11px;
+  }
+  body.rm-beta-profile .primary-nav .linkish:hover,
+  body.rm-beta-relocated .primary-nav .linkish:hover {
+    background: rgba(184,154,85,.14);
+    color: var(--rm-ink);
+  }
+  body.rm-beta-profile .primary-nav .linkish.active,
+  body.rm-beta-relocated .primary-nav .linkish.active {
+    color: var(--rm-ink);
+    font-weight: 600;
+    background: rgba(184,154,85,.14);
+  }
+  body.rm-beta-profile #rm-acct-drawer-btn.rm-beta-acct-circle,
+  body.rm-beta-relocated #rm-acct-drawer-btn.rm-beta-acct-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--rm-line);
+    background: var(--rm-card);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rm-ink-soft);
+    padding: 0;
+    line-height: 38px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  body.rm-beta-profile #rm-acct-drawer-btn.rm-beta-acct-circle:hover,
+  body.rm-beta-relocated #rm-acct-drawer-btn.rm-beta-acct-circle:hover {
+    background: rgba(184,154,85,.14);
+  }
+  body.rm-beta-profile main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 28px 48px;
+  }
+  body.rm-beta-profile .screen.active {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  body.rm-beta-profile .rm-profile-beta-root { font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; font-size: 15.5px; line-height: 1.5; }
+  body.rm-beta-profile #rm-cr-stage .chart-stage {
+    display: grid;
+    grid-template-columns: 250px minmax(520px, 600px) 250px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0;
+  }
+  body.rm-beta-profile #rm-cr-stage .identity-stack { grid-column: 1; display: flex; flex-direction: column; gap: 18px; min-height: 440px; width: 250px; }
+  body.rm-beta-profile #rm-cr-stage .zone-b { text-align: center; }
+  body.rm-beta-profile #rm-cr-stage .zb-name { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 25px; font-weight: 600; color: var(--rm-ink); line-height: 1.2; }
+  body.rm-beta-profile #rm-cr-stage .zb-name .nmwrap { position: relative; display: inline-block; }
+  body.rm-beta-profile #rm-cr-stage .zb-name .tools { position: absolute; left: calc(100% + 9px); top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  body.rm-beta-profile #rm-cr-stage .zb-caret { font-size: 12px; color: var(--rm-ink-faint); background: none; border: none; cursor: pointer; padding: 0 2px; font-family: inherit; }
+  body.rm-beta-profile #rm-cr-stage .zb-tool { font-size: 12.5px; color: var(--rm-ink-faint); background: none; border: none; cursor: pointer; padding: 0 2px; font-family: inherit; }
+  body.rm-beta-profile #rm-cr-stage .zb-tool:hover,
+  body.rm-beta-profile #rm-cr-stage .zb-caret:hover { color: var(--rm-accent); }
+  body.rm-beta-profile #rm-cr-stage .zb-tool.plus { font-size: 17px; line-height: 1; }
+  body.rm-beta-profile #rm-cr-stage .zb-primary { font-size: 14.5px; font-weight: 500; color: var(--rm-ink); margin-top: 4px; }
+  body.rm-beta-profile #rm-cr-stage .zb-meta { font-size: 12px; color: var(--rm-ink-faint); margin-top: 4px; line-height: 1.45; }
+  body.rm-beta-profile #rm-cr-stage .wheel-wrap { grid-column: 2; display: flex; justify-content: center; align-items: center; }
+  body.rm-beta-profile #rm-cr-stage .rm-profile-wheel-frame { width: 560px; max-width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  body.rm-beta-profile #rm-cr-stage .rm-profile-wheel-loading { font-size: 13px; color: var(--rm-ink-faint); margin: 0; }
+  body.rm-beta-profile #rm-cr-stage .rm-profile-wheel-disc { width: 560px; max-width: 100%; border-radius: 50%; overflow: hidden; box-shadow: 0 0 34px 2px rgba(184,154,85,.2), 0 3px 12px rgba(51,41,31,.14), inset 0 0 0 1px rgba(51,41,31,.05); }
+  body.rm-beta-profile #rm-cr-stage .rm-profile-wheel-disc svg { display: block; width: 100%; height: auto; }
+  body.rm-beta-profile .primary-nav .linkish.rm-nav-disabled { opacity: 0.45; cursor: not-allowed; }
+  body.rm-beta-profile #rm-cr-stage .balance-col { grid-column: 3; }
+  body.rm-beta-profile #rm-cr-stage .sec-rule { border: none; border-top: 1px solid var(--rm-line); margin: 28px 0 22px; }
+  @media (max-width: 1000px) {
+    body.rm-beta-profile #rm-cr-stage .chart-stage { grid-template-columns: 1fr; }
+    body.rm-beta-profile #rm-cr-stage .wheel-wrap { order: -1; }
+    body.rm-beta-profile #rm-cr-stage .identity-stack { width: auto; min-height: 0; }
+  }
+  /* H3C — profile facts shell overrides (t-band CSS in theme/tband_foundation.css) */
+  body.rm-beta-profile #rm-profile-natal-facts table.simple { margin: 0; width: 100%; border-collapse: collapse; }
+  body.rm-beta-profile #rm-profile-natal-facts table.simple th { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--rm-ink-soft); }
+
+  body.rm-beta-profile .rm-profile-lower .panel { max-height: 420px; overflow: auto; }
+  body.rm-beta-profile .rm-profile-lower .rm-cr-favorites-list,
+  body.rm-beta-profile .rm-profile-lower .plain { list-style: none; margin: 0; padding: 0; }
+  body.rm-beta-profile .rm-profile-lower .rm-cr-favorites-list li,
+  body.rm-beta-profile .rm-profile-lower .plain li { padding: 8px 0; border-top: 1px solid var(--rm-line-soft); font-size: 13.5px; }
+  body.rm-beta-profile .rm-profile-lower .rm-cr-favorites-list li:first-child,
+  body.rm-beta-profile .rm-profile-lower .plain li:first-child { border-top: none; }
+  body.rm-beta-profile .rm-profile-lower .row { gap: 6px; flex-wrap: wrap; }
+    body.rm-beta-profile .rm-profile-deferred-shell {
+    margin-top: 22px;
+    padding: 11px 14px;
+    font-size: 11px;
+    color: var(--rm-ink-faint);
+    background: rgba(154,144,128,.08);
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+
+  /* H3B — Relocated authority stack (scoped to #/chart) */
+  body.rm-beta-relocated {
+    --rm-ink: #33291f;
+    --rm-ink-soft: #6a5f4f;
+    --rm-ink-faint: #9b9080;
+    --rm-line: #ddd0b8;
+    --rm-line-soft: #ece2cf;
+    --rm-paper: #f4ecdc;
+    --rm-card: #fdf8ee;
+    --rm-gold: #b89a55;
+    --rm-teal: #5f8a90;
+    --rm-accent: #5b6b63;
+    color: var(--rm-ink);
+    background:
+      radial-gradient(58% 50% at 12% -4%, rgba(214,176,108,.16), transparent 60%),
+      radial-gradient(50% 44% at 98% 4%, rgba(150,178,150,.10), transparent 60%),
+      radial-gradient(70% 60% at 86% 96%, rgba(120,160,185,.09), transparent 62%),
+      radial-gradient(120% 90% at 40% 110%, rgba(214,176,108,.08), transparent 60%),
+      var(--rm-paper);
+    background-attachment: fixed;
+  }
+  body.rm-beta-relocated main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 28px 70px;
+  }
+  body.rm-beta-relocated .screen.active {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  body.rm-beta-relocated .rm-relocated-beta-root {
+    font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .chart-stage {
+    display: grid;
+    grid-template-columns: 250px minmax(520px, 600px) 250px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .identity-stack {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 440px;
+    width: 250px;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zone-b,
+  body.rm-beta-relocated #rm-screen4-stage .reloc-c { text-align: center; }
+  body.rm-beta-relocated #rm-screen4-stage .reloc-c { margin-top: auto; }
+  body.rm-beta-relocated #rm-screen4-stage .zb-name,
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-weight: 600;
+    color: var(--rm-ink);
+    line-height: 1.2;
+    text-align: center;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zb-name { font-size: 25px; }
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg { font-size: 33px; line-height: 1.18; }
+  body.rm-beta-relocated #rm-screen4-stage .zb-name .nmwrap,
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg .kywrap { position: relative; display: inline-block; }
+  body.rm-beta-relocated #rm-screen4-stage .zb-name .tools,
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg .tools {
+    position: absolute;
+    left: calc(100% + 9px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg .tools { gap: 7px; }
+  body.rm-beta-relocated #rm-screen4-stage .zb-caret,
+  body.rm-beta-relocated #rm-screen4-stage .zc-caret {
+    font-size: 12px;
+    color: var(--rm-ink-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    font-family: inherit;
+    line-height: 1;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zc-caret { font-size: 14px; padding: 6px 8px; }
+  body.rm-beta-relocated #rm-screen4-stage .zb-tool {
+    font-size: 12.5px;
+    color: var(--rm-ink-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 2px;
+    font-family: inherit;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zb-tool:hover,
+  body.rm-beta-relocated #rm-screen4-stage .zb-caret:hover { color: var(--rm-accent); }
+  body.rm-beta-relocated #rm-screen4-stage .zb-tool.plus { font-size: 17px; line-height: 1; }
+  body.rm-beta-relocated #rm-screen4-stage .zb-primary {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--rm-ink);
+    margin-top: 4px;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zb-meta,
+  body.rm-beta-relocated #rm-screen4-stage .reloc-c .zc-meta {
+    font-size: 12px;
+    color: var(--rm-ink-faint);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zc-badge {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--rm-teal);
+    background: rgba(95,138,144,.13);
+    border-radius: 999px;
+    padding: 4px 13px;
+    margin-bottom: 8px;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .wheel-slot {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .rm-relocated-wheel-frame {
+    width: 560px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .balance-col { grid-column: 3; }
+  body.rm-beta-relocated #rm-screen4-stage .sec-rule {
+    border: none;
+    border-top: 1px solid var(--rm-line);
+    margin: 28px 0 22px;
+  }
+  /* H3E — Zone C selector shell (structure only; behavior unwired) */
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg .kywrap.loc-wrap { position: relative; display: inline-block; }
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg .addons {
+    position: absolute;
+    left: calc(100% + 9px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .loc-caret {
+    font-size: 14px;
+    color: var(--rm-ink-faint);
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    cursor: default;
+    font-family: inherit;
+    line-height: 1;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .zc-place-lg .zc-star {
+    color: var(--rm-gold);
+    font-size: 15px;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .loc-menu {
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 10px);
+    width: 236px;
+    background: var(--rm-card);
+    border: 1px solid var(--rm-line);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(51, 41, 31, .18);
+    padding: 10px;
+    z-index: 40;
+    text-align: left;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .loc-search {
+    width: 100%;
+    border: 1px solid var(--rm-line);
+    border-radius: 8px;
+    padding: 8px 11px;
+    font: inherit;
+    font-size: 13px;
+    margin-bottom: 8px;
+    outline: none;
+    color: var(--rm-ink);
+    box-sizing: border-box;
+  }
+  body.rm-beta-relocated #rm-screen4-stage .loc-menu .loc-lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--rm-ink-faint);
+    padding: 4px 6px;
+  }
+  /* H3E — Location Intelligence executive snippet shell */
+  body.rm-beta-relocated #rm-screen4-intel.intel-block {
+    max-width: 660px;
+    margin: 28px auto 0;
+    padding: 26px 30px;
+    border-top: 1px solid var(--rm-line);
+  }
+  body.rm-beta-relocated #rm-screen4-intel.intel-block h4 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0 0 18px;
+    text-align: center;
+    color: var(--rm-ink);
+  }
+  body.rm-beta-relocated #rm-screen4-intel .intel-rows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 36px;
+  }
+  body.rm-beta-relocated #rm-screen4-intel .ir {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--rm-line-soft);
+    padding: 9px 0;
+  }
+  body.rm-beta-relocated #rm-screen4-intel .il {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--rm-ink-faint);
+    white-space: nowrap;
+  }
+  body.rm-beta-relocated #rm-screen4-intel .iv {
+    font-size: 15.5px;
+    color: var(--rm-ink);
+    font-weight: 500;
+    text-align: right;
+  }
+  body.rm-beta-relocated #rm-screen4-intel .iv.intel-stub {
+    color: var(--rm-ink-faint);
+    font-weight: 400;
+  }
+  body.rm-beta-relocated #rm-screen4-intel .intel-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14.5px;
+    color: var(--rm-teal);
+    text-decoration: none;
+    cursor: default;
+  }
+  @media (max-width: 640px) {
+    body.rm-beta-relocated #rm-screen4-intel .intel-rows { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 1000px) {
+    body.rm-beta-relocated #rm-screen4-stage .chart-stage { grid-template-columns: 1fr; }
+    body.rm-beta-relocated #rm-screen4-stage .wheel-slot { order: -1; }
+    body.rm-beta-relocated #rm-screen4-stage .identity-stack { width: auto; min-height: 0; }
+  }
+
 </style>
 </head>
 <body>
@@ -481,6 +913,108 @@ const NAV_ROUTES = /** @type {const} */ ([
   { id: "settings", label: "Settings", screen: "S5 — Settings (support route)" },
   { id: "birth-data", label: "Birth data", screen: "S6 — Birth data intake (support route)" },
 ]);
+
+const PROFILE_BETA_NAV = /** @type {const} */ ([
+  { id: "map", label: "Map" },
+  { id: "chart-record", label: "Profile" },
+  { id: "compare", label: "Comparison" },
+  { id: "city", label: "City", disabled: true },
+]);
+const RELOCATED_BETA_NAV = /** @type {const} */ ([
+  { id: "map", label: "Map" },
+  { id: "chart-record", label: "Profile" },
+  { id: "compare", label: "Comparison" },
+  { id: "chart", label: "City" },
+]);
+const PROFILE_A2A_FRAMES = ["ASC", "DSC", "MC", "IC", "All"];
+const _a2aSelByScope = { profile: "All", chart: "All" };
+const _collapseByScope = { profile: {}, chart: {} };
+const TBAND_COLLAPSE_CARDS = ["ais", "pih", "a2a"];
+
+function a2aSelForScope(scope) {
+  const key = scope || "profile";
+  if (_a2aSelByScope[key] == null) _a2aSelByScope[key] = "All";
+  return _a2aSelByScope[key];
+}
+
+function tbandCollapseScopeKey(scope) {
+  return scope === "chart" ? "chart" : "profile";
+}
+
+function isTbandCardCollapsed(scope, card) {
+  const sk = tbandCollapseScopeKey(scope);
+  return !!(_collapseByScope[sk] && _collapseByScope[sk][card]);
+}
+
+function setTbandCardCollapsed(scope, card, collapsed) {
+  const sk = tbandCollapseScopeKey(scope);
+  if (!_collapseByScope[sk]) _collapseByScope[sk] = {};
+  if (collapsed) _collapseByScope[sk][card] = true;
+  else delete _collapseByScope[sk][card];
+}
+
+function tbandCollapseFactsRoot(root, scope) {
+  const sk = tbandCollapseScopeKey(scope);
+  return (root || document).querySelector(sk === "chart" ? "#rm-screen4-facts" : "#rm-profile-natal-facts");
+}
+
+function tbandCollapseLabel(card) {
+  if (card === "ais") return "Angle in Sign";
+  if (card === "pih") return "Planet in House";
+  return "Aspect to Angle";
+}
+
+function tbandCollapseCaretHtml(card) {
+  const label = tbandCollapseLabel(card);
+  return `<button type="button" class="tcollapse" data-action="tband-collapse" data-tband-card="${card}" title="Hide ${escapeHtml(label)}" aria-label="Hide ${escapeHtml(label)}" aria-expanded="true">\u25be</button>`;
+}
+
+function applyTbandCollapseState(root, scope) {
+  const factsRoot = tbandCollapseFactsRoot(root, scope);
+  if (!factsRoot) return;
+  const sk = tbandCollapseScopeKey(scope);
+  TBAND_COLLAPSE_CARDS.forEach((card) => {
+    const el = factsRoot.querySelector(`.tcard[data-tband-collapse="${card}"]`);
+    if (!el) return;
+    const collapsed = !!(_collapseByScope[sk] && _collapseByScope[sk][card]);
+    el.classList.toggle("collapsed", collapsed);
+    const btn = el.querySelector(".tcollapse");
+    if (!btn) return;
+    const label = tbandCollapseLabel(card);
+    btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    const verb = collapsed ? "Show" : "Hide";
+    btn.title = `${verb} ${label}`;
+    btn.setAttribute("aria-label", btn.title);
+  });
+}
+
+function wireTbandCollapse(root, scope) {
+  const factsRoot = tbandCollapseFactsRoot(root, scope);
+  if (!factsRoot) return;
+  const sk = tbandCollapseScopeKey(scope);
+  factsRoot.querySelectorAll("[data-action='tband-collapse']").forEach((btn) => {
+    if (btn.__tbandCollapseBound) return;
+    btn.__tbandCollapseBound = true;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const card = btn.getAttribute("data-tband-card");
+      if (!card) return;
+      setTbandCardCollapsed(sk, card, !isTbandCardCollapsed(sk, card));
+      applyTbandCollapseState(root, scope);
+    });
+  });
+  applyTbandCollapseState(root, scope);
+}
+
+function accountInitials() {
+  const user = window.CurrentUser || {};
+  const name = String(user.accountName || user.email || "Account").trim();
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  if (parts.length === 1 && parts[0].length >= 2) return parts[0].slice(0, 2).toUpperCase();
+  return parts[0] ? parts[0][0].toUpperCase() : "A";
+}
+
 
 const ALL_ROUTES = /** @type {const} */ ([
   ...NAV_ROUTES,
@@ -1603,11 +2137,23 @@ function closePopup() {
 function renderNav() {
   const nav = $("#primaryNav");
   nav.innerHTML = "";
-  NAV_ROUTES.forEach((r) => {
+  const routes = navContext.route === "chart-record"
+    ? PROFILE_BETA_NAV
+    : navContext.route === "chart"
+      ? RELOCATED_BETA_NAV
+      : NAV_ROUTES;
+  routes.forEach((r) => {
     const a = document.createElement("button");
     a.type = "button";
-    a.className = "linkish" + (navContext.route === r.id ? " active" : "");
+    a.className = "linkish" + (navContext.route === r.id ? " active" : "") + (r.disabled ? " rm-nav-disabled" : "");
     a.textContent = r.label;
+    if (r.disabled) {
+      a.disabled = true;
+      a.title = "City intelligence — not available yet";
+      a.setAttribute("data-nav-route", r.id);
+      nav.appendChild(a);
+      return;
+    }
     a.addEventListener("click", () => {
       if (r.id === "dashboard") {
         navigate("dashboard", {
@@ -1758,25 +2304,7 @@ function wireChartRecordFavoriteCompare(root) {
 function screenChartRecord() {
   const r = activeRecord();
   return `
-    <style>
-    #rm-cr-stage .chart-stage{display:grid;grid-template-columns:250px minmax(420px,600px) 250px;justify-content:center;align-items:center;gap:14px;margin:8px 0 0}
-    #rm-cr-stage .identity-stack{grid-column:1;display:flex;flex-direction:column;gap:14px;min-height:360px;width:250px}
-    #rm-cr-stage .zone-b{text-align:center}
-    #rm-cr-stage .zb-name{font-family:Palatino,Georgia,serif;font-size:24px;font-weight:600;color:var(--fg);line-height:1.2}
-    #rm-cr-stage .zb-name .nmwrap{position:relative;display:inline-block}
-    #rm-cr-stage .zb-name .tools{position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}
-    #rm-cr-stage .zb-caret,#rm-cr-stage .zb-tool{font-size:12.5px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0 2px;font-family:inherit}
-    #rm-cr-stage .zb-tool:hover,#rm-cr-stage .zb-caret:hover{color:var(--accent)}
-    #rm-cr-stage .zb-tool.plus{font-size:17px;line-height:1}
-    #rm-cr-stage .zb-primary{font-size:14.5px;font-weight:500;color:var(--fg);margin-top:6px}
-    #rm-cr-stage .zb-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
-    #rm-cr-stage .id-actions{display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:6px}
-    #rm-cr-stage .wheel-slot{grid-column:2;display:flex;justify-content:center;align-items:center;min-height:360px}
-    #rm-cr-stage .wheel-slot svg{max-width:100%;height:auto}
-    #rm-cr-stage .balance-col{grid-column:3}
-    #rm-cr-stage .sec-rule{border:none;border-top:1px solid var(--line);margin:24px 0 18px}
-    @media(max-width:1000px){#rm-cr-stage .chart-stage{grid-template-columns:1fr}#rm-cr-stage .wheel-slot{order:-1}#rm-cr-stage .identity-stack{width:auto;min-height:0}}
-    </style>
+    <div class="rm-profile-beta-root" data-beta-profile-visual="true">
     ${timeUncertaintyWarning(r)}
     <div id="rm-cr-stage">
       <div class="chart-stage">
@@ -1785,56 +2313,32 @@ function screenChartRecord() {
             <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">▾</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
             <div class="zb-primary">${escapeHtml(r.birthDate)} · ${escapeHtml(r.birthTimeDisplay)}</div>
             <div class="zb-primary">${escapeHtml(r.birthCity)}</div>
-            <div class="zb-meta">${escapeHtml(r.recordType)}</div>
-          </div>
-          <div class="id-actions">
-            <button type="button" data-action="set-current-location">Set Current Location</button>
+            <div class="zb-meta">${escapeHtml(profilePlateReferenceMetaLine(r.chartRecordId))}</div>
+            <div class="zb-meta">Tropical · Placidus</div>
           </div>
         </div>
-        <div class="wheel-slot" id="rm-profile-wheel-slot"><p class="meta">Loading natal wheel…</p></div>
+        <div class="wheel-wrap">
+          <div class="rm-profile-wheel-frame" id="rm-profile-wheel-slot"><p class="meta rm-profile-wheel-loading">Loading natal wheel…</p></div>
+        </div>
         <div class="balance-col"></div>
       </div>
       <hr class="sec-rule">
     </div>
-    <style>
-    /* PROFILE-HARMONIZATION Window B — tband (PH-4..PH-8), scoped to chart-record */
-    #rm-profile-natal-facts .tband{display:grid;gap:12px;align-items:start;margin:0 0 16px}
-    #rm-profile-natal-facts .tband.std{grid-template-columns:8fr 8fr 13fr 5fr}
-    #rm-profile-natal-facts .tband>*{min-width:0;align-self:start}
-    @media(max-width:1100px){#rm-profile-natal-facts .tband.std{grid-template-columns:1fr 1fr}#rm-profile-natal-facts .notes-card{grid-column:1/-1}}
-    @media(max-width:680px){#rm-profile-natal-facts .tband.std{grid-template-columns:1fr}}
-    #rm-profile-natal-facts .tcard,#rm-profile-natal-facts .notes-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:2px 4px 10px;position:relative}
-    #rm-profile-natal-facts .tint-ais{box-shadow:inset 3px 0 0 #4a9468}
-    #rm-profile-natal-facts .tint-pih{box-shadow:inset 3px 0 0 #5a82a8}
-    #rm-profile-natal-facts .tint-a2a{box-shadow:inset 3px 0 0 #7a68a0}
-    #rm-profile-natal-facts .card-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
-    #rm-profile-natal-facts .ch-title{font-family:Palatino,Georgia,serif;font-size:15px;font-weight:700;margin:0;white-space:nowrap}
-    #rm-profile-natal-facts table.simple{margin:0;width:100%}
-    #rm-profile-natal-facts table.simple th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-    #rm-profile-natal-facts .rm-ais-vgrid{display:inline-grid;grid-template-columns:1fr auto 1fr;align-items:baseline;column-gap:6px;width:100%}
-    #rm-profile-natal-facts .rm-ais-vgrid .deg{text-align:right}
-    #rm-profile-natal-facts .rm-ais-vgrid .sgn{text-align:center}
-    #rm-profile-natal-facts .rm-ais-vgrid .min{text-align:left;color:var(--muted)}
-    #rm-profile-natal-facts .pih-foot,#rm-profile-natal-facts .pih-footer{display:flex;justify-content:flex-end;padding:6px 12px 2px;font-size:12px}
-    #rm-profile-natal-facts .notes-card .card-head{justify-content:space-between}
-    #rm-profile-natal-facts .note-ta{display:block;box-sizing:border-box;width:calc(100% - 24px);margin:4px 12px 8px;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
-    #rm-profile-natal-facts .note-foot{display:flex;align-items:center;gap:8px;padding:0 12px 8px}
-    </style>
     <div id="rm-profile-natal-facts" data-chart-record="${escapeHtml(r.chartRecordId)}">
       <p class="meta">Loading natal chart…</p>
     </div>
-    <div class="row">
-      <button type="button" class="primary" data-action="open-map-record">Open Map (this Chart Record)</button>
-      <button type="button" data-nav="export">Export / share status</button>
+    <div class="row rm-profile-beta-actions">
+      <button type="button" class="primary" data-action="open-map-record">Open Map</button>
+      <button type="button" data-nav="export">Export</button>
       <button type="button" data-nav="notes-library" data-chart-record="${r.chartRecordId}">Notes Library</button>
       <button type="button" data-nav="settings">Settings</button>
     </div>
-    <div class="grid-2">
-      <div class="panel">
+    <div class="rm-profile-lower lower">
+      <div class="panel rm-profile-panel-favorites">
         <h3>Favorites</h3>
         ${r.favorites.length === 0
-          ? `<p class="meta">No favorite places saved yet.<br>Open the map and save a location to begin building comparisons.</p>`
-          : `<p class="meta">Check favorites below, then use <strong>Compare selected</strong> (2–5 places) to create a new comparison.</p>
+          ? `<p class="meta">No favorite places saved yet. Open the map and save a location to begin building comparisons.</p>`
+          : `<p class="meta">Check favorites below, then use <strong>Compare selected</strong> (2–5 places).</p>
           <ul class="plain rm-cr-favorites-list">${r.favorites.map((f) => `
           <li>
             <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
@@ -1855,10 +2359,10 @@ function screenChartRecord() {
             <span id="rm-cr-compare-selected-msg" class="meta"></span>
           </div>`}
       </div>
-      <div class="panel">
-        <h3>Saved explorations</h3>
+      <div class="panel rm-profile-panel-explorations">
+        <h3>Saved Searches</h3>
         ${r.explorations.length === 0
-          ? `<p class="meta">No saved explorations yet.<br>Open the map, run a search, and save it to resume later.</p>`
+          ? `<p class="meta">No saved explorations yet. Open the map, run a search, and save it to resume later.</p>`
           : `<ul class="plain">${r.explorations.map((e) => `
           <li>
             <strong>${e.name}</strong>
@@ -1873,15 +2377,17 @@ function screenChartRecord() {
               data-exploration="${e.id}">Archive</button>
           </li>`).join("")}</ul>`}
       </div>
-    </div>
-    <div class="panel">
-      <h3>Comparison sets</h3>
-      <div id="rm-cr-comparison-sets" data-chart-record="${escapeHtml(r.chartRecordId)}">
-        <p class="meta">Loading comparison sets…</p>
+      <div class="panel rm-profile-panel-comparisons">
+        <h3>Saved Comparisons</h3>
+        <div id="rm-cr-comparison-sets" data-chart-record="${escapeHtml(r.chartRecordId)}">
+          <p class="meta">Loading comparison sets…</p>
+        </div>
       </div>
+    </div>
     </div>
   `;
 }
+
 
 let _profileNatalToken = 0;
 async function hydrateProfileNatalFacts(root) {
@@ -1904,6 +2410,7 @@ async function hydrateProfileNatalFacts(root) {
     if (wheelSlot) wheelSlot.innerHTML = '<p class="meta">Natal wheel unavailable.</p>';
     container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Birth place coordinates unavailable — cannot render natal chart.");
     bindPihDignitiesToggle(container);
+    wireTbandCollapse(root || document, "profile");
     return;
   }
   try {
@@ -1917,6 +2424,7 @@ async function hydrateProfileNatalFacts(root) {
       if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
       container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Birth data unavailable: " + (detail.message || ("HTTP " + birthResp.status)));
       bindPihDignitiesToggle(container);
+      wireTbandCollapse(root || document, "profile");
       return;
     }
     let chart;
@@ -1938,6 +2446,7 @@ async function hydrateProfileNatalFacts(root) {
         if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
         container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Could not calculate natal chart (HTTP " + msg.slice("relocated_failed:".length) + ").");
         bindPihDignitiesToggle(container);
+        wireTbandCollapse(root || document, "profile");
         return;
       }
       throw fetchErr;
@@ -1949,12 +2458,17 @@ async function hydrateProfileNatalFacts(root) {
     if (wheelSlot) wheelSlot.innerHTML = renderProfileNatalWheelHtml(canonical);
     container.innerHTML = renderProfileNatalChartHtml(canonical, _profilePihDignities);
     bindPihDignitiesToggle(container);
+    const pihCard = container.querySelector(".tcard.tint-pih");
+    if (pihCard && _profilePihDignities) pihCard.classList.add("show-dignities");
+    wireProfileA2aPills(root || document, "profile");
+    wireTbandCollapse(root || document, "profile");
   } catch (err) {
     if (!stillCurrent()) return;
     const wheelSlot = (root || document).querySelector("#rm-profile-wheel-slot");
     if (wheelSlot) wheelSlot.innerHTML = `<p class="meta">Natal wheel unavailable.</p>`;
     container.innerHTML = renderProfileTbandHtml(null, _profilePihDignities, "Natal chart request failed: " + (err && err.message ? err.message : String(err)));
     bindPihDignitiesToggle(container);
+    wireTbandCollapse(root || document, "profile");
   }
 }
 
@@ -2014,6 +2528,250 @@ function resolvePlaceLatLon(placeId) {
   return { lat, lon };
 }
 
+
+function formatPlateLatLonDisplay(lat, lon) {
+  const latN = Number(lat);
+  const lonN = Number(lon);
+  if (!Number.isFinite(latN) || !Number.isFinite(lonN)) return null;
+  const latAbs = Math.abs(latN).toFixed(2);
+  const lonAbs = Math.abs(lonN).toFixed(2);
+  const latH = latN >= 0 ? "N" : "S";
+  const lonH = lonN >= 0 ? "E" : "W";
+  return `${latAbs}° ${latH}, ${lonAbs}° ${lonH}`;
+}
+
+function timezoneOffsetMinutesAt(timezoneId, when) {
+  if (!timezoneId || !when || Number.isNaN(when.getTime())) return null;
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezoneId,
+    timeZoneName: "shortOffset",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const parts = dtf.formatToParts(when);
+  const tzPart = parts.find((p) => p.type === "timeZoneName");
+  if (!tzPart) return null;
+  const m = tzPart.value.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+  if (!m) {
+    if (tzPart.value === "GMT" || tzPart.value === "UTC") return 0;
+    return null;
+  }
+  const sign = m[1] === "+" ? 1 : -1;
+  return sign * (parseInt(m[2], 10) * 60 + parseInt(m[3] || "0", 10));
+}
+
+function birthWallTimeToUtcDate(birthDate, birthTime, timezoneId) {
+  if (!birthDate || !timezoneId) return null;
+  const rawTime = (birthTime && String(birthTime).trim()) || "12:00:00";
+  const normTime = rawTime.length === 5 ? `${rawTime}:00` : rawTime;
+  const [y, mo, d] = String(birthDate).split("-").map((x) => Number(x));
+  const [hh, mm, ss] = normTime.split(":").map((x) => Number(x || 0));
+  if (![y, mo, d, hh, mm].every((n) => Number.isFinite(n))) return null;
+  let utcGuess = Date.UTC(y, mo - 1, d, hh, mm, ss || 0);
+  for (let i = 0; i < 2; i++) {
+    const off = timezoneOffsetMinutesAt(timezoneId, new Date(utcGuess));
+    if (off == null) return null;
+    utcGuess = Date.UTC(y, mo - 1, d, hh, mm, ss || 0) - off * 60000;
+  }
+  return new Date(utcGuess);
+}
+
+function formatPlateUtcOffsetLabel(timezoneId, birthDate, birthTime) {
+  const when = birthWallTimeToUtcDate(birthDate, birthTime, timezoneId);
+  if (!when) return null;
+  const off = timezoneOffsetMinutesAt(timezoneId, when);
+  if (off == null) return null;
+  const sign = off >= 0 ? "+" : "-";
+  const abs = Math.abs(off);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  return `UTC${sign}${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function profilePlateReferenceMetaLine(chartRecordId) {
+  const birthPlaceId = resolveBirthPlaceId(chartRecordId);
+  const coords = birthPlaceId ? resolvePlaceLatLon(birthPlaceId) : null;
+  const latLon = coords ? formatPlateLatLonDisplay(coords.lat, coords.lon) : null;
+  let timezoneId = null;
+  let birthDate = null;
+  let birthTime = null;
+  if (storeRaw && chartRecordId) {
+    const client = (storeRaw.clients || []).find((c) => c.id === chartRecordId);
+    if (client) {
+      const bp = (storeRaw.birth_profiles || []).find((b) => b.id === client.birth_profile_id);
+      if (bp) {
+        timezoneId = bp.timezone_id || null;
+        birthDate = bp.birth_date || null;
+        birthTime = bp.birth_time || null;
+      }
+    }
+  }
+  const utc = formatPlateUtcOffsetLabel(timezoneId, birthDate, birthTime);
+  if (latLon && utc) return `${latLon} · ${utc}`;
+  if (latLon) return latLon;
+  if (utc) return utc;
+  return "—";
+}
+
+
+function resolveCurrentLocationPlaceId(chartRecordId) {
+  if (!storeRaw || !chartRecordId) return null;
+  const client = (storeRaw.clients || []).find((c) => c.id === chartRecordId);
+  return client && client.current_location_place_id ? client.current_location_place_id : null;
+}
+
+function isRelocatedCurrentLocationPlace(chartRecordId, placeId) {
+  if (!chartRecordId || !placeId) return false;
+  return resolveCurrentLocationPlaceId(chartRecordId) === placeId;
+}
+
+function userPrefers24HourClock() {
+  const raw = (storeRaw && storeRaw.user_settings) || {};
+  const fmt = raw.time_format || raw.timeFormat || raw.regional_time_format;
+  if (fmt === "24" || fmt === "24h" || fmt === "24-hour") return true;
+  if (fmt === "ampm" || fmt === "12" || fmt === "12h" || fmt === "12-hour") return false;
+  try {
+    const stored = localStorage.getItem("rm_regional_prefs");
+    if (stored) {
+      const prefs = JSON.parse(stored);
+      if (prefs.timeFmt === "24") return true;
+      if (prefs.timeFmt === "ampm") return false;
+    }
+  } catch (e) { /* ignore */ }
+  return false;
+}
+
+function resolvePlaceTimezoneId(placeId) {
+  if (!placeId) return null;
+  const row = (viewModel && viewModel.placesById && viewModel.placesById[placeId]) || null;
+  if (row && (row.timezone_id || row.timezone)) return row.timezone_id || row.timezone;
+  if (storeRaw && Array.isArray(storeRaw.places)) {
+    const stored = storeRaw.places.find((p) => p.id === placeId);
+    if (stored && (stored.timezone_id || stored.timezone)) return stored.timezone_id || stored.timezone;
+  }
+  return null;
+}
+
+function formatUtcOffsetLabelAt(timezoneId, when) {
+  if (!timezoneId || !when || Number.isNaN(when.getTime())) return null;
+  const off = timezoneOffsetMinutesAt(timezoneId, when);
+  if (off == null) return null;
+  const sign = off >= 0 ? "+" : "-";
+  const abs = Math.abs(off);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  return `UTC${sign}${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function formatRelocatedLocalClock(timezoneId, when) {
+  if (!timezoneId || !when || Number.isNaN(when.getTime())) return null;
+  const use24 = userPrefers24HourClock();
+  try {
+    return new Intl.DateTimeFormat(use24 ? "en-GB" : "en-US", {
+      timeZone: timezoneId,
+      hour: use24 ? "2-digit" : "numeric",
+      minute: "2-digit",
+      hour12: !use24,
+    }).format(when);
+  } catch (e) {
+    return null;
+  }
+}
+
+function formatRelocatedLocalTimeMetaLine(timezoneId) {
+  if (!timezoneId) return null;
+  const now = new Date();
+  const utc = formatUtcOffsetLabelAt(timezoneId, now);
+  const localTime = formatRelocatedLocalClock(timezoneId, now);
+  if (!localTime || !utc) return null;
+  return `${localTime} · ${utc}`;
+}
+
+function relocatedZoneLocalTimeMetaLine(placeId) {
+  const timezoneId = resolvePlaceTimezoneId(placeId);
+  return timezoneId ? formatRelocatedLocalTimeMetaLine(timezoneId) : null;
+}
+
+async function hydrateRelocatedZoneCLocalTime(placeId) {
+  if (!placeId || navContext.route !== "chart") return;
+  const slot = document.querySelector("#rm-screen4-stage .reloc-c .zc-local-time[data-place-id]");
+  if (!slot || slot.getAttribute("data-place-id") !== placeId) return;
+  let timezoneId = resolvePlaceTimezoneId(placeId);
+  if (!timezoneId) {
+    try {
+      const resp = await fetch("/place/" + encodeURIComponent(placeId));
+      if (resp.ok) {
+        const pl = await resp.json();
+        timezoneId = pl.timezone_id || null;
+      }
+    } catch (e) { /* omit when unavailable */ }
+  }
+  const line = timezoneId ? formatRelocatedLocalTimeMetaLine(timezoneId) : null;
+  if (line) {
+    slot.textContent = line;
+    slot.hidden = false;
+    slot.removeAttribute("aria-hidden");
+  } else {
+    slot.remove();
+  }
+}
+
+function renderRelocatedZoneBHtml(r) {
+  return `<div class="zone-b">
+    <div class="zb-name"><span class="nmwrap"><span class="nm">${escapeHtml(r.displayName)}</span><span class="tools"><button type="button" class="zb-caret" title="Switch profile">▾</button><button type="button" class="zb-tool" data-nav="birth-data" title="Edit birth data">Edit</button><button type="button" class="zb-tool plus" data-action="add-chart-record" title="Add profile">+</button></span></span></div>
+    <div class="zb-primary">${escapeHtml(r.birthDate)} · ${escapeHtml(r.birthTimeDisplay)}</div>
+    <div class="zb-primary">${escapeHtml(r.birthCity)}</div>
+    <div class="zb-meta">${escapeHtml(profilePlateReferenceMetaLine(r.chartRecordId))}</div>
+  </div>`;
+}
+
+function renderRelocatedZoneCHtml(chartRecordId, placeId, placeName, coords) {
+  const badgeHtml = isRelocatedCurrentLocationPlace(chartRecordId, placeId)
+    ? `<div class="zc-badge">CURRENT LOCATION</div>`
+    : "";
+  const coordsLine = coords ? formatPlateLatLonDisplay(coords.lat, coords.lon) : null;
+  const localLine = placeId ? relocatedZoneLocalTimeMetaLine(placeId) : null;
+  const localHtml = placeId
+    ? (localLine
+      ? `<div class="zc-meta zc-local-time" data-place-id="${escapeHtml(placeId)}">${escapeHtml(localLine)}</div>`
+      : `<div class="zc-meta zc-local-time" data-place-id="${escapeHtml(placeId)}" hidden aria-hidden="true"></div>`)
+    : "";
+  const locMenuShell = `<div class="loc-menu" aria-hidden="true" hidden>
+      <input class="loc-search" type="search" placeholder="Search cities\u2026" disabled aria-disabled="true" tabindex="-1">
+      <div class="loc-lbl">Favorites</div>
+    </div>`;
+  return `<div class="zone-c reloc-c">
+    ${badgeHtml}
+    <div class="zc-place-lg"><span class="kywrap loc-wrap" data-zone-c-loc-shell="true">${escapeHtml(placeName)}${locMenuShell}<span class="addons"><button type="button" class="loc-caret" title="Change location" disabled aria-disabled="true" tabindex="-1">\u25be</button><span class="zc-star" title="Saved" aria-hidden="true">\u2605</span></span></span></div>
+    ${coordsLine ? `<div class="zc-meta">${escapeHtml(coordsLine)}</div>` : ""}
+    ${localHtml}
+    <div class="zc-meta">Tropical \u00b7 Placidus</div>
+  </div>`;
+}
+
+function renderRelocatedAuthorityStageHtml(r, placeId, placeName, coords) {
+  return `<div class="rm-relocated-beta-root" data-beta-relocated-visual="true">
+    ${timeUncertaintyWarning(r)}
+    <div id="rm-screen4-stage">
+      <div class="chart-stage">
+        <div class="identity-stack">
+          ${renderRelocatedZoneBHtml(r)}
+          ${renderRelocatedZoneCHtml(r.chartRecordId, placeId, placeName, coords)}
+        </div>
+        <div class="wheel-slot" id="rm-screen4-wheel">
+          <div class="rm-relocated-wheel-frame"><p class="meta rm-screen4-wheel-loading">Loading wheel…</p></div>
+        </div>
+        <div class="balance-col"></div>
+      </div>
+      <hr class="sec-rule">
+    </div>`;
+}
+
 function resolveBirthPlaceId(chartRecordId) {
   if (!storeRaw || !chartRecordId) return null;
   const client = (storeRaw.clients || []).find((c) => c.id === chartRecordId);
@@ -2037,8 +2795,6 @@ function screenChart() {
   if (!chartRecordId || !explicitPlaceLaunch || (!placeId && !coords)) {
     return `
     <div class="breadcrumb">Relocated Chart</div>
-    <h2>Screen 4 — Relocated Chart</h2>
-    <p class="purpose">Relocated chart facts for one profile and one place — not the natal Chart Record page.</p>
     <div class="warn-box"><strong>Choose a place to view a relocated chart.</strong><br>
       Open this screen from the map (<em>View relocated chart</em>), a Chart Record favorite, or a comparison column.
       Primary Relocated Chart nav does not resume a previous place.</div>
@@ -2058,90 +2814,20 @@ function screenChart() {
     : `<div class="warn-box"><strong>Cannot resolve this place's coordinates.</strong><br>
         Place id: <code>${escapeHtml(placeId)}</code></div>`;
   return `
-    <div class="breadcrumb">${escapeHtml(r.displayName)} · ${escapeHtml(placeName)}</div>
-    <h2>Screen 4 — Relocated Chart</h2>
-    <p class="purpose">Relocated chart facts · one profile + one place (not natal Chart Record).</p>
-    ${timeUncertaintyWarning(r)}
-    <style>
-    /* RELOCATED-HARMONIZATION Window B — tband scoped to #rm-screen4-facts */
-    #rm-screen4-facts .tband{display:grid;gap:12px;align-items:start;margin:0 0 16px}
-    #rm-screen4-facts .tband.std{grid-template-columns:8fr 8fr 13fr 5fr}
-    #rm-screen4-facts .tband>*{min-width:0;align-self:start}
-    @media(max-width:1100px){#rm-screen4-facts .tband.std{grid-template-columns:1fr 1fr}#rm-screen4-facts .notes-card{grid-column:1/-1}}
-    @media(max-width:680px){#rm-screen4-facts .tband.std{grid-template-columns:1fr}}
-    #rm-screen4-facts .tcard,#rm-screen4-facts .notes-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:2px 4px 10px;position:relative}
-    #rm-screen4-facts .tint-ais{box-shadow:inset 3px 0 0 #4a9468}
-    #rm-screen4-facts .tint-pih{box-shadow:inset 3px 0 0 #5a82a8}
-    #rm-screen4-facts .tint-a2a{box-shadow:inset 3px 0 0 #7a68a0}
-    #rm-screen4-facts .card-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
-    #rm-screen4-facts .ch-title{font-family:Palatino,Georgia,serif;font-size:15px;font-weight:700;margin:0;white-space:nowrap}
-    #rm-screen4-facts table.simple{margin:0;width:100%}
-    #rm-screen4-facts table.simple th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-    #rm-screen4-facts .rm-ais-vgrid{display:inline-grid;grid-template-columns:1fr auto 1fr;align-items:baseline;column-gap:6px;width:100%}
-    #rm-screen4-facts .rm-ais-vgrid .deg{text-align:right}
-    #rm-screen4-facts .rm-ais-vgrid .sgn{text-align:center}
-    #rm-screen4-facts .rm-ais-vgrid .min{text-align:left;color:var(--muted)}
-    #rm-screen4-facts .pih-foot,#rm-screen4-facts .pih-footer{display:flex;justify-content:flex-end;padding:6px 12px 2px;font-size:12px}
-    #rm-screen4-facts .notes-card .card-head{justify-content:space-between}
-    #rm-screen4-facts .note-ta{display:block;box-sizing:border-box;width:calc(100% - 24px);margin:4px 12px 8px;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
-    /* RELOCATED-HARMONIZATION Window A — chart-head plate + wheel slot */
-    #rm-screen4-head{display:flex;gap:24px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px}
-    #rm-screen4-head .reloc-plate{flex:0 0 220px;font-size:13px;line-height:1.6}
-    #rm-screen4-head .rp-name{font-family:Palatino,Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:4px}
-    #rm-screen4-head .rp-meta{font-size:12px;color:var(--muted);min-height:1em}
-    #rm-screen4-head .rp-place-block{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
-    #rm-screen4-head .rp-place-badge{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-    #rm-screen4-head .rp-place-name{font-family:Palatino,Georgia,serif;font-size:17px;font-weight:600;color:var(--ink);margin-top:2px}
-    #rm-screen4-head .reloc-wheel-slot{flex:1 1 auto;min-width:0}
-    #rm-screen4-head .rm-wheel-wrap{max-width:460px}
-    #rm-screen4-head .rm-wheel-disc{border-radius:50%;overflow:hidden;width:100%;max-width:420px}
-    #rm-screen4-head .rm-wheel-disc svg{display:block;width:100%;height:auto}
-    @media(max-width:760px){#rm-screen4-head{flex-direction:column}#rm-screen4-head .reloc-plate{flex:none;width:100%}}
-    /* RELOCATED City Intelligence snippet — beta placeholder */
-    #rm-screen4-intel{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);max-width:660px}
-    #rm-screen4-intel .rm-intel-heading{font-family:Palatino,Georgia,serif;font-size:18px;font-weight:700;margin:0 0 14px;color:var(--ink)}
-    #rm-screen4-intel .rm-intel-rows{display:grid;grid-template-columns:1fr 1fr;gap:2px 36px}
-    #rm-screen4-intel .rm-intel-row{display:flex;justify-content:space-between;gap:14px;align-items:baseline;border-bottom:1px solid var(--line-soft);padding:8px 0}
-    #rm-screen4-intel .rm-intel-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
-    #rm-screen4-intel .rm-intel-value{font-size:15px;color:var(--ink);font-weight:500;text-align:right}
-    #rm-screen4-intel .intel-stub{color:var(--muted);font-weight:400}
-    @media(max-width:640px){#rm-screen4-intel .rm-intel-rows{grid-template-columns:1fr}}
-    </style>
-    <div class="panel rm-screen4-panel">
-      <div id="rm-screen4-head">
-        <div class="reloc-plate">
-          <div class="rp-name">${escapeHtml(r.displayName)}</div>
-          <div class="rp-meta" id="rm-screen4-plate-meta"></div>
-          <div class="rp-place-block">
-            <div class="rp-place-badge">Relocated to</div>
-            <div class="rp-place-name">${escapeHtml(placeName)}</div>
-          </div>
-        </div>
-        <div class="reloc-wheel-slot" id="rm-screen4-wheel">
-          <p class="meta rm-screen4-wheel-loading">Loading wheel…</p>
-        </div>
-      </div>
-      <div id="rm-screen4-facts"
-           data-chart-record="${escapeHtml(chartRecordId)}"
-           data-place-id="${escapeHtml(placeId || "")}"
-           data-place-name="${escapeHtml(placeName)}"
-           data-record-name="${escapeHtml(r.displayName)}"
-           ${coords ? `data-lat="${coords.lat}" data-lon="${coords.lon}"` : ""}>
-        ${factsInner}
-      </div>
-      <div id="rm-screen4-intel"></div>
+    ${renderRelocatedAuthorityStageHtml(r, placeId, placeName, coords)}
+    <div id="rm-screen4-facts"
+         data-chart-record="${escapeHtml(chartRecordId)}"
+         data-place-id="${escapeHtml(placeId || "")}"
+         data-place-name="${escapeHtml(placeName)}"
+         data-record-name="${escapeHtml(r.displayName)}"
+         ${coords ? `data-lat="${coords.lat}" data-lon="${coords.lon}"` : ""}>
+      ${factsInner}
+    </div>
+    <div id="rm-screen4-intel" class="intel-block"></div>
     </div>
 
-    <div class="row">
-      <button type="button" data-nav="map">Back to map</button>
-      <button type="button" data-action="quick-share-chart" title="Share this map/search">Quick Share</button>
-      <button type="button" data-nav="compare">Open comparison workspace</button>
-      <button type="button" data-nav="export">Export / share status</button>
-    </div>
-    <p id="rm-screen4-quick-share-msg" class="meta" style="margin-top:8px;min-height:1.2em;"></p>
   `;
 }
-
 
 
 let _screen4ChartCache = null;
@@ -2454,19 +3140,25 @@ function setPihDignitiesEnabled(on, scope) {
   if (scope === "profile") {
     _profilePihDignities = !!on;
     const slot = document.getElementById("rm-profile-pih-slot");
+    const pihCard = document.querySelector("#rm-profile-natal-facts .tcard.tint-pih");
+    if (pihCard) pihCard.classList.toggle("show-dignities", !!on);
     if (slot && _profileCanonicalCache) {
       slot.innerHTML = renderProfilePihTableHtml(_profileCanonicalCache, !!on);
     }
+    applyTbandCollapseState(document, "profile");
     return;
   }
   _screen4PihDignities = !!on;
-  const container = document.getElementById("rm-screen4-facts");
-  if (container && _screen4ChartCache) {
-    const recordName = container.getAttribute("data-record-name") || "";
-    const placeName = container.getAttribute("data-place-name") || "";
-    container.innerHTML = renderRelocatedChartHtml(recordName, placeName, _screen4ChartCache, !!on);
-    bindPihDignitiesToggle(container);
+  const slot = document.getElementById("rm-screen4-pih-slot");
+  const pihCard = document.querySelector("#rm-screen4-facts .tcard.tint-pih");
+  if (pihCard) pihCard.classList.toggle("show-dignities", !!on);
+  if (slot && _screen4ChartCache) {
+    const canonical = getCanonicalChartFromPayload(_screen4ChartCache);
+    if (canonical) {
+      slot.innerHTML = renderProfilePihTableHtml(canonical, !!on);
+    }
   }
+  applyTbandCollapseState(document, "chart");
 }
 
 // Render the real relocated-chart facts into Screen 4's container.
@@ -3375,14 +4067,151 @@ function refreshA2aWorkbookSection() {
   applyComparisonAngleTabFilter(document);
 }
 
-function renderProfileNatalWheelHtml(canonical) {
-  if (!canonical) {
-    return '<p class="meta">Natal wheel unavailable (canonical chart missing).</p>';
-  }
-  return renderRelocatedWheelHtml(canonical);
+const PROFILE_AIS_ROWS = [
+  { key: "ASC", label: "ASC" },
+  { key: "DSC", label: "DSC" },
+  { key: "MC", label: "MC" },
+  { key: "IC", label: "IC" },
+];
+const PROFILE_ZODIAC_SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+const PROFILE_A2A_ASP_ABBR = { conjunction: "Conj", square: "Sq", trine: "Tri", opposition: "Opp", sextile: "Sext" };
+const PROFILE_A2A_ROW_BODIES = PIH_BODY_ORDER.concat(["ASC", "MC"]);
+const PROFILE_PIH_LATE_TITLE = "Late in house — this planet sits within ~1\u00b0 of the next cusp. A small change in birth time or house system could place it in the next house, so weigh both readings.";
+
+function profileSignFromLongitude(lon) {
+  const idx = Math.floor((Number(lon) % 360) / 30) % 12;
+  return PROFILE_ZODIAC_SIGNS[idx].toLowerCase();
 }
 
-// PH-8: AIS angle as deg / sign / min vgrid cell (profile-only adapter).
+function resolveProfileAngleEntry(angles, key) {
+  if (!angles || typeof angles !== "object") return null;
+  const direct = angles[key];
+  if (direct && direct.longitude_deg != null) return direct;
+  const opposites = { ASC: "DSC", DSC: "ASC", MC: "IC", IC: "MC" };
+  const src = angles[opposites[key]];
+  if (!src || src.longitude_deg == null) return null;
+  const lon = (Number(src.longitude_deg) + 180) % 360;
+  return { longitude_deg: lon, sign: profileSignFromLongitude(lon), derived: true };
+}
+
+function profileAisSignText(sign) {
+  if (!sign) return "\u2014";
+  const s = String(sign);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function profileAisVgridCellHtml(angleEntry) {
+  if (!angleEntry || angleEntry.longitude_deg == null) return "\u2014";
+  const lon = Number(angleEntry.longitude_deg) % 360;
+  const signDeg = lon % 30;
+  const whole = Math.floor(signDeg);
+  const minutes = Math.floor((signDeg - whole) * 60);
+  const deg = `${whole}\u00b0`;
+  const min = `${String(minutes).padStart(2, "0")}\u2032`;
+  const sign = profileAisSignText(angleEntry.sign || profileSignFromLongitude(lon));
+  return `<span class="vgrid"><span class="deg">${escapeHtml(deg)}</span><span class="sgn">${escapeHtml(sign)}</span><span class="min">${escapeHtml(min)}</span></span>`;
+}
+
+function profileHouseDisplay(house) {
+  if (house == null || house === "\u2014") return "\u2014";
+  const raw = String(house).trim();
+  if (/^\d+(st|nd|rd|th)$/i.test(raw)) return raw.toLowerCase().replace(/(st|nd|rd|th)$/i, (m) => m.toLowerCase());
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return raw;
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  const suffix = (mod100 >= 11 && mod100 <= 13) ? "th" : (mod10 === 1 ? "st" : mod10 === 2 ? "nd" : mod10 === 3 ? "rd" : "th");
+  return `${n}${suffix}`;
+}
+
+function profilePihHouseCellHtml(planet, info, dignitiesOn) {
+  const house = info && info.house != null ? profileHouseDisplay(info.house) : "\u2014";
+  const houseNum = info && info.house != null ? Number(info.house) : null;
+  const late = !!(info && info.near_cusp);
+  // TODO: if backend adds finer within-1-degree cusp flag, prefer it over near_cusp.
+  const mark = late ? `<a class="lh" href="#" title="${escapeHtml(PROFILE_PIH_LATE_TITLE)}" onclick="return false">?</a>` : "";
+  const digClass = dignitiesOn && houseNum != null && Number.isFinite(houseNum) ? pihDignityClass(planet, houseNum) : "";
+  return `<td class="hv${late ? " late" : ""}"><span class="hnum${digClass}">${escapeHtml(house)}${mark}</span></td>`;
+}
+
+function profileA2aAspectCellHtml(row) {
+  if (!row || !row.aspect) return '<span class="ph">\u2014</span>';
+  const abbr = PROFILE_A2A_ASP_ABBR[String(row.aspect).toLowerCase()] || formatA2aAspectLabel(row.aspect);
+  const motion = row.motion === "applying" ? " app" : row.motion === "separating" ? " sep" : "";
+  const orb = formatA2aSeparationDeg(row.separation_deg);
+  return `<span class="asp">${escapeHtml(abbr)}</span> <span class="orb${motion}">${escapeHtml(orb)}</span>`;
+}
+
+function profileA2aLookup(idx, planet, angle) {
+  return idx.get(`${planet}\0${angle}`)
+    || idx.get(`${planet}\0${String(angle).toUpperCase()}`)
+    || idx.get(`${planet}\0${String(angle).toLowerCase()}`);
+}
+
+function profileA2aVcolHtml(canonical, angle, rowBodies) {
+  const idx = buildA2aContactIndex(canonical);
+  const body = rowBodies.map((name) => {
+    const hit = profileA2aLookup(idx, name, angle);
+    return `<div class="ar">${profileA2aAspectCellHtml(hit)}</div>`;
+  }).join("");
+  return `<div class="vcol"><div class="ar head vh">${escapeHtml(angle)}</div>${body}</div>`;
+}
+
+function renderProfileA2aCardBodyHtml(canonical, scope) {
+  const a2aScope = scope || "profile";
+  const raw = (canonical && Array.isArray(canonical.aspects_to_angles)) ? canonical.aspects_to_angles : [];
+  const visible = getVisibleBodyNamesSet();
+  const rowBodies = PROFILE_A2A_ROW_BODIES.filter((name) => visible.has(name) || name === "ASC" || name === "MC");
+  if (!raw.length) {
+    return `<p class="meta">No enabled aspect-to-angle contacts within the current orb settings.</p>`;
+  }
+  const angles = ["ASC", "DSC", "MC", "IC"];
+  const sel = a2aSelForScope(a2aScope);
+  const planetCol = `<div class="a2a-planetcol"><div class="ar head">.</div>${rowBodies.map((n) => `<div class="ar pl">${escapeHtml(n)}</div>`).join("")}</div>`;
+  const singleFrames = angles.map((a) => `<div class="frame single">${profileA2aVcolHtml(canonical, a, rowBodies)}</div>`).join("");
+  const allFrame = `<div class="frame all">${angles.map((a) => profileA2aVcolHtml(canonical, a, rowBodies)).join("")}</div>`;
+  const pills = PROFILE_A2A_FRAMES.map((a) =>
+    `<button type="button" class="apill${sel === a ? " on" : ""}" data-action="profile-a2a-pill" data-sel="${a}">${a}</button>`
+  ).join("");
+  return `<div class="a2a-top"><div class="apills">${pills}</div></div><div class="a2a-rows">${planetCol}<div class="a2a-viewport"><div class="a2a-track">${singleFrames}${allFrame}</div></div></div>`;
+}
+
+function wireProfileA2aPills(root, scope) {
+  const a2aScope = scope || "profile";
+  const card = (root || document).querySelector(`[data-a2a="${a2aScope}"]`);
+  if (!card) return;
+  const positionTrack = () => {
+    const idx = PROFILE_A2A_FRAMES.indexOf(a2aSelForScope(a2aScope));
+    const track = card.querySelector(".a2a-track");
+    if (track && idx >= 0) track.style.transform = `translateX(-${idx * 20}%)`;
+  };
+  card.querySelectorAll("[data-action='profile-a2a-pill']").forEach((btn) => {
+    if (btn.__profileA2aBound) return;
+    btn.__profileA2aBound = true;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      _a2aSelByScope[a2aScope] = btn.getAttribute("data-sel") || "All";
+      card.querySelectorAll("[data-action='profile-a2a-pill']").forEach((x) => {
+        x.classList.toggle("on", x.getAttribute("data-sel") === _a2aSelByScope[a2aScope]);
+      });
+      positionTrack();
+    });
+  });
+  positionTrack();
+}
+
+function renderProfileNatalWheelHtml(canonical) {
+  if (!canonical) {
+    return '<p class="meta rm-profile-wheel-msg">Natal wheel unavailable (canonical chart missing).</p>';
+  }
+  const svg = renderRelocatedWheelSvg(canonical);
+  if (!svg) {
+    return '<p class="meta rm-profile-wheel-msg">Chart wheel unavailable (canonical geometry missing).</p>';
+  }
+  return `<div class="disc home rm-profile-wheel-disc">${svg}</div>`;
+}
+
+// PH-8: AIS angle as deg / sign / min vgrid cell (legacy comparison adapter).
 function aisVgridCellHtml(angleEntry) {
   if (!angleEntry || angleEntry.longitude_deg == null) return "\u2014";
   const lon = Number(angleEntry.longitude_deg) % 360;
@@ -3396,42 +4225,96 @@ function aisVgridCellHtml(angleEntry) {
     `<span class="min">${escapeHtml(min)}</span></span>`;
 }
 
-// PH-8: AIS card body (Angle in Sign) — same data source as renderAisSinglePlaceHtml.
+// H2D: Profile AIS — canonical mockup table (always four angles; no A2A settings filter).
 function renderProfileAisCardBodyHtml(canonical) {
-  const a2a = getA2aDisplayAngles();
   const angles = (canonical && canonical.angles) || {};
-  const rows = AIS_ANGLE_ROWS.filter(({ setting }) => a2a[setting]).map(({ key, label }) => {
-    const entry = angles[key];
-    return `<tr><td>${formatAngleLabelHtml(label)}</td><td>${aisVgridCellHtml(entry)}</td></tr>`;
+  const rows = PROFILE_AIS_ROWS.map(({ key, label }) => {
+    const entry = resolveProfileAngleEntry(angles, key);
+    return `<tr><td class="lbl">${escapeHtml(label)}</td><td class="val">${profileAisVgridCellHtml(entry)}</td><td class="pad"></td></tr>`;
   }).join("");
-  if (!rows) {
-    return `<p class="meta">No angles enabled in Settings \u2192 Aspect-to-Angle Display.</p>`;
-  }
-  return `<table class="simple rm-ais-table" data-ais-source="canonical_chart"><tr><th>Angle</th><th>Sign</th></tr>${rows}</table>`;
+  return `<table class="rt ais" data-ais-source="canonical_chart"><colgroup><col class="ca-lbl"><col class="ca-val"><col class="ca-pad"></colgroup><thead><tr><th class="hd-spacer"></th><th class="hd-spacer"></th><th class="hd-spacer"></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-// PH-6: PIH card body (Planet in House) — house only, no longitude column on Profile.
+// PH-6 / H2B: PIH card — mockup table, late-in-house marker, dignities on number only.
 function renderProfilePihTableHtml(canonical, dignitiesOn) {
-  const pihRows = renderPihTableRowsFromCanonical(canonical, {
-    dignitiesOn: !!dignitiesOn,
-    visibleBodies: getVisibleBodyNamesSet(),
-    showLongitude: false,
-  });
-  return `<table class="simple rm-pih-table" data-pih-source="canonical_chart"><tr><th>Planet</th><th>House</th></tr>${pihRows}</table>`;
+  const on = !!dignitiesOn;
+  const visible = getVisibleBodyNamesSet();
+  const planets = (canonical && canonical.planets) || {};
+  const rows = PIH_BODY_ORDER.filter((name) => visible.has(name)).map((name) => {
+    const entry = planets[name] || {};
+    return `<tr><td class="lbl">${escapeHtml(name)}</td><td class="sp"></td>${profilePihHouseCellHtml(name, entry, on)}</tr>`;
+  }).join("");
+  return `<table class="rt pih texture-stripe" data-pih-source="canonical_chart"><colgroup><col class="cp"><col class="csp"><col class="ch"></colgroup><thead><tr><th class="hd-spacer"></th><th class="hd-spacer"></th><th class="hd-spacer"></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-// PH-5: Notes card moved into tband col 4. Same #rm-chart-note / save-chart-note handler.
+// H3D Slice 3 — shared Notes card renderer (Profile + Relocated consumers).
+var _NOTES_LIST_SVG = "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" aria-hidden=\"true\"><line x1=\"9\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"9\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"9\" y1=\"18\" x2=\"20\" y2=\"18\"/><circle cx=\"4.5\" cy=\"6\" r=\"1.3\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"4.5\" cy=\"12\" r=\"1.3\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"4.5\" cy=\"18\" r=\"1.3\" fill=\"currentColor\" stroke=\"none\"/></svg>";
+var _NOTES_MIC_SVG = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"2\" width=\"6\" height=\"11\" rx=\"3\"/><path d=\"M5 10a7 7 0 0 0 14 0\"/><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"22\"/><line x1=\"8.5\" y1=\"22\" x2=\"15.5\" y2=\"22\"/></svg>";
+var _NOTES_HINT_DEFAULT = "Optional \u00b7 same record as Profile notebook \u00b7 pops out for long entries";
+
+function renderNotesToolbarHtml() {
+  return `<div class="notes-toolbar" aria-label="Formatting tools (visual only)">
+      <button type="button" class="notes-tool" title="Bold" tabindex="-1" aria-disabled="true"><b>B</b></button>
+      <button type="button" class="notes-tool" title="Italic" tabindex="-1" aria-disabled="true"><i>I</i></button>
+      <button type="button" class="notes-tool" title="Underline" tabindex="-1" aria-disabled="true"><u>U</u></button>
+      <button type="button" class="notes-tool" title="Bullet list" tabindex="-1" aria-disabled="true">${_NOTES_LIST_SVG}</button>
+      <button type="button" class="notes-tool mic" title="Voice note" tabindex="-1" aria-disabled="true">${_NOTES_MIC_SVG}</button>
+    </div>`;
+}
+
+function renderNotesSaveFootHtml(opts) {
+  if (!opts || !opts.showSave) {
+    return opts && opts.saveSlot
+      ? `<div class="note-foot" data-notes-save-slot="${escapeHtml(opts.saveSlot)}" hidden></div>`
+      : "";
+  }
+  const msgId = opts.msgId ? ` id="${escapeHtml(opts.msgId)}"` : "";
+  const action = escapeHtml(opts.saveAction || "save-chart-note");
+  const label = escapeHtml(opts.saveLabel || "Save Note");
+  return `<div class="note-foot">
+        <button type="button" class="primary" data-action="${action}">${label}</button>
+        <span${msgId} class="meta" style="min-height:1.2em;"></span>
+      </div>`;
+}
+
+function renderNotesCardHtml(config) {
+  const cfg = config || {};
+  const textareaId = cfg.textareaId ? ` id="${escapeHtml(cfg.textareaId)}"` : "";
+  const body = cfg.body != null ? String(cfg.body) : "";
+  const placeholder = escapeHtml(cfg.placeholder || "Write or dictate a note\u2026");
+  const hint = escapeHtml(cfg.hint != null ? cfg.hint : _NOTES_HINT_DEFAULT);
+  const scopeAttr = cfg.scope ? ` data-notes-scope="${escapeHtml(cfg.scope)}"` : "";
+  return `<div class="notes-card notes-slot"${scopeAttr}>
+      <div class="card-head"><h3 class="ch-title">Notes</h3><button type="button" class="notes-popout" title="Pop out" tabindex="-1" aria-disabled="true">⤢</button></div>
+      ${renderNotesToolbarHtml()}
+      <textarea${textareaId} class="note-ta" placeholder="${placeholder}">${escapeHtml(body)}</textarea>
+      <p class="note-hint">${hint}</p>
+      ${renderNotesSaveFootHtml(cfg)}
+    </div>`;
+}
+
+// PH-5: Profile t-band consumer — chart_record save path unchanged.
 function renderProfileNotesCardHtml(record) {
   const r = record || activeRecord();
   const note = r ? chartRecordInitialNote(r) : "";
-  return `<div class="notes-card notes-slot">
-      <div class="card-head"><h3 class="ch-title">Notes</h3></div>
-      <textarea id="rm-chart-note" class="note-ta" placeholder="Write or dictate a note\u2026">${escapeHtml(note)}</textarea>
-      <div class="note-foot">
-        <button type="button" class="primary" data-action="save-chart-note">Save Note</button>
-        <span id="rm-chart-note-msg" class="meta" style="min-height:1.2em;"></span>
-      </div>
-    </div>`;
+  return renderNotesCardHtml({
+    scope: "profile",
+    textareaId: "rm-chart-note",
+    body: note,
+    placeholder: "Write or dictate a note\u2026",
+    showSave: true,
+    saveAction: "save-chart-note",
+    msgId: "rm-chart-note-msg",
+  });
+}
+
+// Relocated t-band consumer — placeholder only; reserved save slot for future wiring.
+function renderRelocatedNotesCardHtml() {
+  return renderNotesCardHtml({
+    scope: "relocated",
+    placeholder: "Notes for this place (not yet saved)\u2026",
+    saveSlot: "relocated",
+  });
 }
 
 // PH-4: Profile tband — AIS -> PIH -> A2A -> Notes in one horizontal band.
@@ -3440,11 +4323,11 @@ function renderProfileTbandHtml(canonical, dignitiesOn, errorMessage) {
   const warn = `<p class="meta">${escapeHtml(errorMessage || "Natal chart facts unavailable.")}</p>`;
   const aisBody = canonical ? renderProfileAisCardBodyHtml(canonical) : warn;
   const pihBody = canonical ? renderProfilePihTableHtml(canonical, on) : warn;
-  const a2aBody = canonical ? renderA2aSinglePlaceHtml(canonical) : warn;
+  const a2aBody = canonical ? renderProfileA2aCardBodyHtml(canonical, "profile") : warn;
   return `<div class="tband std rm-profile-tband">
-      <div class="tcard tint-ais"><div class="card-head"><h3 class="ch-title">Angle in Sign</h3></div>${aisBody}</div>
-      <div class="tcard tint-pih"><div class="card-head"><h3 class="ch-title">Planet in House</h3></div><div id="rm-profile-pih-slot">${pihBody}</div><div class="pih-foot">${pihDignitiesFooterHtml(on, "profile")}</div></div>
-      <div class="tcard tint-a2a"><div class="card-head"><h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
+      <div class="tcard home tint-ais texture-stripe" data-tband-collapse="ais"><div class="card-head">${tbandCollapseCaretHtml("ais")}<h3 class="ch-title">Angle in Sign</h3></div>${aisBody}</div>
+      <div class="tcard home tint-pih texture-stripe" data-tband-collapse="pih"><div class="card-head">${tbandCollapseCaretHtml("pih")}<h3 class="ch-title">Planet in House</h3></div><div id="rm-profile-pih-slot">${pihBody}</div><div class="pih-foot">${pihDignitiesFooterHtml(on, "profile")}</div></div>
+      <div class="tcard home tint-a2a texture-stripe compact-a2a" data-a2a="profile" data-tband-collapse="a2a"><div class="card-head">${tbandCollapseCaretHtml("a2a")}<h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
       ${renderProfileNotesCardHtml()}
     </div>`;
 }
@@ -3459,21 +4342,21 @@ function renderProfileNatalChartHtml(canonical, dignitiesOn) {
 // Reuses Profile tband renderers: renderProfileAisCardBodyHtml, renderProfilePihTableHtml.
 // PIH is house-only (showLongitude:false). Dignities footer scope: "chart".
 function renderRelocatedIntelBlockHtml(placeRow, lat, lon) {
-  // Beta placeholder: renders real country/region/coords; all other rows are stubs.
+  // H3E — executive snippet shell; content stubs only (no full CI page).
   const stubRow = (label) =>
-    `<div class="rm-intel-row"><span class="rm-intel-label">${escapeHtml(label)}</span>`
-    + `<span class="rm-intel-value intel-stub">—</span></div>`;
+    `<div class="ir"><span class="il">${escapeHtml(label)}</span>`
+    + `<span class="iv intel-stub">\u2014</span></div>`;
   const realRow = (label, value) =>
-    `<div class="rm-intel-row"><span class="rm-intel-label">${escapeHtml(label)}</span>`
-    + `<span class="rm-intel-value">${escapeHtml(value)}</span></div>`;
+    `<div class="ir"><span class="il">${escapeHtml(label)}</span>`
+    + `<span class="iv">${escapeHtml(value)}</span></div>`;
   const country = (placeRow && placeRow.country_name) || null;
   const region  = (placeRow && placeRow.admin1) || null;
   const coords  = (lat != null && lon != null)
-    ? `${Number(lat).toFixed(2)}°, ${Number(lon).toFixed(2)}°`
+    ? `${Number(lat).toFixed(2)}\u00b0, ${Number(lon).toFixed(2)}\u00b0`
     : null;
   return (
-    `<h4 class="rm-intel-heading">Location Intelligence</h4>`
-    + `<div class="rm-intel-rows">`
+    `<h4>Location Intelligence</h4>`
+    + `<div class="intel-rows">`
     + (country ? realRow("Country", country) : stubRow("Country"))
     + (region  ? realRow("Region",  region)  : stubRow("Region"))
     + (coords  ? realRow("Coordinates", coords) : stubRow("Coordinates"))
@@ -3486,6 +4369,7 @@ function renderRelocatedIntelBlockHtml(placeRow, lat, lon) {
     + stubRow("Mobility")
     + stubRow("Character")
     + `</div>`
+    + `<a class="intel-link" href="#" aria-disabled="true" tabindex="-1" onclick="return false;">Open Full City Intelligence \u203a</a>`
   );
 }
 
@@ -3493,27 +4377,17 @@ function renderRelocatedChartHtml(recordName, placeName, chart, dignitiesOn) {
   const on = typeof dignitiesOn === "boolean" ? dignitiesOn : _screen4PihDignities;
   const canonical = getCanonicalChartFromPayload(chart);
   const warn = (msg) => `<p class="meta">${escapeHtml(msg)}</p>`;
-  const meta = `
-    <table class="simple">
-      <tr><th>Fact</th><th>Value</th></tr>
-      <tr><td>Chart Record</td><td>${escapeHtml(recordName)}</td></tr>
-      <tr><td>Place</td><td>${escapeHtml(placeName)}</td></tr>
-    </table>`;
   // Wheel is rendered into #rm-screen4-wheel by hydrateRelocatedChart (Window A).
   const aisBody  = canonical ? renderProfileAisCardBodyHtml(canonical)  : warn("AIS unavailable (canonical chart missing).");
   const pihBody  = canonical ? renderProfilePihTableHtml(canonical, on) : warn("Planet houses unavailable (canonical chart missing).");
-  const a2aBody  = canonical ? renderA2aSinglePlaceHtml(canonical)      : warn("Aspect to Angle unavailable (canonical chart missing).");
-  const notesCard = `<div class="notes-card notes-slot">
-      <div class="card-head"><h3 class="ch-title">Notes</h3></div>
-      <textarea class="note-ta" rows="4" placeholder="Notes for this place (not yet saved)\u2026"></textarea>
-    </div>`;
-  const tband = `<div class="tband std rm-relocated-tband" style="margin-top:16px">
-    <div class="tcard tint-ais"><div class="card-head"><h3 class="ch-title">Angle in Sign</h3></div>${aisBody}</div>
-    <div class="tcard tint-pih"><div class="card-head"><h3 class="ch-title">Planet in House</h3></div><div id="rm-screen4-pih-slot">${pihBody}</div><div class="pih-foot">${pihDignitiesFooterHtml(on, "chart")}</div></div>
-    <div class="tcard tint-a2a"><div class="card-head"><h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
+  const a2aBody  = canonical ? renderProfileA2aCardBodyHtml(canonical, "chart") : warn("Aspect to Angle unavailable (canonical chart missing).");
+  const notesCard = renderRelocatedNotesCardHtml();
+  return `<div class="tband std rm-relocated-tband">
+    <div class="tcard guest tint-ais texture-stripe" data-tband-collapse="ais"><div class="card-head">${tbandCollapseCaretHtml("ais")}<h3 class="ch-title">Angle in Sign</h3></div>${aisBody}</div>
+    <div class="tcard guest tint-pih texture-stripe" data-tband-collapse="pih"><div class="card-head">${tbandCollapseCaretHtml("pih")}<h3 class="ch-title">Planet in House</h3></div><div id="rm-screen4-pih-slot">${pihBody}</div><div class="pih-foot">${pihDignitiesFooterHtml(on, "chart")}</div></div>
+    <div class="tcard guest tint-a2a texture-stripe compact-a2a" data-a2a="chart" data-tband-collapse="a2a"><div class="card-head">${tbandCollapseCaretHtml("a2a")}<h3 class="ch-title">Aspect to Angle</h3></div>${a2aBody}</div>
     ${notesCard}
   </div>`;
-  return meta + tband;
 }
 
 let _screen4Token = 0;
@@ -3534,6 +4408,7 @@ async function hydrateRelocatedChart(root) {
   }
   const recordName = container.getAttribute("data-record-name") || chartRecordId;
   const placeName = container.getAttribute("data-place-name") || placeId;
+  void hydrateRelocatedZoneCLocalTime(placeId);
   const token = ++_screen4Token;
   const setStatus = (msg) => {
     const el = document.getElementById("rm-screen4-status");
@@ -3575,19 +4450,18 @@ async function hydrateRelocatedChart(root) {
     _screen4ChartCache = chart;
     container.innerHTML = renderRelocatedChartHtml(recordName, placeName, chart, _screen4PihDignities);
     bindPihDignitiesToggle(container);
+    const pihCard = container.querySelector(".tcard.tint-pih");
+    if (pihCard) pihCard.classList.toggle("show-dignities", !!_screen4PihDignities);
+    wireProfileA2aPills(root || document, "chart");
+    wireTbandCollapse(root || document, "chart");
     // RELOCATED-HARMONIZATION Window A: inject wheel and plate meta into head slot.
     const _winACanonical = getCanonicalChartFromPayload(chart);
     const _winAWheelSlot = document.getElementById("rm-screen4-wheel");
     if (_winAWheelSlot && _winACanonical) {
-      _winAWheelSlot.innerHTML = renderRelocatedWheelHtml(_winACanonical);
+      const _wheelFrame = _winAWheelSlot.querySelector(".rm-relocated-wheel-frame") || _winAWheelSlot;
+      _wheelFrame.innerHTML = renderRelocatedWheelHtml(_winACanonical);
     }
-    const _winAPlateMeta = document.getElementById("rm-screen4-plate-meta");
-    if (_winAPlateMeta && _winACanonical) {
-      const _waSys = (_winACanonical.houses && _winACanonical.houses.system) || "placidus";
-      const _waZod = (_winACanonical.metadata && _winACanonical.metadata.zodiac_mode) || "tropical";
-      _winAPlateMeta.textContent = _waZod.charAt(0).toUpperCase() + _waZod.slice(1)
-        + " · " + _waSys.charAt(0).toUpperCase() + _waSys.slice(1);
-    }
+    void hydrateRelocatedZoneCLocalTime(placeId);
     // RELOCATED City Intelligence: inject beta placeholder with real country/region/coords.
     const _ciIntelSlot = document.getElementById("rm-screen4-intel");
     if (_ciIntelSlot) {
@@ -5873,6 +6747,26 @@ function render() {
     return;
   }
   renderNav();
+  const acctBtn = $("#rm-acct-drawer-btn");
+  if (navContext.route === "chart-record") {
+    document.body.classList.add("rm-beta-profile");
+    document.body.classList.remove("rm-beta-relocated");
+    acctBtn.classList.add("rm-beta-acct-circle");
+    acctBtn.textContent = accountInitials();
+    acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
+  } else if (navContext.route === "chart") {
+    document.body.classList.remove("rm-beta-profile");
+    document.body.classList.add("rm-beta-relocated");
+    acctBtn.classList.add("rm-beta-acct-circle");
+    acctBtn.textContent = accountInitials();
+    acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
+  } else {
+    document.body.classList.remove("rm-beta-profile");
+    document.body.classList.remove("rm-beta-relocated");
+    acctBtn.classList.remove("rm-beta-acct-circle");
+    acctBtn.textContent = "Account";
+    acctBtn.removeAttribute("title");
+  }
   const meta = ALL_ROUTES.find((r) => r.id === navContext.route);
   $("#screenMeta").textContent = meta ? meta.screen : navContext.route;
   const fn = SCREEN_RENDERERS[navContext.route];
