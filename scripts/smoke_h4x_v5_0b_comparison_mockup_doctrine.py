@@ -6,6 +6,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from v5_smoke_js_syntax import assert_v5_js_syntax
+
 ROOT = Path(__file__).resolve().parents[1]
 MOCKUP = ROOT / "validation" / "mockups" / "beta" / "comparison_v5_beta.html"
 SHELL = ROOT / "app_shell.html"
@@ -21,6 +24,7 @@ def main() -> int:
         if not cond:
             failures.append(msg)
 
+    assert_v5_js_syntax(check)
     text = MOCKUP.read_text(encoding="utf-8")
     static_html = text.split("<script>", 1)[0]
     js_part = text.split("<script>", 1)[1] if "<script>" in text else ""

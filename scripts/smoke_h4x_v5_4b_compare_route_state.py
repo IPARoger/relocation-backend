@@ -6,6 +6,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from v5_smoke_js_syntax import assert_v5_js_syntax
+
 ROOT = Path(__file__).resolve().parents[1]
 SHELL = ROOT / "app_shell.html"
 ROUTE = ROOT / "validation/mockups/beta/comparison_v5_route.js"
@@ -40,6 +43,7 @@ def main() -> int:
         if not cond:
             failures.append(msg)
 
+    assert_v5_js_syntax(check)
     shell = SHELL.read_text(encoding="utf-8")
     route = ROUTE.read_text(encoding="utf-8")
     main_body = re.search(r'<script>\n"use strict";([\s\S]*?)</script>\s*</body>', shell)

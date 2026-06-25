@@ -186,7 +186,7 @@
       '<div class="zb-primary">' + esc(deps, birthLine) + " \u00b7 " + esc(deps, r.birthTimeDisplay) + " " + glyph + "</div>" +
       '<div class="zb-primary">' + esc(deps, r.birthCity) + "</div>" +
       (coordsMeta ? '<div class="zb-meta">' + esc(deps, coordsMeta) + "</div>" : "") +
-      '<div class="zb-meta">Tropical \u00b7 Placidus</div>";
+      '<div class="zb-meta">Tropical \u00b7 Placidus</div>';
   }
 
   function mapCityBar(root, ctx) {
