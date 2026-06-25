@@ -305,6 +305,8 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
 </head>
 <body>
 
+<!-- V5-0 wiring contract: stable mounts for production adapter (see scripts/smoke_h4x_v5_0_comparison_mockup_contract.py) -->
+
 <nav class="app-nav">
   <a class="nav-logo" href="#">Relocation</a>
   <ul class="nav-links">
@@ -316,8 +318,9 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
   <span class="nav-account">DG &#9662;</span>
 </nav>
 
-<div class="profile-block comp-profile">
-  <div class="cmp-zone-b">
+<div id="rm-cmp-v5-root" class="rm-cmp-v5-root" data-cmp-role="comparison-root" data-cmp-mount="comparison-root">
+<div class="profile-block comp-profile" data-cmp-role="authority">
+  <div class="cmp-zone-b" id="rm-cmp-zone-b" data-cmp-mount="authority">
     <div class="zb-name"><span class="nmwrap"><span class="nm">David Goodman</span><span class="tools"><button class="profile-caret">▾</button><button class="profile-btn">Edit</button><button class="profile-btn plus" title="Add profile">+</button></span></span></div>
     <div class="zb-primary">13 Jan 1976 · 07:42 <span class="glyph">♂</span></div>
     <div class="zb-primary">Portland, OR, USA</div>
@@ -330,107 +333,108 @@ body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-siz
   <div class="comp-header" aria-hidden="true"></div>
   <p class="mobile-hint">Scroll right to see all cities.</p>
 
-  <div class="city-bar-wrap">
-    <div id="city-bar-inner"></div>
+  <div class="city-bar-wrap" id="rm-cmp-city-bar" data-cmp-mount="city-bar">
+    <div id="city-bar-inner" data-cmp-mount="city-bar-inner"></div>
   </div>
 
   <div class="comparison-body-grid">
     <main class="comparison-main">
 
   <!-- Angle in Sign -->
-  <div class="block">
+  <div class="block" data-section="ais" data-cmp-role="ais-block">
     <div class="block-header">
-      <div class="block-header-left" onclick="toggleBlock('ais')">
+      <div class="block-header-left" data-action="cmp-toggle-block" data-section="ais" role="button" tabindex="0">
         <span class="block-arrow" id="arrow-ais">&#9660;</span>
         <span class="block-title">Angle in Sign</span>
       </div>
     </div>
-    <div class="block-body" id="body-ais">
-      <div class="fact-table-wrap"><div id="table-ais"></div></div>
+    <div class="block-body" id="body-ais" data-cmp-mount="ais-body">
+      <div class="fact-table-wrap"><div id="table-ais" data-cmp-mount="ais-table"></div></div>
     </div>
   </div>
 
   <!-- Planet in House -->
-  <div class="block">
+  <div class="block" data-section="pih" data-cmp-role="pih-block">
     <div class="block-header">
-      <div class="block-header-left" onclick="toggleBlock('pih')">
+      <div class="block-header-left" data-action="cmp-toggle-block" data-section="pih" role="button" tabindex="0">
         <span class="block-arrow" id="arrow-pih">&#9660;</span>
         <span class="block-title">Planet in House</span>
       </div>
     </div>
-    <div class="block-body" id="body-pih">
-      <div class="fact-table-wrap"><div id="table-pih"></div></div>
+    <div class="block-body" id="body-pih" data-cmp-mount="pih-body">
+      <div class="fact-table-wrap"><div id="table-pih" data-cmp-mount="pih-table"></div></div>
     </div>
   </div>
 
   <!-- Aspect to Angle -->
-  <div class="block">
+  <div class="block" data-section="a2a" data-cmp-role="a2a-block">
     <div class="block-header">
-      <div class="block-header-left" onclick="toggleBlock('ata')">
+      <div class="block-header-left" data-action="cmp-toggle-block" data-section="a2a" data-cmp-toggle-id="ata" role="button" tabindex="0">
         <span class="block-arrow" id="arrow-ata">&#9660;</span>
         <span class="block-title">Aspect to Angle</span>
         <span class="angle-sep">&middot;</span>
-        <div class="angle-tabs" onclick="event.stopPropagation()">
-          <button class="angle-tab active" data-angle="ASC" onclick="setAngle(this.dataset.angle)">ASC</button>
-          <button class="angle-tab" data-angle="DSC" onclick="setAngle(this.dataset.angle)">DSC</button>
-          <button class="angle-tab" data-angle="MC"  onclick="setAngle(this.dataset.angle)">MC</button>
-          <button class="angle-tab" data-angle="IC"  onclick="setAngle(this.dataset.angle)">IC</button>
+        <div class="angle-tabs" data-cmp-role="a2a-angle-tabs">
+          <button type="button" class="angle-tab active" data-action="cmp-angle-tab" data-angle-tab="asc" data-angle="ASC">ASC</button>
+          <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="dsc" data-angle="DSC">DSC</button>
+          <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="mc" data-angle="MC">MC</button>
+          <button type="button" class="angle-tab" data-action="cmp-angle-tab" data-angle-tab="ic" data-angle="IC">IC</button>
         </div>
       </div>
     </div>
-    <div class="block-body" id="body-ata">
-      <div class="fact-table-wrap"><div id="table-ata"></div></div>
+    <div class="block-body" id="body-ata" data-cmp-mount="a2a-body">
+      <div class="fact-table-wrap"><div id="table-ata" data-cmp-mount="a2a-table"></div></div>
     </div>
   </div>
 
   <p class="wheel-note">City names reserved for chart wheel preview.</p>
 
   <!-- City Intelligence -->
-  <div class="ci-section">
-    <div class="ci-section-head"><button class="ci-collapse" title="Hide City Intelligence" onclick="document.querySelector('.ci-section').classList.toggle('collapsed')">▾</button><div class="ci-section-title">City Intelligence</div></div>
-    <div class="ci-grid" id="ci-cards"></div>
+  <div class="ci-section" data-section="city_intelligence" data-cmp-mount="ci-section">
+    <div class="ci-section-head"><button type="button" class="ci-collapse" title="Hide City Intelligence" data-action="cmp-toggle-ci-section" data-section="city_intelligence">▾</button><div class="ci-section-title">City Intelligence</div></div>
+    <div class="ci-grid" id="ci-cards" data-cmp-mount="ci-cards"></div>
   </div>
     </main>
 
-    <aside class="comparison-notes-rail" id="cmp-notes-rail">
-      <button id="notes-fab" title="Open notes" onclick="showCmpNotes()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></button>
+    <aside class="comparison-notes-rail" id="cmp-notes-rail" data-cmp-mount="notes-rail" data-cmp-role="notes-rail">
+      <button type="button" id="notes-fab" title="Open notes" data-action="cmp-notes-show" data-cmp-role="notes-fab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13l-4 4H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></button>
       
       <div class="general-notes-section">
-        <div class="general-notes-head"><button class="gn-collapse" title="Hide notes" onclick="hideCmpNotes()">▾</button><div class="general-notes-label">Notes</div></div>
+        <div class="general-notes-head"><button type="button" class="gn-collapse" title="Hide notes" data-action="cmp-notes-hide" data-cmp-role="notes-collapse">▾</button><div class="general-notes-label">Notes</div></div>
         <div class="notes-toolbar">
             <button class="notes-tool" title="Bold"><b>B</b></button>
             <button class="notes-tool" title="Italic" style="font-style:italic;font-weight:400">I</button>
             <button class="notes-tool" title="Underline" style="text-decoration:underline">U</button>
             <button class="notes-tool" title="Bullet list"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg></button>
           </div>
-          <textarea class="notes-textarea" placeholder="General comparison notes&#8230;" rows="7"></textarea>
+          <textarea id="rm-cmp-note" class="notes-textarea" data-cmp-mount="notes-input" data-cmp-role="notes-input" placeholder="General comparison notes&#8230;" rows="7"></textarea>
           <p class="note-hint">Optional &middot; same record as Profile notebook &middot; pops out for long entries</p>
-          <div class="notes-actions"><button class="notes-tool mic" title="Voice note (future)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8.5" y1="22" x2="15.5" y2="22"/></svg></button><button class="notes-save">Save</button></div>
+          <div class="notes-actions"><button class="notes-tool mic" title="Voice note (future)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8.5" y1="22" x2="15.5" y2="22"/></svg></button><button type="button" class="notes-save" data-action="save-comparison-note" data-cmp-role="notes-save">Save</button></div>
         </div>
       </div>
     </aside>
   </div>
 </div>
+</div><!-- /rm-cmp-v5-root -->
 
 <!-- City picker modal (Replace + Add City) -->
-<div class="modal-overlay" id="modal-picker" onclick="if(event.target===this)closeModal('picker')">
+<div class="modal-overlay" id="modal-picker" data-cmp-mount="place-picker" data-cmp-role="place-picker" data-modal="picker" data-action="cmp-modal-backdrop">
   <div class="modal-box">
     <div class="modal-title" id="picker-title">Select City</div>
     <input class="picker-input" type="text" placeholder="Search for a city&#8230;" disabled/>
     <div class="modal-actions">
-      <button class="modal-btn" onclick="closeModal('picker')">Cancel</button>
+      <button type="button" class="modal-btn" data-action="cmp-modal-close" data-modal="picker">Cancel</button>
       <button class="modal-btn modal-btn-save" disabled>Save</button>
     </div>
   </div>
 </div>
 
 <!-- City Intelligence modal -->
-<div class="modal-overlay" id="modal-cityinfo" onclick="if(event.target===this)closeModal('cityinfo')">
+<div class="modal-overlay" id="modal-cityinfo" data-cmp-mount="city-info-modal" data-modal="cityinfo" data-action="cmp-modal-backdrop">
   <div class="modal-box">
     <div class="modal-title" id="modal-ci-title"></div>
     <ul class="ci-modal-list" id="modal-ci-list"></ul>
     <div class="modal-actions">
-      <button class="modal-btn" onclick="closeModal('cityinfo')">Close</button>
+      <button type="button" class="modal-btn" data-action="cmp-modal-close" data-modal="cityinfo">Close</button>
     </div>
   </div>
 </div>
@@ -442,6 +446,7 @@ var COL_STUB  = 30;
 var COL_ADD   = 64;
 var COL_CITY  = 158;
 
+// MOCKUP_ONLY_REPLACED_BY_ADAPTER
 // ── City data ────────────────────────────────────────────────────
 var CITY_DATA = {
   lisbon: {
@@ -461,6 +466,7 @@ var CITY_DATA = {
   }
 };
 
+// MOCKUP_ONLY_REPLACED_BY_ADAPTER
 // ── State ──────────────────────────────────────────────────────────
 var cityOrder = ['lisbon', 'austin', 'bali'];
 var cityHidden = {};
@@ -469,6 +475,7 @@ function visibleCities() {
   return cityOrder.filter(function(id) { return !cityHidden[id]; });
 }
 
+// MOCKUP_ONLY_REPLACED_BY_ADAPTER
 // ── Fact data ──────────────────────────────────────────────────
 var AIS_LABELS = ['ASC', 'DSC', 'MC', 'IC'];
 var AIS_DATA = {
@@ -620,7 +627,7 @@ function renderCityBar() {
   cityOrder.forEach(function(id) {
     if (cityHidden[id]) {
       h += '<td class="bar-stub">';
-      h += '<button class="stub-restore" data-id="' + id + '" onclick="toggleHide(this.dataset.id)" title="Restore ' + CITY_DATA[id].name + '">';
+      h += '<button type="button" class="stub-restore" data-action="cmp-toggle-place" data-place-id="' + id + '" title="Restore ' + CITY_DATA[id].name + '">';
       h += CITY_DATA[id].shortName + '</button>';
       h += '</td>';
     } else {
@@ -633,20 +640,20 @@ function renderCityBar() {
         ? '<div class="city-tag' + (c.tag==="Natal"?" natal":"") + (c.tag==="Current"?" current":"") + '">' + tagLabel + '</div>'
         : '';
       h += '<td class="bar-city">';
-      h += '<button class="city-remove" data-id="' + id + '" onclick="removeCity(this.dataset.id)" title="Remove from comparison">×</button>';
+      h += '<button type="button" class="city-remove" data-action="cmp-remove-place" data-place-id="' + id + '" title="Remove from comparison">×</button>';
       h += '<div class="city-badge-zone">' + tagHtml + '</div>';
-      h += '<div class="city-name-zone"><span class="bnwrap"><span class="bname">' + c.name + ', ' + c.country + '</span><button class="city-info-inline" data-id="' + id + '" onclick="openCityInfo(this.dataset.id)" title="City Intelligence">i</button></span></div>';
+      h += '<div class="city-name-zone"><span class="bnwrap"><span class="bname">' + c.name + ', ' + c.country + '</span><button type="button" class="city-info-inline" data-action="cmp-city-info" data-place-id="' + id + '" title="City Intelligence">i</button></span></div>';
       h += '<div class="city-coords">' + c.coords + '</div>';
       h += '<div class="city-ctrls">';
-      h += '<button class="cc cc-arr" data-id="' + id + '" onclick="moveCity(this.dataset.id,-1)"' + (isFirst ? ' disabled' : '') + '>&#8249;</button>';
-      h += '<button class="cc" data-id="' + id + '" onclick="toggleHide(this.dataset.id)">Hide</button>';
-      h += '<button class="cc cc-arr" data-id="' + id + '" onclick="moveCity(this.dataset.id,1)"'  + (isLast  ? ' disabled' : '') + '>&#8250;</button>';
+      h += '<button type="button" class="cc cc-arr" data-action="cmp-move-place" data-place-id="' + id + '" data-dir="-1"' + (isFirst ? ' disabled' : '') + '>&#8249;</button>';
+      h += '<button type="button" class="cc" data-action="cmp-toggle-place" data-place-id="' + id + '">Hide</button>';
+      h += '<button type="button" class="cc cc-arr" data-action="cmp-move-place" data-place-id="' + id + '" data-dir="1"'  + (isLast  ? ' disabled' : '') + '>&#8250;</button>';
       h += '</div>';
       h += '</td>';
     }
   });
 
-  h += '<td class="bar-add"><button class="add-city-btn" onclick="openPicker(null,true)">+ Add</button></td>';
+  h += '<td class="bar-add"><button type="button" class="add-city-btn" data-action="cmp-add-place">+\u2009Add</button></td>';
   h += '</tr></tbody></table>';
   document.getElementById('city-bar-inner').innerHTML = h;
 }
@@ -660,7 +667,7 @@ function renderCI() {
     h += '<div class="ci-name">' + c.name + ', ' + c.country + '</div>';
     h += '<div class="ci-coords">' + c.coords + '</div>';
     h += '<ul class="ci-list">' + c.ci.map(function(b) { return '<li>' + b + '</li>'; }).join('') + '</ul>';
-    h += '<button class="ci-open-btn" onclick="return false">Open Full City Page</button>';
+    h += '<button type="button" class="ci-open-btn" data-action="cmp-ci-open-page">Open Full City Page</button>';
     h += '</div>';
   });
   document.getElementById('ci-cards').innerHTML = h;
@@ -743,8 +750,79 @@ function closeModal(id) { document.getElementById('modal-' + id).classList.remov
 // ── Init ────────────────────────────────────────────────────────────────
 measureColWidth();
 renderAll();
+// MOCKUP_ONLY_REPLACED_BY_ADAPTER — standalone preview delegation; production adapter replaces this.
+function hideCmpNotes() {
+  var r = document.getElementById("cmp-notes-rail");
+  var f = document.getElementById("notes-fab");
+  if (r) r.classList.add("collapsed");
+  if (f) f.classList.add("show");
+}
+function showCmpNotes() {
+  var r = document.getElementById("cmp-notes-rail");
+  var f = document.getElementById("notes-fab");
+  if (r) r.classList.remove("collapsed");
+  if (f) f.classList.remove("show");
+}
+function wireMockupPreviewActions() {
+  document.addEventListener("click", function(e) {
+    var el = e.target.closest("[data-action]");
+    if (!el) return;
+    var action = el.getAttribute("data-action");
+    if (action === "cmp-toggle-block") {
+      var sid = el.getAttribute("data-cmp-toggle-id") || el.getAttribute("data-section");
+      if (sid) toggleBlock(sid);
+      return;
+    }
+    if (action === "cmp-angle-tab") {
+      var ang = el.getAttribute("data-angle");
+      if (ang) setAngle(ang);
+      return;
+    }
+    if (action === "cmp-toggle-place") {
+      var pid = el.getAttribute("data-place-id");
+      if (pid) toggleHide(pid);
+      return;
+    }
+    if (action === "cmp-remove-place") {
+      var pid2 = el.getAttribute("data-place-id");
+      if (pid2) removeCity(pid2);
+      return;
+    }
+    if (action === "cmp-move-place") {
+      var pid3 = el.getAttribute("data-place-id");
+      var dir = Number(el.getAttribute("data-dir") || 0);
+      if (pid3 && dir) moveCity(pid3, dir);
+      return;
+    }
+    if (action === "cmp-city-info") {
+      var pid4 = el.getAttribute("data-place-id");
+      if (pid4) openCityInfo(pid4);
+      return;
+    }
+    if (action === "cmp-add-place") { openPicker(null, true); return; }
+    if (action === "cmp-notes-hide") { hideCmpNotes(); return; }
+    if (action === "cmp-notes-show") { showCmpNotes(); return; }
+    if (action === "cmp-toggle-ci-section") {
+      var sec = document.querySelector(".ci-section");
+      if (sec) sec.classList.toggle("collapsed");
+      return;
+    }
+    if (action === "cmp-modal-close") {
+      var m = el.getAttribute("data-modal");
+      if (m) closeModal(m);
+      return;
+    }
+    if (action === "cmp-modal-backdrop" && e.target === el) {
+      var m2 = el.getAttribute("data-modal");
+      if (m2) closeModal(m2);
+      return;
+    }
+  });
+  document.querySelectorAll(".angle-tabs").forEach(function(tabs) {
+    tabs.addEventListener("click", function(ev) { ev.stopPropagation(); });
+  });
+}
+wireMockupPreviewActions();
 </script>
-<script>function hideCmpNotes(){var r=document.getElementById("cmp-notes-rail");var f=document.getElementById("notes-fab");r.classList.add("collapsed");f.classList.add("show");}
-function showCmpNotes(){var r=document.getElementById("cmp-notes-rail");var f=document.getElementById("notes-fab");r.classList.remove("collapsed");f.classList.remove("show");}</script>
 </body>
 </html>
