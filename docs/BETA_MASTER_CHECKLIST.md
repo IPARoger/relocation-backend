@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-26 (B0-A)  
+**Last updated:** 2026-06-26 (M2-X)  
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -10,6 +10,8 @@
 
 Scope: `auth.html` visual quality · signup/login/password-reset truth · Google/Apple OAuth status · `first_profile_intake.js` · city/IATA lookup readiness · first overlay demo handoff
 
+*Map enters maintenance mode after M2-X — PO screenshot pass still recommended ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
+
 ---
 
 > Summaries only — detail in linked audits/canon.  
@@ -17,7 +19,7 @@ Scope: `auth.html` visual quality · signup/login/password-reset truth · Google
 
 **Related (do not duplicate):**
 - [Material System Canon](canon/MATERIAL_SYSTEM_CANON.md) · [Material delta](../results/263_material_system_delta.md)
-- [Map trust audit](../results/265_map_control_overlay_trust_audit.md) · [Map QA pass 1](../results/144_map_qa_pass1.md)
+- [Map trust audit](../results/265_map_control_overlay_trust_audit.md) · [M2 surface audit](../results/269_map_surface_genie_harmonization_audit.md) · [Map QA pass 1](../results/144_map_qa_pass1.md)
 - [Family resemblance](../results/264_family_resemblance_final_audit.md) · [Settings audit](../results/262_settings_harmonization_audit.md)
 - [Production acceptance](../architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md) · [Feature status board](../architecture/FEATURE_STATUS_BOARD.md) *(stale 2026-06-14 — use this doc)*
 
@@ -61,7 +63,7 @@ Scope: `auth.html` visual quality · signup/login/password-reset truth · Google
 |------|:-----:|:-----:|:-----:|:-------------:|-----------|:----:|
 | **Auth** | ✅ | 🟡 | ⚪ | ⚪ | UI | **P0** |
 | **Birth intake** | ✅ | 🟡 | ⚪ | ⚪ | UI · QA | **P0** |
-| **Map** | ✅ | ✅ | 🟡 | ⚪ | UI · QA | **P0** |
+| **Map** | ✅ | ✅ | 🟡 | ⚪ | UI · Genie harmonization · QA | **P0** |
 | **Comparison V5** | ✅ | ✅ | 🟡 | 🟡 | QA | P1 |
 | **Profile / Relocated** | ✅ | ✅ | 🟡 | 🟡 | Engine · QA | P1 |
 | **City Intelligence** | 🟡 | ✅ | ⚪ | ⚪ | UI · QA | P1 |
@@ -92,7 +94,8 @@ Scope: `auth.html` visual quality · signup/login/password-reset truth · Google
 - Ghost NOT deferred (engine exclude not shipped)
 - Notes library partial (canonical on chart surfaces only)
 - Full City Intelligence page incomplete (inline only for Beta)
-- Map material outlier vs chart family
+- Map material bridge shipped (M2-X); PO visual QA + screenshots still required
+- M2 screenshot evidence incomplete — PO session required ([269](../results/269_map_surface_genie_harmonization_audit.md))
 - Exports absent
 - FEATURE_STATUS_BOARD stale — verify port 8004 / comparison facts before external users
 
@@ -138,7 +141,7 @@ Scope: `auth.html` visual quality · signup/login/password-reset truth · Google
 | Surface | Built | Smoke | PO QA | Release Ready | Risk type | Risk |
 |---------|:-----:|:-----:|:-----:|:-------------:|-----------|:----:|
 | Map | ✅ | ✅ | 🟡 | ⚪ | UI · QA | P0 |
-| Genie / GV search | ✅ | ✅ | 🟡 | 🟡 | QA | P1 |
+| Genie / GV search | ✅ | ✅ | 🟡 | ⚪ | QA | P1 |
 | Ghost controls | 🟡 | ✅ | ⚪ | ⚪ | Engine · QA | P1 |
 | Profile | ✅ | ✅ | 🟡 | 🟡 | Engine · QA | P1 |
 | Relocated | ✅ | ✅ | 🟡 | 🟡 | QA | P1 |
@@ -174,9 +177,10 @@ Canon: [CITY_INTELLIGENCE_CANON.md](canon/CITY_INTELLIGENCE_CANON.md)
 | M1-B overlay instrumentation | ✅ | ✅ | ⚪ | 🟡 | P1 |
 | M1-C popup + cities | ✅ | ✅ | ⚪ | 🟡 | P1 |
 | M1-D chrome / history | ✅ | ✅ | ⚪ | 🟡 | P1 |
+| M2 surface + Genie harmonization audit | ✅ | ✅ | ⚪ | ⚪ | P1 |
 | Overlay engine (`truth_grid`) | ✅ | ✅ | 🟡 | 🟡 | P0 |
 | M1-E cache | ⚪ | ⚪ | ⚪ | ⚪ | P2 |
-| Material harmonization | ⚪ | — | ⚪ | ⚪ | P2 |
+| Material harmonization (Genie/panel) | 🟡 | ✅ | ⚪ | ⚪ | P1 |
 
 [265 audit](../results/265_map_control_overlay_trust_audit.md)
 
@@ -201,6 +205,7 @@ Same as Release Ready gaps — smoke is not sufficient:
 
 - Auth + birth intake (BI-0 target)
 - City search acceptance §7.2
+- M2 map surface + Genie harmonization ([269](../results/269_map_surface_genie_harmonization_audit.md))
 - Map post-M1 (ghost, save, history, overlays)
 - Comparison marathon session
 - Settings astrology → engine propagation
@@ -257,6 +262,8 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
+✓ M2-X Map visual harmonization (family bridge)
+✓ M2 Map surface + Genie harmonization audit (read-first)
 ✓ B0-A Beta release tracker refinement      (B0-A)
 ✓ B0 Beta master checklist                (B0)
 ✓ M1-D Map explore chrome, pin, history   (aa915c1)
