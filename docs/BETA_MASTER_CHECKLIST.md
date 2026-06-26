@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (S2 astrology settings)
+**Last updated:** 2026-06-27 (S1 saved object management)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -97,6 +97,7 @@ Scope: Mockups 06–08 (`validation/mockups/beta/first_experience/`) → harmoni
 - Full City Intelligence page incomplete (inline only for Beta)
 - Map material bridge shipped (M2-X); PO visual QA + screenshots still required
 - M2 screenshot evidence incomplete — PO session required ([269](../results/269_map_surface_genie_harmonization_audit.md))
+- Saved-object management wired in Settings My Data (S1); permanent delete + archives restore still SOON
 - Exports absent
 - FEATURE_STATUS_BOARD stale — verify port 8004 / comparison facts before external users
 
@@ -263,6 +264,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
+✓ S1 Saved object management (Settings My Data)     ([274](../results/274_s1_saved_object_management_implementation.md) · [canon](canon/SAVED_OBJECTS_PRODUCT_CANON.md))
 ✓ BI-0C Auth + birth intake implementation ([272](../results/272_bi0c_first_experience_implementation.md))
 ✓ BI-0B First experience mockups ([271](../results/271_first_experience_mockups.md))
 ✓ BI-0A First experience archaeology (read-only)

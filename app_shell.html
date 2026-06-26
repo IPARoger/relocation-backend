@@ -149,6 +149,27 @@
   .settings-subpage .loc-row { padding: 10px 0; align-items: flex-start; }
   .settings-stub-row { opacity: 0.92; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
   .settings-stub-row:first-child { border-top: none; }
+  .settings-stub-row { opacity: 0.92; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+  .settings-stub-row:first-child { border-top: none; }
+  .settings-obj-toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px; }
+  .settings-obj-toolbar input[type="search"] { flex:1 1 180px; min-width:140px; padding:6px 8px; }
+  .settings-obj-toolbar select { padding:6px 8px; }
+  .settings-obj-row { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+  .settings-obj-row:first-child { border-top:none; }
+  .settings-obj-row-main { flex:1; min-width:0; }
+  .settings-obj-row-title { font-weight:600; }
+  .settings-obj-row-meta { font-size:0.85rem; color:#64748b; margin-top:2px; }
+  .settings-obj-row-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+  .settings-obj-bulk-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0 0; padding-top:8px; border-top:1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+  .settings-obj-empty { margin:0; }
+  .settings-obj-folders { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+  .settings-obj-folders button.active { font-weight:600; }
+  #rm-settings-confirm-dialog { position:fixed; inset:0; z-index:12000; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,0.45); }
+  #rm-settings-confirm-dialog.rm-sdlg-open { display:flex; }
+  #rm-settings-confirm-dialog .rm-sdlg-card { max-width:420px; width:calc(100% - 32px); background:#fff; border-radius:10px; padding:18px 20px; box-shadow:0 12px 40px rgba(15,23,42,0.18); }
+  #rm-settings-confirm-dialog .rm-sdlg-title { font-weight:600; margin:0 0 8px; }
+  #rm-settings-confirm-dialog .rm-sdlg-body { margin:0 0 14px; color:#475569; line-height:1.45; }
+  #rm-settings-confirm-dialog .rm-sdlg-actions { display:flex; gap:8px; justify-content:flex-end; }
   .settings-future-row { opacity: 0.88; }
   .settings-theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
   @media (max-width: 640px) { .settings-theme-grid { grid-template-columns: 1fr; } }
@@ -7812,6 +7833,563 @@ function initAppearanceSettingsControls(root) {
   }
 }
 
+
+const SETTINGS_SORT_OPTIONS = [
+  { id: "az", label: "A\u2013Z" },
+  { id: "recent-added", label: "Recently Added" },
+  { id: "recent-viewed", label: "Recently Viewed" },
+  { id: "distance", label: "Distance" },
+];
+
+const SETTINGS_SAVED_OBJECT_TYPES = ["profiles", "favorites", "searches", "comparisons", "notes"];
+
+const _settingsSavedObjState = Object.fromEntries(
+  SETTINGS_SAVED_OBJECT_TYPES.map((t) => [t, { sort: t === "profiles" || t === "favorites" ? "az" : "recent-viewed", search: "", selected: new Set() }])
+);
+_settingsSavedObjState.favorites.folderId = null;
+
+const RM_FAV_FOLDERS_KEY = "rm_favorite_folders_v1";
+const RM_FAV_FOLDER_MAP_KEY = "rm_favorite_folder_map_v1";
+const RM_SAVED_VIEWED_KEY = "rm_saved_object_viewed_v1";
+
+function settingsSortOptionsHtml(type, current) {
+  const allowDistance = type === "favorites" || type === "searches";
+  return SETTINGS_SORT_OPTIONS.map((opt) => {
+    if (opt.id === "distance" && !allowDistance) return "";
+    const sel = opt.id === current ? " selected" : "";
+    return `<option value="${opt.id}"${sel}>${opt.label}</option>`;
+  }).join("");
+}
+
+function _loadJsonStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function _saveJsonStorage(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
+}
+
+function loadFavoriteFolders() {
+  const rows = _loadJsonStorage(RM_FAV_FOLDERS_KEY, []);
+  return Array.isArray(rows) ? rows : [];
+}
+
+function saveFavoriteFolders(rows) {
+  _saveJsonStorage(RM_FAV_FOLDERS_KEY, rows);
+}
+
+function loadFavoriteFolderMap() {
+  const map = _loadJsonStorage(RM_FAV_FOLDER_MAP_KEY, {});
+  return map && typeof map === "object" ? map : {};
+}
+
+function saveFavoriteFolderMap(map) {
+  _saveJsonStorage(RM_FAV_FOLDER_MAP_KEY, map);
+}
+
+function touchSavedObjectViewed(type, id) {
+  if (!type || !id) return;
+  const map = _loadJsonStorage(RM_SAVED_VIEWED_KEY, {});
+  if (!map[type]) map[type] = {};
+  map[type][id] = Date.now();
+  _saveJsonStorage(RM_SAVED_VIEWED_KEY, map);
+}
+
+function getSavedObjectViewedAt(type, id) {
+  const map = _loadJsonStorage(RM_SAVED_VIEWED_KEY, {});
+  return (map[type] && map[type][id]) || 0;
+}
+
+function profileNameById(profileId) {
+  const vm = viewModel;
+  if (!vm || !profileId) return "Profile";
+  const rec = vm.chartRecords.find((r) => r.chartRecordId === profileId);
+  return rec ? rec.displayName : "Profile";
+}
+
+function placeCoordsById(placeId) {
+  const vm = viewModel;
+  const place = vm && vm.placesById ? vm.placesById[placeId] : null;
+  if (!place) return null;
+  const lat = place.lat != null ? place.lat : place.latitude;
+  const lon = place.lon != null ? place.lon : place.longitude;
+  if (lat == null || lon == null) return null;
+  return { lat: Number(lat), lon: Number(lon) };
+}
+
+function referencePlaceForDistance() {
+  const vm = requireViewModel();
+  const rec = vm.chartRecords.find((r) => r.chartRecordId === vm.defaultChartRecordId) || vm.chartRecords[0];
+  if (!rec) return null;
+  const client = (storeRaw && storeRaw.clients || []).find((c) => c.id === rec.chartRecordId);
+  const placeId = client && client.current_location_place_id;
+  return placeId ? placeCoordsById(placeId) : null;
+}
+
+function haversineKm(a, b) {
+  if (!a || !b) return Number.POSITIVE_INFINITY;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lon - a.lon);
+  const latitudes = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(latitudes), Math.sqrt(1 - latitudes));
+}
+
+function sortSavedObjectItems(items, sortKey, type) {
+  const rows = items.slice();
+  const ref = referencePlaceForDistance();
+  if (sortKey === "az") {
+    rows.sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), undefined, { sensitivity: "base" }));
+  } else if (sortKey === "recent-added") {
+    rows.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+  } else if (sortKey === "recent-viewed") {
+    rows.sort((a, b) => (getSavedObjectViewedAt(type, b.id) || 0) - (getSavedObjectViewedAt(type, a.id) || 0)
+      || String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+  } else if (sortKey === "distance") {
+    rows.sort((a, b) => {
+      const da = a.placeId && ref ? haversineKm(ref, placeCoordsById(a.placeId)) : Number.POSITIVE_INFINITY;
+      const db = b.placeId && ref ? haversineKm(ref, placeCoordsById(b.placeId)) : Number.POSITIVE_INFINITY;
+      return da - db;
+    });
+  }
+  return rows;
+}
+
+function filterSavedObjectItems(items, query) {
+  const q = (query || "").trim().toLowerCase();
+  if (!q) return items;
+  return items.filter((item) => {
+    const hay = [item.title, item.subtitle, item.profileName, item.body, ...(item.tags || [])]
+      .filter(Boolean).join(" ").toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+function collectSettingsProfileItems() {
+  const vm = requireViewModel();
+  const rawClients = (storeRaw && storeRaw.clients) || [];
+  return vm.chartRecords.map((r) => {
+    const raw = rawClients.find((c) => c.id === r.chartRecordId) || {};
+    return {
+      id: r.chartRecordId,
+      title: r.displayName,
+      subtitle: `${r.birthCity || "\u2014"} \u00b7 ${r.recordType || "profile"}`,
+      profileId: r.chartRecordId,
+      profileName: r.displayName,
+      createdAt: raw.created_at || null,
+      updatedAt: raw.updated_at || null,
+      isDefault: r.chartRecordId === vm.defaultChartRecordId,
+    };
+  });
+}
+
+function collectSettingsFavoriteItems() {
+  const vm = requireViewModel();
+  const folderMap = loadFavoriteFolderMap();
+  const folderId = _settingsSavedObjState.favorites.folderId;
+  const rawFavs = (storeRaw && storeRaw.favorite_cities) || [];
+  const items = [];
+  vm.chartRecords.forEach((rec) => {
+    (rec.favorites || []).forEach((f) => {
+      const mappedFolder = folderMap[f.id] || null;
+      if (folderId === "__unfiled__" && mappedFolder) return;
+      if (folderId && folderId !== "__unfiled__" && mappedFolder !== folderId) return;
+      const raw = rawFavs.find((x) => x.id === f.id) || {};
+      items.push({
+        id: f.id,
+        title: f.placeName || "Favorite place",
+        subtitle: profileNameById(rec.chartRecordId),
+        profileId: rec.chartRecordId,
+        profileName: rec.displayName,
+        placeId: f.placeId,
+        folderId: mappedFolder,
+        createdAt: raw.created_at || null,
+        updatedAt: raw.updated_at || null,
+      });
+    });
+  });
+  return items;
+}
+
+function collectSettingsSearchItems() {
+  const raw = (storeRaw && storeRaw.saved_investigations) || [];
+  return raw.map((inv) => ({
+    id: inv.id,
+    title: inv.title || inv.name || "Untitled investigation",
+    subtitle: profileNameById(inv.client_id),
+    profileId: inv.client_id,
+    profileName: profileNameById(inv.client_id),
+    createdAt: inv.created_at || null,
+    updatedAt: inv.updated_at || null,
+    placeId: null,
+  }));
+}
+
+function collectSettingsComparisonItems() {
+  const raw = (storeRaw && storeRaw.comparison_sets) || [];
+  return raw.map((cs) => {
+    const placeIds = cs.place_ids || [];
+    return {
+      id: cs.id,
+      title: cs.title || "Comparison",
+      subtitle: `${profileNameById(cs.client_id || cs.profile_id)} \u00b7 ${placeIds.length} location${placeIds.length === 1 ? "" : "s"}`,
+      profileId: cs.client_id || cs.profile_id,
+      profileName: profileNameById(cs.client_id || cs.profile_id),
+      createdAt: cs.created_at || null,
+      updatedAt: cs.updated_at || null,
+      placeId: placeIds[0] || null,
+    };
+  });
+}
+
+function collectSettingsNoteItems() {
+  const items = [];
+  const vm = requireViewModel();
+  vm.chartRecords.forEach((r) => {
+    const body = (r.note || "").trim();
+    if (!body) return;
+    items.push({
+      id: "chart-record:" + r.chartRecordId,
+      title: `Chart Record \u00b7 ${r.displayName}`,
+      subtitle: "Chart Record note",
+      profileId: r.chartRecordId,
+      profileName: r.displayName,
+      body,
+      noteKind: "chart_record",
+      targetId: r.chartRecordId,
+      createdAt: null,
+      updatedAt: null,
+    });
+  });
+  (vm.comparisonSets || []).forEach((cs) => {
+    const body = (cs.notes || "").trim();
+    if (!body) return;
+    items.push({
+      id: "comparison-set:" + cs.id,
+      title: cs.title || "Comparison note",
+      subtitle: `${profileNameById(cs.clientId)} \u00b7 Comparison note`,
+      profileId: cs.clientId,
+      profileName: profileNameById(cs.clientId),
+      body,
+      noteKind: "comparison_set",
+      targetId: cs.id,
+      createdAt: cs.updated_at || null,
+      updatedAt: cs.updated_at || null,
+    });
+  });
+  return items;
+}
+
+function collectSettingsSavedItems(type) {
+  if (type === "profiles") return collectSettingsProfileItems();
+  if (type === "favorites") return collectSettingsFavoriteItems();
+  if (type === "searches") return collectSettingsSearchItems();
+  if (type === "comparisons") return collectSettingsComparisonItems();
+  if (type === "notes") return collectSettingsNoteItems();
+  return [];
+}
+
+function settingsSavedObjectToolbarHtml(type) {
+  const st = _settingsSavedObjState[type] || { sort: "az", search: "" };
+  const selectedCount = st.selected ? st.selected.size : 0;
+  return `
+    <div class="settings-obj-toolbar" data-settings-obj-toolbar="${type}">
+      <input type="search" placeholder="Search\u2026" value="${escapeHtml(st.search || "")}" data-settings-obj-search="${type}" aria-label="Search ${type}" />
+      <label class="meta">Sort
+        <select data-settings-obj-sort="${type}">${settingsSortOptionsHtml(type, st.sort)}</select>
+      </label>
+      ${type === "favorites" ? `<button type="button" data-action="settings-fav-create-folder">Create Folder</button>` : ""}
+      ${type === "profiles" ? `<button type="button" data-action="settings-profile-create">Create Profile</button>
+        <button type="button" data-action="settings-profile-composite" title="Creates a new profile from selected sources">Create Composite</button>` : ""}
+    </div>
+    <div class="settings-obj-bulk-bar" data-settings-obj-bulk="${type}"${selectedCount ? "" : " hidden"}>
+      <span class="meta" data-settings-obj-selected-count="${type}">${selectedCount} selected</span>
+      <button type="button" data-action="settings-obj-bulk-archive" data-settings-obj-type="${type}">Archive selected</button>
+      <button type="button" data-action="settings-obj-bulk-delete" data-settings-obj-type="${type}" disabled title="Permanent delete coming soon">Bulk Delete</button>
+      <span class="badge-soon">Bulk Delete \u2014 coming soon</span>
+    </div>`;
+}
+
+function settingsFavoriteFoldersHtml() {
+  const folders = loadFavoriteFolders();
+  const active = _settingsSavedObjState.favorites.folderId;
+  const parts = [`<button type="button" class="${active ? "" : "active"}" data-action="settings-fav-folder-filter" data-folder-id="">All</button>`,
+    `<button type="button" class="${active === "__unfiled__" ? "active" : ""}" data-action="settings-fav-folder-filter" data-folder-id="__unfiled__">Unfiled</button>`];
+  folders.forEach((f) => {
+    parts.push(`<button type="button" class="${active === f.id ? "active" : ""}" data-action="settings-fav-folder-filter" data-folder-id="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>
+      <button type="button" data-action="settings-fav-rename-folder" data-folder-id="${escapeHtml(f.id)}" data-folder-name="${escapeHtml(f.name)}">Rename</button>
+      <button type="button" data-action="settings-fav-delete-folder" data-folder-id="${escapeHtml(f.id)}" data-folder-name="${escapeHtml(f.name)}">Delete Folder</button>`);
+  });
+  return `<div class="settings-obj-folders" data-settings-fav-folders="true">${parts.join("")}</div>`;
+}
+
+function settingsSavedObjectListHtml(type) {
+  const st = _settingsSavedObjState[type];
+  let items = collectSettingsSavedItems(type);
+  items = filterSavedObjectItems(items, st.search);
+  items = sortSavedObjectItems(items, st.sort, type);
+  if (!items.length) {
+    return `<p class="meta settings-obj-empty">No ${type === "profiles" ? "birth profiles" : type} match your search.</p>`;
+  }
+  const rows = items.map((item) => {
+    const checked = st.selected.has(item.id) ? " checked" : "";
+    let actions = "";
+    if (type === "profiles") {
+      actions = `
+        ${item.isDefault ? `<span class="meta">Default profile</span>` : `<button type="button" data-action="settings-profile-default" data-chart-record="${escapeHtml(item.id)}">Set Default</button>`}
+        <button type="button" data-action="settings-profile-rename" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Rename</button>
+        <button type="button" data-action="settings-profile-archive" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Archive</button>
+        <button type="button" disabled title="Coming soon">Duplicate</button>
+        <button type="button" disabled title="Coming soon">Delete</button>`;
+    } else if (type === "favorites") {
+      actions = `
+        <button type="button" data-action="settings-fav-rename" data-favorite-id="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}" data-chart-record="${escapeHtml(item.profileId)}">Rename</button>
+        <button type="button" data-action="settings-fav-move-folder" data-favorite-id="${escapeHtml(item.id)}">Move to Folder</button>
+        <button type="button" data-action="settings-fav-archive" data-favorite-id="${escapeHtml(item.id)}" data-place="${escapeHtml(item.title)}" data-chart-record="${escapeHtml(item.profileId)}">Archive</button>
+        <button type="button" disabled title="Coming soon">Delete</button>`;
+    } else if (type === "searches") {
+      actions = `
+        <button type="button" data-action="settings-search-open" data-exploration="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
+        <button type="button" data-action="settings-search-rename" data-exploration="${escapeHtml(item.id)}" data-current-title="${escapeHtml(item.title)}">Rename</button>
+        <button type="button" data-action="settings-search-archive" data-exploration="${escapeHtml(item.id)}">Archive</button>
+        <button type="button" disabled title="Coming soon">Delete</button>`;
+    } else if (type === "comparisons") {
+      actions = `
+        <button type="button" data-action="settings-cmp-open" data-cmp-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
+        <button type="button" disabled title="Coming soon">Rename</button>
+        <button type="button" data-action="settings-cmp-archive" data-cmp-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-cmp-title="${escapeHtml(item.title)}">Archive</button>
+        <button type="button" disabled title="Coming soon">Delete</button>`;
+    } else if (type === "notes") {
+      actions = `
+        <button type="button" data-action="settings-note-open" data-note-kind="${escapeHtml(item.noteKind)}" data-target-id="${escapeHtml(item.targetId)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
+        <button type="button" disabled title="Coming soon">Rename</button>
+        <button type="button" disabled title="Coming soon">Archive</button>
+        <button type="button" disabled title="Coming soon">Delete</button>`;
+    }
+    return `<div class="settings-obj-row" data-settings-obj-row="${type}" data-obj-id="${escapeHtml(item.id)}">
+      <input type="checkbox" data-settings-obj-select="${type}" data-obj-id="${escapeHtml(item.id)}"${checked} aria-label="Select ${escapeHtml(item.title)}" />
+      <div class="settings-obj-row-main">
+        <div class="settings-obj-row-title">${escapeHtml(item.title)}</div>
+        <div class="settings-obj-row-meta">${escapeHtml(item.subtitle || "")}${item.body ? " \u00b7 " + escapeHtml(item.body.slice(0, 80)) : ""}</div>
+      </div>
+      <div class="settings-obj-row-actions">${actions}</div>
+    </div>`;
+  }).join("");
+  return rows;
+}
+
+function settingsSavedObjectPanelHtml(type, panelId, heading) {
+  const folderBlock = type === "favorites" ? settingsFavoriteFoldersHtml() : "";
+  return `
+    <div class="settings-subhead">${heading}</div>
+    <div class="panel settings-panel" id="${panelId}" data-settings-saved-type="${type}">
+      <p class="meta" style="margin:0 0 8px;">Rename changes display title only. Archive removes items from active lists; restore from Archives when wired.</p>
+      ${settingsSavedObjectToolbarHtml(type)}
+      ${folderBlock}
+      <div data-settings-obj-list="${type}">${settingsSavedObjectListHtml(type)}</div>
+    </div>`;
+}
+
+function settingsConfirmDialogHtml() {
+  return `<div id="rm-settings-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="rm-settings-confirm-title" hidden>
+    <div class="rm-sdlg-card">
+      <h4 class="rm-sdlg-title" id="rm-settings-confirm-title">Confirm</h4>
+      <p class="rm-sdlg-body" id="rm-settings-confirm-body"></p>
+      <div class="rm-sdlg-actions">
+        <button type="button" class="rm-sdlg-btn-cancel" data-action="settings-confirm-cancel">Cancel</button>
+        <button type="button" class="rm-sdlg-btn-save" data-action="settings-confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function ensureSettingsConfirmDialog() {
+  let el = document.getElementById("rm-settings-confirm-dialog");
+  if (!el) {
+    document.body.insertAdjacentHTML("beforeend", settingsConfirmDialogHtml());
+    el = document.getElementById("rm-settings-confirm-dialog");
+  }
+  return el;
+}
+
+function settingsConfirm(title, body) {
+  ensureSettingsConfirmDialog();
+  const dlg = document.getElementById("rm-settings-confirm-dialog");
+  const titleEl = document.getElementById("rm-settings-confirm-title");
+  const bodyEl = document.getElementById("rm-settings-confirm-body");
+  if (titleEl) titleEl.textContent = title || "Confirm";
+  if (bodyEl) bodyEl.textContent = body || "";
+  dlg.hidden = false;
+  dlg.classList.add("rm-sdlg-open");
+  return new Promise((resolve) => {
+    const cleanup = (val) => {
+      dlg.classList.remove("rm-sdlg-open");
+      dlg.hidden = true;
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      resolve(val);
+    };
+    const okBtn = dlg.querySelector("[data-action='settings-confirm-ok']");
+    const cancelBtn = dlg.querySelector("[data-action='settings-confirm-cancel']");
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+  });
+}
+
+async function settingsBulkArchive(type) {
+  const st = _settingsSavedObjState[type];
+  const ids = Array.from(st.selected || []);
+  if (!ids.length) return;
+  const noun = type === "profiles" ? "profile" : type.slice(0, -1);
+  const ok = await settingsConfirm(
+    "Archive selected",
+    `Archive ${ids.length} ${noun}(s)? They will be hidden from active lists. This is recoverable from Archives when restore is wired.`
+  );
+  if (!ok) return;
+  for (const id of ids) {
+    if (type === "profiles") await settingsArchiveProfileById(id);
+    else if (type === "favorites") await settingsArchiveFavoriteById(id);
+    else if (type === "searches") await settingsArchiveSearchById(id);
+    else if (type === "comparisons") await settingsArchiveComparisonById(id);
+  }
+  st.selected.clear();
+  render();
+}
+
+async function settingsArchiveProfileById(profileId) {
+  const plan = await planProfileArchive(profileId);
+  if (plan.blocked) throw new Error(plan.blocked === "only-profile" ? "only_profile_remaining" : "not_active");
+  const archiveResp = await fetch("/profiles/archive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+    body: JSON.stringify({ profile_id: profileId }),
+  });
+  if (!archiveResp.ok) throw new Error("Archive failed");
+  const archived = await archiveResp.json();
+  const replacementId = archived.replacement_profile_id || plan.replacementId;
+  if (archived.was_default) {
+    await saveAccountSettingsPatch({ default_chart_record_id: replacementId });
+    if (viewModel) {
+      viewModel.accountDefaultChartRecordId = replacementId;
+      viewModel.defaultChartRecordId = replacementId;
+    }
+  }
+  if (_loadPersistedChartRecord() === profileId) _savePersistedChartRecord(replacementId);
+  if (viewModel) {
+    if (viewModel.lastSelectedChartRecordId === profileId) viewModel.lastSelectedChartRecordId = replacementId;
+    if (viewModel.selectedChartRecordId === profileId) viewModel.selectedChartRecordId = replacementId;
+    viewModel.chartRecords = viewModel.chartRecords.filter((r) => r.chartRecordId !== profileId);
+  }
+  if (storeRaw && storeRaw.clients) storeRaw.clients = storeRaw.clients.filter((c) => c.id !== profileId);
+  if (navContext.chartRecordId === profileId) navContext.chartRecordId = replacementId;
+}
+
+async function settingsArchiveFavoriteById(favId) {
+  const rawFavs = (storeRaw && storeRaw.favorite_cities) || [];
+  const fav = rawFavs.find((f) => f.id === favId);
+  if (!fav) return;
+  const resp = await fetch("/favorites/archive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+    body: JSON.stringify({ favorite_id: favId, profile_id: fav.client_id }),
+  });
+  if (!resp.ok) throw new Error("Archive favorite failed");
+  if (storeRaw && storeRaw.favorite_cities) storeRaw.favorite_cities = storeRaw.favorite_cities.filter((f) => f.id !== favId);
+  if (viewModel) viewModel.chartRecords.forEach((rec) => {
+    if (Array.isArray(rec.favorites)) rec.favorites = rec.favorites.filter((f) => f.id !== favId);
+  });
+}
+
+async function settingsArchiveSearchById(searchId) {
+  const inv = (storeRaw && storeRaw.saved_investigations || []).find((s) => s.id === searchId);
+  const resp = await fetch("/saved-investigations/archive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+    body: JSON.stringify({ saved_search_id: searchId, profile_id: inv ? inv.client_id : null }),
+  });
+  if (!resp.ok) throw new Error("Archive search failed");
+  if (storeRaw && storeRaw.saved_investigations) storeRaw.saved_investigations = storeRaw.saved_investigations.filter((s) => s.id !== searchId);
+  if (viewModel) viewModel.chartRecords.forEach((rec) => {
+    if (Array.isArray(rec.explorations)) rec.explorations = rec.explorations.filter((e) => e.id !== searchId);
+  });
+}
+
+async function settingsArchiveComparisonById(setId) {
+  const raw = (storeRaw && storeRaw.comparison_sets || []).find((c) => c.id === setId);
+  const profileId = raw ? (raw.client_id || raw.profile_id) : null;
+  const resp = await fetch("/comparison-sets/archive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+    body: JSON.stringify({ comparison_set_id: setId, profile_id: profileId }),
+  });
+  if (!resp.ok) throw new Error("Archive comparison failed");
+  if (storeRaw && storeRaw.comparison_sets) storeRaw.comparison_sets = storeRaw.comparison_sets.filter((c) => c.id !== setId);
+  if (viewModel && viewModel.comparisonSets) viewModel.comparisonSets = viewModel.comparisonSets.filter((c) => c.id !== setId);
+}
+
+async function authToken() {
+  const client = await window.SupabaseReady;
+  const session = (await client.auth.getSession()).data.session;
+  if (!session || !session.access_token) throw new Error("Session unavailable");
+  return session.access_token;
+}
+
+function refreshSettingsSavedObjectPanel(type) {
+  const list = document.querySelector(`[data-settings-obj-list="${type}"]`);
+  const bulk = document.querySelector(`[data-settings-obj-bulk="${type}"]`);
+  if (list) list.innerHTML = settingsSavedObjectListHtml(type);
+  const st = _settingsSavedObjState[type];
+  if (bulk) {
+    const n = st.selected.size;
+    bulk.hidden = n === 0;
+    const countEl = bulk.querySelector(`[data-settings-obj-selected-count="${type}"]`);
+    if (countEl) countEl.textContent = `${n} selected`;
+  }
+}
+
+function wireSettingsSavedObjects(root) {
+  if (!root || navContext.route !== "settings") return;
+  if (normalizeSettingsSubpage(navContext.settingsSubpage) !== "data") return;
+  ensureSettingsConfirmDialog();
+  root.querySelectorAll("[data-settings-obj-search]").forEach((input) => {
+    if (input.__wired) return;
+    input.__wired = true;
+    input.addEventListener("input", () => {
+      const type = input.getAttribute("data-settings-obj-search");
+      _settingsSavedObjState[type].search = input.value;
+      refreshSettingsSavedObjectPanel(type);
+      wireSettingsSavedObjects(root);
+    });
+  });
+  root.querySelectorAll("[data-settings-obj-sort]").forEach((sel) => {
+    if (sel.__wired) return;
+    sel.__wired = true;
+    sel.addEventListener("change", () => {
+      const type = sel.getAttribute("data-settings-obj-sort");
+      _settingsSavedObjState[type].sort = sel.value;
+      refreshSettingsSavedObjectPanel(type);
+    });
+  });
+  root.querySelectorAll("[data-settings-obj-select]").forEach((box) => {
+    if (box.__wired) return;
+    box.__wired = true;
+    box.addEventListener("change", () => {
+      const type = box.getAttribute("data-settings-obj-select");
+      const id = box.getAttribute("data-obj-id");
+      const st = _settingsSavedObjState[type];
+      if (box.checked) st.selected.add(id); else st.selected.delete(id);
+      refreshSettingsSavedObjectPanel(type);
+    });
+  });
+}
+
 function settingsSoonBadge() {
   return '<span class="badge-soon">Coming soon</span>';
 }
@@ -7887,18 +8465,15 @@ function settingsAccountPanelHtml() {
 function settingsProfilesPanelHtml() {
   const vm = requireViewModel();
   return `
-    <div class="settings-subhead">Profiles</div>
-    <div class="panel settings-panel" id="sec-data-profiles">
-      <label class="block">Default profile
-        <select id="rm-settings-default-cr">
-          ${vm.chartRecords.map((r) =>
-            `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
-          ).join("")}
-        </select>
-      </label>
-      <p class="meta">Used when opening Map without a specific profile selected.</p>
-      <button type="button" data-nav="profiles">Manage Profiles \u2192</button>
-    </div>`;
+    <label class="block">Default profile
+      <select id="rm-settings-default-cr">
+        ${vm.chartRecords.map((r) =>
+          `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
+        ).join("")}
+      </select>
+    </label>
+    <p class="meta">Used when opening Map without a specific profile selected. Create Composite always creates a <strong>new</strong> profile and never changes source profiles.</p>
+    ${settingsSavedObjectPanelHtml("profiles", "sec-data-profiles", "Birth Profiles")}`;
 }
 
 function chartAppearanceHtml() {
@@ -7975,8 +8550,8 @@ function settingsChartsBodyHtml() {
       ${minorAspectsAdvancedHtml()}
       ${customOrbsAdvancedHtml()}
       ${exactAspectThresholdInfoHtml()}
-      <div class="settings-subhead" data-rm-astrology-section="advanced">Advanced</div>
-      ${advancedAstrologyHtml()}`;
+      <div class="settings-subhead" data-rm-astrology-section="dignities">Dignities</div>
+      ${dignitiesDisplayHtml()}`;
 }
 
 function settingsMapBodyHtml() {
@@ -8040,18 +8615,16 @@ function settingsExportsBodyHtml() {
 }
 
 function settingsDataBodyHtml() {
-  return settingsProfilesPanelHtml() + `
-    <div class="settings-subhead">Saved Searches</div>
-    <div class="panel" id="sec-data-saved">
-      ${settingsStubRow("Saved Searches", "Manage investigation history.")}
-    </div>
-    <div class="settings-subhead">Saved Comparisons</div>
-    <div class="panel" id="sec-data-comparisons">
-      ${settingsStubRow("Saved Comparisons", "Manage comparison sets.")}
-    </div>
+  return settingsProfilesPanelHtml()
+    + settingsSavedObjectPanelHtml("favorites", "sec-data-favorites", "Favorites")
+    + settingsSavedObjectPanelHtml("searches", "sec-data-saved", "Saved Searches")
+    + settingsSavedObjectPanelHtml("comparisons", "sec-data-comparisons", "Saved Comparisons")
+    + settingsSavedObjectPanelHtml("notes", "sec-data-notes", "Notes")
+    + `
     <div class="settings-subhead">Archives</div>
     <div class="panel" id="sec-data-archives">
-      ${settingsStubRow("Archives", "Restore archived searches and comparisons.")}
+      <p class="meta" style="margin:0 0 8px;">Archived items are hidden from active lists. Restore will return here when the archives backend is wired.</p>
+      ${settingsStubRow("Restore archived items", "Browse and restore archived searches, comparisons, favorites, and profiles.")}
     </div>
     <div class="settings-subhead">History</div>
     <div class="panel" id="sec-data-history">
@@ -8874,6 +9447,7 @@ function render() {
   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
   if (navContext.route === "help") wireHelpHandbook($("#main"));
   if (navContext.route === "settings") initAppearanceSettingsControls($("#main"));
+  if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
 }
 
@@ -9603,6 +10177,205 @@ if (action === "cmp-notes-hide") {
       }
       if (action === "quick-share-chart") {
         createQuickShareFromChartScreen();
+        return;
+      }
+      if (action === "settings-profile-create") {
+        if (typeof window.__showFirstProfileIntake === "function") {
+          window.__showFirstProfileIntake({ mode: "add", onCreated: handleProfileCreated });
+        }
+        return;
+      }
+      if (action === "settings-profile-composite") {
+        window.alert("Create Composite selects two or more birth profiles and creates a new profile record. Source profiles are never modified. Backend wiring coming soon.");
+        return;
+      }
+      if (action === "settings-profile-default") {
+        const crId = btn.getAttribute("data-chart-record");
+        if (!crId) return;
+        setAccountDefaultChartRecord(crId).then(() => render()).catch((err) => window.alert(err.message || String(err)));
+        return;
+      }
+      if (action === "settings-profile-rename") {
+        const profileId = btn.getAttribute("data-chart-record");
+        const currentName = btn.getAttribute("data-current-name") || "";
+        const input = window.prompt("Rename profile", currentName);
+        if (input === null) return;
+        const newName = input.trim();
+        if (!newName || newName === currentName.trim()) return;
+        renameProfile(profileId, newName).then(() => {
+          const rec = viewModel.chartRecords.find((r) => r.chartRecordId === profileId);
+          if (rec) rec.displayName = newName;
+          render();
+        }).catch((err) => window.alert("Rename failed: " + (err.message || String(err))));
+        return;
+      }
+      if (action === "settings-profile-archive") {
+        const profileId = btn.getAttribute("data-chart-record");
+        const currentName = btn.getAttribute("data-current-name") || "this profile";
+        (async () => {
+          try {
+            await window.SupabaseStoreReady;
+            const plan = await planProfileArchive(profileId);
+            if (plan.blocked === "only-profile") { window.alert("You cannot archive your only profile."); return; }
+            const ok = await settingsConfirm("Archive profile", `Archive "${currentName}"? It will be hidden from active lists. Archived profiles are not deleted.`);
+            if (!ok) return;
+            await settingsArchiveProfileById(profileId);
+            render();
+          } catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+        })();
+        return;
+      }
+      if (action === "settings-fav-create-folder") {
+        const name = window.prompt("Folder name");
+        if (!name || !name.trim()) return;
+        const folders = loadFavoriteFolders();
+        const id = "folder_" + Date.now();
+        folders.push({ id, name: name.trim() });
+        saveFavoriteFolders(folders);
+        render();
+        return;
+      }
+      if (action === "settings-fav-rename-folder") {
+        const folderId = btn.getAttribute("data-folder-id");
+        const current = btn.getAttribute("data-folder-name") || "";
+        const next = window.prompt("Rename folder", current);
+        if (!next || !next.trim()) return;
+        const folders = loadFavoriteFolders().map((f) => f.id === folderId ? Object.assign({}, f, { name: next.trim() }) : f);
+        saveFavoriteFolders(folders);
+        render();
+        return;
+      }
+      if (action === "settings-fav-delete-folder") {
+        const folderId = btn.getAttribute("data-folder-id");
+        const folderName = btn.getAttribute("data-folder-name") || "this folder";
+        (async () => {
+          const ok = await settingsConfirm("Delete folder", `Delete folder "${folderName}"? Favorites in this folder become unfiled.`);
+          if (!ok) return;
+          saveFavoriteFolders(loadFavoriteFolders().filter((f) => f.id !== folderId));
+          const map = loadFavoriteFolderMap();
+          Object.keys(map).forEach((k) => { if (map[k] === folderId) delete map[k]; });
+          saveFavoriteFolderMap(map);
+          if (_settingsSavedObjState.favorites.folderId === folderId) _settingsSavedObjState.favorites.folderId = null;
+          render();
+        })();
+        return;
+      }
+      if (action === "settings-fav-folder-filter") {
+        _settingsSavedObjState.favorites.folderId = btn.getAttribute("data-folder-id") || null;
+        render();
+        return;
+      }
+      if (action === "settings-fav-move-folder") {
+        const favId = btn.getAttribute("data-favorite-id");
+        const folders = loadFavoriteFolders();
+        if (!folders.length) { window.alert("Create a folder first."); return; }
+        const labels = folders.map((f, i) => `${i + 1}. ${f.name}`).join("\n");
+        const choice = window.prompt(`Move to folder:\n${labels}\n\nEnter folder number, or 0 for Unfiled`);
+        if (choice === null) return;
+        const idx = parseInt(choice, 10);
+        const map = loadFavoriteFolderMap();
+        if (idx === 0) delete map[favId]; else if (idx >= 1 && idx <= folders.length) map[favId] = folders[idx - 1].id;
+        else return;
+        saveFavoriteFolderMap(map);
+        render();
+        return;
+      }
+      if (action === "settings-fav-rename") {
+        window.alert("Favorite rename uses the place display label. Full rename API coming soon.");
+        return;
+      }
+      if (action === "settings-fav-archive") {
+        const favId = btn.getAttribute("data-favorite-id");
+        const placeLabel = btn.getAttribute("data-place") || "this place";
+        (async () => {
+          const ok = await settingsConfirm("Archive favorite", `Archive ${placeLabel}? It will be removed from active favorites.`);
+          if (!ok) return;
+          try { await settingsArchiveFavoriteById(favId); render(); }
+          catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+        })();
+        return;
+      }
+      if (action === "settings-search-open") {
+        const cr = btn.getAttribute("data-chart-record");
+        const exp = btn.getAttribute("data-exploration");
+        touchSavedObjectViewed("searches", exp);
+        openMap({ chartRecordId: cr, explorationId: exp, source: "settings saved search" });
+        return;
+      }
+      if (action === "settings-search-rename") {
+        const exp = btn.getAttribute("data-exploration");
+        const current = btn.getAttribute("data-current-title") || "";
+        const next = window.prompt("Rename saved search", current);
+        if (next === null) return;
+        const trimmed = next.trim();
+        if (!trimmed) return;
+        (async () => {
+          try {
+            const resp = await fetch("/saved-investigations/rename", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+              body: JSON.stringify({ saved_search_id: exp, title: trimmed }),
+            });
+            if (!resp.ok) throw new Error("Rename failed");
+            if (storeRaw && storeRaw.saved_investigations) {
+              const row = storeRaw.saved_investigations.find((s) => s.id === exp);
+              if (row) { row.name = trimmed; row.title = trimmed; }
+            }
+            render();
+          } catch (err) { window.alert(err.message || String(err)); }
+        })();
+        return;
+      }
+      if (action === "settings-search-archive") {
+        const exp = btn.getAttribute("data-exploration");
+        (async () => {
+          const ok = await settingsConfirm("Archive saved search", "Archive this investigation? It will be removed from active lists.");
+          if (!ok) return;
+          try { await settingsArchiveSearchById(exp); render(); }
+          catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+        })();
+        return;
+      }
+      if (action === "settings-cmp-open") {
+        const cmpId = btn.getAttribute("data-cmp-id");
+        const cr = btn.getAttribute("data-chart-record");
+        touchSavedObjectViewed("comparisons", cmpId);
+        navigate("compare", { chartRecordId: cr, comparisonSetId: cmpId });
+        return;
+      }
+      if (action === "settings-cmp-archive") {
+        const setId = btn.getAttribute("data-cmp-id");
+        const title = btn.getAttribute("data-cmp-title");
+        (async () => {
+          const ok = await settingsConfirm("Archive comparison", `Archive ${title || "this comparison"}?`);
+          if (!ok) return;
+          try { await settingsArchiveComparisonById(setId); render(); }
+          catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+        })();
+        return;
+      }
+      if (action === "settings-note-open") {
+        const kind = btn.getAttribute("data-note-kind");
+        const targetId = btn.getAttribute("data-target-id");
+        const cr = btn.getAttribute("data-chart-record");
+        touchSavedObjectViewed("notes", kind + ":" + targetId);
+        if (kind === "comparison_set") navigate("compare", { chartRecordId: cr, comparisonSetId: targetId });
+        else navigate("notes-library", { chartRecordId: cr });
+        return;
+      }
+      if (action === "settings-obj-bulk-archive") {
+        const type = btn.getAttribute("data-settings-obj-type");
+        settingsBulkArchive(type).catch((err) => window.alert(err.message || String(err)));
+        return;
+      }
+      if (action === "settings-obj-bulk-delete") {
+        settingsConfirm(
+          "Bulk delete",
+          "Permanently delete selected items? This action is irreversible and cannot be undone."
+        ).then((ok) => { if (ok) window.alert("Permanent bulk delete is coming soon."); });
+        return;
+      }
+      if (action === "settings-confirm-cancel" || action === "settings-confirm-ok") {
         return;
       }
       if (action === "save-settings") {
