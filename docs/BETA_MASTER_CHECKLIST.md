@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (Settings V1 canon)
+**Last updated:** 2026-06-27 (Saved Objects canon)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -20,7 +20,7 @@ Scope: Mockups 06–08 (`validation/mockups/beta/first_experience/`) → harmoni
 **Related (do not duplicate):**
 - [Material System Canon](canon/MATERIAL_SYSTEM_CANON.md) · [Material delta](../results/263_material_system_delta.md)
 - [Map trust audit](../results/265_map_control_overlay_trust_audit.md) · [M2 surface audit](../results/269_map_surface_genie_harmonization_audit.md) · [Map QA pass 1](../results/144_map_qa_pass1.md)
-- [Settings V1 Product Spec](canon/SETTINGS_V1_PRODUCT_SPEC.md)
+- [Settings V1 Product Spec](canon/SETTINGS_V1_PRODUCT_SPEC.md) · [Saved Objects Product Canon](canon/SAVED_OBJECTS_PRODUCT_CANON.md)
 - [Family resemblance](../results/264_family_resemblance_final_audit.md) · [First experience archaeology](../results/270_first_experience_archaeology_audit.md) · [Settings audit](../results/262_settings_harmonization_audit.md)
 - [Production acceptance](../architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md) · [Feature status board](../architecture/FEATURE_STATUS_BOARD.md) *(stale 2026-06-14 — use this doc)*
 
