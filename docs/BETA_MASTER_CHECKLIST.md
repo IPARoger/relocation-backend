@@ -1,16 +1,16 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-26 (BI-0B mockups complete)  
+**Last updated:** 2026-06-27 (BI-0C auth + intake implementation)  
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
 
-**BI-0C — First Experience implementation gate**
+**BI-0G — First save dialog token harmonization**
 
-Scope: PO approval of [271 mockups](../results/271_first_experience_mockups.md) → implement auth reskin (`auth.html` instrument tokens) as first slice. Mockups live at `validation/mockups/beta/first_experience/`.
+Scope: Mockups 06–08 (`validation/mockups/beta/first_experience/`) → harmonize first map popup + save dialog with instrument family. Auth + birth intake done in [272](../results/272_first_experience_auth_intake_implementation.md).
 
-*BI-0B mockups complete ([271](../results/271_first_experience_mockups.md)). No implementation until approved. Map in maintenance mode ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
+*BI-0C complete. Transition screen deferred (direct map redirect). Map in maintenance mode ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
 
 ---
 
@@ -87,8 +87,8 @@ Scope: PO approval of [271 mockups](../results/271_first_experience_mockups.md) 
 
 ## Known Weak Spots
 
-- Auth visuals not polished (`auth.html`)
-- Birth intake needs full PO QA (`first_profile_intake.js`)
+- Auth reskinned to instrument family (`auth.html`) — PO QA pending
+- Birth intake reskinned; exact time only; name silent on first-run — PO QA pending
 - Google/Apple OAuth deferred; status must stay explicit
 - City/IATA alias quality (NYC, Bombay, Praha)
 - Ghost NOT deferred (engine exclude not shipped)
@@ -262,6 +262,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
+✓ BI-0C Auth + birth intake implementation ([272](../results/272_first_experience_auth_intake_implementation.md))
 ✓ BI-0B First experience mockups ([271](../results/271_first_experience_mockups.md))
 ✓ BI-0A First experience archaeology (read-only)
 ✓ M2-X Map visual harmonization (family bridge)

@@ -5,82 +5,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sign in — Relocation</title>
 <script src="/supabase_client.js"></script>
+<link rel="stylesheet" href="/theme/family_resemblance.css" />
 <style>
   :root {
-    --fg:      #111827;
-    --muted:   #6b7280;
-    --line:    #e5e7eb;
-    --bg:      #f3f4f6;
-    --panel:   #ffffff;
-    --accent:  #1d4ed8;
-    --accent-h:#1e40af;
-    --err-bg:  #fef2f2;
-    --err-bdr: #fca5a5;
-    --err-fg:  #991b1b;
-    --ok-bg:   #ecfdf5;
-    --ok-bdr:  #6ee7b7;
-    --ok-fg:   #065f46;
+    --rm-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --rm-sans: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+    --rm-accent-deep: #465650;
   }
   *, *::before, *::after { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
     min-height: 100vh;
-    background: var(--bg);
-    color: var(--fg);
-    font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--rm-sans);
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--rm-ink);
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── Layout ── */
   .page {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 24px 16px;
+    padding: 32px 20px;
   }
+  .journey { width: 100%; max-width: 400px; }
   .card {
-    background: var(--panel);
-    border: 1px solid var(--line);
+    background: var(--rm-card);
+    border: 1px solid var(--rm-line);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 8px 24px rgba(0,0,0,.06);
-    padding: 36px 32px 32px;
+    box-shadow: 0 1px 2px rgba(51, 41, 31, .06), 0 14px 32px -20px rgba(51, 41, 31, .16);
+    padding: 26px 24px 24px;
     width: 100%;
-    max-width: 380px;
   }
 
-  /* ── Wordmark ── */
   .wordmark {
-    font-size: 13px;
+    font-family: var(--rm-serif);
+    font-size: 1.35rem;
     font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 24px;
+    color: var(--rm-ink);
+    margin: 0 0 8px;
     text-align: center;
   }
+  .card-purpose {
+    font-size: 13px;
+    color: var(--rm-ink-soft);
+    text-align: center;
+    margin: 0 0 22px;
+    line-height: 1.45;
+  }
   .card-title {
-    font-size: 20px;
-    font-weight: 700;
+    font-family: var(--rm-serif);
+    font-size: 1.35rem;
+    font-weight: 600;
     margin: 0 0 6px;
     text-align: center;
   }
   .card-sub {
-    font-size: 13.5px;
-    color: var(--muted);
+    font-size: 13px;
+    color: var(--rm-ink-soft);
     text-align: center;
-    margin: 0 0 24px;
+    margin: 0 0 22px;
+    line-height: 1.45;
   }
 
-  /* ── Form ── */
   .field { margin-bottom: 14px; }
   label {
     display: block;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: var(--fg);
-    margin-bottom: 5px;
+    color: var(--rm-ink-soft);
+    margin-bottom: 6px;
+    letter-spacing: .01em;
   }
   .input-wrap { position: relative; }
   input[type=email],
@@ -90,59 +88,60 @@
     padding: 10px 12px;
     font: inherit;
     font-size: 14px;
-    color: var(--fg);
-    background: var(--panel);
-    border: 1.5px solid var(--line);
-    border-radius: 7px;
+    color: var(--rm-ink);
+    background: var(--rm-card);
+    border: 1px solid var(--rm-line);
+    border-radius: 10px;
     outline: none;
-    transition: border-color .15s;
+    transition: border-color .15s, box-shadow .15s;
   }
-  input:focus { border-color: var(--accent); }
-  input.has-toggle { padding-right: 42px; }
+  input:focus {
+    border-color: var(--rm-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rm-accent) 14%, transparent);
+  }
+  input.has-toggle { padding-right: 40px; }
 
-  /* show/hide toggle */
   .pw-toggle {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    padding: 4px;
+    padding: 4px 6px;
     cursor: pointer;
-    color: var(--muted);
-    font-size: 14px;
+    color: var(--rm-ink-faint);
+    font-size: 12px;
     line-height: 1;
-    display: flex;
-    align-items: center;
   }
-  .pw-toggle:hover { color: var(--fg); }
+  .pw-toggle:hover { color: var(--rm-ink); }
 
-  /* ── Primary button ── */
   .btn-primary {
     display: block;
     width: 100%;
-    padding: 11px;
+    padding: 12px 16px;
     font: inherit;
     font-size: 14px;
     font-weight: 600;
-    color: #fff;
-    background: var(--accent);
-    border: none;
-    border-radius: 7px;
+    color: var(--rm-card);
+    background: var(--rm-accent);
+    border: 1px solid var(--rm-accent-deep);
+    border-radius: 10px;
     cursor: pointer;
     margin-top: 6px;
-    transition: background .15s, opacity .15s;
+    box-shadow: 0 1px 2px rgba(51, 41, 31, .1);
+    transition: filter .15s, opacity .15s;
   }
-  .btn-primary:hover:not(:disabled) { background: var(--accent-h); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.03); }
   .btn-primary:disabled { opacity: .6; cursor: default; }
 
-  /* ── Secondary / text links ── */
   .actions-row {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    justify-content: center;
     align-items: center;
-    margin-top: 16px;
+    margin-top: 18px;
     font-size: 13px;
   }
   .link-btn {
@@ -151,90 +150,91 @@
     padding: 0;
     font: inherit;
     font-size: 13px;
-    color: var(--accent);
+    font-weight: 600;
+    color: var(--rm-accent);
     cursor: pointer;
     text-decoration: underline;
     text-underline-offset: 2px;
   }
-  .link-btn:hover { color: var(--accent-h); }
+  .link-btn:hover { filter: brightness(1.08); }
 
-  /* ── Alerts ── */
   .alert {
-    border-radius: 7px;
+    border-radius: 10px;
     padding: 10px 12px;
     font-size: 13px;
     margin-bottom: 14px;
     display: none;
   }
   .alert.visible { display: block; }
-  .alert-err  { background: var(--err-bg); border: 1px solid var(--err-bdr); color: var(--err-fg); }
-  .alert-ok   { background: var(--ok-bg);  border: 1px solid var(--ok-bdr);  color: var(--ok-fg); }
+  .alert-err  { background: #fff5f5; border: 1px solid #e8c4c4; color: #7f1d1d; }
+  .alert-ok   { background: #f0fdf6; border: 1px solid #b8e0c8; color: #14532d; }
 
-  /* ── Confirm / holding screen ── */
-  .confirm-icon { font-size: 36px; text-align: center; margin-bottom: 8px; }
+  .confirm-icon { font-size: 32px; text-align: center; margin-bottom: 8px; color: var(--rm-accent); }
   .confirm-email {
     font-weight: 600;
     word-break: break-all;
     text-align: center;
     margin: 8px 0 16px;
+    color: var(--rm-ink);
   }
   .confirm-note {
     font-size: 13px;
-    color: var(--muted);
+    color: var(--rm-ink-soft);
     text-align: center;
     margin-bottom: 20px;
+    line-height: 1.45;
   }
-  .resend-row { text-align: center; font-size: 13px; color: var(--muted); }
+  .resend-row { text-align: center; font-size: 13px; color: var(--rm-ink-soft); }
   .resend-row .link-btn { margin-left: 4px; }
-  #resend-timer { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  #resend-timer { font-size: 12px; color: var(--rm-ink-faint); margin-top: 4px; }
 
-  /* ── View switching ── */
   [data-view] { display: none; }
   [data-view].active { display: block; }
 
-  /* ── OAuth ── */
   .btn-oauth {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: 100%;
-    padding: 11px;
+    padding: 11px 16px;
     font: inherit;
     font-size: 14px;
     font-weight: 600;
-    color: var(--fg);
-    background: var(--panel);
-    border: 1.5px solid var(--line);
-    border-radius: 7px;
+    color: var(--rm-ink);
+    background: var(--rm-paper);
+    border: 1px solid var(--rm-line);
+    border-radius: 10px;
     cursor: pointer;
-    margin-top: 0;
     transition: background .15s, opacity .15s;
   }
-  .btn-oauth:hover:not(:disabled) { background: var(--bg); }
+  .btn-oauth:hover:not(:disabled) { background: color-mix(in srgb, var(--rm-line-soft) 60%, var(--rm-paper)); }
   .btn-oauth:disabled { opacity: .6; cursor: default; }
   .oauth-divider {
-    margin: 16px 0;
+    margin: 14px 0;
     text-align: center;
     font-size: 12px;
-    color: var(--muted);
-    text-transform: lowercase;
+    color: var(--rm-ink-faint);
   }
 
-  /* ── Init state ── */
   .page.loading .card { opacity: 0; }
 
   @media (max-width: 420px) {
-    .card { padding: 28px 20px 24px; }
+    .card { padding: 22px 18px 20px; }
   }
 </style>
 </head>
-<body>
+<body class="rm-instrument-surface">
 <div class="page loading" id="page">
-  <div class="card">
-    <div class="wordmark">Relocation</div>
+  <div class="journey">
+    <p class="wordmark">Relocation</p>
+    <p class="card-purpose">Your personal relocation instrument begins here.</p>
+    <div class="card">
 
     <!-- ── SIGNUP VIEW ── -->
     <div data-view="signup" id="view-signup">
       <h1 class="card-title">Create your account</h1>
-      <p class="card-sub">Your personal relocation map starts here.</p>
+      <p class="card-sub">Create an account to save your map.</p>
 
       <button type="button" class="btn-oauth" id="google-signup-btn">Continue with Google</button>
       <p class="oauth-divider">or</p>
@@ -262,7 +262,7 @@
       </form>
 
       <div class="actions-row">
-        <span style="color:var(--muted)">Already have an account?</span>
+        <span style="color:var(--rm-ink-soft)">Already have an account?</span>
         <button class="link-btn" id="goto-login">Sign in</button>
       </div>
     </div>
@@ -270,7 +270,7 @@
     <!-- ── LOGIN VIEW ── -->
     <div data-view="login" id="view-login">
       <h1 class="card-title">Welcome back</h1>
-      <p class="card-sub">Sign in to your account.</p>
+      <p class="card-sub">Sign in to continue to your map.</p>
 
       <button type="button" class="btn-oauth" id="google-login-btn">Continue with Google</button>
       <p class="oauth-divider">or</p>
@@ -325,7 +325,8 @@
       </div>
     </div>
 
-  </div><!-- .card -->
+    </div><!-- .card -->
+  </div><!-- .journey -->
 </div><!-- .page -->
 
 <script>

@@ -4,32 +4,14 @@
  * Activates when window.SupabaseStoreReady rejects with "Intake overlay required",
  * meaning the authenticated user has no profiles or birth records yet.
  *
- * Shows a minimal overlay:
- *   - Display name
- *   - Birth date
- *   - Birth time mode (exact / unknown)
- *   - Birth time (shown only when mode = exact)
- *   - Birth place search (GET /places/search — alias-aware backend)
+ * Beta fields: Birth Date, Birth Time (required), Birth Place.
+ * Display name is resolved silently (Google metadata or fallback).
  *
- * Write path:
- *   1. INSERT INTO profiles   (account_id, account_user_id*, display_name, profile_type)
- *   2. INSERT INTO birth_records (account_id, profile_id, birth_date, birth_time_mode,
- *                                 birth_time_start, birth_place_id, timezone_id)
+ * Write path: POST /profiles/create-with-birth
  *
- * * account_user_id: still NOT NULL in base schema as of Phase 4.
- *   Populated with CurrentUser.userId. Legacy column — not used for auth or identity.
- *   Will be dropped in a future migration. This is documented and intentional.
+ * On success: redirect to /map_CURRENT.html with app_shell handoff params.
  *
- * Compensation on birth_record failure:
- *   If the birth_records INSERT fails, the just-created profile is deleted.
- *   This is a best-effort compensating DELETE (not a SQL transaction).
- *   If the compensating DELETE also fails, an error is surfaced and the orphan
- *   profile is left for manual cleanup. The user is shown a clear retry message.
- *
- * On success: redirect to /map_CURRENT.html with app_shell handoff params (skipOnboarding, handoff, handoffCreatedAt, chartRecordId=profileId).
- *
- * Exposes:
- *   window.__showFirstProfileIntake() — called by app_shell.html on INTAKE_REQUIRED
+ * Exposes: window.__showFirstProfileIntake()
  */
 (function () {
   "use strict";
@@ -37,9 +19,6 @@
   var INTAKE_OVERLAY_ID = "rm-first-profile-intake";
   var overlayShown = false;
 
-  // Launch context (Phase 1 plumbing). Captured when the overlay is shown so
-  // later phases can branch first-run vs. future Add Profile behavior. Default
-  // mode "first" preserves existing first-run onboarding behavior exactly.
   var DEFAULT_LAUNCH_CONTEXT = { mode: "first", onCreated: null };
   var launchContext = DEFAULT_LAUNCH_CONTEXT;
 
@@ -50,79 +29,125 @@
     return { mode: mode, onCreated: onCreated };
   }
 
-  // ── Styles ─────────────────────────────────────────────────────────────────
+  // ── Styles (instrument surface — matches auth.html / family_resemblance) ──
 
   var CSS = [
     "#" + INTAKE_OVERLAY_ID + " {",
     "  position:fixed; inset:0; z-index:99999;",
-    "  background:rgba(10,10,20,0.82); backdrop-filter:blur(4px);",
     "  display:flex; align-items:center; justify-content:center;",
-    "  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;",
+    "  padding:32px 20px; overflow-y:auto;",
+    "  font-family:\"Avenir Next\",\"Segoe UI\",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;",
+    "  font-size:15.5px; line-height:1.5; color:var(--rm-ink,#33291f);",
+    "  background:",
+    "    radial-gradient(58% 50% at 12% -4%, rgba(214,176,108,.16), transparent 60%),",
+    "    radial-gradient(50% 44% at 98% 4%, rgba(150,178,150,.10), transparent 60%),",
+    "    radial-gradient(70% 60% at 86% 96%, rgba(120,160,185,.09), transparent 62%),",
+    "    var(--rm-paper,#f4ecdc);",
+    "  -webkit-font-smoothing:antialiased;",
+    "}",
+    "#" + INTAKE_OVERLAY_ID + " .rm-intake-journey { width:100%; max-width:400px; }",
+    "#" + INTAKE_OVERLAY_ID + " .rm-intake-wordmark {",
+    "  font-family:\"Iowan Old Style\",\"Palatino Linotype\",Palatino,Georgia,serif;",
+    "  font-size:1.35rem; font-weight:600; text-align:center; margin:0 0 8px;",
+    "  color:var(--rm-ink,#33291f);",
     "}",
     "#" + INTAKE_OVERLAY_ID + " .card {",
-    "  background:#1a1a2e; border:1px solid #2d2d4e; border-radius:12px;",
-    "  padding:32px; width:100%; max-width:420px; color:#e0e0f0;",
+    "  background:var(--rm-card,#fdf8ee); border:1px solid var(--rm-line,#ddd0b8);",
+    "  border-radius:12px; padding:26px 24px 24px; width:100%;",
+    "  box-shadow:0 1px 2px rgba(51,41,31,.06),0 14px 32px -20px rgba(51,41,31,.16);",
     "}",
     "#" + INTAKE_OVERLAY_ID + " h2 {",
-    "  margin:0 0 6px; font-size:1.3rem; font-weight:600; color:#c8b8ff;",
+    "  font-family:\"Iowan Old Style\",\"Palatino Linotype\",Palatino,Georgia,serif;",
+    "  font-size:1.35rem; font-weight:600; margin:0 0 6px; text-align:center;",
+    "  color:var(--rm-ink,#33291f);",
     "}",
     "#" + INTAKE_OVERLAY_ID + " .subtitle {",
-    "  margin:0 0 24px; font-size:0.85rem; color:#8080a0;",
+    "  margin:0 0 22px; font-size:13px; color:var(--rm-ink-soft,#6a5f4f);",
+    "  text-align:center; line-height:1.45;",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .field { margin-bottom:16px; }",
+    "#" + INTAKE_OVERLAY_ID + " .field { margin-bottom:14px; }",
     "#" + INTAKE_OVERLAY_ID + " label {",
-    "  display:block; font-size:0.78rem; color:#8888aa; margin-bottom:5px;",
-    "  text-transform:uppercase; letter-spacing:0.05em;",
+    "  display:block; font-size:12px; font-weight:600; color:var(--rm-ink-soft,#6a5f4f);",
+    "  margin-bottom:6px; letter-spacing:.01em;",
     "}",
     "#" + INTAKE_OVERLAY_ID + " input[type=text],",
     "#" + INTAKE_OVERLAY_ID + " input[type=date],",
     "#" + INTAKE_OVERLAY_ID + " input[type=time] {",
     "  width:100%; box-sizing:border-box;",
-    "  background:#0f0f1e; border:1px solid #3a3a5e; border-radius:7px;",
-    "  color:#e0e0f0; padding:10px 12px; font-size:0.95rem;",
-    "  outline:none; transition:border-color 0.2s;",
+    "  background:var(--rm-card,#fdf8ee); border:1px solid var(--rm-line,#ddd0b8);",
+    "  border-radius:10px; color:var(--rm-ink,#33291f); padding:10px 12px;",
+    "  font:inherit; font-size:14px; outline:none;",
+    "  transition:border-color .15s, box-shadow .15s;",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " input:focus { border-color:#7b61ff; }",
-    "#" + INTAKE_OVERLAY_ID + " .mode-row {",
-    "  display:flex; gap:10px; margin-bottom:4px;",
+    "#" + INTAKE_OVERLAY_ID + " input:focus {",
+    "  border-color:var(--rm-accent,#5b6b63);",
+    "  box-shadow:0 0 0 2px color-mix(in srgb, var(--rm-accent,#5b6b63) 14%, transparent);",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .mode-btn {",
-    "  flex:1; padding:8px; border-radius:7px; border:1px solid #3a3a5e;",
-    "  background:#0f0f1e; color:#9090b8; font-size:0.85rem; cursor:pointer;",
-    "  transition:all 0.15s;",
+    "#" + INTAKE_OVERLAY_ID + " .hint {",
+    "  font-size:11.5px; color:var(--rm-ink-faint,#9b9080); margin-top:5px; line-height:1.4;",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .mode-btn.active {",
-    "  background:#2a1f5e; border-color:#7b61ff; color:#c8b8ff;",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-wrap {",
+    "  display:flex; align-items:center; position:relative;",
+    "  background:var(--rm-card,#fdf8ee); border:1px solid var(--rm-line,#ddd0b8);",
+    "  border-radius:10px; padding:0 12px;",
+    "  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .place-results {",
-    "  position:absolute; width:100%; background:#1a1a2e;",
-    "  border:1px solid #3a3a5e; border-top:none; border-radius:0 0 7px 7px;",
-    "  max-height:180px; overflow-y:auto; z-index:10;",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-input {",
+    "  flex:1; border:none; background:transparent; padding:10px 0;",
+    "  font:inherit; font-size:14px; color:var(--rm-ink,#33291f); outline:none;",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .place-result {",
-    "  padding:9px 12px; font-size:0.9rem; cursor:pointer; color:#c0c0e0;",
-    "  border-bottom:1px solid #252540;",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-clear {",
+    "  border:none; background:transparent; color:var(--rm-ink-faint,#9b9080);",
+    "  cursor:pointer; font-size:12px; padding:4px 0 4px 8px;",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .place-result:hover { background:#252550; }",
-    "#" + INTAKE_OVERLAY_ID + " .place-result.selected { background:#1f1f48; color:#c8b8ff; }",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-panel {",
+    "  position:absolute; left:0; right:0; top:calc(100% + 4px);",
+    "  background:var(--rm-card,#fdf8ee); border:1px solid var(--rm-line,#ddd0b8);",
+    "  border-radius:10px; max-height:180px; overflow-y:auto; z-index:10;",
+    "  box-shadow:0 4px 16px -8px rgba(51,41,31,.2);",
+    "}",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-item {",
+    "  padding:9px 14px; font-size:13.5px; cursor:pointer;",
+    "  color:var(--rm-ink,#33291f); border-bottom:1px solid var(--rm-line-soft,#ece2cf);",
+    "}",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-item:hover { background:var(--rm-line-soft,#ece2cf); }",
+    "#" + INTAKE_OVERLAY_ID + " .rm-sls-item:last-child { border-bottom:none; }",
     "#" + INTAKE_OVERLAY_ID + " .place-wrap { position:relative; }",
-    "#" + INTAKE_OVERLAY_ID + " .searching { font-size:0.78rem; color:#8080a0; margin-top:4px; }",
-    "#" + INTAKE_OVERLAY_ID + " .submit-btn {",
-    "  width:100%; padding:12px; border-radius:8px; border:none;",
-    "  background:#7b61ff; color:#fff; font-size:1rem; font-weight:600;",
-    "  cursor:pointer; margin-top:8px; transition:opacity 0.2s;",
+    "#" + INTAKE_OVERLAY_ID + " .searching {",
+    "  font-size:11.5px; color:var(--rm-ink-faint,#9b9080); margin-top:5px;",
     "}",
-    "#" + INTAKE_OVERLAY_ID + " .submit-btn:disabled { opacity:0.4; cursor:default; }",
+    "#" + INTAKE_OVERLAY_ID + " .submit-btn {",
+    "  width:100%; padding:12px 16px; border-radius:10px;",
+    "  border:1px solid #465650; background:var(--rm-accent,#5b6b63);",
+    "  color:var(--rm-card,#fdf8ee); font:inherit; font-size:14px; font-weight:600;",
+    "  cursor:pointer; margin-top:8px; box-shadow:0 1px 2px rgba(51,41,31,.1);",
+    "  transition:filter .15s, opacity .15s;",
+    "}",
+    "#" + INTAKE_OVERLAY_ID + " .submit-btn:hover:not(:disabled) { filter:brightness(1.03); }",
+    "#" + INTAKE_OVERLAY_ID + " .submit-btn:disabled { opacity:0.5; cursor:default; }",
     "#" + INTAKE_OVERLAY_ID + " .err-msg {",
-    "  margin-top:12px; padding:10px 12px; border-radius:7px;",
-    "  background:#2a0a0a; border:1px solid #7a2020; color:#f08080;",
-    "  font-size:0.85rem; display:none;",
+    "  margin-top:12px; padding:10px 12px; border-radius:10px;",
+    "  background:#fff5f5; border:1px solid #e8c4c4; color:#7f1d1d;",
+    "  font-size:13px; display:none;",
     "}",
     "#" + INTAKE_OVERLAY_ID + " .err-msg.visible { display:block; }",
+    "#" + INTAKE_OVERLAY_ID + " .sr-only {",
+    "  position:absolute; width:1px; height:1px; padding:0; margin:-1px;",
+    "  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;",
+    "}",
   ].join("\n");
 
   function injectStyles() {
+    if (!document.getElementById("rm-intake-family-css")) {
+      var link = document.createElement("link");
+      link.id = "rm-intake-family-css";
+      link.rel = "stylesheet";
+      link.href = "/theme/family_resemblance.css";
+      document.head.appendChild(link);
+    }
+    if (document.getElementById("rm-intake-styles")) return;
     var el = document.createElement("style");
+    el.id = "rm-intake-styles";
     el.textContent = CSS;
     document.head.appendChild(el);
   }
@@ -130,12 +155,10 @@
   // ── State ───────────────────────────────────────────────────────────────────
 
   var state = {
-    displayName:  "",
     birthDate:    "",
-    birthTimeMode: "exact",
     birthTime:    "",
     placeQuery:   "",
-    selectedPlace: null,   // { id, display_name, timezone_id }
+    selectedPlace: null,
     placeResults:  [],
     searching:    false,
     submitting:   false,
@@ -190,9 +213,7 @@
     container.style.display = "block";
     state.placeResults.forEach(function (place) {
       var item = document.createElement("div");
-      item.className = "place-result";
-      // display_name already includes region + country (post ADMIN1-FIX-3),
-      // so we do not re-append admin1/country_code (avoids duplicate labels).
+      item.className = "rm-sls-item";
       var label = place.display_name;
       item.textContent = label;
       item.addEventListener("click", function () {
@@ -229,6 +250,55 @@
     if (clearBtn) clearBtn.style.display = "none";
   }
 
+  // ── Display name (silent for first-run) ─────────────────────────────────────
+
+  function userSignedInWithGoogle(user) {
+    if (!user) return false;
+    var ids = user.identities || [];
+    for (var i = 0; i < ids.length; i++) {
+      if (ids[i].provider === "google") return true;
+    }
+    return !!(user.app_metadata && user.app_metadata.provider === "google");
+  }
+
+  function prefillNameFromGoogleMetadata() {
+    resolveDisplayName().catch(function () { /* no session — skip prefill */ });
+  }
+
+  async function resolveDisplayName() {
+    var nameInput = document.getElementById("rm-intake-name");
+    var fromInput = nameInput ? String(nameInput.value || "").trim() : "";
+    if (fromInput) return fromInput;
+
+    if (typeof window.SupabaseReady === "undefined") return "My Profile";
+
+    try {
+      var client = await window.SupabaseReady;
+      var result = await client.auth.getSession();
+      var user = result && result.data && result.data.session && result.data.session.user;
+      if (user) {
+        if (userSignedInWithGoogle(user)) {
+          var meta = user.user_metadata || {};
+          var googleName = String(meta.full_name || meta.name || "").trim();
+          if (googleName) {
+            if (nameInput) nameInput.value = googleName;
+            return googleName;
+          }
+        }
+        var email = String(user.email || "").trim();
+        if (email.indexOf("@") > 0) {
+          var local = email.split("@")[0].replace(/[._+\-]+/g, " ").trim();
+          if (local) {
+            if (nameInput) nameInput.value = local;
+            return local;
+          }
+        }
+      }
+    } catch (e) { /* fall through */ }
+
+    return "My Profile";
+  }
+
   // ── Insert logic ────────────────────────────────────────────────────────────
 
   async function submitIntake() {
@@ -241,20 +311,12 @@
       state.submitting = false;
     }
 
-    // Validate
-    var displayName = (document.getElementById("rm-intake-name") || {}).value || "";
+    var displayName = await resolveDisplayName();
     var birthDate   = (document.getElementById("rm-intake-date") || {}).value || "";
-    var birthTime   = state.birthTimeMode === "exact"
-      ? (document.getElementById("rm-intake-time") || {}).value || ""
-      : null;
+    var birthTime   = (document.getElementById("rm-intake-time") || {}).value || "";
 
-    displayName = displayName.trim();
-
-    if (!displayName) return showError("Display name is required.");
     if (!birthDate)   return showError("Birth date is required.");
-    if (state.birthTimeMode === "exact" && !birthTime) {
-      return showError("Birth time is required when mode is Exact. Switch to Unknown if time is not known.");
-    }
+    if (!birthTime)   return showError("Birth time is required.");
     if (!state.selectedPlace) return showError("Birth place is required. Search and select a city.");
 
     state.submitting = true;
@@ -271,7 +333,6 @@
       var accountId = currentUser.accountId;
       var userId    = currentUser.userId;
 
-      // Backend owns the write (POST /profiles/create-with-birth); supply JWT.
       var sessionResult = await client.auth.getSession();
       var session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
       var token = session && session.access_token;
@@ -286,8 +347,8 @@
         body: JSON.stringify({
           display_name: displayName,
           birth_date: birthDate,
-          birth_time_mode: state.birthTimeMode,
-          birth_time_start: state.birthTimeMode === "exact" ? birthTime + ":00" : null,
+          birth_time_mode: "exact",
+          birth_time_start: birthTime + ":00",
           birth_place_id: state.selectedPlace.id,
           timezone_id: state.selectedPlace.timezone_id || null,
           profile_type: "human",
@@ -322,10 +383,6 @@
       var created = await createResp.json();
       var profileId = created.profile_id;
 
-      // ── Success ─────────────────────────────────────────────────────────
-      // Future Add Profile (mode "add"): hand the new profile back to the shell
-      // and do NOT redirect. Requires a valid onCreated callback; otherwise we
-      // fall back to the original first-run redirect for safety.
       if (launchContext.mode === "add" && typeof launchContext.onCreated === "function") {
         console.log("[intake] Profile and birth record created (add mode). Handing off to shell.");
         var onCreatedCb = launchContext.onCreated;
@@ -336,7 +393,6 @@
         return;
       }
 
-      // First-run onboarding (default mode "first"): continue into the map flow.
       console.log("[intake] Profile and birth record created. Redirecting to map...");
       var handoffCreatedAt = new Date().toISOString();
       window.location.href =
@@ -355,58 +411,51 @@
     var overlay = document.createElement("div");
     overlay.id = INTAKE_OVERLAY_ID;
 
+    var nameField = launchContext.mode === "add"
+      ? '  <div class="field">'
+        + '<label for="rm-intake-name">Display name</label>'
+        + '<input type="text" id="rm-intake-name" placeholder="e.g. Anna Rivera" autocomplete="off" />'
+        + '</div>'
+      : '  <input type="hidden" id="rm-intake-name" value="" />';
+
     overlay.innerHTML = [
-      '<div class="card">',
-      '  <h2>Create profile and chart record</h2>',
-      '  <p class="subtitle">Enter birth details to create a profile and its chart record. Current location is set separately, later.</p>',
-
-      '  <div class="field">',
-      '    <label for="rm-intake-name">Display name</label>',
-      '    <input type="text" id="rm-intake-name" placeholder="e.g. Anna Rivera" autocomplete="off" />',
-      '  </div>',
-
-      '  <div class="field">',
-      '    <label for="rm-intake-date">Birth date</label>',
-      '    <input type="date" id="rm-intake-date" />',
-      '  </div>',
-
-      '  <div class="field">',
-      '    <label>Birth time</label>',
-      '    <div class="mode-row">',
-      '      <button type="button" class="mode-btn active" id="rm-mode-exact" data-mode="exact">Exact</button>',
-      '      <button type="button" class="mode-btn" id="rm-mode-unknown" data-mode="unknown">Unknown</button>',
+      '<div class="rm-intake-journey">',
+      '  <p class="rm-intake-wordmark">Relocation</p>',
+      '  <div class="card">',
+      '    <h2>Birth information</h2>',
+      '    <p class="subtitle">Exact birth time is required for relocation overlays.</p>',
+      nameField,
+      '    <div class="field">',
+      '      <label for="rm-intake-date">Birth date</label>',
+      '      <input type="date" id="rm-intake-date" />',
       '    </div>',
-      '  </div>',
-
-      '  <div class="field" id="rm-time-field">',
-      '    <label for="rm-intake-time">Time</label>',
-      '    <input type="time" id="rm-intake-time" />',
-      '  </div>',
-
-      '  <div class="field">',
-      '    <label for="rm-intake-place-input">Birth city</label>',
-      '    <div class="place-wrap">',
-      '      <input type="text" id="rm-intake-place-input"',
-      '             placeholder="Start typing a city name…" autocomplete="off" />',
-      '      <button type="button" id="rm-intake-place-clear"',
-      '              style="display:none;position:absolute;right:8px;top:8px;',
-      '                     background:none;border:none;color:#8888aa;cursor:pointer;font-size:0.8rem;"',
-      '              >✕ clear</button>',
-      '      <div class="place-results" id="rm-intake-place-results" style="display:none;"></div>',
+      '    <div class="field">',
+      '      <label for="rm-intake-time">Birth time</label>',
+      '      <input type="time" id="rm-intake-time" />',
+      '      <p class="hint">24-hour local time at birth place.</p>',
       '    </div>',
-      '    <div class="searching" id="rm-intake-searching" style="display:none;">Searching…</div>',
-      '    <p class="meta" style="font-size:11px;color:#8888aa;margin:4px 0 0;">Select a birth city from the available list.</p>',
-      '  </div>',
-
+      '    <div class="field">',
+      '      <label for="rm-intake-place-input">Birth location</label>',
+      '      <div class="place-wrap">',
+      '        <div class="rm-sls-wrap">',
+      '          <input type="text" class="rm-sls-input" id="rm-intake-place-input"',
+      '                 placeholder="Search city…" autocomplete="off" />',
+      '          <button type="button" class="rm-sls-clear" id="rm-intake-place-clear"',
+      '                  style="display:none;">Clear</button>',
+      '        </div>',
+      '        <div class="rm-sls-panel" id="rm-intake-place-results" style="display:none;"></div>',
+      '      </div>',
+      '      <div class="searching" id="rm-intake-searching" style="display:none;">Searching…</div>',
+      '      <p class="hint">Select from search results.</p>',
+      '    </div>',
       (launchContext.mode === "add"
-        ? '  <label class="field" style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">'
+        ? '    <label class="field" style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">'
           + '<input type="checkbox" id="rm-intake-switch" checked style="width:auto;margin:0;" />'
           + 'Switch to new profile</label>'
         : ''),
-      '  <button type="button" class="submit-btn" id="rm-intake-submit">',
-      '    Create my chart',
-      '  </button>',
-      '  <div class="err-msg" id="rm-intake-err"></div>',
+      '    <button type="button" class="submit-btn" id="rm-intake-submit">Continue</button>',
+      '    <div class="err-msg" id="rm-intake-err"></div>',
+      '  </div>',
       '</div>',
     ].join("\n");
 
@@ -414,19 +463,6 @@
   }
 
   function attachListeners(overlay) {
-    // Mode toggle
-    overlay.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-mode]");
-      if (!btn) return;
-      state.birthTimeMode = btn.getAttribute("data-mode");
-      overlay.querySelectorAll(".mode-btn").forEach(function (b) {
-        b.classList.toggle("active", b === btn);
-      });
-      var timeField = document.getElementById("rm-time-field");
-      if (timeField) timeField.style.display = state.birthTimeMode === "exact" ? "block" : "none";
-    });
-
-    // Place search (debounced 300ms)
     var placeInput = document.getElementById("rm-intake-place-input");
     if (placeInput) {
       placeInput.addEventListener("input", function (e) {
@@ -439,56 +475,19 @@
       });
     }
 
-    // Place clear button
     var clearBtn = document.getElementById("rm-intake-place-clear");
     if (clearBtn) clearBtn.addEventListener("click", clearPlace);
 
-    // Submit
     var submitBtn = document.getElementById("rm-intake-submit");
     if (submitBtn) submitBtn.addEventListener("click", submitIntake);
   }
 
-  // ── Remove overlay ──────────────────────────────────────────────────────────
-
-  // Removes the overlay from the DOM and resets state so a later launch (e.g.
-  // first-run) starts clean. Used by the add-mode success handoff.
   function removeOverlay() {
     var existing = document.getElementById(INTAKE_OVERLAY_ID);
     if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
     overlayShown = false;
     launchContext = DEFAULT_LAUNCH_CONTEXT;
   }
-
-  // ── Google OAuth name prefill (intake only) ─────────────────────────────────
-
-  function userSignedInWithGoogle(user) {
-    if (!user) return false;
-    var ids = user.identities || [];
-    for (var i = 0; i < ids.length; i++) {
-      if (ids[i].provider === "google") return true;
-    }
-    return !!(user.app_metadata && user.app_metadata.provider === "google");
-  }
-
-  function prefillNameFromGoogleMetadata() {
-    if (typeof window.SupabaseReady === "undefined") return;
-    window.SupabaseReady.then(function (client) {
-      return client.auth.getSession();
-    }).then(function (result) {
-      var session = result && result.data && result.data.session;
-      var user = session && session.user;
-      if (!user || !userSignedInWithGoogle(user)) return;
-      var meta = user.user_metadata || {};
-      var name = String(meta.full_name || meta.name || "").trim();
-      if (!name) return;
-      var nameInput = document.getElementById("rm-intake-name");
-      if (nameInput && !String(nameInput.value || "").trim()) {
-        nameInput.value = name;
-      }
-    }).catch(function () { /* no session — skip prefill */ });
-  }
-
-  // ── Show overlay ────────────────────────────────────────────────────────────
 
   function showOverlay(options) {
     if (overlayShown) return;
@@ -497,31 +496,19 @@
 
     injectStyles();
     var overlay = buildOverlay();
+    overlay.classList.add("rm-instrument-surface");
     document.body.appendChild(overlay);
     attachListeners(overlay);
     prefillNameFromGoogleMetadata();
 
-    // Focus name field
     setTimeout(function () {
-      var nameInput = document.getElementById("rm-intake-name");
-      if (nameInput) nameInput.focus();
+      var dateInput = document.getElementById("rm-intake-date");
+      if (dateInput) dateInput.focus();
     }, 100);
   }
 
-  // ── Activation ──────────────────────────────────────────────────────────────
-
-  /**
-   * Called by app_shell.html when INTAKE_REQUIRED is detected (no args =>
-   * first-run onboarding), and by shell Add Profile entry points.
-   * @param {{mode?: "first"|"add", onCreated?: Function}} [options]
-   */
   window.__showFirstProfileIntake = showOverlay;
 
-  /**
-   * Also self-activate: listen to SupabaseStoreReady independently.
-   * Handles the case where the overlay needs to appear even if app_shell
-   * is not yet initialized.
-   */
   if (typeof window.SupabaseStoreReady !== "undefined") {
     window.SupabaseStoreReady.catch(function (err) {
       if (err && err.message && err.message.indexOf("Intake overlay required") !== -1) {

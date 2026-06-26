@@ -86,7 +86,10 @@ def main() -> int:
     check("__showFirstProfileIntake" in intake, "intake: show hook exported")
     check("RMPlaceSearch" in intake, "intake: uses RMPlaceSearch")
     check("/profiles/create-with-birth" in intake, "intake: create-with-birth endpoint")
-    check("birth_time_mode" in intake and "unknown" in intake, "intake: unknown time mode")
+    check('family_resemblance.css' in auth, "auth: family_resemblance.css linked")
+    check("rm-instrument-surface" in auth, "auth: instrument surface class")
+    check('birth_time_mode: "exact"' in intake, "intake: exact birth time mode")
+    check("rm-mode-unknown" not in intake, "intake: no unknown time toggle (BI-0C)")
 
     check("first_profile_intake.js" in map_html, "map: loads intake script")
     check("auth_guard.js" in map_html, "map: auth guard present")
