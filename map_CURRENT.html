@@ -181,6 +181,17 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
 #reopenInvestigationStatus { display: none; }
 /* PB3 Fix3: in explore mode, save disk is the only save surface; hide inline save button */
 body.rm-explore #gv-saveInline { display: none !important; }
+/* M1-D: legacy panel save hidden — disk + dialog are canonical */
+#saveInvestigationBtn,
+#saveInvestigationNote { display: none !important; }
+.rm-explore-menu-save { display: none; width: 100%; text-align: left; background: none; border: none; cursor: pointer; font: inherit; }
+body.rm-explore .rm-explore-menu-save { display: block; }
+.rm-navbtn.rm-ctrl-pinned .rm-full { color: #2563eb; font-weight: 700; }
+#rm-save-disk .rsd-label { display: none; }
+body.rm-explore #rm-save-disk::after {
+  content: '';
+}
+
 
 select, button#findBtn {
     width: 100%;
@@ -1810,6 +1821,8 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
     <a href="/app_shell.html" class="rm-nav-link">Profile</a>
     <a href="/app_shell.html#/comparison" class="rm-nav-link">Comparison</a>
     <a href="/app_shell.html#/settings" class="rm-nav-link">Settings</a>
+    <button type="button" class="rm-nav-link rm-explore-menu-save" id="rm-menu-save-investigation"
+            data-role="map-explore-save-menu">Save investigation</button>
   </nav>
   <div class="rm-topright">
     <!-- SLICE-2: #quickShareBtn moved from panel to topbar topright -->
@@ -1844,7 +1857,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
         <button id="rm-zoom-out" title="Zoom out" aria-label="Zoom out">&#8722;</button>
         <button id="rm-recenter" title="Recenter map" aria-label="Recenter map">&#9675;</button>
       </div>
-      <div class="rm-ctrl-card rm-navgrp">
+      <div class="rm-ctrl-card rm-navgrp" data-role="history-controls" aria-label="Search history and pin">
         <button id="rm-ctrl-back" class="rm-navbtn" data-role="map-history-back" disabled
                 title="Previous search state (no history yet)">
           <span class="rm-full">&#8249; Back</span><span class="rm-mini">&#8249;</span>
@@ -1854,8 +1867,9 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
           <span class="rm-full">Forward &#8250;</span><span class="rm-mini">&#8250;</span>
         </button>
         <button id="rm-ctrl-pin" class="rm-navbtn" data-role="map-pin"
-                title="Pin this search state for comparison">
-          <span class="rm-full">Pin</span>
+                title="Pin search plan for this browser session"
+                aria-pressed="false">
+          <span class="rm-full">Pin search</span>
           <span class="rm-mini"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3l6 6-4 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg></span>
         </button>
       </div>
@@ -1865,7 +1879,8 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             type="button"
             class="rm-save-disk"
             data-role="map-save-search"
-            title="Save this search investigation">
+            title="Save investigation — title and optional notes"
+            aria-label="Save investigation">
       <span class="rsd-idle">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
       </span>
@@ -1885,8 +1900,8 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
     <button id="rm-bottle"
             type="button"
             data-role="map-reopen-genie"
-            title="Reopen variable builder"
-            aria-label="Reopen variable builder">
+            title="Reopen Genie builder (exit explore view)"
+            aria-label="Reopen Genie builder">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 7h10M18 7h2M4 17h2M10 17h10"/>
@@ -9175,7 +9190,7 @@ setRenderStatus("Ready.");
  *   1  Profile selector      (#chartProfile)
  *   2  Genie                 (.condition-block)
  *   3  Current-location popup (#map)
- *   4  Mute / Solo / Not     ([data-role="ghost-tools"])
+ *   4  Ghost strip Mute/Solo ([data-role="map-ghost-strip"])
  *   5  Pin                   ([data-role="map-pin"])
  *   6  History               ([data-role="history-controls"])
  *   7  Save Search           ([data-role="map-save-search"])
@@ -9199,8 +9214,8 @@ setRenderStatus("Ready.");
         {
             id: 'genie',
             label: 'Step 2 of 7',
-            instruction: 'Add a chart condition here. Genie builds your map search.',
-            selector: '.condition-block'
+            instruction: 'Add conditions in the Genie builder, then Search Map.',
+            selector: '#gv-builder-host'
         },
         {
             id: 'location-popup',
@@ -9209,33 +9224,33 @@ setRenderStatus("Ready.");
             selector: '#map'
         },
         {
-            id: 'mute-solo-not',
+            id: 'ghost-refine',
             label: 'Step 4 of 7',
-            instruction: 'Mute, Solo, and Not let you refine active conditions without deleting them.',
-            selector: '[data-role="ghost-tools"]'
+            instruction: 'Mute or Solo variables from the ghost strip while exploring.',
+            selector: '[data-role="map-ghost-strip"]'
         },
         {
             id: 'pin',
             label: 'Step 5 of 7',
-            instruction: 'Pin a location to keep it visible while you keep exploring.',
+            instruction: 'Pin stores this search plan in your browser session until you unpin.',
             selector: '[data-role="map-pin"]'
         },
         {
             id: 'history',
             label: 'Step 6 of 7',
-            instruction: 'Use history to move back and forward through your search states.',
+            instruction: 'Back and Forward replay prior search plans on the map.',
             selector: '[data-role="history-controls"]'
         },
         {
             id: 'save-search',
             label: 'Step 7 of 7',
-            instruction: 'Save this search to return to it from Chart Record.',
+            instruction: 'Save investigation — disk button (bottom-right) or menu → Save investigation.',
             selector: '[data-role="map-save-search"]'
         },
         {
             id: 'map-notes',
             label: 'Step 8 of 8',
-            instruction: 'Map Notes attach a personal note to this search state.',
+            instruction: 'Optional notes live in the Save investigation dialog.',
             selector: '[data-role="map-notes"]',
             optional: true
         }
@@ -9555,7 +9570,7 @@ setRenderStatus("Ready.");
         syncButtons();
     }
 
-    function replayAt(idx) {
+    async function replayAt(idx) {
         if (idx < 0 || idx >= _stack.length) return;
         var entry = _stack[idx];
         if (!entry || !entry.plan) return;
@@ -9564,7 +9579,7 @@ setRenderStatus("Ready.");
         _replaying = true;
         try {
             if (typeof window.executeSearchPlan === 'function') {
-                window.executeSearchPlan(entry.plan, { source: 'history_replay' });
+                await window.executeSearchPlan(entry.plan, { source: 'history_replay' });
             }
         } finally {
             _replaying = false;
@@ -9617,14 +9632,21 @@ setRenderStatus("Ready.");
     function setPinned(active) {
         _pinned = active;
         pinBtn.classList.toggle('rm-ctrl-pinned', active);
+        pinBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        var fullLbl = pinBtn.querySelector('.rm-full');
+        if (fullLbl) fullLbl.textContent = active ? 'Pinned' : 'Pin search';
         pinBtn.title = active
-            ? 'Pinned — click to unpin this search state'
-            : 'Pin this search state for comparison';
+            ? 'Pinned — search plan stored for this browser session (click to unpin)'
+            : 'Pin search plan for this browser session';
     }
 
     /* restore pinned state across reload */
     try {
-        if (sessionStorage.getItem(PIN_KEY)) setPinned(true);
+        var rawPin = sessionStorage.getItem(PIN_KEY);
+        if (rawPin) {
+            var parsedPin = JSON.parse(rawPin);
+            if (parsedPin && typeof parsedPin === 'object') setPinned(true);
+        }
     } catch(e) { /* ignore */ }
 
     pinBtn.addEventListener('click', function() {
@@ -9649,6 +9671,8 @@ setRenderStatus("Ready.");
             return raw ? JSON.parse(raw) : null;
         } catch(e) { return null; }
     };
+    window.__rmPinStorageKey = PIN_KEY;
+    window.__rmHistoryReplaySource = 'history_replay';
     window.rmHistoryStack = { get stack() { return _stack.slice(); }, get cursor() { return _cursor; } };
 })();
 /* ── end controls controller ─────────────────────────────────────────────── */
@@ -9979,7 +10003,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="rm-sdlg-field">
       <label for="rm-sdlg-note-input">Notes <span style="font-weight:400;opacity:.7">(optional)</span></label>
-      <textarea id="rm-sdlg-note-input" placeholder="Add a personal note to this investigation…"></textarea>
+      <textarea id="rm-sdlg-note-input" data-role="map-notes" placeholder="Add a personal note to this investigation…"></textarea>
     </div>
     <div class="rm-sdlg-actions">
       <button type="button" class="rm-sdlg-btn-cancel" id="rm-sdlg-cancel">Cancel</button>
@@ -10487,6 +10511,26 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
+
+/* M1-D: explore menu → save dialog */
+(function initExploreMenuSave() {
+  var btn = document.getElementById('rm-menu-save-investigation');
+  if (!btn) return;
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.body.classList.remove('rm-menu-open');
+    var handle = document.getElementById('rm-menu-handle');
+    if (handle) handle.setAttribute('aria-expanded', 'false');
+    if (typeof window.__rmOpenSaveDialog === 'function') {
+      window.__rmOpenSaveDialog({});
+    } else {
+      var disk = document.getElementById('rm-save-disk');
+      if (disk && !disk.disabled) disk.click();
+    }
+  });
+})();
+
 /* SLICE-2-CHROME: menu-handle toggle for hamburger menu in explore mode */
 (function() {
   var handle = document.getElementById('rm-menu-handle');

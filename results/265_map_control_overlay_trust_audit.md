@@ -377,3 +377,30 @@ Optional debug: add `?debugGeometry=1` to read `#debugStatus` overlay phase rows
 - `getCityMarkerTier`: major (≥1M), mid (≥250k), minor (≥50k)
 - Distinct radius/weight/color per tier; permanent tooltip labels for **major** only at z≥5
 
+---
+
+## M1-D implementation closeout
+
+**Smoke:** `scripts/smoke_m1d_map_chrome_history.py`
+
+### Explore chrome
+- Save disk (`#rm-save-disk`, `data-role="map-save-search"`) visible in explore; opens save dialog (title + notes).
+- Hamburger menu adds **Save investigation** (`data-role="map-explore-save-menu"`) in explore.
+- Legacy `#saveInvestigationBtn` / `#saveInvestigationNote` hidden from map surface.
+- Bottle title clarifies reopening Genie exits explore layout.
+
+### Pin
+- Stores current search **plan JSON** in `sessionStorage` key `rm_map_pinned_plan`.
+- `aria-pressed` + `rm-ctrl-pinned` + label toggles Pin search / Pinned.
+- Copy states **browser session** scope (no Comparison consumer yet).
+- `window.rmGetPinnedPlan()` / `__rmPinStorageKey` exported.
+
+### History
+- `replayAt` awaits `executeSearchPlan` with `source: history_replay`.
+- Stack push skips when `meta.source === history_replay`.
+- `syncGhostFromReplayedPlan` runs after replay completes.
+
+### Walkthrough
+- Genie step → `#gv-builder-host`; ghost step → `map-ghost-strip` (Mute/Solo only); removed stale `ghost-tools` / `.condition-block`.
+- Notes step → `data-role="map-notes"` on save dialog textarea.
+
