@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="validation/mockups/beta/identity_stamp.css" />
 <link rel="stylesheet" href="/theme/family_resemblance.css" />
+<link rel="stylesheet" href="/theme/relocation_themes.css" />
+<script src="/theme/relocation_theme.js"></script>
+<script src="/theme/appearance_palettes.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="cities.js"></script>
 <style>
@@ -2172,11 +2175,11 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             var ASP_ABBR={conjunction:"Conj",sextile:"Sext",square:"Sq",trine:"Tri",opposition:"Opp",hard:"Hard",soft:"Soft",all_major:"Maj"};
             var NOT_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>';
             var NOT_COLOR="#26303a";
-            var VAR_COLORS=["#2f9e8f","#3d7fc4","#7e5bd6","#d4569b","#e8893c","#e0b341","#d6504a","#5aa84b","#36b3c4","#5061c9"];
+            var VAR_COLORS=(window.RMAppearancePalettes&&window.RMAppearancePalettes.pinwheelColors)?window.RMAppearancePalettes.pinwheelColors(null):["#6E93AE","#88A97F","#A8B99D","#8EB6B0","#5E8F95","#D0A66B","#D89B74","#B76D5D","#C98792","#9A93B7","#7C8A96","#6675A8"];
             function ordinal(n){ n=+n; var s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
             function aspectLabel(id){ var a=ASPECTS.find(function(x){return x.id===id;}); return a?a.label:id; }
             function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
-            function colorOf(v){ var p; try{ var ov=window.RelocationTheme?window.RelocationTheme.overlays():null; p=(ov&&ov.length&&ov[0])?ov:VAR_COLORS; }catch(e){ p=VAR_COLORS; } return p[(v.colorIdx||0)%p.length]; }
+            function colorOf(v){ var p; try{ if(window.RMAppearancePalettes&&window.RMAppearancePalettes.pinwheelColors){ p=window.RMAppearancePalettes.pinwheelColors(null); } else { var ov=window.RelocationTheme?window.RelocationTheme.overlays():null; p=(ov&&ov.length&&ov[0])?ov:VAR_COLORS; } }catch(e){ p=VAR_COLORS; } return p[(v.colorIdx||0)%p.length]; }
             function uid(){ return "gv"+Math.random().toString(36).slice(2,9); }
             var CATEGORIES=[
               {id:"planet_house",label:"Planet \u2013 House",fields:[{key:"planet",label:"Planet",src:"PLANETS"},{key:"house",label:"House",src:"HOUSES"}],chip:function(v){return v.planet+" \u2013 "+ordinal(v.house);},mini:function(v){return PLANET_ABBR[v.planet]+" \u00b7 "+v.house;}},
@@ -10172,11 +10175,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
     /* ── read active conditions from panel DOM ── */
-    var GV_COLORS = [
-        '#2f9e8f','#3d7fc4','#7e5bd6','#d4569b','#e8893c','#e0b341',
-        '#d6504a','#5aa84b','#36b3c4','#5061c9'
-    ];
-    var GV_NOT_COLOR = '#26303a';
+    var GV_COLORS = (window.RMAppearancePalettes && window.RMAppearancePalettes.pinwheelColors)
+        ? window.RMAppearancePalettes.pinwheelColors(null)
+        : ['#6E93AE','#88A97F','#A8B99D','#8EB6B0','#5E8F95','#D0A66B','#D89B74','#B76D5D','#C98792','#9A93B7','#7C8A96','#6675A8'];
+    var GV_NOT_COLOR = (window.RMAppearancePalettes && window.RMAppearancePalettes.notColor)
+        ? window.RMAppearancePalettes.notColor(null) : '#2C3338';
     var GV_PLANET_ABBR = {
         Sun:'Sun', Moon:'Moon', Mercury:'Mer', Venus:'Ven', Mars:'Mar',
         Jupiter:'Jup', Saturn:'Sat', Uranus:'Ura', Neptune:'Nep', Pluto:'Plu', Chiron:'Chi'

@@ -71,9 +71,20 @@
   "dignity_custom_rules": [],
   "dignity_color_mode": "paired",
   "dignity_colors": {
-    "supportive": "#eef7f3",
-    "challenging": "#faf3e8",
-    "exaltation": "#e8f4ec",
-    "fall": "#fdf0e0"
+    "supportive": "#e8f5ec",
+    "challenging": "#fdf0e8",
+    "exaltation": "#ddf3e4",
+    "fall": "#fce8d8"
+  },
+  "overlay_palette": "optimistic-primary",
+  "aspect_palette": "optimistic-primary",
+  "dignity_palette": "optimistic-soft",
+  "chart_palette": "optimistic-primary",
+  "inner_glow_palette": "micro-green",
+  "glyph_selections": {
+    "mars": "standard",
+    "uranus": "herschel",
+    "pluto": "monogram",
+    "capricorn": "us_loop"
   }
 }

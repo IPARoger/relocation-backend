@@ -265,6 +265,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 
 ```
 ✓ S0 Settings truth matrix ([274_settings_truth_matrix](../results/274_settings_truth_matrix.md))
+✓ S4 Appearance palettes (Settings)          ([277](../results/277_s4_appearance_implementation.md))
 ✓ S1 Saved object management (Settings My Data)     ([274_s1](../results/274_s1_saved_object_management_implementation.md) · [canon](canon/SAVED_OBJECTS_PRODUCT_CANON.md))
 ✓ BI-0C Auth + birth intake implementation ([272](../results/272_bi0c_first_experience_implementation.md))
 ✓ BI-0B First experience mockups ([271](../results/271_first_experience_mockups.md))

@@ -7,6 +7,7 @@ from copy import deepcopy
 from pathlib import Path
 
 _DEFAULTS_PATH = Path(__file__).resolve().parent.parent / "settings" / "astrology_settings_defaults.json"
+_APPEARANCE_DEFAULTS_PATH = Path(__file__).resolve().parent.parent / "settings" / "appearance_settings_defaults.json"
 
 
 def load_astrology_settings_defaults() -> dict:
@@ -14,7 +15,13 @@ def load_astrology_settings_defaults() -> dict:
         return json.load(f)
 
 
+def load_appearance_settings_defaults() -> dict:
+    with open(_APPEARANCE_DEFAULTS_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
 RM_SETTINGS_DEFAULTS: dict = load_astrology_settings_defaults()
+RM_APPEARANCE_DEFAULTS: dict = load_appearance_settings_defaults()
 
 
 def aspect_to_angle_orb_limit(effective_settings: dict, aspect: str) -> float:
@@ -102,6 +109,11 @@ def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
         "dignity_custom_rules": pick("dignity_custom_rules") or [],
         "dignity_color_mode": pick("dignity_color_mode") or RM_SETTINGS_DEFAULTS.get("dignity_color_mode", "paired"),
         "dignity_colors": pick("dignity_colors") or deepcopy(RM_SETTINGS_DEFAULTS.get("dignity_colors", {})),
+        "overlay_palette": pick("overlay_palette") or RM_APPEARANCE_DEFAULTS.get("overlay_palette", "optimistic-primary"),
+        "aspect_palette": pick("aspect_palette") or RM_APPEARANCE_DEFAULTS.get("aspect_palette", "optimistic-primary"),
+        "dignity_palette": pick("dignity_palette") or RM_APPEARANCE_DEFAULTS.get("dignity_palette", "optimistic-soft"),
+        "chart_palette": pick("chart_palette") or RM_APPEARANCE_DEFAULTS.get("chart_palette", "optimistic-primary"),
+        "inner_glow_palette": pick("inner_glow_palette") or RM_APPEARANCE_DEFAULTS.get("inner_glow_palette", "micro-green"),
     }
 
 def exact_aspect_threshold_deg(effective_settings: dict) -> float:

@@ -56,6 +56,7 @@
   // SETTINGS-SOURCE-1: defaults loaded from /settings/astrology-defaults (JSON registry).
   // Populated before store assembly; see loadAstrologySettingsDefaults().
   var RM_SETTINGS_DEFAULTS = null;
+  var RM_APPEARANCE_DEFAULTS = null;
 
   async function loadAstrologySettingsDefaults() {
     if (RM_SETTINGS_DEFAULTS) return RM_SETTINGS_DEFAULTS;
@@ -119,6 +120,11 @@
       dignity_custom_rules: pick("dignity_custom_rules") || [],
       dignity_color_mode: pick("dignity_color_mode") || RM_SETTINGS_DEFAULTS.dignity_color_mode || "paired",
       dignity_colors: pick("dignity_colors") || RM_SETTINGS_DEFAULTS.dignity_colors || {},
+      overlay_palette: pick("overlay_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.overlay_palette) || "optimistic-primary",
+      aspect_palette: pick("aspect_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.aspect_palette) || "optimistic-primary",
+      dignity_palette: pick("dignity_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.dignity_palette) || "optimistic-soft",
+      chart_palette: pick("chart_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.chart_palette) || "optimistic-primary",
+      inner_glow_palette: pick("inner_glow_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.inner_glow_palette) || "micro-green",
     };
   }
 
@@ -161,14 +167,17 @@
   };
 
   // Begin loading defaults immediately (store build also awaits this).
-  loadAstrologySettingsDefaults().catch(function (err) {
+  Promise.all([
+    loadAstrologySettingsDefaults(),
+    loadAppearanceSettingsDefaults(),
+  ]).catch(function (err) {
     console.warn("[supabase_store_bridge] astrology defaults preload failed:", err.message);
   });
 
   // ── Main builder ──────────────────────────────────────────────────────────
 
   async function buildSupabaseStore() {
-    await loadAstrologySettingsDefaults();
+    await Promise.all([loadAstrologySettingsDefaults(), loadAppearanceSettingsDefaults()]);
 
     // 1. Resolve identity
     var currentUser = await window.CurrentUserReady;
@@ -467,6 +476,15 @@
       display_aspects_to_angles: effectiveSettings.display_aspects_to_angles,
       helper_layers:           effectiveSettings.helper_layers,
       ontology_pack_id:        effectiveSettings.ontology_pack_id,
+      dignity_preset:          effectiveSettings.dignity_preset,
+      dignity_custom_rules:    effectiveSettings.dignity_custom_rules,
+      dignity_color_mode:      effectiveSettings.dignity_color_mode,
+      dignity_colors:          effectiveSettings.dignity_colors,
+      overlay_palette:         effectiveSettings.overlay_palette,
+      aspect_palette:          effectiveSettings.aspect_palette,
+      dignity_palette:         effectiveSettings.dignity_palette,
+      chart_palette:           effectiveSettings.chart_palette,
+      inner_glow_palette:      effectiveSettings.inner_glow_palette,
       default_chart_record_id: defaultChartRecordId,
       updated_at:              null,
     };

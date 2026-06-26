@@ -216,10 +216,39 @@ def serve_supabase_store_bridge_js():
     )
 
 
+
+@app.get("/theme/fonts/AstroZLzx.ttf")
+def serve_theme_astrozlzx_font():
+    return FileResponse(
+        APP_DIR / "theme" / "fonts" / "AstroZLzx.ttf",
+        media_type="font/ttf",
+    )
+
+@app.get("/settings/glyph-library-registry")
+def serve_glyph_library_registry():
+    return FileResponse(
+        APP_DIR / "settings" / "glyph_library_registry.json",
+        media_type="application/json",
+    )
+
+
+@app.get("/theme/glyphs/stubs/pluto_traditional.svg")
+def serve_glyph_stub_pluto_traditional():
+    return FileResponse(
+        APP_DIR / "theme" / "glyphs" / "stubs" / "pluto_traditional.svg",
+        media_type="image/svg+xml",
+    )
+
 @app.get("/settings/astrology-defaults")
 def serve_astrology_settings_defaults():
     from services.account_settings_resolver import load_astrology_settings_defaults
     return JSONResponse(load_astrology_settings_defaults())
+
+
+@app.get("/settings/appearance_settings_defaults.json")
+def serve_appearance_settings_defaults():
+    from services.account_settings_resolver import load_appearance_settings_defaults
+    return JSONResponse(load_appearance_settings_defaults())
 
 
 @app.get("/place_search_client.js")

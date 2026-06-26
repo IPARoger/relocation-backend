@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="/validation/mockups/beta/help_canonical.css" />
 <link rel="stylesheet" href="/theme/relocation_themes.css" />
 <script src="/theme/relocation_theme.js"></script>
+<script src="/theme/appearance_palettes.js"></script>
 <style>
   :root {
     --fg: #111827;
@@ -298,8 +299,20 @@
     line-height: 1;
     letter-spacing: 0.02em;
   }
-  .rm-a2a-motion-applying { color: #15803d; }
-  .rm-a2a-motion-separating { color: #64748b; }
+.settings-palette-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 8px; }
+  .settings-palette-card {
+    display: block; width: 100%; text-align: left; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 10px; background: var(--card); cursor: pointer;
+  }
+  .settings-palette-card.on { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .settings-palette-card .settings-palette-name { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .settings-palette-card .settings-palette-desc { font-size: 12px; color: var(--muted); margin: 0 0 6px; }
+  .settings-palette-swrow { display: flex; border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
+  .settings-palette-swrow i { display: block; height: 12px; flex: 1; }
+  .settings-palette-aspect-sw { display: flex; gap: 6px; margin-top: 4px; }
+  .settings-palette-aspect-sw i { display: block; width: 28px; height: 4px; border-radius: 2px; }
+  .rm-a2a-motion-applying { color: var(--rm-aspect-applying, #e85c4f); }
+  .rm-a2a-motion-separating { color: var(--rm-aspect-separating, #4084d6); }
   .rm-a2a-motion-exact { color: #1d4ed8; font-weight: 800; }
   .rm-a2a-matrix-cell { white-space: nowrap; }
   .rm-a2a-matrix-aspect { font-weight: 600; }
@@ -5026,24 +5039,56 @@ function refreshAisWorkbookSection() {
 // WHEEL-1 / WHEEL-v2: Relocated chart wheel — Layer 3 consumer of canonical_chart only.
 const WHEEL_ASC_ROTATION_DEG = 180;
 // WHEEL-VISUAL-1: beta warm-grey palette (relocated_standard.html)
-const WHEEL_GREY = { ink: "#2b2926", cusp: "#8a857a", divider: "#9b968b", tick5: "#c4bfb2", innerSoft: "#9a9485" };
-const WHEEL_VISUAL = {
-  base: "#eae8e3", band: "#f1ece0", glowColor: "#b89a55", glowAlpha: 0.16, glowReach: 0.20, paperOpacity: 0.05,
-};
-// WHEEL-v2: P2P spoke colors — major harmonious blue, major challenging red, minor green.
+function _wheelCssVar(name, fallback) {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  } catch (e) { return fallback; }
+}
+function _wheelCssNum(name, fallback) {
+  const n = parseFloat(_wheelCssVar(name, String(fallback)));
+  return Number.isFinite(n) ? n : fallback;
+}
+function wheelGreyPalette() {
+  return {
+    ink: _wheelCssVar("--rm-wheel-ink", "#252A2E"),
+    cusp: _wheelCssVar("--rm-wheel-cusp", "#7C8A96"),
+    divider: _wheelCssVar("--rm-wheel-divider", "#9AA3AD"),
+    tick5: _wheelCssVar("--rm-wheel-tick5", "#DDE3DD"),
+    innerSoft: _wheelCssVar("--rm-wheel-inner-soft", "#8A9198"),
+  };
+}
+function wheelVisualPalette() {
+  return {
+    base: _wheelCssVar("--rm-wheel-base", "#F4F5F1"),
+    band: _wheelCssVar("--rm-wheel-band", "#E7ECE7"),
+    glowColor: _wheelCssVar("--rm-wheel-glow-color", "#88A97F"),
+    glowAlpha: _wheelCssNum("--rm-wheel-glow-alpha", 0.07),
+    glowReach: _wheelCssNum("--rm-wheel-glow-reach", 0.20),
+    paperOpacity: 0.04,
+  };
+}
+// WHEEL-v2: P2P spoke colors from appearance aspect palette.
 const WHEEL_P2P_MAJOR_HARMONIOUS = new Set(["trine", "sextile"]);
 const WHEEL_P2P_MAJOR_CHALLENGING = new Set(["conjunction", "opposition", "square"]);
 const WHEEL_P2P_MINOR_ASPECTS = new Set([
   "quincunx", "semisextile", "semisquare", "sesquiquadrate",
   "quintile", "biquintile", "septile", "novile",
 ]);
-const WHEEL_P2P_STROKE = { harmonious: "#2563eb", challenging: "#dc2626", minor: "#16a34a" };
+function wheelP2pStrokePalette() {
+  return {
+    harmonious: _wheelCssVar("--rm-wheel-p2p-harmonious", "#46a862"),
+    challenging: _wheelCssVar("--rm-wheel-p2p-challenging", "#e85c4f"),
+    minor: _wheelCssVar("--rm-wheel-p2p-minor", "#4084d6"),
+  };
+}
 
 function wheelP2pSpokeStroke(aspect) {
   const id = String(aspect || "").toLowerCase();
-  if (WHEEL_P2P_MINOR_ASPECTS.has(id)) return WHEEL_P2P_STROKE.minor;
-  if (WHEEL_P2P_MAJOR_HARMONIOUS.has(id)) return WHEEL_P2P_STROKE.harmonious;
-  return WHEEL_P2P_STROKE.challenging;
+  const stroke = wheelP2pStrokePalette();
+  if (WHEEL_P2P_MINOR_ASPECTS.has(id)) return stroke.minor;
+  if (WHEEL_P2P_MAJOR_HARMONIOUS.has(id)) return stroke.harmonious;
+  return stroke.challenging;
 }
 
 function wheelMotionMarkerTspans(motionState) {
@@ -5167,7 +5212,7 @@ function renderRelocatedWheelSvg(canonicalChart) {
   const Rcore = 0.072 * S;
   const Rnum = 0.135 * S;
   const glowMid = (glowAlpha) => (glowAlpha * 0.35).toFixed(3);
-  const va = WHEEL_VISUAL;
+  const va = wheelVisualPalette();
   let svg = `<svg class="rm-wheel-svg" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" role="img" aria-label="Relocated chart wheel">`;
   svg += `<defs><clipPath id="clip${uid}"><circle cx="${cx}" cy="${cy}" r="${Rclip.toFixed(1)}"/></clipPath>`;
   svg += `<filter id="paper${uid}"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="n"/>`;
@@ -5198,6 +5243,8 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const a2 = wheelEclipticToCanvasDeg(c2, ascLon);
     svg += wheelSvgWedgeCanvas(cx, cy, a1, a2, Rzod, Raring, rot, "rgba(43,41,38,0.040)");
   }
+  const WHEEL_GREY = wheelGreyPalette();
+  const WHEEL_VISUAL = wheelVisualPalette();
   svg += wheelSvgCircle(cx, cy, Rout, WHEEL_GREY.ink, (2.8 * k).toFixed(2));
   svg += wheelSvgCircle(cx, cy, Rzod, WHEEL_GREY.ink, (1.0 * k).toFixed(2));
   svg += wheelSvgCircle(cx, cy, Raring, "#9a9487", (1.0 * k).toFixed(2));
@@ -5217,11 +5264,14 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const a = wheelEclipticToCanvasDeg(signCenterLon, ascLon);
     const gp = wheelPolarXY(cx, cy, Rsg, a, rot);
     const signId = signNames[sgi] || String(sgi);
-    const gSign = rmGlyphs() ? rmGlyphs().resolveGlyph("sign", signId) : null;
-    const signText = rmGlyphs() ? rmGlyphs().formatGlyphSvgText("sign", signId) : "";
-    const signFont = gSign && gSign.useFont ? rmGlyphs().svgFontFamilyAttr(gSign) : "";
     const signSize = (22 * k).toFixed(1);
-    svg += `<text x="${gp[0].toFixed(1)}" y="${(gp[1] + 5 * k).toFixed(1)}" text-anchor="middle" font-size="${signSize}" fill="${WHEEL_GREY.cusp}"${signFont}><title>${escapeHtml(signId)}</title>${signText}</text>`;
+    const signY = (gp[1] + 5 * k);
+    if (rmGlyphs() && typeof rmGlyphs().formatGlyphSvgFragment === "function") {
+      svg += rmGlyphs().formatGlyphSvgFragment("sign", signId, gp[0], signY, parseFloat(signSize), WHEEL_GREY.cusp);
+    } else {
+      const signText = rmGlyphs() ? rmGlyphs().formatGlyphSvgText("sign", signId) : "";
+      svg += `<text x="${gp[0].toFixed(1)}" y="${signY.toFixed(1)}" text-anchor="middle" font-size="${signSize}" fill="${WHEEL_GREY.cusp}"><title>${escapeHtml(signId)}</title>${signText}</text>`;
+    }
   }
   for (let i = 0; i < 12; i++) {
     if (i === 0 || i === 3 || i === 6 || i === 9) continue;
@@ -5270,13 +5320,18 @@ function renderRelocatedWheelSvg(canonicalChart) {
     const a = wheelEclipticToCanvasDeg(entry.longitude_deg, ascLon);
     svg += wheelSvgLine(cx, cy, Rzod, Rzod + 0.018 * S, a, rot, WHEEL_GREY.ink, (1.1 * k).toFixed(2));
     const p = wheelPolarXY(cx, cy, Rplanet, a, rot);
-    const gPlanet = rmGlyphs() ? rmGlyphs().resolveGlyph("planet", name) : null;
-    const glyph = rmGlyphs() ? rmGlyphs().formatGlyphSvgText("planet", name) : name.slice(0, 2);
-    const planetFont = gPlanet && gPlanet.useFont ? rmGlyphs().svgFontFamilyAttr(gPlanet) : "";
     const motion = entry.motion_state || (entry.retrograde ? "retrograde" : "direct");
     const tip = `${name} ${entry.sign || ""}${entry.house != null ? " H" + entry.house : ""}${wheelMotionTooltipSuffix(motion)}`;
     const motionMark = wheelMotionMarkerTspans(motion);
-    svg += `<text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="${(14 * k).toFixed(1)}" fill="${WHEEL_GREY.ink}"${planetFont}><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
+    const planetFs = (14 * k);
+    const planetY = (p[1] + 4);
+    if (rmGlyphs() && typeof rmGlyphs().formatGlyphSvgFragment === "function") {
+      const frag = rmGlyphs().formatGlyphSvgFragment("planet", name, p[0], planetY, planetFs, WHEEL_GREY.ink);
+      svg += frag.replace("</text>", `<title>${escapeHtml(tip)}</title>${motionMark}</text>`).replace("</image>", `<title>${escapeHtml(tip)}</title></image>`);
+    } else {
+      const glyph = rmGlyphs() ? rmGlyphs().formatGlyphSvgText("planet", name) : name.slice(0, 2);
+      svg += `<text x="${p[0].toFixed(1)}" y="${planetY.toFixed(1)}" text-anchor="middle" font-size="${planetFs.toFixed(1)}" fill="${WHEEL_GREY.ink}"><title>${escapeHtml(tip)}</title>${glyph}${motionMark}</text>`;
+    }
   });
   [0, 9, 6, 3].forEach((ci) => {
     const cuspLon = cusps[ci];
@@ -7518,6 +7573,97 @@ function chartFrameworkHtml() {
   return chartsHouseSystemHtml() + chartsZodiacHtml();
 }
 
+
+let _glyphRegistryLoaded = null;
+
+async function ensureGlyphRegistryLoaded() {
+  const g = rmGlyphs();
+  if (!g || typeof g.setGlyphRegistry !== "function") return null;
+  if (_glyphRegistryLoaded) return _glyphRegistryLoaded;
+  try {
+    const resp = await fetch("/settings/glyph-library-registry", { cache: "no-store" });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    _glyphRegistryLoaded = await resp.json();
+    g.setGlyphRegistry(_glyphRegistryLoaded);
+    return _glyphRegistryLoaded;
+  } catch (err) {
+    console.warn("[glyphs] registry load failed:", err.message || err);
+    return null;
+  }
+}
+
+function applyGlyphSettingsFromEff() {
+  const g = rmGlyphs();
+  if (!g || typeof g.setGlyphSelections !== "function") return;
+  const eff = _settingsEff();
+  const sel = (eff && eff.glyph_selections) ? eff.glyph_selections : (g.DEFAULT_GLYPH_SELECTIONS || {});
+  g.setGlyphSelections(sel);
+}
+
+function glyphVariantPreviewHtml(kind, entityId, variantId) {
+  const g = rmGlyphs();
+  if (!g) return "";
+  const prev = Object.assign({}, g.getGlyphSelections ? g.getGlyphSelections() : {});
+  const key = String(entityId || "").toLowerCase();
+  if (g.setGlyphSelections) g.setGlyphSelections(Object.assign({}, prev, { [key]: variantId }));
+  const html = g.formatGlyphHtml(kind, entityId, { className: "rm-glyph-variant-preview" });
+  if (g.setGlyphSelections) g.setGlyphSelections(prev);
+  return html;
+}
+
+function glyphEntityRowHtml(entityKey, entity, currentSel) {
+  const variants = Object.entries(entity.variants || {});
+  const picked = currentSel[entityKey] || entity.default_variant;
+  const buttons = variants.map(([vid, v]) => {
+    const on = picked === vid ? " on" : "";
+    const stubNote = v.asset_status === "stub" ? ' <span class="meta">(stub)</span>' : "";
+    const preview = glyphVariantPreviewHtml(entity.kind, entity.entity_id, vid);
+    return `<button type="button" class="rm-glyph-variant-btn${on}" data-glyph-entity="${escapeHtml(entityKey)}" data-glyph-variant="${escapeHtml(vid)}" aria-pressed="${picked === vid ? "true" : "false"}"><span class="rm-glyph-variant-preview">${preview}</span><span>${escapeHtml(v.label || vid)}${stubNote}</span></button>`;
+  }).join("");
+  return `<div class="loc-row settings-glyph-row" data-glyph-row="${escapeHtml(entityKey)}">
+    <div class="loc-row-text"><strong>${escapeHtml(entity.label || entityKey)}</strong><span class="meta">${escapeHtml(entity.kind)} glyph style</span></div>
+    <div class="rm-glyph-variant-row" role="radiogroup" aria-label="${escapeHtml(entity.label || entityKey)} glyph">${buttons}</div>
+  </div>`;
+}
+
+function collectGlyphSelectionsFromDom(root) {
+  const out = {};
+  const g = rmGlyphs();
+  const defaults = (g && g.DEFAULT_GLYPH_SELECTIONS) ? g.DEFAULT_GLYPH_SELECTIONS : {};
+  Object.keys(defaults).forEach((k) => { out[k] = defaults[k]; });
+  (root || document).querySelectorAll(".rm-glyph-variant-btn.on").forEach((btn) => {
+    const entity = btn.getAttribute("data-glyph-entity");
+    const variant = btn.getAttribute("data-glyph-variant");
+    if (entity && variant) out[entity] = variant;
+  });
+  return out;
+}
+
+function initGlyphSettingsControls(root) {
+  if (!root || navContext.route !== "settings" || normalizeSettingsSubpage(navContext.settingsSubpage) !== "display") return;
+  ensureGlyphRegistryLoaded().then(() => {
+    applyGlyphSettingsFromEff();
+    root.querySelectorAll(".rm-glyph-variant-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const entity = btn.getAttribute("data-glyph-entity");
+        if (!entity) return;
+        root.querySelectorAll(`.rm-glyph-variant-btn[data-glyph-entity="${entity}"]`).forEach((b) => {
+          b.classList.remove("on");
+          b.setAttribute("aria-pressed", "false");
+        });
+        btn.classList.add("on");
+        btn.setAttribute("aria-pressed", "true");
+        const variant = btn.getAttribute("data-glyph-variant");
+        const g = rmGlyphs();
+        if (g && g.setGlyphSelections && variant) {
+          const next = Object.assign({}, g.getGlyphSelections(), { [entity]: variant });
+          g.setGlyphSelections(next);
+        }
+      });
+    });
+  });
+}
+
 function applyDignitySettingsFromEff() {
   const eff = _settingsEff();
   if (!window.RMDignityOntology || typeof window.RMDignityOntology.setConfig !== "function") return;
@@ -7693,14 +7839,6 @@ function outOfSignAspectsHtml() {
     </div>`;
 }
 
-function dignitiesDisplayHtml() {
-  return `
-    <div class="panel settings-panel">
-      <p class="meta"><strong>Dignities</strong> on Planet-in-House tables applies traditional sign relationships to the matching natural-zodiac <em>house</em> (relocation-relevant). Toggle from each PIH footer; default off.</p>
-      <p class="meta" style="margin-top:8px;">We use two colors, not four: Rulership and Exaltation share one overlay (generally positive); Detriment and Fall share one (generally difficult). This keeps PIH readable. Optional separate colors for Exaltation and Fall are under <button type="button" class="linkish" data-settings-sub="display">Appearance</button>.</p>
-      <p class="meta" style="margin-top:8px;"><strong>Ontology preset</strong> — choose which dignity relationships apply: Modern, Ancient, Hybrid (default), or Advanced (custom system). ${settingsSoonBadge()}</p>
-    </div>`;
-}
 
 // Settings navigation framework (W2-SETTINGS-1): seven canonical subpages + legacy URL aliases.
 const SETTINGS_SECTIONS = [
@@ -7792,12 +7930,13 @@ function buildAstrologyDefaultsRestorePatch() {
     dignity_custom_rules: Array.isArray(defs.dignity_custom_rules) ? defs.dignity_custom_rules.slice() : [],
     dignity_color_mode: defs.dignity_color_mode || "paired",
     dignity_colors: Object.assign({}, defs.dignity_colors || {}),
+    glyph_selections: Object.assign({}, defs.glyph_selections || {}),
   };
 }
 
 // SETTINGS-FINAL-WIRE-1: re-fetch chart/compare data and sync map Genie selectors.
 function rehydrateSettingsConsumers() {
-  applyDignitySettingsFromEff();
+  applyAppearanceSettingsFromEff();
   _screen4ChartCache = null;
   _comparisonColsCache = null;
   _profileCanonicalCache = null;
@@ -7893,6 +8032,147 @@ function settingsFutureRow(label, desc) {
   </div>`;
 }
 
+
+function applyAppearanceSettingsFromEff() {
+  const eff = _settingsEff();
+  const AP = window.RMAppearancePalettes;
+  if (!AP || typeof AP.applyCssVariables !== "function") return;
+  AP.applyCssVariables(eff);
+  if (typeof AP.dignityColorsFromResolved === "function" && eff) {
+    const resolved = AP.getResolved(eff);
+    const dig = AP.dignityColorsFromResolved(resolved);
+    if (dig && eff.dignity_colors) {
+      Object.assign(eff.dignity_colors, dig);
+    }
+  }
+  applyDignitySettingsFromEff();
+  applyGlyphSettingsFromEff();
+}
+
+function appearancePaletteIdsFromEff() {
+  const eff = _settingsEff() || {};
+  const AP = window.RMAppearancePalettes;
+  if (AP && typeof AP.resolvePaletteIds === "function") return AP.resolvePaletteIds(eff);
+  return {
+    overlay: eff.overlay_palette || "optimistic-primary",
+    aspect: eff.aspect_palette || "optimistic-primary",
+    dignity: eff.dignity_palette || "optimistic-soft",
+    chart: eff.chart_palette || "optimistic-primary",
+    inner_glow: eff.inner_glow_palette || "micro-green",
+  };
+}
+
+function settingsPalettePickerHtml(category, fieldName, currentId) {
+  const AP = window.RMAppearancePalettes;
+  if (!AP || !AP.PALETTES || !AP.PALETTES[category]) {
+    return `<p class="meta">Palette catalog unavailable.</p>`;
+  }
+  const map = AP.PALETTES[category];
+  const cards = Object.keys(map).map((id) => {
+    const p = map[id];
+    const on = id === currentId ? " on" : "";
+    let swatch = "";
+    if (category === "overlay" && p.colors) {
+      swatch = `<div class="settings-palette-swrow" data-palette-swatches="${escapeHtml(category)}:${escapeHtml(id)}" aria-hidden="true">` +
+        p.colors.slice(0, 6).map((c) => `<i style="background:${c}"></i>`).join("") + `</div>`;
+    } else if (category === "aspect") {
+      swatch = `<div class="settings-palette-aspect-sw" aria-hidden="true">` +
+        `<i style="background:${p.harmonious}"></i><i style="background:${p.challenging}"></i>` +
+        `<i style="background:${p.applying}"></i><i style="background:${p.separating}"></i></div>`;
+    } else if (category === "dignity") {
+      swatch = `<div class="settings-palette-swrow" aria-hidden="true">` +
+        `<i style="background:${p.supportive}"></i><i style="background:${p.challenging}"></i>` +
+        `<i style="background:${p.exaltation}"></i><i style="background:${p.fall}"></i></div>`;
+    } else if (category === "chart") {
+      swatch = `<div class="settings-palette-swrow" aria-hidden="true">` +
+        `<i style="background:${p.base}"></i><i style="background:${p.band}"></i>` +
+        `<i style="background:${p.p2pHarmonious}"></i><i style="background:${p.p2pChallenging}"></i></div>`;
+    } else if (category === "inner_glow") {
+      swatch = `<div class="settings-palette-swrow" aria-hidden="true">` +
+        `<i style="background:color-mix(in srgb, ${p.glowColor} 22%, #fff)"></i>` +
+        `<i style="background:${p.glowColor}"></i></div>`;
+    }
+    return `<button type="button" class="settings-palette-card${on}" data-appearance-palette="${escapeHtml(category)}" data-palette-id="${escapeHtml(id)}" aria-pressed="${id === currentId ? "true" : "false"}">` +
+      `<div class="settings-palette-name">${escapeHtml(p.label)}</div>` +
+      `<div class="settings-palette-desc">${escapeHtml(p.desc)}</div>${swatch}</button>`;
+  }).join("");
+  return `<div class="settings-palette-grid" data-palette-group="${escapeHtml(category)}" data-palette-field="${escapeHtml(fieldName)}">${cards}</div>`;
+}
+
+function appearancePalettesPanelHtml() {
+  const ids = appearancePaletteIdsFromEff();
+  return `
+    <div class="panel settings-panel" id="sec-appearance-palettes">
+      <p class="meta" style="margin:0 0 10px;">Curated palette families for map overlays, aspects, dignities, chart wheel, and inner glow. Pinwheel / Search Map chips follow the overlay palette — not a rainbow ordering.</p>
+      <h4 style="margin:0 0 6px;">Overlay palette</h4>
+      <p class="meta" style="margin:0 0 6px;">Twelve map overlay colors and NOT redaction.</p>
+      ${settingsPalettePickerHtml("overlay", "overlay_palette", ids.overlay)}
+      <h4 style="margin:16px 0 6px;">Aspect palette</h4>
+      <p class="meta" style="margin:0 0 6px;">Harmonious, challenging, minor, applying, and separating colors.</p>
+      ${settingsPalettePickerHtml("aspect", "aspect_palette", ids.aspect)}
+      <h4 style="margin:16px 0 6px;">Dignity palette</h4>
+      <p class="meta" style="margin:0 0 6px;">PIH dignity washes. Preset and rules remain under <button type="button" class="linkish" data-settings-sub="astrology">Astrology → Dignities</button>.</p>
+      ${settingsPalettePickerHtml("dignity", "dignity_palette", ids.dignity)}
+      <h4 style="margin:16px 0 6px;">Chart palette</h4>
+      <p class="meta" style="margin:0 0 6px;">Wheel ink, bands, and planet-to-planet aspect strokes.</p>
+      ${settingsPalettePickerHtml("chart", "chart_palette", ids.chart)}
+      <h4 style="margin:16px 0 6px;">Inner glow palette</h4>
+      <p class="meta" style="margin:0 0 6px;">Micro radial wash behind chart tables and PIH surfaces.</p>
+      ${settingsPalettePickerHtml("inner_glow", "inner_glow_palette", ids.inner_glow)}
+    </div>`;
+}
+
+function collectAppearancePalettePatch(root) {
+  const patch = {};
+  const host = root || document;
+  ["overlay", "aspect", "dignity", "chart", "inner_glow"].forEach((cat) => {
+    const picked = host.querySelector(`[data-palette-group="${cat}"] .settings-palette-card.on`);
+    if (picked) {
+      const field = picked.closest("[data-palette-group]")?.getAttribute("data-palette-field");
+      const id = picked.getAttribute("data-palette-id");
+      if (field && id) patch[field] = id;
+    }
+  });
+  const AP = window.RMAppearancePalettes;
+  if (AP && Object.keys(patch).length) {
+    const merged = Object.assign({}, _settingsEff() || {}, patch);
+    const resolved = AP.getResolved(merged);
+    patch.dignity_colors = AP.dignityColorsFromResolved(resolved);
+  }
+  return patch;
+}
+
+function buildAppearanceDefaultsRestorePatch() {
+  const RM = window.RMSettings;
+  const defs = RM && RM.DEFAULTS;
+  const AP = window.RMAppearancePalettes;
+  if (!defs || !AP) throw new Error("Appearance defaults not loaded. Reload and try again.");
+  const patch = {
+    overlay_palette: defs.overlay_palette || AP.DEFAULTS.overlay_palette,
+    aspect_palette: defs.aspect_palette || AP.DEFAULTS.aspect_palette,
+    dignity_palette: defs.dignity_palette || AP.DEFAULTS.dignity_palette,
+    chart_palette: defs.chart_palette || AP.DEFAULTS.chart_palette,
+    inner_glow_palette: defs.inner_glow_palette || AP.DEFAULTS.inner_glow_palette,
+  };
+  const resolved = AP.getResolved(patch);
+  patch.dignity_colors = AP.dignityColorsFromResolved(resolved);
+  return patch;
+}
+
+function paintAppearancePaletteCards() {
+  document.querySelectorAll("[data-palette-group]").forEach((group) => {
+    const cat = group.getAttribute("data-palette-group");
+    const onBtn = group.querySelector(".settings-palette-card.on");
+    const onId = onBtn ? onBtn.getAttribute("data-palette-id") : null;
+    group.querySelectorAll(".settings-palette-card").forEach((btn) => {
+      const id = btn.getAttribute("data-palette-id");
+      const on = id === onId;
+      btn.classList.toggle("on", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  });
+}
+
 function settingsThemePickerHtml() {
   const RT = window.RelocationTheme;
   if (!RT || !Array.isArray(RT.THEMES)) {
@@ -7972,11 +8252,28 @@ function paintSettingsThemeCards() {
 
 function initAppearanceSettingsControls(root) {
   if (!root || navContext.route !== "settings" || normalizeSettingsSubpage(navContext.settingsSubpage) !== "display") return;
+  applyAppearanceSettingsFromEff();
   paintSettingsThemeCards();
+  paintAppearancePaletteCards();
   const msgEl = root.querySelector("#rm-display-prefs-msg");
   const flash = (txt) => { if (msgEl) msgEl.textContent = txt; };
 
+  root.querySelectorAll("[data-appearance-palette]").forEach((btn) => {
+    if (btn.__wiredPalette) return;
+    btn.__wiredPalette = true;
+    btn.addEventListener("click", () => {
+      const group = btn.closest("[data-palette-group]");
+      if (!group) return;
+      group.querySelectorAll(".settings-palette-card").forEach((c) => c.classList.remove("on"));
+      btn.classList.add("on");
+      btn.setAttribute("aria-pressed", "true");
+      paintAppearancePaletteCards();
+    });
+  });
+
   root.querySelectorAll("[data-action='pick-theme']").forEach((btn) => {
+    if (btn.__wiredTheme) return;
+    btn.__wiredTheme = true;
     btn.addEventListener("click", () => {
       const RT = window.RelocationTheme;
       const t = btn.getAttribute("data-theme");
@@ -8587,7 +8884,9 @@ function settingsSaveBarHtml(opts) {
   const o = opts || {};
   const restoreBtn = o.showRestoreAstrology
     ? `<button type="button" data-action="restore-astrology-defaults" style="margin-left:8px;">Restore Default Astrology Settings</button>`
-    : "";
+    : (o.showRestoreAppearance
+      ? `<button type="button" data-action="restore-appearance-defaults" style="margin-left:8px;">Restore Default Appearance</button>`
+      : "");
   return `
     <div class="settings-save-bar row">
       <button type="button" class="primary" data-action="save-settings">Save Settings</button>
@@ -8666,10 +8965,23 @@ function chartAppearanceHtml() {
 }
 
 function glyphAppearanceHtml() {
+  const eff = _settingsEff();
+  const sel = (eff && eff.glyph_selections) ? eff.glyph_selections : ((rmGlyphs() && rmGlyphs().DEFAULT_GLYPH_SELECTIONS) || {});
+  const entities = [
+    ["mars", { kind: "planet", entity_id: "Mars", label: "Mars", default_variant: "standard", variants: { standard: { label: "Standard arrow", asset_status: "production" }, venus_inverted: { label: "Inverted Venus", asset_status: "production" } } }],
+    ["uranus", { kind: "planet", entity_id: "Uranus", label: "Uranus", default_variant: "herschel", variants: { herschel: { label: "Herschel (curved H)", asset_status: "production" }, simplified: { label: "Simplified (linked circles)", asset_status: "production" } } }],
+    ["pluto", { kind: "planet", entity_id: "Pluto", label: "Pluto", default_variant: "monogram", variants: { monogram: { label: "PL monogram", asset_status: "production" }, traditional: { label: "Traditional glyph (stub)", asset_status: "stub" } } }],
+    ["capricorn", { kind: "sign", entity_id: "Capricorn", label: "Capricorn", default_variant: "us_loop", variants: { us_loop: { label: "US loop tail", asset_status: "production" }, euro_v: { label: "Euro V-loop", asset_status: "production" } } }],
+  ];
+  const rows = entities.map(([key, entity]) => glyphEntityRowHtml(key, entity, sel)).join("");
   return `
     <div class="panel settings-panel" id="sec-appearance-glyphs">
-      ${settingsFutureRow("Glyph family", "Symbol notation on wheels and tables.")}
-      ${settingsFutureRow("Glyph variants", "Mars, Capricorn, Uranus, and Pluto styles.")}
+      <p class="meta" style="margin:0 0 10px;">Choose alternate glyph forms where production assets exist. Stub variants are labeled and await a future asset audit.</p>
+      ${rows}
+      <div class="loc-row settings-stub-row settings-future-row" style="margin-top:12px;">
+        <div class="loc-row-text"><strong>Glyph family</strong><span class="meta">Symbol notation family (AstroDotBasic).</span></div>
+        <span class="meta">AstroDotBasic (active)</span>
+      </div>
       ${settingsFutureRow("Aspect notation", "Conjunction vs Conj vs glyph formats on tables.")}
     </div>`;
 }
@@ -8829,14 +9141,12 @@ function dignityAppearanceHtml() {
 function settingsDisplayBodyHtml() {
   return `
     <div id="sec-display">
-      <div class="settings-subhead">Chart appearance</div>
-      ${chartAppearanceHtml()}
+      <div class="settings-subhead">Visual palettes</div>
+      ${appearancePalettesPanelHtml()}
       <div class="settings-subhead">Glyph appearance</div>
       ${glyphAppearanceHtml()}
       <div class="settings-subhead">Aspect-band appearance</div>
       ${aspectBandAppearanceHtml()}
-      <div class="settings-subhead">Dignity colors</div>
-      ${dignityAppearanceHtml()}
       ${settingsAppearanceRegionalBodyHtml()}
       <div class="settings-subhead">Map &amp; location</div>
       ${settingsMapBodyHtml()}
@@ -8890,9 +9200,9 @@ const SETTINGS_SUBPAGE_RENDERERS = {
     return settingsSubpageShell(
       "display",
       "Appearance",
-      "Visual themes, map presentation, and regional formats.",
+      "Curated visual palettes, seasonal themes, and regional formats.",
       settingsDisplayBodyHtml(),
-      { showSave: false }
+      { showSave: true, showRestoreAppearance: true }
     );
   },
   notifications() {
@@ -9626,8 +9936,10 @@ function render() {
   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
   if (navContext.route === "help") wireHelpHandbook($("#main"));
   if (navContext.route === "settings") {
+    applyAppearanceSettingsFromEff();
     initAppearanceSettingsControls($("#main"));
     initDignitySettingsControls($("#main"));
+    initGlyphSettingsControls($("#main"));
   }
   if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
@@ -10645,9 +10957,18 @@ if (action === "cmp-notes-hide") {
         [["supportive","rm-dignity-color-supportive"],["challenging","rm-dignity-color-challenging"],["exaltation","rm-dignity-color-exaltation"],["fall","rm-dignity-color-fall"]].forEach(([k,id]) => {
           const el = document.getElementById(id); if (el) digColors[k] = el.value;
         });
+        const dignityColorModeEl = document.querySelector('input[name="rm-dignity-color-mode"]:checked');
+        if (dignityColorModeEl) settingsPatch.dignity_color_mode = dignityColorModeEl.value;
+        const digColors = {};
+        [["supportive","rm-dignity-color-supportive"],["challenging","rm-dignity-color-challenging"],["exaltation","rm-dignity-color-exaltation"],["fall","rm-dignity-color-fall"]].forEach(([k,id]) => {
+          const el = document.getElementById(id); if (el) digColors[k] = el.value;
+        });
         if (Object.keys(digColors).length) settingsPatch.dignity_colors = digColors;
+        if (document.getElementById("sec-appearance-palettes")) {
+          Object.assign(settingsPatch, collectAppearancePalettePatch(document));
+        }
         applyAccountSettingsPatch(settingsPatch, settingsPatch).then(() => {
-          applyDignitySettingsFromEff();
+          applyAppearanceSettingsFromEff();
           const savedMsg = document.getElementById("rm-settings-msg");
           if (savedMsg) savedMsg.textContent = "\u2713 Saved.";
         }).catch((err) => {
@@ -10746,6 +11067,7 @@ async function loadViewModelFromStore() {
   try {
     payload = await window.SupabaseStoreReady;
     console.log("[app_shell] Using Supabase store bridge.");
+    ensureGlyphRegistryLoaded().then(() => applyGlyphSettingsFromEff());
   } catch (err) {
     // Authenticated user with no profiles/birth records — show intake overlay,
     // do NOT fall back to mock data (that would mislead the user).
