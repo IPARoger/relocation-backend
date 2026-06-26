@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (S0 settings truth audit)
+**Last updated:** 2026-06-27 (DOC-1 post-beta visual refinement program)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -287,6 +287,87 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 ✓ H6 Settings harmonization               (625e23b–c932f68)
 ✓ Comparison V5 final punch list          (1c429e4)
 ```
+
+
+---
+
+## 10. Post-Beta Visual Design Program
+
+**Status:** Deferred by design.
+
+**Reason:** The application's architecture, renderer, symbol registry, material system, and Settings framework are now sufficiently mature that future visual improvements can be made without architectural change.
+
+Beta should prioritize:
+
+* truth
+* stability
+* usability
+* onboarding
+* QA
+* performance
+
+rather than pursuing the final 5–10% of visual polish.
+
+### Beta visual maturity decision (DOC-1)
+
+The current visual systems — **glyphs**, **color families**, **typography refinements**, and **optical corrections** — are considered **Beta Complete** at approximately **90–95% visual maturity**. This is a conscious prioritization decision: **planned artistic refinement**, not technical debt.
+
+The product should feel **complete, trustworthy, and premium**. It does not need to be artistically "finished." Visual refinement is expected to continue after Beta using dedicated visual design expertise.
+
+**Principle:** The Relocation application intentionally prioritizes **architectural correctness** over final artistic polish during Beta.
+
+**Permanent engineering principle:** Future visual refinement must preserve all architectural contracts. Future designers should be improving **presentation**, not redesigning **behavior**. This separation is intentional.
+
+### Future workstreams
+
+#### Symbol System
+
+* commissioned native glyph family
+* optical corrections
+* missing angle redesign
+* SVG refinement
+* production font regeneration (OTF Pass 2 from [fonts/](../fonts/))
+
+#### Color System
+
+* complete overlay palette review
+* chart palette refinement
+* dignity colors
+* aspect color relationships
+* accessibility review
+* color harmony audit
+
+#### Typography
+
+* hierarchy tuning
+* spacing rhythm
+* optical alignment
+* caption refinement
+* table density
+* chart labels
+
+#### Interface Polish
+
+* subtle spacing adjustments
+* icon rhythm
+* hover timing
+* animation timing
+* popup polish
+* Notes refinement
+* Help illustrations
+* onboarding visual refinement
+
+### Canon cross-references
+
+| Topic | Document |
+|-------|----------|
+| Symbol system & beta glyph families | [RELOCATION_SYMBOL_SYSTEM.md](canon/RELOCATION_SYMBOL_SYSTEM.md) |
+| Peripheral legibility & restraint | [PERIPHERAL_LEGIBILITY_DOCTRINE.md](canon/PERIPHERAL_LEGIBILITY_DOCTRINE.md) |
+| Material families (stone, paper, glass) | [MATERIAL_SYSTEM_CANON.md](canon/MATERIAL_SYSTEM_CANON.md) |
+| Interface law & screen hierarchy | [INTERFACE_AND_DESIGN_CANON.md](../product/INTERFACE_AND_DESIGN_CANON.md) |
+
+Do not duplicate those documents here — link only.
+
 
 ---
 
