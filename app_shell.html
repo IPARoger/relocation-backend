@@ -168,6 +168,26 @@
   .settings-seg button.on { background: #eff6ff; color: var(--accent); font-weight: 600; }
   .settings-local-msg { font-size: 12px; color: var(--muted); min-height: 1.2em; margin-top: 8px; }
   .settings-orb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 14px; }
+  .settings-orb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 14px; }
+  .settings-aspect-list { display: flex; flex-direction: column; gap: 6px; }
+  .settings-aspect-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 10px; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  }
+  .settings-aspect-row:last-child { border-bottom: none; }
+  .settings-aspect-row .settings-check-item { margin: 0; }
+  .settings-aspect-row input[type="number"] {
+    width: 100%; padding: 6px 8px; font: inherit; font-size: 13px;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+  }
+  details.rm-settings-advanced { margin-top: 12px; }
+  details.rm-settings-advanced > summary {
+    cursor: pointer; font-weight: 600; font-size: 13px; color: var(--fg); padding: 8px 0;
+    list-style: none;
+  }
+  details.rm-settings-advanced > summary::-webkit-details-marker { display: none; }
+  details.rm-settings-advanced > summary::before { content: "▸ "; color: var(--muted); }
+  details.rm-settings-advanced[open] > summary::before { content: "▾ "; }
   .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
   .hint-swatch.pos { background: #86efac; }
@@ -7338,7 +7358,7 @@ function a2aDisplayAnglesHtml() {
   };
   return `
     <div class="panel settings-panel">
-      <p class="meta" style="margin:0 0 8px;">Choose which chart angles appear in relocated aspect tables, comparison angle rows, and map angle selectors.</p>
+      <p class="meta" style="margin:0 0 8px;">Include aspects to angles on the chart wheel and in relocated aspect tables, comparison angle rows, and map angle selectors. All angles are on by default.</p>
       <div class="settings-checklist">
       ${row("asc", "ASC (Ascendant)")}
       ${row("dsc", "DSC (Descendant)")}
@@ -7348,47 +7368,45 @@ function a2aDisplayAnglesHtml() {
     </div>`;
 }
 
-function aspectsSettingsHtml() {
-  const eff = _settingsEff();
-  const minorMaster = eff ? !!eff.visible_minor_aspects : false;
-  const { majVis, minVis, MAJOR, MINOR } = _aspectRegistryContext();
-  const visRow = (kind, id, label, checked) =>
-    `<label class="settings-check-item">
+function _aspectListRow(kind, id, label, checked, orbVal) {
+  return `<div class="settings-aspect-row">
+      <label class="settings-check-item">
         <input type="checkbox" id="rm-settings-${kind}asp-${id}"${checked ? " checked" : ""} />
         <span>${label}</span>
-      </label>`;
+      </label>
+      <input type="number" id="rm-settings-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}" aria-label="${label} orb degrees" />
+    </div>`;
+}
+
+function majorAspectsPanelHtml() {
+  const { majVis, majOrb, num, MAJOR } = _aspectRegistryContext();
   return `
     <div class="panel settings-panel">
       <h4>Major aspects</h4>
-      <div class="settings-checklist">${MAJOR.map(([id, label]) => visRow("maj", id, label, majVis.indexOf(id) !== -1)).join("")}</div>
-      <h4 style="margin-top:16px;">Minor aspects</h4>
-      <div class="settings-checklist">${MINOR.map(([id, label]) => visRow("min", id, label, minVis.indexOf(id) !== -1)).join("")}</div>
-      <label class="settings-check-item" style="margin-top:12px;border-top:1px solid color-mix(in srgb, var(--line) 65%, transparent);padding-top:12px;">
-        <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} />
-        <span>Show minor aspects</span>
-      </label>
-      <p class="meta" style="margin:8px 0 0;font-size:11px;">Controls which aspect types appear on chart wheels, in planet-to-planet tables, and in map overlay options.</p>
+      <p class="meta" style="margin:0 0 8px;">Show each aspect and set its chart-display orb (degrees).</p>
+      <div class="settings-aspect-list">${MAJOR.map(([id, label, d]) => _aspectListRow("maj", id, label, majVis.indexOf(id) !== -1, num(majOrb[id], d))).join("")}</div>
     </div>`;
 }
 
-function chartDisplayOrbsHtml() {
-  const { majOrb, minOrb, num, MAJOR, MINOR } = _aspectRegistryContext();
-  const orbRow = (kind, id, label, orbVal) =>
-    `<label class="block">${label} orb (degrees)
-        <input type="number" id="rm-settings-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}" />
-      </label>`;
+function minorAspectsAdvancedHtml() {
+  const eff = _settingsEff();
+  const minorMaster = eff ? !!eff.visible_minor_aspects : false;
+  const { minVis, minOrb, num, MINOR } = _aspectRegistryContext();
   return `
-    <div class="panel settings-panel">
-      <h4>Chart display orbs</h4>
-      <p class="meta" style="margin:0 0 8px;">Maximum orb for planet-to-planet aspects on the chart wheel and in planet aspect tables.</p>
-      <h4 style="margin:8px 0 4px;font-size:12px;">Major</h4>
-      <div class="settings-orb-grid">${MAJOR.map(([id, label, d]) => orbRow("maj", id, label, num(majOrb[id], d))).join("")}</div>
-      <h4 style="margin:12px 0 4px;font-size:12px;">Minor</h4>
-      <div class="settings-orb-grid">${MINOR.map(([id, label, d]) => orbRow("min", id, label, num(minOrb[id], d))).join("")}</div>
-    </div>`;
+    <details class="rm-settings-advanced" id="rm-settings-minor-aspects-advanced">
+      <summary>Minor Aspects (Advanced)</summary>
+      <div class="panel settings-panel" style="margin-top:8px;">
+        <label class="settings-check-item">
+          <input type="checkbox" id="rm-settings-minor-aspects"${minorMaster ? " checked" : ""} />
+          <span>Enable minor aspects</span>
+        </label>
+        <p class="meta" style="margin:8px 0 10px;">Minor aspects appear on chart wheels, planet-to-planet tables, and map overlays when enabled.</p>
+        <div class="settings-aspect-list">${MINOR.map(([id, label, d]) => _aspectListRow("min", id, label, minVis.indexOf(id) !== -1, num(minOrb[id], d))).join("")}</div>
+      </div>
+    </details>`;
 }
 
-function aspectToAngleOrbsHtml() {
+function customOrbsAdvancedHtml() {
   const eff = _settingsEff();
   const a2a = (eff && eff.aspect_to_angle_orbs) || {};
   const num = (v, d) => (v == null ? d : v);
@@ -7396,37 +7414,51 @@ function aspectToAngleOrbsHtml() {
     ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
     ["trine", "Trine", 8], ["sextile", "Sextile", 6],
   ];
-  const orbInput = (id, label, fallback) =>
-    `<label class="block">${label} orb (degrees)
-        <input type="number" id="rm-settings-a2aorb-${id}" min="0" max="15" step="0.5" value="${num(a2a[id], fallback)}" />
-      </label>`;
+  return `
+    <details class="rm-settings-advanced" id="rm-settings-custom-orbs-advanced">
+      <summary>Custom Orbs (Advanced)</summary>
+      <div class="panel settings-panel" style="margin-top:8px;">
+        <p class="meta" style="margin:0 0 10px;">Maximum orb for planet-to-angle contacts in relocated aspect tables and map search.</p>
+        <div class="settings-aspect-list">${A2A.map(([id, label, d]) => {
+          const on = true;
+          return `<div class="settings-aspect-row">
+            <span style="font-size:13px;">${label}</span>
+            <input type="number" id="rm-settings-a2aorb-${id}" min="0" max="15" step="0.5" value="${num(a2a[id], d)}" aria-label="${label} aspect-to-angle orb" />
+          </div>`;
+        }).join("")}</div>
+      </div>
+    </details>`;
+}
+
+function lateHousePlanetAlertHtml() {
+  const eff = _settingsEff();
+  const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
   return `
     <div class="panel settings-panel">
-      <h4>Aspect-to-angle orbs</h4>
-      <p class="meta" style="margin:0 0 10px;">Maximum orb for planet-to-angle contacts in relocated aspect tables and map search. Map overlay lines still mark exact crossings; these orbs decide which contacts are listed.</p>
-      <div class="settings-orb-grid">
-      ${A2A.map(([id, label, d]) => orbInput(id, label, d)).join("")}
-      </div>
+      <h4 style="margin:0 0 8px;">Late-house planet alert</h4>
+      <label class="block">Alert orb (degrees)
+        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
+      </label>
+      <p class="meta" style="margin:8px 0 0;">Planets within this distance of a house boundary are flagged as late-house in Planet-in-House tables. Retrograde motion is included in the alert logic.</p>
     </div>`;
 }
 
-function houseEdgeBehaviorHtml() {
-  const eff = _settingsEff();
-  const orbDeg = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
-  const policy = (eff && eff.subsequent_house_policy) ? String(eff.subsequent_house_policy) : "display_only";
+function aspectsToAsteroidsHtml() {
   return `
     <div class="panel settings-panel">
-      <label class="block">House proximity orb (degrees)
-        <input type="number" id="rm-settings-house-proximity-orb" min="0" max="10" step="0.5" value="${orbDeg}" />
+      <label class="settings-check-item" style="opacity:0.72;">
+        <input type="checkbox" id="rm-settings-aspects-asteroids" disabled aria-disabled="true" />
+        <span>Include aspects to asteroids</span>
+        ${settingsSoonBadge()}
       </label>
-      <p class="meta" style="margin:8px 0 0;">Planets within this distance of a house boundary are flagged as near the edge in Planet-in-House tables. House-edge behavior is direction-aware: direct motion near the <em>end</em> of a house may place a planet in the subsequent house; retrograde motion near the <em>beginning</em> may place it in the previous house. This is not a simple &ldquo;late in house only&rdquo; rule.</p>
-      <div class="loc-row" style="margin-top:14px;">
-        <div class="loc-row-text">
-          <strong>Direction-aware house-edge rule</strong>
-          <span class="meta">Automatic reassignment using motion direction is not applied in calculations yet (${escapeHtml(policy.replace(/_/g, " "))}). Proximity flagging above is active.</span>
-        </div>
-        <span class="badge-soon" title="Display only until engine support">Display only</span>
-      </div>
+      <p class="meta" style="margin:8px 0 0;">Asteroid aspect calculations are not available in Beta yet.</p>
+    </div>`;
+}
+
+function applyingSeparatingNoteHtml() {
+  return `
+    <div class="panel settings-panel">
+      <p class="meta" style="margin:0;">Applying and separating motion is shown with color on aspect displays. This is appearance only — not a separate calculation setting.</p>
     </div>`;
 }
 
@@ -7933,16 +7965,16 @@ function settingsChartsBodyHtml() {
       <div class="settings-subhead" data-rm-astrology-section="bodies">Bodies</div>
       ${planetsBodiesHtml()}
       <div class="settings-subhead" data-rm-astrology-section="aspects">Aspects</div>
-      ${aspectsSettingsHtml()}
+      ${majorAspectsPanelHtml()}
       ${outOfSignAspectsHtml()}
-      <div class="settings-subhead" data-rm-astrology-section="orb-settings">Orb Settings</div>
-      ${chartDisplayOrbsHtml()}
-      ${aspectToAngleOrbsHtml()}
-      ${exactAspectThresholdInfoHtml()}
-      <div class="settings-subhead" data-rm-astrology-section="house-edge">House Edge Behavior</div>
-      ${houseEdgeBehaviorHtml()}
-      <div class="settings-subhead" data-rm-astrology-section="angle-display">Angle Display</div>
+      ${aspectsToAsteroidsHtml()}
+      ${applyingSeparatingNoteHtml()}
+      <div class="settings-subhead" data-rm-astrology-section="angle-display">Aspects to Angles</div>
       ${a2aDisplayAnglesHtml()}
+      ${lateHousePlanetAlertHtml()}
+      ${minorAspectsAdvancedHtml()}
+      ${customOrbsAdvancedHtml()}
+      ${exactAspectThresholdInfoHtml()}
       <div class="settings-subhead" data-rm-astrology-section="advanced">Advanced</div>
       ${advancedAstrologyHtml()}`;
 }

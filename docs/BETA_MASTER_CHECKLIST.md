@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (Saved Objects canon)
+**Last updated:** 2026-06-27 (S2 astrology settings)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
