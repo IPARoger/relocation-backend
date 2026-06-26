@@ -36,6 +36,23 @@ def main() -> int:
     ok("defaults oos off", '"out_of_sign_aspects": false' in defaults)
     ok("defaults prox 2", '"house_proximity_orb_degrees": 2' in defaults)
 
+    import json as _json
+    defs_obj = _json.loads(defaults)
+    maj = defs_obj.get("major_aspect_orbs", {})
+    ok("defaults conj 10", maj.get("conjunction") == 10)
+    ok("defaults opp 10", maj.get("opposition") == 10)
+    ok("defaults square 8", maj.get("square") == 8)
+    ok("defaults trine 8", maj.get("trine") == 8)
+    ok("defaults sextile 6", maj.get("sextile") == 6)
+    mino = defs_obj.get("minor_aspect_orbs", {})
+    ok("defaults quincunx 3", mino.get("quincunx") == 3)
+    ok("defaults minor 2", mino.get("semisquare") == 2)
+    bridge = (ROOT / "supabase_store_bridge.js").read_text(encoding="utf-8")
+    ok("snapshot display_aspects_to_angles", "display_aspects_to_angles: eff.display_aspects_to_angles" in bridge)
+    snap_chunk = bridge.split("function buildSettingsSnapshot", 1)[1].split("window.RMSettings", 1)[0]
+    ok("snapshot dignity_preset", "dignity_preset:" in snap_chunk)
+    ok("snapshot dignity_custom_rules", "dignity_custom_rules:" in snap_chunk)
+
     failed = [n for n, p in checks if not p]
     for name, passed in checks:
         print(f"  {'PASS' if passed else 'FAIL'} {name}")

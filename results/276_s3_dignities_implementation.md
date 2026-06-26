@@ -27,3 +27,5 @@ Production dignity configuration: presets (Ancient / Modern / Hybrid / Custom), 
 | `smoke_s2_astrology_settings.py` | **15/15 PASS** |
 
 **Status:** S3 complete.
+
+**2026-06-27 follow-up:** Duplicate `dignitiesDisplayHtml` stub removed (S4); snapshot export now includes dignity settings.

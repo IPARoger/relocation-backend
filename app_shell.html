@@ -7423,7 +7423,7 @@ function _aspectRegistryContext() {
     minOrb: (eff && eff.minor_aspect_orbs) || {},
     num: (v, d) => (v == null ? d : v),
     MAJOR: [
-      ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
+      ["conjunction", "Conjunction", 10], ["opposition", "Opposition", 10], ["square", "Square", 8],
       ["trine", "Trine", 8], ["sextile", "Sextile", 6],
     ],
     MINOR: [
@@ -7506,7 +7506,7 @@ function customOrbsAdvancedHtml() {
   const a2a = (eff && eff.aspect_to_angle_orbs) || {};
   const num = (v, d) => (v == null ? d : v);
   const A2A = [
-    ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
+    ["conjunction", "Conjunction", 10], ["opposition", "Opposition", 10], ["square", "Square", 8],
     ["trine", "Trine", 8], ["sextile", "Sextile", 6],
   ];
   return `

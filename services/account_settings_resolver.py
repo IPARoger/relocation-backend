@@ -38,7 +38,7 @@ def aspect_to_angle_orb_limit(effective_settings: dict, aspect: str) -> float:
     if aspect in default_a2a:
         return float(default_a2a[aspect])
     default_major = RM_SETTINGS_DEFAULTS["major_aspect_orbs"]
-    return float(default_major.get(aspect, default_major.get("conjunction", 8)))
+    return float(default_major.get(aspect, default_major.get("conjunction", 10)))
 
 
 def chart_display_orb_limit(effective_settings: dict, aspect: str, *, is_minor: bool = False) -> float:

@@ -32,3 +32,5 @@ python3 scripts/smoke_bi0_archaeology.py        → PASS 34/34
 - Exact aspect threshold (read-only info)
 
 **Status:** S2 complete.
+
+**2026-06-27 follow-up:** Canonical default orbs (10/10/8/8/6 major; 3 quincunx; 2 minors; 2° late-house). `buildSettingsSnapshot` extended with `display_aspects_to_angles` and dignity keys.

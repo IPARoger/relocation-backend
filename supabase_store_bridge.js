@@ -153,6 +153,11 @@
       house_proximity_orb_degrees: (eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : RM_SETTINGS_DEFAULTS.house_proximity_orb_degrees,
       subsequent_house_policy: eff.subsequent_house_policy || RM_SETTINGS_DEFAULTS.subsequent_house_policy,
       aspect_to_angle_orbs:  eff.aspect_to_angle_orbs  || RM_SETTINGS_DEFAULTS.aspect_to_angle_orbs,
+      display_aspects_to_angles: eff.display_aspects_to_angles || RM_SETTINGS_DEFAULTS.display_aspects_to_angles,
+      dignity_preset:        eff.dignity_preset        || RM_SETTINGS_DEFAULTS.dignity_preset,
+      dignity_custom_rules:  eff.dignity_custom_rules  || RM_SETTINGS_DEFAULTS.dignity_custom_rules || [],
+      dignity_color_mode:    eff.dignity_color_mode    || RM_SETTINGS_DEFAULTS.dignity_color_mode,
+      dignity_colors:        eff.dignity_colors        || RM_SETTINGS_DEFAULTS.dignity_colors,
       ontology_pack_id:      eff.ontology_pack_id != null ? eff.ontology_pack_id : RM_SETTINGS_DEFAULTS.ontology_pack_id,
     };
   }

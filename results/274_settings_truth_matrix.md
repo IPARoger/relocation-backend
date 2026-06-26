@@ -176,14 +176,14 @@ Evidence-based audit of every visible Settings control. Verdict: **REAL** · **P
 
 | Control | Fix |
 |---------|-----|
-| Dignities preset/editor | Delete duplicate `dignitiesDisplayHtml` stub at L7696 |
+| Dignities preset/editor | **Fixed** — single `dignitiesDisplayHtml` (S4) |
 | Favorite Rename | Disable + SOON, or wire rename API |
 | Create Composite | Disable + SOON, or implement backend |
 | House system dropdown | Remove teasing disabled options; read-only Placidus only |
 
 ### Biggest wiring gaps
 
-1. **S3 dignities UI regression** — save/backend/PIH wired; Settings shows stub due to duplicate function.
+1. ~~S3 dignities UI regression~~ **Resolved** — duplicate stub removed; snapshot export extended.
 2. **Snapshot export incomplete** — `buildSettingsSnapshot` omits `dignity_*` and `display_aspects_to_angles`.
 3. **Appearance prefs device-local** — theme/date/time not in `user_settings`.
 4. **My Data gaps** — archives restore, permanent delete, notes management, composite.
