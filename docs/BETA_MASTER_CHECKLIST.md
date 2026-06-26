@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (BI-0C auth + intake implementation)  
+**Last updated:** 2026-06-27 (Settings V1 canon)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -20,6 +20,7 @@ Scope: Mockups 06–08 (`validation/mockups/beta/first_experience/`) → harmoni
 **Related (do not duplicate):**
 - [Material System Canon](canon/MATERIAL_SYSTEM_CANON.md) · [Material delta](../results/263_material_system_delta.md)
 - [Map trust audit](../results/265_map_control_overlay_trust_audit.md) · [M2 surface audit](../results/269_map_surface_genie_harmonization_audit.md) · [Map QA pass 1](../results/144_map_qa_pass1.md)
+- [Settings V1 Product Spec](canon/SETTINGS_V1_PRODUCT_SPEC.md)
 - [Family resemblance](../results/264_family_resemblance_final_audit.md) · [First experience archaeology](../results/270_first_experience_archaeology_audit.md) · [Settings audit](../results/262_settings_harmonization_audit.md)
 - [Production acceptance](../architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md) · [Feature status board](../architecture/FEATURE_STATUS_BOARD.md) *(stale 2026-06-14 — use this doc)*
 
@@ -262,8 +263,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
-✓ BI-0C Auth + birth intake implementation ([272](../results/272_first_experience_auth_intake_implementation.md))
-✓ BI-0C First experience implementation ([272](../results/272_bi0c_first_experience_implementation.md))
+✓ BI-0C Auth + birth intake implementation ([272](../results/272_bi0c_first_experience_implementation.md))
 ✓ BI-0B First experience mockups ([271](../results/271_first_experience_mockups.md))
 ✓ BI-0A First experience archaeology (read-only)
 ✓ M2-X Map visual harmonization (family bridge)
