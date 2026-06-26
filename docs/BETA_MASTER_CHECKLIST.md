@@ -1,16 +1,16 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-26 (BI-0A)  
+**Last updated:** 2026-06-26 (BI-0B calibration)  
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
 
-**BI-0B — First Experience mockups (auth + intake + landing)**
+**BI-0B — First Experience mockups (calibrated journey)**
 
-Scope: mockup pass per [270 archaeology](../results/270_first_experience_archaeology_audit.md) §12 — no implementation until mockups approved
+Scope: mockup **one continuous journey** per [270 §14 calibration](../results/270_first_experience_archaeology_audit.md): Auth → Birth Information → Preparing Your Personal Map → Personalized Map · exact birth time only · pre-birth geography map · reuse primitives · no animation design · no implementation until mockups approved
 
-*BI-0A archaeology complete. Map in maintenance mode ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
+*BI-0A archaeology + BI-0B calibration complete. Map in maintenance mode ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
 
 ---
 
@@ -262,6 +262,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
+✓ BI-0B First experience mockup calibration (doctrine)
 ✓ BI-0A First experience archaeology (read-only)
 ✓ M2-X Map visual harmonization (family bridge)
 ✓ M2 Map surface + Genie harmonization audit (read-first)

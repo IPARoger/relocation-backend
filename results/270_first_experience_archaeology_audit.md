@@ -293,22 +293,30 @@ Document only — no design.
 
 ## 12. BI-0B recommendation — mockups before implementation
 
-Per canon: **Audit → Mockups → Implementation**. No implementation recommendations below — only screens deserving mockup treatment.
+Per canon: **Audit → Mockups → Implementation**. Read **§14 BI-0B calibration** before any mockup work.
+
+**Mockup spine (one journey, not separate apps):**
+
+```
+Auth → Birth Information → Preparing Your Personal Map → Personalized Map
+```
 
 | Priority | Screen / flow | Why mockup first |
 |----------|---------------|------------------|
-| P0 | **Unified auth card** (login + signup + confirm) | Largest visual gap vs instrument family |
-| P0 | **Birth intake overlay** | Dark outlier; blocks entire first run; no cancel |
-| P0 | **Auth → intake → map transition** | Three-surface handoff story |
-| P1 | **Unknown birth time** UX | UI allows; engine rejects — doctrine tension |
-| P1 | **Birth location search** (results, empty, no match) | Shared primitive with map city search |
-| P1 | **Post-intake map landing** (what user sees for first 10s) | skipOnboarding + silent hydrate |
+| P0 | **Continuous first journey** (§14.4) | Auth + birth intake + preparing + personalized map as one instrument |
+| P0 | **Birth Information step** | Single conceptual step (date + time + place); reward = personalized map, not per-field micro UI |
+| P0 | **“Preparing Your Personal Map”** | Transition container reserved (§14.5); no animation design in BI-0B |
+| P0 | **Personalized map landing** | First frame where birth data visibly powers the instrument |
+| P1 | **Pre-birth map** (§14.2) | City search, favorites, geography, save — astrology fields show `—` only |
+| P1 | **Birth location search** (results, empty, no match) | Reuse `RMPlaceSearch` / map search primitives (§14.6) |
 | P1 | **Password reset completion** | No production screen located |
-| P2 | **Returning user login → map** | Shorter path but same auth card |
-| P2 | **First overlay demo** (Genie → explore → save) | Map maintenance mode — PO mockup only |
-| P2 | **Google OAuth error / cancel** | Edge states on auth card |
+| P2 | **Returning user login → personalized map** | Shorter path; same journey chrome |
+| P2 | **Auth edge states** (confirm email, OAuth cancel/error) | Same card family as journey step 1 |
+| **Do not mockup** | **Unknown birth time onboarding** | Beta requires exact time (§14.1); current UI is doctrine mismatch to **remove**, not improve |
 | Defer | Apple OAuth | Not built |
-| Defer | app_shell guided onboarding | Not on first-run path — decide merge or cut before mockup |
+| Defer | Birth time confidence/range | Deferred doctrine — not Beta |
+| Defer | Rain/virga / progressive reveal animation | Reserve container only (§14.5) |
+| Defer | app_shell guided onboarding | Not on first-run path — merge into journey or cut |
 
 ---
 
@@ -318,4 +326,76 @@ Per canon: **Audit → Mockups → Implementation**. No implementation recommend
 
 ---
 
-*End of BI-0A archaeology audit.*
+---
+
+## 14. BI-0B calibration (read before mockups)
+
+**Status:** Product doctrine corrections to BI-0A assumptions. **No implementation in this slice.**
+
+### 14.1 Exact birth time is the Beta assumption
+
+- Relocation requires an **accurate birth time** for Beta.
+- Do **not** design Unknown Birth Time as a normal onboarding path.
+- Do not fabricate relocated overlays or approximate charts.
+- Future birth-time confidence/range workflow exists in doctrine (`INTERFACE_AND_DESIGN_CANON` §6.1; deferred A.40/A.77) — **intentionally not Beta**.
+- **Production mismatch:** `first_profile_intake.js` exposes Exact / Unknown toggle. Treat as **doctrine bug to resolve** (remove or hide from Beta path), **not** a workflow to polish in mockups.
+
+### 14.2 Popups and map work without astrology
+
+- Do **not** suppress map functionality before birth data exists.
+- Users may still: search cities, explore the map, favorite locations, inspect geographic information, save investigations.
+- Only astrology-dependent values are unavailable — e.g. `Sun House: —`, `Venus House: —`.
+- Everything else continues normally.
+- **BI-0A note:** `auth_guard.js` currently blocks unauthenticated map access; authenticated users without profiles see intake overlay (blocks map). Mockups should distinguish **pre-birth** (geography-only) from **post-birth** (personalized instrument).
+
+### 14.3 Not “micro rewards” per field
+
+- Goal is **not** that every field unlocks a visible widget.
+- Birth date, time, and location are **one conceptual step** — “Birth Information.”
+- The reward is the **personalized map** appearing as a whole, not feedback after each keystroke.
+- First experience should not feel like paperwork, but payoff is **instrument creation**, not gamified field-by-field unlocks.
+
+### 14.4 The transition is the experience
+
+Mockup concentration:
+
+| Step | Purpose |
+|------|---------|
+| Auth | Entry into the same product — not a separate SaaS app |
+| Birth Information | One calm step; exact time required |
+| Preparing Your Personal Map | Bridge state (copy + layout + reserved animation container) |
+| Personalized Map | User’s chart context powers the workspace |
+
+Do not treat Auth and Birth Intake as separate applications with different visual languages.
+
+### 14.5 Reserve animation space only
+
+- Do **not** design animations in BI-0B.
+- Reserve containers for later (once per profile): birth chart construction, rain/virga, progressive reveal.
+- Flow must work with static states; animation is enhancement, not dependency.
+
+### 14.6 Reuse primitives
+
+Before any new control in mockups: search production for an existing primitive.
+
+| Need | Search first |
+|------|----------------|
+| Buttons, fields, alerts | Settings / `app_shell` / map M2-X GV |
+| Location search | `RMPlaceSearch`, `saved_location_search_ui` |
+| Modal / dialog | `app_shell` modal, `#rm-save-dialog` |
+| Cards / surfaces | `family_resemblance.css`, G3 `tcard` |
+
+**One primitive. Many contexts.** New primitives only when no equivalent exists.
+
+### 14.7 BI-0A assumptions corrected
+
+| BI-0A assumption | Correction |
+|------------------|------------|
+| Unknown time UX deserves P1 mockup | **Withdrawn** — remove from Beta onboarding, not improve |
+| Intake is only blocker before map | Pre-birth geography-only map is valid product surface |
+| Per-field unlock would reduce paperwork feel | **Withdrawn** — single-step birth info + personalized map payoff |
+| Auth → intake → map are three apps | **One continuous journey** mockup required |
+
+---
+
+*End of BI-0A archaeology audit (BI-0B calibration appended).*
