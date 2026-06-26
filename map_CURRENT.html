@@ -1166,11 +1166,14 @@ body.rm-explore #rm-ghost-strip:hover { opacity: 1; }
 .rm-gtok {
     pointer-events: auto;
     display: grid;
-    grid-template-columns: 1fr 30px 30px 30px 16px;
+    grid-template-columns: 1fr 30px 30px 16px;
     column-gap: 7px;
     align-items: center;
     animation: rmGhostIn .6s ease both;
     transition: opacity .25s ease;
+}
+body.rm-ghost-exclude-supported .rm-gtok {
+    grid-template-columns: 1fr 30px 30px 30px 16px;
 }
 @keyframes rmGhostIn {
     from { opacity: 0; transform: translateX(14px); }
@@ -1926,12 +1929,10 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             <div class="panel-section-title">Location</div>
         </div>
 
-        <!-- GENIE-BUILDER-PORT (Stage 2 — UI ONLY)
-             Ported from map_SANDBOX_genie_v7.html builder. Self-contained, scoped
-             under #gv-builder-host (gv- prefixed classes, data-gv-* attributes).
-             NOT wired to executeSearchPlan / save / overlays / backend. Legacy
-             static condition selects below remain in the DOM (hidden via JS) so the
-             production engine, save, and ghost-strip code keep functioning. -->
+        <!-- GENIE-BUILDER-PORT — production variable builder.
+             Search Map runs real overlays via __rmExecuteGenieRender → executeSearchPlan.
+             Legacy planet A/B/C selects remain in the DOM (hidden) for saved-investigation
+             replay and test harness (buildPlanFromLegacyDom / findRegions). -->
         <style id="gv-builder-styles">
           #gv-builder-host{
             --gv-ink:#1f2d38; --gv-ink-soft:#485a66; --gv-ink-faint:#7d8f9a;
@@ -2005,7 +2006,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
 
         <!-- SLICE-2: "Variable builder" label removed; GV builder is the only element in this section -->
         <div class="panel-section">
-            <div id="gv-builder-host" aria-label="Genie variable builder (UI-only preview)">
+            <div id="gv-builder-host" aria-label="Genie variable builder — Search Map renders overlays on the map">
               <div class="gv-builder" id="gv-builder">
                 <div class="gv-builder-top">
                   <button type="button" class="gv-btn-clear" data-gv-act="clearmap" title="Clear - remove all variables">Clear</button>
@@ -2026,21 +2027,25 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             </div>
         </div>
         <script>
-        /* GENIE-BUILDER-PORT - UI-only builder logic. Scoped, in-memory, no wiring. */
+        /* GENIE-BUILDER-PORT — GV builder UI; Search Map wired via __rmExecuteGenieRender. */
         (function(){
           "use strict";
           function init(){
             var host=document.getElementById("gv-builder-host");
             if(!host) return;
+            /* M1-A: engine v1 defers polarity exclude — hide NOT affordances until adapter supports it. */
+            var ENGINE_EXCLUDE_SUPPORTED = !!(window.RelocationGenieMapEngineAdapter && window.RelocationGenieMapEngineAdapter.EXCLUDE_POLARITY_SUPPORTED);
             function hideLegacyShell(){
               try{
-                ["planetA","angleSignAngle","overlayPlanet"].forEach(function(id){
-                  var el=document.getElementById(id);
-                  var sec=el&&el.closest&&el.closest(".panel-section");
-                  if(sec) sec.style.display="none";
+                document.querySelectorAll(".rm-legacy-search-section").forEach(function(sec){
+                  sec.classList.add("rm-panel-section-hidden");
+                  sec.setAttribute("aria-hidden","true");
                 });
                 var fb=document.getElementById("findBtn");
-                if(fb) fb.style.display="none";
+                if(fb){
+                  fb.classList.add("rm-panel-section-hidden");
+                  fb.setAttribute("aria-hidden","true");
+                }
               }catch(e){}
             }
             var PLANETS=["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto","Chiron"];
@@ -2094,7 +2099,14 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             function selectHtml(role,options,value,placeholder){ var has=value!==undefined&&value!==""; var cur=has?((options.find(function(o){return String(o.value)===String(value);})||{}).label||""):"";
               return '<button type="button" class="gv-g-dd'+(has?"":" gv-ph")+'" data-gv-role="'+esc(role)+'"><span class="gv-g-dd-lbl">'+esc(has?cur:placeholder)+'</span><span class="gv-g-dd-car">\u25be</span></button>'; }
             function renderChips(){ els.chips.innerHTML=variables.map(function(v){ return '<span class="gv-chip'+(v.not?" gv-notc":"")+'" data-gv-id="'+v.id+'"><span class="gv-sw'+(v.not?" gv-redact":"")+'" style="background:'+(v.not?NOT_COLOR:colorOf(v))+'"></span>'+(v.not?'<span class="gv-notm">'+NOT_ICON+'</span>':"")+'<span class="gv-lbl" data-gv-act="chip" data-gv-id="'+v.id+'">'+esc(catById(v.category).chip(v.values))+'</span><button type="button" class="gv-x" data-gv-act="remove" data-gv-id="'+v.id+'" title="Remove">\u2715</button></span>'; }).join(""); }
-            function renderBuildRow(){ els.buildrow.innerHTML='<div class="gv-br-master">'+selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Choose Variable")+'<label class="gv-not-box'+(build.not?" gv-on":"")+'" title="Redact - exclude these placements (NOT)">'+NOT_ICON+'<input type="checkbox" data-gv-role="notcheck"'+(build.not?" checked":"")+'></label></div><div class="gv-subs" id="gv-subs"></div><div class="gv-br-foot" id="gv-brFoot"></div>'; renderSubs(); applyRedactPreview(); updateGenieHint(); }
+            function renderBuildRow(){
+              var notCtl = ENGINE_EXCLUDE_SUPPORTED
+                ? '<label class="gv-not-box'+(build.not?" gv-on":"")+'" title="Exclude these placements (NOT)">'+NOT_ICON+'<input type="checkbox" data-gv-role="notcheck"'+(build.not?" checked":"")+'></label>'
+                : "";
+              els.buildrow.innerHTML='<div class="gv-br-master">'+selectHtml("category",CATEGORIES.map(function(c){return {value:c.id,label:c.label};}),build.category,"Choose Variable")+notCtl+'</div><div class="gv-subs" id="gv-subs"></div><div class="gv-br-foot" id="gv-brFoot"></div>';
+              if(!ENGINE_EXCLUDE_SUPPORTED) build.not=false;
+              renderSubs(); applyRedactPreview(); updateGenieHint();
+            }
             function renderSubs(){ var subs=document.getElementById("gv-subs"),foot=document.getElementById("gv-brFoot"); if(!subs||!foot)return; if(!build.category){subs.innerHTML="";foot.innerHTML="";updateAddState();updateSearchState();updateSaveState();return;} subs.classList.remove("gv-open");
               subs.innerHTML=catById(build.category).fields.map(function(f){return selectHtml("field:"+f.key,SOURCES(f.src),build.values[f.key],f.label);}).join("");
               foot.innerHTML='<button type="button" class="gv-row-x" data-gv-act="cancel" title="Discard this variable">\u2715</button>';
@@ -2148,6 +2160,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
               if(_searching) return;
               if(buildComplete()) commitVariable();
               var vars=variables.slice();
+              if(!ENGINE_EXCLUDE_SUPPORTED) vars=vars.filter(function(v){return !v.not;});
               if(!vars.length){ updateSearchState(); return; }
               var buildPayload=window.__gvBuildPayloadForTesting;
               var execute=window.__rmExecuteGenieRender;
@@ -2226,11 +2239,16 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
               renderChips();
               return true;
             }
+            window.__gvResetSearchInFlight=function(){
+              _searching=false;
+              updateSearchState();
+            };
             window.__gvBuilderPreview={
               get variables(){return variables.slice();},
               count:function(){return variables.length;},
               hydrate:hydrateGvVariables,
-              patchVariable:patchVariable
+              patchVariable:patchVariable,
+              engineExcludeSupported:function(){return ENGINE_EXCLUDE_SUPPORTED;}
             };
           }
           if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
@@ -2238,7 +2256,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
         </script>
 
 
-        <div class="panel-section">
+        <div class="panel-section rm-legacy-search-section rm-panel-section-hidden" aria-hidden="true">
             <div class="panel-section-title">Planet in house</div>
 
             <div class="condition-block condition-block--a">
@@ -2334,7 +2352,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             </div>
         </div>
 
-        <div class="panel-section">
+        <div class="panel-section rm-legacy-search-section rm-panel-section-hidden" aria-hidden="true">
             <div class="panel-section-title">Angle in sign</div>
             <div class="condition-block condition-block--angle">
                 <div class="field-row-2 field-row-sign">
@@ -2369,7 +2387,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             </div>
         </div>
 
-        <div class="panel-section">
+        <div class="panel-section rm-legacy-search-section rm-panel-section-hidden" aria-hidden="true">
             <div class="panel-section-title">Aspect to angle</div>
             <div class="condition-block condition-block--aspect">
                 <div class="field-row-2 field-row-aspect">
@@ -2425,7 +2443,7 @@ body.rm-explore.rm-cs-open .rm-citysearch-wrap .rm-sls-wrap {
             </div>
         </div>
 
-        <button id="findBtn" type="button">Find regions</button>
+        <button id="findBtn" type="button" class="rm-panel-section-hidden" aria-hidden="true">Find regions</button>
         <!-- SLICE-2: #quickShareBtn moved to topbar .rm-topright (see <header>) -->
         <div id="renderStatus">Ready.</div>
         <textarea id="saveInvestigationNote" rows="2" placeholder="Optional note for this investigation" style="width:100%;box-sizing:border-box;"></textarea>
@@ -9637,6 +9655,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var bottleEl = document.getElementById('rm-bottle');
     if (!ghostEl || !bottleEl) return;
 
+    /* M1-A: NOT/exclude polarity deferred in engine v1 — no false affordance. */
+    var ENGINE_EXCLUDE_SUPPORTED = !!(window.RelocationGenieMapEngineAdapter && window.RelocationGenieMapEngineAdapter.EXCLUDE_POLARITY_SUPPORTED);
+    if (ENGINE_EXCLUDE_SUPPORTED) document.body.classList.add('rm-ghost-exclude-supported');
+    var _historyReplayActive = false;
+
     /* MAP-GHOST-A: stop ghost Mute/Solo/NOT clicks from reaching Leaflet (map zoom) */
     L.DomEvent.disableClickPropagation(ghostEl);
 
@@ -9745,11 +9768,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         ghostEl.innerHTML = activeConditions.map(function(v) {
+            var notBtn = ENGINE_EXCLUDE_SUPPORTED
+                ? '<button class="rm-gb rm-notb" data-gmini="not" data-id="' + esc(v.id) + '" title="Exclude variable from render" aria-pressed="false">' + NOT_SVG + '</button>'
+                : '';
+            var replayLock = _historyReplayActive ? ' disabled aria-disabled="true"' : '';
             return '<div class="rm-gtok" data-id="' + esc(v.id) + '" role="listitem">' +
                 '<span class="rm-glbl" title="' + esc(v.label) + '">' + esc(v.mini) + '</span>' +
-                '<button class="rm-gb rm-notb" data-gmini="not" data-id="' + esc(v.id) + '" title="NOT — omits variable from render (exclude polarity not yet in engine)" aria-pressed="false">' + NOT_SVG + '</button>' +
-                '<button class="rm-gb rm-mb"   data-gmini="mute" data-id="' + esc(v.id) + '" title="Mute — hide overlays for this variable" aria-pressed="false">M</button>' +
-                '<button class="rm-gb rm-sb"   data-gmini="solo" data-id="' + esc(v.id) + '" title="Solo — show only this variable" aria-pressed="false">S</button>' +
+                notBtn +
+                '<button class="rm-gb rm-mb" data-gmini="mute" data-id="' + esc(v.id) + '" title="Mute — omit variable on next render" aria-pressed="false"' + replayLock + '>M</button>' +
+                '<button class="rm-gb rm-sb" data-gmini="solo" data-id="' + esc(v.id) + '" title="Solo — render only this variable" aria-pressed="false"' + replayLock + '>S</button>' +
                 '<span class="rm-gsw" style="background:' + esc(v.color) + '" aria-hidden="true"></span>' +
             '</div>';
         }).join('');
@@ -9773,6 +9800,23 @@ document.addEventListener('DOMContentLoaded', function() {
             var sw = node.querySelector('.rm-gsw');
             if (sw) sw.style.background = v.not ? '#26303a' : v.color;
         });
+    }
+
+    /* M1-A: after history replay, hydrate GV + ghost from the replayed plan. */
+    function syncGhostFromReplayedPlan(plan) {
+        if (!plan || typeof plan !== 'object') return;
+        var toGv = window.__gvConditionsJsonToVariables;
+        var preview = window.__gvBuilderPreview;
+        if (typeof toGv !== 'function' || !preview || typeof preview.hydrate !== 'function') return;
+        var conditionsJson = {
+            house_conditions: plan.house_conditions || [],
+            angle_sign_conditions: plan.angle_sign_conditions || [],
+            aspect_overlay: plan.aspectOverlay || plan.aspect_overlay || null,
+        };
+        preview.hydrate(toGv(conditionsJson));
+        soloId = null;
+        activeConditions = snapshotConditions();
+        renderGhost();
     }
 
     /* ── mode transitions ── */
@@ -9833,6 +9877,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function exitExplore() {
         /* Beta-B Fix4: cancel any pending enter timers before starting exit */
         clearTimeout(_enterT1); clearTimeout(_enterT2);
+        /* M1-A: restore panel pointer-events immediately (was deferred 500ms — caused
+         * "freeze" editing GV after profile reopen while FLIP exit animation ran). */
+        document.body.classList.remove('rm-explore', 'rm-menu-open', 'rm-cs-open');
+        if (typeof window.__gvResetSearchInFlight === 'function') window.__gvResetSearchInFlight();
         var panel  = document.getElementById('panel');
         var bottle = document.getElementById('rm-bottle');
         if (!panel || !bottle) {
@@ -9867,7 +9915,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });});
 
         _exitT1 = setTimeout(function(){
-            document.body.classList.remove('rm-explore', 'rm-menu-open', 'rm-cs-open');
             var _mh = document.getElementById('rm-menu-handle');
             if (_mh) _mh.setAttribute('aria-expanded', 'false');
         }, 500);
@@ -9890,12 +9937,22 @@ document.addEventListener('DOMContentLoaded', function() {
     var _prevSearch = window.executeSearchPlan;
     if (typeof _prevSearch === 'function') {
         window.executeSearchPlan = async function(plan, meta) {
+            var isHistoryReplay = (meta || {}).source === 'history_replay';
+            if (isHistoryReplay) {
+                _historyReplayActive = true;
+                renderGhost();
+            }
             var result = await _prevSearch.apply(this, arguments);
+            if (isHistoryReplay) {
+                syncGhostFromReplayedPlan(plan);
+                _historyReplayActive = false;
+                renderGhost();
+            }
             /* PB5-A: skip enterExplore on history replay OR steady-state explore (panel
              * already flip-hidden = ghost redraw). If rm-explore is set but panel is NOT
              * yet hidden, we are mid-exit-animation — re-entering is correct and resolves
              * the limbo where user clicks Search during the 500ms exit window. */
-            if ((meta || {}).source !== 'history_replay') {
+            if (!isHistoryReplay) {
                 var _panelEl = document.getElementById('panel');
                 var _inSteadyExplore = document.body.classList.contains('rm-explore') &&
                     _panelEl && _panelEl.classList.contains('rm-panel--flip-hidden');
@@ -9914,9 +9971,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearInterval(_poll);
                 var _base = window.executeSearchPlan;
                 window.executeSearchPlan = async function(plan, meta) {
+                    var isHistoryReplay = (meta || {}).source === 'history_replay';
+                    if (isHistoryReplay) { _historyReplayActive = true; renderGhost(); }
                     var result = await _base.apply(this, arguments);
+                    if (isHistoryReplay) {
+                        syncGhostFromReplayedPlan(plan);
+                        _historyReplayActive = false;
+                        renderGhost();
+                    }
                     /* PB5-A: same steady-state guard as primary wrapper */
-                    if ((meta || {}).source !== 'history_replay') {
+                    if (!isHistoryReplay) {
                         var _pe = document.getElementById('panel');
                         var _sse = document.body.classList.contains('rm-explore') &&
                             _pe && _pe.classList.contains('rm-panel--flip-hidden');
@@ -9934,10 +9998,9 @@ document.addEventListener('DOMContentLoaded', function() {
         exitExplore();
     });
 
-    /* MAP-GHOST-B: redraw overlays via existing GV → genie_render → executeSearchPlan.
-     * Beta: Mute/Solo trigger full re-search (not per-layer hide/show).
-     * NOT excludes variables from the render list — engine exclude polarity is deferred v1.
-     * Future per-layer ownership can replace this path. */
+    /* MAP-GHOST-B: redraw overlays via GV → __rmExecuteGenieRender → executeSearchPlan.
+     * Mute/Solo trigger full re-search with enabled:false or solo filter.
+     * NOT UI hidden until RelocationGenieMapEngineAdapter supports exclude polarity. */
     function ghostRedrawFromState() {
         var preview = window.__gvBuilderPreview;
         var buildPayload = window.__gvBuildPayloadForTesting;
@@ -10003,9 +10066,18 @@ document.addEventListener('DOMContentLoaded', function() {
         var id   = btn.getAttribute('data-id');
         var v    = activeConditions.find(function(x) { return x.id === id; });
         if (!v) return;
-        if (mini === 'not')  v.not  = !v.not;
-        if (mini === 'mute') v.mute = !v.mute;
-        if (mini === 'solo') soloId = (soloId === v.id ? null : v.id);
+        if (mini === 'not') {
+            if (!ENGINE_EXCLUDE_SUPPORTED || _historyReplayActive) return;
+            v.not = !v.not;
+        }
+        if (mini === 'mute') {
+            if (_historyReplayActive) return;
+            v.mute = !v.mute;
+        }
+        if (mini === 'solo') {
+            if (_historyReplayActive) return;
+            soloId = (soloId === v.id ? null : v.id);
+        }
         syncGhost();
         if (mini === 'not' || mini === 'mute') {
             var patch = window.__gvBuilderPreview && window.__gvBuilderPreview.patchVariable;
@@ -10032,15 +10104,9 @@ document.addEventListener('DOMContentLoaded', function() {
         ghostRedrawFromState();
     });
 
-    /* PB6-8 DEFERRED: history back/forward state mirroring.
-     * When popstate fires, Genie variables and ghost controls should reflect
-     * the restored search state. Full implementation requires:
-     *   1. Serialize GV variable state into the history entry on each search.
-     *   2. On popstate, hydrate GV builder (hydrateGvVariables) with saved state.
-     *   3. Sync ghost strip (syncGhost / renderGhost) with hydrated conditions.
-     * This is deferred post-Beta because it requires changes to the history
-     * push path (inside executeSearchPlan wrapper) and GV builder hydration
-     * contract. The forward/back buttons are present; state mirroring is the gap. */
+    /* M1-A: history replay hydrates GV + ghost via syncGhostFromReplayedPlan(plan).
+     * Ghost Mute/Solo disabled during in-flight replay; NOT hidden until engine supports exclude.
+     * Full GV mute/solo/not serialization into history entries remains a follow-up. */
 
     /* expose for onboarding walkthrough step 4 */
     window.__rmGhostStrip = {
