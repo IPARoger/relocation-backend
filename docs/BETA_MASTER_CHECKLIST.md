@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (S1 saved object management)
+**Last updated:** 2026-06-27 (S0 settings truth audit)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -264,7 +264,8 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
-✓ S1 Saved object management (Settings My Data)     ([274](../results/274_s1_saved_object_management_implementation.md) · [canon](canon/SAVED_OBJECTS_PRODUCT_CANON.md))
+✓ S0 Settings truth matrix ([274_settings_truth_matrix](../results/274_settings_truth_matrix.md))
+✓ S1 Saved object management (Settings My Data)     ([274_s1](../results/274_s1_saved_object_management_implementation.md) · [canon](canon/SAVED_OBJECTS_PRODUCT_CANON.md))
 ✓ BI-0C Auth + birth intake implementation ([272](../results/272_bi0c_first_experience_implementation.md))
 ✓ BI-0B First experience mockups ([271](../results/271_first_experience_mockups.md))
 ✓ BI-0A First experience archaeology (read-only)
