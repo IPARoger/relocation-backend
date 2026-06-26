@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "pass": "SVG only \u2014 OTF Pass 2 deferred",
+  "families": {
+    "premium": {
+      "label": "Premium (Refined)",
+      "count": 54,
+      "mode": "filled"
+    },
+    "architectural": {
+      "label": "Architectural (Classical)",
+      "count": 54,
+      "mode": "filled"
+    },
+    "technical": {
+      "label": "Technical (Swiss)",
+      "count": 54,
+      "mode": "stroke"
+    },
+    "organic": {
+      "label": "Organic (Engraved)",
+      "count": 54,
+      "mode": "filled"
+    },
+    "gentle": {
+      "label": "Gentle (Linear)",
+      "count": 54,
+      "mode": "stroke"
+    }
+  }
+}

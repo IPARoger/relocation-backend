@@ -1,0 +1,272 @@
+{
+  "signs/aries": {
+    "path": "fonts/technical/svg/signs/aries.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E000"
+  },
+  "signs/taurus": {
+    "path": "fonts/technical/svg/signs/taurus.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E001"
+  },
+  "signs/gemini": {
+    "path": "fonts/technical/svg/signs/gemini.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E002"
+  },
+  "signs/cancer": {
+    "path": "fonts/technical/svg/signs/cancer.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E003"
+  },
+  "signs/leo": {
+    "path": "fonts/technical/svg/signs/leo.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E004"
+  },
+  "signs/virgo": {
+    "path": "fonts/technical/svg/signs/virgo.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E005"
+  },
+  "signs/libra": {
+    "path": "fonts/technical/svg/signs/libra.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E006"
+  },
+  "signs/scorpio": {
+    "path": "fonts/technical/svg/signs/scorpio.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E007"
+  },
+  "signs/sagittarius": {
+    "path": "fonts/technical/svg/signs/sagittarius.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E008"
+  },
+  "signs/capricorn": {
+    "path": "fonts/technical/svg/signs/capricorn.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E009"
+  },
+  "signs/aquarius": {
+    "path": "fonts/technical/svg/signs/aquarius.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E00A"
+  },
+  "signs/pisces": {
+    "path": "fonts/technical/svg/signs/pisces.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E00B"
+  },
+  "planets/sun": {
+    "path": "fonts/technical/svg/planets/sun.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E00C"
+  },
+  "planets/moon": {
+    "path": "fonts/technical/svg/planets/moon.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E00D"
+  },
+  "planets/mercury": {
+    "path": "fonts/technical/svg/planets/mercury.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E00E"
+  },
+  "planets/venus": {
+    "path": "fonts/technical/svg/planets/venus.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E00F"
+  },
+  "planets/mars": {
+    "path": "fonts/technical/svg/planets/mars.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E010"
+  },
+  "planets/jupiter": {
+    "path": "fonts/technical/svg/planets/jupiter.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E011"
+  },
+  "planets/saturn": {
+    "path": "fonts/technical/svg/planets/saturn.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E012"
+  },
+  "planets/uranus": {
+    "path": "fonts/technical/svg/planets/uranus.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E013"
+  },
+  "planets/neptune": {
+    "path": "fonts/technical/svg/planets/neptune.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E014"
+  },
+  "planets/pluto": {
+    "path": "fonts/technical/svg/planets/pluto.svg",
+    "source": "gl3:alternate_theme_2",
+    "pua": "U+E015"
+  },
+  "angles/asc": {
+    "path": "fonts/technical/svg/angles/asc.svg",
+    "source": "generated:angle",
+    "pua": "U+E016"
+  },
+  "angles/mc": {
+    "path": "fonts/technical/svg/angles/mc.svg",
+    "source": "generated:angle",
+    "pua": "U+E017"
+  },
+  "angles/dsc": {
+    "path": "fonts/technical/svg/angles/dsc.svg",
+    "source": "generated:angle",
+    "pua": "U+E018"
+  },
+  "angles/ic": {
+    "path": "fonts/technical/svg/angles/ic.svg",
+    "source": "generated:angle",
+    "pua": "U+E019"
+  },
+  "points/north-node": {
+    "path": "fonts/technical/svg/points/north-node.svg",
+    "source": "generated:point",
+    "pua": "U+E01A"
+  },
+  "points/south-node": {
+    "path": "fonts/technical/svg/points/south-node.svg",
+    "source": "generated:point",
+    "pua": "U+E01B"
+  },
+  "points/chiron": {
+    "path": "fonts/technical/svg/points/chiron.svg",
+    "source": "generated:point",
+    "pua": "U+E01C"
+  },
+  "points/part-of-fortune": {
+    "path": "fonts/technical/svg/points/part-of-fortune.svg",
+    "source": "generated:point",
+    "pua": "U+E01D"
+  },
+  "points/vertex": {
+    "path": "fonts/technical/svg/points/vertex.svg",
+    "source": "generated:point",
+    "pua": "U+E01E"
+  },
+  "points/east-point": {
+    "path": "fonts/technical/svg/points/east-point.svg",
+    "source": "generated:point",
+    "pua": "U+E01F"
+  },
+  "points/lilith": {
+    "path": "fonts/technical/svg/points/lilith.svg",
+    "source": "generated:point",
+    "pua": "U+E020"
+  },
+  "points/ceres": {
+    "path": "fonts/technical/svg/points/ceres.svg",
+    "source": "generated:point",
+    "pua": "U+E021"
+  },
+  "points/pallas": {
+    "path": "fonts/technical/svg/points/pallas.svg",
+    "source": "generated:point",
+    "pua": "U+E022"
+  },
+  "points/juno": {
+    "path": "fonts/technical/svg/points/juno.svg",
+    "source": "generated:point",
+    "pua": "U+E023"
+  },
+  "points/vesta": {
+    "path": "fonts/technical/svg/points/vesta.svg",
+    "source": "generated:point",
+    "pua": "U+E024"
+  },
+  "aspects/conjunction": {
+    "path": "fonts/technical/svg/aspects/conjunction.svg",
+    "source": "generated:aspect",
+    "pua": "U+E025"
+  },
+  "aspects/opposition": {
+    "path": "fonts/technical/svg/aspects/opposition.svg",
+    "source": "generated:aspect",
+    "pua": "U+E026"
+  },
+  "aspects/trine": {
+    "path": "fonts/technical/svg/aspects/trine.svg",
+    "source": "generated:aspect",
+    "pua": "U+E027"
+  },
+  "aspects/square": {
+    "path": "fonts/technical/svg/aspects/square.svg",
+    "source": "generated:aspect",
+    "pua": "U+E028"
+  },
+  "aspects/sextile": {
+    "path": "fonts/technical/svg/aspects/sextile.svg",
+    "source": "generated:aspect",
+    "pua": "U+E029"
+  },
+  "aspects/quincunx": {
+    "path": "fonts/technical/svg/aspects/quincunx.svg",
+    "source": "generated:aspect",
+    "pua": "U+E02A"
+  },
+  "aspects/semi-sextile": {
+    "path": "fonts/technical/svg/aspects/semi-sextile.svg",
+    "source": "generated:aspect",
+    "pua": "U+E02B"
+  },
+  "aspects/semi-square": {
+    "path": "fonts/technical/svg/aspects/semi-square.svg",
+    "source": "generated:aspect",
+    "pua": "U+E02C"
+  },
+  "aspects/sesquiquadrate": {
+    "path": "fonts/technical/svg/aspects/sesquiquadrate.svg",
+    "source": "generated:aspect",
+    "pua": "U+E02D"
+  },
+  "aspects/quintile": {
+    "path": "fonts/technical/svg/aspects/quintile.svg",
+    "source": "generated:aspect",
+    "pua": "U+E02E"
+  },
+  "aspects/biquintile": {
+    "path": "fonts/technical/svg/aspects/biquintile.svg",
+    "source": "generated:aspect",
+    "pua": "U+E02F"
+  },
+  "aspects/septile": {
+    "path": "fonts/technical/svg/aspects/septile.svg",
+    "source": "generated:aspect",
+    "pua": "U+E030"
+  },
+  "aspects/novile": {
+    "path": "fonts/technical/svg/aspects/novile.svg",
+    "source": "generated:aspect",
+    "pua": "U+E031"
+  },
+  "dignities/retrograde": {
+    "path": "fonts/technical/svg/dignities/retrograde.svg",
+    "source": "generated:dignity",
+    "pua": "U+E032"
+  },
+  "dignities/exaltation": {
+    "path": "fonts/technical/svg/dignities/exaltation.svg",
+    "source": "generated:dignity",
+    "pua": "U+E033"
+  },
+  "dignities/detriment": {
+    "path": "fonts/technical/svg/dignities/detriment.svg",
+    "source": "generated:dignity",
+    "pua": "U+E034"
+  },
+  "dignities/fall": {
+    "path": "fonts/technical/svg/dignities/fall.svg",
+    "source": "generated:dignity",
+    "pua": "U+E035"
+  }
+}

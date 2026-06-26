@@ -422,3 +422,49 @@ No weak substitutes were used to fake completeness.
 
 *GL-3 complete. Production wiring explicitly deferred to GL-4.*
 
+
+
+---
+
+## Beta Glyph Families — Pass 1 SVG (2026-06-27)
+
+**Mode:** Complete missing glyphs in all five approved families. **OTF Pass 2 deferred.**
+
+**Output:** [fonts/](../../fonts/) — 54 glyphs × 5 families = **270 SVGs**, zero TBD placeholders.
+
+| Folder | GL-3 voice | Render |
+|--------|------------|--------|
+| `premium/` | Refined (default) | Filled |
+| `architectural/` | Classical | Filled |
+| `technical/` | Swiss / AstroDotBasic | Stroke paths |
+| `organic/` | Engraved Light | Filled |
+| `gentle/` | Linear outline | Stroke |
+
+### Complete beta character set
+
+- **Zodiac** (12) · **Planets** (10) · **Angles** (ASC/MC/DSC/IC)
+- **Points** — North/South Node, Chiron, Part of Fortune, Vertex, **East Point**, Lilith, Ceres/Pallas/Juno/Vesta
+- **Aspects** — all majors + minors incl. **septile** and **novile**
+- **Dignities** — retrograde, exaltation, detriment, fall (graphical marks)
+
+### Asset standards
+
+| Property | Value |
+|----------|-------|
+| viewBox | `0 0 24 24` |
+| Padding | 2px optical |
+| Scales | 16 / 20 / 24 / 32 px |
+| Naming | `svg/{category}/{slug}.svg` |
+| PUA map | `UNICODE_MAP.md` per family |
+| OTF | **Pass 2** — not generated in Pass 1 |
+
+### Validation
+
+- `scripts/smoke_beta_glyph_families.py` — 169 checks
+- Per-family `specimen.html` for visual review
+
+### Implementation
+
+**Production wiring deferred to GL-4.** Pass 2 builds installable OTF from approved SVGs.
+
+*Interim AI-generated assets — professional type designers will refine later.*
