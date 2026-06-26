@@ -1,0 +1,17 @@
+{
+  "mockups": [
+    "01_welcome_sign_in.png",
+    "02_create_account.png",
+    "03_birth_information.png",
+    "04_validation_invalid_time.png",
+    "04_validation_missing_location.png",
+    "04_validation_missing_time.png",
+    "05_transition_preparing.png",
+    "06_first_personalized_map.png",
+    "07_first_popup.png",
+    "08_first_save.png",
+    "family_resemblance/ref_profile.png",
+    "family_resemblance/ref_relocated.png",
+    "family_resemblance/ref_comparison.png"
+  ]
+}
