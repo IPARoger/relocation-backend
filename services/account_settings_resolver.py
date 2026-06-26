@@ -98,6 +98,10 @@ def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
             or deepcopy(RM_SETTINGS_DEFAULTS["display_aspects_to_angles"])
         ),
         "exact_aspect_threshold_deg": pick("exact_aspect_threshold_deg"),
+        "dignity_preset": pick("dignity_preset") or RM_SETTINGS_DEFAULTS.get("dignity_preset", "hybrid"),
+        "dignity_custom_rules": pick("dignity_custom_rules") or [],
+        "dignity_color_mode": pick("dignity_color_mode") or RM_SETTINGS_DEFAULTS.get("dignity_color_mode", "paired"),
+        "dignity_colors": pick("dignity_colors") or deepcopy(RM_SETTINGS_DEFAULTS.get("dignity_colors", {})),
     }
 
 def exact_aspect_threshold_deg(effective_settings: dict) -> float:

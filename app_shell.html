@@ -258,8 +258,16 @@
   table.simple { width: 100%; border-collapse: collapse; font-size: 13px; }
   table.simple th, table.simple td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
   table.simple th { background: #f3f4f6; font-weight: 600; }
-  td.pih-house-cell.dignity-supportive { background: #eef7f3; }
-  td.pih-house-cell.dignity-challenging { background: #faf3e8; }
+  td.pih-house-cell.dignity-supportive { background: var(--rm-dignity-supportive, #eef7f3); }
+  td.pih-house-cell.dignity-challenging { background: var(--rm-dignity-challenging, #faf3e8); }
+  td.pih-house-cell.dignity-ruler { background: var(--rm-dignity-supportive, #eef7f3); }
+  td.pih-house-cell.dignity-exaltation { background: var(--rm-dignity-exaltation, #e8f4ec); }
+  td.pih-house-cell.dignity-detriment { background: var(--rm-dignity-challenging, #faf3e8); }
+  td.pih-house-cell.dignity-fall { background: var(--rm-dignity-fall, #fdf0e0); }
+  .rm-dignity-editor-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .rm-dignity-editor-table th, .rm-dignity-editor-table td { padding: 6px 4px; border-bottom: 1px solid color-mix(in srgb, var(--line) 50%, transparent); text-align: left; }
+  .rm-dignity-editor-table select, .rm-dignity-editor-table input[type=color] { width: 100%; min-height: 32px; font-size: 12px; }
+  .rm-dignity-preset-example { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
   .rm-pih-dignities-help { display: inline-block; margin-left: 6px; vertical-align: middle; }
   .rm-pih-dignities-help summary { cursor: pointer; list-style: none; font-size: 0.85rem; color: var(--muted); user-select: none; }
   .rm-pih-dignities-help summary::-webkit-details-marker { display: none; }
@@ -4383,12 +4391,23 @@ function pihDignitiesHelpHtml() {
     <summary title="About house-correspondence dignities">?</summary>
     <p class="rm-pih-dignities-help-body">${escapeHtml(PIH_DIGNITIES_HELP_COPY)}</p>
     <p class="rm-pih-dignities-help-body meta">Which relationships count as dignities can be customized in <button type="button" class="linkish" data-settings-sub="astrology">Astrology settings</button>: Modern, Ancient, Hybrid (default), or Advanced to define your own system.</p>
-    <p class="rm-pih-dignities-help-body meta">Optional separate colors for Exaltation and Fall can be changed in <button type="button" class="linkish" data-settings-sub="display">Appearance settings</button>.</p>
+    <p class="rm-pih-dignities-help-body meta">Dignity colors can be customized in <button type="button" class="linkish" data-settings-sub="astrology">Astrology settings</button>.</p>
   </details>`;
 }
 
 function pihDignityClass(planet, house) {
-  if (!window.RMDignityOntology || typeof window.RMDignityOntology.lookupFamilyByHouse !== "function") return "";
+  if (!window.RMDignityOntology || typeof window.RMDignityOntology.lookupDetailByHouse !== "function") return "";
+  const detail = window.RMDignityOntology.lookupDetailByHouse(planet, house);
+  if (!detail) return "";
+  const eff = _settingsEff();
+  const mode = (eff && eff.dignity_color_mode) ? eff.dignity_color_mode : "paired";
+  if (mode === "four") {
+    if (detail === "rulership") return " dignity-ruler";
+    if (detail === "exaltation") return " dignity-exaltation";
+    if (detail === "detriment") return " dignity-detriment";
+    if (detail === "fall") return " dignity-fall";
+    return "";
+  }
   const family = window.RMDignityOntology.lookupFamilyByHouse(planet, house);
   if (family === "supportive") return " dignity-supportive";
   if (family === "challenging") return " dignity-challenging";
@@ -7499,8 +7518,165 @@ function chartFrameworkHtml() {
   return chartsHouseSystemHtml() + chartsZodiacHtml();
 }
 
+function applyDignitySettingsFromEff() {
+  const eff = _settingsEff();
+  if (!window.RMDignityOntology || typeof window.RMDignityOntology.setConfig !== "function") return;
+  window.RMDignityOntology.setConfig({
+    preset: (eff && eff.dignity_preset) || "hybrid",
+    customRules: (eff && Array.isArray(eff.dignity_custom_rules)) ? eff.dignity_custom_rules : [],
+    colorMode: (eff && eff.dignity_color_mode) || "paired",
+    colors: (eff && eff.dignity_colors) || {},
+  });
+}
+
+function dignityPresetExample(preset) {
+  if (window.RMDignityOntology && window.RMDignityOntology.presetExample) {
+    return window.RMDignityOntology.presetExample(preset);
+  }
+  if (preset === "ancient") return "Jupiter rules Pisces";
+  if (preset === "modern") return "Neptune rules Pisces";
+  if (preset === "hybrid") return "Jupiter + Neptune rule Pisces";
+  return "Custom dignity rules";
+}
+
+function dignityCustomRuleRowHtml(rule, idx) {
+  const r = rule || {};
+  const O = window.RMDignityOntology || {};
+  const planets = O.PLANETS || ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"];
+  const signs = O.SIGNS || ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+  const rel = String(r.relationship || r.type || "rulership").toLowerCase();
+  const pOpts = planets.map((p) => `<option value="${p}"${p === r.planet ? " selected" : ""}>${p}</option>`).join("");
+  const sOpts = signs.map((s) => `<option value="${s}"${s === r.sign ? " selected" : ""}>${s}</option>`).join("");
+  const types = [["rulership", "Ruler"], ["detriment", "Detriment"], ["exaltation", "Exaltation"], ["fall", "Fall"]];
+  const tOpts = types.map(([v, lab]) => `<option value="${v}"${rel === v ? " selected" : ""}>${lab}</option>`).join("");
+  return `<tr data-dignity-rule-idx="${idx}">
+    <td><select class="rm-dignity-planet">${pOpts}</select></td>
+    <td><select class="rm-dignity-sign">${sOpts}</select></td>
+    <td><select class="rm-dignity-type">${tOpts}</select></td>
+    <td><button type="button" class="linkish" data-action="dignity-remove-rule" data-idx="${idx}">Remove</button></td>
+  </tr>`;
+}
+
+function dignityCustomEditorHtml(rules) {
+  const rows = (rules || []).map((r, i) => dignityCustomRuleRowHtml(r, i)).join("");
+  return `
+    <table class="rm-dignity-editor-table" id="rm-dignity-custom-table">
+      <thead><tr><th>Planet</th><th>Sign</th><th>Type</th><th></th></tr></thead>
+      <tbody id="rm-dignity-custom-body">${rows}</tbody>
+    </table>
+    <button type="button" data-action="dignity-add-rule" style="margin-top:8px;">Add dignity</button>`;
+}
+
+function dignityColorsHtml(eff) {
+  const c = (eff && eff.dignity_colors) || {};
+  const mode = (eff && eff.dignity_color_mode) || "paired";
+  const paired = mode !== "four";
+  return `
+    <div class="panel settings-panel" id="rm-dignity-colors-panel">
+      <h4>Dignity colors</h4>
+      <label class="settings-check-item">
+        <input type="radio" name="rm-dignity-color-mode" value="paired"${paired ? " checked" : ""} />
+        <span>Default — Ruler + Exaltation share one family; Detriment + Fall share one family</span>
+      </label>
+      <div class="settings-orb-grid" style="margin:8px 0 12px;">
+        <label class="block">Positive family <input type="color" id="rm-dignity-color-supportive" value="${c.supportive || "#eef7f3"}" /></label>
+        <label class="block">Difficult family <input type="color" id="rm-dignity-color-challenging" value="${c.challenging || "#faf3e8"}" /></label>
+      </div>
+      <label class="settings-check-item">
+        <input type="radio" name="rm-dignity-color-mode" value="four"${!paired ? " checked" : ""} />
+        <span>Advanced — four independent colors</span>
+      </label>
+      <div class="settings-orb-grid" id="rm-dignity-four-colors"${paired ? ' style="display:none;"' : ""}>
+        <label class="block">Ruler <input type="color" id="rm-dignity-color-ruler" value="${c.supportive || "#eef7f3"}" /></label>
+        <label class="block">Exaltation <input type="color" id="rm-dignity-color-exaltation" value="${c.exaltation || "#e8f4ec"}" /></label>
+        <label class="block">Detriment <input type="color" id="rm-dignity-color-detriment" value="${c.challenging || "#faf3e8"}" /></label>
+        <label class="block">Fall <input type="color" id="rm-dignity-color-fall" value="${c.fall || "#fdf0e0"}" /></label>
+      </div>
+    </div>`;
+}
+
+function dignitiesDisplayHtml() {
+  const eff = _settingsEff();
+  const preset = (eff && eff.dignity_preset) || "hybrid";
+  const rules = (eff && Array.isArray(eff.dignity_custom_rules)) ? eff.dignity_custom_rules : [];
+  const presets = [
+    ["ancient", "Ancient", "Jupiter rules Pisces"],
+    ["modern", "Modern", "Neptune rules Pisces"],
+    ["hybrid", "Hybrid", "Jupiter + Neptune rule Pisces"],
+    ["custom", "Custom", "Define your own dignity rules"],
+  ];
+  const presetRadios = presets.map(([id, label, ex]) =>
+    `<label class="settings-check-item" style="display:block;margin-bottom:6px;">
+      <input type="radio" name="rm-dignity-preset" value="${id}"${preset === id ? " checked" : ""} />
+      <span><strong>${label}</strong> — <span class="meta">${escapeHtml(ex)}</span></span>
+    </label>`
+  ).join("");
+  const customPanel = preset === "custom" ? "" : ' style="display:none;"';
+  return `
+    <div class="panel settings-panel" id="rm-dignity-settings-panel">
+      <p class="meta" style="margin:0 0 10px;">Dignities tint Planet-in-House cells using natural-zodiac house correspondence. Toggle from each PIH footer. No scoring or weighting.</p>
+      <h4 style="margin:0 0 8px;">Preset</h4>
+      <div id="rm-dignity-preset-list">${presetRadios}</div>
+      <p class="rm-dignity-preset-example" id="rm-dignity-preset-example">${escapeHtml(dignityPresetExample(preset))}</p>
+      <div id="rm-dignity-custom-editor"${customPanel}>
+        <h4 style="margin:16px 0 8px;">Custom dignity editor</h4>
+        <p class="meta" style="margin:0 0 6px;">Supported types only: Ruler, Detriment, Exaltation, Fall. Multiple rulers or exaltations per sign are allowed.</p>
+        ${dignityCustomEditorHtml(rules)}
+      </div>
+    </div>
+    ${dignityColorsHtml(eff)}`;
+}
+
 function advancedAstrologyHtml() {
-  return dignitiesDisplayHtml();
+  return "";
+}
+
+function collectDignityCustomRulesFromDom(root) {
+  const body = (root || document).querySelector("#rm-dignity-custom-body");
+  if (!body) return [];
+  return [...body.querySelectorAll("tr[data-dignity-rule-idx]")].map((tr) => ({
+    planet: (tr.querySelector(".rm-dignity-planet") || {}).value,
+    sign: (tr.querySelector(".rm-dignity-sign") || {}).value,
+    relationship: (tr.querySelector(".rm-dignity-type") || {}).value,
+  })).filter((r) => r.planet && r.sign && r.relationship);
+}
+
+function initDignitySettingsControls(root) {
+  if (!root || navContext.route !== "settings" || normalizeSettingsSubpage(navContext.settingsSubpage) !== "astrology") return;
+  applyDignitySettingsFromEff();
+  const editor = root.querySelector("#rm-dignity-custom-editor");
+  const exampleEl = root.querySelector("#rm-dignity-preset-example");
+  const syncPresetUi = () => {
+    const picked = root.querySelector('input[name="rm-dignity-preset"]:checked');
+    const val = picked ? picked.value : "hybrid";
+    if (editor) editor.style.display = val === "custom" ? "" : "none";
+    if (exampleEl) exampleEl.textContent = dignityPresetExample(val);
+  };
+  root.querySelectorAll('input[name="rm-dignity-preset"]').forEach((el) => {
+    el.addEventListener("change", syncPresetUi);
+  });
+  const fourPanel = root.querySelector("#rm-dignity-four-colors");
+  root.querySelectorAll('input[name="rm-dignity-color-mode"]').forEach((el) => {
+    el.addEventListener("change", () => {
+      if (fourPanel) fourPanel.style.display = el.value === "four" && el.checked ? "" : "none";
+    });
+  });
+  root.querySelectorAll("[data-action='dignity-add-rule']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const body = root.querySelector("#rm-dignity-custom-body");
+      if (!body) return;
+      const idx = body.querySelectorAll("tr").length;
+      body.insertAdjacentHTML("beforeend", dignityCustomRuleRowHtml({ planet: "Sun", sign: "Leo", relationship: "rulership" }, idx));
+      initDignitySettingsControls(root);
+    });
+  });
+  root.querySelectorAll("[data-action='dignity-remove-rule']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tr = btn.closest("tr");
+      if (tr) tr.remove();
+    });
+  });
+  syncPresetUi();
 }
 
 function outOfSignAspectsHtml() {
@@ -7612,11 +7788,16 @@ function buildAstrologyDefaultsRestorePatch() {
     subsequent_house_policy: defs.subsequent_house_policy || "display_only",
     aspect_to_angle_orbs: Object.assign({}, defs.aspect_to_angle_orbs || {}),
     display_aspects_to_angles: Object.assign({}, defs.display_aspects_to_angles || {}),
+    dignity_preset: defs.dignity_preset || "hybrid",
+    dignity_custom_rules: Array.isArray(defs.dignity_custom_rules) ? defs.dignity_custom_rules.slice() : [],
+    dignity_color_mode: defs.dignity_color_mode || "paired",
+    dignity_colors: Object.assign({}, defs.dignity_colors || {}),
   };
 }
 
 // SETTINGS-FINAL-WIRE-1: re-fetch chart/compare data and sync map Genie selectors.
 function rehydrateSettingsConsumers() {
+  applyDignitySettingsFromEff();
   _screen4ChartCache = null;
   _comparisonColsCache = null;
   _profileCanonicalCache = null;
@@ -8640,10 +8821,8 @@ function settingsDataBodyHtml() {
 
 function dignityAppearanceHtml() {
   return `
-    <div class="panel settings-panel" id="sec-appearance-dignities" data-settings-future="dignity-colors">
-      <p class="meta">Planet-in-House dignities use two overlay colors by default: Rulership and Exaltation (generally positive), and Detriment and Fall (generally difficult).</p>
-      ${settingsFutureRow("Exaltation color", "Optional distinct color when only Exaltation applies (otherwise uses the positive overlay).")}
-      ${settingsFutureRow("Fall color", "Optional distinct color when only Fall applies (otherwise uses the difficult overlay).")}
+    <div class="panel settings-panel" id="sec-appearance-dignities">
+      <p class="meta">Dignity presets and colors are configured under <button type="button" class="linkish" data-settings-sub="astrology">Astrology → Dignities</button>.</p>
     </div>`;
 }
 
@@ -9446,7 +9625,10 @@ function render() {
   }
   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
   if (navContext.route === "help") wireHelpHandbook($("#main"));
-  if (navContext.route === "settings") initAppearanceSettingsControls($("#main"));
+  if (navContext.route === "settings") {
+    initAppearanceSettingsControls($("#main"));
+    initDignitySettingsControls($("#main"));
+  }
   if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
 }
@@ -10452,7 +10634,20 @@ if (action === "cmp-notes-hide") {
             ic:  !!(document.getElementById("rm-settings-a2d-ic")  || {}).checked,
           };
         }
+        const dignityPresetEl = document.querySelector('input[name="rm-dignity-preset"]:checked');
+        if (dignityPresetEl) settingsPatch.dignity_preset = dignityPresetEl.value;
+        if (document.getElementById("rm-dignity-custom-body")) {
+          settingsPatch.dignity_custom_rules = collectDignityCustomRulesFromDom(document);
+        }
+        const dignityColorModeEl = document.querySelector('input[name="rm-dignity-color-mode"]:checked');
+        if (dignityColorModeEl) settingsPatch.dignity_color_mode = dignityColorModeEl.value;
+        const digColors = {};
+        [["supportive","rm-dignity-color-supportive"],["challenging","rm-dignity-color-challenging"],["exaltation","rm-dignity-color-exaltation"],["fall","rm-dignity-color-fall"]].forEach(([k,id]) => {
+          const el = document.getElementById(id); if (el) digColors[k] = el.value;
+        });
+        if (Object.keys(digColors).length) settingsPatch.dignity_colors = digColors;
         applyAccountSettingsPatch(settingsPatch, settingsPatch).then(() => {
+          applyDignitySettingsFromEff();
           const savedMsg = document.getElementById("rm-settings-msg");
           if (savedMsg) savedMsg.textContent = "\u2713 Saved.";
         }).catch((err) => {

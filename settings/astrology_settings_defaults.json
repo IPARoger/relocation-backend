@@ -66,5 +66,14 @@
     "dsc": true,
     "ic": true
   },
-  "exact_aspect_threshold_deg": 0.5
+  "exact_aspect_threshold_deg": 0.5,
+  "dignity_preset": "hybrid",
+  "dignity_custom_rules": [],
+  "dignity_color_mode": "paired",
+  "dignity_colors": {
+    "supportive": "#eef7f3",
+    "challenging": "#faf3e8",
+    "exaltation": "#e8f4ec",
+    "fall": "#fdf0e0"
+  }
 }

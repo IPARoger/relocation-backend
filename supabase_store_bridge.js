@@ -115,6 +115,10 @@
       display_aspects_to_angles: stored.display_aspects_to_angles
         || onto.display_aspects_to_angles
         || RM_SETTINGS_DEFAULTS.display_aspects_to_angles,
+      dignity_preset: pick("dignity_preset") || RM_SETTINGS_DEFAULTS.dignity_preset || "hybrid",
+      dignity_custom_rules: pick("dignity_custom_rules") || [],
+      dignity_color_mode: pick("dignity_color_mode") || RM_SETTINGS_DEFAULTS.dignity_color_mode || "paired",
+      dignity_colors: pick("dignity_colors") || RM_SETTINGS_DEFAULTS.dignity_colors || {},
     };
   }
 

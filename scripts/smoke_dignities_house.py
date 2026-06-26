@@ -20,7 +20,7 @@ console.log(JSON.stringify({
   moon2: RMDignityOntology.lookupFamilyByHouse("Moon", 2),
   sun7: RMDignityOntology.lookupFamilyByHouse("Sun", 7),
   sun1: RMDignityOntology.lookupFamilyByHouse("Sun", 1),
-  uranus5: RMDignityOntology.lookupFamilyByHouse("Uranus", 5),
+  pluto5: RMDignityOntology.lookupFamilyByHouse("Pluto", 5),
 }));
 """
     out: list[tuple[str, bool, str]] = []
@@ -33,7 +33,7 @@ console.log(JSON.stringify({
         out.append(("unit_moon_h2_supportive", data.get("moon2") == "supportive", str(data.get("moon2"))))
         out.append(("unit_sun_h7_challenging", data.get("sun7") == "challenging", str(data.get("sun7"))))
         out.append(("unit_sun_h1_supportive", data.get("sun1") == "supportive", str(data.get("sun1"))))
-        out.append(("unit_unmapped_null", data.get("uranus5") is None, str(data.get("uranus5"))))
+        out.append(("unit_unmapped_null", data.get("pluto5") is None, str(data.get("pluto5"))))
     except Exception as exc:
         out.append(("unit_ontology", False, str(exc)[:120]))
     finally:
