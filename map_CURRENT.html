@@ -5264,6 +5264,146 @@ let currentDebugMetrics = {
     aspectResolution: "n/a"
 };
 
+
+/** M1-B: Overlay trust instrumentation — QA/Playwright hooks; not shown in normal UI. */
+const OVERLAY_TRUST_DOM = document.documentElement;
+
+const overlayTrustState = {
+    generation_mode: requestedGenerationMode,
+    truth_grid_resolution: 0.75,
+    truth_grid_boundary_refine: true,
+    boundary_refined: null,
+    renderer_substrate: ACTIVE_RENDERER_SUBSTRATE,
+    overlay_phase: "idle",
+    stage_name: "n/a",
+    stage_index: 0,
+    stage_total: 0,
+    aspect_overlay_status: "not requested",
+    final_complete: false,
+    render_token: null,
+    updated_at: null,
+};
+
+function emitOverlayTrustEvent(type, detail) {
+    try {
+        window.dispatchEvent(new CustomEvent(type, {
+            detail: Object.assign({}, overlayTrustState, detail || {}),
+        }));
+    } catch (e) { /* CustomEvent unsupported */ }
+}
+
+function deriveBoundaryRefinedSummary(displayData) {
+    const polys = (displayData && displayData.features || []).filter(
+        f => f.geometry && f.geometry.type === "Polygon"
+    );
+    if (!polys.length) return null;
+    const vals = polys.map(f => (f.properties || {}).boundary_refined);
+    const trues = vals.filter(v => v === true).length;
+    const falses = vals.filter(v => v === false).length;
+    if (trues && !falses) return true;
+    if (falses && !trues) return false;
+    return "mixed";
+}
+
+function publishOverlayTrust(patch) {
+    Object.assign(overlayTrustState, patch || {}, { updated_at: Date.now() });
+    window.__rmOverlayTrust = Object.freeze(Object.assign({}, overlayTrustState));
+
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-phase", overlayTrustState.overlay_phase);
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-stage", overlayTrustState.stage_name);
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-final", overlayTrustState.final_complete ? "true" : "false");
+    const ready = overlayTrustState.overlay_phase === "settling"
+        || overlayTrustState.overlay_phase === "final"
+        || (overlayTrustState.overlay_phase === "rendering" && overlayTrustState.stage_name === "houses_done");
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-ready", ready ? "true" : "false");
+
+    if (overlayTrustState.generation_mode === "contour") {
+        console.warn("[overlay-trust] contour generation_mode — archaeology path, not beta default");
+    }
+}
+
+function ingestOverlayTrustFromResponse(data, displayData, requestPayload) {
+    const props = (data && data.properties) || {};
+    const tg = props.truth_grid || {};
+    const mode = props.generation_mode || (requestPayload && requestPayload.generation_mode) || requestedGenerationMode;
+    publishOverlayTrust({
+        generation_mode: mode,
+        truth_grid_resolution: tg.resolution != null ? tg.resolution : ((requestPayload && requestPayload.truth_grid_resolution) || 0.75),
+        truth_grid_boundary_refine: tg.boundary_refine != null ? tg.boundary_refine : ((requestPayload && requestPayload.truth_grid_boundary_refine) !== false),
+        boundary_refined: deriveBoundaryRefinedSummary(displayData),
+        renderer_substrate: ACTIVE_RENDERER_SUBSTRATE,
+    });
+}
+
+function beginOverlayTrustRender(token, stageTotal, hasAspect) {
+    publishOverlayTrust({
+        overlay_phase: "rendering",
+        stage_name: "houses",
+        stage_index: 0,
+        stage_total: stageTotal,
+        aspect_overlay_status: hasAspect ? "pending" : "not requested",
+        final_complete: false,
+        render_token: token,
+    });
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-ready", "false");
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-final", "false");
+}
+
+function signalOverlayTrustHousesReady(token, settling) {
+    publishOverlayTrust({
+        overlay_phase: settling ? "settling" : "final",
+        stage_name: settling ? "pending_aspect" : "houses",
+        aspect_overlay_status: settling ? "settling" : "ready",
+        final_complete: !settling,
+    });
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-ready", "true");
+    emitOverlayTrustEvent("rm-overlay-ready", { token });
+    if (!settling) {
+        OVERLAY_TRUST_DOM.setAttribute("data-overlay-final", "true");
+        emitOverlayTrustEvent("rm-overlay-final", { token });
+    }
+}
+
+function signalOverlayTrustAspectStage(token, stage, stageIndex, stageTotal) {
+    const isFinal = stage.name === "final";
+    publishOverlayTrust({
+        overlay_phase: isFinal ? "final" : "settling",
+        stage_name: stage.name,
+        stage_index: stageIndex,
+        stage_total: stageTotal,
+        aspect_overlay_status: isFinal ? "ready" : "settling",
+        final_complete: isFinal,
+    });
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-stage", stage.name);
+    emitOverlayTrustEvent("rm-overlay-stage", {
+        token,
+        stage: stage.name,
+        stage_index: stageIndex,
+        stage_total: stageTotal,
+    });
+    if (isFinal) {
+        OVERLAY_TRUST_DOM.setAttribute("data-overlay-final", "true");
+        emitOverlayTrustEvent("rm-overlay-final", { token, stage: stage.name });
+    }
+}
+
+function resetOverlayTrustIdle() {
+    publishOverlayTrust({
+        overlay_phase: "idle",
+        stage_name: "n/a",
+        stage_index: 0,
+        stage_total: 0,
+        aspect_overlay_status: "not requested",
+        final_complete: false,
+        render_token: null,
+    });
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-ready", "false");
+    OVERLAY_TRUST_DOM.setAttribute("data-overlay-final", "false");
+}
+
+publishOverlayTrust({});
+
+
 const colors = ["#e8b923", "#e84665", "#2563eb"];
 
 function setRenderStatus(message) {
@@ -5284,6 +5424,13 @@ function renderDebugStatus() {
         <div><b>Aspect overlay:</b> ${currentDebugMetrics.aspectOverlayStatus}</div>
         <div><b>Overlay stage:</b> ${currentDebugMetrics.overlayStage}</div>
         <div><b>Aspect resolution:</b> ${currentDebugMetrics.aspectResolution}</div>
+        <div><b>Renderer substrate:</b> ${overlayTrustState.renderer_substrate}</div>
+        <div><b>Truth grid resolution:</b> ${overlayTrustState.truth_grid_resolution}</div>
+        <div><b>Boundary refine:</b> ${overlayTrustState.truth_grid_boundary_refine}</div>
+        <div><b>Boundary refined (features):</b> ${overlayTrustState.boundary_refined}</div>
+        <div><b>Overlay phase:</b> ${overlayTrustState.overlay_phase}</div>
+        <div><b>Stage:</b> ${overlayTrustState.stage_name} (${overlayTrustState.stage_index}/${overlayTrustState.stage_total})</div>
+        <div><b>Final complete:</b> ${overlayTrustState.final_complete}</div>
         <div><b>traceConditions:</b> ${traceConditions ? "on" : "off"}</div>
         <div><b>aspectAura:</b> ${aspectAuraMode ? "on" : "off"}</div>
         <div><b>debugAura:</b> ${debugAuraMode ? "on" : "off"}</div>`;
@@ -7143,7 +7290,7 @@ function isStagedContourAngleOverlay(aspectOverlay) {
 async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token) {
     const ang = aspectOverlay.angle || "ASC";
     setRenderStatus(`Calculating ${ang} overlay: ${stage.label}`);
-    currentDebugMetrics.aspectOverlayStatus = "refining";
+    currentDebugMetrics.aspectOverlayStatus = stage.name === "final" ? "rendering" : "settling";
     currentDebugMetrics.overlayStage = stage.name;
     currentDebugMetrics.aspectResolution = stage.aspect_resolution;
     renderDebugStatus();
@@ -7157,11 +7304,11 @@ async function renderSingleOverlayStage(basePayload, aspectOverlay, stage, token
         overlay_stage: stage.name
     });
 
-    if (token !== currentRenderToken) return false;
+    if (token !== currentRenderToken) { resetOverlayTrustIdle(); return false; }
 
     aspectLayer.clearLayers();
     renderAspectFeatures(prepareDisplayFeatures(aspectData));
-    updateAspectDebugStatus(aspectData, stage.name === "final" ? "ready" : "refining");
+    updateAspectDebugStatus(aspectData, stage.name === "final" ? "ready" : "settling");
     setRenderStatus(
         stage.name === "final"
             ? `${aspectOverlay.angle} overlay final ready`
@@ -8266,6 +8413,11 @@ async function executeSearchPlan(plan, meta = {}) {
         currentDebugMetrics.aspectResolution = "n/a";
         renderDebugStatus();
 
+        const aspectOverlay = plan.aspectOverlay || null;
+        const stagedAspect = aspectOverlay && isStagedContourAngleOverlay(aspectOverlay);
+        const aspectStageTotal = stagedAspect ? 3 : (aspectOverlay ? 1 : 0);
+        beginOverlayTrustRender(token, aspectStageTotal, Boolean(aspectOverlay));
+
         const birth = plan.birth;
         const basePayload = {
             birth_year: birth.birth_year,
@@ -8281,15 +8433,16 @@ async function executeSearchPlan(plan, meta = {}) {
         };
         lastEngineRequestPayload = JSON.parse(JSON.stringify(basePayload));
 
-        const aspectOverlay = plan.aspectOverlay || null;
         const data = await dispatchOverlayRequest(basePayload);
 
-        if (token !== currentRenderToken) return { token, cancelled: true };
+        if (token !== currentRenderToken) { resetOverlayTrustIdle(); return { token, cancelled: true }; }
 
         const displayData = prepareDisplayFeatures(data);
         lastDisplayFeatureCollection = displayData;
         renderHouseFeatures(displayData);
         updateDebugStatus(data, displayData, aspectOverlay ? "pending" : "not requested");
+        ingestOverlayTrustFromResponse(data, displayData, basePayload);
+        signalOverlayTrustHousesReady(token, Boolean(aspectOverlay));
         setRenderStatus(aspectOverlay ? "Calculating angular overlay…" : "House regions ready.");
         renderCities();
 
@@ -8300,9 +8453,11 @@ async function executeSearchPlan(plan, meta = {}) {
                     { name: "medium", label: "medium", aspect_resolution: 1.0 },
                     { name: "final", label: "final", aspect_resolution: 0.5 },
                 ];
-                for (const stage of stages) {
+                for (let si = 0; si < stages.length; si += 1) {
+                    const stage = stages[si];
                     const ok = await renderSingleOverlayStage(basePayload, aspectOverlay, stage, token);
-                    if (!ok) return { token, cancelled: true };
+                    if (!ok) { resetOverlayTrustIdle(); return { token, cancelled: true }; }
+                    signalOverlayTrustAspectStage(token, stage, si + 1, stages.length);
                 }
             } else {
                 const aspectData = await dispatchOverlayRequest({
@@ -8313,13 +8468,14 @@ async function executeSearchPlan(plan, meta = {}) {
                     aspect_resolution: 0.5,
                     overlay_stage: "final",
                 });
-                if (token !== currentRenderToken) return { token, cancelled: true };
+                if (token !== currentRenderToken) { resetOverlayTrustIdle(); return { token, cancelled: true }; }
                 aspectLayer.clearLayers();
                 renderAspectFeatures(prepareDisplayFeatures(aspectData));
                 if (isAuraPocOverlay(aspectOverlay)) {
                     lastAuraPocCenterlineCoords = extractAuraPocCenterlines(aspectData);
                 }
                 updateAspectDebugStatus(aspectData, "ready");
+                signalOverlayTrustAspectStage(token, { name: "final", label: "final" }, 1, 1);
                 if (
                     (useAdaptiveAura || debugProgressiveRevealMode)
                     && isAuraPocOverlay(aspectOverlay)
