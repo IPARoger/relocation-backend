@@ -1,0 +1,1560 @@
+{
+  "manifest_version": 1,
+  "task": "GL-3",
+  "date": "2026-06-27",
+  "default_theme_id": "refined",
+  "implementation_deferred": "GL-4",
+  "asset_standards": {
+    "viewBox": "0 0 24 24",
+    "padding_px": 2,
+    "optical_center": "12,12",
+    "baseline": "middle-aligned",
+    "scale_px": [
+      16,
+      20,
+      24,
+      32
+    ],
+    "naming": "{category}/{slug}.svg"
+  },
+  "themes": {
+    "default_theme": {
+      "id": "refined",
+      "label": "Refined",
+      "role": "default",
+      "voice": "Classical engraved planets/signs with restrained outline aspects",
+      "gl2_source": "refined",
+      "primary_package": "5019557-astrology",
+      "folder": "default_theme",
+      "symbols": {
+        "planets/sun": {
+          "label": "Sun",
+          "path": "default_theme/planets/sun.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Sun.svg"
+        },
+        "planets/moon": {
+          "label": "Moon",
+          "path": "default_theme/planets/moon.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Moon.svg"
+        },
+        "planets/mercury": {
+          "label": "Mercury",
+          "path": "default_theme/planets/mercury.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Mercury.svg"
+        },
+        "planets/venus": {
+          "label": "Venus",
+          "path": "default_theme/planets/venus.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Venus.svg"
+        },
+        "planets/mars": {
+          "label": "Mars",
+          "path": "default_theme/planets/mars.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Mars.svg"
+        },
+        "planets/jupiter": {
+          "label": "Jupiter",
+          "path": "default_theme/planets/jupiter.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Jupiter.svg"
+        },
+        "planets/saturn": {
+          "label": "Saturn",
+          "path": "default_theme/planets/saturn.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Saturn.svg"
+        },
+        "planets/uranus": {
+          "label": "Uranus",
+          "path": "default_theme/planets/uranus.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Uranus.svg"
+        },
+        "planets/neptune": {
+          "label": "Neptune",
+          "path": "default_theme/planets/neptune.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Neptune.svg"
+        },
+        "planets/pluto": {
+          "label": "Pluto",
+          "path": "default_theme/planets/pluto.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/planets/Pluto.svg"
+        },
+        "signs/aries": {
+          "label": "Aries",
+          "path": "default_theme/signs/aries.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Aries.svg"
+        },
+        "signs/taurus": {
+          "label": "Taurus",
+          "path": "default_theme/signs/taurus.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Taurus.svg"
+        },
+        "signs/gemini": {
+          "label": "Gemini",
+          "path": "default_theme/signs/gemini.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Gemini.svg"
+        },
+        "signs/cancer": {
+          "label": "Cancer",
+          "path": "default_theme/signs/cancer.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Cancer.svg"
+        },
+        "signs/leo": {
+          "label": "Leo",
+          "path": "default_theme/signs/leo.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Leo.svg"
+        },
+        "signs/virgo": {
+          "label": "Virgo",
+          "path": "default_theme/signs/virgo.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Virgo.svg"
+        },
+        "signs/libra": {
+          "label": "Libra",
+          "path": "default_theme/signs/libra.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Libra.svg"
+        },
+        "signs/scorpio": {
+          "label": "Scorpio",
+          "path": "default_theme/signs/scorpio.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Scorpio.svg"
+        },
+        "signs/sagittarius": {
+          "label": "Sagittarius",
+          "path": "default_theme/signs/sagittarius.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Sagittarius.svg"
+        },
+        "signs/capricorn": {
+          "label": "Capricorn",
+          "path": "default_theme/signs/capricorn.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Capricorn.svg"
+        },
+        "signs/aquarius": {
+          "label": "Aquarius",
+          "path": "default_theme/signs/aquarius.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Aquarius.svg"
+        },
+        "signs/pisces": {
+          "label": "Pisces",
+          "path": "default_theme/signs/pisces.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/signs/Pisces.svg"
+        },
+        "angles/asc": {
+          "label": "ASC",
+          "path": "default_theme/angles/asc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/mc": {
+          "label": "MC",
+          "path": "default_theme/angles/mc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/dsc": {
+          "label": "DSC",
+          "path": "default_theme/angles/dsc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/ic": {
+          "label": "IC",
+          "path": "default_theme/angles/ic.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/angles/IC.svg"
+        },
+        "aspects/conjunction": {
+          "label": "Conjunction",
+          "path": "default_theme/aspects/conjunction.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Conjunction.svg"
+        },
+        "aspects/opposition": {
+          "label": "Opposition",
+          "path": "default_theme/aspects/opposition.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Opposition.svg"
+        },
+        "aspects/square": {
+          "label": "Square",
+          "path": "default_theme/aspects/square.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Square.svg"
+        },
+        "aspects/trine": {
+          "label": "Trine",
+          "path": "default_theme/aspects/trine.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Trine.svg"
+        },
+        "aspects/sextile": {
+          "label": "Sextile",
+          "path": "default_theme/aspects/sextile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Sextile.svg"
+        },
+        "aspects/quincunx": {
+          "label": "Quincunx",
+          "path": "default_theme/aspects/quincunx.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Quincunx.svg"
+        },
+        "aspects/semi-square": {
+          "label": "Semi-square",
+          "path": "default_theme/aspects/semi-square.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Semi-square.svg"
+        },
+        "aspects/semi-sextile": {
+          "label": "Semi-sextile",
+          "path": "default_theme/aspects/semi-sextile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Semi-sextile.svg"
+        },
+        "aspects/sesquiquadrate": {
+          "label": "Sesquiquadrate",
+          "path": "default_theme/aspects/sesquiquadrate.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/quintile": {
+          "label": "Quintile",
+          "path": "default_theme/aspects/quintile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Quintile.svg"
+        },
+        "aspects/biquintile": {
+          "label": "Biquintile",
+          "path": "default_theme/aspects/biquintile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/aspects/Biquintile.svg"
+        },
+        "aspects/novile": {
+          "label": "Novile",
+          "path": "default_theme/aspects/novile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/septile": {
+          "label": "Septile",
+          "path": "default_theme/aspects/septile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/north-node": {
+          "label": "North Node",
+          "path": "default_theme/other/north-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/south-node": {
+          "label": "South Node",
+          "path": "default_theme/other/south-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/chiron": {
+          "label": "Chiron",
+          "path": "default_theme/other/chiron.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/refined/other/Chiron.svg"
+        },
+        "other/part-of-fortune": {
+          "label": "Part of Fortune",
+          "path": "default_theme/other/part-of-fortune.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/vertex": {
+          "label": "Vertex",
+          "path": "default_theme/other/vertex.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/lilith": {
+          "label": "Lilith",
+          "path": "default_theme/other/lilith.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/ceres": {
+          "label": "Ceres",
+          "path": "default_theme/other/ceres.svg",
+          "status": "production",
+          "source": "5019557-astrology:036-ceres.svg"
+        },
+        "other/pallas": {
+          "label": "Pallas",
+          "path": "default_theme/other/pallas.svg",
+          "status": "production",
+          "source": "5019557-astrology:037-pallas.svg"
+        },
+        "other/juno": {
+          "label": "Juno",
+          "path": "default_theme/other/juno.svg",
+          "status": "production",
+          "source": "5019557-astrology:038-juno.svg"
+        },
+        "other/vesta": {
+          "label": "Vesta",
+          "path": "default_theme/other/vesta.svg",
+          "status": "production",
+          "source": "5019557-astrology:039-vesta.svg"
+        }
+      },
+      "production_count": 38,
+      "needs_original_count": 11
+    },
+    "alternate_theme_1": {
+      "id": "classical",
+      "label": "Classical",
+      "role": "alternate",
+      "voice": "Filled engraved tradition",
+      "gl2_source": "classical",
+      "primary_package": "5019557-astrology",
+      "folder": "alternate_theme_1",
+      "symbols": {
+        "planets/sun": {
+          "label": "Sun",
+          "path": "alternate_theme_1/planets/sun.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Sun.svg"
+        },
+        "planets/moon": {
+          "label": "Moon",
+          "path": "alternate_theme_1/planets/moon.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Moon.svg"
+        },
+        "planets/mercury": {
+          "label": "Mercury",
+          "path": "alternate_theme_1/planets/mercury.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Mercury.svg"
+        },
+        "planets/venus": {
+          "label": "Venus",
+          "path": "alternate_theme_1/planets/venus.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Venus.svg"
+        },
+        "planets/mars": {
+          "label": "Mars",
+          "path": "alternate_theme_1/planets/mars.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Mars.svg"
+        },
+        "planets/jupiter": {
+          "label": "Jupiter",
+          "path": "alternate_theme_1/planets/jupiter.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Jupiter.svg"
+        },
+        "planets/saturn": {
+          "label": "Saturn",
+          "path": "alternate_theme_1/planets/saturn.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Saturn.svg"
+        },
+        "planets/uranus": {
+          "label": "Uranus",
+          "path": "alternate_theme_1/planets/uranus.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Uranus.svg"
+        },
+        "planets/neptune": {
+          "label": "Neptune",
+          "path": "alternate_theme_1/planets/neptune.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Neptune.svg"
+        },
+        "planets/pluto": {
+          "label": "Pluto",
+          "path": "alternate_theme_1/planets/pluto.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/planets/Pluto.svg"
+        },
+        "signs/aries": {
+          "label": "Aries",
+          "path": "alternate_theme_1/signs/aries.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Aries.svg"
+        },
+        "signs/taurus": {
+          "label": "Taurus",
+          "path": "alternate_theme_1/signs/taurus.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Taurus.svg"
+        },
+        "signs/gemini": {
+          "label": "Gemini",
+          "path": "alternate_theme_1/signs/gemini.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Gemini.svg"
+        },
+        "signs/cancer": {
+          "label": "Cancer",
+          "path": "alternate_theme_1/signs/cancer.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Cancer.svg"
+        },
+        "signs/leo": {
+          "label": "Leo",
+          "path": "alternate_theme_1/signs/leo.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Leo.svg"
+        },
+        "signs/virgo": {
+          "label": "Virgo",
+          "path": "alternate_theme_1/signs/virgo.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Virgo.svg"
+        },
+        "signs/libra": {
+          "label": "Libra",
+          "path": "alternate_theme_1/signs/libra.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Libra.svg"
+        },
+        "signs/scorpio": {
+          "label": "Scorpio",
+          "path": "alternate_theme_1/signs/scorpio.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Scorpio.svg"
+        },
+        "signs/sagittarius": {
+          "label": "Sagittarius",
+          "path": "alternate_theme_1/signs/sagittarius.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Sagittarius.svg"
+        },
+        "signs/capricorn": {
+          "label": "Capricorn",
+          "path": "alternate_theme_1/signs/capricorn.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Capricorn.svg"
+        },
+        "signs/aquarius": {
+          "label": "Aquarius",
+          "path": "alternate_theme_1/signs/aquarius.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Aquarius.svg"
+        },
+        "signs/pisces": {
+          "label": "Pisces",
+          "path": "alternate_theme_1/signs/pisces.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/signs/Pisces.svg"
+        },
+        "angles/asc": {
+          "label": "ASC",
+          "path": "alternate_theme_1/angles/asc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/mc": {
+          "label": "MC",
+          "path": "alternate_theme_1/angles/mc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/dsc": {
+          "label": "DSC",
+          "path": "alternate_theme_1/angles/dsc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/ic": {
+          "label": "IC",
+          "path": "alternate_theme_1/angles/ic.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/angles/IC.svg"
+        },
+        "aspects/conjunction": {
+          "label": "Conjunction",
+          "path": "alternate_theme_1/aspects/conjunction.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Conjunction.svg"
+        },
+        "aspects/opposition": {
+          "label": "Opposition",
+          "path": "alternate_theme_1/aspects/opposition.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Opposition.svg"
+        },
+        "aspects/square": {
+          "label": "Square",
+          "path": "alternate_theme_1/aspects/square.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Square.svg"
+        },
+        "aspects/trine": {
+          "label": "Trine",
+          "path": "alternate_theme_1/aspects/trine.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Trine.svg"
+        },
+        "aspects/sextile": {
+          "label": "Sextile",
+          "path": "alternate_theme_1/aspects/sextile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Sextile.svg"
+        },
+        "aspects/quincunx": {
+          "label": "Quincunx",
+          "path": "alternate_theme_1/aspects/quincunx.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Quincunx.svg"
+        },
+        "aspects/semi-square": {
+          "label": "Semi-square",
+          "path": "alternate_theme_1/aspects/semi-square.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Semi-square.svg"
+        },
+        "aspects/semi-sextile": {
+          "label": "Semi-sextile",
+          "path": "alternate_theme_1/aspects/semi-sextile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Semi-sextile.svg"
+        },
+        "aspects/sesquiquadrate": {
+          "label": "Sesquiquadrate",
+          "path": "alternate_theme_1/aspects/sesquiquadrate.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/quintile": {
+          "label": "Quintile",
+          "path": "alternate_theme_1/aspects/quintile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Quintile.svg"
+        },
+        "aspects/biquintile": {
+          "label": "Biquintile",
+          "path": "alternate_theme_1/aspects/biquintile.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/aspects/Biquintile.svg"
+        },
+        "aspects/novile": {
+          "label": "Novile",
+          "path": "alternate_theme_1/aspects/novile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/septile": {
+          "label": "Septile",
+          "path": "alternate_theme_1/aspects/septile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/north-node": {
+          "label": "North Node",
+          "path": "alternate_theme_1/other/north-node.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/other/North_Node.svg"
+        },
+        "other/south-node": {
+          "label": "South Node",
+          "path": "alternate_theme_1/other/south-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/chiron": {
+          "label": "Chiron",
+          "path": "alternate_theme_1/other/chiron.svg",
+          "status": "production",
+          "source": "validation/glyph_catalog/gl2_workshop/normalized/classical/other/Chiron.svg"
+        },
+        "other/part-of-fortune": {
+          "label": "Part of Fortune",
+          "path": "alternate_theme_1/other/part-of-fortune.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/vertex": {
+          "label": "Vertex",
+          "path": "alternate_theme_1/other/vertex.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/lilith": {
+          "label": "Lilith",
+          "path": "alternate_theme_1/other/lilith.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/ceres": {
+          "label": "Ceres",
+          "path": "alternate_theme_1/other/ceres.svg",
+          "status": "production",
+          "source": "5019557-astrology:036-ceres.svg"
+        },
+        "other/pallas": {
+          "label": "Pallas",
+          "path": "alternate_theme_1/other/pallas.svg",
+          "status": "production",
+          "source": "5019557-astrology:037-pallas.svg"
+        },
+        "other/juno": {
+          "label": "Juno",
+          "path": "alternate_theme_1/other/juno.svg",
+          "status": "production",
+          "source": "5019557-astrology:038-juno.svg"
+        },
+        "other/vesta": {
+          "label": "Vesta",
+          "path": "alternate_theme_1/other/vesta.svg",
+          "status": "production",
+          "source": "5019557-astrology:039-vesta.svg"
+        }
+      },
+      "production_count": 39,
+      "needs_original_count": 10
+    },
+    "alternate_theme_2": {
+      "id": "technical",
+      "label": "Technical",
+      "role": "alternate",
+      "voice": "Swiss AstroDotBasic",
+      "gl2_source": "technical",
+      "primary_package": "astrodotbasic",
+      "font_reference": "extracted/astrodotbasic/AstroDotBasic.ttf",
+      "folder": "alternate_theme_2",
+      "symbols": {
+        "planets/sun": {
+          "label": "Sun",
+          "path": "alternate_theme_2/planets/sun.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:A"
+        },
+        "planets/moon": {
+          "label": "Moon",
+          "path": "alternate_theme_2/planets/moon.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:B"
+        },
+        "planets/mercury": {
+          "label": "Mercury",
+          "path": "alternate_theme_2/planets/mercury.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:C"
+        },
+        "planets/venus": {
+          "label": "Venus",
+          "path": "alternate_theme_2/planets/venus.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:D"
+        },
+        "planets/mars": {
+          "label": "Mars",
+          "path": "alternate_theme_2/planets/mars.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:E"
+        },
+        "planets/jupiter": {
+          "label": "Jupiter",
+          "path": "alternate_theme_2/planets/jupiter.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:F"
+        },
+        "planets/saturn": {
+          "label": "Saturn",
+          "path": "alternate_theme_2/planets/saturn.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:G"
+        },
+        "planets/uranus": {
+          "label": "Uranus",
+          "path": "alternate_theme_2/planets/uranus.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:H"
+        },
+        "planets/neptune": {
+          "label": "Neptune",
+          "path": "alternate_theme_2/planets/neptune.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:I"
+        },
+        "planets/pluto": {
+          "label": "Pluto",
+          "path": "alternate_theme_2/planets/pluto.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:J"
+        },
+        "signs/aries": {
+          "label": "Aries",
+          "path": "alternate_theme_2/signs/aries.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:a"
+        },
+        "signs/taurus": {
+          "label": "Taurus",
+          "path": "alternate_theme_2/signs/taurus.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:b"
+        },
+        "signs/gemini": {
+          "label": "Gemini",
+          "path": "alternate_theme_2/signs/gemini.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:c"
+        },
+        "signs/cancer": {
+          "label": "Cancer",
+          "path": "alternate_theme_2/signs/cancer.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:d"
+        },
+        "signs/leo": {
+          "label": "Leo",
+          "path": "alternate_theme_2/signs/leo.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:e"
+        },
+        "signs/virgo": {
+          "label": "Virgo",
+          "path": "alternate_theme_2/signs/virgo.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:f"
+        },
+        "signs/libra": {
+          "label": "Libra",
+          "path": "alternate_theme_2/signs/libra.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:g"
+        },
+        "signs/scorpio": {
+          "label": "Scorpio",
+          "path": "alternate_theme_2/signs/scorpio.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:h"
+        },
+        "signs/sagittarius": {
+          "label": "Sagittarius",
+          "path": "alternate_theme_2/signs/sagittarius.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:i"
+        },
+        "signs/capricorn": {
+          "label": "Capricorn",
+          "path": "alternate_theme_2/signs/capricorn.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:j"
+        },
+        "signs/aquarius": {
+          "label": "Aquarius",
+          "path": "alternate_theme_2/signs/aquarius.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:k"
+        },
+        "signs/pisces": {
+          "label": "Pisces",
+          "path": "alternate_theme_2/signs/pisces.svg",
+          "status": "production_reference",
+          "source": "font:AstroDotBasic:l"
+        },
+        "angles/asc": {
+          "label": "ASC",
+          "path": "alternate_theme_2/angles/asc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/mc": {
+          "label": "MC",
+          "path": "alternate_theme_2/angles/mc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/dsc": {
+          "label": "DSC",
+          "path": "alternate_theme_2/angles/dsc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/ic": {
+          "label": "IC",
+          "path": "alternate_theme_2/angles/ic.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/conjunction": {
+          "label": "Conjunction",
+          "path": "alternate_theme_2/aspects/conjunction.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/opposition": {
+          "label": "Opposition",
+          "path": "alternate_theme_2/aspects/opposition.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/square": {
+          "label": "Square",
+          "path": "alternate_theme_2/aspects/square.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/trine": {
+          "label": "Trine",
+          "path": "alternate_theme_2/aspects/trine.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/sextile": {
+          "label": "Sextile",
+          "path": "alternate_theme_2/aspects/sextile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/quincunx": {
+          "label": "Quincunx",
+          "path": "alternate_theme_2/aspects/quincunx.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/semi-square": {
+          "label": "Semi-square",
+          "path": "alternate_theme_2/aspects/semi-square.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/semi-sextile": {
+          "label": "Semi-sextile",
+          "path": "alternate_theme_2/aspects/semi-sextile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/sesquiquadrate": {
+          "label": "Sesquiquadrate",
+          "path": "alternate_theme_2/aspects/sesquiquadrate.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/quintile": {
+          "label": "Quintile",
+          "path": "alternate_theme_2/aspects/quintile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/biquintile": {
+          "label": "Biquintile",
+          "path": "alternate_theme_2/aspects/biquintile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/novile": {
+          "label": "Novile",
+          "path": "alternate_theme_2/aspects/novile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/septile": {
+          "label": "Septile",
+          "path": "alternate_theme_2/aspects/septile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/north-node": {
+          "label": "North Node",
+          "path": "alternate_theme_2/other/north-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/south-node": {
+          "label": "South Node",
+          "path": "alternate_theme_2/other/south-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/chiron": {
+          "label": "Chiron",
+          "path": "alternate_theme_2/other/chiron.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/part-of-fortune": {
+          "label": "Part of Fortune",
+          "path": "alternate_theme_2/other/part-of-fortune.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/vertex": {
+          "label": "Vertex",
+          "path": "alternate_theme_2/other/vertex.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/lilith": {
+          "label": "Lilith",
+          "path": "alternate_theme_2/other/lilith.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/ceres": {
+          "label": "Ceres",
+          "path": "alternate_theme_2/other/ceres.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/pallas": {
+          "label": "Pallas",
+          "path": "alternate_theme_2/other/pallas.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/juno": {
+          "label": "Juno",
+          "path": "alternate_theme_2/other/juno.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/vesta": {
+          "label": "Vesta",
+          "path": "alternate_theme_2/other/vesta.svg",
+          "status": "needs_matching_original",
+          "source": null
+        }
+      },
+      "production_count": 22,
+      "needs_original_count": 27
+    },
+    "alternate_theme_3": {
+      "id": "engraved",
+      "label": "Engraved Light",
+      "role": "alternate",
+      "voice": "636915 lighter classical",
+      "gl2_source": "classical",
+      "primary_package": "636915-astrology",
+      "override_package": "636915-astrology",
+      "folder": "alternate_theme_3",
+      "symbols": {
+        "planets/sun": {
+          "label": "Sun",
+          "path": "alternate_theme_3/planets/sun.svg",
+          "status": "production",
+          "source": "636915-astrology:043-sun.svg"
+        },
+        "planets/moon": {
+          "label": "Moon",
+          "path": "alternate_theme_3/planets/moon.svg",
+          "status": "production",
+          "source": "636915-astrology:005-new-moon.svg"
+        },
+        "planets/mercury": {
+          "label": "Mercury",
+          "path": "alternate_theme_3/planets/mercury.svg",
+          "status": "production",
+          "source": "636915-astrology:040-mercury.svg"
+        },
+        "planets/venus": {
+          "label": "Venus",
+          "path": "alternate_theme_3/planets/venus.svg",
+          "status": "production",
+          "source": "636915-astrology:039-venus.svg"
+        },
+        "planets/mars": {
+          "label": "Mars",
+          "path": "alternate_theme_3/planets/mars.svg",
+          "status": "production",
+          "source": "636915-astrology:038-mars.svg"
+        },
+        "planets/jupiter": {
+          "label": "Jupiter",
+          "path": "alternate_theme_3/planets/jupiter.svg",
+          "status": "production",
+          "source": "636915-astrology:037-jupiter.svg"
+        },
+        "planets/saturn": {
+          "label": "Saturn",
+          "path": "alternate_theme_3/planets/saturn.svg",
+          "status": "production",
+          "source": "636915-astrology:036-saturn.svg"
+        },
+        "planets/uranus": {
+          "label": "Uranus",
+          "path": "alternate_theme_3/planets/uranus.svg",
+          "status": "production",
+          "source": "636915-astrology:034-uranus-1.svg"
+        },
+        "planets/neptune": {
+          "label": "Neptune",
+          "path": "alternate_theme_3/planets/neptune.svg",
+          "status": "production",
+          "source": "636915-astrology:033-neptune.svg"
+        },
+        "planets/pluto": {
+          "label": "Pluto",
+          "path": "alternate_theme_3/planets/pluto.svg",
+          "status": "production",
+          "source": "636915-astrology:031-pluto-1.svg"
+        },
+        "signs/aries": {
+          "label": "Aries",
+          "path": "alternate_theme_3/signs/aries.svg",
+          "status": "production",
+          "source": "636915-astrology:056-aries.svg"
+        },
+        "signs/taurus": {
+          "label": "Taurus",
+          "path": "alternate_theme_3/signs/taurus.svg",
+          "status": "production",
+          "source": "636915-astrology:055-taurus.svg"
+        },
+        "signs/gemini": {
+          "label": "Gemini",
+          "path": "alternate_theme_3/signs/gemini.svg",
+          "status": "production",
+          "source": "636915-astrology:054-gemini.svg"
+        },
+        "signs/cancer": {
+          "label": "Cancer",
+          "path": "alternate_theme_3/signs/cancer.svg",
+          "status": "production",
+          "source": "636915-astrology:053-cancer.svg"
+        },
+        "signs/leo": {
+          "label": "Leo",
+          "path": "alternate_theme_3/signs/leo.svg",
+          "status": "production",
+          "source": "636915-astrology:052-leo.svg"
+        },
+        "signs/virgo": {
+          "label": "Virgo",
+          "path": "alternate_theme_3/signs/virgo.svg",
+          "status": "production",
+          "source": "636915-astrology:051-virgo.svg"
+        },
+        "signs/libra": {
+          "label": "Libra",
+          "path": "alternate_theme_3/signs/libra.svg",
+          "status": "production",
+          "source": "636915-astrology:050-libra.svg"
+        },
+        "signs/scorpio": {
+          "label": "Scorpio",
+          "path": "alternate_theme_3/signs/scorpio.svg",
+          "status": "production",
+          "source": "636915-astrology:049-scorpio.svg"
+        },
+        "signs/sagittarius": {
+          "label": "Sagittarius",
+          "path": "alternate_theme_3/signs/sagittarius.svg",
+          "status": "production",
+          "source": "636915-astrology:047-sagittarius.svg"
+        },
+        "signs/capricorn": {
+          "label": "Capricorn",
+          "path": "alternate_theme_3/signs/capricorn.svg",
+          "status": "production",
+          "source": "636915-astrology:046-capricorn.svg"
+        },
+        "signs/aquarius": {
+          "label": "Aquarius",
+          "path": "alternate_theme_3/signs/aquarius.svg",
+          "status": "production",
+          "source": "636915-astrology:045-aquarius.svg"
+        },
+        "signs/pisces": {
+          "label": "Pisces",
+          "path": "alternate_theme_3/signs/pisces.svg",
+          "status": "production",
+          "source": "636915-astrology:044-pisces.svg"
+        },
+        "angles/asc": {
+          "label": "ASC",
+          "path": "alternate_theme_3/angles/asc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/mc": {
+          "label": "MC",
+          "path": "alternate_theme_3/angles/mc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/dsc": {
+          "label": "DSC",
+          "path": "alternate_theme_3/angles/dsc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/ic": {
+          "label": "IC",
+          "path": "alternate_theme_3/angles/ic.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/conjunction": {
+          "label": "Conjunction",
+          "path": "alternate_theme_3/aspects/conjunction.svg",
+          "status": "production",
+          "source": "636915-astrology:004-conjuction.svg"
+        },
+        "aspects/opposition": {
+          "label": "Opposition",
+          "path": "alternate_theme_3/aspects/opposition.svg",
+          "status": "production",
+          "source": "636915-astrology:003-opposition.svg"
+        },
+        "aspects/square": {
+          "label": "Square",
+          "path": "alternate_theme_3/aspects/square.svg",
+          "status": "production",
+          "source": "636915-astrology:002-square.svg"
+        },
+        "aspects/trine": {
+          "label": "Trine",
+          "path": "alternate_theme_3/aspects/trine.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/sextile": {
+          "label": "Sextile",
+          "path": "alternate_theme_3/aspects/sextile.svg",
+          "status": "production",
+          "source": "636915-astrology:001-sextile.svg"
+        },
+        "aspects/quincunx": {
+          "label": "Quincunx",
+          "path": "alternate_theme_3/aspects/quincunx.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/semi-square": {
+          "label": "Semi-square",
+          "path": "alternate_theme_3/aspects/semi-square.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/semi-sextile": {
+          "label": "Semi-sextile",
+          "path": "alternate_theme_3/aspects/semi-sextile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/sesquiquadrate": {
+          "label": "Sesquiquadrate",
+          "path": "alternate_theme_3/aspects/sesquiquadrate.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/quintile": {
+          "label": "Quintile",
+          "path": "alternate_theme_3/aspects/quintile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/biquintile": {
+          "label": "Biquintile",
+          "path": "alternate_theme_3/aspects/biquintile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/novile": {
+          "label": "Novile",
+          "path": "alternate_theme_3/aspects/novile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/septile": {
+          "label": "Septile",
+          "path": "alternate_theme_3/aspects/septile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/north-node": {
+          "label": "North Node",
+          "path": "alternate_theme_3/other/north-node.svg",
+          "status": "production",
+          "source": "636915-astrology:017-north-node.svg"
+        },
+        "other/south-node": {
+          "label": "South Node",
+          "path": "alternate_theme_3/other/south-node.svg",
+          "status": "production",
+          "source": "636915-astrology:018-south-node.svg"
+        },
+        "other/chiron": {
+          "label": "Chiron",
+          "path": "alternate_theme_3/other/chiron.svg",
+          "status": "production",
+          "source": "636915-astrology:024-chiron.svg"
+        },
+        "other/part-of-fortune": {
+          "label": "Part of Fortune",
+          "path": "alternate_theme_3/other/part-of-fortune.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/vertex": {
+          "label": "Vertex",
+          "path": "alternate_theme_3/other/vertex.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/lilith": {
+          "label": "Lilith",
+          "path": "alternate_theme_3/other/lilith.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/ceres": {
+          "label": "Ceres",
+          "path": "alternate_theme_3/other/ceres.svg",
+          "status": "production",
+          "source": "636915-astrology:023-ceres.svg"
+        },
+        "other/pallas": {
+          "label": "Pallas",
+          "path": "alternate_theme_3/other/pallas.svg",
+          "status": "production",
+          "source": "636915-astrology:021-pallas.svg"
+        },
+        "other/juno": {
+          "label": "Juno",
+          "path": "alternate_theme_3/other/juno.svg",
+          "status": "production",
+          "source": "636915-astrology:022-juno.svg"
+        },
+        "other/vesta": {
+          "label": "Vesta",
+          "path": "alternate_theme_3/other/vesta.svg",
+          "status": "production",
+          "source": "636915-astrology:020-vesta.svg"
+        }
+      },
+      "production_count": 33,
+      "needs_original_count": 16
+    },
+    "alternate_theme_4": {
+      "id": "linear",
+      "label": "Linear",
+      "role": "alternate",
+      "voice": "16028722 hairline outline",
+      "gl2_source": "refined",
+      "primary_package": "16028722-astrology-outline",
+      "override_package": "16028722-astrology-outline",
+      "folder": "alternate_theme_4",
+      "symbols": {
+        "planets/sun": {
+          "label": "Sun",
+          "path": "alternate_theme_4/planets/sun.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/moon": {
+          "label": "Moon",
+          "path": "alternate_theme_4/planets/moon.svg",
+          "status": "production",
+          "source": "16028722-astrology-outline:034-moon.svg"
+        },
+        "planets/mercury": {
+          "label": "Mercury",
+          "path": "alternate_theme_4/planets/mercury.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/venus": {
+          "label": "Venus",
+          "path": "alternate_theme_4/planets/venus.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/mars": {
+          "label": "Mars",
+          "path": "alternate_theme_4/planets/mars.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/jupiter": {
+          "label": "Jupiter",
+          "path": "alternate_theme_4/planets/jupiter.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/saturn": {
+          "label": "Saturn",
+          "path": "alternate_theme_4/planets/saturn.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/uranus": {
+          "label": "Uranus",
+          "path": "alternate_theme_4/planets/uranus.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/neptune": {
+          "label": "Neptune",
+          "path": "alternate_theme_4/planets/neptune.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "planets/pluto": {
+          "label": "Pluto",
+          "path": "alternate_theme_4/planets/pluto.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/aries": {
+          "label": "Aries",
+          "path": "alternate_theme_4/signs/aries.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/taurus": {
+          "label": "Taurus",
+          "path": "alternate_theme_4/signs/taurus.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/gemini": {
+          "label": "Gemini",
+          "path": "alternate_theme_4/signs/gemini.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/cancer": {
+          "label": "Cancer",
+          "path": "alternate_theme_4/signs/cancer.svg",
+          "status": "production",
+          "source": "16028722-astrology-outline:004-cancer.svg"
+        },
+        "signs/leo": {
+          "label": "Leo",
+          "path": "alternate_theme_4/signs/leo.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/virgo": {
+          "label": "Virgo",
+          "path": "alternate_theme_4/signs/virgo.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/libra": {
+          "label": "Libra",
+          "path": "alternate_theme_4/signs/libra.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/scorpio": {
+          "label": "Scorpio",
+          "path": "alternate_theme_4/signs/scorpio.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/sagittarius": {
+          "label": "Sagittarius",
+          "path": "alternate_theme_4/signs/sagittarius.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/capricorn": {
+          "label": "Capricorn",
+          "path": "alternate_theme_4/signs/capricorn.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/aquarius": {
+          "label": "Aquarius",
+          "path": "alternate_theme_4/signs/aquarius.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "signs/pisces": {
+          "label": "Pisces",
+          "path": "alternate_theme_4/signs/pisces.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "angles/asc": {
+          "label": "ASC",
+          "path": "alternate_theme_4/angles/asc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/mc": {
+          "label": "MC",
+          "path": "alternate_theme_4/angles/mc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/dsc": {
+          "label": "DSC",
+          "path": "alternate_theme_4/angles/dsc.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "angles/ic": {
+          "label": "IC",
+          "path": "alternate_theme_4/angles/ic.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/conjunction": {
+          "label": "Conjunction",
+          "path": "alternate_theme_4/aspects/conjunction.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/opposition": {
+          "label": "Opposition",
+          "path": "alternate_theme_4/aspects/opposition.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/square": {
+          "label": "Square",
+          "path": "alternate_theme_4/aspects/square.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/trine": {
+          "label": "Trine",
+          "path": "alternate_theme_4/aspects/trine.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/sextile": {
+          "label": "Sextile",
+          "path": "alternate_theme_4/aspects/sextile.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/quincunx": {
+          "label": "Quincunx",
+          "path": "alternate_theme_4/aspects/quincunx.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/semi-square": {
+          "label": "Semi-square",
+          "path": "alternate_theme_4/aspects/semi-square.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/semi-sextile": {
+          "label": "Semi-sextile",
+          "path": "alternate_theme_4/aspects/semi-sextile.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/sesquiquadrate": {
+          "label": "Sesquiquadrate",
+          "path": "alternate_theme_4/aspects/sesquiquadrate.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/quintile": {
+          "label": "Quintile",
+          "path": "alternate_theme_4/aspects/quintile.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/biquintile": {
+          "label": "Biquintile",
+          "path": "alternate_theme_4/aspects/biquintile.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "aspects/novile": {
+          "label": "Novile",
+          "path": "alternate_theme_4/aspects/novile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "aspects/septile": {
+          "label": "Septile",
+          "path": "alternate_theme_4/aspects/septile.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/north-node": {
+          "label": "North Node",
+          "path": "alternate_theme_4/other/north-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/south-node": {
+          "label": "South Node",
+          "path": "alternate_theme_4/other/south-node.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/chiron": {
+          "label": "Chiron",
+          "path": "alternate_theme_4/other/chiron.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "other/part-of-fortune": {
+          "label": "Part of Fortune",
+          "path": "alternate_theme_4/other/part-of-fortune.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/vertex": {
+          "label": "Vertex",
+          "path": "alternate_theme_4/other/vertex.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/lilith": {
+          "label": "Lilith",
+          "path": "alternate_theme_4/other/lilith.svg",
+          "status": "needs_matching_original",
+          "source": null
+        },
+        "other/ceres": {
+          "label": "Ceres",
+          "path": "alternate_theme_4/other/ceres.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "other/pallas": {
+          "label": "Pallas",
+          "path": "alternate_theme_4/other/pallas.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "other/juno": {
+          "label": "Juno",
+          "path": "alternate_theme_4/other/juno.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        },
+        "other/vesta": {
+          "label": "Vesta",
+          "path": "alternate_theme_4/other/vesta.svg",
+          "status": "production",
+          "source": "5019557 fallback"
+        }
+      },
+      "production_count": 37,
+      "needs_original_count": 12
+    }
+  }
+}

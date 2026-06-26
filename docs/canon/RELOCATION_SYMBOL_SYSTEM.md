@@ -351,3 +351,74 @@ Full matrix: [score_matrix.html](../validation/glyph_catalog/gl2_workshop/compar
 **GL-3** — Side-by-side stroke audit of shortlist at production CSS sizes; commission brief for Technical aspect companion or Refined angle set.
 
 *GL-2 complete. No implementation. No wiring.*
+
+---
+
+## GL-3 — Final Selection (2026-06-27)
+
+**Mode:** Design curation + asset preparation — **no production wiring**.  
+**Workshop:** [validation/glyph_catalog/gl3_final_selection/](../validation/glyph_catalog/gl3_final_selection/)  
+**Doctrine:** [PERIPHERAL_LEGIBILITY_DOCTRINE.md](PERIPHERAL_LEGIBILITY_DOCTRINE.md)  
+**Implementation deferred to GL-4.**
+
+### V1 Symbol System
+
+| Role | Theme ID | Folder | Production | Needs original |
+|------|----------|--------|:----------:|:--------------:|
+| **Default** | `refined` | `default_theme/` | 38 | 11 |
+| Alternate 1 | `classical` | `alternate_theme_1/` | 39 | 10 |
+| Alternate 2 | `technical` | `alternate_theme_2/` | 22 | 27 |
+| Alternate 3 | `engraved` | `alternate_theme_3/` | 33 | 16 |
+| Alternate 4 | `linear` | `alternate_theme_4/` | 37 | 12 |
+
+All five themes are **related voices** within the Relocation instrument — classical/technical family, not separate products.
+
+### Default: Refined
+
+Selected for V1 default because it best matches peripheral legibility doctrine: traditional with an artistic bent, restrained, premium, disappears when not examined. Classical engraved planets and signs from `5019557-astrology` with outline aspect treatment.
+
+### Alternates (user taste, same identity)
+
+1. **Classical** — filled engraved; strongest native aspect coverage  
+2. **Technical** — AstroDotBasic Swiss density; continuity with partial production  
+3. **Engraved Light** — `636915-astrology` lighter classical sibling  
+4. **Linear** — `16028722-astrology-outline` hairline; thinnest peripheral weight  
+
+### Rejected from V1 set
+
+Heritage (Symbola fracture), Contemporary (trendy/expressive), brush/calligraphic/esoteric ornamental families — per GL-1/GL-2.
+
+### Asset standards (all themes)
+
+| Property | Value |
+|----------|-------|
+| viewBox | `0 0 24 24` |
+| Padding | 2px |
+| Optical center | 12, 12 |
+| Scale review | 16 / 20 / 24 / 32 px + 2× Retina |
+| Naming | `{category}/{slug}.svg` |
+| Path | `gl3_final_selection/{theme_folder}/{category}/{slug}.svg` |
+| Missing glyphs | `data-status="needs_matching_original"` — dashed TBD cell, **not** Unicode substitute |
+
+Vendor font binaries stay in `Fonts and Glyphs/` / `extracted/` — GL-3 ships SVG derivatives and references only.
+
+### Missing symbol plan
+
+Angles (ASC/MC/DSC/IC) require **matching originals** across all themes — acceptable commission work.  
+See [missing_originals_brief.md](../validation/glyph_catalog/gl3_final_selection/missing_originals_brief.md).
+
+No weak substitutes were used to fake completeness.
+
+### Implementation notes (GL-4 scope)
+
+- Wire `implementation_manifest.json` into glyph registry  
+- Replace `needs_matching_original` SVGs as commissions complete  
+- Settings theme picker: default + four alternates  
+- Do **not** mix theme families within a single render surface  
+
+### Validation
+
+`scripts/smoke_gl3_symbol_selection.py` — 106 static checks (folders, manifest, categories, missing markers, no emoji/unicode substitutes, no font binaries in gl3).
+
+*GL-3 complete. Production wiring explicitly deferred to GL-4.*
+

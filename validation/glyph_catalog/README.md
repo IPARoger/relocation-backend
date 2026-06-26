@@ -23,6 +23,10 @@ Open in a browser:
 - [Angles](contact_sheets/angles.html)
 - [Other](contact_sheets/others.html)
 
+## GL-3 Final Selection
+
+[gl3_final_selection/](gl3_final_selection/) — V1 default (Refined) + 4 alternates. GL-4 implements.
+
 ## GL-2 Workshop
 
 [gl2_workshop/](gl2_workshop/) — five candidate Symbol Themes, normalized comparison, context mockups.
