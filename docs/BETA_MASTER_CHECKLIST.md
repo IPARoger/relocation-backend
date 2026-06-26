@@ -264,6 +264,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
+✓ S5 Glyph library (Appearance glyph variants)     ([278](../results/278_s5_glyph_library_implementation.md))
 ✓ S0 Settings truth matrix ([274_settings_truth_matrix](../results/274_settings_truth_matrix.md))
 ✓ S4 Appearance palettes (Settings)          ([277](../results/277_s4_appearance_implementation.md))
 ✓ S1 Saved object management (Settings My Data)     ([274_s1](../results/274_s1_saved_object_management_implementation.md) · [canon](canon/SAVED_OBJECTS_PRODUCT_CANON.md))

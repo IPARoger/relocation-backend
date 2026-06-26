@@ -114,6 +114,11 @@ def get_effective_settings(stored_user_settings=None, ontology_defaults=None):
         "dignity_palette": pick("dignity_palette") or RM_APPEARANCE_DEFAULTS.get("dignity_palette", "optimistic-soft"),
         "chart_palette": pick("chart_palette") or RM_APPEARANCE_DEFAULTS.get("chart_palette", "optimistic-primary"),
         "inner_glow_palette": pick("inner_glow_palette") or RM_APPEARANCE_DEFAULTS.get("inner_glow_palette", "micro-green"),
+        "glyph_selections": (
+            stored.get("glyph_selections")
+            or onto.get("glyph_selections")
+            or deepcopy(RM_SETTINGS_DEFAULTS.get("glyph_selections", {}))
+        ),
     }
 
 def exact_aspect_threshold_deg(effective_settings: dict) -> float:

@@ -1,0 +1,86 @@
+{
+  "registry_version": 1,
+  "entities": {
+    "mars": {
+      "kind": "planet",
+      "entity_id": "Mars",
+      "label": "Mars",
+      "default_variant": "standard",
+      "variants": {
+        "standard": {
+          "label": "Standard arrow",
+          "asset_status": "production",
+          "font_family": "AstroDotBasic",
+          "char": "E"
+        },
+        "venus_inverted": {
+          "label": "Inverted Venus",
+          "asset_status": "production",
+          "font_family": "AstroDotBasic",
+          "char": "D",
+          "transform": "rotate(180deg)"
+        }
+      }
+    },
+    "uranus": {
+      "kind": "planet",
+      "entity_id": "Uranus",
+      "label": "Uranus",
+      "default_variant": "herschel",
+      "variants": {
+        "herschel": {
+          "label": "Herschel (curved H)",
+          "asset_status": "production",
+          "font_family": "AstroDotBasic",
+          "char": "H"
+        },
+        "simplified": {
+          "label": "Simplified (linked circles)",
+          "asset_status": "production",
+          "font_family": "AstroDotBasic",
+          "char": "n"
+        }
+      }
+    },
+    "pluto": {
+      "kind": "planet",
+      "entity_id": "Pluto",
+      "label": "Pluto",
+      "default_variant": "monogram",
+      "variants": {
+        "monogram": {
+          "label": "PL monogram",
+          "asset_status": "production",
+          "font_family": "AstroDotBasic",
+          "char": "J"
+        },
+        "traditional": {
+          "label": "Traditional glyph (stub)",
+          "asset_status": "stub",
+          "stub_svg": "/theme/glyphs/stubs/pluto_traditional.svg",
+          "stub_label": "PL stub"
+        }
+      }
+    },
+    "capricorn": {
+      "kind": "sign",
+      "entity_id": "Capricorn",
+      "label": "Capricorn",
+      "default_variant": "us_loop",
+      "variants": {
+        "us_loop": {
+          "label": "US loop tail",
+          "asset_status": "production",
+          "font_family": "AstroDotBasic",
+          "char": "j"
+        },
+        "euro_v": {
+          "label": "Euro V-loop",
+          "asset_status": "production",
+          "font_family": "AstroZLzx",
+          "char": "J"
+        }
+      }
+    }
+  }
+}

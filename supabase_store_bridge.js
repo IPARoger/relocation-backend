@@ -125,6 +125,7 @@
       dignity_palette: pick("dignity_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.dignity_palette) || "optimistic-soft",
       chart_palette: pick("chart_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.chart_palette) || "optimistic-primary",
       inner_glow_palette: pick("inner_glow_palette") || (RM_APPEARANCE_DEFAULTS && RM_APPEARANCE_DEFAULTS.inner_glow_palette) || "micro-green",
+      glyph_selections: pick("glyph_selections") || RM_SETTINGS_DEFAULTS.glyph_selections || {},
     };
   }
 

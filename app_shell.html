@@ -8156,6 +8156,7 @@ function buildAppearanceDefaultsRestorePatch() {
   };
   const resolved = AP.getResolved(patch);
   patch.dignity_colors = AP.dignityColorsFromResolved(resolved);
+  patch.glyph_selections = Object.assign({}, defs.glyph_selections || {});
   return patch;
 }
 
@@ -10964,6 +10965,9 @@ if (action === "cmp-notes-hide") {
           const el = document.getElementById(id); if (el) digColors[k] = el.value;
         });
         if (Object.keys(digColors).length) settingsPatch.dignity_colors = digColors;
+        if (document.getElementById("sec-appearance-glyphs")) {
+          settingsPatch.glyph_selections = collectGlyphSelectionsFromDom(document);
+        }
         if (document.getElementById("sec-appearance-palettes")) {
           Object.assign(settingsPatch, collectAppearancePalettePatch(document));
         }

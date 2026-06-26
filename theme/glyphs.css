@@ -44,3 +44,57 @@
 .simple .rm-glyph {
   font-size: 1.05em;
 }
+
+@font-face {
+  font-family: "AstroZLzx";
+  src: url("/theme/fonts/AstroZLzx.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+.rm-glyph-font-astrozlzx {
+  font-family: "AstroZLzx", AstroDotBasic, Symbola, "Segoe UI Symbol", sans-serif;
+}
+
+.rm-glyph-stub {
+  opacity: 0.92;
+}
+
+.rm-glyph-stub-img {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.rm-glyph-variant-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.rm-glyph-variant-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.rm-glyph-variant-btn.on {
+  border-color: color-mix(in srgb, var(--accent, #2563eb) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent, #2563eb) 8%, var(--bg));
+}
+
+.rm-glyph-variant-preview {
+  font-size: 1.35em;
+  line-height: 1;
+  min-width: 1.2em;
+  text-align: center;
+}
