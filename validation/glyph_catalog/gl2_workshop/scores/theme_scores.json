@@ -1,0 +1,78 @@
+{
+  "classical": {
+    "readability": 8,
+    "peripheral_legibility": 7,
+    "timelessness": 9,
+    "scientific_credibility": 8,
+    "premium_feel": 8,
+    "restraint": 7,
+    "harmony_with_product": 7,
+    "disappears_when_not_examined": 7,
+    "no_look_at_me": 8,
+    "notes": "Strongest aspect completeness. Slightly heavy at 16px. Pairs well with stone/paper materials.",
+    "rejected_reasons": [],
+    "shortlist": true
+  },
+  "refined": {
+    "readability": 8,
+    "peripheral_legibility": 8,
+    "timelessness": 9,
+    "scientific_credibility": 9,
+    "premium_feel": 9,
+    "restraint": 9,
+    "harmony_with_product": 8,
+    "disappears_when_not_examined": 9,
+    "no_look_at_me": 9,
+    "notes": "Best editorial voice. Requires commissioned angle set + outline aspect harmonization.",
+    "rejected_reasons": [],
+    "shortlist": true
+  },
+  "technical": {
+    "readability": 9,
+    "peripheral_legibility": 9,
+    "timelessness": 8,
+    "scientific_credibility": 8,
+    "premium_feel": 8,
+    "restraint": 9,
+    "harmony_with_product": 10,
+    "disappears_when_not_examined": 9,
+    "no_look_at_me": 9,
+    "notes": "Already partially in production. Missing aspects/angles in font \u2014 needs companion family.",
+    "rejected_reasons": [],
+    "shortlist": true
+  },
+  "heritage": {
+    "readability": 7,
+    "peripheral_legibility": 7,
+    "timelessness": 8,
+    "scientific_credibility": 7,
+    "premium_feel": 6,
+    "restraint": 7,
+    "harmony_with_product": 6,
+    "disappears_when_not_examined": 7,
+    "no_look_at_me": 7,
+    "notes": "Symbola backstop creates voice fracture. Useful as gap-fill reference only.",
+    "rejected_reasons": [
+      "Mixed voice when Symbola fills gaps"
+    ],
+    "shortlist": false
+  },
+  "contemporary": {
+    "readability": 7,
+    "peripheral_legibility": 6,
+    "timelessness": 5,
+    "scientific_credibility": 6,
+    "premium_feel": 6,
+    "restraint": 6,
+    "harmony_with_product": 5,
+    "disappears_when_not_examined": 6,
+    "no_look_at_me": 6,
+    "notes": "Friendly but reads app-icon at chart density. Too trendy for timeless instrument.",
+    "rejected_reasons": [
+      "Too trendy",
+      "Too expressive",
+      "Weaker peripheral legibility at 16px"
+    ],
+    "shortlist": false
+  }
+}

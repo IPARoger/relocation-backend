@@ -1,0 +1,1148 @@
+{
+  "classical": {
+    "theme": {
+      "label": "Classical",
+      "voice": "Filled engraved astrological tradition \u2014 5019557 family",
+      "primary_package": "5019557-astrology",
+      "secondary_package": "636915-astrology",
+      "font": null,
+      "font_chars": {}
+    },
+    "glyphs": {
+      "planets/Sun": {
+        "path": "normalized/classical/planets/Sun.svg",
+        "source": "5019557-astrology:005-sun.svg",
+        "status": "production"
+      },
+      "planets/Moon": {
+        "path": "normalized/classical/planets/Moon.svg",
+        "source": "5019557-astrology:042-super moon.svg",
+        "status": "production"
+      },
+      "planets/Mercury": {
+        "path": "normalized/classical/planets/Mercury.svg",
+        "source": "5019557-astrology:007-mercury.svg",
+        "status": "production"
+      },
+      "planets/Venus": {
+        "path": "normalized/classical/planets/Venus.svg",
+        "source": "5019557-astrology:008-venus.svg",
+        "status": "production"
+      },
+      "planets/Mars": {
+        "path": "normalized/classical/planets/Mars.svg",
+        "source": "5019557-astrology:010-mars.svg",
+        "status": "production"
+      },
+      "planets/Jupiter": {
+        "path": "normalized/classical/planets/Jupiter.svg",
+        "source": "5019557-astrology:012-jupiter.svg",
+        "status": "production"
+      },
+      "planets/Saturn": {
+        "path": "normalized/classical/planets/Saturn.svg",
+        "source": "5019557-astrology:013-saturn.svg",
+        "status": "production"
+      },
+      "planets/Uranus": {
+        "path": "normalized/classical/planets/Uranus.svg",
+        "source": "5019557-astrology:014-uranus.svg",
+        "status": "production"
+      },
+      "planets/Neptune": {
+        "path": "normalized/classical/planets/Neptune.svg",
+        "source": "5019557-astrology:015-neptune.svg",
+        "status": "production"
+      },
+      "planets/Pluto": {
+        "path": "normalized/classical/planets/Pluto.svg",
+        "source": "5019557-astrology:016-pluto.svg",
+        "status": "production"
+      },
+      "signs/Aries": {
+        "path": "normalized/classical/signs/Aries.svg",
+        "source": "5019557-astrology:044-aries.svg",
+        "status": "production"
+      },
+      "signs/Taurus": {
+        "path": "normalized/classical/signs/Taurus.svg",
+        "source": "5019557-astrology:046-taurus.svg",
+        "status": "production"
+      },
+      "signs/Gemini": {
+        "path": "normalized/classical/signs/Gemini.svg",
+        "source": "5019557-astrology:047-gemini.svg",
+        "status": "production"
+      },
+      "signs/Cancer": {
+        "path": "normalized/classical/signs/Cancer.svg",
+        "source": "5019557-astrology:048-cancer.svg",
+        "status": "production"
+      },
+      "signs/Leo": {
+        "path": "normalized/classical/signs/Leo.svg",
+        "source": "5019557-astrology:049-leo.svg",
+        "status": "production"
+      },
+      "signs/Virgo": {
+        "path": "normalized/classical/signs/Virgo.svg",
+        "source": "5019557-astrology:050-virgo.svg",
+        "status": "production"
+      },
+      "signs/Libra": {
+        "path": "normalized/classical/signs/Libra.svg",
+        "source": "5019557-astrology:001-libra.svg",
+        "status": "production"
+      },
+      "signs/Scorpio": {
+        "path": "normalized/classical/signs/Scorpio.svg",
+        "source": "5019557-astrology:002-scorpio.svg",
+        "status": "production"
+      },
+      "signs/Sagittarius": {
+        "path": "normalized/classical/signs/Sagittarius.svg",
+        "source": "5019557-astrology:004-sagittarius.svg",
+        "status": "production"
+      },
+      "signs/Capricorn": {
+        "path": "normalized/classical/signs/Capricorn.svg",
+        "source": "5019557-astrology:011-capricorn.svg",
+        "status": "production"
+      },
+      "signs/Aquarius": {
+        "path": "normalized/classical/signs/Aquarius.svg",
+        "source": "5019557-astrology:022-aquarius.svg",
+        "status": "production"
+      },
+      "signs/Pisces": {
+        "path": "normalized/classical/signs/Pisces.svg",
+        "source": "5019557-astrology:033-pisces.svg",
+        "status": "production"
+      },
+      "aspects/Conjunction": {
+        "path": "normalized/classical/aspects/Conjunction.svg",
+        "source": "5019557-astrology:021-conjuction.svg",
+        "status": "production"
+      },
+      "aspects/Opposition": {
+        "path": "normalized/classical/aspects/Opposition.svg",
+        "source": "5019557-astrology:029-opposition.svg",
+        "status": "production"
+      },
+      "aspects/Square": {
+        "path": "normalized/classical/aspects/Square.svg",
+        "source": "5019557-astrology:030-semisquare.svg",
+        "status": "production"
+      },
+      "aspects/Trine": {
+        "path": "normalized/classical/aspects/Trine.svg",
+        "source": "5019557-astrology:024-trine.svg",
+        "status": "production"
+      },
+      "aspects/Sextile": {
+        "path": "normalized/classical/aspects/Sextile.svg",
+        "source": "5019557-astrology:023-sextile.svg",
+        "status": "production"
+      },
+      "aspects/Quincunx": {
+        "path": "normalized/classical/aspects/Quincunx.svg",
+        "source": "5019557-astrology:025-quincunx.svg",
+        "status": "production"
+      },
+      "aspects/Semi-square": {
+        "path": "normalized/classical/aspects/Semi-square.svg",
+        "source": "5019557-astrology:030-semisquare.svg",
+        "status": "production"
+      },
+      "aspects/Semi-sextile": {
+        "path": "normalized/classical/aspects/Semi-sextile.svg",
+        "source": "5019557-astrology:026-semisextile.svg",
+        "status": "production"
+      },
+      "aspects/Sesquiquadrate": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quintile": {
+        "path": "normalized/classical/aspects/Quintile.svg",
+        "source": "5019557-astrology:027-quintile.svg",
+        "status": "production"
+      },
+      "aspects/Biquintile": {
+        "path": "normalized/classical/aspects/Biquintile.svg",
+        "source": "5019557-astrology:032-biquintile.svg",
+        "status": "production"
+      },
+      "angles/ASC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/MC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/DSC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/IC": {
+        "path": "normalized/classical/angles/IC.svg",
+        "source": "5019557-astrology:011-capricorn.svg",
+        "status": "production"
+      },
+      "other/Chiron": {
+        "path": "normalized/classical/other/Chiron.svg",
+        "source": "5019557-astrology:035-chiron.svg",
+        "status": "production"
+      },
+      "other/North Node": {
+        "path": "normalized/classical/other/North_Node.svg",
+        "source": "636915-astrology:017-north-node.svg",
+        "status": "production"
+      },
+      "other/Part of Fortune": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      }
+    },
+    "gaps": [
+      "ASC",
+      "DSC",
+      "MC",
+      "Part of Fortune",
+      "Sesquiquadrate"
+    ]
+  },
+  "refined": {
+    "theme": {
+      "label": "Refined",
+      "voice": "Classical planets/signs with lighter outline aspects \u2014 editorial precision",
+      "primary_package": "5019557-astrology",
+      "secondary_package": "16028722-astrology-outline",
+      "font": null,
+      "font_chars": {}
+    },
+    "glyphs": {
+      "planets/Sun": {
+        "path": "normalized/refined/planets/Sun.svg",
+        "source": "5019557-astrology:005-sun.svg",
+        "status": "production"
+      },
+      "planets/Moon": {
+        "path": "normalized/refined/planets/Moon.svg",
+        "source": "5019557-astrology:042-super moon.svg",
+        "status": "production"
+      },
+      "planets/Mercury": {
+        "path": "normalized/refined/planets/Mercury.svg",
+        "source": "5019557-astrology:007-mercury.svg",
+        "status": "production"
+      },
+      "planets/Venus": {
+        "path": "normalized/refined/planets/Venus.svg",
+        "source": "5019557-astrology:008-venus.svg",
+        "status": "production"
+      },
+      "planets/Mars": {
+        "path": "normalized/refined/planets/Mars.svg",
+        "source": "5019557-astrology:010-mars.svg",
+        "status": "production"
+      },
+      "planets/Jupiter": {
+        "path": "normalized/refined/planets/Jupiter.svg",
+        "source": "5019557-astrology:012-jupiter.svg",
+        "status": "production"
+      },
+      "planets/Saturn": {
+        "path": "normalized/refined/planets/Saturn.svg",
+        "source": "5019557-astrology:013-saturn.svg",
+        "status": "production"
+      },
+      "planets/Uranus": {
+        "path": "normalized/refined/planets/Uranus.svg",
+        "source": "5019557-astrology:014-uranus.svg",
+        "status": "production"
+      },
+      "planets/Neptune": {
+        "path": "normalized/refined/planets/Neptune.svg",
+        "source": "5019557-astrology:015-neptune.svg",
+        "status": "production"
+      },
+      "planets/Pluto": {
+        "path": "normalized/refined/planets/Pluto.svg",
+        "source": "5019557-astrology:016-pluto.svg",
+        "status": "production"
+      },
+      "signs/Aries": {
+        "path": "normalized/refined/signs/Aries.svg",
+        "source": "5019557-astrology:044-aries.svg",
+        "status": "production"
+      },
+      "signs/Taurus": {
+        "path": "normalized/refined/signs/Taurus.svg",
+        "source": "5019557-astrology:046-taurus.svg",
+        "status": "production"
+      },
+      "signs/Gemini": {
+        "path": "normalized/refined/signs/Gemini.svg",
+        "source": "5019557-astrology:047-gemini.svg",
+        "status": "production"
+      },
+      "signs/Cancer": {
+        "path": "normalized/refined/signs/Cancer.svg",
+        "source": "5019557-astrology:048-cancer.svg",
+        "status": "production"
+      },
+      "signs/Leo": {
+        "path": "normalized/refined/signs/Leo.svg",
+        "source": "5019557-astrology:049-leo.svg",
+        "status": "production"
+      },
+      "signs/Virgo": {
+        "path": "normalized/refined/signs/Virgo.svg",
+        "source": "5019557-astrology:050-virgo.svg",
+        "status": "production"
+      },
+      "signs/Libra": {
+        "path": "normalized/refined/signs/Libra.svg",
+        "source": "5019557-astrology:001-libra.svg",
+        "status": "production"
+      },
+      "signs/Scorpio": {
+        "path": "normalized/refined/signs/Scorpio.svg",
+        "source": "5019557-astrology:002-scorpio.svg",
+        "status": "production"
+      },
+      "signs/Sagittarius": {
+        "path": "normalized/refined/signs/Sagittarius.svg",
+        "source": "5019557-astrology:004-sagittarius.svg",
+        "status": "production"
+      },
+      "signs/Capricorn": {
+        "path": "normalized/refined/signs/Capricorn.svg",
+        "source": "5019557-astrology:011-capricorn.svg",
+        "status": "production"
+      },
+      "signs/Aquarius": {
+        "path": "normalized/refined/signs/Aquarius.svg",
+        "source": "5019557-astrology:022-aquarius.svg",
+        "status": "production"
+      },
+      "signs/Pisces": {
+        "path": "normalized/refined/signs/Pisces.svg",
+        "source": "5019557-astrology:033-pisces.svg",
+        "status": "production"
+      },
+      "aspects/Conjunction": {
+        "path": "normalized/refined/aspects/Conjunction.svg",
+        "source": "5019557-astrology:021-conjuction.svg",
+        "status": "production"
+      },
+      "aspects/Opposition": {
+        "path": "normalized/refined/aspects/Opposition.svg",
+        "source": "5019557-astrology:029-opposition.svg",
+        "status": "production"
+      },
+      "aspects/Square": {
+        "path": "normalized/refined/aspects/Square.svg",
+        "source": "5019557-astrology:030-semisquare.svg",
+        "status": "production"
+      },
+      "aspects/Trine": {
+        "path": "normalized/refined/aspects/Trine.svg",
+        "source": "5019557-astrology:024-trine.svg",
+        "status": "production"
+      },
+      "aspects/Sextile": {
+        "path": "normalized/refined/aspects/Sextile.svg",
+        "source": "5019557-astrology:023-sextile.svg",
+        "status": "production"
+      },
+      "aspects/Quincunx": {
+        "path": "normalized/refined/aspects/Quincunx.svg",
+        "source": "5019557-astrology:025-quincunx.svg",
+        "status": "production"
+      },
+      "aspects/Semi-square": {
+        "path": "normalized/refined/aspects/Semi-square.svg",
+        "source": "5019557-astrology:030-semisquare.svg",
+        "status": "production"
+      },
+      "aspects/Semi-sextile": {
+        "path": "normalized/refined/aspects/Semi-sextile.svg",
+        "source": "5019557-astrology:026-semisextile.svg",
+        "status": "production"
+      },
+      "aspects/Sesquiquadrate": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quintile": {
+        "path": "normalized/refined/aspects/Quintile.svg",
+        "source": "5019557-astrology:027-quintile.svg",
+        "status": "production"
+      },
+      "aspects/Biquintile": {
+        "path": "normalized/refined/aspects/Biquintile.svg",
+        "source": "5019557-astrology:032-biquintile.svg",
+        "status": "production"
+      },
+      "angles/ASC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/MC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/DSC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/IC": {
+        "path": "normalized/refined/angles/IC.svg",
+        "source": "5019557-astrology:011-capricorn.svg",
+        "status": "production"
+      },
+      "other/Chiron": {
+        "path": "normalized/refined/other/Chiron.svg",
+        "source": "5019557-astrology:035-chiron.svg",
+        "status": "production"
+      },
+      "other/North Node": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "other/Part of Fortune": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      }
+    },
+    "gaps": [
+      "ASC",
+      "DSC",
+      "MC",
+      "North Node",
+      "Part of Fortune",
+      "Sesquiquadrate"
+    ]
+  },
+  "technical": {
+    "theme": {
+      "label": "Technical",
+      "voice": "Swiss-engineered letter-keyed fonts \u2014 product UI density",
+      "primary_package": null,
+      "secondary_package": null,
+      "font": "astrodotbasic/AstroDotBasic.ttf",
+      "font_chars": {
+        "Sun": "A",
+        "Moon": "B",
+        "Mercury": "C",
+        "Venus": "D",
+        "Mars": "E",
+        "Jupiter": "F",
+        "Saturn": "G",
+        "Uranus": "H",
+        "Neptune": "I",
+        "Pluto": "J",
+        "Aries": "a",
+        "Taurus": "b",
+        "Gemini": "c",
+        "Cancer": "d",
+        "Leo": "e",
+        "Virgo": "f",
+        "Libra": "g",
+        "Scorpio": "h",
+        "Sagittarius": "i",
+        "Capricorn": "j",
+        "Aquarius": "k",
+        "Pisces": "l"
+      }
+    },
+    "glyphs": {
+      "planets/Sun": {
+        "path": "normalized/technical/planets/Sun.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:A",
+        "status": "production"
+      },
+      "planets/Moon": {
+        "path": "normalized/technical/planets/Moon.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:B",
+        "status": "production"
+      },
+      "planets/Mercury": {
+        "path": "normalized/technical/planets/Mercury.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:C",
+        "status": "production"
+      },
+      "planets/Venus": {
+        "path": "normalized/technical/planets/Venus.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:D",
+        "status": "production"
+      },
+      "planets/Mars": {
+        "path": "normalized/technical/planets/Mars.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:E",
+        "status": "production"
+      },
+      "planets/Jupiter": {
+        "path": "normalized/technical/planets/Jupiter.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:F",
+        "status": "production"
+      },
+      "planets/Saturn": {
+        "path": "normalized/technical/planets/Saturn.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:G",
+        "status": "production"
+      },
+      "planets/Uranus": {
+        "path": "normalized/technical/planets/Uranus.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:H",
+        "status": "production"
+      },
+      "planets/Neptune": {
+        "path": "normalized/technical/planets/Neptune.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:I",
+        "status": "production"
+      },
+      "planets/Pluto": {
+        "path": "normalized/technical/planets/Pluto.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:J",
+        "status": "production"
+      },
+      "signs/Aries": {
+        "path": "normalized/technical/signs/Aries.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:a",
+        "status": "production"
+      },
+      "signs/Taurus": {
+        "path": "normalized/technical/signs/Taurus.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:b",
+        "status": "production"
+      },
+      "signs/Gemini": {
+        "path": "normalized/technical/signs/Gemini.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:c",
+        "status": "production"
+      },
+      "signs/Cancer": {
+        "path": "normalized/technical/signs/Cancer.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:d",
+        "status": "production"
+      },
+      "signs/Leo": {
+        "path": "normalized/technical/signs/Leo.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:e",
+        "status": "production"
+      },
+      "signs/Virgo": {
+        "path": "normalized/technical/signs/Virgo.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:f",
+        "status": "production"
+      },
+      "signs/Libra": {
+        "path": "normalized/technical/signs/Libra.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:g",
+        "status": "production"
+      },
+      "signs/Scorpio": {
+        "path": "normalized/technical/signs/Scorpio.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:h",
+        "status": "production"
+      },
+      "signs/Sagittarius": {
+        "path": "normalized/technical/signs/Sagittarius.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:i",
+        "status": "production"
+      },
+      "signs/Capricorn": {
+        "path": "normalized/technical/signs/Capricorn.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:j",
+        "status": "production"
+      },
+      "signs/Aquarius": {
+        "path": "normalized/technical/signs/Aquarius.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:k",
+        "status": "production"
+      },
+      "signs/Pisces": {
+        "path": "normalized/technical/signs/Pisces.svg",
+        "source": "font:astrodotbasic/AstroDotBasic.ttf:l",
+        "status": "production"
+      },
+      "aspects/Conjunction": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Opposition": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Square": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Trine": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Sextile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quincunx": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Semi-square": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Semi-sextile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Sesquiquadrate": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quintile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Biquintile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/ASC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/MC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/DSC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/IC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "other/Chiron": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "other/North Node": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "other/Part of Fortune": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      }
+    },
+    "gaps": [
+      "ASC",
+      "Biquintile",
+      "Chiron",
+      "Conjunction",
+      "DSC",
+      "IC",
+      "MC",
+      "North Node",
+      "Opposition",
+      "Part of Fortune",
+      "Quincunx",
+      "Quintile",
+      "Semi-sextile",
+      "Semi-square",
+      "Sesquiquadrate",
+      "Sextile",
+      "Square",
+      "Trine"
+    ]
+  },
+  "heritage": {
+    "theme": {
+      "label": "Heritage",
+      "voice": "636915 classical body + Symbola scientific backstop for gaps",
+      "primary_package": "636915-astrology",
+      "secondary_package": "symbola-font",
+      "font": "symbola-font/Symbola-AjYx.ttf",
+      "font_chars": {}
+    },
+    "glyphs": {
+      "planets/Sun": {
+        "path": "normalized/heritage/planets/Sun.svg",
+        "source": "636915-astrology:025-sunset.svg",
+        "status": "production"
+      },
+      "planets/Moon": {
+        "path": "normalized/heritage/planets/Moon.svg",
+        "source": "636915-astrology:027-moonset.svg",
+        "status": "production"
+      },
+      "planets/Mercury": {
+        "path": "normalized/heritage/planets/Mercury.svg",
+        "source": "636915-astrology:040-mercury.svg",
+        "status": "production"
+      },
+      "planets/Venus": {
+        "path": "normalized/heritage/planets/Venus.svg",
+        "source": "636915-astrology:039-venus.svg",
+        "status": "production"
+      },
+      "planets/Mars": {
+        "path": "normalized/heritage/planets/Mars.svg",
+        "source": "636915-astrology:038-mars.svg",
+        "status": "production"
+      },
+      "planets/Jupiter": {
+        "path": "normalized/heritage/planets/Jupiter.svg",
+        "source": "636915-astrology:037-jupiter.svg",
+        "status": "production"
+      },
+      "planets/Saturn": {
+        "path": "normalized/heritage/planets/Saturn.svg",
+        "source": "636915-astrology:036-saturn.svg",
+        "status": "production"
+      },
+      "planets/Uranus": {
+        "path": "normalized/heritage/planets/Uranus.svg",
+        "source": "636915-astrology:034-uranus-1.svg",
+        "status": "production"
+      },
+      "planets/Neptune": {
+        "path": "normalized/heritage/planets/Neptune.svg",
+        "source": "636915-astrology:033-neptune.svg",
+        "status": "production"
+      },
+      "planets/Pluto": {
+        "path": "normalized/heritage/planets/Pluto.svg",
+        "source": "636915-astrology:031-pluto-1.svg",
+        "status": "production"
+      },
+      "signs/Aries": {
+        "path": "normalized/heritage/signs/Aries.svg",
+        "source": "636915-astrology:056-aries.svg",
+        "status": "production"
+      },
+      "signs/Taurus": {
+        "path": "normalized/heritage/signs/Taurus.svg",
+        "source": "636915-astrology:055-taurus.svg",
+        "status": "production"
+      },
+      "signs/Gemini": {
+        "path": "normalized/heritage/signs/Gemini.svg",
+        "source": "636915-astrology:054-gemini.svg",
+        "status": "production"
+      },
+      "signs/Cancer": {
+        "path": "normalized/heritage/signs/Cancer.svg",
+        "source": "636915-astrology:053-cancer.svg",
+        "status": "production"
+      },
+      "signs/Leo": {
+        "path": "normalized/heritage/signs/Leo.svg",
+        "source": "636915-astrology:052-leo.svg",
+        "status": "production"
+      },
+      "signs/Virgo": {
+        "path": "normalized/heritage/signs/Virgo.svg",
+        "source": "636915-astrology:051-virgo.svg",
+        "status": "production"
+      },
+      "signs/Libra": {
+        "path": "normalized/heritage/signs/Libra.svg",
+        "source": "636915-astrology:050-libra.svg",
+        "status": "production"
+      },
+      "signs/Scorpio": {
+        "path": "normalized/heritage/signs/Scorpio.svg",
+        "source": "636915-astrology:049-scorpio.svg",
+        "status": "production"
+      },
+      "signs/Sagittarius": {
+        "path": "normalized/heritage/signs/Sagittarius.svg",
+        "source": "636915-astrology:047-sagittarius.svg",
+        "status": "production"
+      },
+      "signs/Capricorn": {
+        "path": "normalized/heritage/signs/Capricorn.svg",
+        "source": "636915-astrology:046-capricorn.svg",
+        "status": "production"
+      },
+      "signs/Aquarius": {
+        "path": "normalized/heritage/signs/Aquarius.svg",
+        "source": "636915-astrology:045-aquarius.svg",
+        "status": "production"
+      },
+      "signs/Pisces": {
+        "path": "normalized/heritage/signs/Pisces.svg",
+        "source": "636915-astrology:044-pisces.svg",
+        "status": "production"
+      },
+      "aspects/Conjunction": {
+        "path": "normalized/heritage/aspects/Conjunction.svg",
+        "source": "636915-astrology:004-conjuction.svg",
+        "status": "production"
+      },
+      "aspects/Opposition": {
+        "path": "normalized/heritage/aspects/Opposition.svg",
+        "source": "636915-astrology:003-opposition.svg",
+        "status": "production"
+      },
+      "aspects/Square": {
+        "path": "normalized/heritage/aspects/Square.svg",
+        "source": "636915-astrology:002-square.svg",
+        "status": "production"
+      },
+      "aspects/Trine": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Sextile": {
+        "path": "normalized/heritage/aspects/Sextile.svg",
+        "source": "636915-astrology:001-sextile.svg",
+        "status": "production"
+      },
+      "aspects/Quincunx": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Semi-square": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Semi-sextile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Sesquiquadrate": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quintile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Biquintile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/ASC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/MC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/DSC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/IC": {
+        "path": "normalized/heritage/angles/IC.svg",
+        "source": "636915-astrology:046-capricorn.svg",
+        "status": "production"
+      },
+      "other/Chiron": {
+        "path": "normalized/heritage/other/Chiron.svg",
+        "source": "636915-astrology:024-chiron.svg",
+        "status": "production"
+      },
+      "other/North Node": {
+        "path": "normalized/heritage/other/North_Node.svg",
+        "source": "636915-astrology:017-north-node.svg",
+        "status": "production"
+      },
+      "other/Part of Fortune": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      }
+    },
+    "gaps": [
+      "ASC",
+      "Biquintile",
+      "DSC",
+      "MC",
+      "Part of Fortune",
+      "Quincunx",
+      "Quintile",
+      "Semi-sextile",
+      "Semi-square",
+      "Sesquiquadrate",
+      "Trine"
+    ]
+  },
+  "contemporary": {
+    "theme": {
+      "label": "Contemporary",
+      "voice": "Modern flat solid icons \u2014 calm app legibility",
+      "primary_package": "16628856-astrology",
+      "secondary_package": "13093396-zodiac",
+      "font": null,
+      "font_chars": {}
+    },
+    "glyphs": {
+      "planets/Sun": {
+        "path": "normalized/contemporary/planets/Sun.svg",
+        "source": "16628856-astrology:037-sun.svg",
+        "status": "production"
+      },
+      "planets/Moon": {
+        "path": "normalized/contemporary/planets/Moon.svg",
+        "source": "16628856-astrology:021-moon.svg",
+        "status": "production"
+      },
+      "planets/Mercury": {
+        "path": "normalized/contemporary/planets/Mercury.svg",
+        "source": "16628856-astrology:018-mercury.svg",
+        "status": "production"
+      },
+      "planets/Venus": {
+        "path": "normalized/contemporary/planets/Venus.svg",
+        "source": "16628856-astrology:019-venus.svg",
+        "status": "production"
+      },
+      "planets/Mars": {
+        "path": "normalized/contemporary/planets/Mars.svg",
+        "source": "16628856-astrology:022-mars.svg",
+        "status": "production"
+      },
+      "planets/Jupiter": {
+        "path": "normalized/contemporary/planets/Jupiter.svg",
+        "source": "16628856-astrology:023-jupiter.svg",
+        "status": "production"
+      },
+      "planets/Saturn": {
+        "path": "normalized/contemporary/planets/Saturn.svg",
+        "source": "16628856-astrology:024-saturn.svg",
+        "status": "production"
+      },
+      "planets/Uranus": {
+        "path": "normalized/contemporary/planets/Uranus.svg",
+        "source": "16628856-astrology:025-uranus.svg",
+        "status": "production"
+      },
+      "planets/Neptune": {
+        "path": "normalized/contemporary/planets/Neptune.svg",
+        "source": "16628856-astrology:026-neptune.svg",
+        "status": "production"
+      },
+      "planets/Pluto": {
+        "path": "normalized/contemporary/planets/Pluto.svg",
+        "source": "16628856-astrology:027-pluto.svg",
+        "status": "production"
+      },
+      "signs/Aries": {
+        "path": "normalized/contemporary/signs/Aries.svg",
+        "source": "16628856-astrology:005-aries.svg",
+        "status": "production"
+      },
+      "signs/Taurus": {
+        "path": "normalized/contemporary/signs/Taurus.svg",
+        "source": "16628856-astrology:006-taurus.svg",
+        "status": "production"
+      },
+      "signs/Gemini": {
+        "path": "normalized/contemporary/signs/Gemini.svg",
+        "source": "16628856-astrology:007-gemini.svg",
+        "status": "production"
+      },
+      "signs/Cancer": {
+        "path": "normalized/contemporary/signs/Cancer.svg",
+        "source": "16628856-astrology:008-cancer.svg",
+        "status": "production"
+      },
+      "signs/Leo": {
+        "path": "normalized/contemporary/signs/Leo.svg",
+        "source": "16628856-astrology:009-leo.svg",
+        "status": "production"
+      },
+      "signs/Virgo": {
+        "path": "normalized/contemporary/signs/Virgo.svg",
+        "source": "16628856-astrology:010-virgo.svg",
+        "status": "production"
+      },
+      "signs/Libra": {
+        "path": "normalized/contemporary/signs/Libra.svg",
+        "source": "16628856-astrology:011-libra.svg",
+        "status": "production"
+      },
+      "signs/Scorpio": {
+        "path": "normalized/contemporary/signs/Scorpio.svg",
+        "source": "16628856-astrology:012-scorpio.svg",
+        "status": "production"
+      },
+      "signs/Sagittarius": {
+        "path": "normalized/contemporary/signs/Sagittarius.svg",
+        "source": "16628856-astrology:013-sagittarius.svg",
+        "status": "production"
+      },
+      "signs/Capricorn": {
+        "path": "normalized/contemporary/signs/Capricorn.svg",
+        "source": "16628856-astrology:014-capricorn.svg",
+        "status": "production"
+      },
+      "signs/Aquarius": {
+        "path": "normalized/contemporary/signs/Aquarius.svg",
+        "source": "16628856-astrology:015-aquarius.svg",
+        "status": "production"
+      },
+      "signs/Pisces": {
+        "path": "normalized/contemporary/signs/Pisces.svg",
+        "source": "16628856-astrology:016-pisces.svg",
+        "status": "production"
+      },
+      "aspects/Conjunction": {
+        "path": "normalized/contemporary/aspects/Conjunction.svg",
+        "source": "16628856-astrology:045-conjuction.svg",
+        "status": "production"
+      },
+      "aspects/Opposition": {
+        "path": "normalized/contemporary/aspects/Opposition.svg",
+        "source": "16628856-astrology:046-opposition.svg",
+        "status": "production"
+      },
+      "aspects/Square": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Trine": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Sextile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quincunx": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Semi-square": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Semi-sextile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Sesquiquadrate": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "aspects/Quintile": {
+        "path": "normalized/contemporary/aspects/Quintile.svg",
+        "source": "16628856-astrology:048-quintile.svg",
+        "status": "production"
+      },
+      "aspects/Biquintile": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/ASC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/MC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/DSC": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "angles/IC": {
+        "path": "normalized/contemporary/angles/IC.svg",
+        "source": "16628856-astrology:014-capricorn.svg",
+        "status": "production"
+      },
+      "other/Chiron": {
+        "path": "normalized/contemporary/other/Chiron.svg",
+        "source": "16628856-astrology:043-chiron.svg",
+        "status": "production"
+      },
+      "other/North Node": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      },
+      "other/Part of Fortune": {
+        "path": null,
+        "source": null,
+        "status": "gap"
+      }
+    },
+    "gaps": [
+      "ASC",
+      "Biquintile",
+      "DSC",
+      "MC",
+      "North Node",
+      "Part of Fortune",
+      "Quincunx",
+      "Semi-sextile",
+      "Semi-square",
+      "Sesquiquadrate",
+      "Sextile",
+      "Square",
+      "Trine"
+    ]
+  }
+}
