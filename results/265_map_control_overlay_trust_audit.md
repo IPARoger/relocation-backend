@@ -357,3 +357,23 @@ Optional debug: add `?debugGeometry=1` to read `#debugStatus` overlay phase rows
 - No renderer rewrites, contour smoothing, `smoothFactor` changes, or truth-grid algorithm changes
 - No normal-user UI redesign
 
+---
+
+## M1-C implementation closeout
+
+**Smoke:** `scripts/smoke_m1c_popup_city_readability.py` (includes M1-A + M1-B regression)
+
+### Popup — View overlays here
+
+- Button on every chart-success popup (`buildRelocatedPopupHtml`)
+- Expands inline list derived from `canonical_chart.planets[*].house` in **CANONICAL_PLANET_ORDER**
+- Row click → `buildPlanForPopupOverlayDiscovery` → `executeSearchPlan({ source: "popup_overlay_discovery" })`
+- GV + ghost sync via `__rmSyncGhostFromReplayedPlan`
+- No ranking, scoring, or recommendation copy
+
+### City readability
+
+- `CITY_VIEWPORT_CAP_BY_ZOOM` caps markers per zoom (14–60), highest population wins
+- `getCityMarkerTier`: major (≥1M), mid (≥250k), minor (≥50k)
+- Distinct radius/weight/color per tier; permanent tooltip labels for **major** only at z≥5
+

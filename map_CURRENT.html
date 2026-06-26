@@ -369,6 +369,15 @@ html.map-panel-show-legend #panelLegend { display: block; }
     visibility: hidden;
 }
 
+.popup-chart .popup-action-view-overlays { flex: 1 1 100%; }
+.popup-chart .popup-overlay-discovery { margin-top: 6px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+.popup-chart .popup-overlay-discovery-title { font-size: 11px; font-weight: 700; color: #475569; margin: 0 0 4px; }
+.popup-chart .popup-overlay-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; max-height: 160px; overflow-y: auto; }
+.popup-chart .popup-overlay-run { width: 100%; text-align: left; font-size: 11.5px; padding: 5px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; color: #1e293b; cursor: pointer; }
+.popup-chart .popup-overlay-run:hover { background: #eef2f7; border-color: #94a3b8; }
+.rm-city-label.rm-city-label--major { background: transparent; border: none; box-shadow: none; font-size: 11px; font-weight: 700; color: #0f172a; text-shadow: 0 0 3px #fff, 0 0 6px #fff, 1px 1px 0 #fff; padding: 0; pointer-events: none; }
+.rm-city-label.rm-city-label--major::before { display: none; }
+
 .popup-chart .popup-action-status { font-size: 11px; margin-top: 4px; color: #475569; }
 .popup-chart .popup-action-status.is-error { color: #b91c1c; }
 
@@ -4248,6 +4257,118 @@ function getCanonicalChartFromPayloadLocal(data) {
     return null;
 }
 
+
+const CANONICAL_PLANET_ORDER = [
+    "Sun", "Moon", "Mercury", "Venus", "Mars",
+    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron",
+];
+
+function formatHouseOrdinal(n) {
+    const num = Number(n);
+    if (!Number.isFinite(num)) return String(n);
+    const v = num % 100;
+    const suffix = (v >= 11 && v <= 13) ? "th" : ["th", "st", "nd", "rd"][num % 10] || "th";
+    return String(num) + suffix;
+}
+
+function extractPlanetHouseConditionsFromChartData(data) {
+    const cc = getCanonicalChartFromPayloadLocal(data);
+    if (!cc || !cc.planets) return [];
+    const visible = (typeof window.__rmGetVisibleBodyNamesSet === "function")
+        ? window.__rmGetVisibleBodyNamesSet()
+        : null;
+    return CANONICAL_PLANET_ORDER
+        .filter((planet) => !visible || visible.has(planet))
+        .map((planet) => {
+            const info = cc.planets[planet] || {};
+            const house = info.house;
+            if (house == null || house === "") return null;
+            return {
+                planet,
+                house: Number(house),
+                label: planet + " in " + formatHouseOrdinal(house),
+            };
+        })
+        .filter(Boolean);
+}
+
+window.__rmExtractPlanetHouseConditionsFromChartData = extractPlanetHouseConditionsFromChartData;
+
+function buildPopupOverlayDiscoverySection(data) {
+    const conditions = extractPlanetHouseConditionsFromChartData(data);
+    if (!conditions.length) return "";
+    const rows = conditions.map((c) => (
+        '<li><button type="button" class="popup-overlay-run"'
+        + ' data-planet="' + escapeAttr(String(c.planet).toLowerCase()) + '"'
+        + ' data-house="' + c.house + '">'
+        + escapeAttr(c.label) + '</button></li>'
+    )).join("");
+    return (
+        '<div class="popup-overlay-discovery" hidden>'
+        + '<p class="popup-overlay-discovery-title">Conditions at this location</p>'
+        + '<ul class="popup-overlay-list">' + rows + '</ul>'
+        + '</div>'
+    );
+}
+
+function viewOverlaysHereButtonHtml() {
+    return '<button type="button" class="popup-action-view-overlays">View overlays here</button>';
+}
+
+async function buildPlanForPopupOverlayDiscovery(planet, house) {
+    const birth = await getBirthParamsFromProfile();
+    return {
+        source: "popup_overlay_discovery",
+        birth,
+        house_conditions: [{ planet: String(planet).toLowerCase(), house: Number(house) }],
+        angle_sign_conditions: [],
+        aspectOverlay: null,
+        degradation: [],
+    };
+}
+
+async function runPopupOverlayFromButton(btn) {
+    const shell = btn.closest(".popup-chart");
+    const statusEl = shell ? shell.querySelector(".popup-action-status") : null;
+    const setStatus = (msg, isError) => {
+        if (!statusEl) return;
+        statusEl.hidden = false;
+        statusEl.textContent = msg;
+        statusEl.classList.toggle("is-error", Boolean(isError));
+    };
+    try {
+        await requireActiveProfile();
+    } catch (e) {
+        setStatus(e.message || "Choose a saved profile first.", true);
+        showMapBetaToast(e.message || "Choose a saved profile first.", "error");
+        return;
+    }
+    const planet = btn.dataset.planet;
+    const house = Number(btn.dataset.house);
+    if (!planet || !Number.isFinite(house)) {
+        setStatus("Missing overlay condition.", true);
+        return;
+    }
+    setStatus("Running overlay…");
+    try {
+        const plan = await buildPlanForPopupOverlayDiscovery(planet, house);
+        if (typeof window.executeSearchPlan !== "function") {
+            throw new Error("executeSearchPlan unavailable");
+        }
+        map.closePopup();
+        await window.executeSearchPlan(plan, { source: "popup_overlay_discovery" });
+        if (typeof window.__rmSyncGhostFromReplayedPlan === "function") {
+            window.__rmSyncGhostFromReplayedPlan(plan);
+        }
+        setStatus("");
+        if (statusEl) statusEl.hidden = true;
+    } catch (err) {
+        console.error("[popup-overlay]", err);
+        setStatus(err.message || "Could not run overlay.", true);
+        showMapBetaToast("Could not run overlay.", "error");
+    }
+}
+
 function buildPlanetHouseRowsFromData(data) {
     const cc = getCanonicalChartFromPayloadLocal(data);
     if (!cc || !cc.planets) {
@@ -4256,7 +4377,7 @@ function buildPlanetHouseRowsFromData(data) {
     const visible = (typeof window.__rmGetVisibleBodyNamesSet === "function")
         ? window.__rmGetVisibleBodyNamesSet()
         : null;
-    const order = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
+    const order = CANONICAL_PLANET_ORDER;
     return order
         .filter((planet) => !visible || visible.has(planet))
         .map((planet) => {
@@ -4343,7 +4464,9 @@ function buildRelocatedPopupHtml(data, lat, lon, meta) {
             <div class="popup-actions">
                 ${openChartButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
                 ${favoriteButtonHtml(title, lat, lon, (meta && meta.country) || "", (meta && meta.admin) || "", (meta && meta.origin) || "map_custom", (meta && meta.geonamesId) || "")}
+                ${viewOverlaysHereButtonHtml()}
             </div>
+            ${buildPopupOverlayDiscoverySection(data)}
             <div class="popup-action-status" aria-live="polite" hidden></div>
         </div>`;
 }
@@ -4728,6 +4851,28 @@ async function favoriteMapSelectionFromButton(btn) {
 
 // One delegated listener: Leaflet re-creates popups, so per-popup binding is brittle.
 document.addEventListener("click", function(ev) {
+    const overlayRunBtn = ev.target.closest && ev.target.closest(".popup-overlay-run");
+    if (overlayRunBtn) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        Promise.resolve(runPopupOverlayFromButton(overlayRunBtn)).catch(function(err) {
+            console.error("[popup-overlay]", err);
+            showMapBetaToast("Could not run overlay.", "error");
+        });
+        return;
+    }
+    const viewOverlaysBtn = ev.target.closest && ev.target.closest(".popup-action-view-overlays");
+    if (viewOverlaysBtn) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const shell = viewOverlaysBtn.closest(".popup-chart");
+        const panel = shell && shell.querySelector(".popup-overlay-discovery");
+        if (panel) {
+            panel.hidden = !panel.hidden;
+            viewOverlaysBtn.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+        }
+        return;
+    }
     const openBtn = ev.target.closest && ev.target.closest(".popup-action-open-chart");
     if (openBtn) {
         ev.preventDefault();
@@ -5861,34 +6006,98 @@ function bindGeometryDebug(feature, layer) {
         </div>`);
 }
 
+const CITY_VIEWPORT_CAP_BY_ZOOM = [
+    { maxZoom: 3, cap: 14, minPop: 5000000 },
+    { maxZoom: 4, cap: 20, minPop: 2000000 },
+    { maxZoom: 5, cap: 32, minPop: 1000000 },
+    { maxZoom: 6, cap: 42, minPop: 500000 },
+    { maxZoom: 7, cap: 52, minPop: 100000 },
+    { maxZoom: 99, cap: 60, minPop: 50000 },
+];
+
+function getCityZoomPolicy(zoom) {
+    for (const row of CITY_VIEWPORT_CAP_BY_ZOOM) {
+        if (zoom <= row.maxZoom) return row;
+    }
+    return CITY_VIEWPORT_CAP_BY_ZOOM[CITY_VIEWPORT_CAP_BY_ZOOM.length - 1];
+}
+
+function getCityMarkerTier(population) {
+    const pop = Number(population) || 0;
+    if (pop >= 1000000) return "major";
+    if (pop >= 250000) return "mid";
+    if (pop >= 50000) return "minor";
+    return "small";
+}
+
+function getCityMarkerStyle(tier, zoom) {
+    if (tier === "major") {
+        return {
+            radius: zoom >= 7 ? 8 : zoom >= 5 ? 7 : 6,
+            color: "#0f172a",
+            weight: 2.5,
+            fillColor: "#ffffff",
+            fillOpacity: 1,
+        };
+    }
+    if (tier === "mid") {
+        return {
+            radius: zoom >= 7 ? 6 : 5,
+            color: "#334155",
+            weight: 2,
+            fillColor: "#f8fafc",
+            fillOpacity: 0.95,
+        };
+    }
+    if (tier === "minor") {
+        return {
+            radius: 4,
+            color: "#64748b",
+            weight: 1.5,
+            fillColor: "#f1f5f9",
+            fillOpacity: 0.9,
+        };
+    }
+    return {
+        radius: 3,
+        color: "#94a3b8",
+        weight: 1,
+        fillColor: "#f8fafc",
+        fillOpacity: 0.75,
+    };
+}
+
 function renderCities() {
     cityLayer.clearLayers();
     if (typeof citiesData === "undefined" || !citiesData.length) return;
     const zoom = map.getZoom();
     const bounds = map.getBounds();
-    let minPop = 0;
-    if (zoom <= 3) minPop = 5000000;
-    else if (zoom <= 4) minPop = 2000000;
-    else if (zoom <= 5) minPop = 1000000;
-    else if (zoom <= 6) minPop = 500000;
-    else if (zoom <= 7) minPop = 100000;
-    else if (zoom <= 8) minPop = 50000;
+    const policy = getCityZoomPolicy(zoom);
+    const minPop = policy.minPop;
+    const viewportCap = policy.cap;
 
-    citiesData.forEach(city => {
-        if (city.pop >= minPop && bounds.contains([city.lat, city.lng])) {
-            L.circleMarker([city.lat, city.lng], {
-                pane: CITY_MARKER_PANE,
-                radius: zoom >= 7 ? 6 : 4,
-                color: "#1a1a1a",
-                fillColor: "#fff",
-                fillOpacity: 1,
-                weight: 2
-            })
-                .addTo(cityLayer)
-                .on("click", ev => {
-                    L.DomEvent.stopPropagation(ev);
-                    openDatasetCityPopup(city);
-                });
+    const candidates = sortCitiesByPopDesc(
+        citiesData.filter((city) => city.pop >= minPop && bounds.contains([city.lat, city.lng]))
+    ).slice(0, viewportCap);
+
+    candidates.forEach((city) => {
+        const tier = getCityMarkerTier(city.pop);
+        const style = getCityMarkerStyle(tier, zoom);
+        const marker = L.circleMarker([city.lat, city.lng], Object.assign({
+            pane: CITY_MARKER_PANE,
+        }, style))
+            .addTo(cityLayer)
+            .on("click", (ev) => {
+                L.DomEvent.stopPropagation(ev);
+                openDatasetCityPopup(city);
+            });
+        if (tier === "major" && zoom >= 5) {
+            marker.bindTooltip(city.name, {
+                permanent: true,
+                direction: "top",
+                className: "rm-city-label rm-city-label--major",
+                offset: [0, -6],
+            });
         }
     });
 }
@@ -9974,6 +10183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         activeConditions = snapshotConditions();
         renderGhost();
     }
+    window.__rmSyncGhostFromReplayedPlan = syncGhostFromReplayedPlan;
 
     /* ── mode transitions ── */
     function enterExplore() {
@@ -10099,9 +10309,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderGhost();
             }
             var result = await _prevSearch.apply(this, arguments);
-            if (isHistoryReplay) {
+            if (isHistoryReplay || (meta || {}).source === 'popup_overlay_discovery') {
                 syncGhostFromReplayedPlan(plan);
-                _historyReplayActive = false;
+                if (isHistoryReplay) _historyReplayActive = false;
                 renderGhost();
             }
             /* PB5-A: skip enterExplore on history replay OR steady-state explore (panel
