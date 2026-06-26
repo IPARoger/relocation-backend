@@ -1,0 +1,10 @@
+{
+  "captured": [
+    "01_auth_signup.png",
+    "02_auth_login.png",
+    "03_auth_email_confirm.png",
+    "10_birth_intake_default.png",
+    "12_birth_intake_validation_error.png"
+  ],
+  "base": "http://127.0.0.1:8012"
+}

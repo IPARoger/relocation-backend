@@ -61,8 +61,8 @@ Scope: Mockups 06–08 (`validation/mockups/beta/first_experience/`) → harmoni
 
 | Area | Built | Smoke | PO QA | Release Ready | Risk left | Risk |
 |------|:-----:|:-----:|:-----:|:-------------:|-----------|:----:|
-| **Auth** | ✅ | 🟡 | ⚪ | ⚪ | UI | **P0** |
-| **Birth intake** | ✅ | 🟡 | ⚪ | ⚪ | UI · QA | **P0** |
+| **Auth** | ✅ | ✅ | ⚪ | ⚪ | PO QA | **P0** |
+| **Birth intake** | ✅ | ✅ | ⚪ | ⚪ | PO QA | **P0** |
 | **Map** | ✅ | ✅ | 🟡 | ⚪ | UI · Genie harmonization · QA | **P0** |
 | **Comparison V5** | ✅ | ✅ | 🟡 | 🟡 | QA | P1 |
 | **Profile / Relocated** | ✅ | ✅ | 🟡 | 🟡 | Engine · QA | P1 |
@@ -263,6 +263,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 
 ```
 ✓ BI-0C Auth + birth intake implementation ([272](../results/272_first_experience_auth_intake_implementation.md))
+✓ BI-0C First experience implementation ([272](../results/272_bi0c_first_experience_implementation.md))
 ✓ BI-0B First experience mockups ([271](../results/271_first_experience_mockups.md))
 ✓ BI-0A First experience archaeology (read-only)
 ✓ M2-X Map visual harmonization (family bridge)

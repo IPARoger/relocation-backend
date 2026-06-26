@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "validation/mockups/beta/screenshots/bi0c_impl/after"
+OUT = ROOT / "validation/mockups/beta/screenshots/bi0c_implementation/after"
 PORT = 8012
 BASE = f"http://127.0.0.1:{PORT}"
 
@@ -61,8 +61,11 @@ def main() -> int:
         captured.append("03_auth_email_confirm.png")
 
         # Birth intake default
-        page.goto(f"{BASE}/validation/mockups/beta/screenshots/bi0c_impl/_capture_intake.html", wait_until="networkidle")
-        time.sleep(0.3)
+        page.goto(f"{BASE}/map_CURRENT.html", wait_until="domcontentloaded")
+        page.add_script_tag(url=f"{BASE}/first_profile_intake.js")
+        page.evaluate("() => window.__showFirstProfileIntake()")
+        page.wait_for_selector("#rm-first-profile-intake", timeout=10000)
+        time.sleep(0.2)
         page.screenshot(path=str(OUT / "10_birth_intake_default.png"))
         captured.append("10_birth_intake_default.png")
 
