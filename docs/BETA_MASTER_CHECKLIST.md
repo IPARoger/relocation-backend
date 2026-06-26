@@ -1,16 +1,16 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-26 (M2-X)  
+**Last updated:** 2026-06-26 (BI-0A)  
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
 
-**BI-0 — Birth Intake + Auth visual/flow audit**
+**BI-0B — First Experience mockups (auth + intake + landing)**
 
-Scope: `auth.html` visual quality · signup/login/password-reset truth · Google/Apple OAuth status · `first_profile_intake.js` · city/IATA lookup readiness · first overlay demo handoff
+Scope: mockup pass per [270 archaeology](../results/270_first_experience_archaeology_audit.md) §12 — no implementation until mockups approved
 
-*Map enters maintenance mode after M2-X — PO screenshot pass still recommended ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
+*BI-0A archaeology complete. Map in maintenance mode ([269](../results/269_map_surface_genie_harmonization_audit.md)).*
 
 ---
 
@@ -20,7 +20,7 @@ Scope: `auth.html` visual quality · signup/login/password-reset truth · Google
 **Related (do not duplicate):**
 - [Material System Canon](canon/MATERIAL_SYSTEM_CANON.md) · [Material delta](../results/263_material_system_delta.md)
 - [Map trust audit](../results/265_map_control_overlay_trust_audit.md) · [M2 surface audit](../results/269_map_surface_genie_harmonization_audit.md) · [Map QA pass 1](../results/144_map_qa_pass1.md)
-- [Family resemblance](../results/264_family_resemblance_final_audit.md) · [Settings audit](../results/262_settings_harmonization_audit.md)
+- [Family resemblance](../results/264_family_resemblance_final_audit.md) · [First experience archaeology](../results/270_first_experience_archaeology_audit.md) · [Settings audit](../results/262_settings_harmonization_audit.md)
 - [Production acceptance](../architecture/PRODUCTION_ACCEPTANCE_CHECKLIST.md) · [Feature status board](../architecture/FEATURE_STATUS_BOARD.md) *(stale 2026-06-14 — use this doc)*
 
 ---
@@ -262,6 +262,7 @@ OAuth · Exports · saved-investigations library UI · M1-E cache · pin→compa
 *Append only. Newest first.*
 
 ```
+✓ BI-0A First experience archaeology (read-only)
 ✓ M2-X Map visual harmonization (family bridge)
 ✓ M2 Map surface + Genie harmonization audit (read-first)
 ✓ B0-A Beta release tracker refinement      (B0-A)

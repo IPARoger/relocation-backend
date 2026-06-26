@@ -1,0 +1,17 @@
+{
+  "captured": [
+    "01_auth_signup.png",
+    "02_auth_login.png",
+    "03_auth_forgot_password_sent.png",
+    "04_auth_email_confirm.png",
+    "05_auth_login_error.png",
+    "10_birth_intake_default.png",
+    "11_birth_intake_unknown_time.png",
+    "12_birth_intake_validation_error.png",
+    "20_unauthenticated_map_redirect.png"
+  ],
+  "skipped": [
+    "authenticated map: [Errno 8] nodename nor servname provided, or not known"
+  ],
+  "errors": []
+}
