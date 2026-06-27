@@ -185,7 +185,7 @@ Consultation Canon
   intention_certainty          -- inferred: hard / exploring / evolving
   hard_constraints             -- non-negotiable requirements
   soft_constraints             -- strong preferences, not dealbreakers
-  cities_under_consideration   -- current working list
+  selected_places_and_regions  -- user-selected places and viable geographic regions under active consideration
   current_location_baseline    -- where the user is now
   birth_time_certainty         -- certain / range / unknown
   birth_time_range             -- if range: earliest/latest
@@ -277,6 +277,10 @@ Full SearchSpec schema is defined in the Web3 AI Implementation Roadmap, Track 4
 | transparency_notes | what was tried, substituted, tradeoff introduced |
 | user_approved_path | which strategy variant the user selected |
 
+**Overlay-first doctrine — SearchSpec primary output:**
+
+The SearchSpec primary output is map overlay configuration and geographic conditions — not city lists. The Engine returns overlay branches / viable geographic regions. Cities enter the result set only after the user pins or selects a place on the map, or after an explicit city-helper request. SearchSpec must not be treated as a city-query mechanism.
+
 **Scope limits — SearchSpec must NOT:**
 
 | Prohibited | Reason |
@@ -284,6 +288,7 @@ Full SearchSpec schema is defined in the Web3 AI Implementation Roadmap, Track 4
 | Contain raw numeric ranking scores | Hidden ranking; scores are translated into named categories by Engine |
 | Be modified after user_approved_path is set without creating a new spec | Immutability of confirmed search; FOUNDATIONAL_CONSTITUTION.md §5.4 |
 | Execute climate_city_filters in v1 | Deferred; schema field present but Engine does not execute it |
+| Treat city lists as primary output | SearchSpec is overlay-first; map overlay configuration is the primary output; city identification is downstream of user-selected places |
 
 ---
 
@@ -298,11 +303,11 @@ Full SearchSpec schema is defined in the Web3 AI Implementation Roadmap, Track 4
 - SearchSpec (provides the structured parameters for map and search operations)
 - Consultation Canon excerpt (current session context)
 
-**Outputs:**
-- Map overlay launch (opens or updates map overlays matching the SearchSpec)
-- Saved search creation (creates a saved search from the current SearchSpec)
+**Outputs (overlay-first):**
+- Map overlay launch (opens or updates map overlays matching the SearchSpec — primary default output)
 - Genie launch (opens Genie pre-populated with the current SearchSpec context)
-- Pin/favorites action (pins a city to the user's investigation)
+- Saved search creation (creates a saved search from the current SearchSpec)
+- Pin/favorites action (pins a user-selected place to the investigation — user-initiated)
 
 **Scope limits — Genie/Map Adapter must NOT:**
 

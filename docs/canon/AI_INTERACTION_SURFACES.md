@@ -49,7 +49,7 @@ The AI receives the context that is directly relevant to what the user is lookin
 **Context the AI receives automatically:**
 - User's existing profile data (name, birth data if already entered, current location if known)
 - Whether this is a first session or a resumed session
-- If resumed: Consultation Canon (current intention, evidence log, cities under consideration, confirmed summary)
+- If resumed: Consultation Canon (current intention, evidence log, selected places and regions under consideration, confirmed summary)
 - Application locale and language
 
 **What the AI can initiate:**
@@ -183,7 +183,7 @@ These are inferred from conversation, not checked off as a form. The Navigator p
 - Explain what a specific condition means in plain language when the user focuses on a column
 - Identify which conditions are most relevant to the user's stated intention
 - Flag conditions that are outside the user's stated intention but may be worth noting
-- Suggest additional cities worth adding to the comparison based on the current search context
+- Suggest additional geographic regions or overlay conditions worth exploring based on the current search context — not new cities; city additions require explicit user request
 
 **What the AI must NOT do from this surface:**
 - Rank cities as objectively better or worse — all comparative language must be conditional on the user's stated intention (AI_CONSULTATION_ARCHITECTURE.md §8)

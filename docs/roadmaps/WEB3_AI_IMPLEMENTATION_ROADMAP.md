@@ -350,6 +350,8 @@ SearchSpec
 
 ### Key Decisions
 
+0. **Overlay-first doctrine.** SearchSpec primary output is map overlay configuration and viable geographic conditions — not city lists. The Engine returns overlay branches per strategy variant. Cities enter only after the user pins or selects a place on the map, or after an explicit city-helper request from a professional. This is a hard architectural constraint, not a preference.
+
 1. **Climate/city filters.** Schema must accommodate climate_city_filters, but execution is deferred until a separate data layer integration track is completed. The schema field must be present in v1.
 
 2. **Viable alternatives depth.** When viable_alternatives is true, how many alternative strategies does the Engine return? (Proposed: up to 4 named strategy variants, following viability probing model in INTENT_TRANSLATION_ENGINE.md §12.)
@@ -394,7 +396,7 @@ Implement the Navigator: the consumer-facing research companion that orchestrate
 | Consultation Canon management | Creates and updates evidence events; manages the Canon object |
 | Intent translation integration | Calls Intent Translation Engine; manages competing hypotheses; asks disambiguation questions |
 | SearchSpec handoff | Produces SearchSpec from accumulated intention evidence; passes to Engine |
-| Tradeoff presentation | Explains city results in narrative-level tradeoff language per CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md §3 |
+| Tradeoff presentation | Explains overlay result conditions in narrative-level tradeoff language per CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md §3 — not city lists; the user has selected the places being discussed |
 | Search refinement loop | Narrows results through conversation; updates SearchSpec; re-runs Engine |
 | Checkpointing | Saves consultation progress; allows user to resume |
 
