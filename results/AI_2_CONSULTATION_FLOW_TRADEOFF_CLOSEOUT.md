@@ -52,7 +52,7 @@
 
 4. **Neutral condition tracking:** How are "neutral today" conditions surfaced if they become relevant later? Does the Consultation Canon store them, or are they recalculated on demand?
 
-5. **Dignity language enforcement:** The Reviewer / Ghost Boss AI needs a specific checklist to catch forbidden dignity language ("good," "bad," "lucky," "unlucky"). Is this a static word list, or a semantic judgment?
+5. **Dignity language enforcement:** The Guardian needs a specific checklist to catch forbidden dignity language ("good," "bad," "lucky," "unlucky"). Is this a static word list, or a semantic judgment?
 
 ---
 
@@ -74,7 +74,7 @@ Both are recommended for promotion into `docs/constitutional/FOUNDATIONAL_CONSTI
 The interface contract between Translation Engine output and Search Engine input. Blocked on this before pipeline implementation can begin.
 
 **AI-5 — Navigator AI Voice Spec**  
-The Communication Doctrine and Tradeoff Engine both depend on a concrete Navigator AI voice specification (tone, persona, pacing, escalation rules, hand-off protocol to Search Engineer AI).
+The Communication Doctrine and Tradeoff Engine both depend on a concrete Navigator AI voice specification (tone, persona, pacing, escalation rules, hand-off protocol to Engine).
 
 ---
 

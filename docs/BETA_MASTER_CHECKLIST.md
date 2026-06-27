@@ -381,7 +381,7 @@ Do not duplicate those documents here — link only.
 
 **AI-1 canonical document:** [`docs/canon/AI_CONSULTATION_ARCHITECTURE.md`](canon/AI_CONSULTATION_ARCHITECTURE.md)
 
-The AI Consultation Architecture defines the complete future AI-guided Relocation experience: five-layer model, five AI roles (Navigator, Search Engineer, Ontology Assistant, Consultation Memory Agent, Reviewer), the persistent Consultation Canon structured object, memory/evidence rules, intention inference, search/refinement loop, constraint carving, substitutions, DIFFS, relationship/family audit mode, rare alignment language, birth-time uncertainty handling, Ontology Wizard, reading upload, style extraction, experiential travel module, cost/model architecture principles, and future pricing packages.
+The AI Consultation Architecture defines the complete future AI-guided Relocation experience: five-layer model, five AI roles (Navigator, Engine, Ontology Assistant, Consultation Memory Agent, Guardian), the persistent Consultation Canon structured object, memory/evidence rules, intention inference, search/refinement loop, constraint carving, substitutions, DIFFS, relationship/family audit mode, rare alignment language, birth-time uncertainty handling, Ontology Wizard, reading upload, style extraction, experiential travel module, cost/model architecture principles, and future pricing packages.
 
 **Nothing in this document is active Web2 Beta implementation.**
 

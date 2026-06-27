@@ -23,6 +23,33 @@ This constitution protects the human user from three failures: false certainty, 
 
 ---
 
+## 0.1 The Central Design Ethic
+
+**Reveal, don't impose.**
+
+This principle governs the entire platform — not only the AI layer. It is the design ethic that unifies every decision from map rendering to glyph curation, from overlay behavior to consultation conversation, from settings architecture to City Intelligence presentation.
+
+| Domain | Application |
+|--------|-------------|
+| Map and overlays | Reveal the map. Do not decorate it. |
+| Chart and patterns | Reveal the pattern. Do not invent the story. |
+| Consultation and tradeoffs | Reveal the tradeoffs. Do not choose for the user. |
+| Symbolism and astrology | Reveal the symbolism. Do not mystify it. |
+| The instrument itself | Reveal the instrument. Do not hide it behind AI. |
+| Understanding | Reveal understanding. Do not perform expertise. |
+
+"Reveal structure. Preserve judgment." is the legal formulation of the First Law.
+
+"Reveal, don't impose." is its design spirit — the ethic that holds all product decisions together from Web2 through the most ambitious future vision. Because it is simple, it scales.
+
+Every design decision can be tested against it:
+
+- *Are we revealing, or are we imposing?*
+- *Are we making the structure visible, or are we making ourselves impressive?*
+- *Are we giving the user more capability, or more dependence?*
+
+---
+
 ## 1. Constitutional Source Scope
 
 The deeper pass scanned and consolidated source blocks containing constitutional language, foundational tenets, epistemic integrity rules, symbolic humility doctrine, system boundaries, human judgment protections, AI authority limits, validation governance, moral limits of data use, and future policy placeholders.

@@ -75,7 +75,7 @@ Five specialized roles. They are distinct agents that do not share scope.
 
 **Voice to the user.** Handles intake, check-ins, education, and user-facing explanation. Conversational, non-technical. Asks soft feedback questions. Identifies intention shifts. Never speaks for the other agents directly — it mediates.
 
-### Search Engineer AI
+### Engine
 
 **Translates intention into structured search plans.** Generates substitutions, exclusions, constraint-carving specs, and A2A refinement parameters. Does not speak directly to the user; outputs are mediated through Navigator AI. Closer to a query compiler than a conversationalist.
 
@@ -87,7 +87,7 @@ Five specialized roles. They are distinct agents that do not share scope.
 
 **Maintains the Consultation Canon.** Creates timestamped evidence events autonomously when users provide new data points. Flags contradictions without deleting prior evidence. Offers periodic confirmation to the user without interrupting every exchange.
 
-### Reviewer / Ghost Boss AI
+### Guardian
 
 **Audits all AI output before user display.** Checks for:
 
@@ -277,7 +277,7 @@ The AI may say:
 
 ## 9. Substitutions
 
-If a desired condition is unavailable or impractical, the Search Engineer AI may suggest symbolic substitutes.
+If a desired condition is unavailable or impractical, the Engine may suggest symbolic substitutes.
 
 **Example:** If Sun in 1st is mostly over ocean:
 - Sun trine ASC
@@ -679,7 +679,7 @@ The Communication Doctrine defines:
 | Constitutional truth boundary | Illuminate patterns; allow the user to complete the story |
 | Human success metric | AI succeeds when the user becomes more capable, not more dependent |
 
-The Reviewer / Ghost Boss AI (§2) enforces compliance with the Communication Doctrine on all AI outputs before user display.
+The Guardian (§2) enforces compliance with the Communication Doctrine on all AI outputs before user display.
 
 ---
 
@@ -718,7 +718,7 @@ The three-role model that governs every AI design decision:
 | The AI | Reveals patterns |
 | The user | Discovers meaning |
 
-The Ghost Boss Reviewer evaluates all AI outputs against five questions: Was symbolic truth preserved? Were the user's intentions preserved? Did the AI translate rather than perform? Did the AI leave room for user recognition? Is every claim traceable to the underlying instrument?
+The Guardian evaluates all AI outputs against five questions: Was symbolic truth preserved? Were the user's intentions preserved? Did the AI translate rather than perform? Did the AI leave room for user recognition? Is every claim traceable to the underlying instrument?
 
 Four constitutional additions have been formally proposed for promotion into §7 of the Foundational Constitution (AI Constitutional Limits): the three-role model, the expertise principle, the chart/intention balance rule, and the user-competence success metric.
 

@@ -39,7 +39,7 @@
 | AI never edits Layer 1 (Truth) | §1 Layer model |
 | Five-layer model (Truth / Ontology / Intention / Search / City Intelligence) | §1 |
 | Five AI roles with separate scope | §2 |
-| Reviewer / Ghost Boss AI is mandatory infrastructure | §2 |
+| Guardian is mandatory infrastructure | §2 |
 | Consultation Canon is product infrastructure, not chat memory | §3 |
 | Evidence events are append-only; contradictions preserved | §4 |
 | Intention certainty inferred from context, not asked as 1–10 | §6 |

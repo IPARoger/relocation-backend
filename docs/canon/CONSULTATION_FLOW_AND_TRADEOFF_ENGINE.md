@@ -249,7 +249,7 @@ This principle is recommended for promotion into the Foundational Constitution.
 | Consultation Canon | Tradeoff reasoning outputs are recorded as evidence events; updated Working Hypotheses may emerge |
 | Communication Doctrine | Governs all language used when presenting tradeoffs to the user |
 | City Intelligence (Layer 5) | Practical tradeoffs (cost, visa, schools) are surfaced alongside astrological tradeoffs, not after them |
-| Reviewer / Ghost Boss AI | Audits all tradeoff outputs for deterministic language, hidden ranking, and flattery |
+| Guardian | Audits all tradeoff outputs for deterministic language, hidden ranking, and flattery |
 
 ---
 

@@ -7,6 +7,8 @@
 **Companions:** [AI_COMMUNICATION_DOCTRINE.md](AI_COMMUNICATION_DOCTRINE.md) · [AI_CONSULTATION_ARCHITECTURE.md](AI_CONSULTATION_ARCHITECTURE.md) · [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md)
 
 > This document explains *why* the other AI canon documents exist.
+> The central design ethic governing all of them — and the entire platform — is: **Reveal, don't impose.**
+> See [FOUNDATIONAL_CONSTITUTION.md §0.1](../constitutional/FOUNDATIONAL_CONSTITUTION.md).
 > It does not replace them. It provides the constitutional philosophy underlying all AI interaction.
 
 ---
@@ -107,9 +109,9 @@ The AI must never:
 
 ---
 
-## 5. Ghost Boss evaluation criteria
+## 5. Guardian evaluation criteria
 
-The Reviewer / Ghost Boss AI should continuously evaluate outputs against five questions:
+The Guardian should continuously evaluate outputs against five questions:
 
 | Question | What it protects |
 |----------|-----------------|

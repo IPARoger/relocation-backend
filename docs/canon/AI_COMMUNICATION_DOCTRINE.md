@@ -316,9 +316,9 @@ This doctrine governs all AI voice and communication across every current and fu
 |---------|--------------------------|
 | Navigator AI (intake, check-ins) | Yes |
 | Consultation Memory Agent (summaries, confirmations) | Yes |
-| Search Engineer AI (translated explanations to user) | Yes (mediated) |
+| Engine (translated explanations to user) | Yes (mediated) |
 | Ontology Assistant (professional interactions) | Yes |
-| Reviewer / Ghost Boss AI (internal; not user-facing) | Partial — governs what the Reviewer flags for communication failures |
+| Guardian (internal; not user-facing) | Partial — governs what the Reviewer flags for communication failures |
 | Inline citations | Yes |
 | Reports and exports | Yes |
 | Experiential travel module | Yes |

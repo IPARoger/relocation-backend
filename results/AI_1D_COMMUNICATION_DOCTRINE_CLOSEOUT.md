@@ -38,7 +38,7 @@
 | Human success metric: user becomes more capable, less dependent | §11 |
 | Proposed Foundational Constitution addition | §12 |
 | Communication Doctrine scope: all AI roles and features | §13 |
-| Reviewer / Ghost Boss AI enforces Communication Doctrine compliance | §13 |
+| Guardian enforces Communication Doctrine compliance | §13 |
 
 ---
 
@@ -64,7 +64,7 @@ This is binding within the Communication Doctrine until formally promoted.
 
 4. **Constitutional promotion process:** Who decides when a doctrine principle is ready for promotion into FOUNDATIONAL_CONSTITUTION.md? This needs a governance decision.
 
-5. **Reviewer enforcement spec:** The Reviewer / Ghost Boss AI enforces Communication Doctrine compliance — but what is the explicit checklist it uses? This is partially covered by §2 of AI_CONSULTATION_ARCHITECTURE.md but a Communication Doctrine-specific audit list would strengthen the Reviewer spec.
+5. **Reviewer enforcement spec:** The Guardian enforces Communication Doctrine compliance — but what is the explicit checklist it uses? This is partially covered by §2 of AI_CONSULTATION_ARCHITECTURE.md but a Communication Doctrine-specific audit list would strengthen the Reviewer spec.
 
 ---
 
