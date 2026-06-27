@@ -40,10 +40,12 @@ BI-0C reskins `auth.html` and `first_profile_intake.js` into the established sto
 
 ## Smoke results
 
-```
-python3 scripts/smoke_bi0c_first_experience.py
-20/20 PASS
-```
+| Script | Result |
+|--------|--------|
+| `smoke_bi0c_first_experience.py` | **PASS 20/20** |
+| `smoke_bi0_archaeology.py` | **PASS 30/30** (HTTP skipped if server down) |
+| `smoke_google_oauth.py` | **PASS 16/16** |
+| `smoke_intake_google_name_prefill.py` | **PASS 10/10** |
 
 Checks: family_resemblance on auth, rm-instrument-surface, no blue SaaS tokens, no Unknown time in intake, hidden display name on first-run, rm-sls-* place search, create-with-birth + map redirect preserved.
 
@@ -63,3 +65,8 @@ Checks: family_resemblance on auth, rm-instrument-surface, no blue SaaS tokens, 
 ## Not changed (per scope)
 
 OAuth logic, backend routes, chart calculation, transition screen (none added), add-profile shell path (display name still visible in `mode: "add"`).
+
+## Commits
+
+- `c216047` — implementation
+- `fbdae94` — smoke gate, screenshots, report
