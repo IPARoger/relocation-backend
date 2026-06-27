@@ -265,7 +265,158 @@ If a professional has authored a custom Layer 2 model, the Translation Engine us
 
 ---
 
-## 11. Explicitly deferred to future implementation
+## 12. Overlap Search Strategy and viability probing
+
+### Definition
+
+**Overlap Search Strategy** is the process of testing multiple structured versions of a compositional intention to identify viable geographic overlap areas before presenting results to the user.
+
+This is **search preparation**, not final recommendation.
+
+The Translation Engine may produce a specification with several desired archetypes. Many ideal combinations do not exist cleanly in geography. Viability probing tests whether a given combination has geographic coverage — and what the realistic variants look like — before committing to a full search.
+
+### Core principle
+
+The AI may save the user time by avoiding obvious dead ends.
+
+It may not rob the user of discovery.
+
+It may pre-search variations, but it must disclose:
+
+- Whether an exact match was found or not found
+- Whether a partial match was found
+- What substitutions were used
+- Which desired archetypes were preserved
+- Which desired archetypes were weakened
+- What co-factors were introduced
+- What options remain worth exploring manually
+
+### Example
+
+**User intention:** Career — expressive, stable, beautiful.
+
+**Archetype family:** Sun × Saturn × Venus × MC / 10th
+
+**Ideal specification:**
+- Sun in 10th
+- Venus in 10th or Venus trine/sextile MC
+- Saturn in 10th or Saturn trine/sextile MC
+
+If no clean three-factor overlap exists, the AI tests variants:
+
+| Variant | Conditions | Character |
+|---------|-----------|-----------|
+| A | Sun in 10th · Venus sextile MC · Saturn trine MC | Sun and Saturn direct; Venus through aspect |
+| B | Sun conjunct MC · Venus in 10th · Saturn dignity | Venus and solar emphasis direct; Saturn supportive |
+| C | Sun in 10th · Saturn in 10th · Venus square MC | Sun and Saturn direct; Venus with tension/activation |
+| D | Sun in 10th · Venus trine MC · Saturn in 11th | Avoids Saturn 12th/1st pressure; Saturn slightly off-axis |
+
+**Report style:**
+
+> "The clean three-factor version is rare. I found two workable strategies: one preserves Sun and Saturn most strongly while bringing Venus through an MC aspect; the other preserves Sun and Venus while Saturn becomes a supporting factor rather than the main career signature."
+
+### Required transparency
+
+Every viability probe must produce a visible summary before the user sees results:
+
+| Required disclosure | Example |
+|--------------------|---------|
+| What was tried | "Tested three-factor Sun/Venus/Saturn MC combination" |
+| What worked | "Sun in 10th has strong coverage in central Europe and East Asia" |
+| What did not work | "Clean three-factor overlap is rare; fewer than 5 viable metro areas globally" |
+| What was substituted | "Saturn moved to trine MC rather than conjunction; Venus via sextile rather than conjunction" |
+| What tradeoff was introduced | "Venus-square variant carries more tension or activation than ease" |
+| Why this path | "Variant A preserves the career recognition signature most directly" |
+
+The user should be able to open the underlying Web2 search specification in Genie at any point.
+
+### Exploration preservation rule
+
+Do not collapse viable alternatives too early.
+
+If multiple viable paths are meaningfully different, **preserve them as strategy options** and present them to the user for selection.
+
+**Examples of distinct paths that must not be merged:**
+- Recognition path (Sun/MC emphasis)
+- Mastery path (Saturn/MC emphasis)
+- Creative path (Venus/5th emphasis)
+- Innovative path (Uranus/MC emphasis)
+- Stable-home-preserving path (Moon/4th preserved alongside career factors)
+
+The AI may recommend inspecting one path first. It must not hide the others.
+
+### Partial-match honesty
+
+A partial match is not failure. Partial matches are surfaced with honest characterization.
+
+**Allowed phrasing:**
+
+- "We got 2 of the 3 desired archetypes cleanly. The third appears through a narrower A2A band."
+- "The Venus signature is available, but it comes through a square rather than a trine, so it may carry more tension or activation than ease."
+- "The Saturn factor is easier to preserve if we let it move into the 11th rather than forcing it into the 10th."
+
+**Forbidden phrasing:**
+
+- "This is basically the same."
+- "This is just as good."
+- "This is the best result."
+
+All comparison language must be conditional on the user's stated intention, as defined in §8 of AI_CONSULTATION_ARCHITECTURE.md.
+
+### Relationship to optimization
+
+Viability probing and optimization are sequential, not simultaneous.
+
+| Stage | Question |
+|-------|----------|
+| Viability probing | "Can this combination exist in geography?" |
+| Optimization | "Can we preserve what works while carving out undesirable co-factors?" |
+
+Optimization begins only after a viable region or strategy is identified. Running optimization against a non-viable combination wastes effort and produces misleading results.
+
+### Relationship to the Cookbook
+
+The Web2 Cookbook should expose viability strategies manually, organized as recipe trees.
+
+**Example structure for a Cookbook recipe:**
+
+```
+Career → Expressive + Stable + Beautiful
+├── Ideal version          (Sun/Venus/Saturn all in 10th)
+├── A2A workaround         (aspects to MC substituted for house placements)
+├── Dignity-support version (strong solar/Venusian dignity compensates for weaker house placement)
+├── Tension/activation version (square aspects included; activation character acknowledged)
+└── Home-preserving version (Saturn shifted to avoid 4th disruption)
+```
+
+The AI uses the same recipe tree but tests branches faster than manual exploration. The result is the same discovery process, accelerated.
+
+---
+
+## 13. Search specification serialization (future dependency)
+
+The Overlap Search Strategy and full Translation Engine pipeline depend on a formal serialization format for search specifications. This is flagged here as a future dependency; the schema is not designed in this document.
+
+A complete search specification format must be capable of representing:
+
+| Field | Purpose |
+|-------|---------|
+| `ideal_conditions` | Primary archetype targets |
+| `acceptable_substitutions` | Named fallback conditions per archetype |
+| `weighted_priorities` | Relative importance of each component |
+| `hard_avoids` | Conditions that disqualify a region |
+| `soft_avoids` | Conditions to minimize if possible |
+| `variant_branches` | Named strategy variants (A, B, C…) |
+| `partial_matches` | Regions satisfying a subset, with disclosure |
+| `transparency_notes` | What was tried, what was substituted, what tradeoff was introduced |
+| `user_approved_path` | Which strategy the user selected |
+
+**Design owner:** AI-3 — Search Specification Schema (future slice).
+
+
+---
+
+## 14. Explicitly deferred to future implementation
 
 | Item | Note |
 |------|------|
@@ -274,7 +425,9 @@ If a professional has authored a custom Layer 2 model, the Translation Engine us
 | Competing hypothesis confidence model | Requires evidence weighting scheme design |
 | Cookbook cross-reference logic | Requires Cookbook schema to be formalized |
 | Optimization boundary logic | Requires geographic precision spec (how many km is "flexible"?) |
+| Overlap Search Strategy execution | Requires Search Engine API and specification serialization format (AI-3) |
+| Cookbook recipe tree format | Requires Cookbook schema formalization |
 
 ---
 
-*AI-1B complete. Documentation only. No code changes. No database migrations.*
+*AI-1B / AI-1C complete. Documentation only. No code changes. No database migrations.*

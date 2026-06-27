@@ -655,6 +655,8 @@ The Consultation Engine does not perform translation. The Translation Engine doe
 
 Full specification: [`docs/canon/INTENT_TRANSLATION_ENGINE.md`](INTENT_TRANSLATION_ENGINE.md)
 
+The Translation Engine also defines **Overlap Search Strategy** (§12): the process of testing multiple structured variants of a compositional intention to identify viable geographic overlaps before presenting results. Viability probing precedes optimization. All tested variants, substitutions, and tradeoffs are disclosed to the user.
+
 ---
 
 ## 23. What the Web2 instrument remains
