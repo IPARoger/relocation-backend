@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from smoke_settings_details import wait_for_minor_aspects
 PYTHON = ROOT / "venv" / "bin" / "python"
 DEFAULT_EMAIL = "davidleongoodman@gmail.com"
 PORT = 8004
@@ -193,7 +194,10 @@ def main():
                 sub,
             )
             page.wait_for_selector("[data-settings-framework]", timeout=15000)
-            page.wait_for_selector(marker, timeout=15000)
+            if sub == "astrology":
+                wait_for_minor_aspects(page)
+            else:
+                page.wait_for_selector(marker, timeout=15000)
             active = page.eval_on_selector(
                 f".settings-nav-item[data-settings-sub='{sub}']",
                 "el=>el && el.classList.contains('active')",
@@ -206,7 +210,7 @@ def main():
 
         # Legacy alias: charts -> astrology
         page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
-        page.wait_for_selector("#rm-settings-minor-aspects", timeout=15000)
+        wait_for_minor_aspects(page)
         alias_ctx = page.evaluate("()=>window.__rmAppShell.navContext.settingsSubpage")
         results.append(("fe_legacy_charts_alias", alias_ctx == "astrology", f"ctx={alias_ctx}"))
 
@@ -237,7 +241,7 @@ def main():
 
         # SETTINGS-WIRE-1: Minor aspects — novile and septile must exist in the UI
         page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
-        page.wait_for_selector("#rm-settings-minasp-quincunx", timeout=10000)
+        wait_for_minor_aspects(page)
         has_novile  = page.query_selector("#rm-settings-minasp-novile")  is not None
         has_septile = page.query_selector("#rm-settings-minasp-septile") is not None
         results.append(("fe_minor_asp_novile_exists",  has_novile,  f"novile_present={has_novile}"))
@@ -252,7 +256,7 @@ def main():
 
         # SETTINGS-WIRE-1A: septile must appear before novile in minor aspects list
         page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
-        page.wait_for_selector("#rm-settings-minasp-septile", timeout=10000)
+        wait_for_minor_aspects(page)
         asp_order = page.evaluate("()=>Array.from(document.querySelectorAll('[id^=rm-settings-minasp-]')).map(e=>e.id)")
         sep_idx = asp_order.index("rm-settings-minasp-septile") if "rm-settings-minasp-septile" in asp_order else 999
         nov_idx = asp_order.index("rm-settings-minasp-novile")  if "rm-settings-minasp-novile"  in asp_order else 999

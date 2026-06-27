@@ -163,6 +163,14 @@ def serve_theme_relocation_themes_css():
     )
 
 
+@app.get("/theme/family_resemblance.css")
+def serve_theme_family_resemblance_css():
+    return FileResponse(
+        APP_DIR / "theme" / "family_resemblance.css",
+        media_type="text/css",
+    )
+
+
 @app.get("/theme/relocation_theme.js")
 def serve_theme_relocation_theme_js():
     return FileResponse(
@@ -2961,7 +2969,9 @@ def serve_app_shell_html():
     return FileResponse(APP_DIR / "app_shell.html", media_type="text/html")
 
 
-# removed: serve_local_product_store_json C5-2a
+@app.get("/local-product-store.json")
+def serve_local_product_store_json():
+    return _quarantine_legacy_read("/local-product-store.json")
 
 
 @app.get("/chart-records")
@@ -3289,7 +3299,13 @@ def api_get_profile(profile_id: str):
 
 
 
-# removed: _quarantine_legacy_read C5-2a
+def _quarantine_legacy_read(route: str) -> JSONResponse:
+    print(f"[quarantine] GET {route} -> 410 Gone (legacy read path retired)", flush=True)
+    return JSONResponse(
+        {"error": "Gone", "reason": "legacy read path retired"},
+        status_code=410,
+    )
+
 
 def _deprecated_legacy_write(replacement: str | None, message: str) -> None:
     raise HTTPException(

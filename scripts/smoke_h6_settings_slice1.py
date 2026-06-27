@@ -34,6 +34,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from smoke_settings_details import wait_for_minor_aspects
 
 PYTHON = ROOT / "venv" / "bin" / "python"
 DEFAULT_EMAIL = "davidleongoodman@gmail.com"
@@ -334,7 +335,7 @@ def smoke_playwright(results: list[tuple[str, bool, str]]) -> None:
             check(nav_count == 7, "fe_settings_boot", f"nav_items={nav_count}", results)
 
             page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'astrology' })")
-            page.wait_for_selector("#rm-settings-minor-aspects", timeout=15000)
+            wait_for_minor_aspects(page)
             check(page.query_selector("#rm-settings-planet-sun") is not None, "fe_astrology_controls", "present", results)
 
             for angle in ("asc", "mc", "dsc", "ic"):

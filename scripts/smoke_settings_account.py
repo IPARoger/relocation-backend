@@ -40,6 +40,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from smoke_settings_details import wait_for_minor_aspects
 PYTHON = ROOT / "venv" / "bin" / "python"
 DEFAULT_EMAIL = "davidleongoodman@gmail.com"
 
@@ -482,7 +483,7 @@ def main() -> int:
 
                 # Charts subpage: visible_minor_aspects persistence
                 page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
-                page.wait_for_selector("#rm-settings-minor-aspects", timeout=15000)
+                wait_for_minor_aspects(page)
                 cur_minor = page.eval_on_selector("#rm-settings-minor-aspects", "el=>el.checked")
                 want_minor = not cur_minor
                 page.eval_on_selector("#rm-settings-minor-aspects", "(el,v)=>{el.checked=v;}", want_minor)
@@ -498,7 +499,7 @@ def main() -> int:
                                 f"mem={mem_minor} want={want_minor}"))
                 load()
                 page.evaluate("()=>window.__rmAppShell.navigate('settings', { settingsSubpage: 'charts' })")
-                page.wait_for_selector("#rm-settings-minor-aspects", timeout=15000)
+                wait_for_minor_aspects(page)
                 rl_minor = page.eval_on_selector("#rm-settings-minor-aspects", "el=>el.checked")
                 results.append(("fe_reload_minor", rl_minor == want_minor,
                                 f"minor={rl_minor} want={want_minor}"))
