@@ -85,7 +85,7 @@ The runtime components exist to illuminate astrological structure in geography. 
 - Layer 2 Model Resolver (to verify that search logic is grounded in approved symbolic grammar)
 
 **Outputs:**
-- Scored result set (candidate cities/regions for each SearchSpec strategy variant)
+- Scored result set (overlay branches / viable geographic regions per strategy variant)
 - Strategy variant descriptions (named variants, not raw scores — e.g., "Creative Recognition path," "Mastery path")
 - Transparency notes (what was tried, what worked, what was substituted, what tradeoff was introduced)
 - Partial match disclosures (when exact specification cannot be satisfied in geography)
@@ -253,7 +253,7 @@ Full SearchSpec schema is defined in the Web3 AI Implementation Roadmap, Track 4
 - User-approved strategy variant (from viability probing; INTENT_TRANSLATION_ENGINE.md §12)
 
 **Outputs of SearchSpec consumption:**
-- Engine result set (scored candidates per strategy variant)
+- Engine result set (overlay branches / viable geographic regions per strategy variant)
 - Map overlay parameters
 - Saved search candidates
 - Genie launch context

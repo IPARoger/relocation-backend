@@ -474,7 +474,8 @@ Implement Astro Assist: the professional copilot for practicing astrologers doin
 | Direct SearchSpec translation | Translates explicit professional criteria into SearchSpec without consumer-level clarification loop |
 | Viable substitute finder | When ideal placements are geographically unavailable, finds related alternatives and explains tradeoffs |
 | Threading the needle | Identifies locations satisfying multiple competing criteria |
-| Major city identification | Given a viable region, identifies major cities within it |
+| Overlay strategy output | Returns overlay branches, viable geographic conditions, and shareable map configurations — not city lists |
+| City identification (downstream) | On explicit professional request after user-selected places, identifies cities within confirmed viable regions |
 | Recalculate more | On request, generates additional alternative strategies |
 | Client report material | Produces location rationale text, summaries, and tradeoff explanations suitable for client use |
 

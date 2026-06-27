@@ -271,10 +271,10 @@ This surface is a distinct UI entry point from the consumer Navigator. It is not
 
 **What the AI can initiate:**
 - Accept explicit professional search criteria and produce a SearchSpec directly (no consumer-level clarification loop)
-- Identify viable locations satisfying the stated criteria
-- Find symbolically related substitutes when ideal placements are unavailable in target geography
-- Thread the needle: identify cities satisfying multiple competing criteria simultaneously
-- Identify major cities within viable regions
+- Return overlay strategies, viable geographic conditions, and shareable map configurations satisfying the stated criteria — not city lists
+- Find symbolically related substitutes when ideal placements are unavailable in target geography, expressed as alternative overlay branches
+- Thread the needle: identify geographic conditions satisfying multiple competing criteria simultaneously, expressed as a shareable overlay set
+- On explicit professional request after user-selected places: identify major cities within confirmed viable regions
 - Produce client report material (location rationale text, tradeoff summaries, condition explanations) suitable for client-facing use
 - Offer to recalculate with additional alternative strategies on request
 
