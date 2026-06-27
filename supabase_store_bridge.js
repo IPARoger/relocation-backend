@@ -68,6 +68,16 @@
     return RM_SETTINGS_DEFAULTS;
   }
 
+  async function loadAppearanceSettingsDefaults() {
+    if (RM_APPEARANCE_DEFAULTS) return RM_APPEARANCE_DEFAULTS;
+    var resp = await fetch("/settings/appearance_settings_defaults.json");
+    if (!resp.ok) {
+      throw new Error("[supabase_store_bridge] appearance defaults: HTTP " + resp.status);
+    }
+    RM_APPEARANCE_DEFAULTS = await resp.json();
+    return RM_APPEARANCE_DEFAULTS;
+  }
+
   var RM_SETTINGS_SNAPSHOT_VERSION = 1;
 
   // Resolve effective Layer 2 settings.
@@ -170,6 +180,7 @@
     getEffectiveSettings: getEffectiveSettings,
     buildSettingsSnapshot: buildSettingsSnapshot,
     loadAstrologySettingsDefaults: loadAstrologySettingsDefaults,
+    loadAppearanceSettingsDefaults: loadAppearanceSettingsDefaults,
   };
 
   // Begin loading defaults immediately (store build also awaits this).

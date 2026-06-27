@@ -171,6 +171,14 @@ def serve_theme_relocation_theme_js():
     )
 
 
+@app.get("/theme/appearance_palettes.js")
+def serve_theme_appearance_palettes_js():
+    return FileResponse(
+        APP_DIR / "theme" / "appearance_palettes.js",
+        media_type="application/javascript",
+    )
+
+
 @app.get("/theme/fonts/AstroDotBasic.ttf")
 def serve_theme_astrodotbasic_font():
     return FileResponse(
