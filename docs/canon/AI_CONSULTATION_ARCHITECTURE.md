@@ -390,6 +390,8 @@ If the user has a birth-time range rather than a precise time:
 
 The **Ontology Wizard** is a Layer 2 authoring system for professional astrologers.
 
+> The full platform architecture for Layer 2 authoring — entry identity, inheritance, versioning, approval lifecycle, manifest pinning, and the Wizard workflow — is specified in [`docs/canon/LAYER_2_AUTHORING_ARCHITECTURE.md`](LAYER_2_AUTHORING_ARCHITECTURE.md).
+
 Professionals can create custom:
 - Placement definitions and cookbook entries
 - Aspect definitions
