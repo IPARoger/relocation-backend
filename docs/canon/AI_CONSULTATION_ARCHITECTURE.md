@@ -641,6 +641,22 @@ This is both an architectural and an economic principle. The design of the Consu
 
 ---
 
+## 25. Intent Translation Engine
+
+The **Intent Translation Engine** is a distinct subsystem from the Consultation Engine and the Search Engine. They have separate responsibilities and may be improved or replaced independently.
+
+| Subsystem | Responsibility |
+|-----------|---------------|
+| Consultation Engine | Guides the conversation; manages evidence, checkpoints, and the user relationship |
+| Intent Translation Engine | Progressively reduces ambiguity; translates human intentions into astrological search specifications |
+| Search Engine | Executes structured search specifications against Layer 1 truth |
+
+The Consultation Engine does not perform translation. The Translation Engine does not search. The Search Engine does not guide conversations.
+
+Full specification: [`docs/canon/INTENT_TRANSLATION_ENGINE.md`](INTENT_TRANSLATION_ENGINE.md)
+
+---
+
 ## 23. What the Web2 instrument remains
 
 The Web2 application — map, overlays, chart pages, comparison tables, A2A, settings, notes, City Intelligence, saved searches — remains **fully functional without AI**. AI layers are additive, not replacements.

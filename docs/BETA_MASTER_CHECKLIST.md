@@ -366,6 +366,7 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | Material families (stone, paper, glass) | [MATERIAL_SYSTEM_CANON.md](canon/MATERIAL_SYSTEM_CANON.md) |
 | Interface law & screen hierarchy | [INTERFACE_AND_DESIGN_CANON.md](../product/INTERFACE_AND_DESIGN_CANON.md) |
 | AI consultation architecture | [AI_CONSULTATION_ARCHITECTURE.md](canon/AI_CONSULTATION_ARCHITECTURE.md) |
+| Intent Translation Engine | [INTENT_TRANSLATION_ENGINE.md](canon/INTENT_TRANSLATION_ENGINE.md) |
 
 Do not duplicate those documents here — link only.
 
@@ -380,6 +381,8 @@ Do not duplicate those documents here — link only.
 The AI Consultation Architecture defines the complete future AI-guided Relocation experience: five-layer model, five AI roles (Navigator, Search Engineer, Ontology Assistant, Consultation Memory Agent, Reviewer), the persistent Consultation Canon structured object, memory/evidence rules, intention inference, search/refinement loop, constraint carving, substitutions, DIFFS, relationship/family audit mode, rare alignment language, birth-time uncertainty handling, Ontology Wizard, reading upload, style extraction, experiential travel module, cost/model architecture principles, and future pricing packages.
 
 **Nothing in this document is active Web2 Beta implementation.**
+
+The **Intent Translation Engine** (`docs/canon/INTENT_TRANSLATION_ENGINE.md`) is separately documented: it defines how human intentions are progressively translated into structured astrological search specifications through three stages (natural language → archetypal combinations → search specification) with competing hypotheses, a question library, compositional search, and Cookbook cross-reference.
 
 Promotion path: any AI feature requires a focused implementation document, scope decision, DB migration plan, validation gate, and rollback plan before becoming active work.
 
