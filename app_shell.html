@@ -10091,7 +10091,7 @@ function bindScreenActions(root) {
       }
     });
   });
-.forEach((btn) => {
+  root.querySelectorAll("[data-nav]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const route = btn.getAttribute("data-nav");
       const chartRecordId = btn.getAttribute("data-chart-record");
@@ -10952,12 +10952,6 @@ if (action === "cmp-notes-hide") {
         if (document.getElementById("rm-dignity-custom-body")) {
           settingsPatch.dignity_custom_rules = collectDignityCustomRulesFromDom(document);
         }
-        const dignityColorModeEl = document.querySelector('input[name="rm-dignity-color-mode"]:checked');
-        if (dignityColorModeEl) settingsPatch.dignity_color_mode = dignityColorModeEl.value;
-        const digColors = {};
-        [["supportive","rm-dignity-color-supportive"],["challenging","rm-dignity-color-challenging"],["exaltation","rm-dignity-color-exaltation"],["fall","rm-dignity-color-fall"]].forEach(([k,id]) => {
-          const el = document.getElementById(id); if (el) digColors[k] = el.value;
-        });
         const dignityColorModeEl = document.querySelector('input[name="rm-dignity-color-mode"]:checked');
         if (dignityColorModeEl) settingsPatch.dignity_color_mode = dignityColorModeEl.value;
         const digColors = {};
