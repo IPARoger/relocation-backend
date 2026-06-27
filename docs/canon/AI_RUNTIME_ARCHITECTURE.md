@@ -245,7 +245,7 @@ Consultation Canon
 
 **Purpose:** The SearchSpec is the structured object that formally serializes a consultation's current astrological search intent. It is produced by the Intent Translation Engine (INTENT_TRANSLATION_ENGINE.md §3) and consumed by the Engine. It is the contract between the conversation layer and the data layer.
 
-Full SearchSpec schema is defined in [`SEARCHSPEC_SCHEMA.md`](SEARCHSPEC_SCHEMA.md) (AI-RT-2). Track 4 implementation documents reference that canon.
+Full SearchSpec schema is defined in [`SEARCHSPEC_SCHEMA.md`](SEARCHSPEC_SCHEMA.md) (AI-RT-2). The concrete compiler that transforms conversation evidence into SearchSpecs is the **Intent Compilation Engine** (see [`INTENT_COMPILATION_ENGINE.md`](INTENT_COMPILATION_ENGINE.md), AI-RT-3).
 
 **Inputs to SearchSpec production:**
 - Accumulated intention evidence from the Consultation Canon
