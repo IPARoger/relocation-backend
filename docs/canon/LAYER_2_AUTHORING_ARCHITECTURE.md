@@ -32,6 +32,67 @@ Everything else in this document is a consequence of that commitment.
 
 ---
 
+## 0.1 Layer 1 / Layer 2 boundary and symbolic grammar (AI-L2-1A addendum)
+
+This addendum clarifies *what kind of thing* Layer 2 entries are, and where the boundary with Layer 1 falls. It constrains content without redesigning the platform.
+
+### 0.1.1 Layer 1 is positional truth only
+
+Layer 1 (Truth) is **astronomy and geometry**: relocated chart positions, houses, angles, aspects-as-measured-angular-separations, coordinates, and birth-time uncertainty math. It is what a calculator computes and cannot be argued with.
+
+**Layer 1 explicitly excludes:**
+- **Rulerships** — which planet rules which sign is a doctrinal assignment, not an astronomical fact
+- **Dignities** — domicile, exaltation, detriment, fall are an interpretive scheme layered onto positions
+- **Mythology** — the stories behind the symbols are cultural source material, not measurement
+
+These all belong to Layer 2. Layer 1 reports *Mars is at 14° Capricorn in the 10th*. It does not report *Mars is exalted* — that is a Layer 2 reading of the position.
+
+### 0.1.2 Layer 2 is symbolic grammar, not finished interpretation
+
+A Layer 2 entry is a unit of **symbolic grammar** — the vocabulary and combinatorial rules of a symbolic language. It is **not** a finished interpretation of a specific person's chart.
+
+| Layer 2 entry provides | Layer 2 entry does NOT provide |
+|------------------------|-------------------------------|
+| What a symbol tends to mean | What it means for this user |
+| The broad archetypal territory | The user's specific story |
+| How symbols combine grammatically | A predictive or biographical conclusion |
+| Source rationale for a meaning | Certainty about an outcome |
+
+Grammar describes how meaning *can* be constructed. The finished sentence — the meaning for a real person — is completed in consultation, by the user, with the Navigator translating (per AI_COMMUNICATION_DOCTRINE.md §14 and PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md). Layer 2 supplies the words and the syntax; it never supplies the user's paragraph.
+
+### 0.1.3 Mythology is allowed as symbolic rationale
+
+Mythological and historical source material **is permitted** in Layer 2 — but as **rationale and source context**, not as a claim about the user. An entry may explain *why* a symbol carries a meaning by pointing to its mythic or traditional source. This is grammar's etymology, not prediction.
+
+The content payload (§1.4) should keep this in a distinct field (e.g., a `rationale` / `source_context` field) so that mythic background is clearly separated from the operative symbolic meaning and never leaks into a user-facing claim as if it were fact.
+
+### 0.1.4 Aspect theory belongs to Layer 2
+
+Layer 1 measures the **angular separation** between two bodies (e.g., 118° apart). The *meaning* of a trine, square, opposition, conjunction, sextile, or minor aspect — what that geometry signifies symbolically — is **aspect theory**, which is Layer 2 grammar.
+
+The `ASP` entry type (§1.2) carries aspect-theory meaning. The orb within which an aspect is considered active (`ORB` entries) is also Layer 2 doctrine, not Layer 1 measurement.
+
+### 0.1.5 Core grammar vs. strategy: keep entry types separate
+
+Substitutions and search strategies are **operational strategy**, not core symbolic grammar. They must remain **separate entry types** (`SUB`, `REC`, `TRD` in §1.2) and must not be mixed into core grammar entries (`PIH`, `PIS`, `ASP`, `DIG`).
+
+| Core symbolic grammar | Operational strategy |
+|-----------------------|----------------------|
+| `PIH` Planet in house | `SUB` Substitution strategy |
+| `PIS` Planet in sign | `REC` Search recipe / cookbook |
+| `ASP` Aspect meaning | `TRD` Tradeoff preference |
+| `DIG` Dignity rule | `CLU` Archetype cluster |
+
+Rationale: a `PIH` entry should describe what Sun-in-the-10th *means symbolically* — stable, reusable, rarely changing. A `SUB` entry says "if Sun-in-1st is unavailable, related strategies include Sun trine ASC…" — operational, search-time, and frequently revised. Mixing them would couple a slow-changing grammar entry to a fast-changing strategy, defeating the modular versioning and review model (§2, §3, §4). They are different objects with different lifecycles.
+
+### 0.1.6 Beta entries may be simple and concrete
+
+The Beta default model entries are intentionally **simple, concrete, and generic**. An entry may state a single clear archetypal line and leave the deeper teaching fields blank (field-level fallback, §6.2, handles the gaps). This is not a deficiency — it is the correct starting state.
+
+The entry-as-object model (§1) means each entry can be **expanded later** without restructuring: a future author or the canonical professional dictionary adds depth by creating new versions (§3.1) of the same stable IDs, not by rewriting a document. Start concrete; leave room; expand by versioning.
+
+---
+
 ## 1. The entry is the atomic unit
 
 A Layer 2 model is not a document. It is a **collection of independently addressable entries**. The entry — not the model, not the file — is the unit of authorship, review, versioning, inheritance, and reuse.
