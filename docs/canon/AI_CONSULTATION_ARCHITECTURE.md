@@ -493,7 +493,155 @@ No final pricing. These are structural possibilities for future product thinking
 
 ---
 
-## 18. What the Web2 instrument remains
+## 18. AI initiative levels
+
+The AI operates at three initiative levels. The appropriate level depends on context and user preference.
+
+### Passive
+
+Responds directly to user requests only. Takes no unprompted action. Appropriate when the user is working through a specific known question.
+
+### Suggestive
+
+May proactively recommend useful next investigative steps without taking control.
+
+**Examples:**
+- Inspect DIFFS between the current candidate cities
+- Attempt constraint carving on a promising region
+- Search for substitutions where a desired condition is unavailable
+- Inspect dignity conditions in current candidates
+- Inspect A2A refinement opportunities
+- Surface relevant City Intelligence factors
+
+Suggestions are framed as optional:
+
+> "We could inspect the DIFFS between Tokyo and Singapore here — would that be useful?"
+
+The AI teaches the consultation methodology by demonstrating it rather than requiring the user to know the terminology in advance.
+
+### Reflective
+
+The AI may periodically reflect back what appears to be happening in the consultation.
+
+**Examples:**
+- Observed intention shift
+- Repeated enthusiasm toward a theme or city
+- Repeated rejection of a category
+- Narrowing confidence in a stated goal
+- Emerging pattern across multiple evidence events
+
+Reflection invites correction. It is offered as an observation, not declared as a conclusion.
+
+> "It seems like home and recovery have been coming up more than career lately — is that accurate, or is career still the primary question?"
+
+**Never declare. Always invite correction.**
+
+---
+
+## 19. Consultation Profiles
+
+A user may maintain multiple independent Consultation Profiles.
+
+**Examples:**
+- Permanent relocation
+- Vacation destination research
+- Honeymoon planning
+- Medical tourism
+- Digital nomad planning
+- Executive travel
+- Family relocation
+- Side exploration while a primary question is open
+
+Each profile owns:
+- Its own Consultation Canon
+- Its own evidence event log
+- Its own Working Hypotheses
+- Its own Checkpoints
+- Its own saved searches
+- Its own reports
+
+**Profiles must never silently bleed into one another.** Evidence, hypotheses, and checkpoints from one profile do not inform or contaminate another. If the user's stated intention in two profiles converges, they may explicitly merge them, but this requires user action — never automatic.
+
+---
+
+## 20. Working Hypotheses
+
+Working Hypotheses are the AI's current best understanding of the consultation state. They are **separate from evidence.**
+
+Evidence is append-only and never disappears.  
+Working Hypotheses evolve as evidence accumulates.
+
+**Example evolution:**
+
+| Time | Current primary goal | Confidence |
+|------|---------------------|------------|
+| Session 1 | Career | Medium |
+| Session 3 | Career + peace | Low (split) |
+| Session 5 | Peace | High |
+
+The underlying evidence that produced each shift is preserved in the append-only event log. The hypothesis is simply the current reconciliation.
+
+**Working Hypothesis fields:**
+
+```
+Working Hypotheses
+├── current_primary_goal        — inferred dominant intention
+├── primary_goal_confidence     — low / medium / high
+├── secondary_goals             — secondary intentions currently active
+├── active_city_hypotheses      — cities the AI currently considers live candidates
+├── rejected_hypotheses         — paths the AI has set aside (with reason)
+├── open_tensions               — unresolved contradictions in evidence
+└── last_updated                — timestamp
+```
+
+Working Hypotheses are displayed to the user on request. They are not hidden. The user may correct any field.
+
+---
+
+## 21. Consultation Checkpoints
+
+The AI should periodically create milestone checkpoints at meaningful stages of the consultation.
+
+**Examples of checkpoint moments:**
+- Initial exploration complete
+- Career goal narrowed to three cities
+- Relationship concerns introduced
+- Tokyo vs. Singapore comparison begun
+- Final shortlist reached
+
+A Checkpoint object summarizes the Consultation Canon at that moment: current intention, hypothesis state, cities under consideration, key constraints, open questions, and a brief narrative summary.
+
+**Checkpoints provide:**
+- Resume points for future sessions (the AI can re-read a checkpoint to reconstruct context without replaying the full evidence log)
+- Milestones the user can refer back to
+- A record of how the consultation evolved
+
+**Rules:**
+- Checkpoints never replace the Consultation Canon
+- Checkpoints summarize it at a moment in time
+- Users may reopen a previous checkpoint as a reference or as a jump-back point
+- Checkpoints are append-only — they are not edited retroactively
+- The AI may suggest creating a checkpoint; the user may also request one explicitly
+
+---
+
+## 22. Cost principle
+
+The Consultation Canon, Working Hypotheses, Checkpoints, and evidence event log exist for two reasons: continuity and cost efficiency.
+
+**Continuity:** The user should be able to resume a consultation after days or weeks without losing their context, re-explaining their situation, or rebuilding their working city list from scratch.
+
+**Cost efficiency:** Structured persistent state is an economic tool. Sending entire conversation histories to language models is expensive and unreliable. Structured state reduces repeated context load, allows cheaper models to handle routine check-ins, and reserves expensive reasoning capacity for genuinely complex tradeoffs.
+
+> Structured state should be preferred over repeatedly sending entire conversations to language models.
+
+This is both an architectural and an economic principle. The design of the Consultation Canon, Checkpoints, and Working Hypotheses should be evaluated not just on UX but on token efficiency.
+
+---
+
+---
+
+## 23. What the Web2 instrument remains
 
 The Web2 application — map, overlays, chart pages, comparison tables, A2A, settings, notes, City Intelligence, saved searches — remains **fully functional without AI**. AI layers are additive, not replacements.
 
@@ -501,7 +649,7 @@ This must remain true permanently. The instrument is the product. AI is assistan
 
 ---
 
-## 19. Explicitly deferred to future implementation
+## 24. Explicitly deferred to future implementation
 
 | Item | Deferral reason |
 |------|----------------|
@@ -519,4 +667,4 @@ This must remain true permanently. The instrument is the product. AI is assistan
 
 ---
 
-*AI-1 complete. Documentation only. No code changes. No database migrations.*
+*AI-1 / AI-1A complete. Documentation only. No code changes. No database migrations.*

@@ -103,3 +103,31 @@ After AI-2 is stable, **AI-3 — Navigator AI Prompt Specification** becomes the
 ---
 
 *AI-1 complete. No code changes. No database changes. No UI changes.*
+---
+
+## AI-1A Addendum — Consultation Architecture Refinement
+
+**Date:** 2026-06-27
+
+### Additional sections added (AI-1A)
+
+| Section | Title | Key decisions |
+|---------|-------|---------------|
+| §18 | AI Initiative Levels | Three levels: Passive / Suggestive / Reflective. Suggestive teaches methodology by demonstrating it. Reflective always invites correction — never declares. |
+| §19 | Consultation Profiles | Multiple independent profiles per user. Profiles never bleed into one another. Merging requires explicit user action. |
+| §20 | Working Hypotheses | Separate from evidence. Evolve as evidence accumulates. Evidence never disappears. Fields include primary goal, confidence, secondary goals, active city hypotheses, rejected hypotheses, open tensions. |
+| §21 | Consultation Checkpoints | Milestone summaries at meaningful consultation stages. Provide resume points and token-efficient context reconstruction. Append-only. Never replace the Consultation Canon. |
+| §22 | Cost Principle | Structured persistent state is both a continuity and an economic tool. Prefer structured state over replaying full conversation histories to language models. |
+
+### Section renumbering
+
+Sections 18 and 19 (Web2 sovereignty and deferred items) moved to §23 and §24 to accommodate the five new sections.
+
+### Open questions added by AI-1A
+
+- **Profile switching UX:** How does the user navigate between active Consultation Profiles? Should the map surface reflect the active profile, or are profiles always in a separate panel?
+- **Checkpoint trigger logic:** What defines a "meaningful stage" programmatically vs. narratively? Should the AI always suggest, or sometimes create silently with a notification?
+- **Working Hypothesis display:** Is the Working Hypothesis always visible to the user, or surfaced on request? Should corrections to a hypothesis also generate an evidence event?
+- **Token budget for Checkpoint context reconstruction:** What is the maximum token budget for reconstructing a session from a Checkpoint? This determines Checkpoint verbosity spec.
+
+*AI-1A complete. Documentation only. No code changes. No database migrations.*
