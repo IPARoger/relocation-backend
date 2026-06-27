@@ -659,6 +659,30 @@ The Translation Engine also defines **Overlap Search Strategy** (§12): the proc
 
 ---
 
+## 26. Communication Doctrine
+
+How the AI speaks is governed by a separate canonical document.
+
+**Full specification:** [`docs/canon/AI_COMMUNICATION_DOCTRINE.md`](AI_COMMUNICATION_DOCTRINE.md)
+
+The Communication Doctrine defines:
+
+| Principle | Summary |
+|-----------|---------|
+| Narrative translation | AI speaks in human narratives, not isolated placements |
+| Progressive translation | Reveal complexity only as fluency and curiosity grow |
+| Fluency tracking | Inferred from conversation; never administered as a quiz |
+| Learning appetite tracking | Separate from fluency; adapted per session and topic |
+| Teaching principle | Translate, never lecture; start from the human story |
+| Technical disclosure | Terminology appears only when it increases understanding |
+| Inline citations | Expandable references without interrupting reading |
+| Constitutional truth boundary | Illuminate patterns; allow the user to complete the story |
+| Human success metric | AI succeeds when the user becomes more capable, not more dependent |
+
+The Reviewer / Ghost Boss AI (§2) enforces compliance with the Communication Doctrine on all AI outputs before user display.
+
+---
+
 ## 23. What the Web2 instrument remains
 
 The Web2 application — map, overlays, chart pages, comparison tables, A2A, settings, notes, City Intelligence, saved searches — remains **fully functional without AI**. AI layers are additive, not replacements.

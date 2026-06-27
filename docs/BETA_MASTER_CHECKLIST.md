@@ -367,6 +367,7 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | Interface law & screen hierarchy | [INTERFACE_AND_DESIGN_CANON.md](../product/INTERFACE_AND_DESIGN_CANON.md) |
 | AI consultation architecture | [AI_CONSULTATION_ARCHITECTURE.md](canon/AI_CONSULTATION_ARCHITECTURE.md) |
 | Intent Translation Engine | [INTENT_TRANSLATION_ENGINE.md](canon/INTENT_TRANSLATION_ENGINE.md) |
+| AI communication doctrine | [AI_COMMUNICATION_DOCTRINE.md](canon/AI_COMMUNICATION_DOCTRINE.md) |
 
 Do not duplicate those documents here — link only.
 

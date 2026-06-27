@@ -32,6 +32,8 @@ Every new answer, reaction, preference, hesitation, discovery, and stated tradeo
 
 The Translation Engine's success is measured by **increasing precision while preserving user agency.** The user should leave each session with a progressively clearer understanding of what they actually want — not merely a list of cities.
 
+How translated outputs are communicated to the user is governed by the **AI Communication Doctrine** ([`docs/canon/AI_COMMUNICATION_DOCTRINE.md`](AI_COMMUNICATION_DOCTRINE.md)). The Translation Engine produces specifications; the Communication Doctrine governs how they are explained.
+
 ---
 
 ## 2. Three-stage translation
