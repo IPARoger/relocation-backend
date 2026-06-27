@@ -365,8 +365,25 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | Peripheral legibility & restraint | [PERIPHERAL_LEGIBILITY_DOCTRINE.md](canon/PERIPHERAL_LEGIBILITY_DOCTRINE.md) |
 | Material families (stone, paper, glass) | [MATERIAL_SYSTEM_CANON.md](canon/MATERIAL_SYSTEM_CANON.md) |
 | Interface law & screen hierarchy | [INTERFACE_AND_DESIGN_CANON.md](../product/INTERFACE_AND_DESIGN_CANON.md) |
+| AI consultation architecture | [AI_CONSULTATION_ARCHITECTURE.md](canon/AI_CONSULTATION_ARCHITECTURE.md) |
 
 Do not duplicate those documents here — link only.
+
+---
+
+## 11. AI Consultation Architecture
+
+**Status:** Documented. Not active in Web2 Beta.
+
+**AI-1 canonical document:** [`docs/canon/AI_CONSULTATION_ARCHITECTURE.md`](canon/AI_CONSULTATION_ARCHITECTURE.md)
+
+The AI Consultation Architecture defines the complete future AI-guided Relocation experience: five-layer model, five AI roles (Navigator, Search Engineer, Ontology Assistant, Consultation Memory Agent, Reviewer), the persistent Consultation Canon structured object, memory/evidence rules, intention inference, search/refinement loop, constraint carving, substitutions, DIFFS, relationship/family audit mode, rare alignment language, birth-time uncertainty handling, Ontology Wizard, reading upload, style extraction, experiential travel module, cost/model architecture principles, and future pricing packages.
+
+**Nothing in this document is active Web2 Beta implementation.**
+
+Promotion path: any AI feature requires a focused implementation document, scope decision, DB migration plan, validation gate, and rollback plan before becoming active work.
+
+**Permanent rule:** The Web2 instrument must remain fully functional without any AI component. AI is additive assistance, not replacement navigation.
 
 
 ---
