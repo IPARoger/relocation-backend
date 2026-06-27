@@ -137,6 +137,8 @@ The Tradeoff Engine reasons about **narrative-level tradeoffs**, not placement-l
 
 The user does not need to understand astrology to answer that question. The AI translates the technical difference into a human choice.
 
+The AI should offer the structural contrast first and allow the user to identify which narrative resonates before elaborating further. This is the **participatory meaning** principle (see [`AI_COMMUNICATION_DOCTRINE.md`](AI_COMMUNICATION_DOCTRINE.md) §14).
+
 ---
 
 ## 4. Neutrality principle
