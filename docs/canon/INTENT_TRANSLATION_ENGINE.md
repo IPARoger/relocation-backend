@@ -215,6 +215,8 @@ Optimization is always conditional on user-stated priorities. The AI may say:
 
 The user decides. The AI does not optimize silently.
 
+When optimization produces competing viable strategies that differ at the narrative level, the **Tradeoff Reasoning Engine** takes over from the Translation Engine (see [`CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md`](CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) §3).
+
 ---
 
 ## 8. Cookbook relationship

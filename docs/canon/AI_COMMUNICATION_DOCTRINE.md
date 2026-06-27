@@ -198,6 +198,8 @@ Describe the architecture. Allow the user to recognize themselves.
 
 The AI illuminates patterns. The user completes the story.
 
+For specific guidance on dignity language — how to accurately reflect symbolic distinctions without flattening or exaggerating them — see [`CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md`](CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) §7.
+
 **Example contrast:**
 
 | Forbidden | Preferred |

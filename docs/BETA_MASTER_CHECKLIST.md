@@ -368,6 +368,7 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | AI consultation architecture | [AI_CONSULTATION_ARCHITECTURE.md](canon/AI_CONSULTATION_ARCHITECTURE.md) |
 | Intent Translation Engine | [INTENT_TRANSLATION_ENGINE.md](canon/INTENT_TRANSLATION_ENGINE.md) |
 | AI communication doctrine | [AI_COMMUNICATION_DOCTRINE.md](canon/AI_COMMUNICATION_DOCTRINE.md) |
+| Consultation flow & tradeoff engine | [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](canon/CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) |
 
 Do not duplicate those documents here — link only.
 

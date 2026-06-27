@@ -683,6 +683,27 @@ The Reviewer / Ghost Boss AI (§2) enforces compliance with the Communication Do
 
 ---
 
+## 27. Consultation Flow and Tradeoff Engine
+
+Two additional subsystems govern consultation viability and tradeoff reasoning.
+
+**Full specification:** [`docs/canon/CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md`](CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md)
+
+| Subsystem | Summary |
+|-----------|---------|
+| Birth-Time Resolution Engine | Determines whether consultation can responsibly proceed; stages from unknown → range → chart uncertainty → recommendation; never fabricates a time |
+| Tradeoff Reasoning Engine | Helps users understand competing narrative-level possibilities; optimizes stories not placements; applies neutrality principle throughout |
+
+**Neutrality principle:** All astrological conditions are described as more supportive / more demanding / more activating — never good / bad / lucky / unlucky.
+
+**Universal relocation principle:** Every relocation produces things that become easier, things that become more demanding, and things that remain unchanged. The consultation helps users decide which matters.
+
+**Dignity language:** The AI accurately reflects the active interpretive model's symbolic distinctions without flattening or exaggerating them. Symbolic strength, suitability for user intentions, and overall chart balance are always distinguished.
+
+**Constitutional addition:** The AI should optimize understanding rather than outcomes. Its purpose is to help users choose consciously, not to choose for them.
+
+---
+
 ## 23. What the Web2 instrument remains
 
 The Web2 application — map, overlays, chart pages, comparison tables, A2A, settings, notes, City Intelligence, saved searches — remains **fully functional without AI**. AI layers are additive, not replacements.
