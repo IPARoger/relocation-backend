@@ -1,7 +1,7 @@
 # Beta Master Checklist
 
 **Canonical release tracker for Beta.**  
-**Last updated:** 2026-06-27 (DOC-1 post-beta visual refinement program)
+**Last updated:** 2026-06-27 (AI-ROADMAP-1 Web3 AI implementation roadmap)
 **Rule:** Every H/M/BI/M slice updates this file before closeout.
 
 ### Next Slice
@@ -371,6 +371,9 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | Consultation flow & tradeoff engine | [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](canon/CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) |
 | Pattern recognition & meaning doctrine | [PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md](canon/PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md) |
 | Layer 2 authoring platform | [LAYER_2_AUTHORING_ARCHITECTURE.md](canon/LAYER_2_AUTHORING_ARCHITECTURE.md) |
+| AI runtime architecture | [AI_RUNTIME_ARCHITECTURE.md](canon/AI_RUNTIME_ARCHITECTURE.md) |
+| AI interaction surfaces | [AI_INTERACTION_SURFACES.md](canon/AI_INTERACTION_SURFACES.md) |
+| Web3 AI implementation roadmap | [WEB3_AI_IMPLEMENTATION_ROADMAP.md](roadmaps/WEB3_AI_IMPLEMENTATION_ROADMAP.md) |
 | Beta Reference Ontology v1 | [`docs/layer2/beta_v1/`](../layer2/beta_v1/) — 224 entries (PIH x132, ASP x46, DIG x36, ORB x7, HEM x3). All entries in Draft status. AI-L2-3 complete. |
 
 Do not duplicate those documents here — link only.
@@ -387,12 +390,51 @@ The AI Consultation Architecture defines the complete future AI-guided Relocatio
 
 **Nothing in this document is active Web2 Beta implementation.**
 
-The **Intent Translation Engine** (`docs/canon/INTENT_TRANSLATION_ENGINE.md`) is separately documented: it defines how human intentions are progressively translated into structured astrological search specifications through three stages (natural language → archetypal combinations → search specification) with competing hypotheses, a question library, compositional search, and Cookbook cross-reference.
+Companion canon (also documented, not active):
+
+| Document | Scope |
+|----------|-------|
+| [INTENT_TRANSLATION_ENGINE.md](canon/INTENT_TRANSLATION_ENGINE.md) | Three-stage translation; SearchSpec production |
+| [AI_COMMUNICATION_DOCTRINE.md](canon/AI_COMMUNICATION_DOCTRINE.md) | AI voice, fluency tiers, narrative translation |
+| [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](canon/CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) | Birth-time resolution, tradeoff reasoning |
+| [PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md](canon/PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md) | Three-role model: astrology / AI / user |
+| [LAYER_2_AUTHORING_ARCHITECTURE.md](canon/LAYER_2_AUTHORING_ARCHITECTURE.md) | Entry-as-object model, Wizard platform |
+| [AI_RUNTIME_ARCHITECTURE.md](canon/AI_RUNTIME_ARCHITECTURE.md) | Navigator, Engine, Guardian, Memory, L2 Resolver, SearchSpec, Genie/Map adapter |
+| [AI_INTERACTION_SURFACES.md](canon/AI_INTERACTION_SURFACES.md) | Screen-aware AI per surface (intake, map, Genie, comparison, profile, CI, Astro Assist) |
 
 Promotion path: any AI feature requires a focused implementation document, scope decision, DB migration plan, validation gate, and rollback plan before becoming active work.
 
 **Permanent rule:** The Web2 instrument must remain fully functional without any AI component. AI is additive assistance, not replacement navigation.
 
+---
+
+## 12. Web3 AI Implementation Roadmap
+
+**Status:** Planning complete (AI-ROADMAP-1). Documentation only — no production AI active.
+
+**Canonical document:** [`docs/roadmaps/WEB3_AI_IMPLEMENTATION_ROADMAP.md`](roadmaps/WEB3_AI_IMPLEMENTATION_ROADMAP.md)
+
+Eight implementation tracks define the Web3 AI layer. Tracks become active only when promoted into focused implementation docs with scope, DB migration plan, validation gate, and rollback path.
+
+| Track | Name | Phase 0 status |
+|:-----:|------|----------------|
+| 1 | Layer 2 Foundation | Spec complete; 224 beta_v1 entries in Draft — Wizard review pending |
+| 2 | Runtime Architecture | Spec complete ([AI_RUNTIME_ARCHITECTURE.md](canon/AI_RUNTIME_ARCHITECTURE.md)) |
+| 3 | Interaction Surfaces | Spec complete ([AI_INTERACTION_SURFACES.md](canon/AI_INTERACTION_SURFACES.md)) |
+| 4 | SearchSpec + Engine | Spec in roadmap; implementation waits Track 1+2 |
+| 5 | Navigator | Spec in roadmap; implementation waits Tracks 1, 2, 4, 7 |
+| 6 | Astro Assist | Spec in roadmap; implementation waits Tracks 1, 2, 4, 7 |
+| 7 | Guardian | Spec in roadmap; **hard gate** — no AI output without Guardian |
+| 8 | Knowledge Ingestion | Future / not immediate |
+
+**Hard gates — no production AI without:**
+
+1. Minimum required Layer 2 entry set Approved (not Draft) via Wizard
+2. Guardian operational on all AI output before display
+3. Every consultation session pinned to a specific manifest version
+4. Web2 instrument fully functional with all AI disabled
+
+**Sequencing:** Phase 0 (spec) runs in parallel with Web2 Beta QA. Implementation Phases 1–5 follow Web2 release readiness and track dependencies in the roadmap.
 
 ---
 
