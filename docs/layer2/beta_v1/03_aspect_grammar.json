@@ -1,0 +1,187 @@
+{
+  "category": "Major Aspect Grammar",
+  "entry_type": "ASP",
+  "count": 6,
+  "entries": [
+    {
+      "id": "L2-ASP-GRAM-CONJ",
+      "type": "ASP",
+      "subject": {
+        "aspect": "CONJUNCTION",
+        "orb_ref": "L2-ORB-CONJ"
+      },
+      "content": {
+        "short_line": "The conjunction unites two symbolic principles in the same zone of the sky.",
+        "symbolic_themes": "The conjunction is the aspect of fusion. Two planets within conjunction orb occupy the same symbolic territory and influence one another directly. Their themes become intertwined — sometimes reinforcing, sometimes in tension — but always operating as a combined force rather than as separate influences. The nature of the conjunction depends entirely on the planets involved.",
+        "practical_tendencies": "Wherever a conjunction falls in the chart, the combined themes of the two bodies tend to be activated together. The effect may be concentrated and sometimes difficult to separate — one archetype colors the expression of the other.",
+        "traditional_associations": "Classical tradition treats the conjunction as neutral in itself — its character determined by the planets involved. Two benefics conjunct reinforce positive themes; a challenging planet conjunct a luminary introduces difficulty.",
+        "source_context": "In Hellenistic and later Western tradition, the conjunction (0°) was considered the most fundamental aspect — the bodies sharing the same position and therefore merging their natures."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ASP-GRAM-OPP",
+      "type": "ASP",
+      "subject": {
+        "aspect": "OPPOSITION",
+        "orb_ref": "L2-ORB-OPP"
+      },
+      "content": {
+        "short_line": "The opposition faces two symbolic principles across the chart axis.",
+        "symbolic_themes": "The opposition places two planets across the chart in a relationship of contrast and awareness. Each planet's themes become visible through their encounter with the other. The opposition is an aspect of relational tension and potential integration — each side requires acknowledging the other.",
+        "practical_tendencies": "Themes associated with opposing planets tend to pull in different directions, requiring the individual to navigate between competing claims. What feels like external conflict may often reflect an internal polarity that needs to be held consciously.",
+        "traditional_associations": "Classical tradition treats the opposition as a challenging aspect involving visible tension; it governs open confrontation and external conflict but also the possibility of conscious balance.",
+        "source_context": "The 180° separation places two planets on opposite sides of the chart — historically associated with fullness and confrontation, as in the Full Moon."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ASP-GRAM-TRI",
+      "type": "ASP",
+      "subject": {
+        "aspect": "TRINE",
+        "orb_ref": "L2-ORB-TRI"
+      },
+      "content": {
+        "short_line": "The trine connects two symbolic principles in a relationship of natural ease and support.",
+        "symbolic_themes": "The trine connects two planets separated by approximately 120°, in signs of the same elemental quality. Their themes work together naturally and reinforce one another. The ease of the trine means its energy flows without requiring deliberate effort, though it may also go unnoticed or be taken for granted.",
+        "practical_tendencies": "Where two planets are in trine, their respective themes support and flow into one another. This may manifest as a natural aptitude or quality that comes readily — without the friction that often makes growth visible.",
+        "traditional_associations": "The trine is traditionally the most benefic aspect, associated with ease, natural aptitude, and flowing cooperation between planetary principles.",
+        "source_context": "The trine's 120° arc connects planets in signs of the same classical element, creating a natural affinity recognized across the Western astrological tradition."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ASP-GRAM-SQR",
+      "type": "ASP",
+      "subject": {
+        "aspect": "SQUARE",
+        "orb_ref": "L2-ORB-SQR"
+      },
+      "content": {
+        "short_line": "The square confronts two symbolic principles with friction, challenge, and the demand for active engagement.",
+        "symbolic_themes": "The square connects two planets separated by approximately 90°, in signs of different elemental and modal quality. Their themes come into conflict, creating friction that demands active engagement and resolution. The square is an aspect of productive difficulty — it is often where significant effort and development occur.",
+        "practical_tendencies": "Where two planets are in square, their themes may feel at odds or produce a sense of pressure and the need to act. The friction of the square, consciously engaged, tends to produce development; left unconscious, it may manifest as recurring obstacles.",
+        "traditional_associations": "The square is traditionally a challenging aspect, associated with conflict, obstacle, and the need for effort; considered one of the 'hard' aspects in most classical and modern traditions.",
+        "source_context": "The 90° arc connects planets in signs that share a mode but differ in element — classically considered an uncomfortable combination requiring resolution."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ASP-GRAM-SEX",
+      "type": "ASP",
+      "subject": {
+        "aspect": "SEXTILE",
+        "orb_ref": "L2-ORB-SEX"
+      },
+      "content": {
+        "short_line": "The sextile offers a relationship of gentle cooperation and available opportunity.",
+        "symbolic_themes": "The sextile connects two planets separated by approximately 60°, in signs of compatible elemental quality. Their themes offer mutual support. Unlike the trine, the sextile's ease requires some deliberate activation — it represents opportunity that is available but not automatic.",
+        "practical_tendencies": "Where two planets are in sextile, their themes may be combined with modest effort and tend to cooperate when given attention. The sextile is less dramatic than the trine or square but often more actionable — a resource that can be drawn on.",
+        "traditional_associations": "The sextile is traditionally a mild benefic aspect, associated with available opportunities, cooperative planetary combinations, and the ease of combining two compatible principles.",
+        "source_context": "The 60° arc connects planets in signs of compatible but not identical elements, recognized since the Hellenistic period as a moderately positive combination."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ASP-GRAM-QNC",
+      "type": "ASP",
+      "subject": {
+        "aspect": "QUINCUNX",
+        "orb_ref": "L2-ORB-QNC"
+      },
+      "content": {
+        "short_line": "The quincunx connects two symbolic principles that share no affinity — requiring conscious adjustment.",
+        "symbolic_themes": "The quincunx (or inconjunct) connects two planets separated by approximately 150°, in signs that share no classical relationship — different element, different mode. Their themes are neither in conflict nor in harmony but simply unrelated, creating a persistent need for adjustment and conscious bridging.",
+        "practical_tendencies": "Where two planets are in quincunx, their themes may seem to operate in separate registers that require deliberate effort to coordinate. A recurring sense of needing to re-calibrate or adjust may be present.",
+        "traditional_associations": "The quincunx is a minor aspect in classical traditions but given more weight in modern astrology; it is associated with chronic adjustment and the need to consciously bridge incompatible energies.",
+        "source_context": "The 150° arc places planets in signs with no classical affinity — described by some later astrologers as a 'blind spot' requiring conscious attention."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    }
+  ]
+}

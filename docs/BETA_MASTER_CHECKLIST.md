@@ -371,6 +371,7 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | Consultation flow & tradeoff engine | [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](canon/CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) |
 | Pattern recognition & meaning doctrine | [PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md](canon/PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md) |
 | Layer 2 authoring platform | [LAYER_2_AUTHORING_ARCHITECTURE.md](canon/LAYER_2_AUTHORING_ARCHITECTURE.md) |
+| Beta Reference Ontology v1 | [`docs/layer2/beta_v1/`](../layer2/beta_v1/) — 224 entries (PIH x132, ASP x46, DIG x36, ORB x7, HEM x3). All entries in Draft status. AI-L2-3 complete. |
 
 Do not duplicate those documents here — link only.
 

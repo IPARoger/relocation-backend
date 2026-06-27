@@ -1,0 +1,3508 @@
+{
+  "category": "Planet in House",
+  "entry_type": "PIH",
+  "count": 120,
+  "entries": [
+    {
+      "id": "L2-PIH-SUN-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 1
+      },
+      "content": {
+        "short_line": "The solar principle expresses itself at the Ascendant.",
+        "symbolic_themes": "Sun in the 1st places the solar archetype—identity, purpose, and vitality—directly at the rising angle. In relocation, the immediate environment and the way one is initially perceived tend to carry a solar quality. Self-expression and visible presence become more prominent features of daily life.",
+        "practical_tendencies": "The social environment may draw out confidence, self-assertion, and a sense of personal authority more readily than in other locations. Leadership or prominent visibility in one's surroundings may come with less effort.",
+        "traditional_associations": "Traditionally this placement is associated with enhanced vitality, strong personal presence, and the tendency to be noticed. The solar principle meeting the angle of self-initiation intensifies themes of identity and will.",
+        "source_context": "The Sun's association with the Ascendant connects the principle of solar consciousness (purposeful individuation in classical tradition) with the horizon angle that governs first impressions and bodily vitality."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 2
+      },
+      "content": {
+        "short_line": "The solar principle orients toward material resources and earned value.",
+        "symbolic_themes": "Sun in the 2nd focuses solar energy on the domain of material security, earned income, and practical accomplishment. A location may tend to draw one's primary sense of purpose into financial or resource-building activities.",
+        "practical_tendencies": "Recognition through practical achievement or financial contribution may be more available. Questions of livelihood, sufficiency, and resource stewardship tend to become more central to one's daily orientation.",
+        "traditional_associations": "The Sun in the house of substance is classically associated with financial awareness and the tendency to identify one's worth with material outcomes or productive capability."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 3
+      },
+      "content": {
+        "short_line": "The solar principle expresses through communication and the local environment.",
+        "symbolic_themes": "Sun in the 3rd places solar energy in the domain of speech, writing, short travel, and immediate community. The environment may animate intellectual activity, exchanges with neighbors and siblings, and the flow of information.",
+        "practical_tendencies": "Verbal and written expression may carry more natural authority. The local neighborhood and short journeys tend to be more animated and significant. Teaching, writing, or communication roles may be more accessible.",
+        "traditional_associations": "Classically, the Sun in the 3rd is linked to oratorical and literary prominence and a strong engagement with the immediate cultural surroundings."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 4
+      },
+      "content": {
+        "short_line": "The solar principle settles into home, roots, and private foundations.",
+        "symbolic_themes": "Sun in the 4th places solar emphasis at the base of the chart—the domain of home, family origins, and private life. The domestic environment tends to become a primary site of purpose and identity. Private self-expression may be more active than public.",
+        "practical_tendencies": "Home life and family matters draw significant attention. A location may feel strongly connected to ancestral, cultural, or geographical roots. The private dimension of life carries the weight of solar themes.",
+        "traditional_associations": "The Sun below the earth in the 4th is traditionally associated with strong attachment to land, ancestry, and the private self; it may indicate a life lived more inwardly than outwardly."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 5
+      },
+      "content": {
+        "short_line": "The solar principle expresses through creativity, pleasure, and self-display.",
+        "symbolic_themes": "Sun in the 5th places the solar archetype in the domain of creative output, play, romantic encounters, and the expression of one's distinctive gifts. The environment tends to support activities through which the self is enjoyed and displayed.",
+        "practical_tendencies": "Creative projects, leisure, and romantic life may be more animated and visible. Opportunities for joyful self-expression and recognition of one's creative work may be more readily available.",
+        "traditional_associations": "The 5th is traditionally the house of pleasure, children, and the creations of the self. Sun here is often considered one of its stronger positions in terms of expressive vitality."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 6
+      },
+      "content": {
+        "short_line": "The solar principle orients toward craft, service, and daily effectiveness.",
+        "symbolic_themes": "Sun in the 6th focuses solar energy on the domain of practical work, health, daily routine, and service to others. Identity and purpose tend to become closely tied to what one produces and how competently one functions.",
+        "practical_tendencies": "The quality of daily work and health matters may take on greater prominence. Service-oriented roles or a strong focus on craft and skill may feel more natural. Attention to the body's practical functioning may increase.",
+        "traditional_associations": "Classically the 6th governs craft, health, and those who serve; the Sun here is associated with dedication to work and the pursuit of excellence in practical skill."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 7
+      },
+      "content": {
+        "short_line": "The solar principle projects outward into partnership and the encounter with the Other.",
+        "symbolic_themes": "Sun in the 7th places solar emphasis on the domain of one-to-one relationships, partnerships, and open negotiations. The social environment may tend to produce prominent or solar partners; the self is often reflected back through significant others.",
+        "practical_tendencies": "Partnership and collaboration may become more defining features of life in a location. Important one-to-one relationships tend to carry solar themes: authority, will, or questions of identity. Public contracts and formal agreements may be more prominent.",
+        "traditional_associations": "The 7th is the house of the Other; the Sun here traditionally indicates that life's central themes play out through relationships and that significant partners carry a solar quality."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 8
+      },
+      "content": {
+        "short_line": "The solar principle descends into depth, shared resources, and transformation.",
+        "symbolic_themes": "Sun in the 8th places solar energy in the domain of transformation, shared finances, depth encounters, and fundamental change. Identity and purpose tend to become bound up with intense processes, other people's resources, or significant transitions.",
+        "practical_tendencies": "Situations involving shared financial arrangements, inheritances, or other people's assets may be more prominent. Deep psychological encounters, experiences of loss and regeneration, or involvement with power dynamics may be more present.",
+        "traditional_associations": "Classically the 8th governs death, legacy, and the resources of others. Sun here is associated with intensity of experience and with transactions that involve significant stakes or fundamental transformation."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 9
+      },
+      "content": {
+        "short_line": "The solar principle expands through meaning, travel, and philosophical inquiry.",
+        "symbolic_themes": "Sun in the 9th places the solar archetype in the domain of higher learning, long-distance travel, foreign cultures, and the search for meaning. A location may tend to expand one's sense of possibility and draw one toward philosophical or educational pursuits.",
+        "practical_tendencies": "Long-distance travel, contact with foreign cultures, and engagement with educational or philosophical institutions may be more animated. The environment may support the development of a broader worldview.",
+        "traditional_associations": "The 9th is the house of the higher mind and distant horizons; Sun here is traditionally associated with prominence in education, religion, or foreign affairs, and with the desire to understand life at its largest scale."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 10
+      },
+      "content": {
+        "short_line": "The solar principle culminates at the Midheaven: public life, career, and reputation are illuminated.",
+        "symbolic_themes": "Sun in the 10th places the solar archetype at the angle of career, public reputation, and social authority. The professional and public dimensions of life tend to carry strong solar themes. This is often considered the strongest solar house position for visible achievement.",
+        "practical_tendencies": "Career, reputation, and public-facing activity may be more prominent and visible. Authority relationships—with employers, institutions, or the public—may carry solar themes. A sense of public purpose tends to be more accessible.",
+        "traditional_associations": "The 10th is the culminating angle; traditionally the Sun here is one of the strongest positions for worldly recognition, prominence in a public field, and the manifestation of one's purpose in visible accomplishment."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 11
+      },
+      "content": {
+        "short_line": "The solar principle moves through groups, collective aims, and future-oriented activity.",
+        "symbolic_themes": "Sun in the 11th places solar energy in the domain of associations, friendships, shared goals, and broader social engagement. Identity and purpose tend to find expression through collective endeavors or through one's relationship to the social future.",
+        "practical_tendencies": "Group memberships, social networks, and community organizations may carry more significance. A location may draw out one's role as a contributor to collective aims. Friends or associates may carry solar qualities.",
+        "traditional_associations": "The 11th is the house of hopes, friends, and the social body; Sun here is traditionally associated with benefactors, influential associates, and the tendency to find purpose through group membership."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SUN-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "SUN",
+        "house": 12
+      },
+      "content": {
+        "short_line": "The solar principle withdraws into solitude, hidden work, and preparation.",
+        "symbolic_themes": "Sun in the 12th places solar energy in the domain of retreat, private preparation, and matters that operate below the threshold of public visibility. Self-expression may be more internalized, and the environment may draw one toward solitary or contemplative activity.",
+        "practical_tendencies": "Private creative work, solitary pursuits, or engagement with institutions (hospitals, retreat centers, archives) may be more prominent. A location may produce a sense of working behind the scenes or preparing for something not yet visible.",
+        "traditional_associations": "The 12th is classically the house of hidden matters, spiritual retreat, and self-undoing; Sun here is associated with working in seclusion and with the tendency for one's purpose to mature privately before emerging."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Emotional responsiveness and receptivity shape the body and immediate self-presentation.",
+        "symbolic_themes": "Moon in the 1st brings the lunar archetype—emotional responsiveness, receptivity, and fluctuation—to the rising angle. The environment and the body itself may become more responsive to changing emotional and social currents. The immediate personal presence carries a quality of emotional availability.",
+        "practical_tendencies": "Moods and emotional states may be more visible and influential in daily interactions. The social environment may be more emotionally responsive in return. Care, nurturance, and the domestic dimension of life may feel close at hand.",
+        "traditional_associations": "Classically the Moon on the Ascendant is associated with heightened responsiveness to the public, to the domestic sphere, and to the fluctuating conditions of the immediate environment.",
+        "source_context": "The Moon's classical association with the body, the instinctive self, and the social 'face' connects naturally with the 1st house as the angle governing appearance and self-presentation."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Emotional security is sought through material stability and resource stewardship.",
+        "symbolic_themes": "Moon in the 2nd places the lunar principle in the domain of material resources, earned income, and practical foundations. A location may tend to connect emotional wellbeing with financial security or with the quality of one's material conditions.",
+        "practical_tendencies": "Financial matters and the fluctuation of resources may be emotionally significant. A tendency to accumulate or to feel the rhythm of incoming and outgoing may be more prominent. Emotional comfort through familiar foods, objects, or physical surroundings may be more important.",
+        "traditional_associations": "Classically the Moon in the 2nd is associated with fluctuating income, trade in goods that meet everyday needs, and a close connection between emotional state and financial circumstance."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Emotional life flows through communication, local connections, and daily movement.",
+        "symbolic_themes": "Moon in the 3rd places lunar sensitivity in the domain of speech, short travel, siblings, and the immediate community. A location may animate the emotional texture of neighborhood life and the daily flow of conversation.",
+        "practical_tendencies": "Communication may become more emotionally colored and responsive. Relationships with siblings, neighbors, and local community may carry significant emotional weight. Short journeys and the familiar environment tend to be nourishing.",
+        "traditional_associations": "The Moon in the 3rd is classically linked to emotional connection with the local community, fluency in everyday communication, and close bonds with siblings."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 4
+      },
+      "content": {
+        "short_line": "The lunar principle finds its natural domain: home, roots, and private life.",
+        "symbolic_themes": "Moon in the 4th is the Moon in its natural territory. Home life, family connections, and the private interior of life carry deep emotional resonance in a location. A sense of rootedness and domestic belonging may be more readily available.",
+        "practical_tendencies": "Home and family matters carry strong emotional significance. The physical location itself may feel ancestrally or culturally resonant. The domestic environment is likely to feel nourishing when it is well-tended.",
+        "traditional_associations": "Classically the 4th is one of the Moon's strongest houses; it is associated with deep attachment to land and lineage, a strong home life, and emotional grounding through the private sphere.",
+        "source_context": "The Moon's traditional domicile Cancer is associated with the 4th house in classical correspondence; both govern home, origins, and the continuity of family life."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Emotional expression flows through creativity, play, and relational warmth.",
+        "symbolic_themes": "Moon in the 5th places the lunar principle in the domain of creative expression, pleasure, romantic encounters, and children. Emotional life tends to be more playful and creatively active; the environment may nurture artistic or romantic endeavors.",
+        "practical_tendencies": "Creative activities may carry emotional resonance. Romantic relationships may be more emotionally engaging than in other locations. Connections with children may be more prominent or meaningful.",
+        "traditional_associations": "The Moon in the 5th is classically associated with a warm and expressive emotional nature, connection to children, and the enjoyment of pleasure and creative activity."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Emotional attunement flows through health, service, and daily craft.",
+        "symbolic_themes": "Moon in the 6th places the lunar principle in the domain of health, daily work, and service. The body's rhythms and the quality of daily routine may carry strong emotional significance. Caregiving or health-related work may be more prominent.",
+        "practical_tendencies": "Health matters and daily routines may be more emotionally responsive. A tendency to notice the body's signals may increase. Work environments that offer care or practical service may feel emotionally meaningful.",
+        "traditional_associations": "Classically the Moon in the 6th is associated with health sensitivity, work in nurturing or service fields, and the tendency for emotional wellbeing to track closely with physical and routine conditions."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Emotional life expresses through relationship, partnership, and response to others.",
+        "symbolic_themes": "Moon in the 7th places the lunar principle in the domain of one-to-one relationship. The need for connection, belonging, and emotional exchange tends to find its primary expression through significant partnerships. Partners may carry lunar qualities.",
+        "practical_tendencies": "Close relationships may be more emotionally important and responsive. The environment may bring encounters with nurturing or emotionally receptive partners. A location may make partnership a more central dimension of daily life.",
+        "traditional_associations": "The Moon in the 7th is classically associated with an emotionally expressive approach to partnership and with meeting others who provide the security or emotional responsiveness one seeks."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Emotional life engages with depth, transformation, and the cycles of loss and renewal.",
+        "symbolic_themes": "Moon in the 8th places the lunar principle in the domain of transformation, shared resources, and depth encounters. Emotional life may be more intense and subject to cycles of attachment and loss. A location may bring encounters with depth that require emotional processing.",
+        "practical_tendencies": "Shared financial matters or situations of dependency may carry emotional weight. Encounters with endings, grief, or significant transitions may be more present. Emotional depth and psychological intensity may be more available.",
+        "traditional_associations": "Classically the Moon in the 8th is associated with sensitivity to mortality, to other people's resources, and to the deep emotional currents that attend significant transitions."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Emotional nourishment comes through travel, learning, and the encounter with the unfamiliar.",
+        "symbolic_themes": "Moon in the 9th places the lunar principle in the domain of distance, learning, and the expansion of one's world. Emotional wellbeing may be nourished by travel, philosophical exploration, or contact with foreign cultures. The world beyond the familiar feels emotionally resonant.",
+        "practical_tendencies": "Long-distance travel and engagement with foreign cultures or educational environments may be emotionally stimulating. A location may draw out a desire to expand one's experience. Spiritual or philosophical pursuits may feel more emotionally nourishing.",
+        "traditional_associations": "Classically the Moon in the 9th is associated with travel, connection with foreign peoples and places, and a sensitive and open orientation toward different beliefs and cultures."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 10
+      },
+      "content": {
+        "short_line": "The lunar principle engages with public life, career, and the social role.",
+        "symbolic_themes": "Moon in the 10th places emotional and receptive qualities at the public angle. Career and public life may carry a lunar character: responsive, care-oriented, or attuned to the needs of the public. The professional sphere may be emotionally significant.",
+        "practical_tendencies": "The public role or professional identity may be shaped by emotional responsiveness or a nurturing quality. Work that serves the public or addresses emotional and domestic needs may feel natural. Career visibility may fluctuate.",
+        "traditional_associations": "Classically the Moon at the MC is associated with prominence in public-facing, care-related, or domestic fields; it is linked to the tendency for public reputation to reflect lunar themes."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Emotional belonging is found through groups, collective aims, and friendship.",
+        "symbolic_themes": "Moon in the 11th places the lunar need for belonging and connection in the domain of community, social groups, and shared aims. Emotional nourishment tends to come through collective participation and friendship rather than through private or intimate contexts alone.",
+        "practical_tendencies": "Social connections and group activities may be more emotionally important. A location may tend to produce a sense of community and belonging. Friends may carry a nurturing or supportive quality.",
+        "traditional_associations": "Classically the Moon in the 11th is associated with a strong circle of friends and acquaintances, benefit from social networks, and emotional attunement to collective goals."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MON-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "MON",
+        "house": 12
+      },
+      "content": {
+        "short_line": "The lunar principle withdraws into solitude, inner life, and hidden emotional currents.",
+        "symbolic_themes": "Moon in the 12th places the lunar principle in the domain of retreat, the unseen, and the private inner life. Emotional life may be more internalized, less visible, and more strongly connected to solitary or contemplative experience. A location may support a rich inner emotional world that is not readily expressed outwardly.",
+        "practical_tendencies": "Solitary activities, private emotional processing, or engagement with institutions of care (hospitals, retreats) may be more prominent. Dreams and inner life may feel more vivid. Emotional boundaries with the surrounding environment may be more porous.",
+        "traditional_associations": "Classically the Moon in the 12th is associated with hidden emotional life, sensitivity to the less visible dimensions of a place, and the need for periodic withdrawal."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 1
+      },
+      "content": {
+        "short_line": "The mercurial principle shapes the immediate self-presentation: quick, verbal, and mobile.",
+        "symbolic_themes": "Mercury in the 1st places the archetype of communication, curiosity, and quick exchange at the rising angle. The environment may draw out a more articulate, nimble, and intellectually engaged presence. Ideas and information tend to be close to the surface of self-expression.",
+        "practical_tendencies": "Verbal facility and quick-mindedness may be more visible and prominent. The immediate environment may feel intellectually stimulating. A tendency toward movement, variety, and exchange may increase.",
+        "traditional_associations": "Mercury rising is classically associated with strong communicative ability, a curious and adaptable disposition, and a tendency to be noticed for intellectual or verbal agility."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 2
+      },
+      "content": {
+        "short_line": "The mercurial principle orients toward practical knowledge and resource-related communication.",
+        "symbolic_themes": "Mercury in the 2nd connects communication and intellectual activity with the domain of practical resources and financial management. A location may tend to draw one toward work involving information, commerce, or the practical application of knowledge for material ends.",
+        "practical_tendencies": "Financial decisions may involve more analysis and information-gathering. Work in communication, writing, or commerce may support material security. Attention to the practical use of knowledge may increase.",
+        "traditional_associations": "Classically Mercury in the 2nd is associated with income through intellectual or communicative means and with a careful, analytical approach to financial matters."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Mercury is in its natural domain: local community, communication, and active inquiry flourish.",
+        "symbolic_themes": "Mercury in the 3rd is in the house most associated with its natural qualities. Communication, short travel, intellectual exchange, and engagement with the immediate environment tend to be particularly animated. This is often considered a strong placement for mercurial expression.",
+        "practical_tendencies": "Writing, teaching, speaking, and communication roles may feel more natural and productive. The local environment tends to be mentally stimulating. Short journeys are more frequent and meaningful.",
+        "traditional_associations": "Classically Mercury in the 3rd is associated with eloquence, intellectual curiosity, strong relationships with siblings, and an active and well-connected local life.",
+        "source_context": "Mercury's traditional association with Gemini and the 3rd house (in classical correspondences) links the principle of mobile intelligence to the domain of exchange, roads, and local community."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 4
+      },
+      "content": {
+        "short_line": "The mercurial principle engages with home, roots, and private intellectual life.",
+        "symbolic_themes": "Mercury in the 4th brings communicative and analytical energy to the private sphere. Home life may have an intellectual dimension—books, discussions, learning, or exchange within the household. A location may connect one's mental life to questions of origin, heritage, or private inquiry.",
+        "practical_tendencies": "Home may function as a place of learning, writing, or intellectual work. Family members may carry mercurial qualities. The private life may be more conversational and mentally active.",
+        "traditional_associations": "Classically Mercury in the 4th is associated with a cultivated domestic life, a connection between intellectual development and family origins, and the use of the home as a space for intellectual activity."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 5
+      },
+      "content": {
+        "short_line": "The mercurial principle expresses through wit, creative language, and playful intelligence.",
+        "symbolic_themes": "Mercury in the 5th brings intellectual agility to the domain of creative expression, play, and pleasure. A location may tend to animate intellectual creativity, witty exchange, and the enjoyment of ideas. Writing, games of intellect, and playful communication may be more prominent.",
+        "practical_tendencies": "Creative and playful uses of intelligence may feel more available. Communication in romantic contexts may be more verbal and mentally engaging. Teaching children or engaging in creative intellectual projects may be more satisfying.",
+        "traditional_associations": "Classically Mercury in the 5th is associated with intellectual creativity, enjoyment of games and speculation, and a witty or articulate approach to pleasure and romance."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 6
+      },
+      "content": {
+        "short_line": "The mercurial principle applies itself to practical craft, health analysis, and skilled work.",
+        "symbolic_themes": "Mercury in the 6th focuses analytical and communicative energy on the domain of work, health, and practical skill. A location may tend to draw out detailed, craft-oriented intellectual work and a careful attention to the body's functioning.",
+        "practical_tendencies": "Analytical and technical roles in work may feel more natural. Health matters may require careful attention to detail and information. The work environment may be more intellectually stimulating and communication-heavy.",
+        "traditional_associations": "Classically Mercury in the 6th is associated with work in areas of analysis, health, writing, or precise craft; it is linked to a methodical approach to daily tasks."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 7
+      },
+      "content": {
+        "short_line": "The mercurial principle expresses through partnership dialogue and the meeting of minds.",
+        "symbolic_themes": "Mercury in the 7th places communicative and analytical energy in the domain of partnership and one-to-one relationship. Significant partners may carry mercurial qualities. A location may tend to produce relationships characterized by intellectual exchange, negotiation, and verbal engagement.",
+        "practical_tendencies": "Partnerships—personal or professional—may involve a strong communicative dimension. Contracts, negotiations, and formal agreements may require careful attention. Partners who are articulate, curious, or intellectually stimulating may be more readily encountered.",
+        "traditional_associations": "Classically Mercury in the 7th is associated with partnerships formed through communication or commerce, and with a tendency to meet others in intellectual or negotiating contexts."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 8
+      },
+      "content": {
+        "short_line": "The mercurial principle probes depths: research, investigation, and complex exchanges.",
+        "symbolic_themes": "Mercury in the 8th brings analytical intelligence to the domain of transformation, shared resources, and depth investigation. A location may tend to draw one toward research, investigative work, or the analysis of complex, hidden, or transformative subjects.",
+        "practical_tendencies": "Research roles, financial analysis, or work involving secrets and complexity may be more prominent. Conversations with depth and intensity may be more frequent. The intellectual life may orient toward what is difficult, hidden, or transformative.",
+        "traditional_associations": "Classically Mercury in the 8th is associated with analytical investigation, skill in managing shared resources or estates, and an interest in psychology, occult matters, or the mechanisms of transformation."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 9
+      },
+      "content": {
+        "short_line": "The mercurial principle reaches toward broad learning, foreign exchange, and the larger mind.",
+        "symbolic_themes": "Mercury in the 9th brings the analytical and communicative principle to the domain of higher learning, philosophy, and cross-cultural exchange. A location may tend to expand one's intellectual world and draw one toward education, foreign languages, or broad conceptual inquiry.",
+        "practical_tendencies": "Higher education, publishing, and teaching at broader levels may be more available or stimulating. Travel and contact with foreign cultures may carry intellectual reward. The formation of philosophical or religious views may be more active.",
+        "traditional_associations": "Classically Mercury in the 9th is associated with a broad and curious intellect, success in academic or publishing fields, and the ability to communicate across cultural and linguistic boundaries."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 10
+      },
+      "content": {
+        "short_line": "The mercurial principle engages with public authority, career, and the professional use of communication.",
+        "symbolic_themes": "Mercury in the 10th brings communicative and intellectual abilities into the public sphere. Career and professional life may be strongly oriented around communication, writing, analysis, or information. Public reputation may be built through intellectual or verbal skill.",
+        "practical_tendencies": "Professions involving writing, speaking, analysis, or information management may feel more natural and rewarding. Public visibility through communicative work may be more available. Relationships with authority figures may involve intellectual negotiation.",
+        "traditional_associations": "Classically Mercury in the 10th is associated with careers in communication, commerce, administration, or education, and with a public profile built around intellectual competence."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 11
+      },
+      "content": {
+        "short_line": "The mercurial principle moves through groups, networks, and collective intellectual exchange.",
+        "symbolic_themes": "Mercury in the 11th places communicative energy in the domain of groups, associations, and shared aims. A location may tend to draw one into intellectually active social networks, collective projects, and communities of inquiry.",
+        "practical_tendencies": "Group discussions, collaborative intellectual projects, and professional networks may be more prominent. A location may facilitate meeting articulate or communicative associates. Collective goals may involve information, technology, or communication.",
+        "traditional_associations": "Classically Mercury in the 11th is associated with intellectual friendships, involvement in organizations or clubs oriented around ideas, and benefit through communicative social networks."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MER-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "MER",
+        "house": 12
+      },
+      "content": {
+        "short_line": "The mercurial principle turns inward: private thought, solitary writing, and hidden inquiry.",
+        "symbolic_themes": "Mercury in the 12th brings analytical intelligence to the domain of retreat, private reflection, and the less visible dimensions of life. A location may tend to draw one toward solitary intellectual work, private writing, or research behind the scenes.",
+        "practical_tendencies": "Inner intellectual life may be more active than public expression. Solitary writing or research may feel more natural. Work in institutions or behind-the-scenes settings may involve significant intellectual activity.",
+        "traditional_associations": "Classically Mercury in the 12th is associated with a rich inner intellectual life, work in secluded settings, and a tendency for ideas to develop privately before they are shared."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 1
+      },
+      "content": {
+        "short_line": "The Venusian principle shapes the immediate self-presentation: warmth, beauty, and social grace.",
+        "symbolic_themes": "Venus in the 1st places the archetype of attraction, aesthetic sensitivity, and relational warmth at the rising angle. The social environment may tend to respond to one with greater ease and receptivity. A quality of beauty, charm, or social grace may be more apparent in one's immediate presence.",
+        "practical_tendencies": "Social interactions may feel more harmonious and enjoyable. The environment may draw out a more aesthetically attuned and relationally engaged self-presentation. A tendency toward beauty-related or creative self-expression may be more prominent.",
+        "traditional_associations": "Venus rising is classically associated with a pleasant and attractive social persona, easy social connections, and an environment that tends to be aesthetically agreeable.",
+        "source_context": "Venus governs attraction and the principle of relatedness in classical tradition; placed at the horizon angle, these themes shape the first layer of encounter between the self and its surroundings."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 2
+      },
+      "content": {
+        "short_line": "The Venusian principle orients toward material pleasure, aesthetic quality, and comfortable resources.",
+        "symbolic_themes": "Venus in the 2nd brings the archetype of value, pleasure, and aesthetic appreciation to the domain of material resources. A location may tend to draw one toward comfortable circumstances, beauty in the material environment, and work that reflects aesthetic values.",
+        "practical_tendencies": "Income through beauty-related, artistic, or relationally oriented work may be more accessible. The quality of one's material surroundings may matter more than usual. A tendency toward enjoyment of the good things available in a place may increase.",
+        "traditional_associations": "Classically Venus in the 2nd is associated with financial ease, pleasure in material conditions, and income from artistic, social, or beauty-related fields."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 3
+      },
+      "content": {
+        "short_line": "The Venusian principle flows through communication, social exchange, and the beauty of language.",
+        "symbolic_themes": "Venus in the 3rd brings warmth, aesthetic sensibility, and a capacity for connection to the domain of communication and the immediate environment. A location may tend to produce pleasant social exchanges, agreeable neighbors, and a local environment with aesthetic appeal.",
+        "practical_tendencies": "Social communication may be more harmonious and socially rewarding. Writing with a literary or aesthetic quality may feel more natural. Relationships with siblings and local community may be warm and mutually supportive.",
+        "traditional_associations": "Classically Venus in the 3rd is associated with pleasant social communication, literary sensibility, harmonious relationships with siblings, and an agreeable immediate environment."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 4
+      },
+      "content": {
+        "short_line": "The Venusian principle cultivates beauty, harmony, and pleasure in the home.",
+        "symbolic_themes": "Venus in the 4th brings the archetype of beauty, comfort, and loving connection to the domain of home and private life. A location may tend to draw one toward a particularly pleasant domestic environment. The home may become a source of aesthetic pleasure and social warmth.",
+        "practical_tendencies": "Home life may feel more harmonious and aesthetically fulfilling. The domestic environment may be more beautiful or socially welcoming than in other locations. Private life tends to carry a quality of comfort and relational warmth.",
+        "traditional_associations": "Classically Venus in the 4th is associated with a beautiful and harmonious home, pleasant family relations, and the enjoyment of domestic life."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 5
+      },
+      "content": {
+        "short_line": "The Venusian principle is in one of its most natural domains: pleasure, love, and creative beauty.",
+        "symbolic_themes": "Venus in the 5th is in its natural territory of pleasure, romantic attraction, and creative expression. A location may tend to make the enjoyment of beauty, love, and creative output more readily available. Romantic encounters may carry more aesthetic or Venusian qualities.",
+        "practical_tendencies": "Creative work may have a particularly aesthetic or beautiful quality. Romantic relationships may be more pleasurable and available. The social environment may encourage enjoyment and the appreciation of beauty.",
+        "traditional_associations": "Classically Venus in the 5th is one of its strongest positions, associated with beauty in creative work, pleasurable romantic encounters, and a general environment of aesthetic and social enjoyment.",
+        "source_context": "Venus's classical association with Taurus and Libra connects easily to the 5th house's domain of pleasure and self-expression; classical authors noted that Venus in the 5th often indicates artistic gifts and social pleasures."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 6
+      },
+      "content": {
+        "short_line": "The Venusian principle orients toward harmonious work, aesthetic craft, and pleasant daily routine.",
+        "symbolic_themes": "Venus in the 6th brings beauty and a relational quality to the domain of daily work and health. A location may tend to produce a work environment that is more harmonious or aesthetically engaging. Health may be approached with a care for balance and pleasure.",
+        "practical_tendencies": "Work in aesthetics, beauty, design, or care-oriented fields may feel more natural. The daily work environment may be more agreeable. Health practices may emphasize comfort and pleasure alongside function.",
+        "traditional_associations": "Classically Venus in the 6th is associated with pleasant work conditions, employment in beauty or care fields, and a moderate and comfortable approach to health."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 7
+      },
+      "content": {
+        "short_line": "The Venusian principle finds one of its strongest domains: partnership, attraction, and the significant Other.",
+        "symbolic_themes": "Venus in the 7th places the archetype of attraction and relatedness in the domain of partnership and one-to-one relationship. This is often considered one of Venus's strongest positions. A location may tend to produce beautiful or Venusian partners and harmonious one-to-one relationships.",
+        "practical_tendencies": "Significant partnerships may be more readily formed and may carry a warm, agreeable, or aesthetically resonant quality. Social and legal contracts may proceed more smoothly. The social environment may facilitate important relational encounters.",
+        "traditional_associations": "Classically Venus in the 7th is strongly associated with harmonious marriages and partnerships, attractive partners, and a social environment that facilitates smooth and agreeable one-to-one engagements.",
+        "source_context": "Venus's traditional rulership of Libra and its natural connection to the 7th house makes this a classically powerful position for partnership and social grace."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 8
+      },
+      "content": {
+        "short_line": "The Venusian principle engages with shared resources, depth, and the intimacy of transformation.",
+        "symbolic_themes": "Venus in the 8th brings beauty and relatedness to the domain of shared resources, intimacy, and transformation. A location may tend to produce encounters involving financial sharing, deep emotional bonding, or the pleasures of intimacy. Beautiful or valuable things may come through others.",
+        "practical_tendencies": "Financial benefit through partnerships, inheritance, or shared assets may be more available. Intimate relationships may carry a deeper and more transformative quality. A location may also draw one toward beauty in depth—art that deals with profound or transformative themes.",
+        "traditional_associations": "Classically Venus in the 8th is associated with benefit from partnerships and inheritances, deep pleasurable bonds, and resources that come through others."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 9
+      },
+      "content": {
+        "short_line": "The Venusian principle finds beauty in distance: travel, culture, philosophy, and foreign connection.",
+        "symbolic_themes": "Venus in the 9th brings aesthetic appreciation and relational warmth to the domain of travel, foreign cultures, and broader meaning. A location may tend to produce beautiful travel experiences, warm cross-cultural connections, and a pleasurable engagement with learning.",
+        "practical_tendencies": "Travel may be more aesthetically rewarding and socially enriching. Cross-cultural encounters may be warm and mutually appreciated. Artistic or creative work may be inspired by contact with foreign cultures or philosophical exploration.",
+        "traditional_associations": "Classically Venus in the 9th is associated with pleasant travel, warm relationships with foreigners, appreciation of diverse cultural expressions, and inspiration through broadened horizons."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 10
+      },
+      "content": {
+        "short_line": "The Venusian principle enters public life: career, reputation, and social authority carry aesthetic and relational themes.",
+        "symbolic_themes": "Venus in the 10th brings the archetype of beauty, social grace, and attraction into the domain of career and public reputation. A location may tend to support a public role in aesthetic, artistic, social, or care-oriented fields. Public reputation may carry a Venusian quality.",
+        "practical_tendencies": "Careers in art, beauty, diplomacy, social work, or entertainment may feel more natural and rewarding. Public-facing roles may involve a social or aesthetic dimension. The professional environment may be more harmonious.",
+        "traditional_associations": "Classically Venus in the 10th is associated with a pleasant or attractive public reputation, success in artistic or social careers, and a professional life marked by grace and good relationships."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 11
+      },
+      "content": {
+        "short_line": "The Venusian principle enriches social life: warm friendships, collective beauty, and shared pleasure.",
+        "symbolic_themes": "Venus in the 11th brings warmth, aesthetic appreciation, and a talent for social connection to the domain of groups, friendships, and collective aims. A location may tend to produce a rich and rewarding social network and friends with Venusian qualities.",
+        "practical_tendencies": "Friendships may be more warm and mutually supportive. Group activities with an aesthetic, social, or pleasure-oriented character may be more available. Social networks may provide both enjoyment and practical benefit.",
+        "traditional_associations": "Classically Venus in the 11th is associated with warm and loyal friendships, social benefit, enjoyment through group activities, and the achievement of aims through pleasant social networks."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-VEN-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "VEN",
+        "house": 12
+      },
+      "content": {
+        "short_line": "The Venusian principle withdraws into private beauty, secret pleasures, and the unseen dimensions of connection.",
+        "symbolic_themes": "Venus in the 12th places the archetype of beauty and relatedness in the domain of retreat, privacy, and hidden dimensions. A location may tend to draw aesthetic appreciation and relational warmth into more private or solitary expression. The pleasures available may be quiet, personal, and not publicly displayed.",
+        "practical_tendencies": "Private aesthetic pursuits, solitary creative activities, or relationships that carry a degree of secrecy may be more prominent. The contemplative or spiritual dimensions of beauty may feel more accessible. Care for those in retreat or institutional settings may be meaningful.",
+        "traditional_associations": "Classically Venus in the 12th is associated with private pleasures, hidden relationships, and a capacity for compassionate or self-sacrificing love."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Martian drive and assertive energy shape the immediate self-presentation.",
+        "symbolic_themes": "Mars in the 1st places the archetype of assertion, initiative, and physical drive at the rising angle. The immediate environment may tend to draw out directness, competitive energy, and a stronger physical or assertive presence. Action and initiative tend to come more readily to the surface.",
+        "practical_tendencies": "Physical energy and assertiveness may be more prominent features of daily self-expression. The social environment may provide more opportunity for direct action. Competition and conflict may be more frequent or more easily navigated.",
+        "traditional_associations": "Mars on the Ascendant is classically associated with a strong, active, and at times combative presence; it is linked to physical courage, energy, and a tendency to meet the environment with assertive initiative.",
+        "source_context": "Mars's classical domain is initiative, physical courage, and the will to act; placed at the angle of self-presentation, these themes shape the most immediate layer of the self's encounter with its surroundings."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Martian drive applies itself to the earning and defense of material resources.",
+        "symbolic_themes": "Mars in the 2nd directs assertive and competitive energy toward the domain of material security and earned income. A location may tend to produce a more active and determined approach to earning. Financial matters may involve more effort, competition, or assertive negotiation.",
+        "practical_tendencies": "Energetic application to work and earning may increase. Financial situations may require direct action or assertive defense. A tendency to spend as well as earn forcefully may emerge.",
+        "traditional_associations": "Classically Mars in the 2nd is associated with the earning of money through physical effort or competitive enterprise, and with the tendency for financial matters to involve more active struggle."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Martian energy expresses through direct, incisive communication and active local movement.",
+        "symbolic_themes": "Mars in the 3rd brings assertive and competitive energy to the domain of communication, short travel, and the immediate environment. Speech may be more direct, quick, or combative. A location may tend to produce a more mentally active and argumentative social environment.",
+        "practical_tendencies": "Communication style may become more direct or confrontational. Short-distance travel and movement may be more frequent and energetic. Debates, arguments, or lively exchanges may be more common in the local environment.",
+        "traditional_associations": "Classically Mars in the 3rd is associated with sharp and argumentative speech, active local movement, and disputes or competitive interactions in the immediate community."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Martian energy engages the home and private foundations — an active, sometimes pressured domestic life.",
+        "symbolic_themes": "Mars in the 4th brings assertive and sometimes disruptive energy to the domain of home, family, and private foundations. A location may tend to produce an active or sometimes tense domestic environment. Questions of territory and ownership may arise more readily.",
+        "practical_tendencies": "Home life may be more energetic and, at times, contentious. Construction, renovation, or active engagement with property may be more relevant. Family dynamics may involve more direct conflict or vigorous assertion.",
+        "traditional_associations": "Classically Mars in the 4th is associated with a turbulent home life, disputes over property, and a family environment marked by strong will and competitive energy. It is often noted as a placement requiring careful handling in domestic matters."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Martian drive fuels creative action, competitive play, and energetic romantic pursuit.",
+        "symbolic_themes": "Mars in the 5th brings drive, competitive spirit, and physical energy to the domain of creative expression, pleasure, and romance. A location may tend to energize creative projects and make romantic life more actively pursued.",
+        "practical_tendencies": "Creative work may be more vigorously pursued. Romantic encounters may be more direct and energetically charged. Competitive sports or physically active leisure pursuits may be more appealing and available.",
+        "traditional_associations": "Classically Mars in the 5th is associated with enthusiasm for competitive games and physical pleasures, energetic creative projects, and a bold and direct approach to romantic life."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Martian drive applies itself to work, craft, and the disciplined service of a goal.",
+        "symbolic_themes": "Mars in the 6th brings assertive energy and drive to the domain of daily work, health, and practical skill. A location may tend to draw one toward demanding physical or craft-oriented work. Work ethic and physical discipline may be more prominent.",
+        "practical_tendencies": "Physically demanding or highly disciplined work may feel more natural and rewarding. Health may benefit from active physical routines and discipline. Work environments may be more competitive or energetically demanding.",
+        "traditional_associations": "Classically Mars in the 6th is associated with hard-working and physically energetic service, military or craft occupations, and the need for disciplined management of the body."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Martian drive meets the Other: partners may be assertive, and competition enters the relational sphere.",
+        "symbolic_themes": "Mars in the 7th places assertive and competitive energy in the domain of partnership and one-to-one engagement. A location may tend to produce more assertive, direct, or challenging partners. Significant relationships may involve a competitive or confrontational dynamic.",
+        "practical_tendencies": "Partners may be energetic, strong-willed, or competitive. Open conflicts or direct negotiations may be more common. Legal disputes or adversarial situations may be more prominent.",
+        "traditional_associations": "Classically Mars in the 7th is associated with partnerships involving conflict or competition, open enemies, and relationships with an assertive or martial quality."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Martian drive enters the territory of transformation, shared power, and intense encounters.",
+        "symbolic_themes": "Mars in the 8th places assertive drive in the domain of transformation, shared resources, and depth encounters. A location may tend to intensify engagement with power, financial negotiations, or situations requiring direct confrontation with what is hidden or difficult.",
+        "practical_tendencies": "Situations involving shared financial stakes or power struggles may be more prominent. A forceful engagement with transformative processes may be more available. Physical intensity and encounters with mortality-adjacent themes may be more present.",
+        "traditional_associations": "Classically Mars in the 8th is associated with danger, intense confrontations, a strong survival drive, and the need to apply assertive energy to situations of fundamental importance."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Martian drive orients toward adventure, expansive action, and the pursuit of distant goals.",
+        "symbolic_themes": "Mars in the 9th brings assertive and adventurous energy to the domain of travel, learning, and the pursuit of broader meaning. A location may tend to draw one toward active exploration, competitive achievement in educational or philosophical fields, and bold travel.",
+        "practical_tendencies": "Long-distance travel may be more physically demanding and adventurous. Philosophical or religious convictions may be held and expressed with more force. Physical or competitive achievement in foreign environments may be available.",
+        "traditional_associations": "Classically Mars in the 9th is associated with martial or exploratory ventures in foreign lands, strong philosophical convictions, and the desire to push boundaries and seek new territories."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Martian drive enters public life: career is marked by assertion, competition, and active ambition.",
+        "symbolic_themes": "Mars in the 10th places the archetype of assertive drive and competitive ambition at the angle of career and public authority. Professional life in a location may be marked by competitive energy, a strong drive for achievement, and willingness to take direct action in the public sphere.",
+        "practical_tendencies": "Career ambitions may be pursued with more force and determination. Public visibility may come through assertive or competitive activity. Authority relationships may involve direct confrontation or the need to assert one's position.",
+        "traditional_associations": "Classically Mars in the 10th is associated with prominence in competitive or martial fields, a forceful career drive, and potential for both significant achievement and public conflicts."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Martian drive energizes collective aims, group action, and the pursuit of shared goals.",
+        "symbolic_themes": "Mars in the 11th brings assertive energy and competitive drive to the domain of groups, friendships, and collective aims. A location may tend to draw one into active group endeavors, competitive social dynamics, or organizations pursuing bold shared goals.",
+        "practical_tendencies": "Group activities may involve more energy and competition. Friends and associates may be more assertive or action-oriented. Collective aims may be pursued with force and determination.",
+        "traditional_associations": "Classically Mars in the 11th is associated with ambitious and energetic friends, participation in competitive group activities, and the pursuit of social aims through direct action."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-MAR-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "MAR",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Martian drive retreats into hidden action, internal tension, and behind-the-scenes exertion.",
+        "symbolic_themes": "Mars in the 12th places assertive energy in the domain of the unseen, private struggle, and hidden action. A location may tend to draw physical energy into behind-the-scenes work, private battles, or solitary exertion. Direct outward assertion may be less available than in other placements.",
+        "practical_tendencies": "Physical exertion in private or institutional contexts may be more prominent. Internal psychological drives may feel more pressing. A tendency for suppressed conflict to emerge unexpectedly may require attention.",
+        "traditional_associations": "Classically Mars in the 12th is associated with hidden conflicts, self-undoing through uncontrolled drives, and physical exertion in seclusion; it traditionally requires conscious management of aggressive energy."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Jovian expansion and optimism shape the immediate self-presentation.",
+        "symbolic_themes": "Jupiter in the 1st places the archetype of expansion, optimism, and abundance at the rising angle. The immediate social environment may tend to draw out a more generous, confident, and broad-minded self-presentation. A sense of opportunity and positive expectation may color first impressions.",
+        "practical_tendencies": "The social environment may feel more open and generous. A tendency toward confidence, humor, and philosophical engagement may be more visible. Opportunities may seem more readily available in this location.",
+        "traditional_associations": "Jupiter rising is classically associated with a generous, optimistic, and well-regarded social presence; it is linked to good fortune in the immediate environment and a benefic reception from the surrounding social world.",
+        "source_context": "Jupiter's classical role as the greater benefic connects its presence at the rising angle to an expansive and fortunate quality in how the self meets its surroundings."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Jovian abundance orients toward material resources: generosity and financial opportunity.",
+        "symbolic_themes": "Jupiter in the 2nd brings the archetype of expansion and abundance to the domain of material resources. A location may tend to expand financial opportunity, draw generosity, and create a sense of material sufficiency.",
+        "practical_tendencies": "Income and material resources may grow more readily. A generous approach to money may flow naturally. However, a tendency toward overextension or excessive spending may also be present.",
+        "traditional_associations": "Classically Jupiter in the 2nd is associated with financial abundance, generosity, and the tendency toward both generous earning and generous spending."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Jovian expansion enriches communication, broadens the local mind, and animates the immediate environment.",
+        "symbolic_themes": "Jupiter in the 3rd brings expansive and philosophical energy to the domain of communication and the local environment. A location may tend to produce a stimulating intellectual atmosphere, pleasant social exchanges, and an immediate community with breadth and variety.",
+        "practical_tendencies": "Communication may carry more philosophical depth and generous expression. The local environment may feel more varied and intellectually stimulating. Short journeys may bring unexpected opportunities.",
+        "traditional_associations": "Classically Jupiter in the 3rd is associated with eloquence, broad-minded communication, pleasant relationships with siblings, and a fortunate immediate environment."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Jovian abundance enriches the home and roots: a generous, spacious, or fortunate domestic life.",
+        "symbolic_themes": "Jupiter in the 4th brings expansion, abundance, and a philosophical quality to the domain of home and private foundations. A location may tend to produce a spacious, fortunate, or generously welcoming home environment. A sense of inner abundance and rootedness may be more available.",
+        "practical_tendencies": "Home may become larger, more comfortable, or more spiritually meaningful. Family life may be more generous and expansive. Private life may carry a quality of philosophical depth or broad cultural richness.",
+        "traditional_associations": "Classically Jupiter in the 4th is associated with a fortunate and spacious home, generous family life, and a sense of private abundance and philosophical depth."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Jovian abundance flows into pleasure, creativity, and expansive self-expression.",
+        "symbolic_themes": "Jupiter in the 5th brings generous and expansive energy to the domain of pleasure, creative expression, and romance. A location may tend to make creative life more abundant, romantic life more joyful, and leisure more rewarding.",
+        "practical_tendencies": "Creative projects may expand in scope and receive greater recognition. Romantic life may be more plentiful and enjoyable. Opportunities for leisure, play, and pleasurable activity may be more readily available.",
+        "traditional_associations": "Classically Jupiter in the 5th is associated with generous creative output, fortunate romantic encounters, and a pleasurable and expansive approach to self-expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Jovian expansion applies to work: generous service, broad employment, or philosophical approach to craft.",
+        "symbolic_themes": "Jupiter in the 6th brings an expansive and philosophical quality to the domain of daily work and health. A location may tend to expand the scope of one's work, draw generous employment conditions, or bring a broader meaning to service and craft.",
+        "practical_tendencies": "Employment conditions may be more generous or abundant. Work may expand in scope or involve broader philosophical dimensions. Health may benefit from an optimistic and moderate approach.",
+        "traditional_associations": "Classically Jupiter in the 6th is associated with generous working conditions, service in educational or philosophical institutions, and a broadly positive outlook on health."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Jovian generosity enters partnership: expansive, fortunate, and philosophically enriching relationships.",
+        "symbolic_themes": "Jupiter in the 7th brings abundance, generosity, and an expansive quality to the domain of partnership. A location may tend to produce generous, broad-minded, or philosophically stimulating partners. Significant relationships may carry a quality of mutual enrichment.",
+        "practical_tendencies": "Partnership opportunities may expand. Partners may be more generous, philosophical, or internationally connected. Legal and contractual matters may tend to resolve favorably.",
+        "traditional_associations": "Classically Jupiter in the 7th is associated with beneficial and fortunate marriages or partnerships, generous partners, and favorable outcomes in legal matters."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Jovian abundance engages with shared resources, inheritance, and transformative depth.",
+        "symbolic_themes": "Jupiter in the 8th brings expansion and fortunate themes to the domain of shared resources, transformation, and depth. A location may tend to produce financial benefit through others, fortunate inheritances or shared assets, and a broad engagement with transformative experience.",
+        "practical_tendencies": "Income through partnerships, investments, or inheritance may be more readily available. Encounters with depth, transformation, and psychological inquiry may be more expansive and less threatening. A philosophical acceptance of life's cycles may be more available.",
+        "traditional_associations": "Classically Jupiter in the 8th is associated with financial benefit through others, a fortunate relationship with death and transformation, and a philosophical orientation toward the deeper dimensions of life."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Jupiter is in its natural domain: expansion, travel, learning, and philosophical inquiry flourish.",
+        "symbolic_themes": "Jupiter in the 9th is in the house most closely associated with its natural qualities. The domains of higher education, long-distance travel, philosophy, and cross-cultural exchange tend to be particularly animated and fortunate in a location.",
+        "practical_tendencies": "Educational, philosophical, and travel-oriented pursuits tend to expand and prosper. Foreign connections may be particularly beneficial. A sense of broad possibility and philosophical richness may permeate the location.",
+        "traditional_associations": "Classically Jupiter in the 9th is considered one of its strongest positions, associated with wisdom, religious or philosophical prominence, fortunate travel, and broad cultural engagement.",
+        "source_context": "Jupiter's classical rulership of Sagittarius and its correspondence to the 9th house makes this a naturally strong position in traditional astrology."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Jovian abundance enters public life: career expansion, favorable reputation, and broad authority.",
+        "symbolic_themes": "Jupiter in the 10th places expansive and abundant energy at the angle of career, public authority, and social reputation. A location may tend to expand professional opportunity, produce a favorable public image, and bring broad authority or recognition.",
+        "practical_tendencies": "Career prospects may expand and reputation may improve. The public role may carry a generous, philosophical, or authoritative quality. Professional opportunities may come more readily or on a larger scale.",
+        "traditional_associations": "Classically Jupiter in the 10th is associated with prominent and fortunate careers, broad public recognition, and positions of authority in educational, religious, or governmental fields."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Jovian expansion enriches social life: fortunate friends, collective abundance, and broad aims.",
+        "symbolic_themes": "Jupiter in the 11th brings generosity, expansion, and fortunate themes to the domain of groups, friendships, and collective aims. A location may tend to produce abundant and beneficial social connections, generous friends, and opportunities through collective endeavors.",
+        "practical_tendencies": "Social networks may expand and bring significant benefit. Friends and associates may be generous, philosophical, or internationally connected. Collective aims may prosper.",
+        "traditional_associations": "Classically Jupiter in the 11th is associated with fortunate and generous friends, social benefit, and the achievement of ambitious aims through abundant social networks."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-JUP-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "JUP",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Jovian expansion retreats into private wisdom, spiritual depth, and hidden abundance.",
+        "symbolic_themes": "Jupiter in the 12th places expansive and philosophical energy in the domain of retreat, the hidden, and private life. A location may tend to draw one toward spiritual or philosophical inquiry in solitude, charitable activity, or engagement with institutions of care and learning.",
+        "practical_tendencies": "Spiritual or contemplative pursuits may expand and feel more meaningful. Charitable or behind-the-scenes beneficent activity may be more prominent. Private philosophical or religious life may be particularly rich.",
+        "traditional_associations": "Classically Jupiter in the 12th is associated with spiritual depth, charitable activity, and hidden wisdom; it is often linked to benefit through retreats, spiritual communities, and private contemplative practice."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Saturnine structure and responsibility shape the immediate self-presentation.",
+        "symbolic_themes": "Saturn in the 1st places the archetype of structure, discipline, and serious purpose at the rising angle. The immediate environment may draw out a more deliberate, careful, and authoritative self-presentation. A quality of seriousness, endurance, or controlled reserve may be more apparent.",
+        "practical_tendencies": "Self-expression may be more restrained and purposeful. The immediate social environment may present more demands and structural challenges. Greater discipline and persistent effort may be required and rewarded.",
+        "traditional_associations": "Saturn on the Ascendant is classically associated with a serious and authoritative demeanor, disciplined self-presentation, and an environment that tends to test and develop resilience."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Saturnine discipline orients toward careful resource management and earned material security.",
+        "symbolic_themes": "Saturn in the 2nd brings structure, discipline, and a careful quality to the domain of material resources. A location may tend to demand careful financial management and reward disciplined, long-term approaches to building material security.",
+        "practical_tendencies": "Financial matters may require greater patience and disciplined effort. Resources may be more limited initially but tend to become more stable over time through careful management. A conservative approach to money may be more natural.",
+        "traditional_associations": "Classically Saturn in the 2nd is associated with careful and conservative financial management, delayed but enduring material security, and a serious approach to practical resources."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Saturnine discipline shapes communication: careful, precise, and deliberately expressed.",
+        "symbolic_themes": "Saturn in the 3rd brings structure and careful deliberation to the domain of communication, short travel, and the immediate environment. Speech and writing may become more formal, precise, and measured. The local environment may carry a quality of seriousness.",
+        "practical_tendencies": "Communication may be more deliberate and less spontaneous. Writing or speaking with authority and precision may be more natural. Relationships with siblings and the immediate community may carry more formal or structured dimensions.",
+        "traditional_associations": "Classically Saturn in the 3rd is associated with careful and authoritative communication, structured intellectual work, and a more formal or demanding immediate environment."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Saturnine structure engages the home and roots: foundations demand serious attention and careful building.",
+        "symbolic_themes": "Saturn in the 4th places the archetype of structure, limitation, and serious purpose in the domain of home and private foundations. A location may tend to place weight and responsibility on the domestic sphere. Questions of inheritance, property, and ancestral obligation may carry more significance.",
+        "practical_tendencies": "Home life may carry more responsibility and require more structural effort. A sense of isolation or burden in the domestic sphere may be present and may benefit from deliberate attention. Long-term building of a solid private foundation may be the orientation.",
+        "traditional_associations": "Classically Saturn in the 4th is associated with a weighty or demanding home life, difficult family inheritance, and the need to build foundations slowly and with patience.",
+        "notes": "Beta reference. This placement may benefit from particularly careful Wizard review before approval, as traditional descriptions vary significantly in severity."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Saturnine discipline enters the domain of creative expression and pleasure: deliberate rather than spontaneous.",
+        "symbolic_themes": "Saturn in the 5th brings structure and seriousness to the domain of pleasure, creativity, and self-expression. Creative work in a location may tend toward craftsmanship and disciplined output over spontaneous expression. Pleasure may require more deliberate cultivation.",
+        "practical_tendencies": "Creative projects may demand more serious and patient effort. Romantic life may be more formal or may involve delays and careful selectivity. The enjoyment of pleasure may be more measured but also more lasting.",
+        "traditional_associations": "Classically Saturn in the 5th is associated with disciplined creative work, delayed or serious romantic life, and fewer but more carefully chosen pleasures."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Saturn is in a naturally compatible domain: disciplined craft, serious service, and structured health practice.",
+        "symbolic_themes": "Saturn in the 6th finds a natural domain in the house of craft, service, and health management. A location may tend to draw one toward demanding but rewarding work, disciplined health practices, and the patient development of practical skill.",
+        "practical_tendencies": "Work may be more demanding and require persistent effort, but craftsmanship and reliability may be rewarded. Health may require structured and disciplined management. Service roles demanding precision and patience may be more available.",
+        "traditional_associations": "Classically Saturn in the 6th is associated with demanding but skilled work, disciplined health management, and employment in fields requiring patience and precision.",
+        "source_context": "Saturn's correspondence to disciplined labor and to Virgo-ruled themes of craft makes the 6th house a relatively compatible placement in traditional astrology."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Saturnine structure enters partnership: serious, enduring, and sometimes demanding relationships.",
+        "symbolic_themes": "Saturn in the 7th brings structure, seriousness, and a demanding quality to the domain of partnership. A location may tend to produce partners with Saturnine qualities—older, more authoritative, more serious—or partnerships that require considerable patience and effort to maintain.",
+        "practical_tendencies": "Partnerships may carry more responsibility and require deliberate cultivation. Delayed or formal partnership arrangements may be more common. The commitment that does form may be more enduring and structurally solid.",
+        "traditional_associations": "Classically Saturn in the 7th is associated with serious or demanding partnerships, relationships with older or authoritative partners, and the tendency for committed relationships to form later or under conditions requiring significant work."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Saturnine gravity deepens engagement with transformation, shared resources, and the fundamental cycles of loss.",
+        "symbolic_themes": "Saturn in the 8th places the archetype of limitation, gravity, and disciplined endurance in the domain of transformation, shared resources, and death. A location may tend to produce sober encounters with loss, significant obligations in financial arrangements with others, and serious engagement with transformative processes.",
+        "practical_tendencies": "Financial arrangements involving shared assets or inheritances may require careful and disciplined management. Encounters with loss, grief, or fundamental transition may carry more weight. A serious and structured approach to psychological depth may be more necessary.",
+        "traditional_associations": "Classically Saturn in the 8th is associated with heavy financial obligations, serious encounters with mortality, and the need for endurance in transformative processes."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Saturnine discipline shapes philosophical inquiry, formal learning, and the structure of belief.",
+        "symbolic_themes": "Saturn in the 9th brings structure and serious purpose to the domain of higher learning, philosophy, and travel. A location may tend to draw one toward formal academic or philosophical pursuits and toward a more rigorous approach to questions of meaning.",
+        "practical_tendencies": "Higher education may be more demanding and formal. Philosophical or religious convictions may be more carefully structured and traditional. Long-distance travel may involve more responsibility or practical obstacles.",
+        "traditional_associations": "Classically Saturn in the 9th is associated with formal and traditional learning, conservative philosophical views, and a serious approach to questions of meaning and foreign experience."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Saturn finds one of its most natural domains: disciplined career building, authority, and lasting public achievement.",
+        "symbolic_themes": "Saturn in the 10th is in the house most associated with its natural qualities — career, authority, and public structure. A location may tend to support long-term career building, serious professional development, and the gradual earning of public authority and respect.",
+        "practical_tendencies": "Career progress may be slower but more enduring. Professional life may demand significant discipline and persistence. The kind of authority that is built in this location tends to be solid and based on demonstrated competence.",
+        "traditional_associations": "Classically Saturn in the 10th is one of its strongest positions, associated with earned authority, professional prominence through patient effort, and lasting public achievement.",
+        "source_context": "Saturn's classical rulership of Capricorn and its correspondence to the 10th house makes this a naturally powerful position for Saturnine themes of structure, authority, and long-term achievement."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Saturnine structure shapes social engagement: fewer but more serious associations and collective responsibilities.",
+        "symbolic_themes": "Saturn in the 11th brings structure and seriousness to the domain of social groups, friendships, and collective aims. A location may tend to produce fewer but more enduring and serious social connections, and collective endeavors that require patient building.",
+        "practical_tendencies": "Social networks may be more limited but more solid. Friends and associates may carry more Saturnine qualities. Collective aims may be pursued with discipline and long-term commitment rather than spontaneous enthusiasm.",
+        "traditional_associations": "Classically Saturn in the 11th is associated with serious and enduring friendships, disciplined collective pursuits, and the achievement of aims through patient long-term effort rather than quick social advantage."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-SAT-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "SAT",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Saturnine gravity retreats into the private interior: solitude, inner discipline, and the weight of the unseen.",
+        "symbolic_themes": "Saturn in the 12th places the archetype of structure, limitation, and endurance in the domain of retreat, the hidden, and the private interior. A location may tend to draw one toward solitary and demanding inner work, confinement, or service in institutional settings.",
+        "practical_tendencies": "Private life may feel heavier or more demanding. A tendency to carry burdens in solitude or to encounter limitation in ways not immediately visible may be present. Serious engagement with spiritual or contemplative practice may be more relevant.",
+        "traditional_associations": "Classically Saturn in the 12th is associated with hidden difficulties, solitary endurance, and service in confined or institutional settings; it is also linked to serious spiritual or contemplative discipline."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Uranian disruption and originality animate the immediate self-presentation.",
+        "symbolic_themes": "Uranus in the 1st places the archetype of disruption, independence, and radical originality at the rising angle. The environment may draw out an unconventional, experimental, and personally distinctive self-presentation. A quality of unexpectedness and social nonconformity may be more prominent.",
+        "practical_tendencies": "A strong desire for personal freedom and independence may be more acute. The immediate social environment may feel alternately stimulating and destabilizing. Surprising encounters and sudden changes may be more frequent.",
+        "traditional_associations": "Uranus on the Ascendant is associated in modern astrology with eccentric self-expression, a strong need for personal independence, and the tendency to attract unusual or disrupting circumstances in the immediate environment.",
+        "source_context": "Uranus's association with the principle of disruption and liberation (in modern astronomical and astrological tradition) connects directly to the 1st house's domain of the embodied, social self."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Uranian disruption affects resources: financial instability and innovation in the material domain.",
+        "symbolic_themes": "Uranus in the 2nd brings the archetype of disruption and innovation to the domain of material resources. A location may tend to produce financial instability, sudden changes in income, or innovative approaches to earning and resource management.",
+        "practical_tendencies": "Financial circumstances may be more variable and subject to sudden change. Income may come through unconventional or technologically innovative means. A need for financial flexibility rather than fixed security may be more relevant.",
+        "traditional_associations": "Modern astrology associates Uranus in the 2nd with erratic income, innovative earning strategies, and financial independence built through unconventional means."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Uranian originality animates communication: innovative, nonconformist, and often surprising.",
+        "symbolic_themes": "Uranus in the 3rd brings innovative, disruptive, and unconventional energy to the domain of communication and the immediate environment. A location may produce an intellectually stimulating environment of rapid information exchange, unconventional ideas, and technological communication.",
+        "practical_tendencies": "Communication may be more innovative and unexpected. The local environment may feel mentally stimulating and socially nonconformist. Electronic or technological communication may be more prominent.",
+        "traditional_associations": "Modern astrology associates Uranus in the 3rd with unconventional and inventive thinking, disruption in the immediate environment, and innovative approaches to communication and learning."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Uranian disruption affects home and roots: instability, unconventional domestic life, and the need for inner freedom.",
+        "symbolic_themes": "Uranus in the 4th places the archetype of disruption and independence in the domain of home, roots, and private foundations. A location may tend to produce instability in the domestic environment, frequent relocations, or a strongly nonconformist approach to family life and housing.",
+        "practical_tendencies": "Home situations may be more variable and subject to sudden change. A need for freedom within the domestic sphere may be strong. The location may feel exciting but may lack the consistent stability of roots.",
+        "traditional_associations": "Modern astrology associates Uranus in the 4th with disrupted home life, frequent changes of residence, unconventional family structures, and the challenge of maintaining stable foundations.",
+        "notes": "This placement is flagged for cautious handling in relocation consultation. For relationship/family mode, surfaces as a risk placement (see AI_CONSULTATION_ARCHITECTURE.md §11)."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Uranian originality animates creative expression: experimental, disruptive, and distinctively unconventional.",
+        "symbolic_themes": "Uranus in the 5th brings innovative and disruptive energy to the domain of creative expression, pleasure, and romance. A location may tend to draw one toward experimental creative work, sudden romantic encounters, and unusual or nonconformist forms of self-expression.",
+        "practical_tendencies": "Creative work may be more experimental and avant-garde. Romantic encounters may be surprising and unconventional. The enjoyment of pleasure may take original and unexpected forms.",
+        "traditional_associations": "Modern astrology associates Uranus in the 5th with experimental creativity, unconventional romances, and a distinctively original approach to self-expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Uranian innovation enters work: unconventional employment, disrupted routines, and technological approaches to craft.",
+        "symbolic_themes": "Uranus in the 6th brings disruption and innovation to the domain of daily work, health, and practical routine. A location may tend to draw one toward technologically innovative or unconventional work and may produce disruption in the stability of daily routines.",
+        "practical_tendencies": "Work situations may be more variable and subject to sudden change. Technologically innovative or unconventional working arrangements may be more available. Health may benefit from experimental or innovative approaches.",
+        "traditional_associations": "Modern astrology associates Uranus in the 6th with disruptive work environments, technological innovation in daily life, and an unconventional approach to health maintenance."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Uranian disruption enters partnership: unconventional, freedom-seeking, or sudden relational encounters.",
+        "symbolic_themes": "Uranus in the 7th brings the archetype of disruption, independence, and unconventional encounter to the domain of partnership. A location may tend to produce unusual, nonconformist, or unpredictably exciting partners and partnership arrangements.",
+        "practical_tendencies": "Romantic and business partnerships may be more unconventional and subject to sudden change. A need for independence within relationships may be more prominent. The partnership environment may feel stimulating but unstable.",
+        "traditional_associations": "Modern astrology associates Uranus in the 7th with unconventional or open-structured relationships, partners with a strong need for independence, and relational patterns that resist convention.",
+        "notes": "This placement is flagged for cautious handling in relocation consultation. For relationship/family mode, surfaces as a risk placement (see AI_CONSULTATION_ARCHITECTURE.md §11)."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Uranian disruption engages transformation: sudden change, experimental depth, and unconventional encounters with power.",
+        "symbolic_themes": "Uranus in the 8th places disruptive and innovative energy in the domain of transformation, shared resources, and depth. A location may tend to produce sudden financial changes through shared assets, or unexpected encounters with the deeper dimensions of life.",
+        "practical_tendencies": "Financial arrangements involving others may be more volatile. Encounters with transformation and depth may come suddenly and without preparation. A fascination with unconventional or experimental approaches to psychological depth may increase.",
+        "traditional_associations": "Modern astrology associates Uranus in the 8th with sudden financial disruptions through shared resources, unexpected encounters with mortality or transformation, and unconventional approaches to depth and power."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Uranian originality animates philosophy, travel, and the expansion of mind: unconventional beliefs and radical inquiry.",
+        "symbolic_themes": "Uranus in the 9th brings disruptive and innovative energy to the domain of travel, philosophy, and higher learning. A location may tend to produce unconventional philosophical views, experimental approaches to learning, and sudden or unexpected encounters with foreign cultures and ideas.",
+        "practical_tendencies": "Philosophical and religious views may be more unconventional and subject to sudden revision. Travel may produce surprising and transformative encounters. Educational experiences may be more experimental and nonlinear.",
+        "traditional_associations": "Modern astrology associates Uranus in the 9th with radical philosophical convictions, sudden travel and foreign encounters, and an unconventional relationship to education and belief."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Uranian disruption enters public life: sudden career changes, innovative authority, and unconventional professional paths.",
+        "symbolic_themes": "Uranus in the 10th brings disruptive and innovative energy to the domain of career, public authority, and social role. A location may tend to produce sudden career changes, unconventional professional paths, or a public role characterized by innovation and nonconformity.",
+        "practical_tendencies": "Career may involve more disruption and sudden change than in other locations. Innovative, technological, or unconventional fields may be more accessible. The public role may carry a quality of originality and independence.",
+        "traditional_associations": "Modern astrology associates Uranus in the 10th with disrupted career trajectories, innovative public roles, and the achievement of prominence through unconventional means."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Uranus is in a natural domain: innovative groups, experimental collective aims, and nonconformist social networks.",
+        "symbolic_themes": "Uranus in the 11th is in one of its more compatible houses, associated with collective innovation, social experimentation, and unconventional group activity. A location may tend to draw one into technologically innovative, politically unconventional, or experimentally minded social communities.",
+        "practical_tendencies": "Social networks may be more diverse, experimental, and technologically oriented. Collective aims may involve innovation and social reform. Friends and associates may carry Uranian qualities of independence and originality.",
+        "traditional_associations": "Modern astrology associates Uranus in the 11th with involvement in innovative groups, unconventional friendships, and the pursuit of social ideals through experimental collective action.",
+        "source_context": "Uranus's modern association with Aquarius and the 11th house creates a natural resonance; both themes involve collective humanity, innovation, and the desire for social liberation."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-URA-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "URA",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Uranian disruption retreats into the private interior: sudden inner changes, hidden independence, and the unseen disruption.",
+        "symbolic_themes": "Uranus in the 12th places disruptive and liberating energy in the domain of retreat, the hidden, and the unconscious. A location may tend to draw one toward sudden inner shifts, hidden rebellions, or unexpected encounters with the less visible dimensions of life.",
+        "practical_tendencies": "Inner life may be subject to sudden and surprising shifts. A need for hidden independence or unconventional private practice may be present. Encounters with the unexpected in contexts of solitude or institutional life may be more frequent.",
+        "traditional_associations": "Modern astrology associates Uranus in the 12th with hidden disruptions, sudden changes in the interior life, and an unconventional or experimental relationship with solitude and the unconscious."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Neptunian dissolution and sensitivity shape the immediate self-presentation: fluid, receptive, impressionistic.",
+        "symbolic_themes": "Neptune in the 1st places the archetype of dissolution, sensitivity, and idealized perception at the rising angle. The immediate social environment may tend to produce a more fluid, impressionistic, and sensitive self-presentation. The sense of personal boundaries may feel more permeable.",
+        "practical_tendencies": "The immediate social environment may feel more dreamlike and difficult to define sharply. A tendency toward artistic sensitivity, compassion, or spiritual orientation may be more visible. Clear definition of personal identity may require conscious effort.",
+        "traditional_associations": "Neptune on the Ascendant in modern astrology is associated with a sensitive, artistic, and somewhat elusive personal presence, and with environments that tend to blur clear definition."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Neptunian dissolution affects material resources: idealistic, fluid, or spiritually oriented relationship to money.",
+        "symbolic_themes": "Neptune in the 2nd brings the archetype of dissolution and idealism to the domain of material resources. A location may tend to produce an unclear or idealized relationship with money and possessions, or to draw one toward earnings from artistic, spiritual, or compassionate work.",
+        "practical_tendencies": "Financial boundaries may be harder to maintain. Income through creative, spiritual, or healing fields may be more available. Caution with financial clarity and practical grounding may be more relevant.",
+        "traditional_associations": "Modern astrology associates Neptune in the 2nd with idealized or confused financial values, income from artistic or spiritual sources, and the need for practical grounding in material matters."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Neptunian sensitivity flows into communication: poetic, imaginative, and impressionistic.",
+        "symbolic_themes": "Neptune in the 3rd brings sensitivity, imagination, and a dissolving quality to the domain of communication and the immediate environment. A location may tend to produce a more impressionistic and poetic communication style. The immediate environment may feel somewhat dream-like or undefined.",
+        "practical_tendencies": "Communication may be more evocative and less literal. Poetic, musical, or visually symbolic forms of expression may come more easily. The immediate environment may feel atmospheric but occasionally difficult to define clearly.",
+        "traditional_associations": "Modern astrology associates Neptune in the 3rd with imaginative and poetic communication, sensitivity to the atmosphere of the immediate environment, and a tendency toward intuitive rather than analytical thought."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Neptunian dissolution affects home and roots: idealized, fluid, or spiritually resonant domestic life.",
+        "symbolic_themes": "Neptune in the 4th brings the archetype of dissolution, imagination, and spiritual sensitivity to the domain of home and private foundations. A location may produce a particularly atmospheric or spiritually resonant home environment, or one where the boundaries of domestic life feel unusually fluid.",
+        "practical_tendencies": "The domestic environment may feel more atmospheric and dreamlike. Spiritual, artistic, or compassionate dimensions of home life may be prominent. Practical clarity about domestic arrangements may require more conscious attention.",
+        "traditional_associations": "Modern astrology associates Neptune in the 4th with an idealized or atmospheric home environment, spiritual or artistic domestic life, and occasionally with unclear family origins or foundations."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Neptunian imagination flows into creative expression: artistic, visionary, and spiritually attuned.",
+        "symbolic_themes": "Neptune in the 5th brings the archetype of imagination and spiritual sensitivity to the domain of creative expression and pleasure. A location may tend to draw out visionary and aesthetically sensitive creative work, and a deeply romantic or idealized quality in relational encounters.",
+        "practical_tendencies": "Creative work may be more visually or musically oriented and deeply imaginative. Romantic life may carry an idealized and spiritually resonant quality. The pleasures of a location may tend toward the atmospheric and sensory.",
+        "traditional_associations": "Modern astrology associates Neptune in the 5th with visionary and artistic creative expression, romantically idealized encounters, and a spiritually attuned relationship with pleasure and self-expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Neptunian sensitivity enters daily work and health: healing professions, spiritual service, and the need for clear practical boundaries.",
+        "symbolic_themes": "Neptune in the 6th brings sensitivity, compassion, and a dissolving quality to the domain of daily work and health. A location may draw one toward healing, caregiving, or spiritually oriented service. Health may be more sensitive to environmental and emotional conditions.",
+        "practical_tendencies": "Healing or caregiving professions may feel more calling-like. Health may be more sensitive and require attentive management. Work environments may be more spiritually or compassionately oriented but may also lack clear practical structure.",
+        "traditional_associations": "Modern astrology associates Neptune in the 6th with healing professions, sensitivity in the work environment, and the need for practical clarity about health and daily functioning."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Neptunian idealism enters partnership: romantically sensitive, compassionate, and sometimes difficult to define clearly.",
+        "symbolic_themes": "Neptune in the 7th brings the archetype of idealism, dissolution, and spiritual sensitivity to the domain of partnership. A location may tend to produce romantically idealized partnerships or partners with Neptunian qualities. The boundaries of significant relationships may be more fluid.",
+        "practical_tendencies": "Romantic and business partnerships may carry an idealized or spiritually resonant quality. The boundaries of relationships may need more conscious definition. Partners may be artistic, sensitive, or spiritually oriented.",
+        "traditional_associations": "Modern astrology associates Neptune in the 7th with idealized or romanticized partnerships, compassionate and sometimes elusive partners, and the need for clarity in relational boundaries."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Neptunian dissolution deepens encounters with transformation: spiritual depth, subtle power, and the dissolution of boundaries.",
+        "symbolic_themes": "Neptune in the 8th places the archetype of dissolution and spiritual sensitivity in the domain of transformation, shared resources, and depth. A location may draw one toward spiritual engagement with the deeper cycles of life, subtle encounters with power, and a more fluid relationship with loss and regeneration.",
+        "practical_tendencies": "Encounters with spiritual depth may be more pronounced. Financial arrangements involving shared resources may require careful clarity. A sensitivity to the subtle and transformative dimensions of life may increase.",
+        "traditional_associations": "Modern astrology associates Neptune in the 8th with spiritual depth, mediumistic sensitivity, idealized or unclear shared financial matters, and a dissolving of the boundaries around transformation and death."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Neptunian idealism expands into philosophy, spiritual seeking, and the mystical dimensions of travel.",
+        "symbolic_themes": "Neptune in the 9th brings the archetype of spiritual seeking and idealism to the domain of higher learning, philosophy, and travel. A location may tend to draw one toward spiritual, mystical, or visionary philosophical exploration, and to encounters with foreign cultures carrying a spiritual quality.",
+        "practical_tendencies": "Philosophical and spiritual exploration may be more profound and personally meaningful. Travel may carry a quality of spiritual quest. Religious or mystical dimensions of life may be more vivid and important.",
+        "traditional_associations": "Modern astrology associates Neptune in the 9th with spiritual philosophy, mystical travel experiences, and a tendency toward visionary or idealized belief systems."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Neptunian dissolution enters public life: a fluid, artistic, or spiritually oriented public role.",
+        "symbolic_themes": "Neptune in the 10th brings the archetype of idealism, artistic sensitivity, and dissolution to the domain of career and public reputation. A location may tend to produce a public role in artistic, healing, spiritual, or visionary fields, or a public image that is difficult to define precisely.",
+        "practical_tendencies": "Careers in art, film, healing, spiritual work, or social idealism may feel more natural and rewarding. Public reputation may be more impressionistic and harder to control. The public role may carry a quality of sacrifice or service.",
+        "traditional_associations": "Modern astrology associates Neptune in the 10th with artistic or spiritual public roles, an elusive or idealized public reputation, and careers involving service, compassion, or visionary work."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Neptunian idealism flows into collective life: spiritually oriented groups, utopian aims, and compassionate community.",
+        "symbolic_themes": "Neptune in the 11th brings the archetype of spiritual idealism and dissolution to the domain of groups and collective aims. A location may draw one toward spiritually motivated communities, idealistic social projects, or groups oriented around compassion and shared visionary aims.",
+        "practical_tendencies": "Social networks may be more spiritually oriented or idealistic. Collective aims may carry a compassionate or visionary quality. A tendency to idealize friends or group goals may require gentle reality-checking.",
+        "traditional_associations": "Modern astrology associates Neptune in the 11th with spiritually idealistic friendships, involvement in compassionate or utopian collective aims, and a tendency to project ideals onto social groups."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-NEP-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "NEP",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Neptune is in its natural domain: solitude, spiritual depth, and dissolution of worldly boundaries.",
+        "symbolic_themes": "Neptune in the 12th is in the house most closely associated with its natural qualities. Retreat, spiritual contemplation, dissolution of ego boundaries, and deep inner life tend to be particularly animated and resonant in this location.",
+        "practical_tendencies": "Contemplative, meditative, or spiritual practices may be more available and meaningful. The private inner life may feel particularly rich. Encounters with the hidden and the transpersonal may be more vivid.",
+        "traditional_associations": "Modern astrology considers Neptune in the 12th among its strongest positions, associated with deep spiritual life, mystical sensitivity, and the dissolution of ordinary boundaries in solitude and retreat.",
+        "source_context": "Neptune's modern association with Pisces and the 12th house creates a natural resonance with solitude, spiritual dissolution, and transcendence of the ordinary personal self."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 1
+      },
+      "content": {
+        "short_line": "Plutonian intensity and transformative power shape the immediate self-presentation.",
+        "symbolic_themes": "Pluto in the 1st places the archetype of intensity, transformation, and power at the rising angle. The immediate environment may draw out a more penetrating, magnetic, and intense self-presentation. A quality of deep seriousness and transformative engagement with the surrounding world may be more apparent.",
+        "practical_tendencies": "Personal presence may carry more intensity and a quality of depth. Power dynamics in the immediate social environment may be more prominent. The environment may feel more demanding and transformative.",
+        "traditional_associations": "Modern astrology associates Pluto on the Ascendant with a magnetic and intense personal presence, power encounters in the immediate environment, and a transformative quality in the self's engagement with its surroundings."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Plutonian intensity engages material resources: power through wealth, transformation of values, or financial extremes.",
+        "symbolic_themes": "Pluto in the 2nd brings the archetype of transformation and power to the domain of material resources. A location may tend to draw one into intense financial situations, significant transformations of material values, or the accumulation and loss of resources through powerful processes.",
+        "practical_tendencies": "Financial situations may carry more intensity and involve significant stakes. A tendency toward all-or-nothing patterns with money may be present. The capacity to rebuild material foundations after loss may also be present.",
+        "traditional_associations": "Modern astrology associates Pluto in the 2nd with intense financial experiences, extreme fluctuations in material circumstances, and the potential for both significant loss and powerful regeneration of resources."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Plutonian intensity enters communication: penetrating, investigative, and sometimes compulsive in expression.",
+        "symbolic_themes": "Pluto in the 3rd brings the archetype of depth and transformation to the domain of communication and the immediate environment. A location may draw out penetrating and investigative communication, deep probing intellectual inquiry, and a tendency for conversations to reach into what is hidden.",
+        "practical_tendencies": "Communication may be more incisive, intense, and probing. The immediate environment may carry undertones of power dynamics or psychological depth. Research and investigative intellectual work may be more available.",
+        "traditional_associations": "Modern astrology associates Pluto in the 3rd with intense and investigative communication, power dynamics in the immediate environment, and a tendency toward probing, research-oriented thinking."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Plutonian transformation engages home and roots: intense private life and transformative engagement with foundations.",
+        "symbolic_themes": "Pluto in the 4th places the archetype of transformation, intensity, and power in the domain of home and private foundations. A location may tend to draw one into profound transformations of the home situation, intense family dynamics, or deep engagement with ancestral and psychological roots.",
+        "practical_tendencies": "Home and private life may carry significant intensity and be subject to major transformation. Family dynamics may involve power and depth. A sense of personal identity being fundamentally reshaped in this location may be present.",
+        "traditional_associations": "Modern astrology associates Pluto in the 4th with intense and transformative home life, powerful family dynamics, and a tendency for the private foundations of one's identity to be profoundly reshaped.",
+        "notes": "This placement is flagged for cautious handling in relocation consultation. For relationship/family mode, surfaces as a risk placement (see AI_CONSULTATION_ARCHITECTURE.md §11)."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Plutonian intensity enters creative expression: powerful, transformative, and deeply driven creative work.",
+        "symbolic_themes": "Pluto in the 5th brings the archetype of transformation and intensity to the domain of creative expression and pleasure. A location may draw out powerful and deeply driven creative work, intense romantic encounters, and a more compulsive or passionate engagement with self-expression.",
+        "practical_tendencies": "Creative work may carry significant depth and power. Romantic encounters may be more intense and transformative. The need to pour enormous energy into creative projects may be more prominent.",
+        "traditional_associations": "Modern astrology associates Pluto in the 5th with powerful and transformative creative drives, intense romantic encounters, and a deeply passionate approach to self-expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Plutonian intensity enters daily work and health: profound dedication, transformative service, and significant health themes.",
+        "symbolic_themes": "Pluto in the 6th brings the archetype of transformation and power to the domain of daily work and health. A location may draw one toward work involving profound transformation, healing, or investigation. Health matters may carry significant depth and require fundamental approaches.",
+        "practical_tendencies": "Work may involve power dynamics, investigative depth, or significant transformation. Health issues may require deep and thorough treatment rather than surface management. Work in healing, psychology, or investigative fields may be more relevant.",
+        "traditional_associations": "Modern astrology associates Pluto in the 6th with transformative work in healing, investigation, or power-related service fields, and with health matters requiring deep and thoroughgoing attention."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Plutonian intensity enters partnership: powerful, transformative, and deeply testing relational encounters.",
+        "symbolic_themes": "Pluto in the 7th places the archetype of transformation and power in the domain of partnership and one-to-one encounter. A location may tend to produce intense, transformative, or power-laden partnership encounters. Significant relationships may be deeply testing and fundamentally transformative.",
+        "practical_tendencies": "Partnerships may carry a quality of intensity and depth. Power dynamics in close relationships may be more prominent. Transformative encounters with significant others may be more available or more demanding.",
+        "traditional_associations": "Modern astrology associates Pluto in the 7th with intense and transformative partnerships, power dynamics in close relationships, and encounters with the Other that require deep personal transformation.",
+        "notes": "This placement is flagged for cautious handling in relocation consultation. For relationship/family mode, surfaces as a risk placement (see AI_CONSULTATION_ARCHITECTURE.md §11)."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Pluto is in one of its most natural domains: transformation, shared power, and the fundamental cycles of death and regeneration.",
+        "symbolic_themes": "Pluto in the 8th is in the house most closely associated with its natural archetype of transformation, power, and regeneration. A location may draw one into profound encounters with the transformative cycles of life, significant shared power dynamics, and deep engagement with what lies beneath the surface.",
+        "practical_tendencies": "Financial and power arrangements involving others may carry intense and transformative dimensions. Encounters with depth, loss, and regeneration may be more vivid and demanding. A profound engagement with psychological depth may be more available.",
+        "traditional_associations": "Modern astrology considers Pluto in the 8th among its strongest positions, associated with intense transformation, significant power encounters, and a profound engagement with the fundamental cycles of existence.",
+        "source_context": "Pluto's modern association with Scorpio and the 8th house creates a natural resonance with themes of power, transformation, death, and regeneration."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Plutonian intensity enters philosophy: transformative beliefs, power in higher learning, and the compulsive search for meaning.",
+        "symbolic_themes": "Pluto in the 9th brings the archetype of transformation and depth to the domain of philosophy, travel, and higher learning. A location may draw one toward transformative philosophical convictions, intense cross-cultural encounters, or the pursuit of meaning with a quality of compulsion and depth.",
+        "practical_tendencies": "Philosophical and religious convictions may be more intense and subject to fundamental transformation. Travel may produce deeply transformative encounters. Involvement with powerful institutional or philosophical structures may be more prominent.",
+        "traditional_associations": "Modern astrology associates Pluto in the 9th with transformative philosophical experiences, powerful encounters in foreign territories, and an intense and compulsive search for deeper meaning."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Plutonian power enters public life: transformative authority, significant career intensity, and encounters with institutional power.",
+        "symbolic_themes": "Pluto in the 10th brings the archetype of transformation, power, and intensity to the domain of career and public authority. A location may tend to draw one into positions involving significant power, or may produce profound transformations of the public role and professional identity.",
+        "practical_tendencies": "Career may involve encounters with significant institutional power. The public role may be more intense and transformative. A tendency toward powerful professional confrontations or fundamental career changes may be present.",
+        "traditional_associations": "Modern astrology associates Pluto in the 10th with powerful career transformations, involvement in significant institutional or social power structures, and a public role marked by depth and intensity."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Plutonian intensity enters collective life: transformative groups, power in social networks, and deep collective aims.",
+        "symbolic_themes": "Pluto in the 11th brings the archetype of transformation and power to the domain of groups, friendships, and collective aims. A location may draw one into groups involving significant power dynamics, or collective aims pursuing fundamental social transformation.",
+        "practical_tendencies": "Group involvements may carry more intensity and power dynamics. Social networks may be more selective and deeply bonded. Collective aims may involve fundamental rather than incremental change.",
+        "traditional_associations": "Modern astrology associates Pluto in the 11th with involvement in powerful or transformative collective movements, intense group dynamics, and deep bonds with a selective circle of associates."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-PLU-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "PLU",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Plutonian power retreats into the hidden interior: transformation in solitude, unconscious depth, and the invisible exercise of power.",
+        "symbolic_themes": "Pluto in the 12th places the archetype of transformation and power in the domain of the hidden, solitude, and the unconscious. A location may draw profound transformative processes into the private interior and away from public view. Encounters with what is deeply hidden—within the self or in institutional settings—may be more prominent.",
+        "practical_tendencies": "Inner transformation may be more powerful and less visible. Engagement with the hidden dimensions of institutions, healing, or psychological depth may be more relevant. A quality of private power accumulation or release may be present.",
+        "traditional_associations": "Modern astrology associates Pluto in the 12th with hidden transformative forces, powerful inner processes operating beneath awareness, and profound engagement with what lies in solitude and institutional depths."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft. Intended for Wizard review and professional refinement.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    }
+  ]
+}

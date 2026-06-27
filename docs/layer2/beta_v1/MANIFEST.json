@@ -1,0 +1,77 @@
+{
+  "model_id": "beta_reference_ontology_v1",
+  "model_name": "Beta Reference Ontology v1",
+  "version": "1.0.0",
+  "created": "2026-06-27",
+  "status": "Draft",
+  "immutable": false,
+  "description": "The first seed ontology for the Relocation consultation system. This model provides a conservative, reviewable symbolic grammar covering Planet in House, Chiron in House, Major Aspect Grammar, Planet-Angle Contacts, Hybrid Dignity Summaries, Default Orb Doctrine, and Late-House Guidance. It is intentionally incomplete and is designed for professional review, revision, and extension through the Layer 2 Wizard platform.",
+  "constitutional_alignment": "FOUNDATIONAL_CONSTITUTION.md §0 (Constitutional Chain), §7.6–7.9 (AI Constitutional Limits). This ontology provides symbolic grammar only — not consultation, prediction, or psychological profiles.",
+  "authoring_principle": "Beta Reference Ontology v1 — conservative, modular, every entry independently reviewable and replaceable.",
+  "total_entries": 224,
+  "files": [
+    {
+      "file": "01_planet_in_house.json",
+      "category": "Planet in House",
+      "entry_type": "PIH",
+      "count": 120
+    },
+    {
+      "file": "02_chiron_in_house.json",
+      "category": "Chiron in House",
+      "entry_type": "PIH",
+      "count": 12
+    },
+    {
+      "file": "03_aspect_grammar.json",
+      "category": "Major Aspect Grammar",
+      "entry_type": "ASP",
+      "count": 6
+    },
+    {
+      "file": "04_planet_angle_contacts.json",
+      "category": "Planet-Angle Contacts",
+      "entry_type": "ASP",
+      "count": 40
+    },
+    {
+      "file": "05_dignity_summaries.json",
+      "category": "Hybrid Dignity Summaries",
+      "entry_type": "DIG",
+      "count": 36
+    },
+    {
+      "file": "06_orb_doctrine.json",
+      "category": "Default Orb Doctrine",
+      "entry_type": "ORB",
+      "count": 7
+    },
+    {
+      "file": "07_late_house_guidance.json",
+      "category": "Late-House Guidance",
+      "entry_type": "HEM",
+      "count": 3
+    }
+  ],
+  "entry_types_included": {
+    "PIH": "Planet in House (includes Chiron)",
+    "ASP": "Aspect Grammar + Planet-Angle Contacts",
+    "DIG": "Dignity Summaries",
+    "ORB": "Orb Doctrine",
+    "HEM": "Late-House Guidance"
+  },
+  "entry_types_deferred": {
+    "SUB": "Substitution hints — Layer 3/4 operation, not Layer 2 grammar",
+    "REC": "Recommendations — Layer 3/4 operation",
+    "TRD": "Tradeoff notes — Layer 3/4 operation",
+    "CLU": "Cluster patterns — Layer 4 operation"
+  },
+  "next_steps": [
+    "Wizard review pass: all entries are in Draft status and require human approval before production use",
+    "AI-L2-2: Freeze entry type registry and define typed field schemas",
+    "Founder review: founder's professional ontology may override any individual entry",
+    "Professional authors: specialists may provide override models for specific entry sets",
+    "L2-P0 through L2-P8: full Wizard platform implementation phases"
+  ],
+  "archival_note": "Consultations generated before any entry is approved should be pinned to this manifest version for reproducibility."
+}

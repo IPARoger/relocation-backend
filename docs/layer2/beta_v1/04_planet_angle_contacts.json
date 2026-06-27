@@ -1,0 +1,1287 @@
+{
+  "category": "Planet-Angle Contacts",
+  "entry_type": "ASP",
+  "count": 40,
+  "entries": [
+    {
+      "id": "L2-ASP-SUN-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SUN",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The solar principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The SUN line brings the themes of vitality, identity, and purposeful self-expression directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a solar quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the SUN ASC line, the themes of vitality, identity, and purposeful self-expression tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SUN-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SUN-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SUN",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The solar principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The SUN line brings the themes of vitality, identity, and purposeful self-expression directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a solar quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the SUN MC line, the themes of vitality, identity, and purposeful self-expression tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SUN-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SUN-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SUN",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The solar principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The SUN line brings the themes of vitality, identity, and purposeful self-expression directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a solar quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the SUN DSC line, the themes of vitality, identity, and purposeful self-expression tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SUN-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SUN-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SUN",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The solar principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The SUN line brings the themes of vitality, identity, and purposeful self-expression directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a solar quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the SUN IC line, the themes of vitality, identity, and purposeful self-expression tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SUN-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MON-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MON",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The lunar principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The MON line brings the themes of emotional responsiveness, receptivity, and the need for belonging directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a lunar quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the MON ASC line, the themes of emotional responsiveness, receptivity, and the need for belonging tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MON-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MON-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MON",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The lunar principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The MON line brings the themes of emotional responsiveness, receptivity, and the need for belonging directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a lunar quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the MON MC line, the themes of emotional responsiveness, receptivity, and the need for belonging tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MON-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MON-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MON",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The lunar principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The MON line brings the themes of emotional responsiveness, receptivity, and the need for belonging directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a lunar quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the MON DSC line, the themes of emotional responsiveness, receptivity, and the need for belonging tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MON-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MON-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MON",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The lunar principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The MON line brings the themes of emotional responsiveness, receptivity, and the need for belonging directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a lunar quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the MON IC line, the themes of emotional responsiveness, receptivity, and the need for belonging tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MON-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MER-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MER",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The mercurial principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The MER line brings the themes of communication, exchange, and intellectual agility directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a mercurial quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the MER ASC line, the themes of communication, exchange, and intellectual agility tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MER-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MER-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MER",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The mercurial principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The MER line brings the themes of communication, exchange, and intellectual agility directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a mercurial quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the MER MC line, the themes of communication, exchange, and intellectual agility tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MER-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MER-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MER",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The mercurial principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The MER line brings the themes of communication, exchange, and intellectual agility directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a mercurial quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the MER DSC line, the themes of communication, exchange, and intellectual agility tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MER-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MER-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MER",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The mercurial principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The MER line brings the themes of communication, exchange, and intellectual agility directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a mercurial quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the MER IC line, the themes of communication, exchange, and intellectual agility tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MER-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-VEN-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "VEN",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Venusian principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The VEN line brings the themes of attraction, aesthetic sensibility, and social grace directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Venusian quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the VEN ASC line, the themes of attraction, aesthetic sensibility, and social grace tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-VEN-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-VEN-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "VEN",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Venusian principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The VEN line brings the themes of attraction, aesthetic sensibility, and social grace directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Venusian quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the VEN MC line, the themes of attraction, aesthetic sensibility, and social grace tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-VEN-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-VEN-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "VEN",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Venusian principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The VEN line brings the themes of attraction, aesthetic sensibility, and social grace directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Venusian quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the VEN DSC line, the themes of attraction, aesthetic sensibility, and social grace tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-VEN-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-VEN-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "VEN",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Venusian principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The VEN line brings the themes of attraction, aesthetic sensibility, and social grace directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Venusian quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the VEN IC line, the themes of attraction, aesthetic sensibility, and social grace tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-VEN-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MAR-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MAR",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Martian principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The MAR line brings the themes of assertion, physical drive, and competitive initiative directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Martian quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the MAR ASC line, the themes of assertion, physical drive, and competitive initiative tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MAR-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MAR-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MAR",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Martian principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The MAR line brings the themes of assertion, physical drive, and competitive initiative directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Martian quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the MAR MC line, the themes of assertion, physical drive, and competitive initiative tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MAR-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MAR-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MAR",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Martian principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The MAR line brings the themes of assertion, physical drive, and competitive initiative directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Martian quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the MAR DSC line, the themes of assertion, physical drive, and competitive initiative tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MAR-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-MAR-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "MAR",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Martian principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The MAR line brings the themes of assertion, physical drive, and competitive initiative directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Martian quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the MAR IC line, the themes of assertion, physical drive, and competitive initiative tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-MAR-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-JUP-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "JUP",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Jovian principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The JUP line brings the themes of expansion, abundance, and philosophical optimism directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Jovian quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the JUP ASC line, the themes of expansion, abundance, and philosophical optimism tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-JUP-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-JUP-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "JUP",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Jovian principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The JUP line brings the themes of expansion, abundance, and philosophical optimism directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Jovian quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the JUP MC line, the themes of expansion, abundance, and philosophical optimism tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-JUP-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-JUP-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "JUP",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Jovian principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The JUP line brings the themes of expansion, abundance, and philosophical optimism directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Jovian quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the JUP DSC line, the themes of expansion, abundance, and philosophical optimism tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-JUP-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-JUP-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "JUP",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Jovian principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The JUP line brings the themes of expansion, abundance, and philosophical optimism directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Jovian quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the JUP IC line, the themes of expansion, abundance, and philosophical optimism tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-JUP-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SAT-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SAT",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Saturnine principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The SAT line brings the themes of structure, discipline, and serious purpose directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Saturnine quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the SAT ASC line, the themes of structure, discipline, and serious purpose tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SAT-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SAT-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SAT",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Saturnine principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The SAT line brings the themes of structure, discipline, and serious purpose directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Saturnine quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the SAT MC line, the themes of structure, discipline, and serious purpose tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SAT-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SAT-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SAT",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Saturnine principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The SAT line brings the themes of structure, discipline, and serious purpose directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Saturnine quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the SAT DSC line, the themes of structure, discipline, and serious purpose tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SAT-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-SAT-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "SAT",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Saturnine principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The SAT line brings the themes of structure, discipline, and serious purpose directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Saturnine quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the SAT IC line, the themes of structure, discipline, and serious purpose tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-SAT-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-URA-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "URA",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Uranian principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The URA line brings the themes of disruption, independence, and radical originality directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Uranian quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the URA ASC line, the themes of disruption, independence, and radical originality tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation. In relationship and family consultation mode, this line is surfaced as a placement requiring cautious discussion.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-URA-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-URA-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "URA",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Uranian principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The URA line brings the themes of disruption, independence, and radical originality directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Uranian quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the URA MC line, the themes of disruption, independence, and radical originality tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-URA-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-URA-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "URA",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Uranian principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The URA line brings the themes of disruption, independence, and radical originality directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Uranian quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the URA DSC line, the themes of disruption, independence, and radical originality tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-URA-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-URA-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "URA",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Uranian principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The URA line brings the themes of disruption, independence, and radical originality directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Uranian quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the URA IC line, the themes of disruption, independence, and radical originality tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation. In relationship and family consultation mode, this line is surfaced as a placement requiring cautious discussion.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-URA-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-NEP-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "NEP",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Neptunian principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The NEP line brings the themes of sensitivity, imagination, and spiritual dissolution directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Neptunian quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the NEP ASC line, the themes of sensitivity, imagination, and spiritual dissolution tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-NEP-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-NEP-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "NEP",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Neptunian principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The NEP line brings the themes of sensitivity, imagination, and spiritual dissolution directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Neptunian quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the NEP MC line, the themes of sensitivity, imagination, and spiritual dissolution tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-NEP-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-NEP-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "NEP",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Neptunian principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The NEP line brings the themes of sensitivity, imagination, and spiritual dissolution directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Neptunian quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the NEP DSC line, the themes of sensitivity, imagination, and spiritual dissolution tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-NEP-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-NEP-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "NEP",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Neptunian principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The NEP line brings the themes of sensitivity, imagination, and spiritual dissolution directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Neptunian quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the NEP IC line, the themes of sensitivity, imagination, and spiritual dissolution tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-NEP-04"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-PLU-ASC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "PLU",
+        "angle": "ASC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Plutonian principle meets the Ascendant: self-presentation, the body, and the immediate environment.",
+        "symbolic_themes": "The PLU line brings the themes of transformation, power, and depth directly to the Ascendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of self-presentation, the body, and the immediate environment through a Plutonian quality. This is the primary line of visible self-expression and encounter with the immediate social world.",
+        "practical_tendencies": "In locations on or near the PLU ASC line, the themes of transformation, power, and depth tend to be prominently woven into the domain of self-presentation, the body, and the immediate environment. This is often experienced as one of the more consistently tangible effects of relocation. In relationship and family consultation mode, this line is surfaced as a placement requiring cautious discussion.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's ASC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-PLU-01"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-PLU-MC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "PLU",
+        "angle": "MC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Plutonian principle meets the Midheaven: career, public reputation, and social authority.",
+        "symbolic_themes": "The PLU line brings the themes of transformation, power, and depth directly to the Midheaven angle in relocated geography. In astrocartography, living on or near this line activates the domain of career, public reputation, and social authority through a Plutonian quality. This is the primary line of career activation, public visibility, and the development of one's social role.",
+        "practical_tendencies": "In locations on or near the PLU MC line, the themes of transformation, power, and depth tend to be prominently woven into the domain of career, public reputation, and social authority. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's MC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-PLU-10"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-PLU-DSC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "PLU",
+        "angle": "DSC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Plutonian principle meets the Descendant: partnership, the Other, and one-to-one encounter.",
+        "symbolic_themes": "The PLU line brings the themes of transformation, power, and depth directly to the Descendant angle in relocated geography. In astrocartography, living on or near this line activates the domain of partnership, the Other, and one-to-one encounter through a Plutonian quality. This is the primary line of partnership activation and one-to-one relational themes.",
+        "practical_tendencies": "In locations on or near the PLU DSC line, the themes of transformation, power, and depth tend to be prominently woven into the domain of partnership, the Other, and one-to-one encounter. This is often experienced as one of the more consistently tangible effects of relocation.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's DSC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-PLU-07"
+        ]
+      }
+    },
+    {
+      "id": "L2-ASP-PLU-IC-CONJ",
+      "type": "ASP",
+      "subject": {
+        "planet": "PLU",
+        "angle": "IC",
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "The Plutonian principle meets the IC (Imum Coeli): home, roots, and private foundations.",
+        "symbolic_themes": "The PLU line brings the themes of transformation, power, and depth directly to the IC (Imum Coeli) angle in relocated geography. In astrocartography, living on or near this line activates the domain of home, roots, and private foundations through a Plutonian quality. This is the primary line of domestic and ancestral activation, home life, and private foundations.",
+        "practical_tendencies": "In locations on or near the PLU IC line, the themes of transformation, power, and depth tend to be prominently woven into the domain of home, roots, and private foundations. This is often experienced as one of the more consistently tangible effects of relocation. In relationship and family consultation mode, this line is surfaced as a placement requiring cautious discussion.",
+        "traditional_associations": "In astrocartography tradition (A*C*G), a planet's IC line is one of its most directly felt influences. The conjunction to an angle is the most concentrated form of aspect; living on the line places the planet at the chart angle for that location."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Angle contact entry. Conservative. Professional specialist review recommended for depth.",
+        "overrides": null,
+        "dependencies": [],
+        "related": [
+          "L2-PIH-PLU-04"
+        ]
+      }
+    }
+  ]
+}

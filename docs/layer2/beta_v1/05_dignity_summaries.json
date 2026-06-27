@@ -1,0 +1,1051 @@
+{
+  "category": "Hybrid Dignity Summaries",
+  "entry_type": "DIG",
+  "count": 36,
+  "entries": [
+    {
+      "id": "L2-DIG-SUN-DOM",
+      "type": "DIG",
+      "subject": {
+        "planet": "SUN",
+        "dignity_type": "DOMICILE",
+        "sign": "LEO"
+      },
+      "content": {
+        "short_line": "The Sun is in its own sign in Leo.",
+        "symbolic_themes": "The Sun is in its own sign in Leo. Solar themes of vitality, identity, and purposeful self-expression tend to operate more directly and with greater natural coherence.",
+        "traditional_associations": "In Leo, the Sun's themes of identity, expression, and will meet a sign whose character reinforces them. Traditional sources consistently describe this as the Sun's most natural mode of expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SUN-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "SUN",
+        "dignity_type": "EXALTATION",
+        "sign": "ARI"
+      },
+      "content": {
+        "short_line": "The Sun is exalted in Aries.",
+        "symbolic_themes": "The Sun is exalted in Aries. The solar principle of purposeful self-expression finds particular support in the sign of initiation and assertion.",
+        "traditional_associations": "Classical tradition (Hellenistic and Persian) identifies Aries as the Sun's exaltation sign, where the solar impulse of vital identity and will finds the greatest directness of expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SUN-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "SUN",
+        "dignity_type": "DETRIMENT",
+        "sign": "AQU"
+      },
+      "content": {
+        "short_line": "The Sun is in detriment in Aquarius.",
+        "symbolic_themes": "The Sun is in detriment in Aquarius. Solar themes of individual identity and central purpose encounter the sign most oriented toward collective participation and detachment from the personal.",
+        "traditional_associations": "Aquarius is opposite Leo; the Sun's individual and expressive nature meets resistance in a sign oriented toward the collective and impersonal."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SUN-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "SUN",
+        "dignity_type": "FALL",
+        "sign": "LIB"
+      },
+      "content": {
+        "short_line": "The Sun is in its fall in Libra.",
+        "symbolic_themes": "The Sun is in its fall in Libra. Solar self-assertion encounters the sign most oriented toward partnership, balance, and the consideration of the Other.",
+        "traditional_associations": "Libra is opposite Aries (the Sun's exaltation); the solar impulse toward direct self-expression must accommodate the relational and balancing orientation of Libra."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MON-DOM",
+      "type": "DIG",
+      "subject": {
+        "planet": "MON",
+        "dignity_type": "DOMICILE",
+        "sign": "CAN"
+      },
+      "content": {
+        "short_line": "The Moon is in its own sign in Cancer.",
+        "symbolic_themes": "The Moon is in its own sign in Cancer. Lunar themes of emotional responsiveness, home, and belonging operate most naturally here.",
+        "traditional_associations": "Cancer is the Moon's traditional domicile; the sign's orientation toward home, nourishment, and emotional continuity mirrors the Moon's own symbolic domain."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MON-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "MON",
+        "dignity_type": "EXALTATION",
+        "sign": "TAU"
+      },
+      "content": {
+        "short_line": "The Moon is exalted in Taurus.",
+        "symbolic_themes": "The Moon is exalted in Taurus. Emotional responsiveness finds support in the stable and sensory world of Taurus.",
+        "traditional_associations": "Classical tradition assigns Taurus as the Moon's exaltation sign; the stability and sensory grounding of Taurus provide a supportive environment for lunar receptivity."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MON-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "MON",
+        "dignity_type": "DETRIMENT",
+        "sign": "CAP"
+      },
+      "content": {
+        "short_line": "The Moon is in detriment in Capricorn.",
+        "symbolic_themes": "The Moon is in detriment in Capricorn. Emotional responsiveness and the need for belonging encounter the sign most oriented toward discipline, restraint, and formal structure.",
+        "traditional_associations": "Capricorn is opposite Cancer; its Saturnine orientation toward order and achievement places the Moon's emotional and receptive nature under greater constraint."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MON-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "MON",
+        "dignity_type": "FALL",
+        "sign": "SCO"
+      },
+      "content": {
+        "short_line": "The Moon is in its fall in Scorpio.",
+        "symbolic_themes": "The Moon is in its fall in Scorpio. Emotional receptivity meets the sign of intensity, depth, and transformation.",
+        "traditional_associations": "Scorpio is opposite Taurus (the Moon's exaltation); the instability and depth of Scorpio's transformative orientation is considered challenging for the Moon's need for security and continuity."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MER-DOM-GEM",
+      "type": "DIG",
+      "subject": {
+        "planet": "MER",
+        "dignity_type": "DOMICILE",
+        "sign": "GEM"
+      },
+      "content": {
+        "short_line": "Mercury is in its domicile in Gemini.",
+        "symbolic_themes": "Mercury is in its domicile in Gemini. The communicative and intellectually agile principle operates most naturally here.",
+        "traditional_associations": "Gemini is Mercury's traditional domicile; the sign's orientation toward exchange, variety, and the rapid movement of information mirrors Mercury's symbolic character."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MER-DOM-VIR",
+      "type": "DIG",
+      "subject": {
+        "planet": "MER",
+        "dignity_type": "DOMICILE",
+        "sign": "VIR"
+      },
+      "content": {
+        "short_line": "Mercury is in its domicile in Virgo.",
+        "symbolic_themes": "Mercury is in its domicile in Virgo. Analytical precision and the practical application of knowledge find natural expression.",
+        "traditional_associations": "Virgo is Mercury's second traditional domicile; the sign's orientation toward analysis, craft, and precise discrimination reinforces Mercury's discriminating and practical dimension."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MER-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "MER",
+        "dignity_type": "EXALTATION",
+        "sign": "VIR"
+      },
+      "content": {
+        "short_line": "Mercury is exalted in Virgo.",
+        "symbolic_themes": "Mercury is exalted in Virgo. Analytical and communicative ability reaches its most precise and practically effective expression.",
+        "traditional_associations": "Classical tradition assigns Virgo as Mercury's exaltation; this reflects the sign's close correspondence with Mercury's analytical capacities."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MER-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "MER",
+        "dignity_type": "DETRIMENT",
+        "sign": "SAG"
+      },
+      "content": {
+        "short_line": "Mercury is in detriment in Sagittarius.",
+        "symbolic_themes": "Mercury is in detriment in Sagittarius. The precise, analytical mind meets the sign most oriented toward broad synthesis and philosophical breadth.",
+        "traditional_associations": "Sagittarius is opposite Gemini; the sign's sweeping vision and direct conviction can conflict with Mercury's preference for precision and detail."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MER-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "MER",
+        "dignity_type": "FALL",
+        "sign": "PIS"
+      },
+      "content": {
+        "short_line": "Mercury is in its fall in Pisces.",
+        "symbolic_themes": "Mercury is in its fall in Pisces. The analytical and communicative mind encounters the sign most oriented toward dissolution and the transcendence of discrete categories.",
+        "traditional_associations": "Pisces is opposite Virgo; the sign's imaginative and undifferentiated orientation does not support Mercury's tendency toward precise discrimination."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-VEN-DOM-TAU",
+      "type": "DIG",
+      "subject": {
+        "planet": "VEN",
+        "dignity_type": "DOMICILE",
+        "sign": "TAU"
+      },
+      "content": {
+        "short_line": "Venus is in its domicile in Taurus.",
+        "symbolic_themes": "Venus is in its domicile in Taurus. Themes of attraction, sensory pleasure, and material beauty operate most naturally here.",
+        "traditional_associations": "Taurus is Venus's traditional earthy domicile; the sign's orientation toward physical beauty, stability, and sensory pleasure mirrors Venus's symbolic domain."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-VEN-DOM-LIB",
+      "type": "DIG",
+      "subject": {
+        "planet": "VEN",
+        "dignity_type": "DOMICILE",
+        "sign": "LIB"
+      },
+      "content": {
+        "short_line": "Venus is in its domicile in Libra.",
+        "symbolic_themes": "Venus is in its domicile in Libra. The relational and aesthetic dimensions of Venus find their most natural social expression.",
+        "traditional_associations": "Libra is Venus's traditional airy domicile; the sign's orientation toward harmony, beauty, and partnership mirrors Venus's relational archetype."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-VEN-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "VEN",
+        "dignity_type": "EXALTATION",
+        "sign": "PIS"
+      },
+      "content": {
+        "short_line": "Venus is exalted in Pisces.",
+        "symbolic_themes": "Venus is exalted in Pisces. The capacity for love and beauty finds a spiritually and emotionally expansive mode of expression.",
+        "traditional_associations": "Classical tradition assigns Pisces as Venus's exaltation; the sign's compassionate and spiritually open orientation supports an unusually broad form of Venusian expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-VEN-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "VEN",
+        "dignity_type": "DETRIMENT",
+        "sign": "ARI"
+      },
+      "content": {
+        "short_line": "Venus is in detriment in Aries.",
+        "symbolic_themes": "Venus is in detriment in Aries. The archetype of attraction and harmony meets the sign most oriented toward direct assertion and independence.",
+        "traditional_associations": "Aries is opposite Libra; the sign's directness and self-focus conflict with Venus's preference for tact and harmonious compromise."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-VEN-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "VEN",
+        "dignity_type": "FALL",
+        "sign": "VIR"
+      },
+      "content": {
+        "short_line": "Venus is in its fall in Virgo.",
+        "symbolic_themes": "Venus is in its fall in Virgo. The archetype of beauty and pleasure meets the sign most oriented toward analysis and the perfection of practical function.",
+        "traditional_associations": "Virgo is opposite Pisces (Venus's exaltation); the sign's critical and analytical orientation can restrain Venus's more freely appreciative and pleasure-oriented tendencies."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MAR-DOM-ARI",
+      "type": "DIG",
+      "subject": {
+        "planet": "MAR",
+        "dignity_type": "DOMICILE",
+        "sign": "ARI"
+      },
+      "content": {
+        "short_line": "Mars is in its domicile in Aries.",
+        "symbolic_themes": "Mars is in its domicile in Aries. The archetype of assertion, initiative, and physical drive operates most directly here.",
+        "traditional_associations": "Aries is Mars's traditional domicile; the sign's orientation toward direct action and competitive engagement mirrors Mars's own symbolic character."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MAR-DOM-SCO",
+      "type": "DIG",
+      "subject": {
+        "planet": "MAR",
+        "dignity_type": "DOMICILE",
+        "sign": "SCO"
+      },
+      "content": {
+        "short_line": "Mars is in its traditional domicile in Scorpio (pre-modern).",
+        "symbolic_themes": "Mars is in its traditional domicile in Scorpio (pre-modern). Martian drive expresses through depth, intensity, and strategic purpose.",
+        "traditional_associations": "Scorpio is Mars's traditional second domicile in classical astrology (before Pluto's assignment in modern usage); Mars's strategic and penetrating qualities find expression in Scorpio's depth."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MAR-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "MAR",
+        "dignity_type": "EXALTATION",
+        "sign": "CAP"
+      },
+      "content": {
+        "short_line": "Mars is exalted in Capricorn.",
+        "symbolic_themes": "Mars is exalted in Capricorn. The drive toward assertion and accomplishment finds its most disciplined and structured expression.",
+        "traditional_associations": "Classical tradition assigns Capricorn as Mars's exaltation; the sign's Saturnine orientation toward structured ambition gives Mars's drive a powerful and enduring form."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MAR-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "MAR",
+        "dignity_type": "DETRIMENT",
+        "sign": "LIB"
+      },
+      "content": {
+        "short_line": "Mars is in detriment in Libra.",
+        "symbolic_themes": "Mars is in detriment in Libra. The assertive and direct Martian principle meets the sign most oriented toward balance and the avoidance of conflict.",
+        "traditional_associations": "Libra is opposite Aries; the sign's emphasis on compromise can conflict with Mars's preference for direct action."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-MAR-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "MAR",
+        "dignity_type": "FALL",
+        "sign": "CAN"
+      },
+      "content": {
+        "short_line": "Mars is in its fall in Cancer.",
+        "symbolic_themes": "Mars is in its fall in Cancer. The assertive Martian drive meets the sign most oriented toward emotional responsiveness and care.",
+        "traditional_associations": "Cancer is opposite Capricorn (Mars's exaltation); the sign's emotional sensitivity can dissipate Mars's direct and assertive energy."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-JUP-DOM-SAG",
+      "type": "DIG",
+      "subject": {
+        "planet": "JUP",
+        "dignity_type": "DOMICILE",
+        "sign": "SAG"
+      },
+      "content": {
+        "short_line": "Jupiter is in its domicile in Sagittarius.",
+        "symbolic_themes": "Jupiter is in its domicile in Sagittarius. Themes of expansion, optimism, and philosophical inquiry operate most naturally here.",
+        "traditional_associations": "Sagittarius is Jupiter's traditional fiery domicile; the sign's orientation toward broad horizons and the search for meaning mirrors Jupiter's symbolic character."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-JUP-DOM-PIS",
+      "type": "DIG",
+      "subject": {
+        "planet": "JUP",
+        "dignity_type": "DOMICILE",
+        "sign": "PIS"
+      },
+      "content": {
+        "short_line": "Jupiter is in its traditional domicile in Pisces (pre-modern).",
+        "symbolic_themes": "Jupiter is in its traditional domicile in Pisces (pre-modern). Jovian abundance and philosophical vision meet spiritual depth.",
+        "traditional_associations": "Pisces is Jupiter's traditional second domicile in classical astrology (before Neptune's assignment); Jupiter's expansive meaning-making finds a spiritually resonant expression in Pisces."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-JUP-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "JUP",
+        "dignity_type": "EXALTATION",
+        "sign": "CAN"
+      },
+      "content": {
+        "short_line": "Jupiter is exalted in Cancer.",
+        "symbolic_themes": "Jupiter is exalted in Cancer. The principle of abundance and generosity finds its most nourishing and emotionally resonant expression.",
+        "traditional_associations": "Classical tradition assigns Cancer as Jupiter's exaltation; the sign's orientation toward nourishment and belonging supports an unusually warm and generous form of Jovian expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-JUP-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "JUP",
+        "dignity_type": "DETRIMENT",
+        "sign": "GEM"
+      },
+      "content": {
+        "short_line": "Jupiter is in detriment in Gemini.",
+        "symbolic_themes": "Jupiter is in detriment in Gemini. The principle of broad synthesis meets the sign most oriented toward variety, detail, and the suspension of judgment.",
+        "traditional_associations": "Gemini is opposite Sagittarius; the sign's multiplicity and questioning tendency can disperse Jupiter's philosophical conviction."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-JUP-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "JUP",
+        "dignity_type": "FALL",
+        "sign": "CAP"
+      },
+      "content": {
+        "short_line": "Jupiter is in its fall in Capricorn.",
+        "symbolic_themes": "Jupiter is in its fall in Capricorn. The principle of expansion and optimism meets the sign most oriented toward structure and realistic appraisal.",
+        "traditional_associations": "Capricorn is opposite Cancer (Jupiter's exaltation); the sign's Saturnine realism restrains Jupiter's tendency toward expansiveness."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SAT-DOM-CAP",
+      "type": "DIG",
+      "subject": {
+        "planet": "SAT",
+        "dignity_type": "DOMICILE",
+        "sign": "CAP"
+      },
+      "content": {
+        "short_line": "Saturn is in its domicile in Capricorn.",
+        "symbolic_themes": "Saturn is in its domicile in Capricorn. Themes of structure, discipline, and serious long-term building operate most naturally here.",
+        "traditional_associations": "Capricorn is Saturn's traditional earthy domicile; the sign's orientation toward structure and earned authority mirrors Saturn's symbolic character."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SAT-DOM-AQU",
+      "type": "DIG",
+      "subject": {
+        "planet": "SAT",
+        "dignity_type": "DOMICILE",
+        "sign": "AQU"
+      },
+      "content": {
+        "short_line": "Saturn is in its traditional domicile in Aquarius (pre-modern).",
+        "symbolic_themes": "Saturn is in its traditional domicile in Aquarius (pre-modern). Saturnine structure meets the collective and idealistic dimensions of social organization.",
+        "traditional_associations": "Aquarius is Saturn's traditional airy domicile in classical astrology (before Uranus's assignment); Saturn's structural principle finds expression in the organized and collective dimension of Aquarius."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SAT-EXA",
+      "type": "DIG",
+      "subject": {
+        "planet": "SAT",
+        "dignity_type": "EXALTATION",
+        "sign": "LIB"
+      },
+      "content": {
+        "short_line": "Saturn is exalted in Libra.",
+        "symbolic_themes": "Saturn is exalted in Libra. The principle of structure and discipline finds its most measured and socially ordered expression.",
+        "traditional_associations": "Classical tradition assigns Libra as Saturn's exaltation; the sign's orientation toward proportion and law supports a particularly ordered and judicious form of Saturnine expression."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SAT-DET",
+      "type": "DIG",
+      "subject": {
+        "planet": "SAT",
+        "dignity_type": "DETRIMENT",
+        "sign": "CAN"
+      },
+      "content": {
+        "short_line": "Saturn is in detriment in Cancer.",
+        "symbolic_themes": "Saturn is in detriment in Cancer. The Saturnine principle of structure and limitation meets the sign most oriented toward emotional responsiveness and belonging.",
+        "traditional_associations": "Cancer is opposite Capricorn; the sign's emotional and receptive orientation conflicts with Saturn's preference for order and emotional restraint."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-SAT-FAL",
+      "type": "DIG",
+      "subject": {
+        "planet": "SAT",
+        "dignity_type": "FALL",
+        "sign": "ARI"
+      },
+      "content": {
+        "short_line": "Saturn is in its fall in Aries.",
+        "symbolic_themes": "Saturn is in its fall in Aries. The principle of structure and patience meets the sign most oriented toward immediate action and impulsive initiative.",
+        "traditional_associations": "Aries is opposite Libra (Saturn's exaltation); the sign's direct and impulsive orientation works against Saturn's methodical planning."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-URA-DOM",
+      "type": "DIG",
+      "subject": {
+        "planet": "URA",
+        "dignity_type": "DOMICILE",
+        "sign": "AQU"
+      },
+      "content": {
+        "short_line": "Uranus is in its modern domicile in Aquarius.",
+        "symbolic_themes": "Uranus is in its modern domicile in Aquarius. The principle of disruption, innovation, and collective liberation operates most directly here.",
+        "traditional_associations": "Modern astrology (post-1781) assigns Aquarius as Uranus's domicile, based on thematic correspondence between Uranian disruption and Aquarius's orientation toward collective innovation and social liberation."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-NEP-DOM",
+      "type": "DIG",
+      "subject": {
+        "planet": "NEP",
+        "dignity_type": "DOMICILE",
+        "sign": "PIS"
+      },
+      "content": {
+        "short_line": "Neptune is in its modern domicile in Pisces.",
+        "symbolic_themes": "Neptune is in its modern domicile in Pisces. The principle of spiritual dissolution, imagination, and compassion operates most naturally here.",
+        "traditional_associations": "Modern astrology assigns Pisces as Neptune's domicile, based on thematic correspondence between Neptunian dissolution and the sign's orientation toward spiritual transcendence."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-DIG-PLU-DOM",
+      "type": "DIG",
+      "subject": {
+        "planet": "PLU",
+        "dignity_type": "DOMICILE",
+        "sign": "SCO"
+      },
+      "content": {
+        "short_line": "Pluto is in its modern domicile in Scorpio.",
+        "symbolic_themes": "Pluto is in its modern domicile in Scorpio. The principle of transformation, power, and depth operates most naturally here.",
+        "traditional_associations": "Modern astrology assigns Scorpio as Pluto's domicile, based on thematic correspondence between Plutonian transformation and the sign's orientation toward depth and fundamental change."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    }
+  ]
+}

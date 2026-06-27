@@ -1,0 +1,356 @@
+{
+  "category": "Chiron in House",
+  "entry_type": "PIH",
+  "count": 12,
+  "entries": [
+    {
+      "id": "L2-PIH-CHI-01",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 1
+      },
+      "content": {
+        "short_line": "The Chiron archetype of wounding and healing expresses in the immediate self-presentation.",
+        "symbolic_themes": "Chiron in the 1st places themes of wounding, sensitivity, and the potential for healing directly at the angle of self-presentation and the body. The immediate social environment may tend to draw out questions of identity, vulnerability, and the particular way in which the self has been marked by formative difficulty.",
+        "practical_tendencies": "A sense of being somehow 'different' or sensitive in one's immediate social context may be more present. Work involving healing, mentorship, or the bridging of difficult experiences for others may be more available and meaningful.",
+        "traditional_associations": "In modern astrology, Chiron in the 1st is associated with body-based sensitivity, the visible expression of one's particular wound, and the potential to make that wound a source of insight and service to others.",
+        "source_context": "Chiron in myth was the wounded healer among the centaurs — an immortal figure who could not heal his own wound but could teach and heal others. This paradox shapes the symbolic grammar of all Chiron placements."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-02",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 2
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through the domain of material security and self-worth.",
+        "symbolic_themes": "Chiron in the 2nd places sensitivity and the wound-healing dynamic in the territory of material resources, earned value, and self-worth. A location may tend to draw out questions about one's relationship to money, adequacy, and the material foundations of security.",
+        "practical_tendencies": "Vocations involving healing, counseling, or guiding others through material or financial difficulty may be more accessible. Questions about one's own sense of material adequacy may be more present and may benefit from conscious engagement.",
+        "traditional_associations": "Modern astrology associates Chiron in the 2nd with sensitivity around material security and self-worth, and with the potential to develop a deep understanding of value that comes from working through those sensitivities."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-03",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 3
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through communication and the early learning environment.",
+        "symbolic_themes": "Chiron in the 3rd places sensitivity and the wound-healing dynamic in the domain of communication, early education, and the local environment. A location may draw out questions about how one communicates, what was difficult to learn, and how one's manner of expression was marked by early experience.",
+        "practical_tendencies": "Teaching, mentoring, or bridging communication difficulties for others may be more available and meaningful. A sensitivity to the quality of communication in the immediate environment may be more prominent.",
+        "traditional_associations": "Modern astrology associates Chiron in the 3rd with wounds around communication and early education, and with the potential to become a bridge or healer in the domain of language and learning."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-04",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 4
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential engage home, family, and ancestral roots.",
+        "symbolic_themes": "Chiron in the 4th places the wound-healing dynamic in the territory of home, family origins, and private foundations. A location may tend to draw out themes related to family wounds, ancestral difficulty, and the potential to heal or bridge what was difficult in one's origins.",
+        "practical_tendencies": "Private life may involve more conscious engagement with family and ancestral dynamics. Work that supports others in healing their relationship to home, family, or roots may feel meaningful. A sense of 'not quite fitting' in the domestic sphere may benefit from deliberate attention.",
+        "traditional_associations": "Modern astrology associates Chiron in the 4th with family-based wounds and the ancestral transmission of difficulty, alongside the potential for deep healing of those foundations."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-05",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 5
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through creativity, self-expression, and play.",
+        "symbolic_themes": "Chiron in the 5th places the wound-healing dynamic in the domain of creative expression, pleasure, and romance. A location may tend to draw out questions about the right to be seen, to express oneself freely, and to enjoy. Creative work may become a vehicle for healing.",
+        "practical_tendencies": "Creative expression may carry a more personal and healing dimension. Mentoring others through creative blocks or difficulties in self-expression may be meaningful. Romantic encounters may involve more sensitivity and depth.",
+        "traditional_associations": "Modern astrology associates Chiron in the 5th with wounds around creative expression and the right to pleasure, and with the potential to become a healer or mentor in those territories."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-06",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 6
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through the body, work, and the domain of service.",
+        "symbolic_themes": "Chiron in the 6th places the wound-healing dynamic in the domain of health, craft, and daily service. A location may tend to draw out a vocation of healing, the development of skill through working with what is difficult, and a particular sensitivity to physical and environmental conditions.",
+        "practical_tendencies": "Work in healing professions or mentorship roles may be more prominent and meaningful. The body may require attentive and sensitive management. A vocation in serving those who are unwell or marginalized may be more accessible.",
+        "traditional_associations": "Modern astrology associates Chiron in the 6th with a healing vocation that emerges through working closely with the body and with service, often through the experience of managing one's own health challenges."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-07",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 7
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through partnership and the encounter with the Other.",
+        "symbolic_themes": "Chiron in the 7th places the wound-healing dynamic in the domain of one-to-one relationship. A location may draw out a particular sensitivity in partnership, or may produce partners who embody Chironic qualities — wisdom born from wounding. The relational sphere may become a context for healing.",
+        "practical_tendencies": "Close partnerships may involve both sensitivity and depth. The experience of relating to significant others in this location may have a healing or wounding quality that calls for conscious engagement. Work as a guide or counselor in relational contexts may be more available.",
+        "traditional_associations": "Modern astrology associates Chiron in the 7th with wounds that become visible through partnership, and with the potential to use one's own relational sensitivity to support others' healing."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-08",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 8
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential engage depth, transformation, and the fundamental cycles of loss.",
+        "symbolic_themes": "Chiron in the 8th places the wound-healing dynamic in the territory of transformation, shared resources, and deep encounters with loss and regeneration. A location may draw one into significant transformative experiences and a particular sensitivity to the fundamental cycles of life.",
+        "practical_tendencies": "Encounters with grief, transformation, and depth may be more present and may carry healing potential. Work in fields involving psychological or transformative healing may be more available. Shared financial arrangements may require sensitive navigation.",
+        "traditional_associations": "Modern astrology associates Chiron in the 8th with wounds connected to transformation and loss, and with the potential for deep and enduring healing that emerges from working within the territory of what cannot be bypassed."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-09",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 9
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through belief, learning, and the search for meaning.",
+        "symbolic_themes": "Chiron in the 9th places the wound-healing dynamic in the domain of philosophy, higher learning, and the search for meaning. A location may draw out questions about how one's beliefs were shaped, what was difficult about the encounter with formal learning or religion, and the potential to bridge those difficulties for others.",
+        "practical_tendencies": "A vocation involving teaching, mentoring in philosophical or spiritual territory, or bridging cultural differences may be more accessible and meaningful. A sensitivity to how beliefs can wound as well as heal may be more prominent.",
+        "traditional_associations": "Modern astrology associates Chiron in the 9th with wounds connected to formal learning or religious tradition, and with the potential to become a teacher or guide who bridges philosophical and cultural difficulties."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-10",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 10
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through public life, career, and the social role.",
+        "symbolic_themes": "Chiron in the 10th places the wound-healing dynamic in the domain of public life and career. A location may draw one toward a public vocation that is shaped by one's own wound — a healing or bridging role in the public sphere, or a career built from the particular difficulty one has worked through.",
+        "practical_tendencies": "A public role with a healing, mentoring, or bridging dimension may be more relevant and meaningful. Encounters with authority may carry both sensitivity and an opportunity to embody a different kind of leadership. The particular difficulty one brings to the public sphere may become a source of distinction.",
+        "traditional_associations": "Modern astrology associates Chiron in the 10th with a public vocation shaped by wounding experience, and with the potential for a career that bridges what others find difficult to cross."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-11",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 11
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential express through collective life, friendship, and shared aims.",
+        "symbolic_themes": "Chiron in the 11th places the wound-healing dynamic in the domain of groups, friendships, and collective aims. A location may draw out a sense of belonging to a community that has been marked by difficulty, or a vocation of healing within collective contexts.",
+        "practical_tendencies": "Work within communities organized around shared difficulty or healing may be more available and meaningful. Friendships may involve more sensitivity and depth. A sense of being the healer or bridge within one's social group may be more present.",
+        "traditional_associations": "Modern astrology associates Chiron in the 11th with wounds connected to belonging and collective participation, and with the potential to become a healer or guide within one's broader social world."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-PIH-CHI-12",
+      "type": "PIH",
+      "subject": {
+        "planet": "CHIRON",
+        "house": 12
+      },
+      "content": {
+        "short_line": "Chiron's wound and healing potential retreat into solitude, the hidden, and the transpersonal.",
+        "symbolic_themes": "Chiron in the 12th places the wound-healing dynamic in the domain of retreat, the hidden, and the private inner life. A location may draw one toward solitary healing work, spiritual engagement with one's own wound, or service to those who are hidden, ill, or marginalized.",
+        "practical_tendencies": "Private spiritual practice may carry a healing dimension. Work in institutions or with those who are otherwise invisible may be meaningful. The particular wound may be most visible to others through the quality of one's compassion and inner depth.",
+        "traditional_associations": "Modern astrology associates Chiron in the 12th with wounds that operate in solitude and the unconscious, and with the potential for a deeply compassionate and spiritually oriented healing vocation."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "medium",
+        "notes": "Beta Reference Ontology v1. Conservative first draft.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    }
+  ]
+}

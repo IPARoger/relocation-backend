@@ -1,0 +1,95 @@
+{
+  "category": "Late-House Guidance",
+  "entry_type": "HEM",
+  "count": 3,
+  "entries": [
+    {
+      "id": "L2-HEM-LATE-DEG",
+      "type": "HEM",
+      "subject": {
+        "subject": "late_house_degrees",
+        "threshold_degrees": 2
+      },
+      "content": {
+        "short_line": "A planet within 2° of the next house cusp is in the late-house zone.",
+        "symbolic_themes": "When a planet falls within approximately 2° of the next house cusp (often called the 'late-degree' or 'approaching cusp' zone), it occupies an ambiguous position between two houses. In practice, the planet's themes may begin to carry a quality of the next house even while formally positioned in the current one. This transition zone is a recognized edge case in all major house systems.",
+        "practical_tendencies": "In consultation, a planet in the late-house zone may warrant attention to the themes of both the current and the approaching house. The transition is particularly significant for angular houses (late 12th approaching the ASC, late 9th approaching the MC, etc.).",
+        "technical_note": "The default alert threshold in this system is 2°. This threshold is adjustable in the settings system (late_house_alert_orb). The Layer 2 ontology does not encode house system preference; that is a Layer 1 configuration. Late-house guidance applies equally across Placidus, Whole Sign, and other supported house systems.",
+        "traditional_associations": "The concept of a planet 'approaching' or 'leaving' a house cusp is recognized in both ancient (Hellenistic 'bonification' near an angle) and modern astrological practice, though exact threshold conventions vary."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta Reference Ontology v1. The 2° default threshold is set in settings/astrology_settings_defaults.json (late_house_alert_orb). Threshold is reviewable by the Wizard.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-HEM-ANGULAR-APPROACH",
+      "type": "HEM",
+      "subject": {
+        "subject": "angular_house_approach"
+      },
+      "content": {
+        "short_line": "A planet approaching an angular cusp (1st, 4th, 7th, 10th) within 2° carries heightened prominence.",
+        "symbolic_themes": "The angular houses (1st, 4th, 7th, 10th) are the most activated and directly felt positions in the chart. A planet within 2° of approaching an angular cusp participates in the power of that angle even before formally entering the house. This is sometimes described as the planet having 'angular quality' or being in a near-angular position.",
+        "practical_tendencies": "Near-angular planets may be experienced with a quality closer to an angular conjunction than to a purely cadent or succedent position. In relocation, this can mean that a planet positioned just before the Ascendant or Midheaven in relocated geography may carry significant influence.",
+        "traditional_associations": "Classical tradition (including Ptolemy's treatment of planets 'in the moirai of the angles') recognized that planets close to the four angular cusps participated in the potency of those angles even if not strictly within the house.",
+        "source_context": "Hellenistic astrology recognized the special power of the angles and the territory immediately adjacent to them; this is the classical foundation for late-house angular alerting."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta Reference Ontology v1. Angular approach guidance is referenced in consultation for relocation near A*C*G line crossings.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-HEM-HOUSE-SYSTEMS",
+      "type": "HEM",
+      "subject": {
+        "subject": "house_system_doctrine"
+      },
+      "content": {
+        "short_line": "Layer 2 ontology is house-system agnostic. House positions are resolved at Layer 1.",
+        "symbolic_themes": "The interpretive content for Planet in House entries (PIH) describes the symbolic territory of each house without assuming a specific house system. Whole Sign houses and Placidus houses may place a planet in different houses, and both are valid configurations that will produce different PIH entries. The ontology provides the symbolic vocabulary for whichever house system Layer 1 resolves.",
+        "practical_tendencies": "A planet near a house cusp under Placidus may occupy a different house under Whole Sign. Both interpretations draw from the same PIH vocabulary. The consultation system handles this by surfacing the relevant PIH entry for the resolved house position, with a note when the planet is in the late-house zone.",
+        "traditional_associations": "Different house systems have well-established traditions (Placidus dominant in modern Western practice; Whole Sign standard in Hellenistic; Koch, Equal House, Campanus, and others also in use). No single system is universally accepted; the ontology avoids encoding a preference.",
+        "source_context": "The division of the sky into 12 houses has been practiced since at least the Hellenistic period, but the method of determining house cusps varies significantly across traditions and has been an area of ongoing scholarly debate."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta Reference Ontology v1. Constitutional note: Layer 2 must not encode house system preference — this is a Layer 1 configuration choice. PIH entries apply to whichever house system the user has selected.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    }
+  ]
+}

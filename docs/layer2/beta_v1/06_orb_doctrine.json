@@ -1,0 +1,210 @@
+{
+  "category": "Default Orb Doctrine",
+  "entry_type": "ORB",
+  "count": 7,
+  "entries": [
+    {
+      "id": "L2-ORB-CONJ",
+      "type": "ORB",
+      "subject": {
+        "aspect": "CONJUNCTION"
+      },
+      "content": {
+        "short_line": "Default orb for conjunction: 10°.",
+        "orb_default_degrees": 10,
+        "rationale": "The conjunction is the most fundamental and penetrating aspect. Its wide default orb of 10° reflects the classical tradition of allowing generous orb for the most concentrated aspect, particularly for luminaries. This orb may be tightened to 8° or 6° in professional practice, especially for non-luminary conjunctions.",
+        "narrowing_guidance": "Professional astrologers often apply tighter orbs (8° or less) for body-to-body conjunctions not involving Sun or Moon. The 10° default is appropriate for beta reference; Wizard review may specify tighter orbs per planet combination.",
+        "source_context": "Traditional Western astrology has long applied the widest orbs to the conjunction and opposition; Ptolemy and subsequent authors allowed orbs of 7–12° for the major aspects, with the conjunction receiving the widest allowance."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json. Adjust via Wizard if professional ontology requires.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ORB-OPP",
+      "type": "ORB",
+      "subject": {
+        "aspect": "OPPOSITION"
+      },
+      "content": {
+        "short_line": "Default orb for opposition: 10°.",
+        "orb_default_degrees": 10,
+        "rationale": "The opposition, like the conjunction, has traditionally received a generous orb given its strength and visibility in the chart. A 10° orb is consistent with classical and modern usage for the opposition.",
+        "narrowing_guidance": "Tighter orbs (7–8°) are used in some professional traditions; the 10° default is appropriate for beta reference.",
+        "source_context": "Classical tradition applies the same or similar orbs to the conjunction and opposition as the two most powerful aspects."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ORB-TRI",
+      "type": "ORB",
+      "subject": {
+        "aspect": "TRINE"
+      },
+      "content": {
+        "short_line": "Default orb for trine: 8°.",
+        "orb_default_degrees": 8,
+        "rationale": "The trine receives a slightly narrower orb than the conjunction and opposition, reflecting its secondary status as a major but less concentrated aspect. An 8° orb is widely used in both classical and modern practice.",
+        "narrowing_guidance": "Some professional traditions tighten to 6–7° for body-to-body trines not involving luminaries.",
+        "source_context": "Classical traditions assigned orbs of 7–9° to the trine; 8° is a practical middle ground consistent with most mainstream usage."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ORB-SQR",
+      "type": "ORB",
+      "subject": {
+        "aspect": "SQUARE"
+      },
+      "content": {
+        "short_line": "Default orb for square: 8°.",
+        "orb_default_degrees": 8,
+        "rationale": "The square receives the same default orb as the trine, reflecting its comparable strength as a major hard aspect. An 8° orb is consistent with mainstream modern usage.",
+        "narrowing_guidance": "Some professional traditions tighten to 6–7° for non-luminary squares.",
+        "source_context": "Classical and modern traditions treat the square as a major aspect comparable to the trine in strength; similar orb allowances apply."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ORB-SEX",
+      "type": "ORB",
+      "subject": {
+        "aspect": "SEXTILE"
+      },
+      "content": {
+        "short_line": "Default orb for sextile: 6°.",
+        "orb_default_degrees": 6,
+        "rationale": "The sextile receives a moderately narrow orb relative to the major aspects, reflecting its status as a mild and somewhat less powerful aspect. A 6° orb is consistent with mainstream usage.",
+        "narrowing_guidance": "Some professional traditions apply 4–5° for non-luminary sextiles.",
+        "source_context": "Classical tradition assigned narrower orbs to the sextile than to the conjunction, opposition, trine, and square."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ORB-QNC",
+      "type": "ORB",
+      "subject": {
+        "aspect": "QUINCUNX"
+      },
+      "content": {
+        "short_line": "Default orb for quincunx: 3°.",
+        "orb_default_degrees": 3,
+        "rationale": "The quincunx (inconjunct) is a minor aspect in most classical traditions and receives a narrow orb accordingly. The tighter orb reflects that the quincunx is primarily significant when exact or nearly exact.",
+        "narrowing_guidance": "Many professional astrologers apply 2–3° for the quincunx; the 3° default is appropriate for beta reference.",
+        "source_context": "The quincunx was not universally recognized in classical tradition and received narrower orbs when included in early modern practice."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json.",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    },
+    {
+      "id": "L2-ORB-MINOR",
+      "type": "ORB",
+      "subject": {
+        "aspect": "MINOR_ASPECTS"
+      },
+      "content": {
+        "short_line": "Default orb for minor aspects (semisextile, semisquare, sesquiquadrate, quintile, biquintile, septile, novile): 2°.",
+        "orb_default_degrees": 2,
+        "rationale": "Minor aspects are given a narrow 2° orb to ensure that only meaningful proximity is captured. These aspects are considered secondary in most traditions and should be interpreted with restraint.",
+        "narrowing_guidance": "Some professional practitioners apply even tighter orbs (1°) for the rarest minor aspects (septile, novile). The 2° default provides a conservative beta standard.",
+        "source_context": "Minor aspects (quintile family, septile, novile, semisquares, etc.) were developed primarily in the 17th–20th centuries and are not universally recognized across traditions; tight orbs are standard practice."
+      },
+      "envelope": {
+        "status": "Draft",
+        "version": 1,
+        "reviewer": null,
+        "last_reviewed": null,
+        "source": {
+          "kind": "initial_generation",
+          "ref": "beta_v1_2026-06-27"
+        },
+        "confidence": "high",
+        "notes": "Beta orb doctrine. Canonical value matches settings/astrology_settings_defaults.json. Applies to: semisextile (30°), semisquare (45°), sesquiquadrate (135°), quintile (72°), biquintile (144°), septile (51.4°), novile (40°).",
+        "overrides": null,
+        "dependencies": [],
+        "related": []
+      }
+    }
+  ]
+}
