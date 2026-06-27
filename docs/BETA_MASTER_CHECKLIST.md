@@ -369,6 +369,7 @@ The product should feel **complete, trustworthy, and premium**. It does not need
 | Intent Translation Engine | [INTENT_TRANSLATION_ENGINE.md](canon/INTENT_TRANSLATION_ENGINE.md) |
 | AI communication doctrine | [AI_COMMUNICATION_DOCTRINE.md](canon/AI_COMMUNICATION_DOCTRINE.md) |
 | Consultation flow & tradeoff engine | [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](canon/CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md) |
+| Pattern recognition & meaning doctrine | [PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md](canon/PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md) |
 
 Do not duplicate those documents here — link only.
 

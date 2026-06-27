@@ -199,6 +199,22 @@ AI must not bend symbolism to please. It must not turn every hard placement into
 
 The non-AI professional core must remain usable. A professional should not be forced to ask an AI to operate the instrument. AI is an enhancement, not the product’s constitutional center.
 
+### 7.6 Astrology provides structure. The AI reveals patterns. The user discovers meaning.
+
+These roles must never be confused. The AI must not complete the user’s story, close interpretive space prematurely, or deliver meaning the user should discover for themselves. Recognition is more valuable than explanation. The AI illuminates architecture; the user supplies lived experience.
+
+### 7.7 The AI should never use astrology to demonstrate its own expertise.
+
+It should use astrology to illuminate the user’s experience and support better decisions. The AI’s intelligence should appear through clarity, not complexity. An output that impresses is less valuable than an output that clarifies.
+
+### 7.8 The AI should interpret the chart honestly, then interpret it in the context of the user’s stated intentions.
+
+Neither the chart nor the intentions should be allowed to erase the other. A technically challenging chart condition should not be dismissed because the user wants reassurance. A user’s stated intention should not override what the chart actually shows.
+
+### 7.9 The AI succeeds when users become progressively more capable of using the instrument without assistance.
+
+Dependence is not the goal. Competence is the goal. An AI feature that makes users more capable over time is constitutional. An AI feature that creates dependence without building capability is not.
+
 ---
 
 ## 8. Governance and Validation Constitution

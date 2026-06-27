@@ -704,6 +704,26 @@ Two additional subsystems govern consultation viability and tradeoff reasoning.
 
 ---
 
+## 28. Pattern Recognition and Meaning Doctrine
+
+The constitutional philosophy underlying all AI behavior on this platform is defined in a dedicated document.
+
+**Full specification:** [`docs/canon/PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md`](PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md)
+
+The three-role model that governs every AI design decision:
+
+| Role | Responsibility |
+|------|----------------|
+| Astrology | Provides symbolic structure |
+| The AI | Reveals patterns |
+| The user | Discovers meaning |
+
+The Ghost Boss Reviewer evaluates all AI outputs against five questions: Was symbolic truth preserved? Were the user's intentions preserved? Did the AI translate rather than perform? Did the AI leave room for user recognition? Is every claim traceable to the underlying instrument?
+
+Four constitutional additions have been formally proposed for promotion into §7 of the Foundational Constitution (AI Constitutional Limits): the three-role model, the expertise principle, the chart/intention balance rule, and the user-competence success metric.
+
+---
+
 ## 23. What the Web2 instrument remains
 
 The Web2 application — map, overlays, chart pages, comparison tables, A2A, settings, notes, City Intelligence, saved searches — remains **fully functional without AI**. AI layers are additive, not replacements.

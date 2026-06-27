@@ -294,6 +294,20 @@ This principle reinforces §11 (human success metric) and §9 (constitutional tr
 
 ---
 
+## 15. Constitutional foundation
+
+The philosophical basis for this entire document is defined in:
+
+[`docs/canon/PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md`](PATTERN_RECOGNITION_AND_MEANING_DOCTRINE.md)
+
+That document establishes the three-role model that governs all AI communication:
+
+> **Astrology provides structure. The AI reveals patterns. The user discovers meaning.**
+
+Every section of this Communication Doctrine is an operational expression of that principle. When in doubt about any communication decision, return to the three-role model.
+
+---
+
 ## 13. Communication doctrine scope
 
 This doctrine governs all AI voice and communication across every current and future AI feature:
