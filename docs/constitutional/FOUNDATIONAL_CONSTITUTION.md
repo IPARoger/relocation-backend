@@ -9,7 +9,23 @@
 
 ---
 
-## 0. The First Law
+## 0. Constitutional chain
+
+The project’s identity rests on three linked layers. Each layer answers a different question. Together they form a chain that scales as more contributors and AI agents join the project.
+
+```
+Constitution          →  First Law
+Design philosophy     →  Design Spirit
+Engineering checklist →  Operational Test
+```
+
+If someone unfamiliar with the project asks what it is really trying to do, the shortest faithful answer is:
+
+> **We build instruments that reveal structure while preserving human judgment.** Every subsystem — from the renderer to the AI — exists to illuminate reality rather than replace the person’s own discernment.
+
+---
+
+### 0.1 First Law
 
 **Reveal structure. Preserve judgment.**
 
@@ -23,30 +39,40 @@ This constitution protects the human user from three failures: false certainty, 
 
 ---
 
-## 0.1 The Central Design Ethic
+### 0.2 Design Spirit
 
-**Reveal, don't impose.**
+**Reveal, don’t impose.**
 
-This principle governs the entire platform — not only the AI layer. It is the design ethic that unifies every decision from map rendering to glyph curation, from overlay behavior to consultation conversation, from settings architecture to City Intelligence presentation.
+The First Law is the legal formulation. The Design Spirit is how it feels in practice — the ethic that holds every product decision together from Web2 through the most ambitious future vision. Because it is simple, it scales.
 
-| Domain | Application |
-|--------|-------------|
-| Map and overlays | Reveal the map. Do not decorate it. |
-| Chart and patterns | Reveal the pattern. Do not invent the story. |
-| Consultation and tradeoffs | Reveal the tradeoffs. Do not choose for the user. |
-| Symbolism and astrology | Reveal the symbolism. Do not mystify it. |
-| The instrument itself | Reveal the instrument. Do not hide it behind AI. |
-| Understanding | Reveal understanding. Do not perform expertise. |
+These are not separate doctrines. They are manifestations of one constitutional idea across subsystems:
 
-"Reveal structure. Preserve judgment." is the legal formulation of the First Law.
+| Subsystem | Reveal | Don’t impose |
+|-----------|--------|--------------|
+| Rendering | Reveal geometry. | Don’t fake topology. |
+| Backend | Reveal data. | Don’t invent architecture. |
+| UI | Reveal controls. | Don’t hide complexity behind “magic.” |
+| AI | Reveal reasoning. | Don’t perform expertise. |
+| Astrology | Reveal symbolism. | Don’t dictate destiny. |
+| Map and overlays | Reveal the map. | Don’t decorate it. |
+| Consultation | Reveal tradeoffs. | Don’t choose for the user. |
+| The instrument | Reveal the instrument. | Don’t hide it behind AI. |
 
-"Reveal, don't impose." is its design spirit — the ethic that holds all product decisions together from Web2 through the most ambitious future vision. Because it is simple, it scales.
+The principle is fundamental, not merely elegant. Every subsystem converges on the same pattern because the product is one instrument, not a collection of features.
 
-Every design decision can be tested against it:
+---
 
-- *Are we revealing, or are we imposing?*
-- *Are we making the structure visible, or are we making ourselves impressive?*
-- *Are we giving the user more capability, or more dependence?*
+### 0.3 Operational Test
+
+Whenever adding a feature, ask:
+
+1. **What truth is being revealed?**
+2. **What judgment still belongs to the user?**
+3. **Is anything being imposed that should instead remain visible?**
+
+If the third question cannot be answered clearly, the feature is not ready.
+
+This test applies to rendering, backend contracts, UI flows, AI outputs, settings, exports, onboarding, and every future subsystem. It is the engineering checklist derived from the Design Spirit, which is derived from the First Law.
 
 ---
 

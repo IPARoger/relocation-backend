@@ -7,8 +7,9 @@
 **Companions:** [AI_COMMUNICATION_DOCTRINE.md](AI_COMMUNICATION_DOCTRINE.md) · [AI_CONSULTATION_ARCHITECTURE.md](AI_CONSULTATION_ARCHITECTURE.md) · [CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md](CONSULTATION_FLOW_AND_TRADEOFF_ENGINE.md)
 
 > This document explains *why* the other AI canon documents exist.
-> The central design ethic governing all of them — and the entire platform — is: **Reveal, don't impose.**
-> See [FOUNDATIONAL_CONSTITUTION.md §0.1](../constitutional/FOUNDATIONAL_CONSTITUTION.md).
+> The constitutional chain governing all of them — and the entire platform — is:
+> **First Law:** Reveal structure. Preserve judgment. · **Design Spirit:** Reveal, don't impose. · **Operational Test:** What truth is revealed? What judgment belongs to the user? Is anything imposed that should remain visible?
+> See [FOUNDATIONAL_CONSTITUTION.md §0](../constitutional/FOUNDATIONAL_CONSTITUTION.md).
 > It does not replace them. It provides the constitutional philosophy underlying all AI interaction.
 
 ---
