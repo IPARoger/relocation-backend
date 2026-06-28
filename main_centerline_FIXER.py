@@ -332,6 +332,25 @@ def serve_user_profile_js():
 
 
 
+
+
+@app.get("/settings_v3/settings_v3.css")
+def serve_settings_v3_css():
+    _ensure_app_shell_enabled()
+    return FileResponse(
+        APP_DIR / "settings_v3" / "settings_v3.css",
+        media_type="text/css",
+    )
+
+
+@app.get("/settings_v3/settings_v3.js")
+def serve_settings_v3_js():
+    _ensure_app_shell_enabled()
+    return FileResponse(
+        APP_DIR / "settings_v3" / "settings_v3.js",
+        media_type="application/javascript",
+    )
+
 V5_COMPARE_BETA_DIR = APP_DIR / "validation" / "mockups" / "beta"
 
 

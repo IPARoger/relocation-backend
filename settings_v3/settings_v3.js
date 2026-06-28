@@ -1,54 +1,19 @@
 /**
- * Settings V3 — richer prototype clone mounted inside app_shell.html
- * Charts section includes PR #23 fixes: Tables|Chart bodies, table orbs, advanced unlock.
+ * Settings V3 — fresh prototype shell (prototype_settings_v2.html visual authority).
+ * Only My Profiles is wired via __rmSettingsV3Bridge; other sections are visual stubs.
  */
 (function () {
   "use strict";
 
-  const SV3_MAIN_PLANETS = [
-    ["sun", "Sun"], ["moon", "Moon"], ["mercury", "Mercury"], ["venus", "Venus"],
-    ["mars", "Mars"], ["jupiter", "Jupiter"], ["saturn", "Saturn"],
-    ["uranus", "Uranus"], ["neptune", "Neptune"], ["pluto", "Pluto"],
-  ];
-  const SV3_ABOVE_FOLD_BODIES = [
-    ["chiron", "Chiron", true],
-    ["north_node", "North Node", false],
-    ["south_node", "South Node", false],
-  ];
-  const SV3_ADVANCED_BODIES = [
-    ["lilith", "Lilith"],
-    ["true_node", "True Node"],
-    ["vertex", "Vertex"],
-    ["part_of_fortune", "Part of Fortune"],
-  ];
-  const SV3_MAJOR_ASPECTS = [
-    ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
-    ["trine", "Trine", 8], ["sextile", "Sextile", 6],
-  ];
-  const SV3_MINOR_ASPECTS = [
-    ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
-    ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
-    ["septile", "Septile", 2], ["novile", "Novile", 2],
-  ];
-
-  const DATA_KINDS = [
-    ["searches", "Saved searches"],
-    ["comparisons", "Saved comparisons"],
-    ["favorites", "Favorites"],
-    ["notes", "Notes"],
-    ["history", "History"],
-    ["export", "Export my data"],
-  ];
+  const ANGLES = ["ASC", "MC", "DSC", "IC"];
+  const MAIN = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
+  const NODES = ["North Node", "South Node"];
+  const ADVPTS = ["Lilith", "Vertex", "Part of Fortune"];
 
   let mountedRoot = null;
-  let wired = false;
 
   function bridge() {
     return window.__rmSettingsV3Bridge || {};
-  }
-
-  function appShell() {
-    return window.__rmAppShell || {};
   }
 
   function esc(s) {
@@ -57,37 +22,8 @@
     }[c]));
   }
 
-  function soonBadge() {
+  function soon() {
     return '<span class="badge b-soon">soon</span>';
-  }
-
-  function sv3Eff() {
-    const RM = window.RMSettings;
-    const raw = (appShell().storeRaw && appShell().storeRaw()) || {};
-    return (RM && typeof RM.getEffectiveSettings === "function")
-      ? RM.getEffectiveSettings(raw.user_settings || null, null)
-      : null;
-  }
-
-  function sv3Helper(key, fallback) {
-    const eff = sv3Eff();
-    const hl = (eff && eff.helper_layers && typeof eff.helper_layers === "object") ? eff.helper_layers : {};
-    return hl[key] != null ? hl[key] : fallback;
-  }
-
-  function parseSectionFromHash() {
-    const raw = (location.hash || "#/settings-v3").replace(/^#/, "");
-    const path = raw.split("?")[0].replace(/^\//, "");
-    const parts = path.split("/").filter(Boolean);
-    if (parts[0] !== "settings-v3") return "charts";
-    if (parts[1] === "data") return "data";
-    const id = parts[1] || "charts";
-    const valid = SECTIONS.some((s) => s.id === id);
-    return valid ? id : "charts";
-  }
-
-  function sectionHash(id) {
-    return id === "charts" ? "#/settings-v3/charts" : `#/settings-v3/${id}`;
   }
 
   function head(title, badge) {
@@ -102,351 +38,180 @@
     return `<select disabled>${opts.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
   }
 
-  function sv3BodiesHeadHtml() {
-    return `<thead><tr><th>Name</th><th class="rm-sv3-bodies-tbl">Tables</th><th class="rm-sv3-bodies-cht">Chart</th></tr></thead>`;
-  }
-
-  function sv3BodyRow(id, label, tblOn, chtOn, kind) {
-    const lockAttr = ' disabled aria-disabled="true" data-sv3-advanced-lock="1"';
-    return `<tr class="is-locked">
-      <td>${esc(label)}</td>
-      <td class="rm-sv3-bodies-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></td>
-      <td class="rm-sv3-bodies-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></td>
-    </tr>`;
-  }
-
-  function settingsV3BodiesHtml() {
-    const eff = sv3Eff();
-    const planets = (eff && Array.isArray(eff.visible_planets)) ? eff.visible_planets : SV3_MAIN_PLANETS.map(([id]) => id);
-    const bodies = (eff && Array.isArray(eff.visible_bodies)) ? eff.visible_bodies : [];
-    const hl = (eff && eff.helper_layers) || {};
-    const chartPlanets = Array.isArray(hl.chart_planets) ? hl.chart_planets : planets.slice();
-    const chartBodies = Array.isArray(hl.chart_bodies) ? hl.chart_bodies : bodies.slice();
-    const advBodies = (hl.advanced_bodies && typeof hl.advanced_bodies === "object") ? hl.advanced_bodies : {};
-    const advChart = (hl.advanced_bodies_chart && typeof hl.advanced_bodies_chart === "object") ? hl.advanced_bodies_chart : {};
-    const planetRows = SV3_MAIN_PLANETS.map(([id, label]) => {
-      const tblOn = planets.indexOf(id) !== -1;
-      const chtOn = chartPlanets.indexOf(id) !== -1;
-      return sv3BodyRow(id, label, tblOn, chtOn, "planet");
-    }).join("");
-    const foldRows = SV3_ABOVE_FOLD_BODIES.map(([id, label, defaultOn]) => {
-      let tblOn = defaultOn;
-      if (id === "chiron") tblOn = bodies.indexOf("chiron") !== -1 || bodies.length === 0;
-      if (id === "north_node") tblOn = bodies.indexOf("north_node") !== -1;
-      if (id === "south_node") tblOn = bodies.indexOf("south_node") !== -1;
-      const chtOn = chartBodies.indexOf(id) !== -1 || (id === "chiron" && chartBodies.length === 0 && tblOn);
-      return sv3BodyRow(id, label, tblOn, chtOn, "body");
-    }).join("");
-    const advRows = SV3_ADVANCED_BODIES.map(([id, label]) => {
-      const tblOn = !!advBodies[id];
-      const chtOn = !!advChart[id];
-      return sv3BodyRow(id, label, tblOn, chtOn, "advbody");
-    }).join("");
-    return `
-      <div class="rm-sv3-card" id="rm-sv3-bodies">
-        <h4>Bodies &amp; Angles</h4>
-        <table class="rm-sv3-bodies-table simple">
-          ${sv3BodiesHeadHtml()}
-          <tbody>
-            ${planetRows}
-            ${foldRows}
-          </tbody>
-        </table>
-        <details class="rm-sv3-advanced" id="rm-sv3-advanced-bodies">
-          <summary>Advanced Bodies</summary>
-          <table class="rm-sv3-bodies-table simple">
-            ${sv3BodiesHeadHtml()}
-            <tbody>${advRows}</tbody>
-          </table>
-        </details>
-      </div>`;
-  }
-
-  function settingsV3ZodiacHouseHtml() {
-    const eff = sv3Eff();
-    const zodiac = (eff && eff.zodiac_mode) || "tropical";
-    const house = (eff && eff.house_system) || "placidus";
-    return `
-      <div class="rm-sv3-card" id="rm-sv3-zodiac">
-        <h4>Zodiac / House System</h4>
-        <div class="rm-sv3-zodiac-row">
-          <label class="block">Zodiac
-            <select id="rm-sv3-zodiac-mode">
-              <option value="tropical"${zodiac === "tropical" ? " selected" : ""}>Tropical</option>
-              <option value="sidereal" disabled aria-disabled="true">Sidereal</option>
-            </select>
-          </label>
-          <label class="block">House system
-            <select id="rm-sv3-house-system">
-              <option value="placidus"${house === "placidus" ? " selected" : ""}>Placidus</option>
-              <option value="whole_sign" disabled>Whole Sign</option>
-              <option value="equal" disabled>Equal</option>
-              <option value="koch" disabled>Koch</option>
-            </select>
-          </label>
-        </div>
-      </div>`;
-  }
-
-  function sv3OaHeadHtml() {
-    return `<thead><tr>
-      <th class="rm-sv3-oa-name-h"></th>
-      <th class="rm-sv3-oa-tbl rm-sv3-oa-h-tables">Tables</th>
-      <th class="rm-sv3-oa-cht rm-sv3-oa-h-chart">Chart</th>
-      <th class="rm-sv3-oa-orb rm-sv3-oa-h-orb">Orb</th>
-    </tr></thead>`;
-  }
-
-  function sv3AspectRow(kind, id, label, orbVal, tblOn, chtOn, opts) {
-    const o = opts || {};
-    const isMajor = kind === "maj";
-    const lockMajor = isMajor && o.lockMajor !== false;
-    const lockAttr = lockMajor ? ' disabled aria-disabled="true" data-sv3-major-lock="1"' : "";
-    const lockCls = lockMajor ? " is-locked" : "";
-    const orbDis = (isMajor && lockMajor) || o.orbDisabled
-      ? ' disabled aria-disabled="true"' + (isMajor ? ' data-sv3-major-lock="1"' : "") : "";
-    return `<tr class="rm-sv3-oa-row${lockCls}" data-sv3-aspect-row="${kind}-${id}">
-      <td class="rm-sv3-oa-label">${esc(label)}</td>
-      <td class="rm-sv3-oa-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></td>
-      <td class="rm-sv3-oa-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></td>
-      <td class="rm-sv3-oa-orb"><input type="number" id="rm-sv3-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}"${orbDis} /></td>
-    </tr>`;
-  }
-
-  function settingsV3OrbsAspectsHtml() {
-    const eff = sv3Eff();
-    const majVis = (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : [];
-    const minVis = (eff && Array.isArray(eff.visible_minor_aspects_list)) ? eff.visible_minor_aspects_list : [];
-    const majOrb = (eff && eff.major_aspect_orbs) || {};
-    const minOrb = (eff && eff.minor_aspect_orbs) || {};
-    const num = (v, d) => (v == null ? d : v);
-    const hl = (eff && eff.helper_layers) || {};
-    const chartMaj = Array.isArray(hl.chart_major_aspects) ? hl.chart_major_aspects : majVis;
-    const chartMin = Array.isArray(hl.chart_minor_aspects) ? hl.chart_minor_aspects : minVis;
-    const lateAlert = sv3Helper("show_late_in_house_alert", true) !== false;
-    const lateOrb = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
-    const oos = eff ? !!eff.out_of_sign_aspects : false;
-    const showA2a = sv3Helper("show_aspects_to_angles", true) !== false;
-    const majorTblOn = (id) => (majVis.length ? majVis.indexOf(id) !== -1 : true);
-    const majorChtOn = (id) => (chartMaj.length ? chartMaj.indexOf(id) !== -1 : majorTblOn(id));
-    const majorRows = SV3_MAJOR_ASPECTS.map(([id, label, d]) =>
-      sv3AspectRow("maj", id, label, num(majOrb[id], d), majorTblOn(id), majorChtOn(id), { lockMajor: true })
-    ).join("");
-    const minorRows = SV3_MINOR_ASPECTS.map(([id, label, d]) =>
-      sv3AspectRow("min", id, label, num(minOrb[id], d), minVis.indexOf(id) !== -1, chartMin.indexOf(id) !== -1, { lockMajor: false })
-    ).join("");
-    return `
-      <div class="rm-sv3-card" id="rm-sv3-orbs">
-        <h4>Orbs &amp; Aspects</h4>
-        <div class="rm-sv3-oa">
-          <table class="rm-sv3-oa-table simple">
-            ${sv3OaHeadHtml()}
-            <tbody>${majorRows}</tbody>
-          </table>
-          <details class="rm-sv3-advanced rm-sv3-oa-minor-wrap" id="rm-sv3-advanced-orbs">
-            <summary>Advanced Orbs &amp; Aspects</summary>
-            <table class="rm-sv3-oa-table simple">
-              ${sv3OaHeadHtml()}
-              <tbody>${minorRows}</tbody>
-            </table>
-          </details>
-          <div class="rm-sv3-oa-options">
-            <label class="block"><input type="checkbox" id="rm-sv3-late-alert"${lateAlert ? " checked" : ""} /> Show late-in-house planet alert</label>
-            <div class="rm-sv3-advanced-only">
-              <label class="block">Late-house orb adjustment
-                <input type="number" id="rm-sv3-late-orb" min="0" max="10" step="0.5" value="${lateOrb}" disabled aria-disabled="true" data-sv3-advanced-lock="1" style="max-width:80px;" />
-              </label>
-            </div>
-            <label class="block"><input type="checkbox" id="rm-sv3-oos-aspects"${oos ? " checked" : ""} /> Show out-of-sign aspects</label>
-            <label class="block"><input type="checkbox" id="rm-sv3-show-a2a"${showA2a ? " checked" : ""} /> Show aspects to angles</label>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  function settingsV3AdvancedCalcHtml() {
-    const eff = sv3Eff();
-    const minorMaster = eff ? !!eff.visible_minor_aspects : false;
-    return `
-      <div class="rm-sv3-card rm-sv3-advanced-calc" id="rm-sv3-advanced-calc">
-        <h4>Advanced Calculation Settings</h4>
-        <details class="rm-sv3-advanced" id="rm-sv3-advanced-calc-panel">
-          <summary>Advanced</summary>
-          <div class="rm-sv3-calc-row">
-            <span>Direction-aware subsequent house</span>
-            ${soonBadge()}
-          </div>
-          <label class="block" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-            <input type="checkbox" id="rm-sv3-minor-master"${minorMaster ? " checked" : ""} />
-            Enable minor aspect calculations
-          </label>
-          <p class="meta" style="margin:8px 0 0;">Minor aspects and custom orbs are configured in Orbs &amp; Aspects above.</p>
-        </details>
-      </div>`;
+  function clItem(name, opts) {
+    opts = opts || {};
+    const cls = "cl-item" + (opts.locked ? " locked" : "");
+    const attrs = 'type="checkbox"' + (opts.on ? " checked" : "") + (opts.locked || opts.required ? " disabled" : "");
+    const tag = opts.tag ? `<span class="tag">${opts.tag}</span>` : "";
+    return `<label class="${cls}"><input ${attrs}><span>${esc(name)}</span>${tag}</label>`;
   }
 
   function secAccount() {
     const user = window.CurrentUser || {};
-    const name = user.accountName || user.email || "—";
-    return `
-      <section class="card" id="sec-account">
-        ${head("My Account")}
-        ${row("Account owner", "Name shown on charts and exports.", `<input type="text" value="${esc(name)}" disabled>`)}
-        ${row("Email", "", `<input type="email" value="${esc(user.email || "—")}" disabled>`)}
-        ${row("Sign-in", "", `<button class="btn" disabled>Manage sign-in</button> ${soonBadge()}`)}
-        ${row("Plan", "", selDis(["Free", "Individual", "Professional"]))}
-        ${row("Billing", "", `<button class="btn" disabled>Manage billing</button> ${soonBadge()}`)}
-        <div class="help">Paid plans add more profiles, saved work, exports, and advanced tools.</div>
-      </section>`;
+    const name = user.accountName || user.email || "David Goodman";
+    const email = user.email || "you@example.com";
+    return `<section class="card" id="sec-account">
+      ${head("My Account")}
+      ${row("Account owner", "Name shown on charts and exports.", `<input type="text" value="${esc(name)}" disabled>`)}
+      ${row("Email", "", `<input type="email" value="${esc(email)}" disabled>`)}
+      ${row("Sign-in", "", `<button class="btn" disabled>Manage sign-in</button> ${soon()}`)}
+      ${row("Plan", "", selDis(["Free", "Individual", "Professional"]))}
+      ${row("Billing", "", `<button class="btn" disabled>Manage billing</button> ${soon()}`)}
+      <div class="help">Paid plans add more profiles, saved work, exports, and advanced tools.</div>
+    </section>`;
   }
 
   function secProfiles() {
-    return `
-      <section class="card" id="sec-profiles">
-        ${head("My Profiles")}
-        <div id="settings-v3-profiles-toolbar"></div>
-        <div class="profile-grid" id="pgrid" style="margin-top:12px">
-          <button type="button" class="pcard newp" data-action="settings-profile-create">+ New Profile</button>
-        </div>
-        <div data-settings-obj-bulk="profiles" class="row nb" style="margin-top:12px;">
-          <span class="meta" data-settings-obj-selected-count="profiles">0 selected</span>
-          <div class="ctl">
-            <button type="button" data-action="settings-obj-bulk-archive" data-settings-obj-type="profiles" disabled>Archive selected</button>
-          </div>
-        </div>
-        <div class="help">Profiles open from the list above. Use the star on a profile card to set your account default.</div>
-      </section>`;
+    return `<section class="card" id="sec-profiles" data-settings-saved-type="profiles">
+      ${head("My Profiles")}
+      <div id="settings-v3-profiles-toolbar"></div>
+      <div class="profile-grid" id="pgrid" style="margin-top:12px">
+        <button type="button" class="pcard newp" data-action="settings-profile-create">+ New Profile</button>
+      </div>
+      <div class="settings-data-bulk" data-settings-obj-bulk="profiles">
+        <span class="meta" data-settings-obj-selected-count="profiles">0 selected</span>
+        <button type="button" data-action="settings-obj-bulk-archive" data-settings-obj-type="profiles" disabled>Archive selected</button>
+      </div>
+      <div class="help">Selecting a profile will open its profile page. Profiles will later gain Intention spaces that group their saved searches and work.</div>
+    </section>`;
   }
 
   function secCharts() {
-    return `
-      <section class="card" id="sec-charts">
-        ${head("Charts")}
-        <div class="warn"><b>Global chart preferences.</b> Changes here apply to future charts and tables.</div>
-        ${settingsV3BodiesHtml()}
-        ${settingsV3ZodiacHouseHtml()}
-        ${settingsV3OrbsAspectsHtml()}
-        ${settingsV3AdvancedCalcHtml()}
-        <div class="settings-save-bar">
-          <button type="button" class="btn primary" data-action="save-settings-v3">Save chart settings</button>
-          <button type="button" class="btn" data-action="restore-settings-v3-defaults">Restore defaults</button>
-          <span id="rm-sv3-msg" class="meta" aria-live="polite"></span>
-        </div>
-      </section>`;
+    const bodies = ANGLES.map((x) => clItem(x, { on: true, required: true, tag: "required" })).join("")
+      + MAIN.map((x) => clItem(x, { on: true, locked: true, tag: "locked" })).join("")
+      + NODES.map((x) => clItem(x, { on: false, tag: "optional" })).join("");
+    return `<section class="card" id="sec-charts">
+      ${head("Charts", soon())}
+      ${row("Zodiac", "", selDis(["Tropical", "Sidereal (advanced)", "Vedic (advanced)"]))}
+      <div class="warn">Changing the zodiac remaps charts and maps. It may affect saved searches, notes, and comparisons.</div>
+      ${row("House system", "", selDis(["Placidus", "Whole Sign", "Equal", "Koch"]))}
+      <div class="warn">A different house system changes your cusps and angles, and can alter relocation results.</div>
+      <div class="subhead">Chart points &amp; bodies</div>
+      <div class="desc">Defaults are set for you. Angles are required in a relocation chart.</div>
+      <div class="checklist">${bodies}</div>
+      <div class="row"><div style="flex:1"><div class="lab">Advanced chart settings</div><div class="desc">Technical calculation choices.</div></div>
+        <div class="ctl"><button class="btn ghost tiny" disabled>Show \u25be</button> ${soon()}</div></div>
+      <div class="row"><div></div><div class="ctl"><button class="btn" disabled>Restore chart defaults</button></div></div>
+    </section>`;
   }
 
   function secMap() {
-    return `
-      <section class="card" id="sec-map">
-        ${head("My Map")}
-        ${row("Show aspect bands", "", '<span class="sw on" data-toggle2="bands"></span>')}
-        ${row("Aspect band profile", "", selDis(["Balanced", "Gentle", "Mountain / steep", "Custom slope"]) + " " + soonBadge())}
-        ${row("Show exact aspect lines", "", '<span class="sw" data-toggle2="centerlines"></span>')}
-        ${row("Exclusion style", "How excluded areas are marked on the map.", selDis(["Charcoal redaction", "Diagonal hatch", "Redacted stripe"]))}
-        ${row("Mute behavior", "", "<select><option>Hide layer</option><option>Dim layer</option></select>")}
-        ${row("Solo behavior", "", "<select><option>Hide others</option><option>Dim others</option></select>")}
-        <div class="help">Map overlay colors live in Appearance.</div>
-      </section>`;
+    return `<section class="card" id="sec-map">
+      ${head("My Map", soon())}
+      ${row("Show aspect bands", "", '<span class="sw on locked"></span>')}
+      ${row("Aspect band profile", "", selDis(["Balanced", "Gentle", "Mountain / steep", "Custom slope"]) + " " + soon())}
+      ${row("Show exact aspect lines", "", '<span class="sw locked"></span>')}
+      ${row("Exclusion style", "How excluded areas are marked on the map.", selDis(["Charcoal redaction", "Diagonal hatch", "Redacted stripe"]) + " " + soon())}
+      ${row("Mute behavior", "", selDis(["Hide layer", "Dim layer"]))}
+      ${row("Solo behavior", "", selDis(["Hide others", "Dim others"]))}
+      ${row("City labels", "", selDis(["Clickable labels", "Labels only", "Minimal labels", "Dense labels"]))}
+      ${row("Color-blind-safe palette", "", '<span class="sw locked"></span> ' + soon())}
+      <div class="help">Map overlay colors live in Appearance \u2192 Colors.</div>
+      <div class="row"><div></div><div class="ctl"><button class="btn" disabled>Restore map defaults</button></div></div>
+    </section>`;
   }
 
   function secAppearance() {
-    return `
-      <section class="card" id="sec-appearance">
-        ${head("Appearance")}
-        <div class="subhead">Colors</div>
-        <div class="themes" id="themePicker"></div>
-        <div class="subhead">Symbols &amp; notation</div>
-        ${row("Aspect notation", "", selDis(["Sun Conj Saturn", "Sun Conjunction Saturn", "Sun \u260C Saturn"]))}
-        <div class="subhead">Wheel</div>
-        ${row("Wheel style", "", selDis(["Default wheel"]) + " " + soonBadge())}
-      </section>`;
+    return `<section class="card" id="sec-appearance">
+      ${head("Appearance", soon())}
+      <div class="subhead">Colors</div>
+      <div class="themes">
+        <div class="theme-card on"><div class="tname">Spring</div></div>
+        <div class="theme-card"><div class="tname">Summer</div></div>
+        <div class="theme-card"><div class="tname">Autumn</div></div>
+        <div class="theme-card"><div class="tname">Winter</div></div>
+      </div>
+      <div class="ovpreview"></div>
+      ${row("Map overlay opacity", "", '<input type="range" min="14" max="78" value="42" disabled> <button class="btn tiny" disabled>Reset</button>')}
+      ${row("Overlay color system", "", selDis(["Relocation Default", "Traditional / sign-inspired", "Soft", "High contrast"]) + " " + soon())}
+      <div class="subhead">Symbols &amp; notation</div>
+      ${row("Glyph family", "", selDis(["Default"]) + " " + soon())}
+      ${row("Capricorn glyph", "", selDis(["US \u2651", "Euro \u2651\ufe0e"]))}
+      ${row("Aspect notation", "", selDis(["Sun Conj Saturn", "Sun Conjunction Saturn", "\u2609 \u260C \u2644"]))}
+      <div class="row nb"><div class="lab">Preview</div><div class="ctl"><span class="sample">Sun Conj Saturn</span></div></div>
+      <div class="row"><div></div><div class="ctl"><button class="btn" disabled>Restore visual defaults</button></div></div>
+    </section>`;
   }
 
   function secLocation() {
-    return `
-      <section class="card" id="sec-location">
-        ${head("Location")}
-        ${row("Ask for current location when needed", "", '<span class="sw" data-toggle2="geo" data-soon="1"></span> ' + soonBadge())}
-        ${row("Manual current-location override", "", '<input type="text" placeholder="e.g. Berlin, Germany" disabled>')}
-      </section>`;
+    return `<section class="card" id="sec-location">
+      ${head("Location", soon())}
+      <div class="subhead">Current location</div>
+      ${row("Ask for current location when needed", "", '<span class="sw locked"></span> ' + soon())}
+      ${row("Manual current-location override", "", '<input type="text" placeholder="e.g. Berlin, Germany" disabled>')}
+      <div class="subhead">Travel / Road Trip Mode ${soon()}</div>
+      ${row("Continuous route tracking", "", '<span class="sw locked"></span>')}
+      ${row("Notifications", "", '<span class="sw locked"></span>')}
+      ${row("Airplane Mode Live", "", '<span class="sw locked"></span> ' + soon())}
+    </section>`;
   }
 
   function secLanguage() {
-    return `
-      <section class="card" id="sec-language">
-        ${head("Language &amp; Regional")}
-        ${row("Interface language", "App interface language.", selDis(["English"]) + " " + soonBadge())}
-        ${row("Date format", "", selDis(["13 Jan 1976", "Jan 13, 1976", "13/01/1976"]))}
-        ${row("Time format", "", '<div class="seg" id="timeSeg"><button type="button" data-time="ampm" class="on">AM / PM</button><button type="button" data-time="24">24-hour</button></div>')}
-      </section>`;
+    return `<section class="card" id="sec-language">
+      ${head("Language &amp; Regional", soon())}
+      ${row("Interface language", "App interface language.", selDis(["English"]) + " " + soon())}
+      ${row("AI language", "Follows the interface language by default.", selDis(["Match interface"]) + " " + soon())}
+      ${row("Map / city-label language", "Map labels and city search, where supported.", selDis(["App language", "Local language", "English"]) + " " + soon())}
+      ${row("Date format", "", selDis(["13 Jan 1976", "Jan 13, 1976", "13/01/1976", "01/13/1976", "1976-01-13"]))}
+      ${row("Time format", "", '<div class="seg"><button class="on" disabled>AM / PM</button><button disabled>24-hour</button></div>')}
+    </section>`;
   }
 
   function secSharing() {
-    return `
-      <section class="card" id="sec-sharing">
-        ${head("Sharing &amp; Exports")}
-        ${row("Default share link", "", "<select><option>Public link</option></select>")}
-        ${row("Hide birth data", "", '<span class="sw" data-toggle2="hidebirth"></span>')}
-        ${row("Include notes", "", '<span class="sw" data-toggle2="incnotes"></span>')}
-        ${row("Include tables", "", '<span class="sw on" data-toggle2="inctables"></span>')}
-        ${row("Include chart wheel", "", '<span class="sw on" data-toggle2="incwheel"></span>')}
-      </section>`;
+    return `<section class="card" id="sec-sharing">
+      ${head("Sharing &amp; Exports", soon())}
+      <div class="subhead">Sharing</div>
+      ${row("Default share link", "", selDis(["Public link", "Private link \u2014 Pro"]))}
+      ${row("Hide birth data", "", '<span class="sw locked"></span>')}
+      ${row("Include notes", "", '<span class="sw locked"></span>')}
+      ${row("Include tables", "", '<span class="sw on locked"></span>')}
+      ${row("Include chart wheel", "", '<span class="sw on locked"></span>')}
+      <div class="subhead">Reports &amp; exports</div>
+      ${row("Hide branding", "Available on Professional plans.", '<span class="sw locked"></span> <span class="badge b-pro">pro</span>')}
+      ${row("Export defaults", "", '<button class="btn" disabled>Configure</button> ' + soon())}
+      ${row("Report templates", "Choose from previews on a dedicated screen.", '<button class="btn" disabled>Browse templates</button> ' + soon())}
+    </section>`;
   }
 
   function secData() {
-    const counts = (bridge().dataHubCounts && bridge().dataHubCounts()) || {};
-    const hubRows = DATA_KINDS.map(([kind, label]) => {
-      const count = counts[kind] != null ? counts[kind] : "—";
-      const manageBtn = kind === "export"
-        ? `<button type="button" class="btn tiny" data-action="settings-v3-data-manage" data-data-kind="${kind}">Export</button>`
-        : `<button type="button" class="btn tiny" data-action="settings-v3-data-manage" data-data-kind="${kind}">Manage</button>`;
-      return `<div class="data-row">
-        <div><div class="lab">${esc(label)}</div></div>
-        <div class="ctl"><b data-v3-data-count="${kind}">${esc(String(count))}</b> ${manageBtn}</div>
-      </div>`;
-    }).join("");
-    return `
-      <section class="card" id="sec-data">
-        <div id="settings-v3-data-hub">
-          ${head("My Data")}
-          <div class="subhead">Data management</div>
-          ${hubRows}
-          <div class="help">Manage saved searches, comparisons, favorites, and notes from here.</div>
-        </div>
-        <div id="settings-v3-data-manage" hidden>
-          <div class="row nb">
-            <button type="button" class="btn ghost" data-action="settings-v3-data-back">\u2190 Back to My Data</button>
-          </div>
-          <h3 id="settings-v3-data-manage-title" style="margin:8px 0 12px;font-size:16px;"></h3>
-          <div id="settings-v3-data-manage-body"></div>
-        </div>
-      </section>`;
+    const rows = [
+      ["Saved searches", "23"], ["Saved comparisons", "6"], ["Favorites", "7"],
+      ["Notes", "11"], ["History", "140"],
+    ].map(([label, count]) => row(label, "", `<b>${count}</b> <button class="btn tiny" disabled>Manage</button>`)).join("");
+    return `<section class="card" id="sec-data">
+      ${head("My Data", soon())}
+      <div class="subhead">Data management</div>
+      ${rows}
+      ${row("Export my data", "", selDis(["Everything"]) + ' <button class="btn" disabled>Export</button>')}
+      <div class="subhead">Delete data</div>
+      ${row("Delete history", "", '<button class="btn danger" disabled>Delete</button>')}
+      ${row("Delete all profiles", "Permanently deletes all profiles and their saved work.", '<button class="btn danger" disabled>Delete all profiles</button> ' + soon())}
+    </section>`;
   }
 
   function secTechnical() {
-    return `
-      <section class="card" id="sec-technical">
-        ${head("Technical")}
-        ${row("Diagnostics &amp; developer options", "", '<button type="button" class="btn ghost tiny" data-toggle="techbox">Show \u25be</button>')}
-        <div id="techbox" style="display:none">
-          ${row("Debug mode", "", '<span class="sw" data-toggle2="debug"></span>')}
-          ${row("Show calculation metadata", "", '<span class="sw" data-toggle2="meta"></span>')}
-          ${row("Version / build", "", `<span class="meta">Settings V3 \u00b7 ${new Date().toISOString().slice(0, 10)}</span>`)}
-        </div>
-      </section>`;
+    return `<section class="card" id="sec-technical">
+      ${head("Technical")}
+      <div class="row"><div style="flex:1"><div class="lab">Diagnostics &amp; developer options</div></div>
+        <div class="ctl"><button class="btn ghost tiny" data-toggle="techbox">Show \u25be</button></div></div>
+      <div id="techbox" style="display:none">
+        ${row("Debug mode", "", '<span class="sw locked"></span> ' + soon())}
+        ${row("Show calculation metadata", "", '<span class="sw locked"></span> ' + soon())}
+        ${row("Version / build", "", `<span class="meta">Settings V3 \u00b7 ${new Date().toISOString().slice(0, 10)}</span>`)}
+      </div>
+    </section>`;
   }
 
   function secPersonalization() {
-    return `
-      <section class="card" id="sec-personalization">
-        ${head("Personalization", '<span class="badge b-soon">future</span>')}
-        <div class="sec-sub">Creator tools we\u2019re exploring for later.</div>
-        <ul class="future-list">
-          <li>Design your own glyphs and use them privately in your account.</li>
-          <li>Share or license glyph packs in the store (with approval).</li>
-          <li>Build your own definitions library and interpretation cookbook.</li>
-        </ul>
-      </section>`;
+    return `<section class="card" id="sec-personalization">
+      ${head("Personalization", '<span class="badge b-soon">future</span>')}
+      <div class="sec-sub">Creator tools we\u2019re exploring for later.</div>
+      <ul class="future-list">
+        <li>Design your own glyphs and use them privately in your account.</li>
+        <li>Share or license glyph packs in the store (with approval).</li>
+        <li>Build your own definitions library and interpretation cookbook.</li>
+      </ul>
+    </section>`;
   }
 
   const SECTIONS = [
@@ -463,143 +228,17 @@
     { id: "personalization", t: "Personalization", build: secPersonalization },
   ];
 
-  function applySettingsV3AdvancedState(root) {
-    const scope = root || document;
-    const bodiesOpen = !!scope.querySelector("#rm-sv3-advanced-bodies[open]");
-    const orbsOpen = !!scope.querySelector("#rm-sv3-advanced-orbs[open]");
-    const calcOpen = !!scope.querySelector("#rm-sv3-advanced-calc-panel[open]");
-    const anyOpen = bodiesOpen || orbsOpen || calcOpen;
-    const sv3Root = scope.querySelector(".settings-v3-root");
-    if (sv3Root) sv3Root.classList.toggle("rm-sv3-advanced-open", anyOpen);
-    scope.querySelectorAll("[data-sv3-advanced-lock]").forEach((el) => {
-      if (anyOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
-      else { el.setAttribute("disabled", "disabled"); el.setAttribute("aria-disabled", "true"); }
-    });
-    scope.querySelectorAll("#rm-sv3-bodies tr.is-locked").forEach((row) => {
-      row.classList.toggle("is-locked", !anyOpen);
-    });
-    scope.querySelectorAll("[data-sv3-major-lock]").forEach((el) => {
-      if (orbsOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
-      else { el.setAttribute("disabled", "disabled"); el.setAttribute("aria-disabled", "true"); }
-    });
-    scope.querySelectorAll(".rm-sv3-oa-row[data-sv3-aspect-row^='maj-']").forEach((row) => {
-      row.classList.toggle("is-locked", !orbsOpen);
-    });
+  function parseSectionFromHash() {
+    const raw = (location.hash || "#/settings-v3/profiles").replace(/^#/, "");
+    const path = raw.split("?")[0].replace(/^\//, "");
+    const parts = path.split("/").filter(Boolean);
+    if (parts[0] !== "settings-v3") return "profiles";
+    const id = parts[1] || "profiles";
+    return SECTIONS.some((s) => s.id === id) ? id : "profiles";
   }
 
-  function collectSettingsV3Patch() {
-    const patch = {};
-    const eff = sv3Eff();
-    const planetIds = SV3_MAIN_PLANETS.map(([id]) => id);
-    const bodyIds = ["chiron", "north_node", "south_node"];
-    const advBodyIds = SV3_ADVANCED_BODIES.map(([id]) => id);
-    const anyAdvOpen = !!document.querySelector("#rm-sv3-advanced-bodies[open]")
-      || !!document.querySelector("#rm-sv3-advanced-orbs[open]")
-      || !!document.querySelector("#rm-sv3-advanced-calc-panel[open]");
-    const collectTbl = (kind, ids) => ids.filter((id) => {
-      const el = document.getElementById("rm-sv3-" + kind + "tbl-" + id);
-      return el ? !!el.checked : false;
-    });
-    const collectCht = (kind, ids) => ids.filter((id) => {
-      const el = document.getElementById("rm-sv3-" + kind + "cht-" + id);
-      return el ? !!el.checked : false;
-    });
-    if (anyAdvOpen) {
-      patch.visible_planets = collectTbl("planet", planetIds);
-      patch.visible_bodies = collectTbl("body", bodyIds);
-    } else {
-      patch.visible_planets = (eff && Array.isArray(eff.visible_planets))
-        ? eff.visible_planets.slice() : planetIds.slice();
-      patch.visible_bodies = (eff && Array.isArray(eff.visible_bodies))
-        ? eff.visible_bodies.slice() : ["chiron"];
-    }
-    const majorIds = SV3_MAJOR_ASPECTS.map(([id]) => id);
-    const minorIds = SV3_MINOR_ASPECTS.map(([id]) => id);
-    const orbsAdvOpen = !!document.querySelector("#rm-sv3-advanced-orbs[open]");
-    if (orbsAdvOpen) {
-      patch.visible_major_aspects = majorIds.filter((id) => {
-        const el = document.getElementById("rm-sv3-majtbl-" + id);
-        return el ? !!el.checked : false;
-      });
-      patch.visible_minor_aspects_list = minorIds.filter((id) => {
-        const el = document.getElementById("rm-sv3-mintbl-" + id);
-        return el ? !!el.checked : false;
-      });
-    } else {
-      patch.visible_major_aspects = (eff && Array.isArray(eff.visible_major_aspects))
-        ? eff.visible_major_aspects.slice() : majorIds.slice();
-      patch.visible_minor_aspects_list = (eff && Array.isArray(eff.visible_minor_aspects_list))
-        ? eff.visible_minor_aspects_list.slice() : [];
-    }
-    const minorMaster = document.getElementById("rm-sv3-minor-master");
-    if (minorMaster) patch.visible_minor_aspects = !!minorMaster.checked;
-    const collectOrbs = (kind, ids, allowDisabled) => {
-      const out = {};
-      ids.forEach((id) => {
-        const el = document.getElementById("rm-sv3-" + kind + "orb-" + id);
-        if (!el) return;
-        if (!allowDisabled && el.disabled) return;
-        const n = parseFloat(el.value);
-        if (!isNaN(n)) out[id] = n;
-      });
-      return out;
-    };
-    let mo = collectOrbs("maj", majorIds, orbsAdvOpen);
-    if (!Object.keys(mo).length) mo = Object.assign({}, (eff && eff.major_aspect_orbs) || {});
-    if (Object.keys(mo).length) patch.major_aspect_orbs = mo;
-    const mno = collectOrbs("min", minorIds, orbsAdvOpen);
-    if (Object.keys(mno).length) patch.minor_aspect_orbs = mno;
-    const oosEl = document.getElementById("rm-sv3-oos-aspects");
-    if (oosEl) patch.out_of_sign_aspects = !!oosEl.checked;
-    const lateOrbEl = document.getElementById("rm-sv3-late-orb");
-    if (lateOrbEl && !lateOrbEl.disabled) {
-      const n = parseFloat(lateOrbEl.value);
-      if (!isNaN(n)) patch.house_proximity_orb_degrees = n;
-    }
-    const showA2aEl = document.getElementById("rm-sv3-show-a2a");
-    const lateAlertEl = document.getElementById("rm-sv3-late-alert");
-    const hl = Object.assign({}, (eff && eff.helper_layers) || {});
-    if (showA2aEl) hl.show_aspects_to_angles = !!showA2aEl.checked;
-    if (lateAlertEl) hl.show_late_in_house_alert = !!lateAlertEl.checked;
-    if (anyAdvOpen) {
-      hl.chart_planets = collectCht("planet", planetIds);
-      hl.chart_bodies = collectCht("body", bodyIds);
-      const advBodies = {};
-      const advChart = {};
-      advBodyIds.forEach((id) => {
-        const tbl = document.getElementById("rm-sv3-advbodytbl-" + id);
-        const cht = document.getElementById("rm-sv3-advbodycht-" + id);
-        if (tbl && tbl.checked) advBodies[id] = true;
-        if (cht && cht.checked) advChart[id] = true;
-      });
-      hl.advanced_bodies = advBodies;
-      hl.advanced_bodies_chart = advChart;
-    }
-    if (orbsAdvOpen) {
-      hl.chart_major_aspects = majorIds.filter((id) => {
-        const el = document.getElementById("rm-sv3-majcht-" + id);
-        return el ? !!el.checked : false;
-      });
-      hl.chart_minor_aspects = minorIds.filter((id) => {
-        const el = document.getElementById("rm-sv3-mincht-" + id);
-        return el ? !!el.checked : false;
-      });
-    } else {
-      const effHl = (eff && eff.helper_layers) || {};
-      hl.chart_major_aspects = Array.isArray(effHl.chart_major_aspects)
-        ? effHl.chart_major_aspects.slice() : majorIds.slice();
-      hl.chart_minor_aspects = Array.isArray(effHl.chart_minor_aspects)
-        ? effHl.chart_minor_aspects.slice() : [];
-    }
-    patch.helper_layers = hl;
-    if (showA2aEl) {
-      const on = !!showA2aEl.checked;
-      const prev = (eff && eff.display_aspects_to_angles) || { asc: true, mc: true, dsc: false, ic: false };
-      patch.display_aspects_to_angles = on
-        ? { asc: prev.asc !== false, mc: prev.mc !== false, dsc: !!prev.dsc, ic: !!prev.ic }
-        : { asc: false, mc: false, dsc: false, ic: false };
-    }
-    return patch;
+  function sectionHash(id) {
+    return id === "profiles" ? "#/settings-v3" : `#/settings-v3/${id}`;
   }
 
   function setNavActive(root, id) {
@@ -613,60 +252,13 @@
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function wireChartsAdvanced(root) {
-    ["rm-sv3-advanced-bodies", "rm-sv3-advanced-orbs", "rm-sv3-advanced-calc-panel"].forEach((id) => {
-      const el = root.querySelector("#" + id);
-      if (!el || el.__sv3AdvWired) return;
-      el.__sv3AdvWired = true;
-      el.addEventListener("toggle", () => applySettingsV3AdvancedState(root));
-    });
-    applySettingsV3AdvancedState(root);
-  }
-
-  function wireSaveHandlers(root) {
-    root.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-action]");
-      if (!btn || !root.contains(btn)) return;
-      const action = btn.getAttribute("data-action");
-      if (action === "save-settings-v3") {
-        const msg = root.querySelector("#rm-sv3-msg");
-        if (msg) msg.textContent = "Saving\u2026";
-        const patch = collectSettingsV3Patch();
-        const save = appShell().saveAccountSettingsPatch;
-        if (typeof save !== "function") {
-          if (msg) msg.textContent = "Save unavailable — reload and try again.";
-          return;
-        }
-        save(patch).then(() => {
-          if (msg) msg.textContent = "Saved.";
-          if (typeof appShell().loadViewModelFromStore === "function") {
-            return appShell().loadViewModelFromStore();
-          }
-        }).catch((err) => {
-          if (msg) msg.textContent = err.message || String(err);
-        });
-      }
-      if (action === "restore-settings-v3-defaults") {
-        const chartsSec = root.querySelector("#sec-charts");
-        if (chartsSec) {
-          const inner = secCharts();
-          chartsSec.outerHTML = inner;
-          wireChartsAdvanced(root);
-        }
-        const msg = root.querySelector("#rm-sv3-msg");
-        if (msg) msg.textContent = "Defaults restored (not saved yet).";
-      }
-    });
-  }
-
   function wireNav(root) {
     root.querySelectorAll(".nav a[data-go]").forEach((a) => {
       a.addEventListener("click", (e) => {
         e.preventDefault();
         const id = a.getAttribute("data-go");
         if (!id) return;
-        const hash = sectionHash(id);
-        if (history.replaceState) history.replaceState(null, "", hash);
+        if (history.replaceState) history.replaceState(null, "", sectionHash(id));
         setNavActive(root, id);
         scrollToSection(id);
       });
@@ -682,11 +274,6 @@
       const show = box.style.display === "none";
       box.style.display = show ? "block" : "none";
       t.textContent = show ? "Hide \u25b4" : "Show \u25be";
-    });
-    root.addEventListener("click", (e) => {
-      const t = e.target.closest("[data-toggle2]");
-      if (!t || !root.contains(t) || t.classList.contains("locked") || t.getAttribute("data-soon")) return;
-      t.classList.toggle("on");
     });
   }
 
@@ -708,14 +295,11 @@
     ).join("");
     col.innerHTML = SECTIONS.map((s) => s.build()).join("");
 
-    if (bridge().ensureDelegation) bridge().ensureDelegation();
     wireNav(rootEl);
     wireToggles(rootEl);
-    wireChartsAdvanced(rootEl);
-    wireSaveHandlers(rootEl);
 
-    if (!wired) {
-      wired = true;
+    if (!rootEl.dataset.hashWired) {
+      rootEl.dataset.hashWired = "1";
       window.addEventListener("hashchange", () => {
         if (mountedRoot) onHashChange(mountedRoot);
       });
@@ -723,14 +307,10 @@
 
     const active = parseSectionFromHash();
     setNavActive(rootEl, active);
-    if (bridge().refreshProfiles) bridge().refreshProfiles();
-    if (bridge().refreshDataHub) bridge().refreshDataHub();
 
+    if (typeof bridge().ensureDelegation === "function") bridge().ensureDelegation();
+    if (typeof bridge().refreshProfiles === "function") bridge().refreshProfiles();
   }
 
-  window.SettingsV3 = {
-    mount,
-    collectSettingsV3Patch,
-    applySettingsV3AdvancedState,
-  };
+  window.SettingsV3 = { mount };
 })();

@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="/validation/mockups/beta/help_canonical.css" />
 <link rel="stylesheet" href="/theme/relocation_themes.css" />
 <script src="/theme/relocation_theme.js"></script>
+<link rel="stylesheet" href="/settings_v3/settings_v3.css" />
 <script src="/theme/appearance_palettes.js"></script>
 <style>
   :root {
@@ -1741,6 +1742,7 @@
 <script src="/validation/mockups/beta/help_canonical.js"></script>
 <script src="/validation/mockups/beta/city_intelligence_canonical.js"></script>
 <script src="/validation/mockups/beta/comparison_v5_route.js"></script>
+<script src="/settings_v3/settings_v3.js"></script>
 <script>
 "use strict";
 
@@ -1786,7 +1788,18 @@ const NAV_ROUTES = /** @type {const} */ ([
   { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
   { id: "settings", label: "Settings", screen: "S5 — Settings (support route)" },
   { id: "birth-data", label: "Birth data", screen: "S6 — Birth data intake (support route)" },
+  { id: "settings-v3", label: "Settings V3", screen: "Settings V3 (prototype clone)" },
 ]);
+
+const SETTINGS_V3_ENABLED = (() => {
+  if (typeof window.__RM_SETTINGS_V3 === "boolean") return window.__RM_SETTINGS_V3;
+  try {
+    const v = localStorage.getItem("relocation.flag.settingsV3");
+    if (v === "1") return true;
+    if (v === "0") return false;
+  } catch (e) { /* ignore */ }
+  return true;
+})();
 
 
 const PROFILE_BETA_NAV = /** @type {const} */ ([
@@ -1975,6 +1988,12 @@ const ROUTE_CONTEXT_CONTRACT = {
     comparisonSetId: "optional",
   },
   settings: {
+    chartRecordId: "optional",
+    placeId: "none",
+    explorationId: "none",
+    comparisonSetId: "none",
+  },
+  "settings-v3": {
     chartRecordId: "optional",
     placeId: "none",
     explorationId: "none",
@@ -9217,6 +9236,15 @@ function settingsProfileSavedWorkCountsHtml(item) {
 }
 
 function settingsProfileRowActionsHtml(item) {
+  if (navContext.route === "settings-v3") {
+    const defaultBtn = item.isDefault
+      ? ""
+      : `<button type="button" data-action="settings-profile-default" data-chart-record="${escapeHtml(item.id)}">Set Default</button>`;
+    return `
+      ${defaultBtn}
+      <button type="button" data-action="settings-profile-edit-birth" data-chart-record="${escapeHtml(item.id)}">Edit</button>
+      <button type="button" data-action="settings-profile-archive" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Archive</button>`;
+  }
   return settingsSavedObjectRowActionsHtml("profiles", item);
 }
 
@@ -9800,6 +9828,10 @@ function settingsDataExportPanelHtml() {
 }
 
 function refreshSettingsSavedObjectPanel(type) {
+  if (type === "profiles" && navContext.route === "settings-v3") {
+    refreshSettingsV3ProfilesPanel();
+    return;
+  }
   const panel = document.querySelector(`[data-settings-saved-type="${type}"]`);
   const list = document.querySelector(`[data-settings-obj-list="${type}"]`);
   const bulk = document.querySelector(`[data-settings-obj-bulk="${type}"]`);
@@ -9837,8 +9869,48 @@ function refreshSettingsSavedObjectPanel(type) {
 }
 
 
+
+function settingsV3ProfilesToolbarHtml() {
+  return settingsSavedListToolbarControlsHtml("profiles");
+}
+
+function refreshSettingsV3ProfilesPanel() {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const grid = root.querySelector("#pgrid");
+  const toolbarHost = root.querySelector("#settings-v3-profiles-toolbar");
+  if (toolbarHost) {
+    toolbarHost.className = "settings-v2-toolbar is-saved-list-toolbar";
+    toolbarHost.setAttribute("data-settings-obj-toolbar", "profiles");
+    toolbarHost.innerHTML = settingsV3ProfilesToolbarHtml();
+  }
+  if (!grid || !viewModel) return;
+  const st = _settingsSavedObjState.profiles;
+  let items = collectSettingsProfileItems();
+  items = filterSavedObjectItems(items, st.search);
+  items = sortSavedObjectItems(items, st.sort, "profiles");
+  const defId = viewModel.defaultChartRecordId;
+  if (defId) items.sort((a, b) => (a.id === defId ? -1 : b.id === defId ? 1 : 0));
+  const newCard = '<button type="button" class="pcard newp" data-action="settings-profile-create">+ New Profile</button>';
+  const rows = items.map((item) => settingsProfilePcardRowHtml(item, st)).join("");
+  grid.innerHTML = newCard + `<div class="settings-data-list settings-v3-profiles-list">${rows}</div>`;
+  const bulk = root.querySelector('[data-settings-obj-bulk="profiles"]');
+  if (bulk && st) {
+    const n = st.selected ? st.selected.size : 0;
+    bulk.querySelectorAll("button[data-action]").forEach((btn) => { btn.disabled = n < 1; });
+    const countEl = bulk.querySelector('[data-settings-obj-selected-count="profiles"]');
+    if (countEl) countEl.textContent = `${n} selected`;
+  }
+}
+
+function wireSettingsV3Profiles(root) {
+  if (!root || navContext.route !== "settings-v3" || !SETTINGS_V3_ENABLED) return;
+  ensureSettingsDataDelegation();
+  refreshSettingsV3ProfilesPanel();
+}
+
 function settingsInteractionRoute() {
-  return navContext.route === "settings";
+  return navContext.route === "settings" || navContext.route === "settings-v3";
 }
 
 function ensureSettingsDataDelegation() {
@@ -10658,6 +10730,30 @@ const SETTINGS_SUBPAGE_RENDERERS = {
   technical() { return SETTINGS_SUBPAGE_RENDERERS.data(); },
 };
 
+function screenSettingsV3() {
+  if (!SETTINGS_V3_ENABLED) {
+    return `
+      <div class="warn-box">
+        <strong>Settings V3 is disabled.</strong>
+        Set <code>localStorage.relocation.flag.settingsV3 = "1"</code> or <code>window.__RM_SETTINGS_V3 = true</code> to enable.
+      </div>`;
+  }
+  const user = window.CurrentUser || {};
+  const acct = escapeHtml(user.accountName || user.email || "Account");
+  return `
+    <div class="settings-v3-root" id="settings-v3-root">
+      <header class="topbar">
+        <span class="brand">Relocation</span>
+        <span class="crumb">· Settings</span>
+        <span class="acct">${acct} ▾</span>
+      </header>
+      <div class="wrap">
+        <nav class="nav" id="settings-v3-nav" aria-label="Settings sections"></nav>
+        <main class="col" id="settings-v3-col"></main>
+      </div>
+    </div>`;
+}
+
 function screenSettings() {
   const sub = normalizeSettingsSubpage(navContext.settingsSubpage);
   if (!sub) return settingsLandingHtml();
@@ -11229,6 +11325,7 @@ const SCREEN_RENDERERS = {
   city: screenCity,
   export: screenExport,
   settings: screenSettings,
+  "settings-v3": screenSettingsV3,
   "birth-data": screenBirthData,
   future: screenFuture,
   help: screenHelp,
@@ -11350,6 +11447,11 @@ function render() {
     initAppearanceSettingsControls($("#main"));
     initDignitySettingsControls($("#main"));
     initGlyphSettingsControls($("#main"));
+  }
+  document.body.classList.toggle("settings-v3-active", navContext.route === "settings-v3");
+  if (navContext.route === "settings-v3" && SETTINGS_V3_ENABLED && window.SettingsV3) {
+    SettingsV3.mount(document.getElementById("settings-v3-root"));
+    wireSettingsV3Profiles($("#main"));
   }
   if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
@@ -12638,7 +12740,7 @@ function showGuidedOnboarding() {
 }
 
 function isOnboardingSuppressedRoute(route) {
-  return route === "settings";
+  return route === "settings" || route === "settings-v3";
 }
 
 function hideGuidedOnboarding() {
@@ -12856,6 +12958,11 @@ async function planProfileArchive(profileId) {
     wasDefault,
   };
 }
+
+window.__rmSettingsV3Bridge = {
+  ensureDelegation: () => ensureSettingsDataDelegation(),
+  refreshProfiles: () => refreshSettingsV3ProfilesPanel(),
+};
 
 window.__rmAppShell = {
   navigate,
