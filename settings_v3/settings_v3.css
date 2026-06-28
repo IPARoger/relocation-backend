@@ -383,3 +383,6 @@ body.settings-v3-active {
 }
 .settings-v3-root #sec-charts .sv3-charts-calc-rule { margin-top: 10px; }
 .settings-v3-root #sec-charts .sv3-charts-calc-rule[hidden] { display: none !important; }
+
+.settings-v3-root #sec-charts .sv3-charts-placeholder-row { opacity: 0.72; }
+.settings-v3-root #sec-charts .sv3-charts-soon { font-weight: 400; }

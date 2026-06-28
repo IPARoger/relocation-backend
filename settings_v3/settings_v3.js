@@ -105,14 +105,15 @@
   function chartsBodyRow(kind, id, label, tblOn, chtOn, opts) {
     opts = opts || {};
     const lockCls = opts.lockRow ? " sv3-charts-row-locked" : "";
+    const phCls = opts.placeholder ? " sv3-charts-placeholder-row" : "";
     let dis = "";
     if (opts.permanentDisabled) dis = " disabled";
     else if (opts.coreLock) dis = ' disabled data-sv3-core-lock="1"';
     else if (opts.chironLock) dis = ' disabled data-sv3-chiron-lock="1"';
     else if (opts.advLock) dis = ' disabled data-sv3-adv-lock="1"';
     else if (opts.lockInputs) dis = " disabled";
-    return `<tr class="sv3-charts-grid-row${lockCls}" data-sv3-body-row="${esc(kind)}-${esc(id)}">
-      <td class="sv3-charts-grid-name">${esc(label)}</td>
+    return `<tr class="sv3-charts-grid-row${lockCls}${phCls}" data-sv3-body-row="${esc(kind)}-${esc(id)}">
+      <td class="sv3-charts-grid-name">${esc(label)}${opts.placeholder ? '<span class="meta sv3-charts-soon"> · not in engine yet</span>' : ""}</td>
       <td class="sv3-charts-grid-col"><input type="checkbox" id="sv3-charts-${esc(kind)}-cht-${esc(id)}"${chtOn ? " checked" : ""}${dis} /></td>
       <td class="sv3-charts-grid-col"><input type="checkbox" id="sv3-charts-${esc(kind)}-tbl-${esc(id)}"${tblOn ? " checked" : ""}${dis} /></td>
     </tr>`;
@@ -149,10 +150,10 @@
     ).join("");
     const chironRow = chartsBodyRow("body", "chiron", "Chiron", true, true);
     const nodeRows = CHART_NODES.map(([id, label]) =>
-      chartsBodyRow("body", id, label, false, false)
+      chartsBodyRow("body", id, label, false, false, { permanentDisabled: true, placeholder: true })
     ).join("");
     const advBodyRows = CHART_ADV_BODIES.map(([id, label]) =>
-      chartsBodyRow("advbody", id, label, false, false, { advLock: true })
+      chartsBodyRow("advbody", id, label, false, false, { advLock: true, permanentDisabled: true, placeholder: true })
     ).join("");
     const majorAspectRows = CHART_MAJOR_ASPECTS.map(([id, label, def]) =>
       chartsAspectRow("maj", id, label, def, true, true, { majorLock: true })
@@ -164,7 +165,7 @@
     return `<section class="card" id="sec-charts" data-settings-v3-section="charts">
       ${head("Charts")}
       <div class="subhead">Bodies</div>
-      <div class="desc">Defaults are set for you. Open Advanced Bodies to change optional points.</div>
+      <div class="desc">Defaults are set for you. Open Advanced Bodies to change optional points. North/South Node, Lilith, Vertex, and Part of Fortune are placeholders — the engine does not calculate them yet.</div>
       <table class="sv3-charts-grid" id="sv3-charts-bodies">
         ${chartsBodiesHeadHtml()}
         <tbody>${angleRows}${planetRows}${chironRow}${nodeRows}</tbody>

@@ -2525,6 +2525,69 @@ def _infer_location_kind(
     return "relocated"
 
 
+
+def _helper_layers_dict(effective_settings: dict) -> dict:
+    hl = effective_settings.get("helper_layers")
+    return hl if isinstance(hl, dict) else {}
+
+
+def _union_string_lists(*lists) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for lst in lists:
+        if not isinstance(lst, list):
+            continue
+        for item in lst:
+            key = str(item).lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(key)
+    return out
+
+
+def _expand_settings_for_canonical_compute(effective_settings: dict) -> dict:
+    """Union chart+table visibility so canonical payload supports client-side split."""
+    eff = dict(effective_settings)
+    hl = _helper_layers_dict(eff)
+
+    tbl_maj = eff.get("visible_major_aspects")
+    cht_maj = hl.get("chart_major_aspects")
+    if isinstance(tbl_maj, list) or isinstance(cht_maj, list):
+        union_maj = _union_string_lists(
+            tbl_maj if isinstance(tbl_maj, list) else [],
+            cht_maj if isinstance(cht_maj, list) else [],
+        )
+        if union_maj:
+            eff["visible_major_aspects"] = union_maj
+
+    tbl_min = eff.get("visible_minor_aspects_list")
+    cht_min = hl.get("chart_minor_aspects")
+    union_min = _union_string_lists(
+        tbl_min if isinstance(tbl_min, list) else [],
+        cht_min if isinstance(cht_min, list) else [],
+    )
+    if union_min:
+        eff["visible_minor_aspects_list"] = union_min
+        eff["visible_minor_aspects"] = True
+
+    union_planets = _union_string_lists(
+        eff.get("visible_planets") if isinstance(eff.get("visible_planets"), list) else [],
+        hl.get("chart_planets") if isinstance(hl.get("chart_planets"), list) else [],
+    )
+    if union_planets:
+        eff["visible_planets"] = union_planets
+
+    union_bodies = _union_string_lists(
+        eff.get("visible_bodies") if isinstance(eff.get("visible_bodies"), list) else [],
+        hl.get("chart_bodies") if isinstance(hl.get("chart_bodies"), list) else [],
+    )
+    if union_bodies:
+        eff["visible_bodies"] = union_bodies
+
+    return eff
+
+
 def build_canonical_chart_v1(
     *,
     lat: float,
@@ -2552,6 +2615,7 @@ def build_canonical_chart_v1(
     eff = effective_settings if isinstance(effective_settings, dict) else get_effective_settings()
     eff = dict(eff)
     eff["house_proximity_orb_degrees"] = house_proximity_orb
+    eff = _expand_settings_for_canonical_compute(eff)
 
     birth_anchor = _optional_birth_anchor_enrichment(
         chart_record_id, birth_year, birth_month, birth_day, birth_hour_utc,
