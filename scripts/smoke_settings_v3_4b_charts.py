@@ -20,27 +20,30 @@ def main() -> int:
             failures.append(msg)
 
     text = SHELL.read_text(encoding="utf-8")
-    sv3 = text.split("// ── SETTINGS-V3 Charts", 1)[1].split("function screenSettings()", 1)[0]
-    bodies_fn = text.split("function settingsV3BodiesHtml()", 1)[1].split("function settingsV3ZodiacHouseHtml", 1)[0]
-    sv3_const = text.split("const SV3_SPECIAL_BODIES", 1)[1].split("const SV3_ADVANCED_BODIES", 1)[0]
-    zodiac_fn = text.split("function settingsV3ZodiacHouseHtml()", 1)[1].split("function sv3AspectRow", 1)[0]
+    bodies_fn = text.split("function sv3BodiesHeadHtml()", 1)[1].split("function settingsV3ZodiacHouseHtml", 1)[0]
+    fold_const = text.split("const SV3_ABOVE_FOLD_BODIES", 1)[1].split("const SV3_ADVANCED_BODIES", 1)[0]
+    zodiac_fn = text.split("function settingsV3ZodiacHouseHtml()", 1)[1].split("function sv3OaHeadHtml", 1)[0]
+    patch_fn = text.split("function collectSettingsV3Patch()", 1)[1].split("function screenSettingsV3", 1)[0]
 
     check('"settings-v3": screenSettingsV3' in text, "settings-v3 route registered")
     check("function settingsV3ChartsBodyHtml" in text, "Charts body renderer")
-    check('"Chiron"' in sv3_const and "specialRows" in bodies_fn, "Chiron in main bodies table")
-    check('"North Node"' in sv3_const and '"South Node"' in sv3_const, "Lunar nodes labeled in main list")
+    check('"Chiron"' in fold_const and "foldRows" in bodies_fn, "Chiron in main bodies table")
+    check('"North Node"' in fold_const and '"South Node"' in fold_const, "Both lunar nodes in above-fold list")
     check("rm-sv3-advanced-bodies" in bodies_fn, "Advanced bodies dropdown separate")
-    check(bodies_fn.find("Chiron") < bodies_fn.find("rm-sv3-advanced-bodies"), "Chiron above Advanced dropdown")
+    check(bodies_fn.find("foldRows") < bodies_fn.find("rm-sv3-advanced-bodies"), "Above-fold bodies before Advanced")
     check(bodies_fn.find("North Node") < bodies_fn.find("rm-sv3-advanced-bodies"), "North Node above Advanced")
     check(bodies_fn.find("South Node") < bodies_fn.find("rm-sv3-advanced-bodies"), "South Node above Advanced")
-    check(".rm-sv3-oa-h-orb { grid-column: 4;" in text, "Orb header above orb column")
-    check("rm-sv3-oa-h-tables" in text and "rm-sv3-oa-h-chart" in text, "Tables/Chart headers present")
+    check("Advanced Bodies" in bodies_fn, "Advanced Bodies label")
+    check("rm-sv3-bodies-tbl" in bodies_fn and "rm-sv3-bodies-cht" in bodies_fn, "Tables/Chart columns on bodies")
+    check("rm-sv3-oa-table" in text and "rm-sv3-oa-h-orb" in text, "table-based orbs grid with Orb header")
     check("rm-sv3-late-alert" in text, "late-in-house alert toggle")
     check("rm-sv3-late-orb" in text, "late-house orb adjustment control")
     check("rm-sv3-oos-aspects" in text, "out-of-sign aspects toggle")
     check("rm-sv3-show-a2a" in text, "show aspects to angles toggle")
-    check("data-action=\"save-settings-v3\"" in text, "save handler wired")
+    check('data-action="save-settings-v3"' in text, "save handler wired")
     check("collectSettingsV3Patch" in text, "V3 patch collector")
+    check('collectTbl("body", bodyIds)' in patch_fn, "save collects north/south node with chiron")
+    check("anyAdvOpen" in patch_fn, "any advanced section unlocks save for bodies")
     adv = text.split("function settingsV3AdvancedCalcHtml", 1)[1][:800]
     check("Minor aspects" not in adv or "configured in the sections above" in adv, "no duplicate Minor aspects row")
     check("Custom orbs" not in adv, "no duplicate Custom orbs row")

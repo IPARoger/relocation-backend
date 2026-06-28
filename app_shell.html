@@ -132,6 +132,8 @@
   .rm-sv3-bodies-table th { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
   .rm-sv3-bodies-table tr.rm-sv3-group td { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-top: 12px; border-bottom: none; background: transparent; }
   .rm-sv3-bodies-table input[type=checkbox] { width: auto; margin: 0; accent-color: var(--accent); }
+  .rm-sv3-bodies-table .rm-sv3-bodies-tbl,
+  .rm-sv3-bodies-table .rm-sv3-bodies-cht { width: 72px; text-align: center; }
   .rm-sv3-bodies-table tr.is-locked { opacity: 0.55; }
   .rm-sv3-advanced { margin-top: 10px; }
   .rm-sv3-advanced > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); padding: 6px 0; list-style-position: outside; }
@@ -139,25 +141,20 @@
   .rm-sv3-zodiac-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
   .rm-sv3-zodiac-row label.block { flex: 1; min-width: 160px; max-width: 280px; margin-bottom: 0; }
   .rm-sv3-oa { margin-top: 4px; }
-  .rm-sv3-oa-grid { display: grid; grid-template-columns: minmax(120px, 1.5fr) 72px 72px 72px; gap: 0; align-items: center; }
-  .rm-sv3-oa-head { display: contents; }
-  .rm-sv3-oa-head .rm-sv3-oa-h-spacer { grid-column: 1; }
-  .rm-sv3-oa-head .rm-sv3-oa-h-tables { grid-column: 2; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-head .rm-sv3-oa-h-chart { grid-column: 3; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-head .rm-sv3-oa-h-orb { grid-column: 4; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-row { display: contents; }
-  .rm-sv3-oa-row .rm-sv3-oa-label { grid-column: 1; padding: 7px 8px 7px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-row .rm-sv3-oa-tbl { grid-column: 2; padding: 4px; text-align: center; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-row .rm-sv3-oa-cht { grid-column: 3; padding: 4px; text-align: center; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-row .rm-sv3-oa-orb { grid-column: 4; padding: 4px; text-align: center; border-bottom: 1px solid var(--line); }
-  .rm-sv3-oa-row .rm-sv3-oa-tbl input,
-  .rm-sv3-oa-row .rm-sv3-oa-cht input { width: auto; margin: 0; }
-  .rm-sv3-oa-row .rm-sv3-oa-orb input { width: 52px; max-width: 100%; padding: 4px 6px; margin: 0; text-align: center; font-size: 12px; }
-  .rm-sv3-oa-row.is-locked .rm-sv3-oa-tbl,
-  .rm-sv3-oa-row.is-locked .rm-sv3-oa-cht,
-  .rm-sv3-oa-row.is-locked .rm-sv3-oa-orb { opacity: 0.55; }
+  .rm-sv3-oa-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .rm-sv3-oa-table th, .rm-sv3-oa-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .rm-sv3-oa-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; }
+  .rm-sv3-oa-table th.rm-sv3-oa-name-h { text-align: left; font-weight: 600; }
+  .rm-sv3-oa-table .rm-sv3-oa-tbl,
+  .rm-sv3-oa-table .rm-sv3-oa-cht,
+  .rm-sv3-oa-table .rm-sv3-oa-orb { width: 72px; text-align: center; }
+  .rm-sv3-oa-table .rm-sv3-oa-tbl input,
+  .rm-sv3-oa-table .rm-sv3-oa-cht input { width: auto; margin: 0; }
+  .rm-sv3-oa-table .rm-sv3-oa-orb input { width: 52px; max-width: 100%; padding: 4px 6px; margin: 0; text-align: center; font-size: 12px; }
+  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-tbl,
+  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-cht,
+  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-orb { opacity: 0.55; }
   .rm-sv3-oa-minor-wrap { margin-top: 10px; }
-  .rm-sv3-oa-minor-wrap .rm-sv3-oa-grid { margin-top: 8px; }
   .rm-sv3-oa-options { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
   .rm-sv3-oa-options label.block { display: flex; align-items: center; gap: 8px; margin-bottom: 0; font-size: 13px; color: var(--fg); }
   .rm-sv3-oa-options label.block input[type=checkbox] { width: auto; margin: 0; }
@@ -6986,15 +6983,16 @@ const SV3_MAIN_PLANETS = [
 const SV3_ANGLES = [
   ["asc", "ASC"], ["mc", "MC"], ["ic", "IC"], ["dc", "DC"],
 ];
-const SV3_SPECIAL_BODIES = [
-  ["chiron", "Chiron", true, true],
-  ["north_node", "North Node", false, true],
-  ["south_node", "South Node", false, true],
+const SV3_ABOVE_FOLD_BODIES = [
+  ["chiron", "Chiron", true],
+  ["north_node", "North Node", false],
+  ["south_node", "South Node", false],
 ];
 const SV3_ADVANCED_BODIES = [
-  ["part_of_fortune", "Part of Fortune"],
   ["lilith", "Lilith"],
+  ["true_node", "True Node"],
   ["vertex", "Vertex"],
+  ["part_of_fortune", "Part of Fortune"],
 ];
 const SV3_MAJOR_ASPECTS = [
   ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
@@ -7016,45 +7014,60 @@ function _sv3Helper(key, fallback) {
   return hl[key] != null ? hl[key] : fallback;
 }
 
-function sv3BodyRow(id, label, checked, disabled, kind) {
-  const lockCls = disabled ? " is-locked" : "";
-  const dis = disabled ? ' disabled aria-disabled="true" data-sv3-advanced-lock="1"' : "";
-  return `<tr class="${lockCls}"><td><input type="checkbox" id="rm-sv3-${kind}-${id}"${checked ? " checked" : ""}${dis} /></td><td><label for="rm-sv3-${kind}-${id}">${escapeHtml(label)}</label></td></tr>`;
+function sv3BodiesHeadHtml() {
+  return `<thead><tr><th>Name</th><th class="rm-sv3-bodies-tbl">Tables</th><th class="rm-sv3-bodies-cht">Chart</th></tr></thead>`;
+}
+
+function sv3BodyRow(id, label, tblOn, chtOn, kind) {
+  const lockAttr = ' disabled aria-disabled="true" data-sv3-advanced-lock="1"';
+  return `<tr class="is-locked">
+    <td>${escapeHtml(label)}</td>
+    <td class="rm-sv3-bodies-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></td>
+    <td class="rm-sv3-bodies-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></td>
+  </tr>`;
 }
 
 function settingsV3BodiesHtml() {
   const eff = _sv3Eff();
   const planets = (eff && Array.isArray(eff.visible_planets)) ? eff.visible_planets : SV3_MAIN_PLANETS.map(([id]) => id);
   const bodies = (eff && Array.isArray(eff.visible_bodies)) ? eff.visible_bodies : [];
-  const angleRows = SV3_ANGLES.map(([id, label]) => sv3BodyRow(id, label, true, true, "angle")).join("");
+  const hl = (eff && eff.helper_layers) || {};
+  const chartPlanets = Array.isArray(hl.chart_planets) ? hl.chart_planets : planets.slice();
+  const chartBodies = Array.isArray(hl.chart_bodies) ? hl.chart_bodies : bodies.slice();
+  const advBodies = (hl.advanced_bodies && typeof hl.advanced_bodies === "object") ? hl.advanced_bodies : {};
+  const advChart = (hl.advanced_bodies_chart && typeof hl.advanced_bodies_chart === "object") ? hl.advanced_bodies_chart : {};
   const planetRows = SV3_MAIN_PLANETS.map(([id, label]) => {
-    const on = planets.indexOf(id) !== -1;
-    return sv3BodyRow(id, label, on, false, "planet");
+    const tblOn = planets.indexOf(id) !== -1;
+    const chtOn = chartPlanets.indexOf(id) !== -1;
+    return sv3BodyRow(id, label, tblOn, chtOn, "planet");
   }).join("");
-  const specialRows = SV3_SPECIAL_BODIES.map(([id, label, defaultOn, lockDefault]) => {
-    let on = defaultOn;
-    if (id === "chiron") on = bodies.indexOf("chiron") !== -1 || bodies.length === 0;
-    if (id === "north_node") on = bodies.indexOf("north_node") !== -1;
-    if (id === "south_node") on = bodies.indexOf("south_node") !== -1;
-    return sv3BodyRow(id, label, on, lockDefault, "body");
+  const foldRows = SV3_ABOVE_FOLD_BODIES.map(([id, label, defaultOn]) => {
+    let tblOn = defaultOn;
+    if (id === "chiron") tblOn = bodies.indexOf("chiron") !== -1 || bodies.length === 0;
+    if (id === "north_node") tblOn = bodies.indexOf("north_node") !== -1;
+    if (id === "south_node") tblOn = bodies.indexOf("south_node") !== -1;
+    const chtOn = chartBodies.indexOf(id) !== -1 || (id === "chiron" && chartBodies.length === 0 && tblOn);
+    return sv3BodyRow(id, label, tblOn, chtOn, "body");
   }).join("");
-  const advRows = SV3_ADVANCED_BODIES.map(([id, label]) => sv3BodyRow(id, label, false, true, "advbody")).join("");
+  const advRows = SV3_ADVANCED_BODIES.map(([id, label]) => {
+    const tblOn = !!advBodies[id];
+    const chtOn = !!advChart[id];
+    return sv3BodyRow(id, label, tblOn, chtOn, "advbody");
+  }).join("");
   return `
     <div class="rm-sv3-card" id="rm-sv3-bodies">
       <h4>Bodies &amp; Angles</h4>
       <table class="rm-sv3-bodies-table simple">
-        <thead><tr><th style="width:32px;"></th><th>Name</th></tr></thead>
+        ${sv3BodiesHeadHtml()}
         <tbody>
-          <tr class="rm-sv3-group"><td colspan="2">Angles</td></tr>
-          ${angleRows}
-          <tr class="rm-sv3-group"><td colspan="2">Main bodies</td></tr>
           ${planetRows}
-          ${specialRows}
+          ${foldRows}
         </tbody>
       </table>
       <details class="rm-sv3-advanced" id="rm-sv3-advanced-bodies">
-        <summary>Advanced</summary>
+        <summary>Advanced Bodies</summary>
         <table class="rm-sv3-bodies-table simple">
+          ${sv3BodiesHeadHtml()}
           <tbody>${advRows}</tbody>
         </table>
       </details>
@@ -7087,6 +7100,15 @@ function settingsV3ZodiacHouseHtml() {
     </div>`;
 }
 
+function sv3OaHeadHtml() {
+  return `<thead><tr>
+    <th class="rm-sv3-oa-name-h"></th>
+    <th class="rm-sv3-oa-tbl rm-sv3-oa-h-tables">Tables</th>
+    <th class="rm-sv3-oa-cht rm-sv3-oa-h-chart">Chart</th>
+    <th class="rm-sv3-oa-orb rm-sv3-oa-h-orb">Orb</th>
+  </tr></thead>`;
+}
+
 function sv3AspectRow(kind, id, label, orbVal, tblOn, chtOn, opts) {
   const o = opts || {};
   const isMajor = kind === "maj";
@@ -7094,12 +7116,12 @@ function sv3AspectRow(kind, id, label, orbVal, tblOn, chtOn, opts) {
   const lockAttr = lockMajor ? ' disabled aria-disabled="true" data-sv3-major-lock="1"' : "";
   const lockCls = lockMajor ? " is-locked" : "";
   const orbDis = (isMajor && lockMajor) || o.orbDisabled ? ' disabled aria-disabled="true"' + (isMajor ? ' data-sv3-major-lock="1"' : "") : "";
-  return `<div class="rm-sv3-oa-row${lockCls}" data-sv3-aspect-row="${kind}-${id}">
-    <div class="rm-sv3-oa-label">${escapeHtml(label)}</div>
-    <div class="rm-sv3-oa-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></div>
-    <div class="rm-sv3-oa-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></div>
-    <div class="rm-sv3-oa-orb"><input type="number" id="rm-sv3-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}"${orbDis} /></div>
-  </div>`;
+  return `<tr class="rm-sv3-oa-row${lockCls}" data-sv3-aspect-row="${kind}-${id}">
+    <td class="rm-sv3-oa-label">${escapeHtml(label)}</td>
+    <td class="rm-sv3-oa-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></td>
+    <td class="rm-sv3-oa-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></td>
+    <td class="rm-sv3-oa-orb"><input type="number" id="rm-sv3-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}"${orbDis} /></td>
+  </tr>`;
 }
 
 function settingsV3OrbsAspectsHtml() {
@@ -7124,26 +7146,20 @@ function settingsV3OrbsAspectsHtml() {
   const minorRows = SV3_MINOR_ASPECTS.map(([id, label, d]) =>
     sv3AspectRow("min", id, label, num(minOrb[id], d), minVis.indexOf(id) !== -1, chartMin.indexOf(id) !== -1, { lockMajor: false })
   ).join("");
-  const oaHead = `<div class="rm-sv3-oa-head">
-            <div class="rm-sv3-oa-h-spacer" aria-hidden="true"></div>
-            <div class="rm-sv3-oa-h-tables">Tables</div>
-            <div class="rm-sv3-oa-h-chart">Chart</div>
-            <div class="rm-sv3-oa-h-orb">Orb</div>
-          </div>`;
   return `
     <div class="rm-sv3-card" id="rm-sv3-orbs">
       <h4>Orbs &amp; Aspects</h4>
       <div class="rm-sv3-oa">
-        <div class="rm-sv3-oa-grid">
-          ${oaHead}
-          ${majorRows}
-        </div>
+        <table class="rm-sv3-oa-table simple">
+          ${sv3OaHeadHtml()}
+          <tbody>${majorRows}</tbody>
+        </table>
         <details class="rm-sv3-advanced rm-sv3-oa-minor-wrap" id="rm-sv3-advanced-orbs">
           <summary>Advanced Orbs &amp; Aspects</summary>
-          <div class="rm-sv3-oa-grid">
-            ${oaHead}
-            ${minorRows}
-          </div>
+          <table class="rm-sv3-oa-table simple">
+            ${sv3OaHeadHtml()}
+            <tbody>${minorRows}</tbody>
+          </table>
         </details>
         <div class="rm-sv3-oa-options">
           <label class="block"><input type="checkbox" id="rm-sv3-late-alert"${lateAlert ? " checked" : ""} /> Show late-in-house planet alert</label>
@@ -7229,8 +7245,11 @@ function applySettingsV3AdvancedState(root) {
   const sv3Root = scope.querySelector("#rm-sv3-root");
   if (sv3Root) sv3Root.classList.toggle("rm-sv3-advanced-open", anyOpen);
   scope.querySelectorAll("[data-sv3-advanced-lock]").forEach((el) => {
-    if (bodiesOpen || calcOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
+    if (anyOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
     else { el.setAttribute("disabled", "disabled"); el.setAttribute("aria-disabled", "true"); }
+  });
+  scope.querySelectorAll("#rm-sv3-bodies tr.is-locked").forEach((row) => {
+    row.classList.toggle("is-locked", !anyOpen);
   });
   scope.querySelectorAll("[data-sv3-major-lock]").forEach((el) => {
     if (orbsOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
@@ -7261,19 +7280,29 @@ function wireSettingsV3(root) {
 function collectSettingsV3Patch() {
   /** @type {Record<string, unknown>} */
   const patch = {};
+  const eff = _sv3Eff();
   const planetIds = SV3_MAIN_PLANETS.map(([id]) => id);
   const bodyIds = ["chiron", "north_node", "south_node"];
-  const collectChk = (prefix, ids) => ids.filter((id) => {
-    const el = document.getElementById("rm-sv3-" + prefix + "-" + id);
+  const advBodyIds = SV3_ADVANCED_BODIES.map(([id]) => id);
+  const anyAdvOpen = !!document.querySelector("#rm-sv3-advanced-bodies[open]")
+    || !!document.querySelector("#rm-sv3-advanced-orbs[open]")
+    || !!document.querySelector("#rm-sv3-advanced-calc-panel[open]");
+  const collectTbl = (kind, ids) => ids.filter((id) => {
+    const el = document.getElementById("rm-sv3-" + kind + "tbl-" + id);
     return el ? !!el.checked : false;
   });
-  patch.visible_planets = collectChk("planet", planetIds);
-  const advOpen = !!document.querySelector("#rm-sv3-advanced-bodies[open]");
-  if (advOpen) {
-    patch.visible_bodies = collectChk("body", bodyIds).filter((id) => id === "chiron");
+  const collectCht = (kind, ids) => ids.filter((id) => {
+    const el = document.getElementById("rm-sv3-" + kind + "cht-" + id);
+    return el ? !!el.checked : false;
+  });
+  if (anyAdvOpen) {
+    patch.visible_planets = collectTbl("planet", planetIds);
+    patch.visible_bodies = collectTbl("body", bodyIds);
   } else {
-    const eff = _sv3Eff();
-    patch.visible_bodies = (eff && Array.isArray(eff.visible_bodies)) ? eff.visible_bodies.slice() : ["chiron"];
+    patch.visible_planets = (eff && Array.isArray(eff.visible_planets))
+      ? eff.visible_planets.slice() : planetIds.slice();
+    patch.visible_bodies = (eff && Array.isArray(eff.visible_bodies))
+      ? eff.visible_bodies.slice() : ["chiron"];
   }
   const majorIds = SV3_MAJOR_ASPECTS.map(([id]) => id);
   const minorIds = SV3_MINOR_ASPECTS.map(([id]) => id);
@@ -7324,10 +7353,23 @@ function collectSettingsV3Patch() {
   }
   const showA2aEl = document.getElementById("rm-sv3-show-a2a");
   const lateAlertEl = document.getElementById("rm-sv3-late-alert");
-  const eff = _sv3Eff();
   const hl = Object.assign({}, (eff && eff.helper_layers) || {});
   if (showA2aEl) hl.show_aspects_to_angles = !!showA2aEl.checked;
   if (lateAlertEl) hl.show_late_in_house_alert = !!lateAlertEl.checked;
+  if (anyAdvOpen) {
+    hl.chart_planets = collectCht("planet", planetIds);
+    hl.chart_bodies = collectCht("body", bodyIds);
+    const advBodies = {};
+    const advChart = {};
+    advBodyIds.forEach((id) => {
+      const tbl = document.getElementById("rm-sv3-advbodytbl-" + id);
+      const cht = document.getElementById("rm-sv3-advbodycht-" + id);
+      if (tbl && tbl.checked) advBodies[id] = true;
+      if (cht && cht.checked) advChart[id] = true;
+    });
+    hl.advanced_bodies = advBodies;
+    hl.advanced_bodies_chart = advChart;
+  }
   if (orbsAdvOpen) {
     hl.chart_major_aspects = majorIds.filter((id) => {
       const el = document.getElementById("rm-sv3-majcht-" + id);
