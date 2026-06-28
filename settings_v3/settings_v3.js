@@ -1,6 +1,6 @@
 /**
  * Settings V3 — fresh prototype shell (prototype_settings_v2.html visual authority).
- * Only My Profiles is wired via __rmSettingsV3Bridge; other sections are visual stubs.
+ * My Profiles and My Data hub wired via __rmSettingsV3Bridge; other sections are visual stubs.
  */
 (function () {
   "use strict";
@@ -173,19 +173,52 @@
     </section>`;
   }
 
+  function dataHubCounts() {
+    if (typeof bridge().dataHubCounts === "function") return bridge().dataHubCounts();
+    return { searches: 0, comparisons: 0, favorites: 0, notes: 0, history: 0 };
+  }
+
+  function dataHubRow(label, kind, btnLabel) {
+    const counts = dataHubCounts();
+    const n = counts[kind] != null ? counts[kind] : 0;
+    return row(
+      label,
+      "",
+      `<b data-v3-data-count="${kind}">${n}</b> `
+        + `<button type="button" class="btn tiny" data-action="settings-v3-data-manage" data-data-kind="${kind}">${esc(btnLabel)}</button>`
+    );
+  }
+
   function secData() {
-    const rows = [
-      ["Saved searches", "23"], ["Saved comparisons", "6"], ["Favorites", "7"],
-      ["Notes", "11"], ["History", "140"],
-    ].map(([label, count]) => row(label, "", `<b>${count}</b> <button class="btn tiny" disabled>Manage</button>`)).join("");
     return `<section class="card" id="sec-data">
-      ${head("My Data", soon())}
-      <div class="subhead">Data management</div>
-      ${rows}
-      ${row("Export my data", "", selDis(["Everything"]) + ' <button class="btn" disabled>Export</button>')}
-      <div class="subhead">Delete data</div>
-      ${row("Delete history", "", '<button class="btn danger" disabled>Delete</button>')}
-      ${row("Delete all profiles", "Permanently deletes all profiles and their saved work.", '<button class="btn danger" disabled>Delete all profiles</button> ' + soon())}
+      <div id="settings-v3-data-hub">
+        ${head("My Data")}
+        <div class="subhead">Data management</div>
+        ${dataHubRow("Saved searches", "searches", "Manage")}
+        ${dataHubRow("Saved comparisons", "comparisons", "Manage")}
+        ${dataHubRow("Favorites", "favorites", "Manage")}
+        ${dataHubRow("Notes", "notes", "Manage")}
+        ${dataHubRow("History", "history", "View")}
+        ${row("Export my data", "", selDis(["Everything"]) + ' <button type="button" class="btn" disabled>Export</button>')}
+        <div class="help">Export contents (wheels, tables, notes, saved work, profiles, settings) will be customizable.</div>
+        <div class="subhead">AI &amp; privacy</div>
+        ${row("Allow anonymized usage to improve AI assistance", "You can change this anytime.", '<span class="sw on locked"></span> ' + soon())}
+        <div class="subhead">Delete data</div>
+        ${row("Delete history", "", '<button type="button" class="btn danger" disabled>Delete</button>')}
+        ${row("Delete all saved searches", "", '<button type="button" class="btn danger" disabled>Delete</button>')}
+        ${row("Delete all comparisons", "", '<button type="button" class="btn danger" disabled>Delete</button>')}
+        ${row("Delete all favorites", "", '<button type="button" class="btn danger" disabled>Delete</button>')}
+        ${row("Delete all profiles", "Permanently deletes all profiles and their saved work.", '<button type="button" class="btn danger" disabled>Delete all profiles</button>')}
+        <div class="subhead">Account deletion</div>
+        ${row("Delete account", "", '<button type="button" class="btn danger" disabled>Delete account</button> ' + soon())}
+      </div>
+      <div id="settings-v3-data-manage" hidden>
+        <div class="settings-v3-data-manage-head">
+          <button type="button" class="btn ghost tiny" data-action="settings-v3-data-back">\u2190 Back</button>
+          <h3 id="settings-v3-data-manage-title"></h3>
+        </div>
+        <div id="settings-v3-data-manage-body"></div>
+      </div>
     </section>`;
   }
 
@@ -229,16 +262,19 @@
   ];
 
   function parseSectionFromHash() {
-    const raw = (location.hash || "#/settings-v3/profiles").replace(/^#/, "");
+    const raw = (location.hash || "#/settings-v3").replace(/^#/, "");
     const path = raw.split("?")[0].replace(/^\//, "");
     const parts = path.split("/").filter(Boolean);
     if (parts[0] !== "settings-v3") return "profiles";
     const id = parts[1] || "profiles";
+    if (id === "data") return "data";
     return SECTIONS.some((s) => s.id === id) ? id : "profiles";
   }
 
   function sectionHash(id) {
-    return id === "profiles" ? "#/settings-v3" : `#/settings-v3/${id}`;
+    if (id === "profiles") return "#/settings-v3";
+    if (id === "data") return "#/settings-v3/data";
+    return `#/settings-v3/${id}`;
   }
 
   function setNavActive(root, id) {
@@ -310,6 +346,8 @@
 
     if (typeof bridge().ensureDelegation === "function") bridge().ensureDelegation();
     if (typeof bridge().refreshProfiles === "function") bridge().refreshProfiles();
+    if (typeof bridge().refreshDataHub === "function") bridge().refreshDataHub();
+    if (typeof bridge().wireData === "function") bridge().wireData(rootEl);
   }
 
   window.SettingsV3 = { mount };

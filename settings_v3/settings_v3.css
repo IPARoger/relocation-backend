@@ -188,3 +188,12 @@ body.settings-v3-active {
   .settings-v3-root .settings-data-actions { grid-column: 2; }
 }
 @media (max-width: 520px) { .settings-v3-root .settings-v2-toolbar.is-saved-list-toolbar { flex-wrap: wrap; } }
+
+/* My Data hub + manage panel (Restart-2) */
+.settings-v3-root #settings-v3-data-hub[hidden],
+.settings-v3-root #settings-v3-data-manage[hidden] { display: none !important; }
+.settings-v3-root .settings-v3-data-manage-head { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+.settings-v3-root .settings-v3-data-manage-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.settings-v3-root #settings-v3-data-manage .settings-subhead { margin-top: 16px; }
+.settings-v3-root #settings-v3-data-manage .settings-data-panel { margin-top: 8px; }
+.settings-v3-root #settings-v3-data-manage .settings-data-bulk { margin-top: 12px; }

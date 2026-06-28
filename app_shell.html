@@ -2036,6 +2036,7 @@ const NAV_CONTEXT_KEYS = /** @type {const} */ ([
 let navContext = {
   route: "dashboard",
   settingsSubpage: null,
+  settingsV3DataKind: null,
   chartRecordId: null,
   placeId: null,
   explorationId: null,
@@ -2795,6 +2796,10 @@ function parseLocation() {
     "appearance", "my-data",
     ...Object.keys(SETTINGS_SUB_ALIASES),
   ]);
+  let settingsV3DataKind = null;
+  if (route === "settings-v3" && pathSegments[1] === "data" && pathSegments[2]) {
+    settingsV3DataKind = pathSegments[2];
+  }
   let settingsSubpage = null;
   if (route === "settings" && pathSegments[1] && VALID_SETTINGS_SUB.has(pathSegments[1])) {
     const rawSub = pathSegments[1];
@@ -2803,6 +2808,7 @@ function parseLocation() {
   return {
     route,
     settingsSubpage,
+    settingsV3DataKind,
     chartRecordId: params.get("chartRecordId"),
     placeId: params.get("placeId"),
     explorationId: params.get("explorationId"),
@@ -2909,6 +2915,7 @@ function normalizeNavContext(partial) {
         ? normalizeSettingsSubpage(partial.settingsSubpage)
         : null)
       : null,
+    settingsV3DataKind: route === "settings-v3" ? (partial.settingsV3DataKind || null) : null,
     chartRecordId: partial.chartRecordId || null,
     placeId: partial.placeId || null,
     explorationId: partial.explorationId || null,
@@ -9811,6 +9818,78 @@ function settingsDataHubCounts() {
 }
 
 
+const SETTINGS_V3_DATA_MANAGE = {
+  searches: { type: "searches", title: "Saved Searches" },
+  comparisons: { type: "comparisons", title: "Saved Comparisons" },
+  favorites: { type: "favorites", title: "Favorites" },
+  notes: { type: "notes", title: "Notes" },
+  history: { type: null, title: "History" },
+  export: { type: null, title: "Export My Data" },
+};
+
+function refreshSettingsV3DataHub() {
+  const root = document.querySelector(".settings-v3-root");
+  const hub = root && root.querySelector("#settings-v3-data-hub");
+  if (!hub) return;
+  const counts = settingsDataHubCounts();
+  Object.keys(counts).forEach((key) => {
+    const el = hub.querySelector(`[data-v3-data-count="${key}"]`);
+    if (el) el.textContent = String(counts[key]);
+  });
+}
+
+function openSettingsV3DataManage(kind) {
+  const cfg = SETTINGS_V3_DATA_MANAGE[kind];
+  if (!cfg) return;
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const hub = root.querySelector("#settings-v3-data-hub");
+  const manage = root.querySelector("#settings-v3-data-manage");
+  const titleEl = root.querySelector("#settings-v3-data-manage-title");
+  const bodyEl = root.querySelector("#settings-v3-data-manage-body");
+  if (!hub || !manage || !bodyEl) return;
+  hub.hidden = true;
+  manage.hidden = false;
+  if (titleEl) titleEl.textContent = cfg.title;
+  ensureSettingsObjectNotesDialog();
+  if (cfg.type) {
+    bodyEl.innerHTML = settingsSavedObjectPanelHtml(cfg.type, `settings-v3-sec-data-${cfg.type}`, cfg.title);
+    refreshSettingsSavedObjectPanel(cfg.type);
+  } else if (kind === "history") {
+    bodyEl.innerHTML = settingsDataHistoryPanelHtml();
+  } else if (kind === "export") {
+    bodyEl.innerHTML = settingsDataExportPanelHtml();
+  }
+  manage.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (history.replaceState) history.replaceState(null, "", `#/settings-v3/data/${kind}`);
+  navContext = normalizeNavContext({ ...navContext, settingsV3DataKind: kind });
+}
+
+function closeSettingsV3DataManage() {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const hub = root.querySelector("#settings-v3-data-hub");
+  const manage = root.querySelector("#settings-v3-data-manage");
+  if (!hub || !manage) return;
+  hub.hidden = false;
+  manage.hidden = true;
+  refreshSettingsV3DataHub();
+  if (history.replaceState) history.replaceState(null, "", "#/settings-v3/data");
+  navContext = normalizeNavContext({ ...navContext, settingsV3DataKind: null });
+  const sec = root.querySelector("#sec-data");
+  if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function wireSettingsV3Data(root) {
+  if (!root || navContext.route !== "settings-v3" || !SETTINGS_V3_ENABLED) return;
+  ensureSettingsDataDelegation();
+  ensureSettingsObjectNotesDialog();
+  void prefetchSettingsInvestigationNotesCache();
+  refreshSettingsV3DataHub();
+  const v3Kind = navContext.settingsV3DataKind || (parseLocation().settingsV3DataKind || null);
+  if (v3Kind && SETTINGS_V3_DATA_MANAGE[v3Kind]) openSettingsV3DataManage(v3Kind);
+}
+
 function settingsDataHistoryPanelHtml() {
   return `
     <div class="panel settings-v2-card settings-data-static-panel" id="sec-data-history">
@@ -9866,6 +9945,7 @@ function refreshSettingsSavedObjectPanel(type) {
     const countEl = bulk.querySelector(`[data-settings-obj-selected-count="${type}"]`);
     if (countEl) countEl.textContent = `${n} selected`;
   }
+  if (navContext.route === "settings-v3") refreshSettingsV3DataHub();
 }
 
 
@@ -10345,6 +10425,15 @@ function ensureSettingsDataDelegation() {
           refreshSettingsSavedObjectPanel("favorites");
         } catch (err) { window.alert(err.message || String(err)); }
       })();
+      return;
+    }
+    if (action === "settings-v3-data-manage") {
+      const kind = btn.getAttribute("data-data-kind");
+      if (kind) openSettingsV3DataManage(kind);
+      return;
+    }
+    if (action === "settings-v3-data-back") {
+      closeSettingsV3DataManage();
       return;
     }
     if (action === "settings-back") {
@@ -11452,6 +11541,7 @@ function render() {
   if (navContext.route === "settings-v3" && SETTINGS_V3_ENABLED && window.SettingsV3) {
     SettingsV3.mount(document.getElementById("settings-v3-root"));
     wireSettingsV3Profiles($("#main"));
+    wireSettingsV3Data($("#main"));
   }
   if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
@@ -12962,6 +13052,11 @@ async function planProfileArchive(profileId) {
 window.__rmSettingsV3Bridge = {
   ensureDelegation: () => ensureSettingsDataDelegation(),
   refreshProfiles: () => refreshSettingsV3ProfilesPanel(),
+  refreshDataHub: () => refreshSettingsV3DataHub(),
+  wireData: (root) => wireSettingsV3Data(root),
+  dataHubCounts: () => settingsDataHubCounts(),
+  openDataManage: (kind) => openSettingsV3DataManage(kind),
+  closeDataManage: () => closeSettingsV3DataManage(),
 };
 
 window.__rmAppShell = {
