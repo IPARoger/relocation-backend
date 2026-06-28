@@ -5,10 +5,6 @@
 (function () {
   "use strict";
 
-  const ANGLES = ["ASC", "MC", "DSC", "IC"];
-  const MAIN = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Chiron"];
-  const NODES = ["North Node", "South Node"];
-  const ADVPTS = ["Lilith", "Vertex", "Part of Fortune"];
 
   let mountedRoot = null;
 
@@ -76,22 +72,131 @@
     </section>`;
   }
 
+  const CHART_ANGLES = [
+    ["asc", "ASC"], ["mc", "MC"], ["dsc", "DSC"], ["ic", "IC"],
+  ];
+  const CHART_PLANETS = [
+    ["sun", "Sun"], ["moon", "Moon"], ["mercury", "Mercury"], ["venus", "Venus"],
+    ["mars", "Mars"], ["jupiter", "Jupiter"], ["saturn", "Saturn"],
+    ["uranus", "Uranus"], ["neptune", "Neptune"], ["pluto", "Pluto"],
+  ];
+  const CHART_NODES = [
+    ["north_node", "North Node"], ["south_node", "South Node"],
+  ];
+  const CHART_ADV_BODIES = [
+    ["lilith", "Lilith"], ["vertex", "Vertex"], ["part_of_fortune", "Part of Fortune"],
+  ];
+  const CHART_MAJOR_ASPECTS = [
+    ["conjunction", "Conjunction", 10],
+    ["opposition", "Opposition", 10],
+    ["square", "Square", 8],
+    ["trine", "Trine", 8],
+    ["sextile", "Sextile", 6],
+  ];
+  const CHART_MINOR_ASPECTS = [
+    ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
+    ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
+  ];
+
+  function chartsBodiesHeadHtml() {
+    return `<thead><tr><th class="sv3-charts-grid-name"></th><th class="sv3-charts-grid-col">Chart</th><th class="sv3-charts-grid-col">Tables</th></tr></thead>`;
+  }
+
+  function chartsBodyRow(kind, id, label, tblOn, chtOn, opts) {
+    opts = opts || {};
+    const lockCls = opts.lockRow ? " sv3-charts-row-locked" : "";
+    let dis = "";
+    if (opts.permanentDisabled) dis = " disabled";
+    else if (opts.coreLock) dis = ' disabled data-sv3-core-lock="1"';
+    else if (opts.chironLock) dis = ' disabled data-sv3-chiron-lock="1"';
+    else if (opts.advLock) dis = ' disabled data-sv3-adv-lock="1"';
+    else if (opts.lockInputs) dis = " disabled";
+    return `<tr class="sv3-charts-grid-row${lockCls}" data-sv3-body-row="${esc(kind)}-${esc(id)}">
+      <td class="sv3-charts-grid-name">${esc(label)}</td>
+      <td class="sv3-charts-grid-col"><input type="checkbox" id="sv3-charts-${esc(kind)}-cht-${esc(id)}"${chtOn ? " checked" : ""}${dis} /></td>
+      <td class="sv3-charts-grid-col"><input type="checkbox" id="sv3-charts-${esc(kind)}-tbl-${esc(id)}"${tblOn ? " checked" : ""}${dis} /></td>
+    </tr>`;
+  }
+
+  function chartsAspectHeadHtml() {
+    return `<thead><tr><th class="sv3-charts-oa-name sv3-charts-oa-name-h">Aspect</th><th class="sv3-charts-grid-col">Chart</th><th class="sv3-charts-grid-col">Tables</th><th class="sv3-charts-oa-orb">Orb °</th></tr></thead>`;
+  }
+
+  function chartsOrbInput(kind, id, label, orbDefault, lockAttr) {
+    return `<input type="number" id="sv3-charts-${esc(kind)}-orb-${esc(id)}" class="sv3-orb-input" min="0" max="15" step="0.5" value="${orbDefault}" aria-label="${esc(label)} orb degrees"${lockAttr || ""} />`;
+  }
+
+  function chartsAspectRow(kind, id, label, orbDefault, tblOn, chtOn, opts) {
+    opts = opts || {};
+    const lockCls = (opts.majorLock || opts.minorLock) ? " sv3-charts-row-locked" : "";
+    let lockAttr = "";
+    if (opts.majorLock) lockAttr = ' disabled data-sv3-major-lock="1"';
+    else if (opts.minorLock) lockAttr = ' disabled data-sv3-minor-lock="1"';
+    return `<tr class="sv3-charts-oa-row${lockCls}" data-sv3-aspect-row="${esc(kind)}-${esc(id)}">
+      <td class="sv3-charts-oa-name">${esc(label)}</td>
+      <td class="sv3-charts-grid-col"><input type="checkbox" id="sv3-charts-${esc(kind)}-cht-${esc(id)}"${chtOn ? " checked" : ""}${lockAttr} /></td>
+      <td class="sv3-charts-grid-col"><input type="checkbox" id="sv3-charts-${esc(kind)}-tbl-${esc(id)}"${tblOn ? " checked" : ""}${lockAttr} /></td>
+      <td class="sv3-charts-oa-orb">${chartsOrbInput(kind, id, label, orbDefault, lockAttr)}</td>
+    </tr>`;
+  }
+
   function secCharts() {
-    const bodies = ANGLES.map((x) => clItem(x, { on: true, required: true, tag: "required" })).join("")
-      + MAIN.map((x) => clItem(x, { on: true, locked: true, tag: "locked" })).join("")
-      + NODES.map((x) => clItem(x, { on: false, tag: "optional" })).join("");
-    return `<section class="card" id="sec-charts">
-      ${head("Charts", soon())}
-      ${row("Zodiac", "", selDis(["Tropical", "Sidereal (advanced)", "Vedic (advanced)"]))}
-      <div class="warn">Changing the zodiac remaps charts and maps. It may affect saved searches, notes, and comparisons.</div>
-      ${row("House system", "", selDis(["Placidus", "Whole Sign", "Equal", "Koch"]))}
-      <div class="warn">A different house system changes your cusps and angles, and can alter relocation results.</div>
-      <div class="subhead">Chart points &amp; bodies</div>
-      <div class="desc">Defaults are set for you. Angles are required in a relocation chart.</div>
-      <div class="checklist">${bodies}</div>
-      <div class="row"><div style="flex:1"><div class="lab">Advanced chart settings</div><div class="desc">Technical calculation choices.</div></div>
-        <div class="ctl"><button class="btn ghost tiny" disabled>Show \u25be</button> ${soon()}</div></div>
-      <div class="row"><div></div><div class="ctl"><button class="btn" disabled>Restore chart defaults</button></div></div>
+    const angleRows = CHART_ANGLES.map(([id, label]) =>
+      chartsBodyRow("angle", id, label, true, true, { coreLock: true, lockRow: true })
+    ).join("");
+    const planetRows = CHART_PLANETS.map(([id, label]) =>
+      chartsBodyRow("planet", id, label, true, true, { coreLock: true, lockRow: true })
+    ).join("");
+    const chironRow = chartsBodyRow("body", "chiron", "Chiron", true, true);
+    const nodeRows = CHART_NODES.map(([id, label]) =>
+      chartsBodyRow("body", id, label, false, false)
+    ).join("");
+    const advBodyRows = CHART_ADV_BODIES.map(([id, label]) =>
+      chartsBodyRow("advbody", id, label, false, false, { advLock: true })
+    ).join("");
+    const majorAspectRows = CHART_MAJOR_ASPECTS.map(([id, label, def]) =>
+      chartsAspectRow("maj", id, label, def, true, true, { majorLock: true })
+    ).join("");
+    const minorAspectRows = CHART_MINOR_ASPECTS.map(([id, label, def]) =>
+      chartsAspectRow("min", id, label, def, false, false, { minorLock: true })
+    ).join("");
+
+    return `<section class="card" id="sec-charts" data-settings-v3-section="charts">
+      ${head("Charts")}
+      <div class="subhead">Bodies</div>
+      <div class="desc">Defaults are set for you. Open Advanced Bodies to change optional points.</div>
+      <table class="sv3-charts-grid" id="sv3-charts-bodies">
+        ${chartsBodiesHeadHtml()}
+        <tbody>${angleRows}${planetRows}${chironRow}${nodeRows}</tbody>
+      </table>
+      <div class="sv3-charts-disclosure-row"><div class="lab">Advanced Bodies</div><button type="button" class="btn ghost tiny" data-toggle="sv3-charts-advbodies" data-unlock-adv="1">Show ▾</button></div>
+      <div id="sv3-charts-advbodies" class="sv3-charts-adv-panel" hidden>
+        <table class="sv3-charts-grid">
+          ${chartsBodiesHeadHtml()}
+          <tbody>${advBodyRows}</tbody>
+        </table>
+      </div>
+      <div class="subhead">Orbs &amp; Aspects</div>
+      <div class="desc">Major aspects shown on chart wheels and aspect tables.</div>
+      <table class="sv3-charts-oa-grid" id="sv3-charts-orbs-aspects">
+        ${chartsAspectHeadHtml()}
+        <tbody>${majorAspectRows}</tbody>
+      </table>
+      <div class="sv3-charts-disclosure-row"><div class="lab">Advanced Orbs &amp; Aspects</div><button type="button" class="btn ghost tiny" data-toggle="sv3-charts-advorbs" data-unlock-orbs="1">Show ▾</button></div>
+      <div id="sv3-charts-advorbs" class="sv3-charts-adv-panel" hidden>
+        <table class="sv3-charts-oa-grid">
+          ${chartsAspectHeadHtml()}
+          <tbody>${minorAspectRows}</tbody>
+        </table>
+      </div>
+      <div class="sv3-charts-option-row"><label class="sv3-charts-inline-check"><span>Show Out of Sign Aspects</span><input type="checkbox" id="sv3-charts-out-of-sign" /></label></div>
+      <div class="sv3-charts-option-row"><label class="sv3-charts-inline-check"><span>Show Aspects to Angles</span><input type="checkbox" id="sv3-charts-aspects-to-angles" checked /></label></div>
+      <div class="sv3-charts-option-row sv3-charts-late-line"><label class="sv3-charts-inline-check"><span>Flag late in house planets</span><input type="checkbox" id="sv3-charts-late-alert" checked aria-label="Flag late in house planets" /></label><div class="sv3-charts-late-orb-stack"><span class="sv3-orb-label">Orb °</span><input type="number" id="sv3-charts-late-orb" class="sv3-orb-input" min="0" max="10" step="0.5" value="2" aria-label="Late-in-house alert orb degrees" /></div></div>
+      <div class="subhead">Zodiac</div>
+      ${row("Zodiac", "", `<select id="sv3-charts-zodiac"><option value="tropical" selected>Tropical</option><option value="sidereal" disabled>Sidereal (advanced)</option><option value="vedic" disabled>Vedic (advanced)</option></select>`)}
+      <div class="subhead">House System</div>
+      ${row("House system", "", `<select id="sv3-charts-house"><option value="placidus" selected>Placidus</option><option value="whole_sign" disabled>Whole Sign</option><option value="equal" disabled>Equal</option><option value="koch" disabled>Koch</option></select>`)}
+      <div class="warn sv3-charts-calc-rule" id="sv3-charts-calc-rule" hidden>Future charts use the new setting. Existing chart records are duplicated with the new calculation settings.</div>
     </section>`;
   }
 
@@ -307,9 +412,15 @@
       if (!t || !root.contains(t)) return;
       const box = root.querySelector("#" + t.getAttribute("data-toggle"));
       if (!box) return;
-      const show = box.style.display === "none";
-      box.style.display = show ? "block" : "none";
+      const show = box.hidden;
+      box.hidden = !show;
       t.textContent = show ? "Hide \u25b4" : "Show \u25be";
+      if (t.getAttribute("data-unlock-adv") && typeof bridge().syncAdvancedBodiesLock === "function") {
+        bridge().syncAdvancedBodiesLock(show);
+      }
+      if (t.getAttribute("data-unlock-orbs") && typeof bridge().syncAdvancedOrbsLock === "function") {
+        bridge().syncAdvancedOrbsLock(show);
+      }
     });
   }
 
@@ -348,6 +459,8 @@
     if (typeof bridge().refreshProfiles === "function") bridge().refreshProfiles();
     if (typeof bridge().refreshDataHub === "function") bridge().refreshDataHub();
     if (typeof bridge().wireData === "function") bridge().wireData(rootEl);
+    if (typeof bridge().wireCharts === "function") bridge().wireCharts(rootEl);
+    if (typeof bridge().refreshCharts === "function") bridge().refreshCharts();
   }
 
   window.SettingsV3 = { mount };

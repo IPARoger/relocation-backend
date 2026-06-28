@@ -11542,6 +11542,7 @@ function render() {
     SettingsV3.mount(document.getElementById("settings-v3-root"));
     wireSettingsV3Profiles($("#main"));
     wireSettingsV3Data($("#main"));
+    wireSettingsV3Charts(document.getElementById("settings-v3-root"));
   }
   if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
@@ -13049,11 +13050,441 @@ async function planProfileArchive(profileId) {
   };
 }
 
+
+const SV3_CHARTS_ANGLE_IDS = ["asc", "mc", "dsc", "ic"];
+const SV3_CHARTS_PLANET_IDS = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+const SV3_CHARTS_BODY_IDS = ["chiron", "north_node", "south_node"];
+const SV3_CHARTS_ADV_BODY_IDS = ["lilith", "vertex", "part_of_fortune"];
+const SV3_CHARTS_MAJOR_IDS = ["conjunction", "opposition", "square", "trine", "sextile"];
+const SV3_CHARTS_MAJOR_ORB_DEFAULTS = { conjunction: 10, opposition: 10, square: 8, trine: 8, sextile: 6 };
+const SV3_CHARTS_MINOR_IDS = ["quincunx", "semisextile", "semisquare", "sesquiquadrate", "quintile", "biquintile"];
+const SV3_CHARTS_MINOR_ORB_DEFAULTS = { quincunx: 3, semisextile: 2, semisquare: 2, sesquiquadrate: 2, quintile: 2, biquintile: 2 };
+const SV3_CHARTS_A2A_ANGLE_KEYS = ["asc", "mc", "dsc", "ic"];
+let _sv3ChartsCalcBaseline = null;
+let _sv3ChartsSaveTimer = null;
+
+
+function _sv3MemberOn(list, id) {
+  return !Array.isArray(list) || list.length === 0 || list.indexOf(id) !== -1;
+}
+
+function _sv3SetChecked(root, sel, on) {
+  const el = root.querySelector(sel);
+  if (el) el.checked = !!on;
+}
+
+function syncSettingsV3AdvancedBodiesLock(unlocked) {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const locked = !unlocked;
+  [["data-sv3-core-lock"], ["data-sv3-adv-lock"]].forEach(([attr]) => {
+    root.querySelectorAll("[" + attr + "]").forEach((el) => {
+      el.disabled = locked;
+      if (locked) el.setAttribute("aria-disabled", "true");
+      else el.removeAttribute("aria-disabled");
+    });
+  });
+  root.querySelectorAll("[data-sv3-body-row^='angle-'], [data-sv3-body-row^='planet-'], [data-sv3-body-row^='advbody-']").forEach((row) => {
+    row.classList.toggle("sv3-charts-row-locked", locked);
+  });
+}
+
+function syncSettingsV3AdvancedOrbsLock(unlocked) {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const locked = !unlocked;
+  root.querySelectorAll("[data-sv3-major-lock]").forEach((el) => {
+    el.disabled = locked;
+    if (locked) el.setAttribute("aria-disabled", "true");
+    else el.removeAttribute("aria-disabled");
+  });
+  root.querySelectorAll("[data-sv3-minor-lock]").forEach((el) => {
+    el.disabled = locked;
+    if (locked) el.setAttribute("aria-disabled", "true");
+    else el.removeAttribute("aria-disabled");
+  });
+  root.querySelectorAll("[data-sv3-aspect-row^='maj-']").forEach((row) => {
+    row.classList.toggle("sv3-charts-row-locked", locked);
+  });
+  root.querySelectorAll("[data-sv3-aspect-row^='min-']").forEach((row) => {
+    row.classList.toggle("sv3-charts-row-locked", locked);
+  });
+}
+
+function sv3ChartsShowCalcRuleIfChanged(root) {
+  const rule = root.querySelector("#sv3-charts-calc-rule");
+  const zodiac = root.querySelector("#sv3-charts-zodiac");
+  const house = root.querySelector("#sv3-charts-house");
+  if (!rule || !zodiac || !house) return;
+  if (!_sv3ChartsCalcBaseline) {
+    _sv3ChartsCalcBaseline = { zodiac: zodiac.value, house: house.value };
+    rule.hidden = true;
+    return;
+  }
+  rule.hidden = !(zodiac.value !== _sv3ChartsCalcBaseline.zodiac || house.value !== _sv3ChartsCalcBaseline.house);
+}
+
+
+function _sv3AspectsToAnglesMasterOn(a2ad) {
+  const src = (a2ad && typeof a2ad === "object") ? a2ad : {};
+  return SV3_CHARTS_A2A_ANGLE_KEYS.some((k) => src[k] !== false);
+}
+
+function _sv3PatchDisplayAspectsToAngles(on) {
+  const out = {};
+  SV3_CHARTS_A2A_ANGLE_KEYS.forEach((k) => { out[k] = !!on; });
+  return out;
+}
+
+function refreshSettingsV3ChartsPanel() {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const eff = _settingsEff();
+  if (!eff) return;
+
+  const advBodiesOpen = !!(root.querySelector("#sv3-charts-advbodies") && !root.querySelector("#sv3-charts-advbodies").hidden);
+  const advOrbsOpen = !!(root.querySelector("#sv3-charts-advorbs") && !root.querySelector("#sv3-charts-advorbs").hidden);
+
+  const planets = Array.isArray(eff.visible_planets) ? eff.visible_planets : null;
+  const bodies = Array.isArray(eff.visible_bodies) ? eff.visible_bodies : [];
+  const majVis = Array.isArray(eff.visible_major_aspects) ? eff.visible_major_aspects : null;
+  const majOrb = eff.major_aspect_orbs || {};
+  const hl = (eff.helper_layers && typeof eff.helper_layers === "object") ? eff.helper_layers : {};
+  const chartPlanets = Array.isArray(hl.chart_planets) ? hl.chart_planets : null;
+  const chartBodies = Array.isArray(hl.chart_bodies) ? hl.chart_bodies : bodies.slice();
+  const chartMaj = Array.isArray(hl.chart_major_aspects) ? hl.chart_major_aspects : null;
+  const advBodies = (hl.advanced_bodies && typeof hl.advanced_bodies === "object") ? hl.advanced_bodies : {};
+  const advChart = (hl.advanced_bodies_chart && typeof hl.advanced_bodies_chart === "object") ? hl.advanced_bodies_chart : {};
+
+  SV3_CHARTS_ANGLE_IDS.forEach((id) => {
+    const tblOn = _sv3MemberOn(hl.table_angles, id);
+    const chtOn = advBodiesOpen ? _sv3MemberOn(hl.chart_angles, id) : tblOn;
+    _sv3SetChecked(root, "#sv3-charts-angle-tbl-" + id, tblOn);
+    _sv3SetChecked(root, "#sv3-charts-angle-cht-" + id, chtOn);
+  });
+
+  SV3_CHARTS_PLANET_IDS.forEach((id) => {
+    const tblOn = _sv3MemberOn(planets, id);
+    const chtOn = advBodiesOpen ? _sv3MemberOn(chartPlanets, id) : tblOn;
+    _sv3SetChecked(root, "#sv3-charts-planet-tbl-" + id, tblOn);
+    _sv3SetChecked(root, "#sv3-charts-planet-cht-" + id, chtOn);
+  });
+
+  const chironTbl = bodies.indexOf("chiron") !== -1 || bodies.length === 0;
+  const chironCht = advBodiesOpen
+    ? (chartBodies.indexOf("chiron") !== -1 || (chartBodies.length === 0 && chironTbl))
+    : chironTbl;
+  _sv3SetChecked(root, "#sv3-charts-body-tbl-chiron", chironTbl);
+  _sv3SetChecked(root, "#sv3-charts-body-cht-chiron", chironCht);
+  SV3_CHARTS_BODY_IDS.slice(1).forEach((id) => {
+    _sv3SetChecked(root, "#sv3-charts-body-tbl-" + id, bodies.indexOf(id) !== -1);
+    _sv3SetChecked(root, "#sv3-charts-body-cht-" + id, chartBodies.indexOf(id) !== -1);
+  });
+
+  SV3_CHARTS_ADV_BODY_IDS.forEach((id) => {
+    _sv3SetChecked(root, "#sv3-charts-advbody-tbl-" + id, !!advBodies[id]);
+    _sv3SetChecked(root, "#sv3-charts-advbody-cht-" + id, !!advChart[id]);
+  });
+
+  SV3_CHARTS_MAJOR_IDS.forEach((id) => {
+    let tblOn;
+    let chtOn;
+    if (advOrbsOpen) {
+      tblOn = _sv3MemberOn(majVis, id);
+      chtOn = _sv3MemberOn(chartMaj, id);
+    } else {
+      tblOn = true;
+      chtOn = true;
+    }
+    _sv3SetChecked(root, "#sv3-charts-maj-tbl-" + id, tblOn);
+    _sv3SetChecked(root, "#sv3-charts-maj-cht-" + id, chtOn);
+    const orb = root.querySelector("#sv3-charts-maj-orb-" + id);
+    if (orb) {
+      orb.value = String(advOrbsOpen && majOrb[id] != null && majOrb[id] !== ""
+        ? majOrb[id] : SV3_CHARTS_MAJOR_ORB_DEFAULTS[id]);
+    }
+  });
+
+  const minVis = Array.isArray(eff.visible_minor_aspects_list) ? eff.visible_minor_aspects_list : [];
+  const minOrb = eff.minor_aspect_orbs || {};
+  const chartMin = Array.isArray(hl.chart_minor_aspects) ? hl.chart_minor_aspects : minVis.slice();
+  SV3_CHARTS_MINOR_IDS.forEach((id) => {
+    let tblOn = minVis.indexOf(id) !== -1;
+    let chtOn = chartMin.length ? chartMin.indexOf(id) !== -1 : tblOn;
+    if (id === "quincunx" && !advOrbsOpen) {
+      tblOn = false;
+      chtOn = false;
+    }
+    _sv3SetChecked(root, "#sv3-charts-min-tbl-" + id, tblOn);
+    _sv3SetChecked(root, "#sv3-charts-min-cht-" + id, chtOn);
+    const orb = root.querySelector("#sv3-charts-min-orb-" + id);
+    if (orb) orb.value = String(minOrb[id] != null ? minOrb[id] : SV3_CHARTS_MINOR_ORB_DEFAULTS[id]);
+  });
+
+  const oosEl = root.querySelector("#sv3-charts-out-of-sign");
+  if (oosEl) oosEl.checked = !!eff.out_of_sign_aspects;
+  const a2aEl = root.querySelector("#sv3-charts-aspects-to-angles");
+  if (a2aEl) a2aEl.checked = _sv3AspectsToAnglesMasterOn(eff.display_aspects_to_angles);
+
+  const hpo = eff.house_proximity_orb_degrees;
+  const lateAlert = root.querySelector("#sv3-charts-late-alert");
+  const lateOrb = root.querySelector("#sv3-charts-late-orb");
+  const alertOn = hpo !== 0;
+  if (lateAlert) lateAlert.checked = alertOn;
+  if (lateOrb) {
+    lateOrb.value = String(alertOn ? (hpo != null && Number(hpo) > 0 ? hpo : 2) : 2);
+    lateOrb.disabled = !alertOn;
+  }
+
+  const zodiacEl = root.querySelector("#sv3-charts-zodiac");
+  const houseEl = root.querySelector("#sv3-charts-house");
+  if (zodiacEl) zodiacEl.value = (eff.zodiac_mode === "sidereal" || eff.zodiac_mode === "vedic") ? eff.zodiac_mode : "tropical";
+  if (houseEl) houseEl.value = eff.house_system || "placidus";
+  _sv3ChartsCalcBaseline = {
+    zodiac: zodiacEl ? zodiacEl.value : "tropical",
+    house: houseEl ? houseEl.value : "placidus",
+  };
+  sv3ChartsShowCalcRuleIfChanged(root);
+
+  syncSettingsV3AdvancedBodiesLock(advBodiesOpen);
+  syncSettingsV3AdvancedOrbsLock(advOrbsOpen);
+}
+
+function _sv3CollectTbl(root, kind, ids) {
+  return ids.filter((id) => {
+    const el = root.querySelector("#sv3-charts-" + kind + "-tbl-" + id);
+    return el ? !!el.checked : false;
+  });
+}
+
+function _sv3CollectCht(root, kind, ids) {
+  return ids.filter((id) => {
+    const el = root.querySelector("#sv3-charts-" + kind + "-cht-" + id);
+    return el ? !!el.checked : false;
+  });
+}
+
+function collectSettingsV3ChartsPatch(root) {
+  /** @type {Record<string, unknown>} */
+  const patch = {};
+  const eff = _settingsEff();
+  const advBodiesOpen = !!(root.querySelector("#sv3-charts-advbodies") && !root.querySelector("#sv3-charts-advbodies").hidden);
+  const advOrbsOpen = !!(root.querySelector("#sv3-charts-advorbs") && !root.querySelector("#sv3-charts-advorbs").hidden);
+
+  const nodeBodyIds = ["north_node", "south_node"];
+  if (advBodiesOpen) {
+    patch.visible_planets = _sv3CollectTbl(root, "planet", SV3_CHARTS_PLANET_IDS);
+    patch.visible_bodies = _sv3CollectTbl(root, "body", SV3_CHARTS_BODY_IDS);
+  } else if (eff) {
+    patch.visible_planets = Array.isArray(eff.visible_planets) ? eff.visible_planets.slice() : SV3_CHARTS_PLANET_IDS.slice();
+    const savedBodies = Array.isArray(eff.visible_bodies) ? eff.visible_bodies : [];
+    const chironTbl = root.querySelector("#sv3-charts-body-tbl-chiron");
+    const chironOn = chironTbl ? !!chironTbl.checked : (savedBodies.indexOf("chiron") !== -1 || savedBodies.length === 0);
+    const base = savedBodies.filter((id) => id !== "chiron" && id !== "north_node" && id !== "south_node");
+    const nodesTbl = _sv3CollectTbl(root, "body", nodeBodyIds);
+    patch.visible_bodies = (chironOn ? base.concat(["chiron"]) : base).concat(nodesTbl);
+  }
+
+  if (advOrbsOpen) {
+    patch.visible_major_aspects = _sv3CollectTbl(root, "maj", SV3_CHARTS_MAJOR_IDS);
+  } else {
+    patch.visible_major_aspects = SV3_CHARTS_MAJOR_IDS.slice();
+  }
+
+  const mo = {};
+  if (advOrbsOpen) {
+    SV3_CHARTS_MAJOR_IDS.forEach((id) => {
+      const el = root.querySelector("#sv3-charts-maj-orb-" + id);
+      if (!el || el.disabled) return;
+      const n = parseFloat(el.value);
+      if (!isNaN(n)) mo[id] = n;
+    });
+  } else {
+    SV3_CHARTS_MAJOR_IDS.forEach((id) => { mo[id] = SV3_CHARTS_MAJOR_ORB_DEFAULTS[id]; });
+  }
+  if (Object.keys(mo).length === SV3_CHARTS_MAJOR_IDS.length) patch.major_aspect_orbs = mo;
+
+  const lateAlert = root.querySelector("#sv3-charts-late-alert");
+  const lateOrb = root.querySelector("#sv3-charts-late-orb");
+  if (lateAlert && lateOrb) {
+    if (lateAlert.checked) {
+      const n = parseFloat(lateOrb.value);
+      patch.house_proximity_orb_degrees = !isNaN(n) ? n : 2;
+    } else {
+      patch.house_proximity_orb_degrees = 0;
+    }
+  }
+
+  const hl = Object.assign({}, (eff && eff.helper_layers) || {});
+  if (advBodiesOpen) {
+    hl.table_angles = _sv3CollectTbl(root, "angle", SV3_CHARTS_ANGLE_IDS);
+    hl.chart_angles = _sv3CollectCht(root, "angle", SV3_CHARTS_ANGLE_IDS);
+    hl.chart_planets = _sv3CollectCht(root, "planet", SV3_CHARTS_PLANET_IDS);
+    hl.chart_bodies = _sv3CollectCht(root, "body", SV3_CHARTS_BODY_IDS);
+    const advBodies = {};
+    const advChart = {};
+    SV3_CHARTS_ADV_BODY_IDS.forEach((id) => {
+      const tbl = root.querySelector("#sv3-charts-advbody-tbl-" + id);
+      const cht = root.querySelector("#sv3-charts-advbody-cht-" + id);
+      if (tbl && tbl.checked) advBodies[id] = true;
+      if (cht && cht.checked) advChart[id] = true;
+    });
+    hl.advanced_bodies = advBodies;
+    hl.advanced_bodies_chart = advChart;
+  } else if (eff) {
+    const visPlanets = Array.isArray(eff.visible_planets) ? eff.visible_planets : null;
+    hl.chart_planets = (!visPlanets || !visPlanets.length)
+      ? SV3_CHARTS_PLANET_IDS.slice()
+      : SV3_CHARTS_PLANET_IDS.filter((id) => _sv3MemberOn(visPlanets, id));
+    hl.table_angles = SV3_CHARTS_ANGLE_IDS.slice();
+    hl.chart_angles = SV3_CHARTS_ANGLE_IDS.slice();
+    const chironChtEl = root.querySelector("#sv3-charts-body-cht-chiron");
+    const chironChtOn = chironChtEl ? !!chironChtEl.checked : true;
+    const nodesCht = _sv3CollectCht(root, "body", nodeBodyIds);
+    const baseCht = nodesCht.slice();
+    hl.chart_bodies = chironChtOn ? baseCht.concat(["chiron"]) : baseCht;
+  }
+  if (advOrbsOpen) {
+    hl.chart_major_aspects = _sv3CollectCht(root, "maj", SV3_CHARTS_MAJOR_IDS);
+    hl.chart_minor_aspects = _sv3CollectCht(root, "min", SV3_CHARTS_MINOR_IDS);
+  } else {
+    hl.chart_major_aspects = SV3_CHARTS_MAJOR_IDS.slice();
+  }
+
+  if (advOrbsOpen) {
+    patch.visible_minor_aspects_list = _sv3CollectTbl(root, "min", SV3_CHARTS_MINOR_IDS);
+    patch.visible_minor_aspects = patch.visible_minor_aspects_list.length > 0;
+    const no = {};
+    SV3_CHARTS_MINOR_IDS.forEach((id) => {
+      const el = root.querySelector("#sv3-charts-min-orb-" + id);
+      if (!el || el.disabled) return;
+      const n = parseFloat(el.value);
+      if (!isNaN(n)) no[id] = n;
+    });
+    if (Object.keys(no).length === SV3_CHARTS_MINOR_IDS.length) patch.minor_aspect_orbs = no;
+  } else if (eff) {
+    const ml = Array.isArray(eff.visible_minor_aspects_list)
+      ? eff.visible_minor_aspects_list.filter((id) => id !== "quincunx") : [];
+    patch.visible_minor_aspects_list = ml;
+    patch.visible_minor_aspects = ml.length > 0;
+    if (eff.minor_aspect_orbs) patch.minor_aspect_orbs = Object.assign({}, eff.minor_aspect_orbs);
+  }
+
+  const oosEl = root.querySelector("#sv3-charts-out-of-sign");
+  if (oosEl) patch.out_of_sign_aspects = !!oosEl.checked;
+  const a2aEl = root.querySelector("#sv3-charts-aspects-to-angles");
+  if (a2aEl) patch.display_aspects_to_angles = _sv3PatchDisplayAspectsToAngles(!!a2aEl.checked);
+
+  patch.helper_layers = hl;
+  return patch;
+}
+
+function scheduleSettingsV3ChartsSave(root) {
+  clearTimeout(_sv3ChartsSaveTimer);
+  _sv3ChartsSaveTimer = setTimeout(() => {
+    persistSettingsV3ChartsFromDom(root).catch((err) => {
+      console.warn("[settings-v3-charts]", err);
+    });
+  }, 350);
+}
+
+async function persistSettingsV3ChartsFromDom(root) {
+  const patch = collectSettingsV3ChartsPatch(root);
+  await saveAccountSettingsPatch(patch);
+  mirrorUserSettingsPatch(patch);
+  rehydrateSettingsConsumers();
+}
+
+
+let _sv3ChartsDefaultsNormalized = false;
+
+function _sv3ChartsNeedsDefaultHeal(eff) {
+  if (!eff) return false;
+  const mo = eff.major_aspect_orbs || {};
+  const orbBad = SV3_CHARTS_MAJOR_IDS.some((id) => mo[id] !== SV3_CHARTS_MAJOR_ORB_DEFAULTS[id]);
+  const maj = Array.isArray(eff.visible_major_aspects) ? eff.visible_major_aspects : [];
+  const majBad = maj.length !== SV3_CHARTS_MAJOR_IDS.length
+    || SV3_CHARTS_MAJOR_IDS.some((id) => maj.indexOf(id) === -1);
+  const hl = (eff.helper_layers && typeof eff.helper_layers === "object") ? eff.helper_layers : {};
+  const cp = Array.isArray(hl.chart_planets) ? hl.chart_planets : null;
+  const ca = Array.isArray(hl.chart_angles) ? hl.chart_angles : null;
+  const bodiesBad = (cp && cp.length && SV3_CHARTS_PLANET_IDS.some((id) => cp.indexOf(id) === -1))
+    || (ca && ca.length && SV3_CHARTS_ANGLE_IDS.some((id) => ca.indexOf(id) === -1));
+  const minVis = Array.isArray(eff.visible_minor_aspects_list) ? eff.visible_minor_aspects_list : [];
+  const quincunxBad = minVis.indexOf("quincunx") !== -1;
+  const lateBad = eff.house_proximity_orb_degrees === 0 || eff.house_proximity_orb_degrees == null;
+  return orbBad || majBad || bodiesBad || quincunxBad || lateBad;
+}
+
+async function normalizeSettingsV3ChartsDefaults(root) {
+  if (_sv3ChartsDefaultsNormalized) return;
+  const advOrbsOpen = !!(root.querySelector("#sv3-charts-advorbs") && !root.querySelector("#sv3-charts-advorbs").hidden);
+  if (advOrbsOpen) return;
+  const eff = _settingsEff();
+  if (!_sv3ChartsNeedsDefaultHeal(eff)) return;
+  _sv3ChartsDefaultsNormalized = true;
+  const hl = Object.assign({}, (eff && eff.helper_layers) || {}, {
+    chart_major_aspects: SV3_CHARTS_MAJOR_IDS.slice(),
+    chart_planets: SV3_CHARTS_PLANET_IDS.slice(),
+    chart_angles: SV3_CHARTS_ANGLE_IDS.slice(),
+    table_angles: SV3_CHARTS_ANGLE_IDS.slice(),
+  });
+  const minList = Array.isArray(eff.visible_minor_aspects_list)
+    ? eff.visible_minor_aspects_list.filter((id) => id !== "quincunx") : [];
+  const patch = {
+    visible_major_aspects: SV3_CHARTS_MAJOR_IDS.slice(),
+    major_aspect_orbs: Object.assign({}, SV3_CHARTS_MAJOR_ORB_DEFAULTS),
+    visible_planets: SV3_CHARTS_PLANET_IDS.slice(),
+    visible_minor_aspects_list: minList,
+    visible_minor_aspects: minList.length > 0,
+    house_proximity_orb_degrees: (eff.house_proximity_orb_degrees > 0) ? eff.house_proximity_orb_degrees : 2,
+    helper_layers: Object.assign(hl, { chart_minor_aspects: minList.slice() }),
+  };
+  await saveAccountSettingsPatch(patch);
+  mirrorUserSettingsPatch(patch);
+  rehydrateSettingsConsumers();
+  refreshSettingsV3ChartsPanel();
+}
+
+function wireSettingsV3Charts(root) {
+  if (!root || navContext.route !== "settings-v3" || !SETTINGS_V3_ENABLED) return;
+  const chartsSec = root.querySelector("#sec-charts");
+  if (!chartsSec) return;
+  if (chartsSec.dataset.sv3ChartsWired === "1") {
+    refreshSettingsV3ChartsPanel();
+    return;
+  }
+  chartsSec.dataset.sv3ChartsWired = "1";
+  chartsSec.addEventListener("change", (e) => {
+    if (!chartsSec.contains(e.target)) return;
+    if (e.target.id === "sv3-charts-late-alert") {
+      const lateOrb = chartsSec.querySelector("#sv3-charts-late-orb");
+      if (lateOrb) lateOrb.disabled = !e.target.checked;
+    }
+    if (e.target.id === "sv3-charts-zodiac" || e.target.id === "sv3-charts-house") {
+      sv3ChartsShowCalcRuleIfChanged(root);
+    }
+    scheduleSettingsV3ChartsSave(root);
+  });
+  chartsSec.addEventListener("input", (e) => {
+    if (!chartsSec.contains(e.target)) return;
+    if (e.target.matches(".sv3-orb-input")) scheduleSettingsV3ChartsSave(root);
+  });
+  refreshSettingsV3ChartsPanel();
+  normalizeSettingsV3ChartsDefaults(root).catch((err) => {
+    console.warn("[settings-v3-charts-normalize]", err);
+  });
+}
+
 window.__rmSettingsV3Bridge = {
   ensureDelegation: () => ensureSettingsDataDelegation(),
   refreshProfiles: () => refreshSettingsV3ProfilesPanel(),
   refreshDataHub: () => refreshSettingsV3DataHub(),
   wireData: (root) => wireSettingsV3Data(root),
+  wireCharts: (root) => wireSettingsV3Charts(root),
+  refreshCharts: () => refreshSettingsV3ChartsPanel(),
+  syncAdvancedBodiesLock: (unlocked) => syncSettingsV3AdvancedBodiesLock(unlocked),
+  syncAdvancedOrbsLock: (unlocked) => syncSettingsV3AdvancedOrbsLock(unlocked),
   dataHubCounts: () => settingsDataHubCounts(),
   openDataManage: (kind) => openSettingsV3DataManage(kind),
   closeDataManage: () => closeSettingsV3DataManage(),
