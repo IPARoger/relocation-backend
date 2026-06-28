@@ -22,7 +22,9 @@
 <link rel="stylesheet" href="/validation/mockups/beta/city_intelligence_canonical.css" />
 <link rel="stylesheet" href="/validation/mockups/beta/help_canonical.css" />
 <link rel="stylesheet" href="/theme/relocation_themes.css" />
+<link rel="stylesheet" href="/settings_v3/settings_v3.css" />
 <script src="/theme/relocation_theme.js"></script>
+<script src="/settings_v3/settings_v3.js"></script>
 <script src="/theme/appearance_palettes.js"></script>
 <style>
   :root {
@@ -161,10 +163,128 @@
   .settings-obj-row-title { font-weight:600; }
   .settings-obj-row-meta { font-size:0.85rem; color:#64748b; margin-top:2px; }
   .settings-obj-row-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+  .settings-folder-picker-list { display:flex; flex-direction:column; gap:4px; margin:12px 0; max-height:240px; overflow:auto; }
+  .settings-data-more { margin-top:10px; text-align:center; }
+  #rm-settings-folder-picker, #rm-settings-object-notes-dialog { position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,.45); padding:20px; }
+  #rm-settings-folder-picker[hidden], #rm-settings-object-notes-dialog[hidden] { display:none !important; }
+  #rm-settings-folder-picker .rm-sdlg-card, #rm-settings-object-notes-dialog .rm-sdlg-card {
+    max-width:480px; width:calc(100% - 32px); background:#fff; border-radius:10px; padding:18px 20px;
+    box-shadow:0 12px 40px rgba(15,23,42,0.18); max-height:calc(100vh - 40px); overflow:auto;
+  }
+  #rm-settings-folder-picker .rm-sdlg-title, #rm-settings-object-notes-dialog .rm-sdlg-title { font-weight:600; margin:0 0 8px; }
+  #rm-settings-folder-picker .rm-sdlg-body, #rm-settings-object-notes-dialog .rm-sdlg-body { margin:0 0 12px; color:#475569; line-height:1.45; }
+  #rm-settings-folder-picker .rm-sdlg-actions, #rm-settings-object-notes-dialog .rm-sdlg-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+  #rm-settings-folder-picker .rm-sdlg-card { position:relative; z-index:1; }
+  .settings-folder-persist-note { font-size:11.5px; color:var(--muted,#64748b); margin:8px 0 0; line-height:1.4; }
+  .rm-sdlg-btn-cancel, .rm-sdlg-btn-save { padding:8px 14px; border-radius:8px; font:inherit; font-size:13px; cursor:pointer; border:1px solid var(--line,#cbd5e1); background:#fff; }
+  .rm-sdlg-btn-save { background:var(--accent,#2563eb); color:#fff; border-color:var(--accent,#2563eb); }
+  .settings-folder-pick { display:flex; flex-direction:row; align-items:center; gap:10px; width:100%; font-size:14px; cursor:pointer; padding:8px 10px; border-radius:8px; box-sizing:border-box; }
+  .settings-folder-pick:hover { background:#f8fafc; }
+  .settings-folder-pick-radio { flex:0 0 auto; display:flex; align-items:center; }
+  .settings-folder-pick-radio input { margin:0; }
+  .settings-folder-pick-label { flex:1 1 auto; text-align:left; }
+  .settings-data-item.is-folder .folder-caret-btn { border:none; background:transparent; padding:0 4px 0 0; font:inherit; cursor:pointer; color:inherit; }
   .settings-obj-bulk-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0 0; padding-top:8px; border-top:1px solid color-mix(in srgb, var(--line) 65%, transparent); }
   .settings-obj-empty { margin:0; }
   .settings-obj-folders { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
   .settings-obj-folders button.active { font-weight:600; }
+  .settings-v2-row { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding:11px 0; border-top:1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+  .settings-v2-row.nb { border-top:none; padding-top:0; }
+  .settings-v2-label { font-size:13.5px; font-weight:600; }
+  .settings-v2-desc { font-size:12px; color:var(--muted); margin-top:2px; max-width:50ch; }
+  .settings-v2-ctl { flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+  .settings-v2-toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .settings-v2-toolbar.is-saved-list-toolbar { flex-wrap:wrap; overflow:visible; max-width:100%; gap:8px; }
+  .settings-v2-toolbar.is-saved-list-toolbar > input[type="search"] { flex:1 1 140px; min-width:90px; max-width:180px; }
+  .settings-v2-toolbar.is-saved-list-toolbar .settings-sort-group { flex:0 0 auto; }
+  .settings-v2-toolbar.is-saved-list-toolbar .settings-sort-group select { min-width:9rem; max-width:11rem; }
+  .settings-data-bulk button[data-action="settings-obj-create-folder"] { flex:0 0 auto; white-space:nowrap; padding-left:12px; padding-right:12px; }
+  .settings-v2-toolbar.is-saved-list-toolbar select[data-settings-obj-profile-filter] { min-width:8rem; max-width:11rem; }
+  .settings-data-bulk button:disabled { opacity:0.45; cursor:not-allowed; }
+  .settings-data-actions button.settings-ci-btn { min-width:30px; padding:5px 8px; display:inline-flex; align-items:center; justify-content:center; }
+  .settings-data-actions button.settings-ci-btn svg { display:block; }
+
+  .settings-identity-badge { display:inline-flex; align-items:center; justify-content:center; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--rm-teal,#5f8a90); background:rgba(95,138,144,.13); border-radius:999px; padding:2px 11px; white-space:nowrap; line-height:1.35; }
+  .settings-data-title.settings-data-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-height:1.35em; }
+  .settings-data-title.settings-data-title-row > .linkish { display:inline; padding:0; margin:0; border:0; background:none; font:inherit; font-weight:600; line-height:1.35; cursor:pointer; color:inherit; }
+  .settings-data-title.settings-data-title-row > .settings-identity-badge { flex:0 0 auto; margin:0; align-self:center; }
+  .settings-sort-group select { min-width:11rem; max-width:14rem; }
+  .settings-row-badge { display:inline-flex; align-items:center; font-size:12px; padding:5px 9px; border-radius:8px; border:1px solid var(--line); background:color-mix(in srgb, var(--accent,#2563eb) 8%, var(--panel)); color:var(--muted,#64748b); white-space:nowrap; line-height:1; }
+  .settings-cross-profile-warn { font-size:12px; color:var(--muted,#64748b); margin:0 0 8px; padding:8px 10px; border-radius:8px; background:color-mix(in srgb, var(--line) 25%, var(--panel)); line-height:1.45; }
+  .settings-v2-toolbar input[type="search"] { flex:1 1 200px; min-width:160px; min-height:36px; padding:8px 11px; border-radius:9px; border:1px solid var(--line); font-size:13px; }
+  .settings-sort-group { display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+  .settings-sort-group label { font-size:12px; color:var(--muted); margin:0; white-space:nowrap; }
+  .settings-sort-group select { min-height:36px; padding:8px 11px; border-radius:9px; font-size:13px; border:1px solid var(--line); }
+  .settings-sort-dir { min-width:36px; min-height:36px; padding:0 10px; border-radius:9px; border:1px solid var(--line); background:var(--panel); cursor:pointer; font-size:15px; line-height:1; }
+  .settings-data-panel { margin-bottom:4px; }
+  .settings-data-list { display:flex; flex-direction:column; gap:8px; }
+  .settings-data-item { display:grid; grid-template-columns:22px 1fr auto; gap:12px; align-items:start; padding:12px 14px; border:1px solid color-mix(in srgb, var(--line) 75%, transparent); border-radius:12px; background:var(--panel); }
+  .settings-data-item.is-folder { background:color-mix(in srgb, var(--panel) 92%, var(--line)); }
+  .settings-data-item.is-folder .settings-data-title { cursor:pointer; }
+  .settings-data-item.is-folder .settings-data-title:hover { color:var(--accent); }
+  .settings-data-item.is-nested { margin-left:20px; width:calc(100% - 20px); }
+  .settings-data-title { font-size:14px; font-weight:600; line-height:1.35; }
+  .settings-data-title button.linkish { font-size:14px; font-weight:600; padding:0; border:none; background:none; cursor:pointer; text-align:left; color:inherit; }
+  .settings-data-title button.linkish:hover { color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
+  .settings-data-meta { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.45; }
+  .settings-data-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; align-items:flex-start; }
+  .settings-data-actions button { font-size:12px; padding:5px 9px; border-radius:8px; white-space:nowrap; }
+  .settings-data-empty { margin:0; font-size:13px; color:var(--muted); }
+
+  /* SETTINGS-V2-MIRROR-1: My Data visual harmonization (scoped) */
+  .settings-my-data-v2 { display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .settings-my-data-v2 > .settings-subhead { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 4px; }
+  .settings-my-data-v2 > .settings-subhead:not(:first-child) { margin-top:4px; }
+  .settings-my-data-v2 .settings-v2-card,
+  .settings-my-data-v2 .settings-data-panel.settings-v2-card {
+    border-radius:16px;
+    padding:20px 22px;
+    border:1px solid color-mix(in srgb, var(--line) 72%, transparent);
+    box-shadow:0 1px 2px rgba(15,23,42,.05), 0 18px 36px -28px rgba(15,23,42,.22);
+    margin-bottom:0;
+  }
+  .settings-my-data-v2 .settings-v2-toolbar { margin:4px 0 10px; }
+  .settings-my-data-v2 .settings-data-bulk { margin-top:4px; padding-top:10px; }
+  .settings-my-data-v2 .settings-data-list { gap:10px; }
+  .settings-my-data-v2 .settings-data-item:not(.settings-pcard) {
+    border-radius:12px;
+    padding:12px 14px;
+    box-shadow:0 1px 2px rgba(15,23,42,.03);
+  }
+  .settings-my-data-v2 .settings-data-item.settings-pcard {
+    grid-template-columns:22px 1fr auto;
+    gap:13px;
+    align-items:start;
+    padding:13px 15px;
+    border-radius:12px;
+    background:var(--panel);
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+  }
+  .settings-my-data-v2 .settings-pcard-body { min-width:0; }
+  .settings-my-data-v2 .settings-pcard-meta {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+    line-height:1.45;
+  }
+  .settings-my-data-v2 .settings-pcard-meta b { color:color-mix(in srgb, var(--muted) 80%, var(--fg)); font-weight:600; }
+  .settings-my-data-v2 .settings-pcard-counts {
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:6px;
+    line-height:1.4;
+  }
+  .settings-my-data-v2 .settings-pcard-counts b { color:color-mix(in srgb, var(--muted) 75%, var(--fg)); font-weight:600; }
+  .settings-my-data-v2 .settings-pcard-dot { opacity:.5; margin:0 5px; }
+  .settings-my-data-v2 .settings-identity-badge.is-owner {
+    font-size:10px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    color:var(--fg);
+    background:color-mix(in srgb, var(--rm-warm,#c4a574) 26%, var(--panel));
+  }
+  .settings-my-data-v2 .settings-data-title.settings-data-title-row > .linkish { font-size:14px; }
+  .settings-data-bulk { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px; padding:8px 0; border-bottom:1px solid color-mix(in srgb, var(--line) 55%, transparent); }
   #rm-settings-confirm-dialog { position:fixed; inset:0; z-index:12000; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,0.45); }
   #rm-settings-confirm-dialog.rm-sdlg-open { display:flex; }
   #rm-settings-confirm-dialog .rm-sdlg-card { max-width:420px; width:calc(100% - 32px); background:#fff; border-radius:10px; padding:18px 20px; box-shadow:0 12px 40px rgba(15,23,42,0.18); }
@@ -1667,8 +1787,19 @@ const NAV_ROUTES = /** @type {const} */ ([
   { id: "compare", label: "5 Compare", screen: "Screen 5 — Comparison" },
   { id: "export", label: "6 Export", screen: "Screen 6 — Export / Share" },
   { id: "settings", label: "Settings", screen: "S5 — Settings (support route)" },
+  { id: "settings-v3", label: "Settings V3", screen: "Settings V3 (prototype clone)" },
   { id: "birth-data", label: "Birth data", screen: "S6 — Birth data intake (support route)" },
 ]);
+
+const SETTINGS_V3_ENABLED = (() => {
+  if (typeof window.__RM_SETTINGS_V3 === "boolean") return window.__RM_SETTINGS_V3;
+  try {
+    const v = localStorage.getItem("relocation.flag.settingsV3");
+    if (v === "1") return true;
+    if (v === "0") return false;
+  } catch (e) { /* ignore */ }
+  return true;
+})();
 
 const PROFILE_BETA_NAV = /** @type {const} */ ([
   { id: "map", label: "Map" },
@@ -1898,6 +2029,7 @@ const NAV_CONTEXT_KEYS = /** @type {const} */ ([
 let navContext = {
   route: "dashboard",
   settingsSubpage: null,
+  settingsV3DataKind: null,
   chartRecordId: null,
   placeId: null,
   explorationId: null,
@@ -2016,26 +2148,111 @@ function formatConditions(conditions) {
   return out;
 }
 
-function deriveConditionTitle(conditions) {
-  if (!conditions || typeof conditions !== "object") return "";
-  const ASPECT_SYMBOLS = { conjunction: "☌", opposition: "☍", square: "□", trine: "△", sextile: "⚹" };
+const GENIE_ASPECT_ABBR = {
+  conjunction: "Cnj", opposition: "Opp", square: "Sq", trine: "Tri", sextile: "Sex",
+  semisquare: "SSq", sesquiquadrate: "Sesq", quincunx: "Qnx",
+};
+
+function genieVariablePartFromTrack(track) {
+  if (!track || typeof track !== "object") return "";
+  if (track.planet != null && track.house != null) {
+    return `${capitalize(track.planet)} ${track.house}`;
+  }
+  if (track.angle && track.sign) {
+    return `${String(track.angle).toUpperCase()} ${capitalize(track.sign)}`;
+  }
+  if (track.planet && track.aspect && track.angle) {
+    const abbr = GENIE_ASPECT_ABBR[track.aspect] || capitalize(String(track.aspect || ""));
+    return `${capitalize(track.planet)} ${abbr} ${String(track.angle).toUpperCase()}`;
+  }
+  return "";
+}
+
+function deriveGenieVariableParts(conditions, maxParts) {
+  const limit = maxParts == null ? 3 : maxParts;
+  if (!conditions || typeof conditions !== "object") return [];
   const parts = [];
-  for (const item of conditions.house_conditions || []) {
-    if (item && item.planet != null && item.house != null) {
-      parts.push(`${capitalize(item.planet)} ${item.house}H`);
+  const push = (p) => {
+    if (!p || parts.includes(p)) return;
+    parts.push(p);
+  };
+  if (Array.isArray(conditions.tracks)) {
+    for (const t of conditions.tracks) {
+      push(genieVariablePartFromTrack(t));
+      if (parts.length >= limit) return parts;
     }
+    return parts;
+  }
+  for (const item of conditions.house_conditions || []) {
+    push(genieVariablePartFromTrack(item));
+    if (parts.length >= limit) return parts;
   }
   for (const item of conditions.angle_sign_conditions || []) {
-    if (item && item.angle && item.sign) {
-      parts.push(`${String(item.angle).toUpperCase()} ${capitalize(item.sign)}`);
-    }
+    push(genieVariablePartFromTrack(item));
+    if (parts.length >= limit) return parts;
   }
-  const ao = conditions.aspect_overlay;
-  if (ao && ao.planet && ao.angle) {
-    const sym = ASPECT_SYMBOLS[ao.aspect] || ao.aspect || "";
-    parts.push(`${capitalize(ao.planet)} ${sym} ${String(ao.angle).toUpperCase()}`.replace(/\s+/g, " ").trim());
+  const aspects = conditions.aspect_overlays
+    || (conditions.aspect_overlay ? [conditions.aspect_overlay] : []);
+  for (const item of aspects) {
+    push(genieVariablePartFromTrack(item));
+    if (parts.length >= limit) return parts;
   }
-  return parts.join(" · ");
+  return parts;
+}
+
+function deriveConditionTitle(conditions) {
+  return deriveGenieVariableParts(conditions, 3).join(" - ");
+}
+
+function comparisonPlaceShortName(placeId) {
+  if (!placeId) return "";
+  const placesById = (viewModel && viewModel.placesById) || {};
+  const row = placesById[placeId];
+  if (row && typeof window.RMHumanPlaceLabel !== "undefined" && window.RMHumanPlaceLabel.humanPlaceLabel) {
+    return String(window.RMHumanPlaceLabel.humanPlaceLabel(row).split(",")[0] || "").trim();
+  }
+  const full = (viewModel && viewModel.placeNameById && viewModel.placeNameById[placeId]) || resolvePlaceName(placeId) || "";
+  return full ? String(full).split(",")[0].trim() : String(placeId);
+}
+
+function isAutoGeneratedComparisonPlaceTitle(title, placeIds) {
+  if (!title || !placeIds || !placeIds.length) return false;
+  const shortT = placeIds.map(comparisonPlaceShortName).filter(Boolean).join(" - ");
+  const fullT = placeIds.map((id) => (viewModel && viewModel.placeNameById && viewModel.placeNameById[id]) || resolvePlaceName(id) || id).filter(Boolean).join(" - ");
+  return title === shortT || title === fullT;
+}
+
+function isDefaultComparisonTitle(title) {
+  if (!title || title === "Comparison") return true;
+  return /^Comparison · .+ · \d+ places?$/.test(String(title));
+}
+
+function comparisonConditionsFromSet(cs) {
+  if (!cs || typeof cs !== "object") return null;
+  const invId = cs.saved_investigation_id;
+  if (invId && storeRaw && Array.isArray(storeRaw.saved_investigations)) {
+    const inv = storeRaw.saved_investigations.find((s) => s.id === invId);
+    if (inv && inv.conditions) return inv.conditions;
+  }
+  const snap = cs.settings_snapshot_json || cs.settings_snapshot || {};
+  if (snap.genie_conditions) return snap.genie_conditions;
+  if (snap.conditions) return snap.conditions;
+  if (snap.conditions_json) return snap.conditions_json;
+  return null;
+}
+
+function comparisonDisplayTitle(cs) {
+  const title = typeof cs === "string" ? cs : (cs && (cs.title || cs.name)) || "";
+  const conditions = typeof cs === "object" ? comparisonConditionsFromSet(cs) : null;
+  const placeIds = (typeof cs === "object" && cs) ? (cs.place_ids || cs.placeIds || []) : [];
+  if (title && !isDefaultComparisonTitle(title) && !isAutoGeneratedComparisonPlaceTitle(title, placeIds)) return title;
+  const derived = deriveConditionTitle(conditions);
+  if (derived) return derived;
+  if (placeIds.length) {
+    const placeParts = placeIds.slice(0, 3).map((id) => comparisonPlaceShortName(id)).filter(Boolean);
+    if (placeParts.length) return placeParts.join(" - ");
+  }
+  return title || "Comparison";
 }
 
 function isDefaultInvestigationTitle(title) {
@@ -2178,7 +2395,7 @@ function adaptStoreToView(store) {
     return {
       id: cs.id,
       clientId: cs.client_id,
-      title: cs.title || "",
+      title: comparisonDisplayTitle(cs),
       updated_at: cs.updated_at || cs.created_at || null,
       placeIds,
       placeNames: placeIds.map((pid) => formatPlaceLabel(placesById[pid] || pid, placesById)).filter(Boolean),
@@ -2549,13 +2766,19 @@ function parseLocation() {
   const qIndex = raw.indexOf("?");
   const pathPart = qIndex >= 0 ? raw.slice(0, qIndex) : raw;
   const queryPart = qIndex >= 0 ? raw.slice(qIndex + 1) : "";
-  const path = pathPart.startsWith("/") ? pathPart.slice(1) : pathPart;
+  let path = pathPart.startsWith("/") ? pathPart.slice(1) : pathPart;
+  const secHash = path.indexOf("#");
+  if (secHash >= 0) path = path.slice(0, secHash);
   const routeSegment = path.split("/")[0] || "dashboard";
   const route = ALL_ROUTES.some((r) => r.id === routeSegment)
     ? /** @type {Route} */ (routeSegment)
     : "dashboard";
   const params = new URLSearchParams(queryPart);
   const pathSegments = path.split("/").filter(Boolean);
+  let settingsV3DataKind = null;
+  if (route === "settings-v3" && pathSegments[1] === "data" && pathSegments[2]) {
+    settingsV3DataKind = pathSegments[2];
+  }
   const SETTINGS_SUB_ALIASES = {
     charts: "astrology",
     appearance: "display",
@@ -2578,6 +2801,7 @@ function parseLocation() {
   return {
     route,
     settingsSubpage,
+    settingsV3DataKind,
     chartRecordId: params.get("chartRecordId"),
     placeId: params.get("placeId"),
     explorationId: params.get("explorationId"),
@@ -2684,6 +2908,7 @@ function normalizeNavContext(partial) {
         ? normalizeSettingsSubpage(partial.settingsSubpage)
         : null)
       : null,
+    settingsV3DataKind: route === "settings-v3" ? (partial.settingsV3DataKind || null) : null,
     chartRecordId: partial.chartRecordId || null,
     placeId: partial.placeId || null,
     explorationId: partial.explorationId || null,
@@ -6633,7 +6858,7 @@ function comparisonSetsForProfile(chartRecordId) {
 }
 
 function comparisonSetRowMeta(cs) {
-  const title = cs.title || "Comparison";
+  const title = comparisonDisplayTitle(cs);
   const when = formatSavedLabel(cs.updated_at || cs.created_at);
   const n = Array.isArray(cs.place_ids) ? cs.place_ids.length : 0;
   const countLabel = n ? ` · ${n} location${n === 1 ? "" : "s"}` : "";
@@ -6709,7 +6934,17 @@ async function createComparisonSetFromPlaceIds(chartRecordId, placeIds) {
   if (placeIds.length < 2 || placeIds.length > 5) throw new Error("Choose between 2 and 5 places.");
   const client = window.SupabaseClient || await window.SupabaseReady;
   if (!client) throw new Error("Supabase unavailable.");
-  const title = `Comparison · ${getChartRecord(chartRecordId).displayName} · ${placeIds.length} places`;
+  let title = "";
+  try {
+    const geniePayload = window.RelocationGenieVariableBuilder && window.RelocationGenieVariableBuilder.lastNormalizedPayload;
+    const cond = geniePayload && geniePayload.conditions;
+    title = deriveConditionTitle(cond) || "";
+  } catch (e) { /* ignore */ }
+  if (!title) {
+    const names = (viewModel && viewModel.placeNameById) || {};
+    const placeParts = placeIds.slice(0, 3).map((id) => names[id] || id).filter(Boolean);
+    title = placeParts.length ? placeParts.join(" - ") : `Comparison · ${placeIds.length} places`;
+  }
   const sessionResult = await client.auth.getSession();
   const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
   const token = session && session.access_token;
@@ -7697,8 +7932,8 @@ function dignityCustomRuleRowHtml(rule, idx) {
   const tOpts = types.map(([v, lab]) => `<option value="${v}"${rel === v ? " selected" : ""}>${lab}</option>`).join("");
   return `<tr data-dignity-rule-idx="${idx}">
     <td><select class="rm-dignity-planet">${pOpts}</select></td>
-    <td><select class="rm-dignity-sign">${sOpts}</select></td>
     <td><select class="rm-dignity-type">${tOpts}</select></td>
+    <td><select class="rm-dignity-sign">${sOpts}</select></td>
     <td><button type="button" class="linkish" data-action="dignity-remove-rule" data-idx="${idx}">Remove</button></td>
   </tr>`;
 }
@@ -7707,7 +7942,7 @@ function dignityCustomEditorHtml(rules) {
   const rows = (rules || []).map((r, i) => dignityCustomRuleRowHtml(r, i)).join("");
   return `
     <table class="rm-dignity-editor-table" id="rm-dignity-custom-table">
-      <thead><tr><th>Planet</th><th>Sign</th><th>Type</th><th></th></tr></thead>
+      <thead><tr><th>Planet</th><th>Dignity</th><th>Sign</th><th></th></tr></thead>
       <tbody id="rm-dignity-custom-body">${rows}</tbody>
     </table>
     <button type="button" data-action="dignity-add-rule" style="margin-top:8px;">Add dignity</button>`;
@@ -7798,30 +8033,33 @@ function initDignitySettingsControls(root) {
     if (editor) editor.style.display = val === "custom" ? "" : "none";
     if (exampleEl) exampleEl.textContent = dignityPresetExample(val);
   };
-  root.querySelectorAll('input[name="rm-dignity-preset"]').forEach((el) => {
-    el.addEventListener("change", syncPresetUi);
-  });
-  const fourPanel = root.querySelector("#rm-dignity-four-colors");
-  root.querySelectorAll('input[name="rm-dignity-color-mode"]').forEach((el) => {
-    el.addEventListener("change", () => {
-      if (fourPanel) fourPanel.style.display = el.value === "four" && el.checked ? "" : "none";
+  if (!root.__dignitySettingsWired) {
+    root.__dignitySettingsWired = true;
+    root.addEventListener("click", (ev) => {
+      const addBtn = ev.target.closest("[data-action='dignity-add-rule']");
+      if (addBtn && root.contains(addBtn)) {
+        const body = root.querySelector("#rm-dignity-custom-body");
+        if (!body) return;
+        const idx = body.querySelectorAll("tr").length;
+        body.insertAdjacentHTML("beforeend", dignityCustomRuleRowHtml({ planet: "Sun", relationship: "rulership", sign: "Leo" }, idx));
+        return;
+      }
+      const remBtn = ev.target.closest("[data-action='dignity-remove-rule']");
+      if (remBtn && root.contains(remBtn)) {
+        const tr = remBtn.closest("tr");
+        if (tr) tr.remove();
+      }
     });
-  });
-  root.querySelectorAll("[data-action='dignity-add-rule']").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const body = root.querySelector("#rm-dignity-custom-body");
-      if (!body) return;
-      const idx = body.querySelectorAll("tr").length;
-      body.insertAdjacentHTML("beforeend", dignityCustomRuleRowHtml({ planet: "Sun", sign: "Leo", relationship: "rulership" }, idx));
-      initDignitySettingsControls(root);
+    root.querySelectorAll('input[name="rm-dignity-preset"]').forEach((el) => {
+      el.addEventListener("change", syncPresetUi);
     });
-  });
-  root.querySelectorAll("[data-action='dignity-remove-rule']").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const tr = btn.closest("tr");
-      if (tr) tr.remove();
+    const fourPanel = root.querySelector("#rm-dignity-four-colors");
+    root.querySelectorAll('input[name="rm-dignity-color-mode"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        if (fourPanel) fourPanel.style.display = el.value === "four" && el.checked ? "" : "none";
+      });
     });
-  });
+  }
   syncPresetUi();
 }
 
@@ -8322,20 +8560,37 @@ const SETTINGS_SORT_OPTIONS = [
 
 const SETTINGS_SAVED_OBJECT_TYPES = ["profiles", "favorites", "searches", "comparisons", "notes"];
 
+// TODO(SETTINGS-S0A): restore production page size (40) after pagination QA.
+const SETTINGS_LIST_PAGE_SIZE = 5;
+
 const _settingsSavedObjState = Object.fromEntries(
-  SETTINGS_SAVED_OBJECT_TYPES.map((t) => [t, { sort: t === "profiles" || t === "favorites" ? "az" : "recent-viewed", search: "", selected: new Set() }])
+  SETTINGS_SAVED_OBJECT_TYPES.map((t) => {
+    const base = { sort: t === "profiles" || t === "favorites" ? "az" : "recent-viewed", sortDir: "asc", search: "", selected: new Set() };
+    if (t === "favorites" || t === "searches" || t === "comparisons") {
+      base.profileFilter = "all";
+      base.visibleLimit = SETTINGS_LIST_PAGE_SIZE;
+    }
+    return [t, base];
+  })
 );
-_settingsSavedObjState.favorites.folderId = null;
+["favorites", "searches", "comparisons"].forEach((t) => {
+  _settingsSavedObjState[t].collapsedFolders = new Set();
+  _settingsSavedObjState[t].folderPickerIds = [];
+  _settingsSavedObjState[t].folderPickerType = t;
+});
+_settingsSavedObjState.favorites.folderPickerMode = "single";
 
 const RM_FAV_FOLDERS_KEY = "rm_favorite_folders_v1";
 const RM_FAV_FOLDER_MAP_KEY = "rm_favorite_folder_map_v1";
 const RM_SAVED_VIEWED_KEY = "rm_saved_object_viewed_v1";
 
 function settingsSortOptionsHtml(type, current) {
-  const allowDistance = type === "favorites" || type === "searches";
+  const hideDistance = type === "profiles" || type === "favorites" || type === "searches" || type === "comparisons";
+  let sort = current;
+  if (hideDistance && sort === "distance") sort = "az";
   return SETTINGS_SORT_OPTIONS.map((opt) => {
-    if (opt.id === "distance" && !allowDistance) return "";
-    const sel = opt.id === current ? " selected" : "";
+    if (opt.id === "distance" && hideDistance) return "";
+    const sel = opt.id === sort ? " selected" : "";
     return `<option value="${opt.id}"${sel}>${opt.label}</option>`;
   }).join("");
 }
@@ -8353,23 +8608,98 @@ function _saveJsonStorage(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
 }
 
-function loadFavoriteFolders() {
-  const rows = _loadJsonStorage(RM_FAV_FOLDERS_KEY, []);
-  return Array.isArray(rows) ? rows : [];
+
+const RM_SETTINGS_FOLDER_KEYS = {
+  favorites: { folders: "rm_favorite_folders_v1", map: "rm_favorite_folder_map_v1", scoped: false, itemNoun: "location" },
+  searches: { folders: "rm_search_folders_v1", map: "rm_search_folder_map_v1", scoped: true, itemNoun: "search" },
+  comparisons: { folders: "rm_comparison_folders_v1", map: "rm_comparison_folder_map_v1", scoped: true, itemNoun: "comparison" },
+};
+
+function settingsFolderCfg(type) {
+  return RM_SETTINGS_FOLDER_KEYS[type] || null;
 }
 
-function saveFavoriteFolders(rows) {
-  _saveJsonStorage(RM_FAV_FOLDERS_KEY, rows);
+function loadSettingsFolders(type, profileFilter) {
+  const cfg = settingsFolderCfg(type);
+  if (!cfg) return [];
+  const rows = _loadJsonStorage(cfg.folders, []);
+  const list = Array.isArray(rows) ? rows : [];
+  if (!cfg.scoped || !profileFilter || profileFilter === "all") return list;
+  return list.filter((f) => f.profileId === profileFilter);
 }
 
-function loadFavoriteFolderMap() {
-  const map = _loadJsonStorage(RM_FAV_FOLDER_MAP_KEY, {});
+function saveSettingsFolders(type, rows) {
+  const cfg = settingsFolderCfg(type);
+  if (cfg) _saveJsonStorage(cfg.folders, rows);
+}
+
+function loadSettingsFolderMap(type) {
+  const cfg = settingsFolderCfg(type);
+  if (!cfg) return {};
+  const map = _loadJsonStorage(cfg.map, {});
   return map && typeof map === "object" ? map : {};
 }
 
-function saveFavoriteFolderMap(map) {
-  _saveJsonStorage(RM_FAV_FOLDER_MAP_KEY, map);
+function saveSettingsFolderMap(type, map) {
+  const cfg = settingsFolderCfg(type);
+  if (cfg) _saveJsonStorage(cfg.map, map);
 }
+
+function settingsFolderItemKind(type) {
+  return ({ favorites: "favorite", searches: "search", comparisons: "comparison" })[type] || "item";
+}
+
+function settingsResolveFolderProfileId(type) {
+  const st = _settingsSavedObjState[type] || {};
+  const pf = st.profileFilter || "all";
+  if (pf !== "all") return pf;
+  const selected = Array.from(st.selected || []);
+  if (!selected.length) return null;
+  const pids = settingsSelectedProfileIdsForType(type, selected);
+  return pids.size === 1 ? Array.from(pids)[0] : null;
+}
+
+function isFavoriteCustomLocation(item) {
+  if (!item || !item.placeId) return false;
+  const place = viewModel && viewModel.placesById ? viewModel.placesById[item.placeId] : null;
+  if (place && place.provider === "map_custom") return true;
+  const raw = (storeRaw && storeRaw.favorite_cities || []).find((f) => f.id === item.id);
+  return !!(raw && raw.provider === "map_custom");
+}
+
+function wireSettingsNotesComposerTools(scope) {
+  const root = scope || document.getElementById("rm-settings-object-notes-body");
+  if (!root) return;
+  const ta = root.querySelector("#rm-settings-object-note-ta");
+  if (!ta) return;
+  root.querySelectorAll(".notes-tool:not(.mic)").forEach((btn) => {
+    btn.removeAttribute("disabled");
+    btn.removeAttribute("aria-disabled");
+    btn.tabIndex = 0;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      ta.focus();
+      const title = btn.getAttribute("title") || "";
+      if (title === "Bold") document.execCommand("bold");
+      else if (title === "Italic") document.execCommand("italic");
+      else if (title === "Underline") document.execCommand("underline");
+      else if (title === "Bullet list") {
+        const start = ta.selectionStart;
+        const val = ta.value;
+        const lineStart = val.lastIndexOf("\n", start - 1) + 1;
+        const prefix = "- ";
+        ta.value = val.slice(0, lineStart) + prefix + val.slice(lineStart);
+        ta.selectionStart = ta.selectionEnd = start + prefix.length;
+      }
+    });
+  });
+}
+
+
+function loadFavoriteFolders() { return loadSettingsFolders("favorites", "all"); }
+function saveFavoriteFolders(rows) { saveSettingsFolders("favorites", rows); }
+function loadFavoriteFolderMap() { return loadSettingsFolderMap("favorites"); }
+function saveFavoriteFolderMap(map) { saveSettingsFolderMap("favorites", map); }
 
 function touchSavedObjectViewed(type, id) {
   if (!type || !id) return;
@@ -8383,6 +8713,14 @@ function getSavedObjectViewedAt(type, id) {
   const map = _loadJsonStorage(RM_SAVED_VIEWED_KEY, {});
   return (map[type] && map[type][id]) || 0;
 }
+
+function getAccountOwnerChartRecordId() {
+  const clients = (storeRaw && storeRaw.clients) || [];
+  return clients.length ? clients[0].id : null;
+}
+
+const _settingsObjectNoteCache = new Map();
+let _settingsNotesCacheLoaded = false;
 
 function profileNameById(profileId) {
   const vm = viewModel;
@@ -8419,23 +8757,77 @@ function haversineKm(a, b) {
   return 6371 * 2 * Math.atan2(Math.sqrt(latitudes), Math.sqrt(1 - latitudes));
 }
 
+function scrollToSettingsArchives() {
+  const el = document.getElementById("sec-data-archives");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  el.style.outline = "2px solid var(--accent,#2563eb)";
+  el.style.outlineOffset = "4px";
+  setTimeout(() => { el.style.outline = ""; el.style.outlineOffset = ""; }, 2000);
+}
+
+function settingsProfileFilterOptionsHtml(type, current) {
+  const vm = viewModel;
+  const records = (vm && vm.chartRecords) || [];
+  const allLabel = type === "favorites" ? "All saved locations" : (type === "comparisons" ? "All comparisons" : "All saved searches");
+  let html = `<option value="all"${current === "all" ? " selected" : ""}>${allLabel}</option>`;
+  records.forEach((r) => {
+    const sel = current === r.chartRecordId ? " selected" : "";
+    html += `<option value="${escapeHtml(r.chartRecordId)}"${sel}>${escapeHtml(r.displayName)}</option>`;
+  });
+  return html;
+}
+
+function applySettingsProfileFilter(items, type) {
+  const st = _settingsSavedObjState[type] || {};
+  const pf = st.profileFilter || "all";
+  if (pf === "all") return items;
+  return items.filter((item) => item.profileId === pf);
+}
+
+function paginateSettingsEntries(entries, type) {
+  const st = _settingsSavedObjState[type] || {};
+  const limit = st.visibleLimit || SETTINGS_LIST_PAGE_SIZE;
+  return { visible: entries.slice(0, limit), total: entries.length, hasMore: entries.length > limit };
+}
+
+function settingsShowMoreHtml(type, total, visibleCount) {
+  if (visibleCount >= total) return "";
+  const remaining = total - visibleCount;
+  return `<div class="settings-data-more"><button type="button" data-action="settings-obj-show-more" data-settings-obj-type="${type}">Show more (${remaining} remaining)</button></div>`;
+}
+
+function settingsSavedObjectSortKey(type, sortKey) {
+  const hideDistance = type === "profiles" || type === "favorites" || type === "searches" || type === "comparisons";
+  if (hideDistance && sortKey === "distance") return "az";
+  return sortKey || "az";
+}
+
 function sortSavedObjectItems(items, sortKey, type) {
   const rows = items.slice();
-  const ref = referencePlaceForDistance();
-  if (sortKey === "az") {
+  const key = settingsSavedObjectSortKey(type, sortKey);
+  if (key === "az") {
     rows.sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), undefined, { sensitivity: "base" }));
-  } else if (sortKey === "recent-added") {
-    rows.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
-  } else if (sortKey === "recent-viewed") {
-    rows.sort((a, b) => (getSavedObjectViewedAt(type, b.id) || 0) - (getSavedObjectViewedAt(type, a.id) || 0)
-      || String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
-  } else if (sortKey === "distance") {
+  } else if (key === "recent-added") {
     rows.sort((a, b) => {
-      const da = a.placeId && ref ? haversineKm(ref, placeCoordsById(a.placeId)) : Number.POSITIVE_INFINITY;
-      const db = b.placeId && ref ? haversineKm(ref, placeCoordsById(b.placeId)) : Number.POSITIVE_INFINITY;
-      return da - db;
+      const ta = Date.parse(a.createdAt || "") || 0;
+      const tb = Date.parse(b.createdAt || "") || 0;
+      if (ta !== tb) return tb - ta;
+      return (b.sortOrder ?? 0) - (a.sortOrder ?? 0);
+    });
+  } else if (key === "recent-viewed") {
+    rows.sort((a, b) => {
+      const va = getSavedObjectViewedAt(type, a.id) || 0;
+      const vb = getSavedObjectViewedAt(type, b.id) || 0;
+      if (vb !== va) return vb - va;
+      const ta = Date.parse(a.updatedAt || a.createdAt || "") || 0;
+      const tb = Date.parse(b.updatedAt || b.createdAt || "") || 0;
+      if (tb !== ta) return tb - ta;
+      return (b.sortOrder ?? 0) - (a.sortOrder ?? 0);
     });
   }
+  const st = _settingsSavedObjState[type] || {};
+  if (st.sortDir === "desc") rows.reverse();
   return rows;
 }
 
@@ -8454,58 +8846,145 @@ function collectSettingsProfileItems() {
   const rawClients = (storeRaw && storeRaw.clients) || [];
   return vm.chartRecords.map((r) => {
     const raw = rawClients.find((c) => c.id === r.chartRecordId) || {};
+    const birthDateTime = [formatRegionalDate(r.birthDate) || r.birthDate, r.birthTimeDisplay].filter(Boolean).join(" \u00b7 ") || "\u2014";
+    const birthPlace = r.birthCity || "\u2014";
+    const currentLocation = r.currentCity || "\u2014";
+    const searchCount = (r.explorations || []).length;
+    const comparisonCount = (vm.comparisonSets || []).filter((cs) => cs.clientId === r.chartRecordId).length;
+    const favoriteCount = (r.favorites || []).length;
     return {
       id: r.chartRecordId,
       title: r.displayName,
-      subtitle: `${r.birthCity || "\u2014"} \u00b7 ${r.recordType || "profile"}`,
+      subtitle: `${birthDateTime} \u00b7 ${birthPlace}`,
+      birthDateTime,
+      birthPlace,
+      currentLocation,
+      searchCount,
+      comparisonCount,
+      favoriteCount,
+      metaExtra: "",
+      recordType: r.recordType,
       profileId: r.chartRecordId,
       profileName: r.displayName,
       createdAt: raw.created_at || null,
       updatedAt: raw.updated_at || null,
       isDefault: r.chartRecordId === vm.defaultChartRecordId,
+      isOwner: r.chartRecordId === getAccountOwnerChartRecordId(),
     };
   });
+}
+
+function settingsFavoriteNotePreviewText(item) {
+  const noteText = String((item && (item.notes || item.body)) || "").trim();
+  if (!noteText) return "";
+  const title = String((item && item.title) || "").trim();
+  if (title && noteText.toLowerCase() === title.toLowerCase()) return "";
+  const shortTitle = title.split(",")[0].trim();
+  if (shortTitle && noteText.toLowerCase() === shortTitle.toLowerCase()) return "";
+  if (noteText.toLowerCase() === "custom location") return "";
+  return noteText;
+}
+
+function settingsFavoriteCoordsLine(placeId) {
+  const coords = placeCoordsById(placeId);
+  if (coords) return formatPlateLatLonDisplay(coords.lat, coords.lon);
+  const place = viewModel && viewModel.placesById ? viewModel.placesById[placeId] : null;
+  if (place) {
+    const lat = place.lat != null ? place.lat : place.latitude;
+    const lon = place.lon != null ? place.lon : place.longitude;
+    if (lat != null && lon != null) return formatPlateLatLonDisplay(Number(lat), Number(lon));
+  }
+  return "\u2014";
 }
 
 function collectSettingsFavoriteItems() {
   const vm = requireViewModel();
   const folderMap = loadFavoriteFolderMap();
-  const folderId = _settingsSavedObjState.favorites.folderId;
   const rawFavs = (storeRaw && storeRaw.favorite_cities) || [];
   const items = [];
   vm.chartRecords.forEach((rec) => {
     (rec.favorites || []).forEach((f) => {
       const mappedFolder = folderMap[f.id] || null;
-      if (folderId === "__unfiled__" && mappedFolder) return;
-      if (folderId && folderId !== "__unfiled__" && mappedFolder !== folderId) return;
       const raw = rawFavs.find((x) => x.id === f.id) || {};
       items.push({
         id: f.id,
         title: f.placeName || "Favorite place",
         subtitle: profileNameById(rec.chartRecordId),
-        profileId: rec.chartRecordId,
         profileName: rec.displayName,
+        profileId: rec.chartRecordId,
         placeId: f.placeId,
         folderId: mappedFolder,
+        starred: raw.starred !== false,
+        notes: (f.notes || raw.notes || "").trim(),
         createdAt: raw.created_at || null,
         updatedAt: raw.updated_at || null,
+        sortOrder: raw.sort_order ?? null,
+        isCustom: (() => {
+          const place = vm.placesById && vm.placesById[f.placeId];
+          return !!(place && place.provider === "map_custom");
+        })(),
+        coordsLine: settingsFavoriteCoordsLine(f.placeId),
       });
     });
   });
   return items;
 }
 
+function buildSettingsFolderedEntries(type) {
+  const st = _settingsSavedObjState[type];
+  const pf = st.profileFilter || "all";
+  let items = type === "favorites" ? collectSettingsFavoriteItems() : collectSettingsSavedItems(type);
+  items = applySettingsProfileFilter(items, type);
+  items = filterSavedObjectItems(items, st.search);
+  if (st.sort === "distance") st.sort = settingsSavedObjectSortKey(type, st.sort);
+  items = sortSavedObjectItems(items, st.sort, type);
+  const page = paginateSettingsEntries(items, type);
+  const visibleItems = page.visible;
+  const folders = loadSettingsFolders(type, pf);
+  const folderMap = loadSettingsFolderMap(type);
+  const itemKind = settingsFolderItemKind(type);
+  const folderCounts = Object.fromEntries(folders.map((f) => [f.id, 0]));
+  items.forEach((item) => {
+    const fid = folderMap[item.id] || item.folderId;
+    if (fid && folderCounts[fid] != null) folderCounts[fid] += 1;
+  });
+  const byFolder = Object.fromEntries(folders.map((f) => [f.id, []]));
+  const rootItems = [];
+  visibleItems.forEach((item) => {
+    const fid = folderMap[item.id] || item.folderId;
+    if (fid && byFolder[fid]) byFolder[fid].push(item);
+    else rootItems.push(item);
+  });
+  const collapsed = st.collapsedFolders || new Set();
+  const pruned = [];
+  folders.forEach((f) => {
+    const kids = byFolder[f.id] || [];
+    const total = folderCounts[f.id] || 0;
+    pruned.push({ kind: "folder", id: f.id, title: f.name, count: total, folderName: f.name, profileId: f.profileId || null });
+    if (!collapsed.has(f.id)) kids.forEach((item) => pruned.push({ kind: itemKind, ...item, nested: true, folderId: f.id }));
+  });
+  rootItems.forEach((item) => pruned.push({ kind: itemKind, ...item, nested: false }));
+  pruned._page = page;
+  return pruned;
+}
+
+function buildFavoriteListEntries() {
+  return buildSettingsFolderedEntries("favorites");
+}
+
 function collectSettingsSearchItems() {
   const raw = (storeRaw && storeRaw.saved_investigations) || [];
   return raw.map((inv) => ({
     id: inv.id,
-    title: inv.title || inv.name || "Untitled investigation",
+    title: investigationDisplayTitle(inv.title || inv.name, inv.conditions),
     subtitle: profileNameById(inv.client_id),
     profileId: inv.client_id,
     profileName: profileNameById(inv.client_id),
     createdAt: inv.created_at || null,
     updatedAt: inv.updated_at || null,
     placeId: null,
+    conditions: inv.conditions || null,
+    body: (_settingsObjectNoteCache.get("inv:" + inv.id) || "").trim(),
   }));
 }
 
@@ -8513,15 +8992,17 @@ function collectSettingsComparisonItems() {
   const raw = (storeRaw && storeRaw.comparison_sets) || [];
   return raw.map((cs) => {
     const placeIds = cs.place_ids || [];
+    const title = comparisonDisplayTitle(cs);
     return {
       id: cs.id,
-      title: cs.title || "Comparison",
+      title,
       subtitle: `${profileNameById(cs.client_id || cs.profile_id)} \u00b7 ${placeIds.length} location${placeIds.length === 1 ? "" : "s"}`,
       profileId: cs.client_id || cs.profile_id,
       profileName: profileNameById(cs.client_id || cs.profile_id),
       createdAt: cs.created_at || null,
       updatedAt: cs.updated_at || null,
       placeId: placeIds[0] || null,
+      body: (cs.notes || "").trim(),
     };
   });
 }
@@ -8573,105 +9054,596 @@ function collectSettingsSavedItems(type) {
   return [];
 }
 
-function settingsSavedObjectToolbarHtml(type) {
-  const st = _settingsSavedObjState[type] || { sort: "az", search: "" };
-  const selectedCount = st.selected ? st.selected.size : 0;
-  return `
-    <div class="settings-obj-toolbar" data-settings-obj-toolbar="${type}">
-      <input type="search" placeholder="Search\u2026" value="${escapeHtml(st.search || "")}" data-settings-obj-search="${type}" aria-label="Search ${type}" />
-      <label class="meta">Sort
+function settingsSortDirLabel(type) {
+  const st = _settingsSavedObjState[type] || {};
+  return (st.sortDir || "asc") === "asc" ? "\u2191" : "\u2193";
+}
+
+
+function settingsInfoIconSvg() {
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+}
+
+function settingsProfileFilterControlHtml(type, current, showLabel) {
+  const label = showLabel ? "<label>Profile</label>" : "";
+  return `<div class="settings-sort-group">${label}<select data-settings-obj-profile-filter="${type}">${settingsProfileFilterOptionsHtml(type, current || "all")}</select></div>`;
+}
+
+function settingsBulkDisabledAttr(count) {
+  return count < 1 ? " disabled" : "";
+}
+
+function settingsCityIntelRouteAvailable() {
+  return false;
+}
+
+function settingsCityIntelActionHtml(item) {
+  if (!item || !item.placeId) return "";
+  const icon = settingsInfoIconSvg();
+  if (settingsCityIntelRouteAvailable()) {
+    return `<button type="button" class="settings-ci-btn" title="City Intelligence" aria-label="City Intelligence" data-action="settings-fav-city-intel" data-chart-record="${escapeHtml(item.profileId)}" data-place-id="${escapeHtml(item.placeId)}">${icon}</button>`;
+  }
+  return `<button type="button" class="settings-ci-btn" disabled title="City Intelligence page not ready yet" aria-label="City Intelligence not ready">${icon}</button>`;
+}
+
+function settingsSelectedProfileIdsForType(type, selectedIds) {
+  const ids = new Set();
+  if (!selectedIds || !selectedIds.length) return ids;
+  if (type === "favorites") {
+    const items = collectSettingsFavoriteItems();
+    selectedIds.forEach((sid) => {
+      const row = items.find((i) => i.id === sid);
+      if (row && row.profileId) ids.add(row.profileId);
+    });
+    return ids;
+  }
+  const items = collectSettingsSavedItems(type);
+  selectedIds.forEach((sid) => {
+    const row = items.find((i) => i.id === sid);
+    if (row && row.profileId) ids.add(row.profileId);
+  });
+  return ids;
+}
+
+function settingsCrossProfileFolderWarningHtml(type) {
+  if (type !== "favorites") return "";
+  const st = _settingsSavedObjState.favorites;
+  const selected = Array.from(st.selected || []);
+  if (settingsSelectedProfileIdsForType("favorites", selected).size < 2) return "";
+  return `<p class="settings-cross-profile-warn">This folder can include saved items from multiple profiles. When viewing a single profile, only that profile’s saved items will appear.</p>`;
+}
+
+function settingsSavedListToolbarControlsHtml(type) {
+  const st = _settingsSavedObjState[type] || { sort: "az", search: "", sortDir: "asc" };
+  const profileFilter = (type === "favorites" || type === "searches" || type === "comparisons")
+    ? settingsProfileFilterControlHtml(type, st.profileFilter || "all", false)
+    : "";
+  const searchInput = `<input type="search" placeholder="Search\u2026" value="${escapeHtml(st.search || "")}" data-settings-obj-search="${type}" aria-label="Search ${type}" />`;
+  const sortGroup = `<div class="settings-sort-group">
+        <label>Sort</label>
         <select data-settings-obj-sort="${type}">${settingsSortOptionsHtml(type, st.sort)}</select>
-      </label>
-      ${type === "favorites" ? `<button type="button" data-action="settings-fav-create-folder">Create Folder</button>` : ""}
-      ${type === "profiles" ? `<button type="button" data-action="settings-profile-create">Create Profile</button>
-        <button type="button" data-action="settings-profile-composite" title="Creates a new profile from selected sources">Create Composite</button>` : ""}
+        <button type="button" class="settings-sort-dir" data-action="settings-obj-sort-dir" data-settings-obj-type="${type}" title="Reverse sort direction" aria-label="Reverse sort">${settingsSortDirLabel(type)}</button>
+      </div>`;
+  if (type === "favorites" || type === "searches" || type === "comparisons") {
+    return `${profileFilter}${searchInput}${sortGroup}`;
+  }
+  if (type === "profiles") {
+    return `${searchInput}${sortGroup}`;
+  }
+  return `${searchInput}${sortGroup}${profileFilter}`;
+}
+
+function settingsSavedObjectToolbarHtml(type) {
+  const st = _settingsSavedObjState[type] || { sort: "az", search: "", sortDir: "asc" };
+  const selectedCount = st.selected ? st.selected.size : 0;
+  const dis = settingsBulkDisabledAttr(selectedCount);
+  const folderTypes = ["favorites", "searches", "comparisons"];
+  const folderBtn = folderTypes.includes(type)
+    ? `<button type="button" data-action="settings-obj-create-folder" data-settings-obj-type="${type}">New Folder</button>`
+    : "";
+  const bulkFolderBtn = folderTypes.includes(type)
+    ? `<button type="button" data-action="settings-obj-bulk-add-folder" data-settings-obj-type="${type}"${dis}>Add to folder</button>
+       <button type="button" data-action="settings-obj-bulk-create-folder" data-settings-obj-type="${type}"${dis}>Create folder from selected</button>`
+    : "";
+  const savedListToolbarTypes = ["favorites", "searches", "comparisons", "profiles"];
+  const toolbarClass = savedListToolbarTypes.includes(type)
+    ? "settings-v2-toolbar is-saved-list-toolbar"
+    : "settings-v2-toolbar";
+  const toolbarControls = settingsSavedListToolbarControlsHtml(type);
+  const bulkArchiveTypes = ["profiles", "favorites", "searches", "comparisons"];
+  const bulkArchiveBtn = bulkArchiveTypes.includes(type)
+    ? `<button type="button" data-action="settings-obj-bulk-archive" data-settings-obj-type="${type}"${dis}>Archive selected</button>`
+    : "";
+  const crossProfileWarn = settingsCrossProfileFolderWarningHtml(type);
+  return `
+    ${crossProfileWarn}
+    <div class="${toolbarClass}" data-settings-obj-toolbar="${type}">
+      ${toolbarControls}
     </div>
-    <div class="settings-obj-bulk-bar" data-settings-obj-bulk="${type}"${selectedCount ? "" : " hidden"}>
+    <div class="settings-data-bulk" data-settings-obj-bulk="${type}">
       <span class="meta" data-settings-obj-selected-count="${type}">${selectedCount} selected</span>
-      <button type="button" data-action="settings-obj-bulk-archive" data-settings-obj-type="${type}">Archive selected</button>
-      <button type="button" data-action="settings-obj-bulk-delete" data-settings-obj-type="${type}" disabled title="Permanent delete coming soon">Bulk Delete</button>
-      <span class="badge-soon">Bulk Delete \u2014 coming soon</span>
+      ${folderBtn}
+      ${bulkFolderBtn}
+      ${bulkArchiveBtn}
     </div>`;
 }
 
-function settingsFavoriteFoldersHtml() {
-  const folders = loadFavoriteFolders();
-  const active = _settingsSavedObjState.favorites.folderId;
-  const parts = [`<button type="button" class="${active ? "" : "active"}" data-action="settings-fav-folder-filter" data-folder-id="">All</button>`,
-    `<button type="button" class="${active === "__unfiled__" ? "active" : ""}" data-action="settings-fav-folder-filter" data-folder-id="__unfiled__">Unfiled</button>`];
-  folders.forEach((f) => {
-    parts.push(`<button type="button" class="${active === f.id ? "active" : ""}" data-action="settings-fav-folder-filter" data-folder-id="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>
-      <button type="button" data-action="settings-fav-rename-folder" data-folder-id="${escapeHtml(f.id)}" data-folder-name="${escapeHtml(f.name)}">Rename</button>
-      <button type="button" data-action="settings-fav-delete-folder" data-folder-id="${escapeHtml(f.id)}" data-folder-name="${escapeHtml(f.name)}">Delete Folder</button>`);
-  });
-  return `<div class="settings-obj-folders" data-settings-fav-folders="true">${parts.join("")}</div>`;
+function settingsSavedObjectRowActionsHtml(type, item) {
+  if (type === "profiles") {
+    const defaultBtn = item.isDefault
+      ? ""
+      : `<button type="button" data-action="settings-profile-default" data-chart-record="${escapeHtml(item.id)}">Set Default</button>`;
+    return `
+      ${defaultBtn}
+      <button type="button" data-action="settings-profile-rename" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Rename</button>
+      <button type="button" data-action="settings-profile-archive" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Archive</button>`;
+  }
+  if ((type === "favorites" || type === "searches" || type === "comparisons") && item.kind === "folder") {
+    return `
+      <button type="button" data-action="settings-obj-rename-folder" data-settings-obj-type="${type}" data-folder-id="${escapeHtml(item.id)}" data-folder-name="${escapeHtml(item.folderName || item.title)}">Rename</button>
+      <button type="button" data-action="settings-obj-delete-folder" data-settings-obj-type="${type}" data-folder-id="${escapeHtml(item.id)}" data-folder-name="${escapeHtml(item.folderName || item.title)}">Delete</button>`;
+  }
+  if (type === "favorites") {
+    const star = item.starred
+      ? `<button type="button" data-action="settings-fav-star" data-favorite-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-place-id="${escapeHtml(item.placeId)}" data-starred="1" title="Starred" style="color:var(--accent,#2563eb);">\u2605</button>`
+      : `<button type="button" data-action="settings-fav-star" data-favorite-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-place-id="${escapeHtml(item.placeId)}" data-starred="0" title="Star this location" style="color:var(--muted,#94a3b8);">\u2606</button>`;
+    const notesBtn = `<button type="button" data-action="settings-object-notes" data-note-kind="favorite" data-target-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-place-id="${escapeHtml(item.placeId)}" data-object-title="${escapeHtml(item.title)}">Notes</button>`;
+    const renameBtn = item.isCustom
+      ? `<button type="button" data-action="settings-fav-rename-label" data-favorite-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-place-id="${escapeHtml(item.placeId)}" data-current-title="${escapeHtml(item.title)}">Rename</button>`
+      : "";
+    const ciBtn = settingsCityIntelActionHtml(item);
+    return `
+      ${star}
+      ${notesBtn}
+      ${renameBtn}
+      <button type="button" data-action="settings-obj-add-to-folder" data-settings-obj-type="favorites" data-target-id="${escapeHtml(item.id)}">Add to folder</button>
+      ${ciBtn}
+      <button type="button" data-action="settings-fav-archive" data-favorite-id="${escapeHtml(item.id)}" data-place="${escapeHtml(item.title)}" data-chart-record="${escapeHtml(item.profileId)}">Archive</button>`;
+  }
+  if (type === "searches") {
+    return `
+      <button type="button" data-action="settings-search-open" data-exploration="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
+      <button type="button" data-action="settings-object-notes" data-note-kind="saved_investigation" data-target-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-object-title="${escapeHtml(item.title)}">Notes</button>
+      <button type="button" data-action="settings-obj-add-to-folder" data-settings-obj-type="searches" data-target-id="${escapeHtml(item.id)}">Add to folder</button>
+      <button type="button" data-action="settings-search-rename" data-exploration="${escapeHtml(item.id)}" data-current-title="${escapeHtml(item.title)}">Rename</button>
+      <button type="button" data-action="settings-search-archive" data-exploration="${escapeHtml(item.id)}">Archive</button>`;
+  }
+  if (type === "comparisons") {
+    return `
+      <button type="button" data-action="settings-cmp-open" data-cmp-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
+      <button type="button" data-action="settings-object-notes" data-note-kind="comparison_set" data-target-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-object-title="${escapeHtml(item.title)}">Notes</button>
+      <button type="button" data-action="settings-obj-add-to-folder" data-settings-obj-type="comparisons" data-target-id="${escapeHtml(item.id)}">Add to folder</button>
+      <button type="button" data-action="settings-cmp-archive" data-cmp-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-cmp-title="${escapeHtml(item.title)}">Archive</button>`;
+  }
+  if (type === "notes") {
+    return `
+      <button type="button" data-action="settings-note-open" data-note-kind="${escapeHtml(item.noteKind)}" data-target-id="${escapeHtml(item.targetId)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>`;
+  }
+  return "";
+}
+
+function settingsProfileSavedWorkCountsHtml(item) {
+  if (item.searchCount == null && item.comparisonCount == null && item.favoriteCount == null) return "";
+  const sc = item.searchCount ?? 0;
+  const cc = item.comparisonCount ?? 0;
+  const fc = item.favoriteCount ?? 0;
+  const parts = [
+    `<b>${sc}</b> search${sc === 1 ? "" : "es"}`,
+    `<b>${cc}</b> comparison${cc === 1 ? "" : "s"}`,
+    `<b>${fc}</b> favorite${fc === 1 ? "" : "s"}`,
+  ];
+  return `<div class="settings-pcard-counts">${parts.join('<span class="settings-pcard-dot" aria-hidden="true">\u00b7</span>')}</div>`;
+}
+
+function settingsProfileRowActionsHtml(item) {
+  if (navContext.route === "settings-v3") {
+    const defaultBtn = item.isDefault
+      ? ""
+      : `<button type="button" data-action="settings-profile-default" data-chart-record="${escapeHtml(item.id)}">Set Default</button>`;
+    return `
+      ${defaultBtn}
+      <button type="button" data-action="settings-profile-edit-birth" data-chart-record="${escapeHtml(item.id)}">Edit</button>
+      <button type="button" data-action="settings-profile-archive" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Archive</button>`;
+  }
+  return settingsSavedObjectRowActionsHtml("profiles", item);
+}
+
+function settingsProfilePcardRowHtml(item, st) {
+  const checked = st.selected.has(item.id) ? " checked" : "";
+  const ownerTag = item.isOwner ? '<span class="settings-identity-badge is-owner">ACCOUNT OWNER</span>' : "";
+  const defaultTag = item.isDefault ? '<span class="settings-identity-badge">DEFAULT</span>' : "";
+  const currentLine = `<div class="settings-pcard-meta"><b>Current:</b> ${escapeHtml(item.currentLocation || "\u2014")}</div>`;
+  const countsHtml = settingsProfileSavedWorkCountsHtml(item);
+  return `<div class="settings-data-item settings-pcard" data-settings-obj-row="profiles" data-obj-id="${escapeHtml(item.id)}">
+      <input type="checkbox" data-settings-obj-select="profiles" data-obj-id="${escapeHtml(item.id)}"${checked} aria-label="Select ${escapeHtml(item.title)}" />
+      <div class="settings-pcard-body">
+        <div class="settings-data-title settings-data-title-row">
+          <button type="button" class="linkish" data-action="settings-profile-open" data-chart-record="${escapeHtml(item.id)}">${escapeHtml(item.title)}</button>${defaultTag}${ownerTag}
+        </div>
+        <div class="settings-pcard-meta">${escapeHtml(item.birthDateTime || "\u2014")}</div>
+        <div class="settings-pcard-meta">${escapeHtml(item.birthPlace || "\u2014")}</div>
+        ${currentLine}
+        ${countsHtml}
+      </div>
+      <div class="settings-data-actions">${settingsProfileRowActionsHtml(item)}</div>
+    </div>`;
 }
 
 function settingsSavedObjectListHtml(type) {
   const st = _settingsSavedObjState[type];
-  let items = collectSettingsSavedItems(type);
-  items = filterSavedObjectItems(items, st.search);
-  items = sortSavedObjectItems(items, st.sort, type);
-  if (!items.length) {
-    return `<p class="meta settings-obj-empty">No ${type === "profiles" ? "birth profiles" : type} match your search.</p>`;
-  }
-  const rows = items.map((item) => {
-    const checked = st.selected.has(item.id) ? " checked" : "";
-    let actions = "";
+  let entries;
+  if (type === "favorites" || type === "searches" || type === "comparisons") {
+    entries = buildSettingsFolderedEntries(type);
+  } else {
+    let items = collectSettingsSavedItems(type);
+    items = filterSavedObjectItems(items, st.search);
+    items = sortSavedObjectItems(items, st.sort, type);
     if (type === "profiles") {
-      actions = `
-        ${item.isDefault ? `<span class="meta">Default profile</span>` : `<button type="button" data-action="settings-profile-default" data-chart-record="${escapeHtml(item.id)}">Set Default</button>`}
-        <button type="button" data-action="settings-profile-rename" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Rename</button>
-        <button type="button" data-action="settings-profile-archive" data-chart-record="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}">Archive</button>
-        <button type="button" disabled title="Coming soon">Duplicate</button>
-        <button type="button" disabled title="Coming soon">Delete</button>`;
-    } else if (type === "favorites") {
-      actions = `
-        <button type="button" data-action="settings-fav-rename" data-favorite-id="${escapeHtml(item.id)}" data-current-name="${escapeHtml(item.title)}" data-chart-record="${escapeHtml(item.profileId)}">Rename</button>
-        <button type="button" data-action="settings-fav-move-folder" data-favorite-id="${escapeHtml(item.id)}">Move to Folder</button>
-        <button type="button" data-action="settings-fav-archive" data-favorite-id="${escapeHtml(item.id)}" data-place="${escapeHtml(item.title)}" data-chart-record="${escapeHtml(item.profileId)}">Archive</button>
-        <button type="button" disabled title="Coming soon">Delete</button>`;
-    } else if (type === "searches") {
-      actions = `
-        <button type="button" data-action="settings-search-open" data-exploration="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
-        <button type="button" data-action="settings-search-rename" data-exploration="${escapeHtml(item.id)}" data-current-title="${escapeHtml(item.title)}">Rename</button>
-        <button type="button" data-action="settings-search-archive" data-exploration="${escapeHtml(item.id)}">Archive</button>
-        <button type="button" disabled title="Coming soon">Delete</button>`;
-    } else if (type === "comparisons") {
-      actions = `
-        <button type="button" data-action="settings-cmp-open" data-cmp-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
-        <button type="button" disabled title="Coming soon">Rename</button>
-        <button type="button" data-action="settings-cmp-archive" data-cmp-id="${escapeHtml(item.id)}" data-chart-record="${escapeHtml(item.profileId)}" data-cmp-title="${escapeHtml(item.title)}">Archive</button>
-        <button type="button" disabled title="Coming soon">Delete</button>`;
-    } else if (type === "notes") {
-      actions = `
-        <button type="button" data-action="settings-note-open" data-note-kind="${escapeHtml(item.noteKind)}" data-target-id="${escapeHtml(item.targetId)}" data-chart-record="${escapeHtml(item.profileId)}">Open</button>
-        <button type="button" disabled title="Coming soon">Rename</button>
-        <button type="button" disabled title="Coming soon">Archive</button>
-        <button type="button" disabled title="Coming soon">Delete</button>`;
+      const defId = viewModel.defaultChartRecordId;
+      items.sort((a, b) => (a.id === defId ? -1 : b.id === defId ? 1 : 0));
     }
-    return `<div class="settings-obj-row" data-settings-obj-row="${type}" data-obj-id="${escapeHtml(item.id)}">
+    entries = items.map((item) => ({ kind: type === "profiles" ? "profile" : type.slice(0, -1), ...item }));
+    const page = paginateSettingsEntries(entries, type);
+    entries = page.visible;
+    var _settingsListMore = page;
+  }
+  if (!entries.length) {
+    const label = { profiles: "birth profiles", favorites: "favorites", searches: "saved searches", comparisons: "comparisons", notes: "notes" }[type] || type;
+    return `<p class="settings-data-empty">No ${label} match your search.</p>`;
+  }
+  const rows = entries.map((item) => {
+    if (item.kind === "folder") {
+      const collapsed = (_settingsSavedObjState[type].collapsedFolders || new Set()).has(item.id);
+      const cfg = settingsFolderCfg(type);
+      const noun = (cfg && cfg.itemNoun) || "item";
+      return `<div class="settings-data-item is-folder${item.nested ? " is-nested" : ""}" data-settings-obj-row="${type}" data-obj-kind="folder" data-folder-id="${escapeHtml(item.id)}">
+        <button type="button" class="folder-caret-btn" data-action="settings-obj-folder-toggle" data-settings-obj-type="${type}" data-folder-id="${escapeHtml(item.id)}" aria-label="${collapsed ? "Expand" : "Collapse"} folder">${collapsed ? "\u25b8" : "\u25be"}</button>
+        <div>
+          <div class="settings-data-title"><button type="button" class="linkish" data-action="settings-obj-folder-toggle" data-settings-obj-type="${type}" data-folder-id="${escapeHtml(item.id)}">${escapeHtml(item.title)}</button></div>
+          <div class="settings-data-meta">${item.count} ${noun}${item.count === 1 ? "" : "s"}</div>
+        </div>
+        <div class="settings-data-actions">${settingsSavedObjectRowActionsHtml(type, item)}</div>
+      </div>`;
+    }
+    if (type === "profiles") {
+      return settingsProfilePcardRowHtml(item, st);
+    }
+    const checked = st.selected.has(item.id) ? " checked" : "";
+    let titleHtml;
+    if (type === "favorites" && item.placeId) {
+      titleHtml = `<button type="button" class="linkish" data-action="settings-fav-chart" data-chart-record="${escapeHtml(item.profileId)}" data-place-id="${escapeHtml(item.placeId)}">${escapeHtml(item.title)}</button>`;
+    } else {
+      titleHtml = escapeHtml(item.title);
+    }
+    const nestedClass = item.nested ? " is-nested" : "";
+    const noteText = type === "favorites"
+      ? settingsFavoriteNotePreviewText(item)
+      : String(item.notes || item.body || "").trim();
+    const notesPreview = ((type === "favorites" || type === "searches" || type === "comparisons") && noteText) ? `<br><span class="meta">${escapeHtml(noteText.slice(0, 100))}${noteText.length > 100 ? "…" : ""}</span>` : "";
+    const titleClass = "settings-data-title";
+    const coordsMeta = (type === "favorites") ? `<br>${escapeHtml(item.coordsLine || settingsFavoriteCoordsLine(item.placeId))}` : "";
+    return `<div class="settings-data-item${nestedClass}" data-settings-obj-row="${type}" data-obj-id="${escapeHtml(item.id)}">
       <input type="checkbox" data-settings-obj-select="${type}" data-obj-id="${escapeHtml(item.id)}"${checked} aria-label="Select ${escapeHtml(item.title)}" />
-      <div class="settings-obj-row-main">
-        <div class="settings-obj-row-title">${escapeHtml(item.title)}</div>
-        <div class="settings-obj-row-meta">${escapeHtml(item.subtitle || "")}${item.body ? " \u00b7 " + escapeHtml(item.body.slice(0, 80)) : ""}</div>
+      <div>
+        <div class="${titleClass}">${titleHtml}</div>
+        <div class="settings-data-meta">${escapeHtml(item.subtitle || "")}${coordsMeta}${item.metaExtra ? `<br>${escapeHtml(item.metaExtra)}` : ""}${notesPreview}</div>
       </div>
-      <div class="settings-obj-row-actions">${actions}</div>
+      <div class="settings-data-actions">${settingsSavedObjectRowActionsHtml(type, item)}</div>
     </div>`;
   }).join("");
-  return rows;
+  const pageInfo = (typeof _settingsListMore !== "undefined" && _settingsListMore) ? _settingsListMore : (entries._page || null);
+  const moreHtml = pageInfo ? settingsShowMoreHtml(type, pageInfo.total, pageInfo.visible ? pageInfo.visible.length : 0) : "";
+  return `<div class="settings-data-list">${rows}</div>${moreHtml}`;
 }
 
 function settingsSavedObjectPanelHtml(type, panelId, heading) {
-  const folderBlock = type === "favorites" ? settingsFavoriteFoldersHtml() : "";
   return `
     <div class="settings-subhead">${heading}</div>
-    <div class="panel settings-panel" id="${panelId}" data-settings-saved-type="${type}">
-      <p class="meta" style="margin:0 0 8px;">Rename changes display title only. Archive removes items from active lists; restore from Archives when wired.</p>
+    <div class="panel settings-panel settings-data-panel settings-v2-card" id="${panelId}" data-settings-saved-type="${type}">
       ${settingsSavedObjectToolbarHtml(type)}
-      ${folderBlock}
       <div data-settings-obj-list="${type}">${settingsSavedObjectListHtml(type)}</div>
     </div>`;
+}
+
+function settingsFolderPickerDialogHtml() {
+  return `<div id="rm-settings-folder-picker" role="dialog" aria-modal="true" aria-labelledby="rm-settings-folder-picker-title" hidden>
+    <div class="rm-sdlg-card">
+      <h4 class="rm-sdlg-title" id="rm-settings-folder-picker-title">Add to folder</h4>
+      <p class="rm-sdlg-body meta" id="rm-settings-folder-picker-hint">Choose one folder. All selected locations will be filed there.</p>
+      <div id="rm-settings-folder-picker-list" class="settings-folder-picker-list"></div>
+      <p class="settings-cross-profile-warn" id="rm-settings-folder-cross-profile-warn" hidden></p>
+      <div class="rm-sdlg-actions">
+        <button type="button" class="rm-sdlg-btn-cancel" data-action="settings-folder-picker-cancel">Cancel</button>
+        <button type="button" class="rm-sdlg-btn-save" data-action="settings-folder-picker-apply">Apply</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function settingsObjectNotesDialogHtml() {
+  return `<div id="rm-settings-object-notes-dialog" role="dialog" aria-modal="true" aria-labelledby="rm-settings-object-notes-title" hidden>
+    <div class="rm-sdlg-card">
+      <h4 class="rm-sdlg-title" id="rm-settings-object-notes-title">Notes</h4>
+      <p class="rm-sdlg-body meta" id="rm-settings-object-notes-subtitle"></p>
+      <div id="rm-settings-object-notes-body"></div>
+      <div class="rm-sdlg-actions">
+        <button type="button" class="rm-sdlg-btn-cancel" data-action="settings-object-notes-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function ensureSettingsObjectNotesDialog() {
+  if (document.getElementById("rm-settings-object-notes-dialog")) return;
+  const wrap = document.createElement("div");
+  wrap.innerHTML = settingsObjectNotesDialogHtml();
+  document.body.appendChild(wrap.firstElementChild);
+  const dlg = document.getElementById("rm-settings-object-notes-dialog");
+  if (dlg && dlg.dataset.wired !== "1") {
+    dlg.dataset.wired = "1";
+    dlg.addEventListener("click", (e) => {
+      if (e.target === dlg) { closeSettingsObjectNotesEditor(); return; }
+      const btn = e.target.closest("[data-action]");
+      if (!btn || !dlg.contains(btn)) return;
+      const action = btn.getAttribute("data-action");
+      if (action === "settings-object-notes-cancel") closeSettingsObjectNotesEditor();
+      else if (action === "settings-object-notes-save") saveSettingsObjectNotes();
+    });
+  }
+}
+
+async function loadSettingsObjectNoteBody(kind, profileId, targetId, placeId) {
+  if (kind === "favorite") {
+    let notes = "";
+    if (viewModel) {
+      viewModel.chartRecords.forEach((rec) => {
+        (rec.favorites || []).forEach((f) => { if (f.id === targetId) notes = f.notes || ""; });
+      });
+    }
+    return notes;
+  }
+  if (kind === "comparison_set") {
+    const cs = (viewModel && viewModel.comparisonSets || []).find((c) => c.id === targetId);
+    if (cs && cs.notes) return cs.notes;
+    const raw = (storeRaw && storeRaw.comparison_sets || []).find((c) => c.id === targetId);
+    return (raw && raw.notes) || "";
+  }
+  if (kind === "saved_investigation") {
+    const cacheKey = "inv:" + targetId;
+    if (_settingsObjectNoteCache.has(cacheKey)) return _settingsObjectNoteCache.get(cacheKey);
+    const rows = await fetchNotesForProfile(profileId);
+    const row = rows.find((r) => r.target_type === "saved_investigation" && r.target_id === targetId);
+    const body = (row && row.body) || "";
+    _settingsObjectNoteCache.set(cacheKey, body);
+    return body;
+  }
+  return "";
+}
+
+async function openSettingsObjectNotesEditor(ctx) {
+  ensureSettingsObjectNotesDialog();
+  const dlg = document.getElementById("rm-settings-object-notes-dialog");
+  const subEl = document.getElementById("rm-settings-object-notes-subtitle");
+  const bodyEl = document.getElementById("rm-settings-object-notes-body");
+  const titleEl = document.getElementById("rm-settings-object-notes-title");
+  if (!dlg || !bodyEl) return;
+  const kind = ctx.kind || "favorite";
+  const profileId = ctx.profileId || "";
+  const targetId = ctx.targetId || "";
+  const placeId = ctx.placeId || "";
+  const objectTitle = ctx.objectTitle || "Saved item";
+  if (titleEl) titleEl.textContent = kind === "favorite" ? "Location notes" : (kind === "comparison_set" ? "Comparison notes" : "Saved search notes");
+  if (subEl) subEl.textContent = objectTitle;
+  bodyEl.innerHTML = `<p class="meta">Loading…</p>`;
+  dlg.dataset.noteKind = kind;
+  dlg.dataset.profileId = profileId;
+  dlg.dataset.targetId = targetId;
+  dlg.dataset.placeId = placeId;
+  dlg.hidden = false;
+  const noteBody = await loadSettingsObjectNoteBody(kind, profileId, targetId, placeId);
+  const placeholder = kind === "favorite"
+    ? "Write notes for this saved location…"
+    : (kind === "comparison_set" ? "Write notes for this comparison…" : "Write notes for this saved search…");
+  bodyEl.innerHTML = `<textarea id="rm-settings-object-note-ta" class="note-ta" rows="10" placeholder="${escapeHtml(placeholder)}" style="width:100%;box-sizing:border-box;min-height:180px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;">${escapeHtml(noteBody)}</textarea>
+    <div class="note-foot" style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+      <button type="button" class="rm-sdlg-btn-save" data-action="settings-object-notes-save">Save note</button>
+      <span id="rm-settings-object-note-msg" class="meta" style="min-height:1.2em;"></span>
+    </div>`;
+  const ta = document.getElementById("rm-settings-object-note-ta");
+  if (ta) ta.focus();
+}
+
+
+async function saveSettingsObjectNotes() {
+  const dlg = document.getElementById("rm-settings-object-notes-dialog");
+  const ta = document.getElementById("rm-settings-object-note-ta");
+  const msg = document.getElementById("rm-settings-object-note-msg");
+  if (!dlg || !ta) return;
+  const kind = dlg.dataset.noteKind || "favorite";
+  const profileId = dlg.dataset.profileId || "";
+  const targetId = dlg.dataset.targetId || "";
+  const placeId = dlg.dataset.placeId || "";
+  const body = ta.value.trim();
+  try {
+    if (msg) msg.textContent = "Saving…";
+    if (kind === "favorite") {
+      const resp = await fetch("/favorites/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+        body: JSON.stringify({ profile_id: profileId, place_id: placeId, label: body }),
+      });
+      if (!resp.ok) throw new Error("Could not save note");
+      if (storeRaw && storeRaw.favorite_cities) {
+        const row = storeRaw.favorite_cities.find((f) => f.id === targetId);
+        if (row) { row.notes = body; row.label = body; }
+      }
+      if (viewModel) {
+        viewModel.chartRecords.forEach((rec) => {
+          (rec.favorites || []).forEach((f) => { if (f.id === targetId) f.notes = body; });
+        });
+      }
+      if (msg) msg.textContent = "Saved";
+      closeSettingsObjectNotesEditor();
+      refreshSettingsSavedObjectPanel("favorites");
+      return;
+    }
+    if (kind === "comparison_set") {
+      await saveComparisonSetNote(targetId, profileId, body);
+      if (viewModel) {
+        const cs = (viewModel.comparisonSets || []).find((c) => c.id === targetId);
+        if (cs) cs.notes = body;
+      }
+      if (storeRaw && storeRaw.comparison_sets) {
+        const raw = storeRaw.comparison_sets.find((c) => c.id === targetId);
+        if (raw) raw.notes = body;
+      }
+      if (msg) msg.textContent = "Saved";
+      closeSettingsObjectNotesEditor();
+      refreshSettingsSavedObjectPanel("comparisons");
+      return;
+    }
+    if (kind === "saved_investigation") {
+      await saveSavedInvestigationNote(targetId, body);
+      _settingsObjectNoteCache.set("inv:" + targetId, body);
+      if (msg) msg.textContent = "Saved";
+      closeSettingsObjectNotesEditor();
+      refreshSettingsSavedObjectPanel("searches");
+      return;
+    }
+    throw new Error("Unsupported note type");
+  } catch (err) {
+    if (msg) msg.textContent = "";
+    window.alert(err.message || String(err));
+  }
+}
+
+function closeSettingsObjectNotesEditor() {
+  const dlg = document.getElementById("rm-settings-object-notes-dialog");
+  if (dlg) dlg.hidden = true;
+}
+
+async function prefetchSettingsInvestigationNotesCache() {
+  if (_settingsNotesCacheLoaded || !viewModel) return;
+  _settingsNotesCacheLoaded = true;
+  for (const rec of viewModel.chartRecords) {
+    try {
+      const rows = await fetchNotesForProfile(rec.chartRecordId);
+      rows.forEach((row) => {
+        if (row.target_type === "saved_investigation" && row.target_id) {
+          _settingsObjectNoteCache.set("inv:" + row.target_id, row.body || "");
+        }
+      });
+    } catch (e) { /* non-fatal */ }
+  }
+  refreshSettingsSavedObjectPanel("searches");
+}
+
+function ensureSettingsFolderPickerDialog() {
+  if (document.getElementById("rm-settings-folder-picker")) return;
+  const wrap = document.createElement("div");
+  wrap.innerHTML = settingsFolderPickerDialogHtml();
+  document.body.appendChild(wrap.firstElementChild);
+}
+
+function wireSettingsFolderPickerDialog() {
+  ensureSettingsFolderPickerDialog();
+  const dlg = document.getElementById("rm-settings-folder-picker");
+  if (!dlg || dlg.dataset.wired === "1") return;
+  dlg.dataset.wired = "1";
+  dlg.addEventListener("click", (e) => {
+    if (e.target === dlg) { closeSettingsFolderPicker(); return; }
+    const btn = e.target.closest("[data-action]");
+    if (!btn || !dlg.contains(btn)) return;
+    const action = btn.getAttribute("data-action");
+    if (action === "settings-folder-picker-cancel") closeSettingsFolderPicker();
+    else if (action === "settings-folder-picker-apply") applySettingsFolderPicker();
+  });
+}
+
+function openSettingsFolderPicker(objType, itemIds) {
+  wireSettingsFolderPickerDialog();
+  const dlg = document.getElementById("rm-settings-folder-picker");
+  const listEl = document.getElementById("rm-settings-folder-picker-list");
+  const titleEl = document.getElementById("rm-settings-folder-picker-title");
+  const hintEl = document.getElementById("rm-settings-folder-picker-hint");
+  if (!dlg || !listEl) return;
+  const type = objType || "favorites";
+  const ids = (Array.isArray(itemIds) ? itemIds : [itemIds]).filter(Boolean);
+  if (!ids.length) return;
+  const st = _settingsSavedObjState[type];
+  st.folderPickerIds = ids;
+  st.folderPickerType = type;
+  const pf = st.profileFilter || "all";
+  const folders = loadSettingsFolders(type, pf);
+  const map = loadSettingsFolderMap(type);
+  const isBulk = ids.length > 1;
+  const noun = (settingsFolderCfg(type) || {}).itemNoun || "item";
+  if (titleEl) titleEl.textContent = isBulk ? `Add ${ids.length} ${noun}s to folder` : "Add to folder";
+  const crossWarnEl = document.getElementById("rm-settings-folder-cross-profile-warn");
+  const multiProfile = type === "favorites" && settingsSelectedProfileIdsForType(type, ids).size > 1;
+  if (crossWarnEl) {
+    if (multiProfile) {
+      crossWarnEl.hidden = false;
+      crossWarnEl.textContent = "This folder can include saved items from multiple profiles. When viewing a single profile, only that profile’s saved items will appear.";
+    } else {
+      crossWarnEl.hidden = true;
+      crossWarnEl.textContent = "";
+    }
+  }
+  if (hintEl) {
+    hintEl.textContent = isBulk
+      ? `Each location can be in one folder. Your ${ids.length} selections will all move to the folder you pick.`
+      : "Choose one folder for this location.";
+  }
+  const currentFolderId = !isBulk ? (map[ids[0]] || "") : "";
+  listEl.innerHTML = folders.length
+    ? folders.map((f) => {
+        const checked = currentFolderId === f.id ? " checked" : "";
+        return `<label class="settings-folder-pick"><span class="settings-folder-pick-radio"><input type="radio" name="rm-folder-pick" data-folder-pick-id="${escapeHtml(f.id)}"${checked} /></span><span class="settings-folder-pick-label">${escapeHtml(f.name)}</span></label>`;
+      }).join("")
+    : `<p class="meta">No folders yet. Use <strong>New Folder</strong> or <strong>Create folder from selected</strong> first.</p>`;
+  dlg.hidden = false;
+  const firstRadio = listEl.querySelector("input[type=radio]");
+  if (firstRadio && !listEl.querySelector("input[type=radio]:checked")) firstRadio.focus();
+  else if (listEl.querySelector("input[type=radio]:checked")) listEl.querySelector("input[type=radio]:checked").focus();
+}
+
+function closeSettingsFolderPicker() {
+  const dlg = document.getElementById("rm-settings-folder-picker");
+  if (dlg) dlg.hidden = true;
+  ["favorites", "searches", "comparisons"].forEach((t) => {
+    if (_settingsSavedObjState[t]) _settingsSavedObjState[t].folderPickerIds = [];
+  });
+}
+
+function applySettingsFolderPicker() {
+  const listEl = document.getElementById("rm-settings-folder-picker-list");
+  const type = ["favorites", "searches", "comparisons"].find((t) => (_settingsSavedObjState[t].folderPickerIds || []).length) || "favorites";
+  const itemIds = _settingsSavedObjState[type].folderPickerIds || [];
+  if (!listEl || !itemIds.length) { closeSettingsFolderPicker(); return; }
+  const pf = _settingsSavedObjState[type].profileFilter || "all";
+  const folders = loadSettingsFolders(type, pf);
+  const pick = listEl.querySelector("[data-folder-pick-id]:checked");
+  if (!folders.length) {
+    window.alert("Create a folder first (New Folder or Create folder from selected).");
+    return;
+  }
+  if (!pick) {
+    window.alert("Select a folder.");
+    return;
+  }
+  const folderId = pick.getAttribute("data-folder-pick-id") || "";
+  if (!folderId) {
+    window.alert("Select a folder.");
+    return;
+  }
+  const map = loadSettingsFolderMap(type);
+  itemIds.forEach((id) => { map[id] = folderId; });
+  saveSettingsFolderMap(type, map);
+  const st = _settingsSavedObjState[type];
+  itemIds.forEach((id) => st.selected.delete(id));
+  closeSettingsFolderPicker();
+  refreshSettingsSavedObjectPanel(type);
 }
 
 function settingsConfirmDialogHtml() {
@@ -8729,7 +9701,7 @@ async function settingsBulkArchive(type) {
   const noun = type === "profiles" ? "profile" : type.slice(0, -1);
   const ok = await settingsConfirm(
     "Archive selected",
-    `Archive ${ids.length} ${noun}(s)? They will be hidden from active lists. This is recoverable from Archives when restore is wired.`
+    `Archive ${ids.length} ${noun}(s)? They will be hidden from active lists. Restore is not wired yet — see Archives below.`
   );
   if (!ok) return;
   for (const id of ids) {
@@ -8739,7 +9711,8 @@ async function settingsBulkArchive(type) {
     else if (type === "comparisons") await settingsArchiveComparisonById(id);
   }
   st.selected.clear();
-  render();
+  refreshSettingsSavedObjectPanel(type);
+  scrollToSettingsArchives();
 }
 
 async function settingsArchiveProfileById(profileId) {
@@ -8820,53 +9793,656 @@ async function authToken() {
   return session.access_token;
 }
 
+
+function settingsDataHistoryCount() {
+  const map = _loadJsonStorage(RM_SAVED_VIEWED_KEY, {});
+  return Object.keys(map).reduce((sum, k) => sum + Object.keys(map[k] || {}).length, 0);
+}
+
+function settingsDataHubCounts() {
+  if (!viewModel) return { searches: 0, comparisons: 0, favorites: 0, notes: 0, history: 0 };
+  return {
+    searches: collectSettingsSearchItems().length,
+    comparisons: collectSettingsComparisonItems().length,
+    favorites: collectSettingsFavoriteItems().length,
+    notes: collectSettingsNoteItems().length,
+    history: settingsDataHistoryCount(),
+  };
+}
+
+const SETTINGS_V3_DATA_MANAGE = {
+  searches: { type: "searches", title: "Saved Searches" },
+  comparisons: { type: "comparisons", title: "Saved Comparisons" },
+  favorites: { type: "favorites", title: "Favorites" },
+  notes: { type: "notes", title: "Notes" },
+  history: { type: null, title: "History" },
+  export: { type: null, title: "Export My Data" },
+};
+
+function settingsDataHistoryPanelHtml() {
+  return `
+    <div class="panel settings-v2-card settings-v3-data-static-panel" id="sec-data-history">
+      <button type="button" disabled>Clear Chart Record history</button>
+      <button type="button" disabled style="margin-left:8px;">Clear all history</button>
+      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
+    </div>`;
+}
+
+function settingsDataExportPanelHtml() {
+  return `
+    <div class="panel settings-v2-card settings-v3-data-static-panel" id="sec-data-export">
+      ${settingsStubRow("Export My Data", "Download your account data.")}
+    </div>`;
+}
+
+function refreshSettingsV3DataHub() {
+  const root = document.querySelector(".settings-v3-root");
+  const hub = root && root.querySelector("#settings-v3-data-hub");
+  if (!hub) return;
+  const counts = settingsDataHubCounts();
+  Object.keys(counts).forEach((key) => {
+    const el = hub.querySelector(`[data-v3-data-count="${key}"]`);
+    if (el) el.textContent = String(counts[key]);
+  });
+}
+
+function openSettingsV3DataManage(kind) {
+  const cfg = SETTINGS_V3_DATA_MANAGE[kind];
+  if (!cfg) return;
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const hub = root.querySelector("#settings-v3-data-hub");
+  const manage = root.querySelector("#settings-v3-data-manage");
+  const titleEl = root.querySelector("#settings-v3-data-manage-title");
+  const bodyEl = root.querySelector("#settings-v3-data-manage-body");
+  if (!hub || !manage || !bodyEl) return;
+  hub.hidden = true;
+  manage.hidden = false;
+  if (titleEl) titleEl.textContent = cfg.title;
+  if (cfg.type) {
+    ensureSettingsObjectNotesDialog();
+    bodyEl.innerHTML = settingsSavedObjectPanelHtml(cfg.type, `settings-v3-sec-data-${cfg.type}`, cfg.title);
+    refreshSettingsSavedObjectPanel(cfg.type);
+  } else if (kind === "history") {
+    bodyEl.innerHTML = settingsDataHistoryPanelHtml();
+  } else if (kind === "export") {
+    bodyEl.innerHTML = settingsDataExportPanelHtml();
+  }
+  manage.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (history.replaceState) history.replaceState(null, "", `#/settings-v3/data/${kind}`);
+}
+
+function closeSettingsV3DataManage() {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const hub = root.querySelector("#settings-v3-data-hub");
+  const manage = root.querySelector("#settings-v3-data-manage");
+  if (!hub || !manage) return;
+  hub.hidden = false;
+  manage.hidden = true;
+  refreshSettingsV3DataHub();
+  if (history.replaceState) history.replaceState(null, "", "#/settings-v3");
+  const sec = root.querySelector("#sec-data");
+  if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function wireSettingsV3Data(root) {
+  if (!root || navContext.route !== "settings-v3" || !SETTINGS_V3_ENABLED) return;
+  ensureSettingsDataDelegation();
+  ensureSettingsObjectNotesDialog();
+  prefetchSettingsInvestigationNotesCache();
+  refreshSettingsV3DataHub();
+  const v3Kind = navContext.settingsV3DataKind || (parseLocation().settingsV3DataKind || null);
+  if (v3Kind && SETTINGS_V3_DATA_MANAGE[v3Kind]) openSettingsV3DataManage(v3Kind);
+}
+
 function refreshSettingsSavedObjectPanel(type) {
+  if (type === "profiles" && navContext.route === "settings-v3") {
+    refreshSettingsV3ProfilesPanel();
+    return;
+  }
+  const panel = document.querySelector(`[data-settings-saved-type="${type}"]`);
   const list = document.querySelector(`[data-settings-obj-list="${type}"]`);
   const bulk = document.querySelector(`[data-settings-obj-bulk="${type}"]`);
+  const toolbar = document.querySelector(`[data-settings-obj-toolbar="${type}"]`);
+  if (panel && (type === "favorites" || toolbar)) {
+    const warnEl = panel.querySelector(".settings-cross-profile-warn");
+    const warnHtml = settingsCrossProfileFolderWarningHtml(type);
+    if (warnEl) {
+      if (warnHtml) { warnEl.outerHTML = warnHtml; }
+      else { warnEl.remove(); }
+    } else if (warnHtml && toolbar) {
+      toolbar.insertAdjacentHTML("beforebegin", warnHtml);
+    }
+  }
   if (list) list.innerHTML = settingsSavedObjectListHtml(type);
+  if (toolbar) {
+    const dirBtn = toolbar.querySelector('[data-action="settings-obj-sort-dir"]');
+    if (dirBtn) dirBtn.textContent = settingsSortDirLabel(type);
+    const sortSel = toolbar.querySelector(`[data-settings-obj-sort="${type}"]`);
+    const stSort = _settingsSavedObjState[type];
+    if (sortSel && stSort) {
+      const normalized = settingsSavedObjectSortKey(type, stSort.sort);
+      if (stSort.sort !== normalized) stSort.sort = normalized;
+      sortSel.value = normalized;
+    }
+  }
   const st = _settingsSavedObjState[type];
-  if (bulk) {
-    const n = st.selected.size;
-    bulk.hidden = n === 0;
+  if (bulk && st) {
+    const n = st.selected ? st.selected.size : 0;
+    const dis = n < 1;
+    bulk.querySelectorAll("button[data-action]").forEach((btn) => { btn.disabled = dis; });
     const countEl = bulk.querySelector(`[data-settings-obj-selected-count="${type}"]`);
+    if (countEl) countEl.textContent = `${n} selected`;
+  }
+  if (navContext.route === "settings-v3") refreshSettingsV3DataHub();
+}
+
+
+function settingsInteractionRoute() {
+  return navContext.route === "settings" || navContext.route === "settings-v3";
+}
+
+function settingsV3ProfilesToolbarHtml() {
+  return settingsSavedListToolbarControlsHtml("profiles");
+}
+
+function refreshSettingsV3ProfilesPanel() {
+  const root = document.querySelector(".settings-v3-root");
+  if (!root) return;
+  const grid = root.querySelector("#pgrid");
+  const toolbarHost = root.querySelector("#settings-v3-profiles-toolbar");
+  if (toolbarHost) {
+    toolbarHost.className = "settings-v2-toolbar is-saved-list-toolbar";
+    toolbarHost.setAttribute("data-settings-obj-toolbar", "profiles");
+    toolbarHost.innerHTML = settingsV3ProfilesToolbarHtml();
+  }
+  if (!grid || !viewModel) return;
+  const st = _settingsSavedObjState.profiles;
+
+  let items = collectSettingsProfileItems();
+  items = filterSavedObjectItems(items, st.search);
+  items = sortSavedObjectItems(items, st.sort, "profiles");
+  const defId = viewModel.defaultChartRecordId;
+  if (defId) items.sort((a, b) => (a.id === defId ? -1 : b.id === defId ? 1 : 0));
+
+  const newCard = '<button type="button" class="pcard newp" data-action="settings-profile-create">+ New Profile</button>';
+  const rows = items.map((item) => settingsProfilePcardRowHtml(item, st)).join("");
+  grid.innerHTML = newCard + `<div class="settings-data-list settings-v3-profiles-list">${rows}</div>`;
+
+  const bulk = root.querySelector('[data-settings-obj-bulk="profiles"]');
+  if (bulk) {
+    const n = st.selected ? st.selected.size : 0;
+    bulk.querySelectorAll("button[data-action]").forEach((btn) => { btn.disabled = n < 1; });
+    const countEl = bulk.querySelector('[data-settings-obj-selected-count="profiles"]');
     if (countEl) countEl.textContent = `${n} selected`;
   }
 }
 
-function wireSettingsSavedObjects(root) {
-  if (!root || navContext.route !== "settings") return;
-  if (normalizeSettingsSubpage(navContext.settingsSubpage) !== "data") return;
+function wireSettingsV3Profiles(root) {
+  if (!root || navContext.route !== "settings-v3" || !SETTINGS_V3_ENABLED) return;
+  ensureSettingsDataDelegation();
+  refreshSettingsV3ProfilesPanel();
+}
+
+function ensureSettingsDataDelegation() {
+  const main = document.getElementById("main");
+  if (!main || main.dataset.settingsDataDelegated === "1") return;
+  main.dataset.settingsDataDelegated = "1";
   ensureSettingsConfirmDialog();
-  root.querySelectorAll("[data-settings-obj-search]").forEach((input) => {
-    if (input.__wired) return;
-    input.__wired = true;
-    input.addEventListener("input", () => {
-      const type = input.getAttribute("data-settings-obj-search");
-      _settingsSavedObjState[type].search = input.value;
-      refreshSettingsSavedObjectPanel(type);
-      wireSettingsSavedObjects(root);
+  wireSettingsFolderPickerDialog();
+  if (!document.documentElement.dataset.settingsEscapeWired) {
+    document.documentElement.dataset.settingsEscapeWired = "1";
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !settingsInteractionRoute()) return;
+      const fp = document.getElementById("rm-settings-folder-picker");
+      if (fp && !fp.hidden) { closeSettingsFolderPicker(); e.preventDefault(); return; }
+      const notes = document.getElementById("rm-settings-object-notes-dialog");
+      if (notes && !notes.hidden) { closeSettingsObjectNotesEditor(); e.preventDefault(); }
     });
+  }
+
+  main.addEventListener("input", (e) => {
+    if (!settingsInteractionRoute()) return;
+    const input = e.target.closest("[data-settings-obj-search]");
+    if (!input || !main.contains(input)) return;
+    const type = input.getAttribute("data-settings-obj-search");
+    _settingsSavedObjState[type].search = input.value;
+    clearTimeout(_settingsSavedObjState[type]._searchTimer);
+    _settingsSavedObjState[type]._searchTimer = setTimeout(() => refreshSettingsSavedObjectPanel(type), 200);
   });
-  root.querySelectorAll("[data-settings-obj-sort]").forEach((sel) => {
-    if (sel.__wired) return;
-    sel.__wired = true;
-    sel.addEventListener("change", () => {
+
+  main.addEventListener("change", (e) => {
+    if (!settingsInteractionRoute()) return;
+    const sel = e.target.closest("[data-settings-obj-sort]");
+    if (sel && main.contains(sel)) {
       const type = sel.getAttribute("data-settings-obj-sort");
-      _settingsSavedObjState[type].sort = sel.value;
+      const st = _settingsSavedObjState[type];
+      st.sort = settingsSavedObjectSortKey(type, sel.value);
+      if (type === "favorites" || type === "searches" || type === "comparisons") st.visibleLimit = SETTINGS_LIST_PAGE_SIZE;
       refreshSettingsSavedObjectPanel(type);
-    });
-  });
-  root.querySelectorAll("[data-settings-obj-select]").forEach((box) => {
-    if (box.__wired) return;
-    box.__wired = true;
-    box.addEventListener("change", () => {
+      return;
+    }
+    const pf = e.target.closest("[data-settings-obj-profile-filter]");
+    if (pf && main.contains(pf)) {
+      const type = pf.getAttribute("data-settings-obj-profile-filter");
+      _settingsSavedObjState[type].profileFilter = pf.value;
+      _settingsSavedObjState[type].visibleLimit = SETTINGS_LIST_PAGE_SIZE;
+      refreshSettingsSavedObjectPanel(type);
+      return;
+    }
+    const box = e.target.closest("[data-settings-obj-select]");
+    if (box && main.contains(box)) {
       const type = box.getAttribute("data-settings-obj-select");
       const id = box.getAttribute("data-obj-id");
       const st = _settingsSavedObjState[type];
       if (box.checked) st.selected.add(id); else st.selected.delete(id);
       refreshSettingsSavedObjectPanel(type);
-    });
+    }
   });
+
+  main.addEventListener("click", (e) => {
+    if (!settingsInteractionRoute()) return;
+    const btn = e.target.closest("[data-action]");
+    if (!btn || !main.contains(btn)) return;
+    const action = btn.getAttribute("data-action");
+    if (!action || !action.startsWith("settings-")) return;
+
+    if (action === "settings-obj-sort-dir") {
+      const type = btn.getAttribute("data-settings-obj-type");
+      const st = _settingsSavedObjState[type];
+      st.sortDir = st.sortDir === "desc" ? "asc" : "desc";
+      if (type === "favorites" || type === "searches" || type === "comparisons") st.visibleLimit = SETTINGS_LIST_PAGE_SIZE;
+      refreshSettingsSavedObjectPanel(type);
+      return;
+    }
+    if (action === "settings-obj-folder-toggle" || action === "settings-fav-folder-toggle") {
+      const folderId = btn.getAttribute("data-folder-id");
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      if (!folderId || !objType) return;
+      const collapsed = _settingsSavedObjState[objType].collapsedFolders || new Set();
+      if (collapsed.has(folderId)) collapsed.delete(folderId); else collapsed.add(folderId);
+      _settingsSavedObjState[objType].collapsedFolders = collapsed;
+      refreshSettingsSavedObjectPanel(objType);
+      return;
+    }
+    if (action === "settings-profile-open") {
+      const crId = btn.getAttribute("data-chart-record");
+      if (crId) { selectProfile(crId); navigate("chart-record", { chartRecordId: crId }); }
+      return;
+    }
+    if (action === "settings-profile-default") {
+      const crId = btn.getAttribute("data-chart-record");
+      if (!crId) return;
+      setAccountDefaultChartRecord(crId).then(() => { if (navContext.route === "settings-v3") refreshSettingsV3ProfilesPanel(); else refreshSettingsSavedObjectPanel("profiles"); }).catch((err) => window.alert(err.message || String(err)));
+      return;
+    }
+    if (action === "settings-profile-edit-birth") {
+      const profileId = btn.getAttribute("data-chart-record");
+      if (!profileId || typeof window.__showFirstProfileIntake !== "function") {
+        window.alert("Edit dialog unavailable. Reload and try again.");
+        return;
+      }
+      window.__showFirstProfileIntake({
+        mode: "edit",
+        profileId,
+        onUpdated: async () => {
+          try {
+            await loadViewModelFromStore();
+            if (navContext.route === "settings-v3") refreshSettingsV3ProfilesPanel();
+            else refreshSettingsSavedObjectPanel("profiles");
+            render();
+          } catch (e) {
+            render();
+          }
+        },
+      });
+      return;
+    }
+    if (action === "settings-profile-rename") {
+      const profileId = btn.getAttribute("data-chart-record");
+      const currentName = btn.getAttribute("data-current-name") || "";
+      if (typeof window.__showFirstProfileIntake !== "function") {
+        window.alert("Rename dialog unavailable. Reload and try again.");
+        return;
+      }
+      window.__showFirstProfileIntake({
+        mode: "rename",
+        profileId,
+        displayName: currentName,
+        onRenamed: (newName) => {
+          const rec = viewModel.chartRecords.find((r) => r.chartRecordId === profileId);
+          if (rec) rec.displayName = newName;
+          if (storeRaw && storeRaw.clients) {
+            const c = storeRaw.clients.find((x) => x.id === profileId);
+            if (c) c.display_name = newName;
+          }
+          if (navContext.route === "settings-v3") refreshSettingsV3ProfilesPanel(); else refreshSettingsSavedObjectPanel("profiles");
+        },
+      });
+      return;
+    }
+    if (action === "settings-profile-archive") {
+      const profileId = btn.getAttribute("data-chart-record");
+      const currentName = btn.getAttribute("data-current-name") || "this profile";
+      (async () => {
+        try {
+          const plan = await planProfileArchive(profileId);
+          if (plan.blocked === "only-profile") { window.alert("You cannot archive your only profile."); return; }
+          const ok = await settingsConfirm("Archive profile", 'Archive "' + currentName + '"? It will be hidden from active lists.');
+          if (!ok) return;
+          await settingsArchiveProfileById(profileId);
+          _settingsSavedObjState.profiles.selected.delete(profileId);
+          if (navContext.route === "settings-v3") refreshSettingsV3ProfilesPanel(); else refreshSettingsSavedObjectPanel("profiles");
+          scrollToSettingsArchives();
+        } catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+      })();
+      return;
+    }
+    if (action === "settings-profile-create") {
+      if (typeof window.__showFirstProfileIntake === "function") {
+        window.__showFirstProfileIntake({ mode: "add", onCreated: handleProfileCreated });
+      }
+      return;
+    }
+    if (action === "settings-obj-create-folder" || action === "settings-fav-create-folder") {
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      const name = window.prompt("Folder name");
+      if (!name || !name.trim()) return;
+      const profileId = settingsResolveFolderProfileId(objType);
+      if (settingsFolderCfg(objType).scoped && !profileId) {
+        window.alert("Choose a profile in the filter dropdown first (or select items from one profile).");
+        return;
+      }
+      const folders = loadSettingsFolders(objType, _settingsSavedObjState[objType].profileFilter || "all");
+      folders.push({ id: "folder_" + Date.now(), name: name.trim(), profileId: profileId || null });
+      saveSettingsFolders(objType, folders);
+      refreshSettingsSavedObjectPanel(objType);
+      return;
+    }
+    if (action === "settings-obj-rename-folder" || action === "settings-fav-rename-folder") {
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      const folderId = btn.getAttribute("data-folder-id");
+      const current = btn.getAttribute("data-folder-name") || "";
+      const next = window.prompt("Rename folder", current);
+      if (!next || !next.trim()) return;
+      const pf = _settingsSavedObjState[objType].profileFilter || "all";
+      const folders = loadSettingsFolders(objType, pf).map((f) => f.id === folderId ? Object.assign({}, f, { name: next.trim() }) : f);
+      saveSettingsFolders(objType, folders);
+      refreshSettingsSavedObjectPanel(objType);
+      return;
+    }
+    if (action === "settings-obj-delete-folder" || action === "settings-fav-delete-folder") {
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      const folderId = btn.getAttribute("data-folder-id");
+      const folderName = btn.getAttribute("data-folder-name") || "this folder";
+      (async () => {
+        const ok = await settingsConfirm("Delete folder", 'Delete folder "' + folderName + '"? Items in this folder become unfiled.');
+        if (!ok) return;
+        const pf = _settingsSavedObjState[objType].profileFilter || "all";
+        saveSettingsFolders(objType, loadSettingsFolders(objType, pf).filter((f) => f.id !== folderId));
+        const map = loadSettingsFolderMap(objType);
+        Object.keys(map).forEach((k) => { if (map[k] === folderId) delete map[k]; });
+        saveSettingsFolderMap(objType, map);
+        refreshSettingsSavedObjectPanel(objType);
+      })();
+      return;
+    }
+    if (action === "settings-fav-archive") {
+      const favId = btn.getAttribute("data-favorite-id");
+      const placeLabel = btn.getAttribute("data-place") || "this place";
+      (async () => {
+        const ok = await settingsConfirm("Archive favorite", "Archive " + placeLabel + "?");
+        if (!ok) return;
+        try {
+          await settingsArchiveFavoriteById(favId);
+          _settingsSavedObjState.favorites.selected.delete(favId);
+          refreshSettingsSavedObjectPanel("favorites");
+          scrollToSettingsArchives();
+        } catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+      })();
+      return;
+    }
+    if (action === "settings-fav-move-folder-select") return;
+    if (action === "settings-obj-bulk-archive") {
+      settingsBulkArchive(btn.getAttribute("data-settings-obj-type")).catch((err) => window.alert(err.message || String(err)));
+      return;
+    }
+    if (action === "settings-search-open") {
+      touchSavedObjectViewed("searches", btn.getAttribute("data-exploration"));
+      openMap({ chartRecordId: btn.getAttribute("data-chart-record"), explorationId: btn.getAttribute("data-exploration"), source: "settings" });
+      return;
+    }
+    if (action === "settings-search-rename") {
+      const exp = btn.getAttribute("data-exploration");
+      const current = btn.getAttribute("data-current-title") || "";
+      const next = window.prompt("Rename saved search", current);
+      if (next === null) return;
+      const trimmed = next.trim();
+      if (!trimmed) return;
+      (async () => {
+        try {
+          const resp = await fetch("/saved-investigations/rename", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+            body: JSON.stringify({ saved_search_id: exp, title: trimmed }),
+          });
+          if (!resp.ok) throw new Error("Rename failed");
+          if (storeRaw && storeRaw.saved_investigations) {
+            const row = storeRaw.saved_investigations.find((s) => s.id === exp);
+            if (row) { row.name = trimmed; row.title = trimmed; }
+          }
+          refreshSettingsSavedObjectPanel("searches");
+        } catch (err) { window.alert(err.message || String(err)); }
+      })();
+      return;
+    }
+    if (action === "settings-search-archive") {
+      const exp = btn.getAttribute("data-exploration");
+      (async () => {
+        const ok = await settingsConfirm("Archive saved search", "Archive this investigation?");
+        if (!ok) return;
+        try {
+          await settingsArchiveSearchById(exp);
+          _settingsSavedObjState.searches.selected.delete(exp);
+          refreshSettingsSavedObjectPanel("searches");
+          scrollToSettingsArchives();
+        } catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+      })();
+      return;
+    }
+    if (action === "settings-cmp-open") {
+      touchSavedObjectViewed("comparisons", btn.getAttribute("data-cmp-id"));
+      navigate("compare", { chartRecordId: btn.getAttribute("data-chart-record"), comparisonSetId: btn.getAttribute("data-cmp-id") });
+      return;
+    }
+    if (action === "settings-cmp-archive") {
+      const setId = btn.getAttribute("data-cmp-id");
+      const title = btn.getAttribute("data-cmp-title");
+      (async () => {
+        const ok = await settingsConfirm("Archive comparison", "Archive " + (title || "this comparison") + "?");
+        if (!ok) return;
+        try {
+          await settingsArchiveComparisonById(setId);
+          _settingsSavedObjState.comparisons.selected.delete(setId);
+          refreshSettingsSavedObjectPanel("comparisons");
+          scrollToSettingsArchives();
+        } catch (err) { window.alert("Archive failed: " + (err.message || String(err))); }
+      })();
+      return;
+    }
+    if (action === "settings-note-open") {
+      const kind = btn.getAttribute("data-note-kind");
+      const targetId = btn.getAttribute("data-target-id");
+      const cr = btn.getAttribute("data-chart-record");
+      touchSavedObjectViewed("notes", kind + ":" + targetId);
+      if (kind === "comparison_set") navigate("compare", { chartRecordId: cr, comparisonSetId: targetId });
+      else navigate("notes-library", { chartRecordId: cr });
+      return;
+    }
+
+    if (action === "settings-obj-show-more") {
+      const t = btn.getAttribute("data-settings-obj-type");
+      const st = _settingsSavedObjState[t];
+      st.visibleLimit = (st.visibleLimit || SETTINGS_LIST_PAGE_SIZE) + SETTINGS_LIST_PAGE_SIZE;
+      refreshSettingsSavedObjectPanel(t);
+      return;
+    }
+    if (action === "settings-fav-star") {
+      const favId = btn.getAttribute("data-favorite-id");
+      const profileId = btn.getAttribute("data-chart-record");
+      const placeId = btn.getAttribute("data-place-id");
+      const nextStarred = btn.getAttribute("data-starred") !== "1";
+      (async () => {
+        try {
+          const resp = await fetch("/favorites/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+            body: JSON.stringify({ profile_id: profileId, place_id: placeId, starred: nextStarred }),
+          });
+          if (!resp.ok) throw new Error("Could not update star");
+          if (storeRaw && storeRaw.favorite_cities) {
+            const row = storeRaw.favorite_cities.find((f) => f.id === favId);
+            if (row) row.starred = nextStarred;
+          }
+          refreshSettingsSavedObjectPanel("favorites");
+        } catch (err) { window.alert(err.message || String(err)); }
+      })();
+      return;
+    }
+    if (action === "settings-fav-city-intel") {
+      const cr = btn.getAttribute("data-chart-record");
+      const pid = btn.getAttribute("data-place-id");
+      if (cr && pid && settingsCityIntelRouteAvailable()) {
+        selectProfile(cr);
+        navigate("city", { chartRecordId: cr, placeId: pid });
+      }
+      return;
+    }
+    if (action === "settings-fav-chart") {
+      const cr = btn.getAttribute("data-chart-record");
+      const pid = btn.getAttribute("data-place-id");
+      const favId = btn.closest("[data-obj-id]") && btn.closest("[data-obj-id]").getAttribute("data-obj-id");
+      if (favId) touchSavedObjectViewed("favorites", favId);
+      if (cr && pid) { selectProfile(cr); navigate("chart", { chartRecordId: cr, placeId: pid }); }
+      return;
+    }
+    if (action === "settings-object-notes") {
+      const kind = btn.getAttribute("data-note-kind") || "favorite";
+      openSettingsObjectNotesEditor({
+        kind,
+        targetId: btn.getAttribute("data-target-id") || "",
+        profileId: btn.getAttribute("data-chart-record") || "",
+        placeId: btn.getAttribute("data-place-id") || "",
+        objectTitle: btn.getAttribute("data-object-title") || "Saved item",
+      });
+      return;
+    }
+    if (action === "settings-obj-add-to-folder" || action === "settings-fav-add-to-folder") {
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      const id = btn.getAttribute("data-target-id") || btn.getAttribute("data-favorite-id");
+      openSettingsFolderPicker(objType, [id]);
+      return;
+    }
+    if (action === "settings-obj-bulk-add-folder" || action === "settings-fav-bulk-add-folder") {
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      const st = _settingsSavedObjState[objType];
+      const ids = Array.from(st.selected || []);
+      if (!ids.length) return;
+      openSettingsFolderPicker(objType, ids);
+      return;
+    }
+    if (action === "settings-folder-picker-cancel") {
+      closeSettingsFolderPicker();
+      return;
+    }
+    if (action === "settings-folder-picker-apply") {
+      applySettingsFolderPicker();
+      return;
+    }
+
+    if (action === "settings-goto-archives") {
+      scrollToSettingsArchives();
+      return;
+    }
+    if (action === "settings-obj-bulk-create-folder" || action === "settings-fav-bulk-create-folder") {
+      const objType = btn.getAttribute("data-settings-obj-type") || "favorites";
+      const st = _settingsSavedObjState[objType];
+      const ids = Array.from(st.selected || []);
+      if (!ids.length) return;
+      const name = window.prompt("New folder name");
+      if (!name || !name.trim()) return;
+      const profileId = settingsResolveFolderProfileId(objType);
+      if (settingsFolderCfg(objType).scoped && !profileId) {
+        window.alert("Choose a profile in the filter dropdown first (or select items from one profile).");
+        return;
+      }
+      const folderId = "folder_" + Date.now();
+      const pf = st.profileFilter || "all";
+      const folders = loadSettingsFolders(objType, pf);
+      folders.push({ id: folderId, name: name.trim(), profileId: profileId || null });
+      saveSettingsFolders(objType, folders);
+      const map = loadSettingsFolderMap(objType);
+      ids.forEach((itemId) => { map[itemId] = folderId; });
+      saveSettingsFolderMap(objType, map);
+      st.selected.clear();
+      refreshSettingsSavedObjectPanel(objType);
+      return;
+    }
+    if (action === "settings-fav-rename-label") {
+      const favId = btn.getAttribute("data-favorite-id");
+      const profileId = btn.getAttribute("data-chart-record");
+      const placeId = btn.getAttribute("data-place-id");
+      const current = btn.getAttribute("data-current-title") || "";
+      const next = window.prompt("Rename saved location", current);
+      if (next === null) return;
+      const trimmed = next.trim();
+      if (!trimmed) return;
+      (async () => {
+        try {
+          const resp = await fetch("/favorites/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: "Bearer " + (await authToken()) },
+            body: JSON.stringify({ profile_id: profileId, place_id: placeId, label: trimmed }),
+          });
+          if (!resp.ok) throw new Error("Rename failed");
+          if (storeRaw && storeRaw.favorite_cities) {
+            const row = storeRaw.favorite_cities.find((f) => f.id === favId);
+            if (row) { row.notes = trimmed; row.label = trimmed; }
+          }
+          if (viewModel) {
+            viewModel.chartRecords.forEach((rec) => {
+              (rec.favorites || []).forEach((f) => { if (f.id === favId) { f.notes = trimmed; f.placeName = trimmed; } });
+            });
+          }
+          refreshSettingsSavedObjectPanel("favorites");
+        } catch (err) { window.alert(err.message || String(err)); }
+      })();
+      return;
+    }
+    if (action === "settings-v3-data-manage") {
+      const kind = btn.getAttribute("data-data-kind");
+      if (kind) openSettingsV3DataManage(kind);
+      return;
+    }
+    if (action === "settings-v3-data-back") {
+      closeSettingsV3DataManage();
+      return;
+    }
+    if (action === "settings-back") {
+      navigate("settings", { settingsSubpage: null });
+      return;
+    }
+  });
+
+}
+
+function wireSettingsSavedObjects(root) {
+  if (!root || navContext.route !== "settings") return;
+  if (normalizeSettingsSubpage(navContext.settingsSubpage) !== "data") return;
+  ensureSettingsDataDelegation();
+  ensureSettingsObjectNotesDialog();
+  prefetchSettingsInvestigationNotesCache();
 }
 
 function settingsSoonBadge() {
@@ -8944,17 +10520,7 @@ function settingsAccountPanelHtml() {
 }
 
 function settingsProfilesPanelHtml() {
-  const vm = requireViewModel();
-  return `
-    <label class="block">Default profile
-      <select id="rm-settings-default-cr">
-        ${vm.chartRecords.map((r) =>
-          `<option value="${r.chartRecordId}"${r.chartRecordId === vm.defaultChartRecordId ? " selected" : ""}>${r.displayName}</option>`
-        ).join("")}
-      </select>
-    </label>
-    <p class="meta">Used when opening Map without a specific profile selected. Create Composite always creates a <strong>new</strong> profile and never changes source profiles.</p>
-    ${settingsSavedObjectPanelHtml("profiles", "sec-data-profiles", "Birth Profiles")}`;
+  return settingsSavedObjectPanelHtml("profiles", "sec-data-profiles", "Birth Profiles");
 }
 
 function chartAppearanceHtml() {
@@ -9109,27 +10675,23 @@ function settingsExportsBodyHtml() {
 }
 
 function settingsDataBodyHtml() {
-  return settingsProfilesPanelHtml()
+  return `<div class="settings-my-data-v2">`
+    + settingsProfilesPanelHtml()
     + settingsSavedObjectPanelHtml("favorites", "sec-data-favorites", "Favorites")
     + settingsSavedObjectPanelHtml("searches", "sec-data-saved", "Saved Searches")
     + settingsSavedObjectPanelHtml("comparisons", "sec-data-comparisons", "Saved Comparisons")
     + settingsSavedObjectPanelHtml("notes", "sec-data-notes", "Notes")
     + `
     <div class="settings-subhead">Archives</div>
-    <div class="panel" id="sec-data-archives">
-      <p class="meta" style="margin:0 0 8px;">Archived items are hidden from active lists. Restore will return here when the archives backend is wired.</p>
-      ${settingsStubRow("Restore archived items", "Browse and restore archived searches, comparisons, favorites, and profiles.")}
+    <div class="panel settings-v2-card" id="sec-data-archives">
+      <p class="meta" style="margin:0 0 8px;">Archived items are removed from the lists above. Browse and restore is <strong>not wired yet</strong> — archived data remains in your account but cannot be listed or restored from this screen until SETTINGS-ARCHIVES ships.</p>
+      ${settingsStubRow("Restore archived items", "Deferred — backend browse/restore API required.")}
+      <button type="button" data-action="settings-goto-archives" style="margin-top:8px;">Jump to Archives section</button>
     </div>
     <div class="settings-subhead">History</div>
-    <div class="panel" id="sec-data-history">
-      <button type="button" disabled>Clear Chart Record history</button>
-      <button type="button" disabled style="margin-left:8px;">Clear all history</button>
-      <p class="meta" style="margin-top:8px;">${settingsSoonBadge()}</p>
-    </div>
+    ${settingsDataHistoryPanelHtml()}
     <div class="settings-subhead">Export My Data</div>
-    <div class="panel" id="sec-data-export">
-      ${settingsStubRow("Export My Data", "Download your account data.")}
-    </div>`;
+    ${settingsDataExportPanelHtml()}</div>`;
 }
 
 function dignityAppearanceHtml() {
@@ -9230,7 +10792,7 @@ const SETTINGS_SUBPAGE_RENDERERS = {
       "My Data",
       "Profiles, saved searches, comparisons, archives, and history.",
       settingsDataBodyHtml(),
-      { showSave: true }
+      { showSave: false }
     );
   },
   about() {
@@ -9249,6 +10811,41 @@ const SETTINGS_SUBPAGE_RENDERERS = {
   "sharing-data"() { return SETTINGS_SUBPAGE_RENDERERS.exports(); },
   technical() { return SETTINGS_SUBPAGE_RENDERERS.data(); },
 };
+
+function screenSettingsV3() {
+  if (!SETTINGS_V3_ENABLED) {
+    return `
+      <div class="warn-box">
+        <strong>Settings V3 is disabled.</strong>
+        Set <code>localStorage.relocation.flag.settingsV3 = "1"</code> or <code>window.__RM_SETTINGS_V3 = true</code> to enable.
+      </div>`;
+  }
+  const user = window.CurrentUser || {};
+  const acct = escapeHtml(user.accountName || user.email || "Account");
+  return `
+    <div class="settings-v3-root" id="settings-v3-root">
+      <header class="topbar">
+        <span class="brand">Relocation</span>
+        <span class="crumb">\u00b7 Settings</span>
+        <span class="acct">${acct} \u25be</span>
+      </header>
+      <div class="wrap">
+        <nav class="nav" id="settings-v3-nav" aria-label="Settings sections"></nav>
+        <main class="col" id="settings-v3-col"></main>
+      </div>
+      <div class="modal-bg" id="modalBg">
+        <div class="modal">
+          <h3 id="mTitle">Confirm</h3>
+          <p id="mBody"></p>
+          <input class="conf" id="mConfirm" type="text" placeholder="" style="display:none" />
+          <div class="acts">
+            <button class="btn ghost" data-m="cancel">Cancel</button>
+            <button class="btn danger" id="mGo" data-m="go">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
 
 function screenSettings() {
   const sub = normalizeSettingsSubpage(navContext.settingsSubpage);
@@ -9442,7 +11039,7 @@ function notesLibraryRelatedName(row, profileId) {
   }
   if (row.target_type === "comparison_set" && row.target_id) {
     const cs = (viewModel.comparisonSets || []).find((c) => c.id === row.target_id);
-    return cs ? (cs.title || "Comparison") : "Comparison";
+    return cs ? comparisonDisplayTitle(cs) : "Comparison";
   }
   if (row.target_type === "saved_investigation" && row.target_id) {
     for (const rec of viewModel.chartRecords || []) {
@@ -9821,6 +11418,7 @@ const SCREEN_RENDERERS = {
   city: screenCity,
   export: screenExport,
   settings: screenSettings,
+  "settings-v3": screenSettingsV3,
   "birth-data": screenBirthData,
   future: screenFuture,
   help: screenHelp,
@@ -9872,7 +11470,8 @@ function render() {
     return;
   }
   renderNav();
-  const INSTRUMENT_SURFACE_ROUTES = new Set(["chart-record", "chart", "compare", "settings", "help", "notes-library", "profiles"]);
+  if (isOnboardingSuppressedRoute(navContext.route)) hideGuidedOnboarding();
+  const INSTRUMENT_SURFACE_ROUTES = new Set(["chart-record", "chart", "compare", "settings", "settings-v3", "help", "notes-library", "profiles"]);
   document.body.classList.toggle("rm-instrument-surface", INSTRUMENT_SURFACE_ROUTES.has(navContext.route));
   document.body.classList.toggle("rm-help-handbook", navContext.route === "help");
   const acctBtn = $("#rm-acct-drawer-btn");
@@ -9941,6 +11540,12 @@ function render() {
     initAppearanceSettingsControls($("#main"));
     initDignitySettingsControls($("#main"));
     initGlyphSettingsControls($("#main"));
+  }
+  document.body.classList.toggle("settings-v3-active", navContext.route === "settings-v3");
+  if (navContext.route === "settings-v3" && SETTINGS_V3_ENABLED && window.SettingsV3) {
+    SettingsV3.mount(document.getElementById("settings-v3-root"));
+    wireSettingsV3Profiles($("#main"));
+    wireSettingsV3Data($("#main"));
   }
   if (navContext.route === "settings") wireSettingsSavedObjects($("#main"));
   if (uiState.popupOpen) openPopup();
@@ -10124,6 +11729,7 @@ function bindScreenActions(root) {
   root.querySelectorAll("[data-action]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
+      if (action && action.startsWith("settings-")) return;
       if (action === "open-map-default") {
         const vm = requireViewModel();
         openMap({
@@ -10680,8 +12286,20 @@ if (action === "cmp-notes-hide") {
         }
         return;
       }
-      if (action === "settings-profile-composite") {
-        window.alert("Create Composite selects two or more birth profiles and creates a new profile record. Source profiles are never modified. Backend wiring coming soon.");
+      if (action === "settings-profile-open") {
+        const crId = btn.getAttribute("data-chart-record");
+        if (!crId) return;
+        selectProfile(crId);
+        navigate("chart-record", { chartRecordId: crId });
+        return;
+      }
+      if (action === "settings-fav-folder-toggle") {
+        const folderId = btn.getAttribute("data-folder-id");
+        if (!folderId) return;
+        const collapsed = _settingsSavedObjState.favorites.collapsedFolders || new Set();
+        if (collapsed.has(folderId)) collapsed.delete(folderId); else collapsed.add(folderId);
+        _settingsSavedObjState.favorites.collapsedFolders = collapsed;
+        render();
         return;
       }
       if (action === "settings-profile-default") {
@@ -10750,33 +12368,9 @@ if (action === "cmp-notes-hide") {
           const map = loadFavoriteFolderMap();
           Object.keys(map).forEach((k) => { if (map[k] === folderId) delete map[k]; });
           saveFavoriteFolderMap(map);
-          if (_settingsSavedObjState.favorites.folderId === folderId) _settingsSavedObjState.favorites.folderId = null;
+          
           render();
         })();
-        return;
-      }
-      if (action === "settings-fav-folder-filter") {
-        _settingsSavedObjState.favorites.folderId = btn.getAttribute("data-folder-id") || null;
-        render();
-        return;
-      }
-      if (action === "settings-fav-move-folder") {
-        const favId = btn.getAttribute("data-favorite-id");
-        const folders = loadFavoriteFolders();
-        if (!folders.length) { window.alert("Create a folder first."); return; }
-        const labels = folders.map((f, i) => `${i + 1}. ${f.name}`).join("\n");
-        const choice = window.prompt(`Move to folder:\n${labels}\n\nEnter folder number, or 0 for Unfiled`);
-        if (choice === null) return;
-        const idx = parseInt(choice, 10);
-        const map = loadFavoriteFolderMap();
-        if (idx === 0) delete map[favId]; else if (idx >= 1 && idx <= folders.length) map[favId] = folders[idx - 1].id;
-        else return;
-        saveFavoriteFolderMap(map);
-        render();
-        return;
-      }
-      if (action === "settings-fav-rename") {
-        window.alert("Favorite rename uses the place display label. Full rename API coming soon.");
         return;
       }
       if (action === "settings-fav-archive") {
@@ -11239,8 +12833,21 @@ function showGuidedOnboarding() {
   modal.setAttribute("aria-hidden", "false");
 }
 
+function isOnboardingSuppressedRoute(route) {
+  return route === "settings" || route === "settings-v3";
+}
+
+function hideGuidedOnboarding() {
+  var modal = document.getElementById("guidedOnboardingModal");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+}
+
 function maybeShowGuidedOnboarding() {
   if (isGuidedOnboardingDismissed()) return;
+  if (isOnboardingSuppressedRoute(navContext.route)) return;
   showGuidedOnboarding();
 }
 
@@ -11497,6 +13104,24 @@ window.__rmAppShell = {
   hydrateComparisonOverlayFavorites,
 
   createComparisonSetFromPlaceIds,
+
+  refreshSettingsV3ProfilesPanel,
+  wireSettingsV3Profiles,
+  refreshSettingsV3DataHub,
+  wireSettingsV3Data,
+  openSettingsV3DataManage,
+  closeSettingsV3DataManage,
+  settingsDataHubCounts,
+};
+
+window.__rmSettingsV3Bridge = {
+  ensureDelegation: () => ensureSettingsDataDelegation(),
+  refreshProfiles: () => refreshSettingsV3ProfilesPanel(),
+  refreshDataHub: () => refreshSettingsV3DataHub(),
+  collectProfileItems: () => collectSettingsProfileItems(),
+  dataHubCounts: () => settingsDataHubCounts(),
+  openDataManage: (kind) => openSettingsV3DataManage(kind),
+  closeDataManage: () => closeSettingsV3DataManage(),
 };
 
 bootstrap();
