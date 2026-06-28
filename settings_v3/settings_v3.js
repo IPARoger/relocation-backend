@@ -453,8 +453,8 @@
       });
     }
 
-    const active = parseSectionFromHash();
-    setNavActive(rootEl, active);
+    onHashChange(rootEl);
+    requestAnimationFrame(() => scrollToSection(parseSectionFromHash()));
 
     if (typeof bridge().ensureDelegation === "function") bridge().ensureDelegation();
     if (typeof bridge().refreshProfiles === "function") bridge().refreshProfiles();

@@ -3603,25 +3603,20 @@ function closePopup() {
 }
 
 
-function renderNav() {
-  const nav = $("#primaryNav");
-  nav.innerHTML = "";
-  const routes = navContext.route === "chart-record"
-    ? PROFILE_BETA_NAV
-    : navContext.route === "chart"
-      ? RELOCATED_BETA_NAV
-      : navContext.route === "compare"
-        ? COMPARISON_BETA_NAV
-        : NAV_ROUTES;
+function populateAppNavHost(host, routes, activeRouteId) {
+  if (!host) return;
+  host.innerHTML = "";
   routes.forEach((r) => {
     const a = document.createElement("button");
     a.type = "button";
-    a.className = "linkish" + (navContext.route === r.id ? " active" : "") + (r.disabled ? " rm-nav-disabled" : "");
+    a.className = "linkish"
+      + (activeRouteId === r.id ? " active" : "")
+      + (r.disabled ? " rm-nav-disabled" : "");
     a.textContent = r.label;
     if (r.disabled) {
       a.disabled = true;
       a.setAttribute("data-nav-route", r.id);
-      nav.appendChild(a);
+      host.appendChild(a);
       return;
     }
     a.addEventListener("click", () => {
@@ -3634,13 +3629,10 @@ function renderNav() {
           returnTo: null,
         });
       } else if (r.id === "map") {
-        // Primary "Map" nav opens the real production map (map_CURRENT.html),
-        // not the in-shell placeholder. Use active record when available,
-        // otherwise the account default.
         openMap({
           chartRecordId: navContext.chartRecordId || (viewModel && viewModel.selectedChartRecordId) || null,
           explorationId: null,
-          source: "primary nav → production map",
+          source: "settings-v3 app nav \u2192 production map",
         });
       } else if (r.id === "compare") {
         const cmpCr = navContext.chartRecordId
@@ -3677,11 +3669,25 @@ function renderNav() {
       } else {
         navigate(/** @type {Route} */ (r.id));
       }
-
     });
     a.setAttribute("data-nav-route", r.id);
-    nav.appendChild(a);
+    host.appendChild(a);
   });
+}
+
+function renderNav() {
+  const nav = $("#primaryNav");
+  const routes = navContext.route === "chart-record" || navContext.route === "settings-v3"
+    ? PROFILE_BETA_NAV
+    : navContext.route === "chart"
+      ? RELOCATED_BETA_NAV
+      : navContext.route === "compare"
+        ? COMPARISON_BETA_NAV
+        : NAV_ROUTES;
+  populateAppNavHost(nav, routes, navContext.route);
+  if (navContext.route === "settings-v3") {
+    populateAppNavHost(document.getElementById("settings-v3-app-nav"), PROFILE_BETA_NAV, null);
+  }
 }
 
 function screenDashboard() {
@@ -10933,6 +10939,7 @@ function screenSettingsV3() {
       <header class="topbar">
         <span class="brand">Relocation</span>
         <span class="crumb">· Settings</span>
+        <nav class="settings-v3-app-nav" id="settings-v3-app-nav" aria-label="App pages"></nav>
         <span class="acct">${acct} ▾</span>
       </header>
       <div class="wrap">

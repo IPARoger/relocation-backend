@@ -1,5 +1,10 @@
 /* Settings V3 — prototype_settings_v2.html visual shell (scoped) */
 
+body.settings-v3-active .shell-banner,
+body.settings-v3-active .shell-footer {
+  display: none !important;
+}
+
 body.settings-v3-active header.app-header,
 body.settings-v3-active nav.primary-nav,
 body.settings-v3-active .screen-meta {
@@ -52,8 +57,48 @@ body.settings-v3-active {
   font-size: 14px;
 }
 
-.settings-v3-root .acct {
+
+.settings-v3-root .settings-v3-app-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.settings-v3-root .settings-v3-app-nav .linkish {
+  font: inherit;
+  font-size: 13px;
+  color: var(--th-ink-soft, var(--muted, #6a5f4f));
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 11px;
+  cursor: pointer;
+}
+
+.settings-v3-root .settings-v3-app-nav .linkish:hover {
+  background: color-mix(in srgb, var(--th-warm, #c9a86c) 18%, transparent);
+  color: var(--th-ink, var(--fg, #33291f));
+}
+
+.settings-v3-root .settings-v3-app-nav .linkish.active {
+  color: var(--th-ink, var(--fg, #33291f));
+  font-weight: 600;
+  background: color-mix(in srgb, var(--th-warm, #c9a86c) 18%, transparent);
+}
+
+.settings-v3-root .settings-v3-app-nav .linkish.rm-nav-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.settings-v3-root [id^="sec-"] {
+  scroll-margin-top: 72px;
+}
+
+.settings-v3-root .acct {
+  margin-left: 0;
   font-size: 13.5px;
   color: var(--th-ink-soft, var(--muted, #6a5f4f));
 }
