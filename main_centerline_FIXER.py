@@ -4608,6 +4608,47 @@ def api_archive_saved_investigation(request: Request, body: SavedInvestigationAr
         ) from err
 
 
+
+class ProfileUpdateWithBirth(BaseModel):
+    profile_id: str
+    display_name: str
+    birth_date: str
+    birth_time_mode: str = "exact"
+    birth_place_id: str
+    birth_time_start: str | None = None
+    timezone_id: str | None = None
+
+
+@app.post("/profiles/update-with-birth")
+def api_update_profile_with_birth(request: Request, body: ProfileUpdateWithBirth):
+    jwt_token = _jwt_from_request(request)
+    from repositories.account_profiles_repository import (
+        ProfileCreateError,
+        update_profile_with_birth,
+    )
+
+    try:
+        return update_profile_with_birth(
+            jwt_token,
+            profile_id=body.profile_id,
+            display_name=body.display_name,
+            birth_date=body.birth_date,
+            birth_time_mode=body.birth_time_mode,
+            birth_place_id=body.birth_place_id,
+            birth_time_start=body.birth_time_start,
+            timezone_id=body.timezone_id,
+        )
+    except ProfileCreateError as err:
+        if err.reason in ("auth_user_missing", "account_missing"):
+            status = 401
+        elif err.reason in ("profile_not_found", "birth_record_not_found", "place_not_found"):
+            status = 404
+        else:
+            status = 422
+        detail = {"error": err.reason, "message": str(err)}
+        raise HTTPException(status_code=status, detail=detail) from err
+
+
 class ProfileRenameOwned(BaseModel):
     profile_id: str
     display_name: str

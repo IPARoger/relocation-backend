@@ -202,6 +202,102 @@ def _compute_replacement_profile_id(active, profile_id, current_default):
     return replacement_id, replacement
 
 
+
+def update_profile_with_birth(
+    jwt_token: str,
+    profile_id: str,
+    display_name: str,
+    birth_date: str,
+    birth_time_mode: str,
+    birth_place_id: str,
+    birth_time_start: str = None,
+    timezone_id: str = None,
+) -> dict:
+    """Update an owned profile display name and its active birth record."""
+    client = get_supabase_for_user(jwt_token)
+    account_id, _account_user_id = _resolve_account_ctx(client, jwt_token)
+
+    name = (display_name or "").strip()
+    if not name:
+        raise ProfileCreateError("display_name is required", "invalid_display_name")
+    if not birth_date:
+        raise ProfileCreateError("birth_date is required", "invalid_birth_date")
+    if not birth_place_id:
+        raise ProfileCreateError("birth_place_id is required", "invalid_birth_place_id")
+
+    mode = (birth_time_mode or "").strip().lower()
+    if mode not in ("exact", "unknown"):
+        raise ProfileCreateError(
+            "birth_time_mode must be exact or unknown", "invalid_birth_time_mode",
+        )
+    if mode == "exact" and not birth_time_start:
+        raise ProfileCreateError(
+            "birth_time_start is required when birth_time_mode is exact",
+            "birth_time_required",
+        )
+
+    _require_owned_active_profile(client, account_id, profile_id)
+    _require_place(client, birth_place_id)
+
+    now = _utc_now_iso()
+    profile_result = (
+        client.table("profiles")
+        .update({"display_name": name, "updated_at": now})
+        .eq("id", profile_id)
+        .eq("account_id", account_id)
+        .is_("archived_at", "null")
+        .execute()
+    )
+    if getattr(profile_result, "error", None) or not profile_result.data:
+        raise ProfileCreateError(
+            f"could not update profile: {getattr(profile_result, 'error', 'no data')}",
+            "profile_update_failed",
+        )
+
+    birth_rows = (
+        client.table("birth_records")
+        .select("id")
+        .eq("profile_id", profile_id)
+        .eq("account_id", account_id)
+        .is_("archived_at", "null")
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    ).data or []
+    if not birth_rows:
+        raise ProfileCreateError("birth record not found", "birth_record_not_found")
+    birth_id = birth_rows[0]["id"]
+
+    birth_payload = {
+        "birth_date": birth_date,
+        "birth_time_mode": mode,
+        "birth_place_id": birth_place_id,
+        "birth_time_start": birth_time_start if mode == "exact" else None,
+        "timezone_id": timezone_id,
+        "updated_at": now,
+    }
+    birth_result = (
+        client.table("birth_records")
+        .update(birth_payload)
+        .eq("id", birth_id)
+        .eq("profile_id", profile_id)
+        .eq("account_id", account_id)
+        .execute()
+    )
+    if getattr(birth_result, "error", None) or not birth_result.data:
+        raise ProfileCreateError(
+            f"could not update birth record: {getattr(birth_result, 'error', 'no data')}",
+            "birth_record_update_failed",
+        )
+
+    return {
+        "profile_id": profile_id,
+        "birth_record_id": birth_id,
+        "display_name": name,
+        "birth_place_id": birth_place_id,
+        "status": "updated",
+    }
+
 def rename_profile(jwt_token: str, profile_id: str, display_name: str) -> dict:
     """Rename an active owned profile."""
     client = get_supabase_for_user(jwt_token)
