@@ -1,0 +1,16 @@
+  /* SETTINGS-V3 — Charts section (PR #23 port — merge into app_shell.html <style>) */
+  .rm-sv3-bodies-table .rm-sv3-bodies-tbl,
+  .rm-sv3-bodies-table .rm-sv3-bodies-cht { width: 72px; text-align: center; }
+  .rm-sv3-oa-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .rm-sv3-oa-table th, .rm-sv3-oa-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .rm-sv3-oa-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; }
+  .rm-sv3-oa-table th.rm-sv3-oa-name-h { text-align: left; font-weight: 600; }
+  .rm-sv3-oa-table .rm-sv3-oa-tbl,
+  .rm-sv3-oa-table .rm-sv3-oa-cht,
+  .rm-sv3-oa-table .rm-sv3-oa-orb { width: 72px; text-align: center; }
+  .rm-sv3-oa-table .rm-sv3-oa-tbl input,
+  .rm-sv3-oa-table .rm-sv3-oa-cht input { width: auto; margin: 0; }
+  .rm-sv3-oa-table .rm-sv3-oa-orb input { width: 52px; max-width: 100%; padding: 4px 6px; margin: 0; text-align: center; font-size: 12px; }
+  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-tbl,
+  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-cht,
+  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-orb { opacity: 0.55; }

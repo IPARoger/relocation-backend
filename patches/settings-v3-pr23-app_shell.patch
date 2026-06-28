@@ -1,0 +1,650 @@
+diff --git a/app_shell.html b/app_shell.html
+index 467d941..02d57f8 100644
+--- a/app_shell.html
++++ b/app_shell.html
+@@ -121,6 +121,49 @@
+   .settings-subpage { max-width: 720px; }
+   details.rm-settings-more-points { margin-top: 8px; }
+   details.rm-settings-more-points > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
++  /* SETTINGS-V3 — Charts section */
++  body.rm-sv3-settings { --sv3-ink: #33291f; --sv3-muted: #6a5f4f; --sv3-line: #ddd0b8; }
++  .rm-sv3-root { max-width: 820px; }
++  .rm-sv3-root .settings-layout { grid-template-columns: 180px 1fr; }
++  .rm-sv3-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
++  .rm-sv3-card h4 { margin: 0 0 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
++  .rm-sv3-bodies-table { width: 100%; border-collapse: collapse; font-size: 13px; }
++  .rm-sv3-bodies-table th, .rm-sv3-bodies-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
++  .rm-sv3-bodies-table th { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
++  .rm-sv3-bodies-table tr.rm-sv3-group td { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-top: 12px; border-bottom: none; background: transparent; }
++  .rm-sv3-bodies-table input[type=checkbox] { width: auto; margin: 0; accent-color: var(--accent); }
++  .rm-sv3-bodies-table .rm-sv3-bodies-tbl,
++  .rm-sv3-bodies-table .rm-sv3-bodies-cht { width: 72px; text-align: center; }
++  .rm-sv3-bodies-table tr.is-locked { opacity: 0.55; }
++  .rm-sv3-advanced { margin-top: 10px; }
++  .rm-sv3-advanced > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); padding: 6px 0; list-style-position: outside; }
++  .rm-sv3-advanced[open] > summary { margin-bottom: 8px; }
++  .rm-sv3-zodiac-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
++  .rm-sv3-zodiac-row label.block { flex: 1; min-width: 160px; max-width: 280px; margin-bottom: 0; }
++  .rm-sv3-oa { margin-top: 4px; }
++  .rm-sv3-oa-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
++  .rm-sv3-oa-table th, .rm-sv3-oa-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
++  .rm-sv3-oa-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; }
++  .rm-sv3-oa-table th.rm-sv3-oa-name-h { text-align: left; font-weight: 600; }
++  .rm-sv3-oa-table .rm-sv3-oa-tbl,
++  .rm-sv3-oa-table .rm-sv3-oa-cht,
++  .rm-sv3-oa-table .rm-sv3-oa-orb { width: 72px; text-align: center; }
++  .rm-sv3-oa-table .rm-sv3-oa-tbl input,
++  .rm-sv3-oa-table .rm-sv3-oa-cht input { width: auto; margin: 0; }
++  .rm-sv3-oa-table .rm-sv3-oa-orb input { width: 52px; max-width: 100%; padding: 4px 6px; margin: 0; text-align: center; font-size: 12px; }
++  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-tbl,
++  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-cht,
++  .rm-sv3-oa-table tr.is-locked .rm-sv3-oa-orb { opacity: 0.55; }
++  .rm-sv3-oa-minor-wrap { margin-top: 10px; }
++  .rm-sv3-oa-options { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
++  .rm-sv3-oa-options label.block { display: flex; align-items: center; gap: 8px; margin-bottom: 0; font-size: 13px; color: var(--fg); }
++  .rm-sv3-oa-options label.block input[type=checkbox] { width: auto; margin: 0; }
++  .rm-sv3-oa-options .rm-sv3-advanced-only { display: none; }
++  .rm-sv3-root.rm-sv3-advanced-open .rm-sv3-oa-options .rm-sv3-advanced-only { display: block; }
++  .rm-sv3-oa-options .rm-sv3-advanced-only label.block { margin-left: 24px; }
++  .rm-sv3-advanced-calc { margin-top: 4px; }
++  .rm-sv3-advanced-calc .rm-sv3-calc-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
++  .rm-sv3-advanced-calc .rm-sv3-calc-row:first-child { border-top: none; }
+   .settings-save-bar { position: sticky; bottom: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); padding: 12px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+   .badge-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 999px; background: var(--future); color: var(--muted); font-weight: 600; }
+   .hint-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin: 0 4px; border: 1px solid var(--line); }
+@@ -1464,6 +1507,7 @@ const ALL_ROUTES = /** @type {const} */ ([
+   { id: "help", label: "Help & Learn", screen: "Help & Learn" },
+   { id: "profiles", label: "Profiles", screen: "Profile Management" },
+   { id: "notes-library", label: "Notes Library", screen: "Notes Library" },
++  { id: "settings-v3", label: "Settings V3", screen: "Settings V3 (Charts)" },
+ ]);
+ 
+ /**
+@@ -1558,6 +1602,12 @@ const ROUTE_CONTEXT_CONTRACT = {
+     explorationId: "none",
+     comparisonSetId: "none",
+   },
++  "settings-v3": {
++    chartRecordId: "optional",
++    placeId: "none",
++    explorationId: "none",
++    comparisonSetId: "none",
++  },
+ };
+ 
+ const NAV_CONTEXT_KEYS = /** @type {const} */ ([
+@@ -1571,6 +1621,7 @@ const NAV_CONTEXT_KEYS = /** @type {const} */ ([
+ let navContext = {
+   route: "dashboard",
+   settingsSubpage: null,
++  settingsV3Subpage: null,
+   chartRecordId: null,
+   placeId: null,
+   explorationId: null,
+@@ -2202,9 +2253,15 @@ function parseLocation() {
+     const rawSub = pathSegments[1];
+     settingsSubpage = SETTINGS_SUB_ALIASES[rawSub] || rawSub;
+   }
++  const VALID_SETTINGS_V3_SUB = new Set(["charts"]);
++  let settingsV3Subpage = null;
++  if (route === "settings-v3") {
++    settingsV3Subpage = (pathSegments[1] && VALID_SETTINGS_V3_SUB.has(pathSegments[1])) ? pathSegments[1] : "charts";
++  }
+   return {
+     route,
+     settingsSubpage,
++    settingsV3Subpage,
+     chartRecordId: params.get("chartRecordId"),
+     placeId: params.get("placeId"),
+     explorationId: params.get("explorationId"),
+@@ -2225,7 +2282,9 @@ function buildLocationHash(ctx) {
+   if (returnEnc) params.set("returnTo", returnEnc);
+   const qs = params.toString();
+   const sub = ctx.route === "settings" && ctx.settingsSubpage ? `/${ctx.settingsSubpage}` : "";
+-  return `#/${ctx.route}${sub}${qs ? `?${qs}` : ""}`;
++  const subV3 = ctx.route === "settings-v3" && ctx.settingsV3Subpage ? `/${ctx.settingsV3Subpage}` : "";
++  const pathSub = sub || subV3;
++  return `#/${ctx.route}${pathSub}${qs ? `?${qs}` : ""}`;
+ }
+ 
+ /**
+@@ -2311,6 +2370,9 @@ function normalizeNavContext(partial) {
+         ? normalizeSettingsSubpage(partial.settingsSubpage)
+         : null)
+       : null,
++    settingsV3Subpage: route === "settings-v3"
++      ? (partial.settingsV3Subpage !== undefined ? (partial.settingsV3Subpage || "charts") : "charts")
++      : null,
+     chartRecordId: partial.chartRecordId || null,
+     placeId: partial.placeId || null,
+     explorationId: partial.explorationId || null,
+@@ -6907,6 +6969,444 @@ const SETTINGS_SUBPAGE_RENDERERS = {
+   technical() { return SETTINGS_SUBPAGE_RENDERERS.data(); },
+ };
+ 
++
++// ── SETTINGS-V3 Charts (4A foundation + 4B cleanup) ─────────────────────
++const SETTINGS_V3_SECTIONS = [
++  { id: "charts", label: "Charts", title: "Charts", desc: "Bodies, orbs, aspects, zodiac, and house system." },
++];
++
++const SV3_MAIN_PLANETS = [
++  ["sun", "Sun"], ["moon", "Moon"], ["mercury", "Mercury"], ["venus", "Venus"],
++  ["mars", "Mars"], ["jupiter", "Jupiter"], ["saturn", "Saturn"],
++  ["uranus", "Uranus"], ["neptune", "Neptune"], ["pluto", "Pluto"],
++];
++const SV3_ANGLES = [
++  ["asc", "ASC"], ["mc", "MC"], ["ic", "IC"], ["dc", "DC"],
++];
++const SV3_ABOVE_FOLD_BODIES = [
++  ["chiron", "Chiron", true],
++  ["north_node", "North Node", false],
++  ["south_node", "South Node", false],
++];
++const SV3_ADVANCED_BODIES = [
++  ["lilith", "Lilith"],
++  ["true_node", "True Node"],
++  ["vertex", "Vertex"],
++  ["part_of_fortune", "Part of Fortune"],
++];
++const SV3_MAJOR_ASPECTS = [
++  ["conjunction", "Conjunction", 8], ["opposition", "Opposition", 8], ["square", "Square", 8],
++  ["trine", "Trine", 8], ["sextile", "Sextile", 6],
++];
++const SV3_MINOR_ASPECTS = [
++  ["quincunx", "Quincunx", 3], ["semisextile", "Semi-sextile", 2], ["semisquare", "Semi-square", 2],
++  ["sesquiquadrate", "Sesquiquadrate", 2], ["quintile", "Quintile", 2], ["biquintile", "Biquintile", 2],
++  ["septile", "Septile", 2], ["novile", "Novile", 2],
++];
++
++function _sv3Eff() {
++  return _settingsEff();
++}
++
++function _sv3Helper(key, fallback) {
++  const eff = _sv3Eff();
++  const hl = (eff && eff.helper_layers && typeof eff.helper_layers === "object") ? eff.helper_layers : {};
++  return hl[key] != null ? hl[key] : fallback;
++}
++
++function sv3BodiesHeadHtml() {
++  return `<thead><tr><th>Name</th><th class="rm-sv3-bodies-tbl">Tables</th><th class="rm-sv3-bodies-cht">Chart</th></tr></thead>`;
++}
++
++function sv3BodyRow(id, label, tblOn, chtOn, kind) {
++  const lockAttr = ' disabled aria-disabled="true" data-sv3-advanced-lock="1"';
++  return `<tr class="is-locked">
++    <td>${escapeHtml(label)}</td>
++    <td class="rm-sv3-bodies-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></td>
++    <td class="rm-sv3-bodies-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></td>
++  </tr>`;
++}
++
++function settingsV3BodiesHtml() {
++  const eff = _sv3Eff();
++  const planets = (eff && Array.isArray(eff.visible_planets)) ? eff.visible_planets : SV3_MAIN_PLANETS.map(([id]) => id);
++  const bodies = (eff && Array.isArray(eff.visible_bodies)) ? eff.visible_bodies : [];
++  const hl = (eff && eff.helper_layers) || {};
++  const chartPlanets = Array.isArray(hl.chart_planets) ? hl.chart_planets : planets.slice();
++  const chartBodies = Array.isArray(hl.chart_bodies) ? hl.chart_bodies : bodies.slice();
++  const advBodies = (hl.advanced_bodies && typeof hl.advanced_bodies === "object") ? hl.advanced_bodies : {};
++  const advChart = (hl.advanced_bodies_chart && typeof hl.advanced_bodies_chart === "object") ? hl.advanced_bodies_chart : {};
++  const planetRows = SV3_MAIN_PLANETS.map(([id, label]) => {
++    const tblOn = planets.indexOf(id) !== -1;
++    const chtOn = chartPlanets.indexOf(id) !== -1;
++    return sv3BodyRow(id, label, tblOn, chtOn, "planet");
++  }).join("");
++  const foldRows = SV3_ABOVE_FOLD_BODIES.map(([id, label, defaultOn]) => {
++    let tblOn = defaultOn;
++    if (id === "chiron") tblOn = bodies.indexOf("chiron") !== -1 || bodies.length === 0;
++    if (id === "north_node") tblOn = bodies.indexOf("north_node") !== -1;
++    if (id === "south_node") tblOn = bodies.indexOf("south_node") !== -1;
++    const chtOn = chartBodies.indexOf(id) !== -1 || (id === "chiron" && chartBodies.length === 0 && tblOn);
++    return sv3BodyRow(id, label, tblOn, chtOn, "body");
++  }).join("");
++  const advRows = SV3_ADVANCED_BODIES.map(([id, label]) => {
++    const tblOn = !!advBodies[id];
++    const chtOn = !!advChart[id];
++    return sv3BodyRow(id, label, tblOn, chtOn, "advbody");
++  }).join("");
++  return `
++    <div class="rm-sv3-card" id="rm-sv3-bodies">
++      <h4>Bodies &amp; Angles</h4>
++      <table class="rm-sv3-bodies-table simple">
++        ${sv3BodiesHeadHtml()}
++        <tbody>
++          ${planetRows}
++          ${foldRows}
++        </tbody>
++      </table>
++      <details class="rm-sv3-advanced" id="rm-sv3-advanced-bodies">
++        <summary>Advanced Bodies</summary>
++        <table class="rm-sv3-bodies-table simple">
++          ${sv3BodiesHeadHtml()}
++          <tbody>${advRows}</tbody>
++        </table>
++      </details>
++    </div>`;
++}
++
++function settingsV3ZodiacHouseHtml() {
++  const eff = _sv3Eff();
++  const zodiac = (eff && eff.zodiac_mode) || "tropical";
++  const house = (eff && eff.house_system) || "placidus";
++  return `
++    <div class="rm-sv3-card" id="rm-sv3-zodiac">
++      <h4>Zodiac / House System</h4>
++      <div class="rm-sv3-zodiac-row">
++        <label class="block">Zodiac
++          <select id="rm-sv3-zodiac-mode">
++            <option value="tropical"${zodiac === "tropical" ? " selected" : ""}>Tropical</option>
++            <option value="sidereal" disabled aria-disabled="true">Sidereal</option>
++          </select>
++        </label>
++        <label class="block">House system
++          <select id="rm-sv3-house-system">
++            <option value="placidus"${house === "placidus" ? " selected" : ""}>Placidus</option>
++            <option value="whole_sign" disabled>Whole Sign</option>
++            <option value="equal" disabled>Equal</option>
++            <option value="koch" disabled>Koch</option>
++          </select>
++        </label>
++      </div>
++    </div>`;
++}
++
++function sv3OaHeadHtml() {
++  return `<thead><tr>
++    <th class="rm-sv3-oa-name-h"></th>
++    <th class="rm-sv3-oa-tbl rm-sv3-oa-h-tables">Tables</th>
++    <th class="rm-sv3-oa-cht rm-sv3-oa-h-chart">Chart</th>
++    <th class="rm-sv3-oa-orb rm-sv3-oa-h-orb">Orb</th>
++  </tr></thead>`;
++}
++
++function sv3AspectRow(kind, id, label, orbVal, tblOn, chtOn, opts) {
++  const o = opts || {};
++  const isMajor = kind === "maj";
++  const lockMajor = isMajor && o.lockMajor !== false;
++  const lockAttr = lockMajor ? ' disabled aria-disabled="true" data-sv3-major-lock="1"' : "";
++  const lockCls = lockMajor ? " is-locked" : "";
++  const orbDis = (isMajor && lockMajor) || o.orbDisabled ? ' disabled aria-disabled="true"' + (isMajor ? ' data-sv3-major-lock="1"' : "") : "";
++  return `<tr class="rm-sv3-oa-row${lockCls}" data-sv3-aspect-row="${kind}-${id}">
++    <td class="rm-sv3-oa-label">${escapeHtml(label)}</td>
++    <td class="rm-sv3-oa-tbl"><input type="checkbox" id="rm-sv3-${kind}tbl-${id}"${tblOn ? " checked" : ""}${lockAttr} /></td>
++    <td class="rm-sv3-oa-cht"><input type="checkbox" id="rm-sv3-${kind}cht-${id}"${chtOn ? " checked" : ""}${lockAttr} /></td>
++    <td class="rm-sv3-oa-orb"><input type="number" id="rm-sv3-${kind}orb-${id}" min="0" max="15" step="0.5" value="${orbVal}"${orbDis} /></td>
++  </tr>`;
++}
++
++function settingsV3OrbsAspectsHtml() {
++  const eff = _sv3Eff();
++  const majVis = (eff && Array.isArray(eff.visible_major_aspects)) ? eff.visible_major_aspects : [];
++  const minVis = (eff && Array.isArray(eff.visible_minor_aspects_list)) ? eff.visible_minor_aspects_list : [];
++  const majOrb = (eff && eff.major_aspect_orbs) || {};
++  const minOrb = (eff && eff.minor_aspect_orbs) || {};
++  const num = (v, d) => (v == null ? d : v);
++  const hl = (eff && eff.helper_layers) || {};
++  const chartMaj = Array.isArray(hl.chart_major_aspects) ? hl.chart_major_aspects : majVis;
++  const chartMin = Array.isArray(hl.chart_minor_aspects) ? hl.chart_minor_aspects : minVis;
++  const lateAlert = _sv3Helper("show_late_in_house_alert", true) !== false;
++  const lateOrb = (eff && eff.house_proximity_orb_degrees != null) ? eff.house_proximity_orb_degrees : 2;
++  const oos = eff ? !!eff.out_of_sign_aspects : false;
++  const showA2a = _sv3Helper("show_aspects_to_angles", true) !== false;
++  const majorTblOn = (id) => (majVis.length ? majVis.indexOf(id) !== -1 : true);
++  const majorChtOn = (id) => (chartMaj.length ? chartMaj.indexOf(id) !== -1 : majorTblOn(id));
++  const majorRows = SV3_MAJOR_ASPECTS.map(([id, label, d]) =>
++    sv3AspectRow("maj", id, label, num(majOrb[id], d), majorTblOn(id), majorChtOn(id), { lockMajor: true })
++  ).join("");
++  const minorRows = SV3_MINOR_ASPECTS.map(([id, label, d]) =>
++    sv3AspectRow("min", id, label, num(minOrb[id], d), minVis.indexOf(id) !== -1, chartMin.indexOf(id) !== -1, { lockMajor: false })
++  ).join("");
++  return `
++    <div class="rm-sv3-card" id="rm-sv3-orbs">
++      <h4>Orbs &amp; Aspects</h4>
++      <div class="rm-sv3-oa">
++        <table class="rm-sv3-oa-table simple">
++          ${sv3OaHeadHtml()}
++          <tbody>${majorRows}</tbody>
++        </table>
++        <details class="rm-sv3-advanced rm-sv3-oa-minor-wrap" id="rm-sv3-advanced-orbs">
++          <summary>Advanced Orbs &amp; Aspects</summary>
++          <table class="rm-sv3-oa-table simple">
++            ${sv3OaHeadHtml()}
++            <tbody>${minorRows}</tbody>
++          </table>
++        </details>
++        <div class="rm-sv3-oa-options">
++          <label class="block"><input type="checkbox" id="rm-sv3-late-alert"${lateAlert ? " checked" : ""} /> Show late-in-house planet alert</label>
++          <div class="rm-sv3-advanced-only">
++            <label class="block">Late-house orb adjustment
++              <input type="number" id="rm-sv3-late-orb" min="0" max="10" step="0.5" value="${lateOrb}" disabled aria-disabled="true" data-sv3-advanced-lock="1" style="max-width:80px;" />
++            </label>
++          </div>
++          <label class="block"><input type="checkbox" id="rm-sv3-oos-aspects"${oos ? " checked" : ""} /> Show out-of-sign aspects</label>
++          <label class="block"><input type="checkbox" id="rm-sv3-show-a2a"${showA2a ? " checked" : ""} /> Show aspects to angles</label>
++        </div>
++      </div>
++    </div>`;
++}
++
++function settingsV3AdvancedCalcHtml() {
++  const eff = _sv3Eff();
++  const minorMaster = eff ? !!eff.visible_minor_aspects : false;
++  return `
++    <div class="rm-sv3-card rm-sv3-advanced-calc" id="rm-sv3-advanced-calc">
++      <h4>Advanced Calculation Settings</h4>
++      <details class="rm-sv3-advanced" id="rm-sv3-advanced-calc-panel">
++        <summary>Advanced</summary>
++        <div class="rm-sv3-calc-row">
++          <span>Direction-aware subsequent house</span>
++          ${settingsSoonBadge()}
++        </div>
++        <label class="block" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
++          <input type="checkbox" id="rm-sv3-minor-master"${minorMaster ? " checked" : ""} />
++          Enable minor aspect calculations
++        </label>
++        <p class="meta" style="margin:8px 0 0;font-size:11px;">Minor aspects, custom orbs, and house system are configured in the sections above.</p>
++      </details>
++    </div>`;
++}
++
++function settingsV3ChartsBodyHtml() {
++  return settingsV3BodiesHtml()
++    + settingsV3ZodiacHouseHtml()
++    + settingsV3OrbsAspectsHtml()
++    + settingsV3AdvancedCalcHtml();
++}
++
++function settingsV3NavHtml(activeId) {
++  return SETTINGS_V3_SECTIONS.map((s) => {
++    const active = activeId === s.id ? " active" : "";
++    return `<button type="button" class="linkish settings-nav-item${active}" data-settings-v3-sub="${s.id}">${escapeHtml(s.label)}</button>`;
++  }).join("");
++}
++
++function settingsV3PageLayout(activeSub, title, subtitle, bodyHtml) {
++  return `
++    <div class="rm-sv3-root" data-settings-v3 id="rm-sv3-root">
++      <h2>Settings</h2>
++      <p class="purpose">Chart calculation preferences. Legacy settings remain at <button type="button" class="linkish" data-nav="settings">Settings</button>.</p>
++      <div class="settings-layout" data-settings-v3-framework>
++        <nav class="settings-nav" aria-label="Settings V3 sections">
++          ${settingsV3NavHtml(activeSub)}
++        </nav>
++        <div class="settings-sections settings-subpage">
++          <h3 class="settings-sec-title">${title}</h3>
++          <p class="settings-sec-sub">${subtitle}</p>
++          ${bodyHtml}
++          <div class="settings-save-bar row">
++            <button type="button" class="primary" data-action="save-settings-v3">Save Settings</button>
++            <button type="button" data-action="restore-settings-v3-defaults" style="margin-left:8px;">Restore Defaults</button>
++            <span id="rm-sv3-msg" class="meta" style="margin-left:12px;min-height:1.4em;"></span>
++          </div>
++          <div class="row" style="margin-top:16px;">
++            <button type="button" data-nav="dashboard">Back to app</button>
++          </div>
++        </div>
++      </div>
++    </div>`;
++}
++
++function applySettingsV3AdvancedState(root) {
++  const scope = root || document;
++  const bodiesOpen = !!scope.querySelector("#rm-sv3-advanced-bodies[open]");
++  const orbsOpen = !!scope.querySelector("#rm-sv3-advanced-orbs[open]");
++  const calcOpen = !!scope.querySelector("#rm-sv3-advanced-calc-panel[open]");
++  const anyOpen = bodiesOpen || orbsOpen || calcOpen;
++  const sv3Root = scope.querySelector("#rm-sv3-root");
++  if (sv3Root) sv3Root.classList.toggle("rm-sv3-advanced-open", anyOpen);
++  scope.querySelectorAll("[data-sv3-advanced-lock]").forEach((el) => {
++    if (anyOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
++    else { el.setAttribute("disabled", "disabled"); el.setAttribute("aria-disabled", "true"); }
++  });
++  scope.querySelectorAll("#rm-sv3-bodies tr.is-locked").forEach((row) => {
++    row.classList.toggle("is-locked", !anyOpen);
++  });
++  scope.querySelectorAll("[data-sv3-major-lock]").forEach((el) => {
++    if (orbsOpen) { el.removeAttribute("disabled"); el.removeAttribute("aria-disabled"); }
++    else { el.setAttribute("disabled", "disabled"); el.setAttribute("aria-disabled", "true"); }
++  });
++  scope.querySelectorAll(".rm-sv3-oa-row[data-sv3-aspect-row^='maj-']").forEach((row) => {
++    row.classList.toggle("is-locked", !orbsOpen);
++  });
++}
++
++function wireSettingsV3(root) {
++  const scope = root || document;
++  scope.querySelectorAll("[data-settings-v3-sub]").forEach((btn) => {
++    btn.addEventListener("click", () => {
++      const sub = btn.getAttribute("data-settings-v3-sub");
++      if (sub) navigate("settings-v3", { settingsV3Subpage: sub });
++    });
++  });
++  ["rm-sv3-advanced-bodies", "rm-sv3-advanced-orbs", "rm-sv3-advanced-calc-panel"].forEach((id) => {
++    const el = scope.getElementById(id);
++    if (!el || el.__sv3AdvWired) return;
++    el.__sv3AdvWired = true;
++    el.addEventListener("toggle", () => applySettingsV3AdvancedState(scope));
++  });
++  applySettingsV3AdvancedState(scope);
++}
++
++function collectSettingsV3Patch() {
++  /** @type {Record<string, unknown>} */
++  const patch = {};
++  const eff = _sv3Eff();
++  const planetIds = SV3_MAIN_PLANETS.map(([id]) => id);
++  const bodyIds = ["chiron", "north_node", "south_node"];
++  const advBodyIds = SV3_ADVANCED_BODIES.map(([id]) => id);
++  const anyAdvOpen = !!document.querySelector("#rm-sv3-advanced-bodies[open]")
++    || !!document.querySelector("#rm-sv3-advanced-orbs[open]")
++    || !!document.querySelector("#rm-sv3-advanced-calc-panel[open]");
++  const collectTbl = (kind, ids) => ids.filter((id) => {
++    const el = document.getElementById("rm-sv3-" + kind + "tbl-" + id);
++    return el ? !!el.checked : false;
++  });
++  const collectCht = (kind, ids) => ids.filter((id) => {
++    const el = document.getElementById("rm-sv3-" + kind + "cht-" + id);
++    return el ? !!el.checked : false;
++  });
++  if (anyAdvOpen) {
++    patch.visible_planets = collectTbl("planet", planetIds);
++    patch.visible_bodies = collectTbl("body", bodyIds);
++  } else {
++    patch.visible_planets = (eff && Array.isArray(eff.visible_planets))
++      ? eff.visible_planets.slice() : planetIds.slice();
++    patch.visible_bodies = (eff && Array.isArray(eff.visible_bodies))
++      ? eff.visible_bodies.slice() : ["chiron"];
++  }
++  const majorIds = SV3_MAJOR_ASPECTS.map(([id]) => id);
++  const minorIds = SV3_MINOR_ASPECTS.map(([id]) => id);
++  const orbsAdvOpen = !!document.querySelector("#rm-sv3-advanced-orbs[open]");
++  if (orbsAdvOpen) {
++    patch.visible_major_aspects = majorIds.filter((id) => {
++      const el = document.getElementById("rm-sv3-majtbl-" + id);
++      return el ? !!el.checked : false;
++    });
++    patch.visible_minor_aspects_list = minorIds.filter((id) => {
++      const el = document.getElementById("rm-sv3-mintbl-" + id);
++      return el ? !!el.checked : false;
++    });
++  } else {
++    const eff = _sv3Eff();
++    patch.visible_major_aspects = (eff && Array.isArray(eff.visible_major_aspects))
++      ? eff.visible_major_aspects.slice() : majorIds.slice();
++    patch.visible_minor_aspects_list = (eff && Array.isArray(eff.visible_minor_aspects_list))
++      ? eff.visible_minor_aspects_list.slice() : [];
++  }
++  const minorMaster = document.getElementById("rm-sv3-minor-master");
++  if (minorMaster) patch.visible_minor_aspects = !!minorMaster.checked;
++  const collectOrbs = (kind, ids, allowDisabled) => {
++    const out = {};
++    ids.forEach((id) => {
++      const el = document.getElementById("rm-sv3-" + kind + "orb-" + id);
++      if (!el) return;
++      if (!allowDisabled && el.disabled) return;
++      const n = parseFloat(el.value);
++      if (!isNaN(n)) out[id] = n;
++    });
++    return out;
++  };
++  let mo = collectOrbs("maj", majorIds, orbsAdvOpen);
++  if (!Object.keys(mo).length) {
++    const eff = _sv3Eff();
++    mo = Object.assign({}, (eff && eff.major_aspect_orbs) || {});
++  }
++  if (Object.keys(mo).length) patch.major_aspect_orbs = mo;
++  const mno = collectOrbs("min", minorIds, orbsAdvOpen);
++  if (Object.keys(mno).length) patch.minor_aspect_orbs = mno;
++  const oosEl = document.getElementById("rm-sv3-oos-aspects");
++  if (oosEl) patch.out_of_sign_aspects = !!oosEl.checked;
++  const lateOrbEl = document.getElementById("rm-sv3-late-orb");
++  if (lateOrbEl && !lateOrbEl.disabled) {
++    const n = parseFloat(lateOrbEl.value);
++    if (!isNaN(n)) patch.house_proximity_orb_degrees = n;
++  }
++  const showA2aEl = document.getElementById("rm-sv3-show-a2a");
++  const lateAlertEl = document.getElementById("rm-sv3-late-alert");
++  const hl = Object.assign({}, (eff && eff.helper_layers) || {});
++  if (showA2aEl) hl.show_aspects_to_angles = !!showA2aEl.checked;
++  if (lateAlertEl) hl.show_late_in_house_alert = !!lateAlertEl.checked;
++  if (anyAdvOpen) {
++    hl.chart_planets = collectCht("planet", planetIds);
++    hl.chart_bodies = collectCht("body", bodyIds);
++    const advBodies = {};
++    const advChart = {};
++    advBodyIds.forEach((id) => {
++      const tbl = document.getElementById("rm-sv3-advbodytbl-" + id);
++      const cht = document.getElementById("rm-sv3-advbodycht-" + id);
++      if (tbl && tbl.checked) advBodies[id] = true;
++      if (cht && cht.checked) advChart[id] = true;
++    });
++    hl.advanced_bodies = advBodies;
++    hl.advanced_bodies_chart = advChart;
++  }
++  if (orbsAdvOpen) {
++    hl.chart_major_aspects = majorIds.filter((id) => {
++      const el = document.getElementById("rm-sv3-majcht-" + id);
++      return el ? !!el.checked : false;
++    });
++    hl.chart_minor_aspects = minorIds.filter((id) => {
++      const el = document.getElementById("rm-sv3-mincht-" + id);
++      return el ? !!el.checked : false;
++    });
++  } else {
++    const effHl = (eff && eff.helper_layers) || {};
++    hl.chart_major_aspects = Array.isArray(effHl.chart_major_aspects)
++      ? effHl.chart_major_aspects.slice()
++      : majorIds.slice();
++    hl.chart_minor_aspects = Array.isArray(effHl.chart_minor_aspects)
++      ? effHl.chart_minor_aspects.slice() : [];
++  }
++  patch.helper_layers = hl;
++  if (showA2aEl) {
++    const on = !!showA2aEl.checked;
++    const prev = (eff && eff.display_aspects_to_angles) || { asc: true, mc: true, dsc: false, ic: false };
++    patch.display_aspects_to_angles = on
++      ? { asc: prev.asc !== false, mc: prev.mc !== false, dsc: !!prev.dsc, ic: !!prev.ic }
++      : { asc: false, mc: false, dsc: false, ic: false };
++  }
++  return patch;
++}
++
++function screenSettingsV3() {
++  const sub = navContext.settingsV3Subpage || "charts";
++  if (sub === "charts") {
++    return settingsV3PageLayout("charts", "Charts", "Bodies, orbs, aspects, zodiac, and house system.", settingsV3ChartsBodyHtml());
++  }
++  return settingsV3PageLayout("charts", "Charts", "Bodies, orbs, aspects, zodiac, and house system.", settingsV3ChartsBodyHtml());
++}
++
++
+ function screenSettings() {
+   const sub = normalizeSettingsSubpage(navContext.settingsSubpage);
+   if (!sub) return settingsLandingHtml();
+@@ -7453,6 +7953,7 @@ const SCREEN_RENDERERS = {
+   compare: screenCompare,
+   export: screenExport,
+   settings: screenSettings,
++  "settings-v3": screenSettingsV3,
+   "birth-data": screenBirthData,
+   future: screenFuture,
+   help: screenHelp,
+@@ -7526,10 +8027,19 @@ function render() {
+     acctBtn.classList.add("rm-beta-acct-circle");
+     acctBtn.textContent = accountInitials();
+     acctBtn.setAttribute("title", (window.CurrentUser && window.CurrentUser.accountName) || "Account");
++  } else if (navContext.route === "settings-v3") {
++    document.body.classList.remove("rm-beta-profile");
++    document.body.classList.remove("rm-beta-relocated");
++    document.body.classList.remove("rm-beta-compare");
++    document.body.classList.add("rm-sv3-settings");
++    acctBtn.classList.remove("rm-beta-acct-circle");
++    acctBtn.textContent = "Account";
++    acctBtn.removeAttribute("title");
+   } else {
+     document.body.classList.remove("rm-beta-profile");
+     document.body.classList.remove("rm-beta-relocated");
+     document.body.classList.remove("rm-beta-compare");
++    document.body.classList.remove("rm-sv3-settings");
+     acctBtn.classList.remove("rm-beta-acct-circle");
+     acctBtn.textContent = "Account";
+     acctBtn.removeAttribute("title");
+@@ -7542,6 +8052,7 @@ function render() {
+   if (navContext.route === "chart-record") wireChartRecordFavoriteCompare($("#main"));
+   if (navContext.route === "compare") mountComparisonLocationSearch();
+   if (navContext.route === "notes-library") wireNotesLibrary($("#main"));
++  if (navContext.route === "settings-v3") wireSettingsV3($("#main"));
+   if (uiState.popupOpen) openPopup();
+ }
+ 
+@@ -7686,6 +8197,7 @@ function bindScreenActions(root) {
+       if (placeId) patch.placeId = placeId;
+       else if (place) patch.placeId = resolvePlaceIdFromDisplayName(place);
+       if (route === "settings") patch.settingsSubpage = null;
++      if (route === "settings-v3") patch.settingsV3Subpage = "charts";
+       if (route === "compare") {
+         navigate(/** @type {Route} */ (route), patch, { pushReturn: true, skipComparisonOverlay: true });
+       } else if (route) {
+@@ -8327,6 +8839,40 @@ if (action === "cmp-notes-hide") {
+           if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
+         });
+       }
++      if (action === "save-settings-v3") {
++        const msgEl = document.getElementById("rm-sv3-msg");
++        if (msgEl) msgEl.textContent = "Saving…";
++        const patch = collectSettingsV3Patch();
++        applyAccountSettingsPatch(patch, null).then(() => {
++          if (msgEl) msgEl.textContent = "✓ Saved.";
++        }).catch((err) => {
++          if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
++        });
++      }
++      if (action === "restore-settings-v3-defaults") {
++        const msgEl = document.getElementById("rm-sv3-msg");
++        if (!window.confirm("Restore default astrology settings? This replaces your saved astrology preferences.")) return;
++        if (msgEl) msgEl.textContent = "Restoring…";
++        let patch;
++        try {
++          patch = buildAstrologyDefaultsRestorePatch();
++          const defs = (window.RMSettings && window.RMSettings.DEFAULTS) || {};
++          patch.helper_layers = Object.assign({
++            show_late_in_house_alert: true,
++            show_aspects_to_angles: true,
++            chart_major_aspects: defs.visible_major_aspects || [],
++            chart_minor_aspects: [],
++          }, defs.helper_layers || {});
++        } catch (err) {
++          if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
++          return;
++        }
++        applyAccountSettingsPatch(patch, null).then(() => {
++          if (msgEl) msgEl.textContent = "✓ Restored defaults.";
++        }).catch((err) => {
++          if (msgEl) msgEl.textContent = "Error: " + (err.message || String(err));
++        });
++      }
+       if (action === "restore-astrology-defaults") {
+         const msgEl = document.getElementById("rm-settings-msg");
+         if (!window.confirm("Restore default astrology settings? This replaces your saved astrology preferences.")) return;
