@@ -1,0 +1,100 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; font-size: 14px; color: #1f2937; background: #f8fafc; }
+  .rm-sv3-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px; max-width: 520px; }
+  .rm-sv3-card h4 { margin: 0 0 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; }
+  input, select { font: inherit; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 4px; }
+  input:disabled { opacity: 0.55; background: #f3f4f6; }
+/* SETTINGS-V3 — Charts section */
+  body.rm-sv3-settings { --sv3-ink: #33291f; --sv3-muted: #6a5f4f; --sv3-line: #ddd0b8; }
+  .rm-sv3-root { max-width: 820px; }
+  .rm-sv3-root .settings-layout { grid-template-columns: 180px 1fr; }
+  .rm-sv3-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .rm-sv3-card h4 { margin: 0 0 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .rm-sv3-bodies-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rm-sv3-bodies-table th, .rm-sv3-bodies-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+  .rm-sv3-bodies-table th { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .rm-sv3-bodies-table tr.rm-sv3-group td { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-top: 12px; border-bottom: none; background: transparent; }
+  .rm-sv3-bodies-table input[type=checkbox] { width: auto; margin: 0; accent-color: var(--accent); }
+  .rm-sv3-bodies-table tr.is-locked { opacity: 0.55; }
+  .rm-sv3-advanced { margin-top: 10px; }
+  .rm-sv3-advanced > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); padding: 6px 0; list-style-position: outside; }
+  .rm-sv3-advanced[open] > summary { margin-bottom: 8px; }
+  .rm-sv3-zodiac-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+  .rm-sv3-zodiac-row label.block { flex: 1; min-width: 160px; max-width: 280px; margin-bottom: 0; }
+  .rm-sv3-oa { margin-top: 4px; }
+  .rm-sv3-oa-grid { display: grid; grid-template-columns: minmax(120px, 1.5fr) 72px 72px 72px; gap: 0; align-items: center; }
+  .rm-sv3-oa-head { display: contents; }
+  .rm-sv3-oa-head .rm-sv3-oa-h-spacer { grid-column: 1; }
+  .rm-sv3-oa-head .rm-sv3-oa-h-tables { grid-column: 2; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-head .rm-sv3-oa-h-chart { grid-column: 3; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-head .rm-sv3-oa-h-orb { grid-column: 4; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-row { display: contents; }
+  .rm-sv3-oa-row .rm-sv3-oa-label { grid-column: 1; padding: 7px 8px 7px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-row .rm-sv3-oa-tbl { grid-column: 2; padding: 4px; text-align: center; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-row .rm-sv3-oa-cht { grid-column: 3; padding: 4px; text-align: center; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-row .rm-sv3-oa-orb { grid-column: 4; padding: 4px; text-align: center; border-bottom: 1px solid var(--line); }
+  .rm-sv3-oa-row .rm-sv3-oa-tbl input,
+  .rm-sv3-oa-row .rm-sv3-oa-cht input { width: auto; margin: 0; }
+  .rm-sv3-oa-row .rm-sv3-oa-orb input { width: 52px; max-width: 100%; padding: 4px 6px; margin: 0; text-align: center; font-size: 12px; }
+  .rm-sv3-oa-row.is-locked .rm-sv3-oa-tbl,
+  .rm-sv3-oa-row.is-locked .rm-sv3-oa-cht,
+  .rm-sv3-oa-row.is-locked .rm-sv3-oa-orb { opacity: 0.55; }
+  .rm-sv3-oa-minor-wrap { margin-top: 10px; }
+  .rm-sv3-oa-minor-wrap .rm-sv3-oa-grid { margin-top: 8px; }
+  .rm-sv3-oa-options { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+  .rm-sv3-oa-options label.block { display: flex; align-items: center; gap: 8px; margin-bottom: 0; font-size: 13px; color: var(--fg); }
+  .rm-sv3-oa-options label.block input[type=checkbox] { width: auto; margin: 0; }
+  .rm-sv3-oa-options .rm-sv3-advanced-only { display: none; }
+  .rm-sv3-root.rm-sv3-advanced-open .rm-sv3-oa-options .rm-sv3-advanced-only { display: block; }
+  .rm-sv3-oa-options .rm-sv3-advanced-only label.block { margin-left: 24px; }
+  .rm-sv3-advanced-calc { margin-top: 4px; }
+  .rm-sv3-advanced-calc .rm-sv3-calc-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .rm-sv3-advanced-calc .rm-sv3-calc-row:first-child { border-top: none; }
+  </style></head><body>
+<div class="rm-sv3-root" id="rm-sv3-root">
+  <div class="rm-sv3-card"><h4>Orbs &amp; Aspects</h4>
+    <div class="rm-sv3-oa"><div class="rm-sv3-oa-grid">
+      <div class="rm-sv3-oa-head">
+        <div class="rm-sv3-oa-h-spacer"></div>
+        <div class="rm-sv3-oa-h-tables">Tables</div>
+        <div class="rm-sv3-oa-h-chart">Chart</div>
+        <div class="rm-sv3-oa-h-orb">Orb</div>
+      </div>
+      <div class="rm-sv3-oa-row is-locked">
+        <div class="rm-sv3-oa-label">Conjunction</div>
+        <div class="rm-sv3-oa-tbl"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-cht"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-orb"><input type="number" value="10" disabled></div>
+      </div>
+      <div class="rm-sv3-oa-row is-locked">
+        <div class="rm-sv3-oa-label">Opposition</div>
+        <div class="rm-sv3-oa-tbl"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-cht"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-orb"><input type="number" value="10" disabled></div>
+      </div>
+      <div class="rm-sv3-oa-row is-locked">
+        <div class="rm-sv3-oa-label">Square</div>
+        <div class="rm-sv3-oa-tbl"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-cht"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-orb"><input type="number" value="8" disabled></div>
+      </div>
+      <div class="rm-sv3-oa-row is-locked">
+        <div class="rm-sv3-oa-label">Trine</div>
+        <div class="rm-sv3-oa-tbl"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-cht"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-orb"><input type="number" value="8" disabled></div>
+      </div>
+      <div class="rm-sv3-oa-row is-locked">
+        <div class="rm-sv3-oa-label">Sextile</div>
+        <div class="rm-sv3-oa-tbl"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-cht"><input type="checkbox" checked disabled></div>
+        <div class="rm-sv3-oa-orb"><input type="number" value="6" disabled></div>
+      </div>
+    </div>
+    <details class="rm-sv3-advanced rm-sv3-oa-minor-wrap" style="margin-top:10px;">
+      <summary>Advanced Orbs &amp; Aspects</summary>
+    </details>
+    </div>
+  </div>
+</div></body></html>
