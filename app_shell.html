@@ -401,6 +401,23 @@
     border: none;
     box-shadow: none;
   }
+  body.rm-beta-compare .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 28px 12px;
+    background: rgba(253,248,238,.82);
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: none;
+    border-bottom: 1px solid rgba(221,208,184,.7);
+  }
   body.rm-beta-profile .primary-nav,
   body.rm-beta-relocated .primary-nav,
   body.rm-beta-compare .primary-nav {
@@ -524,6 +541,7 @@
 
   /* H4B — Comparison authority shell (scoped to #/compare) */
   body.rm-beta-compare {
+    --rm-nav-h: 52px;
     --rm-ink: #33291f;
     --rm-ink-soft: #6a5f4f;
     --rm-ink-faint: #9b9080;
@@ -613,16 +631,23 @@
     margin-top: 4px;
     line-height: 1.45;
   }
-  body.rm-beta-compare .city-bar-wrap {
+  body.rm-beta-compare .cmp-city-bar-sticky {
     position: sticky;
-    top: 0;
+    top: var(--rm-nav-h);
     z-index: 50;
-    background: rgba(253,248,238,.92);
+    margin: 0 -28px 20px;
+    padding: 8px 28px 0;
+    background: rgba(253,248,238,.98);
+    isolation: isolate;
+  }
+  body.rm-beta-compare .city-bar-wrap {
+    position: relative;
+    background: rgba(253,248,238,.98);
     backdrop-filter: blur(10px);
     border-top: 1px solid var(--rm-line);
     border-bottom: 2px solid var(--rm-ink);
-    margin: 8px -28px 20px;
-    padding: 0 28px;
+    margin: 0;
+    padding: 0;
     overflow-x: auto;
     box-shadow: 0 8px 20px -18px rgba(51,41,31,.36);
   }
@@ -721,7 +746,7 @@
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="ais"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="pih"] { display: none !important; }
   body.rm-beta-compare .rm-cmp-section[data-cmp-section="a2a"] { display: none !important; }
-  body.rm-beta-compare .comparison-main { margin-top: 4px; }
+  body.rm-beta-compare .comparison-main { margin-top: 4px; position: relative; z-index: 1; }
   body.rm-beta-compare .cmp-block { margin-top: 28px; }
   body.rm-beta-compare .cmp-block-header {
     display: flex;
@@ -5912,7 +5937,7 @@ function screenCompare() {
     <div class="cmp-profile-block">
       ${renderComparisonZoneBHtml(origin)}
     </div>
-    <div id="rm-cmp-city-bar-mount">${cityBarHtml}</div>
+    <div class="cmp-city-bar-sticky"><div id="rm-cmp-city-bar-mount">${cityBarHtml}</div></div>
     ${cs && ws ? `<div class="comparison-main" id="rm-cmp-comparison-main">${renderComparisonAisBlockShellHtml(ws)}${renderComparisonPihBlockShellHtml(ws)}${renderComparisonA2aBlockShellHtml(ws)}</div>` : ""}
     <div class="rm-comparison-beta-body">
     <div class="rm-comparison-legacy-chrome">
