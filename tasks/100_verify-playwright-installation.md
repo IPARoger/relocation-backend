@@ -6,17 +6,17 @@
 
 ## Objective
 
-Verify the installation of Playwright to ensure the required tools are set up for future testing tasks.
+Verify the installation of Playwright.
 
 ## Scope
 
-- Playwright installation checks
+- Check the integration of Playwright with the current setup.
 - Relay data rule applies: read-only / diagnosis-only unless explicitly authorized in this task.
 
 ## Files to read
 
 - 51_install-playwright.md
-- 51_install-playwright.md (for additional context)
+- 51_install-playwright.md
 
 ## Files expected to change
 
@@ -25,7 +25,7 @@ Verify the installation of Playwright to ensure the required tools are set up fo
 ## Required behavior
 
 1. Confirm that Playwright is installed correctly.
-2. Document any installation issues or discrepancies found during the verification.
+2. Execute a test script to ensure Playwright functions as expected in the current environment.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,16 +40,16 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Provide evidence of successful Playwright installation by checking the version of Playwright installed, or include a diagnostic output if any issues arise.
+- Document the results of the Playwright installation check and any test script results as evidence.
 
 ## Rollback plan
 
-- No rollback necessary as this task is read-only diagnostic.
+- N/A since this is a verification task with no changes made.
 
 ## Closeout required (Cursor writes this into results/)
 
-- files changed: NONE  
-- validation evidence: Confirmation of Playwright installation or issue report  
-- rollback command: N/A  
-- rejected scope: N/A  
-- VERIFIED or NOT VERIFIED: N/A
+- files changed
+- validation evidence
+- rollback command
+- rejected scope
+- VERIFIED or NOT VERIFIED
