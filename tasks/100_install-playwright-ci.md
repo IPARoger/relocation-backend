@@ -6,26 +6,26 @@
 
 ## Objective
 
-Install Playwright to ensure CI testing capabilities.
+Install Playwright CI tooling to enable smoke tests.
 
 ## Scope
 
-- Install Playwright for CI use. 
+- CI setup for Playwright 
 - Relay data rule applies: read-only / diagnosis-only unless explicitly authorized in this task.
 
 ## Files to read
 
 - 51_install-playwright.md
-- 62_install-playwright-ci.md
+- 51_install-playwright-ci.md
 
 ## Files expected to change
 
-- 62_install-playwright-ci.md 
+- 51_install-playwright-ci.md 
 
 ## Required behavior
 
-1. Review the current Playwright installation requirements.
-2. Update the `62_install-playwright-ci.md` to include any missing installation steps.
+1. Review the installation instructions in the provided files.
+2. Execute the installation steps outlined to set up Playwright for CI testing.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,11 +40,12 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Confirm the completion of Playwright setup steps in `62_install-playwright-ci.md`.
+- Check that Playwright is correctly installed and configured for CI.
+- Confirm that smoke tests can be executed using the new setup.
 
 ## Rollback plan
 
-- Revert changes made in the `62_install-playwright-ci.md` if the installation does not succeed.
+- Remove the Playwright installation or revert any configuration changes made during the install process.
 
 ## Closeout required (Cursor writes this into results/)
 
