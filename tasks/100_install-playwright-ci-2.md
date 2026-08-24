@@ -6,26 +6,26 @@
 
 ## Objective
 
-Install Playwright CI tooling to enable browser testing infrastructure.
+Install Playwright for CI to enable automated testing.
 
 ## Scope
 
-- CI tooling installation and verification
+- CI testing environment
 - Relay data rule applies: read-only / diagnosis-only unless explicitly authorized in this task.
 
 ## Files to read
 
 - 51_install-playwright.md
-- 62_install-playwright-ci.md
+- 51_install-playwright-ci.md
 
 ## Files expected to change
 
-- 62_install-playwright-ci.md
+- 51_install-playwright-ci.md
 
 ## Required behavior
 
-1. Verify that Playwright is properly installed and configured for CI use.
-2. Document the installation process and confirm functionality with a test run if possible.
+1. Check for existing Playwright installation in CI.
+2. Update the CI configuration to use Playwright for testing.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,12 +40,11 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Confirm successful installation by running a sample Playwright script.
-- Check the CI configuration for any errors or warnings.
+- Verify that Playwright is successfully installed by running a basic test script in the CI environment.
 
 ## Rollback plan
 
-- Revert changes made in 62_install-playwright-ci.md if installation fails or causes errors.
+- Revert changes made to `51_install-playwright-ci.md` if the installation fails.
 
 ## Closeout required (Cursor writes this into results/)
 
