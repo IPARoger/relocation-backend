@@ -2,30 +2,31 @@
 
 **Author:** ChatGPT (tasks/ lane)  
 **Model (suggested):** Auto  
-**Status:** Proposed (awaiting human commit)
+**Status:** Proposed (awaiting human commit)  
 
 ## Objective
 
-Install Playwright for CI environment.
+Install Playwright CI tooling to support end-to-end testing in the project.
 
 ## Scope
 
-- CI integration for testing with Playwright
+- Tools setup for end-to-end testing
 - Relay data rule applies: read-only / diagnosis-only unless explicitly authorized in this task.
 
 ## Files to read
 
-- 51_install-playwright.md
-- 61_install-playwright.md
+- `51_install-playwright.md`
+- `62_install-playwright-ci.md`
 
 ## Files expected to change
 
-- 61_install-playwright.md (for CI related updates)
+- `51_install-playwright.md`  
+- `62_install-playwright-ci.md`
 
 ## Required behavior
 
-1. Review existing installation steps for Playwright in the CI context.
-2. Document and implement any necessary adjustments to facilitate CI integration.
+1. Verify the current setup instructions for Playwright in the specified files.
+2. Implement necessary adjustments to ensure CI integration for Playwright.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,11 +41,11 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Confirm CI environment can successfully run Playwright tests post-installation.
+- Validate integration by running a sample Playwright test in the CI pipeline and confirming successful completion.
 
 ## Rollback plan
 
-- Revert changes made in 61_install-playwright.md if issues arise.
+- Revert changes in `51_install-playwright.md` and `62_install-playwright-ci.md` to their previous state prior to modifications.
 
 ## Closeout required (Cursor writes this into results/)
 
