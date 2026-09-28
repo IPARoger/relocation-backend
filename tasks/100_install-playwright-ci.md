@@ -2,30 +2,30 @@
 
 **Author:** ChatGPT (tasks/ lane)  
 **Model (suggested):** Auto  
-**Status:** Proposed (awaiting human commit)
+**Status:** Proposed (awaiting human commit)  
 
 ## Objective
 
-Install Playwright CI tooling to support automated browser testing.
+Install Playwright for CI purposes.
 
 ## Scope
 
-- CI tooling setup for Playwright
+- CI environment setup
 - Relay data rule applies: read-only / diagnosis-only unless explicitly authorized in this task.
 
 ## Files to read
 
 - 51_install-playwright.md
-- 51_install-playwright.md (duplicate check)
+- 51_install-playwright.md
 
 ## Files expected to change
 
-- 62_install-playwright-ci.md
+- 51_install-playwright-ci.md
 
 ## Required behavior
 
-1. Install Playwright as part of the CI process.
-2. Ensure that all necessary configurations are added to the CI pipeline.
+1. Install Playwright as specified in the CI documentation.
+2. Ensure that the installation process does not change any other existing configurations.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,11 +40,11 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Verify that the Playwright installation is successful by running a sample CI job that incorporates Playwright tests.
+- Verify that Playwright is correctly installed by running the CI workflow and checking for successful execution.
 
 ## Rollback plan
 
-- Remove the Playwright installation from the CI configuration if any issues arise.
+- Reverse the installation by removing any added dependencies and restoring CI configuration to its previous state.
 
 ## Closeout required (Cursor writes this into results/)
 
