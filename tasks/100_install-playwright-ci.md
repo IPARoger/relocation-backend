@@ -2,11 +2,11 @@
 
 **Author:** ChatGPT (tasks/ lane)  
 **Model (suggested):** Auto  
-**Status:** Proposed (awaiting human commit)  
+**Status:** Proposed (awaiting human commit)
 
 ## Objective
 
-Install Playwright for CI purposes.
+Install Playwright for CI environment.
 
 ## Scope
 
@@ -16,16 +16,16 @@ Install Playwright for CI purposes.
 ## Files to read
 
 - 51_install-playwright.md
-- 51_install-playwright.md
+- 63_install-playwright-ci.md
 
 ## Files expected to change
 
-- 51_install-playwright-ci.md
+- 63_install-playwright-ci.md
 
 ## Required behavior
 
-1. Install Playwright as specified in the CI documentation.
-2. Ensure that the installation process does not change any other existing configurations.
+1. Review the current installation documentation for Playwright.
+2. Create or update `63_install-playwright-ci.md` with the necessary steps for installing Playwright in the CI environment.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,11 +40,12 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Verify that Playwright is correctly installed by running the CI workflow and checking for successful execution.
+- Ensure `63_install-playwright-ci.md` is updated with clear installation steps.
+- Check for any errors or omissions in the documentation by running a CI test with Playwright.
 
 ## Rollback plan
 
-- Reverse the installation by removing any added dependencies and restoring CI configuration to its previous state.
+- Revert changes made to `63_install-playwright-ci.md` to its previous state.
 
 ## Closeout required (Cursor writes this into results/)
 
