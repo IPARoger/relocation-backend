@@ -6,26 +6,26 @@
 
 ## Objective
 
-Install Playwright for CI environment.
+Install Playwright for CI in the project.
 
 ## Scope
 
-- CI environment setup
+- CI tooling setup for testing
 - Relay data rule applies: read-only / diagnosis-only unless explicitly authorized in this task.
 
 ## Files to read
 
 - 51_install-playwright.md
-- 63_install-playwright-ci.md
+- 51_install-playwright.md
 
 ## Files expected to change
 
-- 63_install-playwright-ci.md
+- 62_install-playwright-ci.md
 
 ## Required behavior
 
-1. Review the current installation documentation for Playwright.
-2. Create or update `63_install-playwright-ci.md` with the necessary steps for installing Playwright in the CI environment.
+1. Review the current installation instructions for Playwright.
+2. Implement the installation steps as specified in the CI context.
 
 ## Hard stops (stop and ask — do not proceed)
 
@@ -40,12 +40,11 @@ This task is NOT authorized to perform any of the following. If the work appears
 
 ## Validation plan
 
-- Ensure `63_install-playwright-ci.md` is updated with clear installation steps.
-- Check for any errors or omissions in the documentation by running a CI test with Playwright.
+- Confirm successful installation by running `npx playwright install` and verifying that all browsers are installed for the CI environment.
 
 ## Rollback plan
 
-- Revert changes made to `63_install-playwright-ci.md` to its previous state.
+- Remove the Playwright installations from CI settings if any issues arise during installation.
 
 ## Closeout required (Cursor writes this into results/)
 
